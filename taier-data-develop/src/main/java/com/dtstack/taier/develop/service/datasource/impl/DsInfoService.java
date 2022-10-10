@@ -4,16 +4,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
-import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.dtstack.taier.datasource.api.base.ClientCache;
-import com.dtstack.taier.datasource.api.client.IClient;
-import com.dtstack.taier.datasource.api.dto.ColumnMetaDTO;
-import com.dtstack.taier.datasource.api.dto.SqlQueryDTO;
-import com.dtstack.taier.datasource.api.dto.source.ISourceDTO;
-import com.dtstack.taier.datasource.api.dto.source.Mysql5SourceDTO;
-import com.dtstack.taier.datasource.api.dto.source.OracleSourceDTO;
-import com.dtstack.taier.datasource.api.source.DataSourceType;
 import com.dtstack.taier.common.constant.FormNames;
 import com.dtstack.taier.common.enums.DataSourceTypeEnum;
 import com.dtstack.taier.common.exception.DtCenterDefException;
@@ -23,10 +14,19 @@ import com.dtstack.taier.common.exception.RdosDefineException;
 import com.dtstack.taier.common.thread.RdosThreadFactory;
 import com.dtstack.taier.common.util.DataSourceUtils;
 import com.dtstack.taier.dao.domain.DsInfo;
+import com.dtstack.taier.dao.domain.po.DaoPageParam;
 import com.dtstack.taier.dao.domain.po.DsListBO;
 import com.dtstack.taier.dao.domain.po.DsListQuery;
 import com.dtstack.taier.dao.mapper.DsInfoMapper;
 import com.dtstack.taier.dao.pager.PageResult;
+import com.dtstack.taier.datasource.api.base.ClientCache;
+import com.dtstack.taier.datasource.api.client.IClient;
+import com.dtstack.taier.datasource.api.dto.ColumnMetaDTO;
+import com.dtstack.taier.datasource.api.dto.SqlQueryDTO;
+import com.dtstack.taier.datasource.api.dto.source.ISourceDTO;
+import com.dtstack.taier.datasource.api.dto.source.Mysql5SourceDTO;
+import com.dtstack.taier.datasource.api.dto.source.OracleSourceDTO;
+import com.dtstack.taier.datasource.api.source.DataSourceType;
 import com.dtstack.taier.develop.bo.datasource.DsListParam;
 import com.dtstack.taier.develop.datasource.convert.load.SourceLoaderService;
 import com.dtstack.taier.develop.enums.develop.PatternType;
@@ -81,7 +81,6 @@ public class DsInfoService  extends ServiceImpl<DsInfoMapper, DsInfo> {
     private SourceLoaderService sourceLoaderService;
 
     // 数据源是否是默认数据源
-    private static final Long IS_META = 1L;
     private static final String DECIMAL_COLUMN = "%s(%s,%s)";
     private static final String SHOW_ORACLE_BINLOG_SQL = "SELECT * FROM (SELECT FIRST_CHANGE#,FIRST_TIME FROM v$log UNION SELECT FIRST_CHANGE#,FIRST_TIME FROM v$archived_log)tmp ORDER BY tmp.FIRST_TIME desc";
     private static final String SHOW_BINLOG_SQL = "show binary logs";
@@ -89,13 +88,12 @@ public class DsInfoService  extends ServiceImpl<DsInfoMapper, DsInfo> {
     public static final String KERBEROS_PATH = "kerberosDir";
 
 
-    private static final int CORE_POOL_SIZE = 8;
     private static final int MAX_POOL_SIZE = 8;
     private static final int QUEUE_CAPACITY = 16;
     private static final int KEEP_ALIVE = 60;
     private static final Integer TOPIC_MESSAGE_LENGTH = 5;
 
-    private static ThreadPoolExecutor executor = new ThreadPoolExecutor(CORE_POOL_SIZE, MAX_POOL_SIZE,
+    private static ThreadPoolExecutor executor = new ThreadPoolExecutor(1, MAX_POOL_SIZE,
             KEEP_ALIVE, TimeUnit.SECONDS, new LinkedBlockingQueue<>(QUEUE_CAPACITY),
             new RdosThreadFactory("kafka-consumer"), new ThreadPoolExecutor.DiscardOldestPolicy());
     /**
@@ -519,23 +517,6 @@ public class DsInfoService  extends ServiceImpl<DsInfoMapper, DsInfo> {
         return dataSource;
     }
 
-    /**
-     * 通过数据源主键id获取特定数据源
-     * @param dataInfoIdList
-     * @return
-     */
-    public List<DsInfo> getDsInfoListByIdList(List<Long> dataInfoIdList) {
-        List<DsInfo> dataSourceList = dsInfoMapper.getDsInfoListByIdList(dataInfoIdList);
-        if (org.apache.commons.collections.CollectionUtils.isEmpty(dataSourceList)) {
-            throw new PubSvcDefineException(ErrorCode.CAN_NOT_FIND_DATA_SOURCE);
-        }
-        return dataSourceList.stream().map(dataSource -> {
-            JSONObject dataSourceJson = DataSourceUtils.getDataSourceJson(dataSource.getDataJson());
-            dataSource.setDataJson(dataSourceJson.toJSONString());
-            return dataSource;
-        }).collect(Collectors.toList());
-    }
-
 
     /**
      * 判断当前数据源新增或者编辑是否有重名
@@ -640,16 +621,11 @@ public class DsInfoService  extends ServiceImpl<DsInfoMapper, DsInfo> {
         return records.stream().map(Object::toString).collect(Collectors.toList());
     }
 
-    /**
-     * 获取
-     *
-     * @param tenantId
-     * @return
-     */
-    public List<DsInfo> getAllMetaDataSourceListByTenantId(Long tenantId) {
-        return dsInfoMapper.selectList(Wrappers.lambdaQuery(DsInfo.class)
-                .eq(DsInfo::getTenantId, tenantId)
-                .eq(DsInfo::getIsMeta, IS_META));
-    }
 
+    public List<DsListVO> total(DsListParam dsListParam) {
+        dsListParam.setCurrentPage(1);
+        dsListParam.setPageSize(DaoPageParam.MAX_PAGE_SIZE);
+        PageResult<List<DsListVO>> listPageResult = dsPage(dsListParam);
+        return listPageResult.getData();
+    }
 }

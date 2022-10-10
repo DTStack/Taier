@@ -140,13 +140,13 @@ public class DevelopTaskResourceParamVO extends DtInsightAuthParam {
 
     @ApiModelProperty(value = "最后修改task的用户", example = "3")
     private Long modifyUserId;
-    
+
     @ApiModelProperty(value = "新建task的用户", example = "3")
     private Long createUserId;
-    
+
     @ApiModelProperty(value = "负责人id", example = "111")
     private Long ownerUserId;
-    
+
     @ApiModelProperty(value = "任务版本 ID", example = "14")
     private Integer version;
 
@@ -155,37 +155,37 @@ public class DevelopTaskResourceParamVO extends DtInsightAuthParam {
 
     @ApiModelProperty(value = "父节点 ID", example = "7")
     private Long parentId;
-    
+
     @ApiModelProperty(value = "任务描述", example = "tes")
     private String taskDesc;
-    
+
     @ApiModelProperty(value = "入口类", example = "1")
     private String mainClass;
 
     @ApiModelProperty(value = "参数 ID", example = "1")
     private String exeArgs;
-  
+
     @ApiModelProperty(value = " 所属工作流id", example = "1")
     private Long flowId = 0L;
-    
+
     @ApiModelProperty(value = "是否过期", hidden = true)
     private Integer isExpire;
 
     @ApiModelProperty(value = "租户 ID", hidden = true)
     private Long tenantId;
-   
+
     @ApiModelProperty(value = "平台类别", hidden = true)
     private Integer appType;
 
     @ApiModelProperty(value = "ID", hidden = true)
     private Long id;
-    
+
     @ApiModelProperty(value = "创建时间", hidden = true)
     private Timestamp gmtCreate;
-    
+
     @ApiModelProperty(value = "修改时间", hidden = true)
     private Timestamp gmtModified;
-    
+
     @ApiModelProperty(value = "是否删除", hidden = true)
     private Integer isDeleted = 0;
 
@@ -200,6 +200,7 @@ public class DevelopTaskResourceParamVO extends DtInsightAuthParam {
 
     @ApiModelProperty(value = "工作流依赖")
     private Map<Long, List<Long>> nodeMap;
+
     /**
      * 任务脏数据管理
      */
@@ -208,6 +209,17 @@ public class DevelopTaskResourceParamVO extends DtInsightAuthParam {
 
     @ApiModelProperty(value = "yarn队列名称")
     private String queueName;
+
+    @ApiModelProperty(value = "数据源ID")
+    private Long datasourceId;
+
+    public Long getDatasourceId() {
+        return datasourceId;
+    }
+
+    public void setDatasourceId(Long datasourceId) {
+        this.datasourceId = datasourceId;
+    }
 
     public String getQueueName() {
         return queueName;
@@ -663,8 +675,9 @@ public class DevelopTaskResourceParamVO extends DtInsightAuthParam {
     public void setComponentVersion(String componentVersion) {
         this.componentVersion = componentVersion;
     }
+
     public void setSource(List<JSONObject> source) {
-        this.source  = source;
+        this.source = source;
     }
 
     public List<JSONObject> getSource() {
@@ -672,7 +685,7 @@ public class DevelopTaskResourceParamVO extends DtInsightAuthParam {
     }
 
     public void setSink(List<JSONObject> sink) {
-        this.sink  = sink;
+        this.sink = sink;
     }
 
     public List<JSONObject> getSink() {
@@ -680,7 +693,7 @@ public class DevelopTaskResourceParamVO extends DtInsightAuthParam {
     }
 
     public void setSide(List<JSONObject> side) {
-        this.side  = side;
+        this.side = side;
     }
 
     public List<JSONObject> getSide() {

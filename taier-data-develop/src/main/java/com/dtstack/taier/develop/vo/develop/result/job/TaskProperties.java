@@ -13,8 +13,17 @@ public class TaskProperties {
     private List<String> formField;
     private ActionsCondition actionsCondition;
     private List<String> actions;
+    private List<Integer> dataTypeCodes;
     private List<String> barItem;
     private BarItemCondition barItemCondition;
+
+    public List<Integer> getDataTypeCodes() {
+        return dataTypeCodes;
+    }
+
+    public void setDataTypeCodes(List<Integer> dataTypeCodes) {
+        this.dataTypeCodes = dataTypeCodes;
+    }
 
     public BarItemCondition getBarItemCondition() {
         return barItemCondition;

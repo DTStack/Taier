@@ -11,9 +11,9 @@ import java.sql.Timestamp;
 
 
 @TableName("develop_task")
-public class Task  {
+public class Task {
 
-    @TableId(value="id", type= IdType.AUTO)
+    @TableId(value = "id", type = IdType.AUTO)
     private Long id;
 
     /**
@@ -105,21 +105,22 @@ public class Task  {
     /**
      * 任务类型 @see EScheduleJobType
      */
-    private Integer taskType ;
+    private Integer taskType;
 
     /**
      * 任务状态默认等待提交状态
+     *
      * @See TaskSubmitStatusEnum
      */
-    private Integer submitStatus ;
+    private Integer submitStatus;
 
     private String mainClass;
 
-     private String queueName;
+    private String queueName;
 
     private Timestamp gmtCreate;
 
-    @TableField(fill = FieldFill.INSERT_UPDATE, update = "now()",value = "gmt_modified")
+    @TableField(fill = FieldFill.INSERT_UPDATE, update = "now()", value = "gmt_modified")
     private Timestamp gmtModified;
 
     @TableLogic(value = "0", delval = "1")
@@ -129,6 +130,18 @@ public class Task  {
     private Long tenantId;
 
     private String jobId;
+
+    @TableField("datasource_id")
+    private Long datasourceId;
+
+    public Long getDatasourceId() {
+        return datasourceId;
+    }
+
+    public void setDatasourceId(Long datasourceId) {
+        this.datasourceId = datasourceId;
+    }
+
     public Long getId() {
         return id;
     }
