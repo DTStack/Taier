@@ -915,11 +915,31 @@ public class ConsoleComponentService {
         PartCluster cluster = clusterFactory.newImmediatelyLoadCluster(clusterId);
         Part part = cluster.create(componentType, versionName, storeType, deployType);
         List<ComponentConfig> componentConfigs = part.loadTemplate();
-        return componentConfigs.stream().map(c -> {
+        return buildDBDataToClientTemplate(componentConfigs);
+    }
+
+
+    /**
+     * 将数据库数据转换为前端展示的树结构
+     *
+     * @param componentConfigs
+     * @return
+     */
+    public static List<ClientTemplate> buildDBDataToClientTemplate(List<ComponentConfig> componentConfigs) {
+        if (org.springframework.util.CollectionUtils.isEmpty(componentConfigs)) {
+            return new ArrayList<>(0);
+        }
+        List<ClientTemplate> reduceTemplate = new ArrayList<>();
+        List<ComponentConfig> emptyDependencyValue = componentConfigs
+                .stream()
+                .filter(c -> StringUtils.isBlank(c.getDependencyKey()))
+                .collect(Collectors.toList());
+        for (ComponentConfig componentConfig : emptyDependencyValue) {
             ClientTemplate clientTemplate = new ClientTemplate();
-            BeanUtils.copyProperties(c, clientTemplate);
-            return clientTemplate;
-        }).collect(Collectors.toList());
+            BeanUtils.copyProperties(componentConfig, clientTemplate);
+            reduceTemplate.add(clientTemplate);
+        }
+        return reduceTemplate;
     }
 
 
