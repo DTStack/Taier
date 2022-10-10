@@ -245,6 +245,12 @@ public class DevelopTaskGetTaskByIdResultVO {
     @ApiModelProperty(value = "工作流任务依赖")
     private Map<Long, List<Long>> nodeMap;
 
+
+    /**
+     * yarn 队列名称
+     */
+    private String queueName;
+
     public Boolean getSubmitted() {
         return submitted;
     }
@@ -802,5 +808,13 @@ public class DevelopTaskGetTaskByIdResultVO {
 
     public void setNodeMap(Map<Long, List<Long>> nodeMap) {
         this.nodeMap = nodeMap;
+    }
+
+    public String getQueueName() {
+        return queueName;
+    }
+
+    public void setQueueName(String queueName) {
+        this.queueName = queueName;
     }
 }

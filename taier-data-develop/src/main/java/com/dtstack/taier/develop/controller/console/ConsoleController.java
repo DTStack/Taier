@@ -127,4 +127,9 @@ public class ConsoleController {
     public R<ClusterResource> clusterResources(@RequestParam("clusterId") Long clusterId) {
         return R.ok(consoleService.clusterResources(clusterId));
     }
+
+    @PostMapping(value = "/clusterResourcesByTenantId")
+    public R<ClusterResource> clusterResourcesByTenantId(@RequestParam("tenantId") Long tenantId) {
+        return R.ok(consoleService.clusterResourcesByTenantId(tenantId));
+    }
 }

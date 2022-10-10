@@ -21,6 +21,7 @@ package com.dtstack.taier.scheduler.service;
 import com.alibaba.fastjson.JSONObject;
 import com.dtstack.taier.common.enums.EComponentScheduleType;
 import com.dtstack.taier.common.enums.EComponentType;
+import com.dtstack.taier.common.enums.EDeployType;
 import com.dtstack.taier.common.enums.EScheduleJobType;
 import com.dtstack.taier.common.exception.ErrorCode;
 import com.dtstack.taier.common.exception.RdosDefineException;
@@ -179,6 +180,10 @@ public class ClusterService {
 
 
     public Boolean hasStandalone(Long tenantId, int typeCode) {
+        Long clusterId = clusterTenantMapper.getClusterIdByTenantId(tenantId);
+        if (null != clusterId) {
+            return null != componentMapper.getByClusterIdAndComponentType(clusterId, typeCode, null, EDeployType.STANDALONE.getType());
+        }
         return false;
     }
 

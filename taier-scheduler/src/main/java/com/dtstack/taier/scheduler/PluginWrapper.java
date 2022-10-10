@@ -19,6 +19,7 @@
 package com.dtstack.taier.scheduler;
 
 import com.alibaba.fastjson.JSONObject;
+import com.dtstack.taier.common.enums.EComponentType;
 import com.dtstack.taier.common.enums.EScheduleJobType;
 import com.dtstack.taier.common.util.TaskParamsUtils;
 import com.dtstack.taier.pluginapi.JobClient;
@@ -45,6 +46,9 @@ public class PluginWrapper {
         EDeployMode deployMode = EDeployMode.PERJOB;
         if (EScheduleJobType.SYNC.getType().equals(taskType)) {
             deployMode = TaskParamsUtils.parseDeployTypeByTaskParams(taskParam, computeType);
+        }
+        if (clusterService.hasStandalone(tenantId, EComponentType.FLINK.getTypeCode())) {
+            deployMode = EDeployMode.STANDALONE;
         }
         String componentVersionValue = scheduleDictService.convertVersionNameToValue(componentVersion, taskType);
         JSONObject pluginInfo = clusterService.pluginInfoJSON(tenantId, taskType, deployMode.getType(), componentVersionValue, queueName);

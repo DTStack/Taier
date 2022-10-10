@@ -112,6 +112,10 @@ public class ConsoleService {
     @Autowired
     private TenantMapper tenantMapper;
 
+
+    @Autowired
+    private ClusterTenantService clusterTenantService;
+
     @Autowired
     private WorkerOperator workerOperator;
 
@@ -447,6 +451,12 @@ public class ConsoleService {
         }
         JSONObject yarnConfigStr = componentService.getComponentByClusterId(cluster.getId(), EComponentType.YARN.getTypeCode(), false, JSONObject.class,null);
         return getResources(yarnComponent, cluster,yarnConfigStr);
+    }
+
+
+    public ClusterResource clusterResourcesByTenantId(Long tenantId) {
+        Long clusterId = clusterTenantService.getClusterIdByTenantId(tenantId);
+        return clusterResources(clusterId);
     }
 
     public ClusterResource getResources(Component yarnComponent, Cluster cluster,JSONObject componentConfig) {
