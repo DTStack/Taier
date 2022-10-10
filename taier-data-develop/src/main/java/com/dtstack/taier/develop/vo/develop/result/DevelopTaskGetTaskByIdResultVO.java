@@ -241,15 +241,25 @@ public class DevelopTaskGetTaskByIdResultVO {
     @ApiModelProperty(value = "脏数据")
     private TaskDirtyDataManageVO TaskDirtyDataManageVO;
 
-
     @ApiModelProperty(value = "工作流任务依赖")
     private Map<Long, List<Long>> nodeMap;
-
 
     /**
      * yarn 队列名称
      */
+    @ApiModelProperty(value = "yarn 队列名称")
     private String queueName;
+
+    @ApiModelProperty(value = "python 版本，2或者3")
+    private String pythonVersion;
+
+    public String getPythonVersion() {
+        return pythonVersion;
+    }
+
+    public void setPythonVersion(String pythonVersion) {
+        this.pythonVersion = pythonVersion;
+    }
 
     public Boolean getSubmitted() {
         return submitted;

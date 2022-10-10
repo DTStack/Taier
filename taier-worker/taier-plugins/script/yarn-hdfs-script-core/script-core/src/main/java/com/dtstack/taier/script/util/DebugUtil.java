@@ -1,0 +1,28 @@
+package com.dtstack.taier.script.util;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.PrintWriter;
+import java.io.StringWriter;
+
+public class DebugUtil {
+
+    private static final Logger LOG = LoggerFactory.getLogger(DebugUtil.class);
+
+    public static void pause() {
+        try {
+            Thread.sleep(Integer.MAX_VALUE);
+        } catch (InterruptedException e) {
+            LOG.error("DebugUtil.pause error:", e);
+        }
+    }
+
+    public static String stackTrace(Throwable throwable) {
+        StringWriter sw = new StringWriter();
+        PrintWriter pw = new PrintWriter(sw);
+        throwable.printStackTrace(pw);
+        return sw.toString();
+    }
+
+}

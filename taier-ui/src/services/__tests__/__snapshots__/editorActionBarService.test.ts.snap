@@ -1,0 +1,59 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`The editor actionBar service Should listen execute service 1`] = `
+Array [
+  Object {
+    "disabled": true,
+    "icon": "loading~spin",
+    "id": "task.run",
+    "name": "Running",
+    "title": "运行中",
+  },
+  Object {
+    "disabled": false,
+    "id": "task.stop",
+  },
+]
+`;
+
+exports[`The editor actionBar service Should listen execute service 2`] = `
+Array [
+  Object {
+    "disabled": false,
+    "icon": "play",
+    "id": "task.run",
+    "name": "Run Task",
+    "place": "outer",
+    "title": "运行",
+  },
+  Object {
+    "disabled": true,
+    "icon": "debug-pause",
+    "id": "task.stop",
+    "name": "Stop Task",
+    "place": "outer",
+    "title": "停止运行",
+  },
+]
+`;
+
+exports[`The editor actionBar service Should listen execute service 3`] = `
+Array [
+  Object {
+    "disabled": false,
+    "icon": "play",
+    "id": "task.run",
+    "name": "Run Task",
+    "place": "outer",
+    "title": "运行",
+  },
+  Object {
+    "disabled": true,
+    "icon": "debug-pause",
+    "id": "task.stop",
+    "name": "Stop Task",
+    "place": "outer",
+    "title": "停止运行",
+  },
+]
+`;

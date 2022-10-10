@@ -96,7 +96,7 @@
         <appender-ref ref="schedule" />
     </logger>
 
-    <logger name="com.dtstack.dtcenter.loader" level="error" additivity="false">
+    <logger name="com.dtstack.taier.datasource" level="error" additivity="false">
         <appender-ref ref="schedule" />
     </logger>
 

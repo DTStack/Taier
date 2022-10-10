@@ -35,6 +35,7 @@ import type {
 	UDF_TYPE_VALUES,
 	FLINK_VERSIONS,
 	DIRTY_DATA_SAVE,
+	PythonVersionKind,
 } from './constant';
 
 interface IUserProps {}
@@ -182,7 +183,8 @@ export interface IOfflineTaskProps
 	extends ISyncDataProps,
 		IFlinkSQLProps,
 		IWorkflowProps,
-		IFlinkProps {
+		IFlinkProps,
+		IPythonProps {
 	createUserId: number;
 	cron: string;
 	currentProject: boolean;
@@ -245,6 +247,13 @@ interface IFlinkProps {
 	mainClass?: string;
 	exeArgs?: string;
 	resourceIdList?: number[];
+}
+
+/**
+ * Python 任务类型
+ */
+interface IPythonProps {
+	pythonVersion?: PythonVersionKind;
 }
 
 /**
@@ -711,4 +720,8 @@ export enum RightBarKind {
 	 * 维表
 	 */
 	FLINKSQL_DIMENSION = 'flinksql_dimension',
+	/**
+	 * 队列管理
+	 */
+	QUEUE = 'queue',
 }

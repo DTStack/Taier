@@ -49,19 +49,19 @@ public abstract class BaseMetric implements IMetric {
     protected static Map<String, String> metricNameMap = new HashMap<>();
 
     static {
-        metricNameMap.put("conversionErrors", "flink_taskmanager_job_task_operator_flinkx_conversionErrors");
-        metricNameMap.put("duplicateErrors", "flink_taskmanager_job_task_operator_flinkx_duplicateErrors");
-        metricNameMap.put("nErrors", "flink_taskmanager_job_task_operator_flinkx_nErrors");
-        metricNameMap.put("nullErrors", "flink_taskmanager_job_task_operator_flinkx_nullErrors");
-        metricNameMap.put("numRead", "flink_taskmanager_job_task_operator_flinkx_numRead");
-        metricNameMap.put("numWrite", "flink_taskmanager_job_task_operator_flinkx_numWrite");
-        metricNameMap.put("otherErrors", "flink_taskmanager_job_task_operator_flinkx_otherErrors");
-        metricNameMap.put("byteRead", "flink_taskmanager_job_task_operator_flinkx_byteRead");
-        metricNameMap.put("byteWrite", "flink_taskmanager_job_task_operator_flinkx_byteWrite");
-        metricNameMap.put("readDuration", "flink_taskmanager_job_task_operator_flinkx_readDuration");
-        metricNameMap.put("writeDuration", "flink_taskmanager_job_task_operator_flinkx_writeDuration");
-        metricNameMap.put("endLocation", "flink_taskmanager_job_task_operator_flinkx_endLocation");
-        metricNameMap.put("startLocation", "flink_taskmanager_job_task_operator_flinkx_startLocation");
+        metricNameMap.put("conversionErrors", "flink_taskmanager_job_task_operator_chunjun_conversionErrors");
+        metricNameMap.put("duplicateErrors", "flink_taskmanager_job_task_operator_chunjun_duplicateErrors");
+        metricNameMap.put("nErrors", "flink_taskmanager_job_task_operator_chunjun_nErrors");
+        metricNameMap.put("nullErrors", "flink_taskmanager_job_task_operator_chunjun_nullErrors");
+        metricNameMap.put("numRead", "flink_taskmanager_job_task_operator_chunjun_numRead");
+        metricNameMap.put("numWrite", "flink_taskmanager_job_task_operator_chunjun_numWrite");
+        metricNameMap.put("otherErrors", "flink_taskmanager_job_task_operator_chunjun_otherErrors");
+        metricNameMap.put("byteRead", "flink_taskmanager_job_task_operator_chunjun_byteRead");
+        metricNameMap.put("byteWrite", "flink_taskmanager_job_task_operator_chunjun_byteWrite");
+        metricNameMap.put("readDuration", "flink_taskmanager_job_task_operator_chunjun_readDuration");
+        metricNameMap.put("writeDuration", "flink_taskmanager_job_task_operator_chunjun_writeDuration");
+        metricNameMap.put("endLocation", "flink_taskmanager_job_task_operator_chunjun_endLocation");
+        metricNameMap.put("startLocation", "flink_taskmanager_job_task_operator_chunjun_startLocation");
     }
 
     protected abstract QueryInfo buildQueryInfo();

@@ -7,7 +7,7 @@ import com.alibaba.fastjson.JSONPath;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.dtstack.dtcenter.loader.utils.AssertUtils;
+import com.dtstack.taier.datasource.api.utils.AssertUtils;
 import com.dtstack.taier.common.enums.Deleted;
 import com.dtstack.taier.common.enums.EComponentType;
 import com.dtstack.taier.common.enums.EScheduleJobType;

@@ -48,17 +48,6 @@ public class HadoopJobExeService {
 
     private static final String LINE_SEPARATOR = System.getProperty("line.separator");
 
-    public static final String JOB_ARGS_TEMPLATE = "-jobid %s -job %s";
-
-    private static final String ADD_FILE_FORMAT = "ADD JAR WITH %s AS %s;";
-
-    private static final String EXT_REF_RESOURCE_ARGS_TMPL = " extRefResource %s ";
-
-    private static final String OPERATE_MODEL = "operateModel";
-
-    private static final String FILES_ARG = "--files";
-
-    private static final String CMD_OPT = "--cmd-opts";
     private static final Map<Integer, String> PY_VERSION_MAP = new HashMap<>(2);
 
     static {

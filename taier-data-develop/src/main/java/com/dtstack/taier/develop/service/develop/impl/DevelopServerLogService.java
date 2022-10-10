@@ -617,7 +617,7 @@ public class DevelopServerLogService {
         //prometheus的配置信息 从控制台获取
         final Pair<String, String> prometheusHostAndPort = this.getPrometheusHostAndPort(tenantId,developTaskById.getTaskParams(),ComputeType.BATCH);
         if (prometheusHostAndPort == null){
-            return "promethues配置为空";
+            return "";
         }
         final PrometheusMetricQuery prometheusMetricQuery = new PrometheusMetricQuery(String.format("%s:%s", prometheusHostAndPort.getKey(), prometheusHostAndPort.getValue()));
 

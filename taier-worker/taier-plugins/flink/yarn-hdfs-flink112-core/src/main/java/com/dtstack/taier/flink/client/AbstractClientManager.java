@@ -114,8 +114,10 @@ public class AbstractClientManager implements IClientManager {
             tempYarnClient.start();
             yarnClient = tempYarnClient;
         } finally {
-            long endTime= System.currentTimeMillis();
-            LOG.info("cost getYarnClient start-time:{} end-time:{}, cost:{}.", startTime, endTime, endTime - startTime);
+            if (LOG.isDebugEnabled()) {
+                long endTime= System.currentTimeMillis();
+                LOG.debug("cost getYarnClient start-time:{} end-time:{}, cost:{}.", startTime, endTime, endTime - startTime);
+            }
         }
         return yarnClient;
     }

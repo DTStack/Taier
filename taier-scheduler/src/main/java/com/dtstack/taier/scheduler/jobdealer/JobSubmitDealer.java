@@ -20,10 +20,13 @@ package com.dtstack.taier.scheduler.jobdealer;
 
 import com.alibaba.fastjson.JSONObject;
 import com.dtstack.taier.common.BlockCallerPolicy;
+import com.dtstack.taier.common.constant.CommonConstant;
 import com.dtstack.taier.common.enums.EJobCacheStage;
+import com.dtstack.taier.common.enums.EJobClientType;
 import com.dtstack.taier.common.enums.EScheduleJobType;
 import com.dtstack.taier.common.env.EnvironmentContext;
 import com.dtstack.taier.common.exception.ClientAccessException;
+import com.dtstack.taier.common.exception.DtCenterDefException;
 import com.dtstack.taier.common.exception.RdosDefineException;
 import com.dtstack.taier.common.exception.WorkerAccessException;
 import com.dtstack.taier.common.queue.DelayBlockingQueue;
@@ -38,11 +41,13 @@ import com.dtstack.taier.pluginapi.exception.ClientArgumentException;
 import com.dtstack.taier.pluginapi.pojo.JobResult;
 import com.dtstack.taier.pluginapi.pojo.JudgeResult;
 import com.dtstack.taier.scheduler.WorkerOperator;
+import com.dtstack.taier.scheduler.executor.RdbJobExecutor;
 import com.dtstack.taier.scheduler.jobdealer.bo.SimpleJobDelay;
 import com.dtstack.taier.scheduler.jobdealer.cache.ShardCache;
 import com.dtstack.taier.scheduler.server.JobPartitioner;
 import com.dtstack.taier.scheduler.server.queue.GroupInfo;
 import com.dtstack.taier.scheduler.server.queue.GroupPriorityQueue;
+import com.dtstack.taier.scheduler.service.ComponentService;
 import com.dtstack.taier.scheduler.service.ScheduleJobCacheService;
 import com.dtstack.taier.scheduler.service.ScheduleJobExpandService;
 import org.apache.commons.lang3.StringUtils;
@@ -58,6 +63,8 @@ import java.util.concurrent.PriorityBlockingQueue;
 import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * company: www.dtstack.com
@@ -95,6 +102,10 @@ public class JobSubmitDealer implements Runnable {
     private JudgeResult workerNotFindResult = JudgeResult.notOk( "worker not find");
     private ExecutorService jobSubmitConcurrentService;
     private ScheduleJobExpandService scheduleJobExpandService;
+    private ApplicationContext applicationContext;
+    private ComponentService componentService;
+    private RdbJobExecutor rdbJobExecutor;
+    private final Lock rdbExecutorLock = new ReentrantLock();
 
     public JobSubmitDealer(String localAddress, GroupPriorityQueue priorityQueue, ApplicationContext applicationContext) {
         this.jobPartitioner = applicationContext.getBean(JobPartitioner.class);
@@ -102,6 +113,8 @@ public class JobSubmitDealer implements Runnable {
         this.ScheduleJobCacheService = applicationContext.getBean(ScheduleJobCacheService.class);
         this.shardCache = applicationContext.getBean(ShardCache.class);
         this.scheduleJobExpandService = applicationContext.getBean(ScheduleJobExpandService.class);
+        this.componentService = applicationContext.getBean(ComponentService.class);
+        this.applicationContext = applicationContext;
         EnvironmentContext environmentContext = applicationContext.getBean(EnvironmentContext.class);
         if (null == priorityQueue) {
             throw new RdosDefineException("priorityQueue must not null.");
@@ -311,10 +324,20 @@ public class JobSubmitDealer implements Runnable {
     }
 
     private void submitJob(JobClient jobClient) {
+        // 判断是不是 rdbms 任务
+        EJobClientType jobClientType = EJobClientType.getJobClientTypeByTask(jobClient.getTaskType());
+        if(EJobClientType.ENGINE_PLUGIN.equals(jobClientType)) {
+            submitEngineJob(jobClient);
+        } else if (EJobClientType.DATASOURCE_PLUGIN.equals(jobClientType)) {
+            submitRdbJob(jobClient);
+        } else {
+            throw new DtCenterDefException(String.format("task type [%s] is not support.", jobClient.getTaskType()));
+        }
+    }
 
-        JobResult jobResult = null;
+    private void submitEngineJob(JobClient jobClient) {
+        JobResult jobResult;
         try {
-
             // 判断资源
             JudgeResult judgeResult = workerOperator.judgeSlots(jobClient);
             if (JudgeResult.JudgeType.OK == judgeResult.getResult()) {
@@ -356,6 +379,69 @@ public class JobSubmitDealer implements Runnable {
         } catch (Throwable e) {
             handlerFailedWithRetry(jobClient, true, e);
         }
+    }
+
+    private void submitRdbJob(JobClient jobClient) {
+        try {
+            RdbJobExecutor rdbJobExecutor = getRdbJobExecutor(jobClient);
+            // 提交无状态任务
+            JudgeResult judgeResult = rdbJobExecutor.submitJob(jobClient);
+            // 提交成功
+            if (JudgeResult.JudgeType.OK == judgeResult.getResult()) {
+                LOGGER.info("jobId:{} taskType:{} submit to no status start.", jobClient.getJobId(), jobClient.getTaskType());
+                // 更新任务状态
+                jobClient.doStatusCallBack(TaskStatus.COMPUTING.getStatus());
+                LOGGER.info("jobId:{} taskType:{} submit to engine end.", jobClient.getJobId(), jobClient.getTaskType());
+            } else if (JudgeResult.JudgeType.LIMIT_ERROR == judgeResult.getResult()) {
+                LOGGER.info("jobId:{} taskType:{} submitJob happens system limitError:{}", jobClient.getJobId(), jobClient.getTaskType(), judgeResult.getReason());
+                jobClient.setEngineTaskId(null);
+                JobResult jobResult = JobResult.createErrorResult(false, judgeResult.getReason());
+                addToTaskListener(jobClient, jobResult);
+            }  else {
+                LOGGER.info("jobId:{} taskType:{} judgeSlots result is false.", jobClient.getJobId(), jobClient.getTaskType());
+                handlerNoResource(jobClient, judgeResult);
+            }
+        } catch (Throwable e) {
+            handlerFailedWithRetry(jobClient, true, e);
+        }
+    }
+
+    private RdbJobExecutor getRdbJobExecutor(JobClient jobClient) {
+        if (rdbJobExecutor == null) {
+            try {
+                rdbExecutorLock.lock();
+                // 获取集群信息
+                String pluginInfo = jobClient.getPluginInfo();
+                if (StringUtils.isBlank(pluginInfo)) {
+                    // 查询组件信息
+                    Integer componentType = EScheduleJobType.getByTaskType(jobClient.getTaskType()).getComponentType().getTypeCode();
+                    pluginInfo = componentService.getComponentByTenantId(jobClient.getTenantId(), componentType);
+                }
+
+                if (StringUtils.isNotBlank(pluginInfo)) {
+                    JSONObject jsonObject = JSONObject.parseObject(pluginInfo);
+                    Integer queueSize = jsonObject.getInteger(CommonConstant.RDB_SUBMIT_QUEUE_SIZE);
+                    Integer minNum = jsonObject.getInteger(CommonConstant.RDB_SUBMIT_CONSUMER_MIN_NUM);
+                    Integer maxNum = jsonObject.getInteger(CommonConstant.RDB_SUBMIT_CONSUMER_MAX_NUM);
+                    rdbJobExecutor = new RdbJobExecutor(queueSize, minNum, maxNum, applicationContext);
+                } else {
+                    rdbJobExecutor = new RdbJobExecutor(null, null, null, applicationContext);
+                }
+                new ThreadPoolExecutor(
+                        jobSubmitConcurrent,
+                        jobSubmitConcurrent,
+                        60L,
+                        TimeUnit.SECONDS,
+                        new SynchronousQueue<>(true),
+                        new CustomThreadFactory(this.getClass().getSimpleName() + "_" + jobResource + "_RdbJobExecutor"),
+                        new BlockCallerPolicy()
+                ).execute(rdbJobExecutor);
+
+            } finally {
+                rdbExecutorLock.unlock();
+            }
+        }
+        return rdbJobExecutor;
     }
 
 

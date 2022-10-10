@@ -132,27 +132,6 @@ public class WorkerOperator {
         return clientOperator.stopJob(jobClient);
     }
 
-    public ComponentTestResult testConnect(String pluginInfo) {
-        ComponentTestResult testResult = clientOperator.testConnect(pluginInfo);
-        if (null == testResult) {
-            testResult = new ComponentTestResult();
-        }
-        return testResult;
-    }
-
-
-    public List<List<Object>> executeQuery(String pluginInfo, String sql, String database) throws Exception {
-        return clientOperator.executeQuery(pluginInfo, sql, database);
-    }
-
-    public String uploadStringToHdfs(String pluginInfo, String bytes, String hdfsPath) throws Exception {
-        return clientOperator.uploadStringToHdfs(pluginInfo, bytes, hdfsPath);
-    }
-
-    public ClusterResource clusterResource(String pluginInfo) throws Exception {
-        return clientOperator.getClusterResource(pluginInfo);
-    }
-
     public List<FileResult> listFile(String path,boolean isPathPattern, String pluginInfo) throws Exception{
         return clientOperator.listFile(path,isPathPattern,pluginInfo);
     }

@@ -22,6 +22,8 @@ import com.dtstack.taier.common.param.DtInsightAuthParam;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 
+import java.util.List;
+
 /**
  * 返回切分键需要的列名
  *
@@ -35,7 +37,7 @@ public class DevelopDataSourceColumnForSyncopateVO extends DtInsightAuthParam {
     private Long sourceId;
 
     @ApiModelProperty(value = "表名称", required = true)
-    private String tableName;
+    private List<String> tableName;
 
     @ApiModelProperty(value = "查询的schema", example = "test")
     private String schema;
@@ -51,11 +53,11 @@ public class DevelopDataSourceColumnForSyncopateVO extends DtInsightAuthParam {
         this.sourceId = sourceId;
     }
 
-    public String getTableName() {
+    public List<String> getTableName() {
         return tableName;
     }
 
-    public void setTableName(String tableName) {
+    public void setTableName(List<String> tableName) {
         this.tableName = tableName;
     }
 

@@ -1,6 +1,6 @@
 package com.dtstack.taier.develop.service.template.bulider.db;
 
-import com.dtstack.dtcenter.loader.source.DataSourceType;
+import com.dtstack.taier.datasource.api.source.DataSourceType;
 import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

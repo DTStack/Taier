@@ -1,0 +1,192 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`utils/index Should have completion for sql 1`] = `
+Array [
+  Object {
+    "documentation": "The SELECT statement is used to select data from a database.",
+    "insertText": "SELECT",
+    "kind": 0,
+    "label": "SELECT",
+    "range": Object {
+      "endColumn": 0,
+      "endLineNumber": 0,
+      "startColumn": 0,
+      "startLineNumber": 0,
+    },
+  },
+  Object {
+    "documentation": "The CREATE TABLE statement is used to create a new table in a database.",
+    "insertText": "CREATE TABLE",
+    "kind": 0,
+    "label": "CREATE TABLE",
+    "range": Object {
+      "endColumn": 0,
+      "endLineNumber": 0,
+      "startColumn": 0,
+      "startLineNumber": 0,
+    },
+  },
+  Object {
+    "documentation": "The WHERE clause is used to filter records.",
+    "insertText": "WHERE",
+    "kind": 0,
+    "label": "WHERE",
+    "range": Object {
+      "endColumn": 0,
+      "endLineNumber": 0,
+      "startColumn": 0,
+      "startLineNumber": 0,
+    },
+  },
+  Object {
+    "documentation": "The AND operator is used to filter records based on more than one condition, which displays a record if all the conditions separated by AND are TRUE.",
+    "insertText": "AND",
+    "kind": undefined,
+    "label": "AND",
+    "range": Object {
+      "endColumn": 0,
+      "endLineNumber": 0,
+      "startColumn": 0,
+      "startLineNumber": 0,
+    },
+  },
+  Object {
+    "documentation": "The OR operator is used to filter records based on more than one condition, which displays a record if any of the conditions separated by OR is TRUE.",
+    "insertText": "OR",
+    "kind": undefined,
+    "label": "OR",
+    "range": Object {
+      "endColumn": 0,
+      "endLineNumber": 0,
+      "startColumn": 0,
+      "startLineNumber": 0,
+    },
+  },
+  Object {
+    "documentation": "The NOT operator displays a record if the condition(s) is NOT TRUE.",
+    "insertText": "NOT",
+    "kind": undefined,
+    "label": "NOT",
+    "range": Object {
+      "endColumn": 0,
+      "endLineNumber": 0,
+      "startColumn": 0,
+      "startLineNumber": 0,
+    },
+  },
+  Object {
+    "documentation": "The ORDER BY keyword is used to sort the result-set in ascending or descending order. The ORDER BY keyword sorts the records in ascending order by default. To sort the records in descending order, use the DESC keyword.",
+    "insertText": "ORDER BY",
+    "kind": 0,
+    "label": "ORDER BY",
+    "range": Object {
+      "endColumn": 0,
+      "endLineNumber": 0,
+      "startColumn": 0,
+      "startLineNumber": 0,
+    },
+  },
+  Object {
+    "documentation": "The INSERT INTO statement is used to insert new records in a table.",
+    "insertText": "INSERT INTO",
+    "kind": 0,
+    "label": "INSERT INTO",
+    "range": Object {
+      "endColumn": 0,
+      "endLineNumber": 0,
+      "startColumn": 0,
+      "startLineNumber": 0,
+    },
+  },
+  Object {
+    "documentation": "A field with a NULL value is a field with no value.",
+    "insertText": "NULL",
+    "kind": undefined,
+    "label": "NULL",
+    "range": Object {
+      "endColumn": 0,
+      "endLineNumber": 0,
+      "startColumn": 0,
+      "startLineNumber": 0,
+    },
+  },
+  Object {
+    "documentation": "The UPDATE statement is used to modify the existing records in a table.",
+    "insertText": "UPDATE",
+    "kind": 0,
+    "label": "UPDATE",
+    "range": Object {
+      "endColumn": 0,
+      "endLineNumber": 0,
+      "startColumn": 0,
+      "startLineNumber": 0,
+    },
+  },
+  Object {
+    "documentation": "The DELETE statement is used to modify the existing records in a table.",
+    "insertText": "DELETE",
+    "kind": 0,
+    "label": "DELETE",
+    "range": Object {
+      "endColumn": 0,
+      "endLineNumber": 0,
+      "startColumn": 0,
+      "startLineNumber": 0,
+    },
+  },
+  Object {
+    "documentation": "The INSERT INTO statement is used to insert new records in a table.",
+    "insertText": "INSERT INTO \${1:tableName} VALUES(\${2:value});",
+    "insertTextRules": 0,
+    "kind": undefined,
+    "label": "INSERT:snippet",
+    "range": Object {
+      "endColumn": 0,
+      "endLineNumber": 0,
+      "startColumn": 0,
+      "startLineNumber": 0,
+    },
+  },
+  Object {
+    "documentation": "The CREATE TABLE statement is used to create a new table in a database.",
+    "insertText": "CREATE TABLE \${1:table_name} (
+	\${2:column} \${3:datatype}
+);",
+    "insertTextRules": 0,
+    "kind": undefined,
+    "label": "CREATE:snippet",
+    "range": Object {
+      "endColumn": 0,
+      "endLineNumber": 0,
+      "startColumn": 0,
+      "startLineNumber": 0,
+    },
+  },
+  Object {
+    "documentation": "The SELECT statement is used to select data from a database.",
+    "insertText": "SELECT \${1:column} FROM \${2:table_name};",
+    "insertTextRules": 0,
+    "kind": undefined,
+    "label": "SELECT:snippet",
+    "range": Object {
+      "endColumn": 0,
+      "endLineNumber": 0,
+      "startColumn": 0,
+      "startLineNumber": 0,
+    },
+  },
+  Object {
+    "documentation": "show tables;",
+    "insertText": "show tables;",
+    "insertTextRules": 0,
+    "kind": undefined,
+    "label": "SHOW:snippet",
+    "range": Object {
+      "endColumn": 0,
+      "endLineNumber": 0,
+      "startColumn": 0,
+      "startLineNumber": 0,
+    },
+  },
+]
+`;

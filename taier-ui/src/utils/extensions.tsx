@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-import molecule from '@dtinsight/molecule/esm';
+import molecule from '@dtinsight/molecule';
 import type { IFolderTreeNodeProps } from '@dtinsight/molecule/esm/model';
 import { SyntaxIcon, ResourceIcon } from '@/components/icon';
 import type { RESOURCE_TYPE } from '@/constant';

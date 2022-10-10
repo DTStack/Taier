@@ -29,14 +29,23 @@ import com.dtstack.taier.pluginapi.client.IClient;
 import com.dtstack.taier.pluginapi.enums.TaskStatus;
 import com.dtstack.taier.pluginapi.exception.ClientArgumentException;
 import com.dtstack.taier.pluginapi.exception.ExceptionUtil;
-import com.dtstack.taier.pluginapi.pojo.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.dtstack.taier.pluginapi.pojo.CheckResult;
+import com.dtstack.taier.pluginapi.pojo.ClusterResource;
+import com.dtstack.taier.pluginapi.pojo.ComponentTestResult;
+import com.dtstack.taier.pluginapi.pojo.FileResult;
+import com.dtstack.taier.pluginapi.pojo.JobResult;
+import com.dtstack.taier.pluginapi.pojo.JudgeResult;
 
 import java.io.IOException;
 import java.util.List;
 import java.util.Properties;
-import java.util.concurrent.*;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.SynchronousQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 /**
  * 代理IClient实现类的proxy
@@ -48,8 +57,6 @@ import java.util.concurrent.*;
 
 public class ClientProxy implements IClient {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ClientProxy.class);
-
     private IClient targetClient;
 
     private ExecutorService executorService;
@@ -58,8 +65,8 @@ public class ClientProxy implements IClient {
 
     public ClientProxy(IClient targetClient) {
         this.targetClient = targetClient;
-        executorService = new ThreadPoolExecutor(10, 10, 0L, TimeUnit.MILLISECONDS,
-                new LinkedBlockingQueue<Runnable>(), new CustomThreadFactory(targetClient.getClass().getSimpleName() + "_" + this.getClass().getSimpleName()));
+        executorService = new ThreadPoolExecutor(1, 10, 0L, TimeUnit.MILLISECONDS,
+                new SynchronousQueue<>(), new CustomThreadFactory(targetClient.getClass().getSimpleName() + "_" + this.getClass().getSimpleName()));
     }
 
     @Override
@@ -238,7 +245,7 @@ public class ClientProxy implements IClient {
         } else if (throwable instanceof LimitResourceException) {
             throw new LimitResourceException(e.getMessage());
         } else if (throwable instanceof RdosDefineException) {
-            return JudgeResult.exception( "judgeSlots error" + ExceptionUtil.getErrorMessage(e));
+            return JudgeResult.exception("judgeSlots error" + ExceptionUtil.getErrorMessage(e));
         }
         throw new RdosDefineException(e);
     }
@@ -282,54 +289,6 @@ public class ClientProxy implements IClient {
     }
 
     @Override
-    public List<List<Object>> executeQuery(String sql, String database) {
-        try {
-            return CompletableFuture.supplyAsync(() -> {
-                try {
-                    return ClassLoaderCallBackMethod.callbackAndReset(() -> targetClient.executeQuery(sql,database),
-                            targetClient.getClass().getClassLoader(), true);
-                } catch (Exception e) {
-                    throw new RdosDefineException(e);
-                }
-            }, executorService).get(timeout, TimeUnit.MILLISECONDS);
-        } catch (InterruptedException | ExecutionException | TimeoutException e) {
-            throw new RdosDefineException(e);
-        }
-    }
-
-    @Override
-    public String uploadStringToHdfs(String bytes, String hdfsPath) {
-        try {
-            return CompletableFuture.supplyAsync(() -> {
-                try {
-                    return ClassLoaderCallBackMethod.callbackAndReset(() -> targetClient.uploadStringToHdfs(bytes,hdfsPath),
-                            targetClient.getClass().getClassLoader(), true);
-                } catch (Exception e) {
-                    throw new RdosDefineException(e);
-                }
-            }, executorService).get(timeout, TimeUnit.MILLISECONDS);
-        } catch (InterruptedException | ExecutionException | TimeoutException e) {
-            throw new RdosDefineException(e);
-        }
-    }
-
-    @Override
-    public ClusterResource getClusterResource() {
-        try {
-            return CompletableFuture.supplyAsync(() -> {
-                try {
-                    return ClassLoaderCallBackMethod.callbackAndReset(() -> targetClient.getClusterResource(),
-                            targetClient.getClass().getClassLoader(), true);
-                } catch (Exception e) {
-                    throw new RdosDefineException(e);
-                }
-            }, executorService).get(timeout, TimeUnit.MILLISECONDS);
-        } catch (InterruptedException | ExecutionException | TimeoutException e) {
-            throw new RdosDefineException(e);
-        }
-    }
-
-    @Override
     public List<String> getRollingLogBaseInfo(JobIdentifier jobIdentifier) {
         try {
             return ClassLoaderCallBackMethod.callbackAndReset(() -> targetClient.getRollingLogBaseInfo(jobIdentifier), targetClient.getClass().getClassLoader(), true);
@@ -355,11 +314,11 @@ public class ClientProxy implements IClient {
     }
 
     @Override
-    public List<FileResult> listFile(String path,boolean isPathPattern) {
+    public List<FileResult> listFile(String path, boolean isPathPattern) {
         try {
             return CompletableFuture.supplyAsync(() -> {
                 try {
-                    return ClassLoaderCallBackMethod.callbackAndReset(() -> targetClient.listFile(path,isPathPattern), targetClient.getClass().getClassLoader(), true);
+                    return ClassLoaderCallBackMethod.callbackAndReset(() -> targetClient.listFile(path, isPathPattern), targetClient.getClass().getClassLoader(), true);
                 } catch (Exception e) {
                     throw new RdosDefineException(e);
                 }

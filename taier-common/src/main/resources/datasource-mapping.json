@@ -1,0 +1,200 @@
+[
+  {
+    "datasource-type": 6,
+    "component-type": 2,
+    "component-version-name": "Apache Hadoop 2.x"
+  },
+  {
+    "datasource-type": 63,
+    "component-type": 2,
+    "component-version-name": "Apache Hadoop 3.x"
+  },
+  {
+    "datasource-type": 6,
+    "component-type": 2,
+    "component-version-name": "HDP 2.6.x"
+  },
+  {
+    "datasource-type": 6,
+    "component-type": 2,
+    "component-version-name": "HDP 3.x"
+  },
+  {
+    "datasource-type": 6,
+    "component-type": 2,
+    "component-version-name": "CDH 5.x"
+  },
+  {
+    "datasource-type": 6,
+    "component-type": 2,
+    "component-version-name": "CDH 6.0.x"
+  },
+  {
+    "datasource-type": 6,
+    "component-type": 2,
+    "component-version-name": "CDH 6.1.x"
+  },
+  {
+    "datasource-type": 6,
+    "component-type": 2,
+    "component-version-name": "CDH 6.2.x"
+  },
+  {
+    "datasource-type": 1003,
+    "component-type": 2,
+    "component-version-name": "CDP 7.x"
+  },
+  {
+    "datasource-type": 6,
+    "component-type": 2,
+    "component-version-name": "TDH 5.2.x"
+  },
+  {
+    "datasource-type": 6,
+    "component-type": 2,
+    "component-version-name": "TDH 7.x"
+  },
+  {
+    "datasource-type": 6,
+    "component-type": 2,
+    "component-version-name": "TDH 6.x"
+  },
+  {
+    "datasource-type": 80,
+    "component-type": 3,
+    "component-version-name": "Apache Hadoop 2.x"
+  },
+  {
+    "datasource-type": 81,
+    "component-type": 3,
+    "component-version-name": "Apache Hadoop 3.x"
+  },
+  {
+    "datasource-type": 80,
+    "component-type": 3,
+    "component-version-name": "HDP 2.6.x"
+  },
+  {
+    "datasource-type": 81,
+    "component-type": 3,
+    "component-version-name": "HDP 3.x"
+  },
+  {
+    "datasource-type": 80,
+    "component-type": 3,
+    "component-version-name": "CDH 5.x"
+  },
+  {
+    "datasource-type": 80,
+    "component-type": 3,
+    "component-version-name": "CDH 6.0.x"
+  },
+  {
+    "datasource-type": 80,
+    "component-type": 3,
+    "component-version-name": "CDH 6.1.x"
+  },
+  {
+    "datasource-type": 80,
+    "component-type": 3,
+    "component-version-name": "CDH 6.2.x"
+  },
+  {
+    "datasource-type": 81,
+    "component-type": 3,
+    "component-version-name": "CDP 7.x"
+  },
+  {
+    "datasource-type": 80,
+    "component-type": 3,
+    "component-version-name": "TDH 5.2.x"
+  },
+  {
+    "datasource-type": 80,
+    "component-type": 3,
+    "component-version-name": "TDH 7.x"
+  },
+  {
+    "datasource-type": 80,
+    "component-type": 3,
+    "component-version-name": "TDH 6.x"
+  },
+  {
+    "datasource-type": 45,
+    "component-type": 4,
+    "component-version-name": "1.x"
+  },
+  {
+    "datasource-type": 45,
+    "component-type": 4,
+    "component-version-name": "2.x"
+  },
+  {
+    "datasource-type": 27,
+    "component-type": 5,
+    "component-version-name": "1.x"
+  },
+  {
+    "datasource-type": 7,
+    "component-type": 5,
+    "component-version-name": "2.x"
+  },
+  {
+    "datasource-type": 50,
+    "component-type": 5,
+    "component-version-name": "3.x-apache"
+  },
+  {
+    "datasource-type": 65,
+    "component-type": 5,
+    "component-version-name": "3.x-cdp"
+  },
+  {
+    "datasource-type": 49,
+    "component-type": 7
+  },
+  {
+    "datasource-type": 21,
+    "component-type": 9
+  },
+  {
+    "datasource-type": 29,
+    "component-type": 10
+  },
+  {
+    "datasource-type": 31,
+    "component-type": 11
+  },
+  {
+    "datasource-type": 2,
+    "component-type": 12
+  },
+  {
+    "datasource-type": 36,
+    "component-type": 13
+  },
+  {
+    "datasource-type": 52,
+    "component-type": 14
+  },
+  {
+    "datasource-type": 1,
+    "component-type": 15
+  },
+  {
+    "datasource-type": 3,
+    "component-type": 16
+  },
+  {
+    "datasource-type": 19,
+    "component-type": 17
+  },
+  {
+    "datasource-type": 59,
+    "component-type": 18
+  },
+  {
+    "datasource-type": 76,
+    "component-type": 19
+  }
+]

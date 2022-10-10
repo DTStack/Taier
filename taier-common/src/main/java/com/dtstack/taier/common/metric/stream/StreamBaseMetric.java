@@ -54,27 +54,27 @@ public abstract class StreamBaseMetric implements IMetric {
         metricNameMap.put("source_dirty_data", "flink_taskmanager_job_task_operator_dtDirtyData");
         metricNameMap.put("data_discard_tps", "flink_taskmanager_job_task_operator_numLateRecordsDropped");
         metricNameMap.put("data_discard_count", "flink_taskmanager_job_task_operator_numLateRecordsDropped");
-        metricNameMap.put("data_acquisition_input_rps", "flink_taskmanager_job_task_operator_flinkx_numReadPerSecond");
-        metricNameMap.put("data_acquisition_output_rps", "flink_taskmanager_job_task_operator_flinkx_numWritePerSecond");
-        metricNameMap.put("data_acquisition_input_bps", "flink_taskmanager_job_task_operator_flinkx_byteReadPerSecond");
-        metricNameMap.put("data_acquisition_output_bps", "flink_taskmanager_job_task_operator_flinkx_byteWritePerSecond");
-        metricNameMap.put("data_acquisition_input_record_sum", "flink_taskmanager_job_task_operator_flinkx_numRead");
-        metricNameMap.put("data_acquisition_output_record_sum", "flink_taskmanager_job_task_operator_flinkx_numWrite");
-        metricNameMap.put("data_acquisition_input_byte_sum", "flink_taskmanager_job_task_operator_flinkx_byteRead");
-        metricNameMap.put("data_acquisition_output_byte_sum", "flink_taskmanager_job_task_operator_flinkx_byteWrite");
+        metricNameMap.put("data_acquisition_input_rps", "flink_taskmanager_job_task_operator_chunjun_numReadPerSecond");
+        metricNameMap.put("data_acquisition_output_rps", "flink_taskmanager_job_task_operator_chunjun_numWritePerSecond");
+        metricNameMap.put("data_acquisition_input_bps", "flink_taskmanager_job_task_operator_chunjun_byteReadPerSecond");
+        metricNameMap.put("data_acquisition_output_bps", "flink_taskmanager_job_task_operator_chunjun_byteWritePerSecond");
+        metricNameMap.put("data_acquisition_input_record_sum", "flink_taskmanager_job_task_operator_chunjun_numRead");
+        metricNameMap.put("data_acquisition_output_record_sum", "flink_taskmanager_job_task_operator_chunjun_numWrite");
+        metricNameMap.put("data_acquisition_input_byte_sum", "flink_taskmanager_job_task_operator_chunjun_byteRead");
+        metricNameMap.put("data_acquisition_output_byte_sum", "flink_taskmanager_job_task_operator_chunjun_byteWrite");
         metricNameMap.put("lastCheckpointDuration", "flink_jobmanager_job_lastCheckpointDuration");
-        metricNameMap.put("nErrors", "flink_taskmanager_job_task_operator_flinkx_nErrors");
-        metricNameMap.put("conversionErrors", "flink_taskmanager_job_task_operator_flinkx_conversionErrors");
-        metricNameMap.put("duplicateErrors", "flink_taskmanager_job_task_operator_flinkx_duplicateErrors");
-        metricNameMap.put("nullErrors", "flink_taskmanager_job_task_operator_flinkx_nullErrors");
-        metricNameMap.put("otherErrors", "flink_taskmanager_job_task_operator_flinkx_otherErrors");
+        metricNameMap.put("nErrors", "flink_taskmanager_job_task_operator_chunjun_nErrors");
+        metricNameMap.put("conversionErrors", "flink_taskmanager_job_task_operator_chunjun_conversionErrors");
+        metricNameMap.put("duplicateErrors", "flink_taskmanager_job_task_operator_chunjun_duplicateErrors");
+        metricNameMap.put("nullErrors", "flink_taskmanager_job_task_operator_chunjun_nullErrors");
+        metricNameMap.put("otherErrors", "flink_taskmanager_job_task_operator_chunjun_otherErrors");
         // 添加原有所有参数
         FLINK_112_METRIC_NAME_MAP.putAll(metricNameMap);
         // 添加 flink1.12 改动参数
-        FLINK_112_METRIC_NAME_MAP.put("source_input_tps", "flink_taskmanager_job_task_operator_flinkx_numReadPerSecond");
-        FLINK_112_METRIC_NAME_MAP.put("source_input_rps", "flink_taskmanager_job_task_operator_flinkx_numReadPerSecond");
-        FLINK_112_METRIC_NAME_MAP.put("sink_output_rps", "flink_taskmanager_job_task_operator_flinkx_numWritePerSecond");
-        FLINK_112_METRIC_NAME_MAP.put("source_input_bps", "flink_taskmanager_job_task_operator_flinkx_byteReadPerSecond");
+        FLINK_112_METRIC_NAME_MAP.put("source_input_tps", "flink_taskmanager_job_task_operator_chunjun_numReadPerSecond");
+        FLINK_112_METRIC_NAME_MAP.put("source_input_rps", "flink_taskmanager_job_task_operator_chunjun_numReadPerSecond");
+        FLINK_112_METRIC_NAME_MAP.put("sink_output_rps", "flink_taskmanager_job_task_operator_chunjun_numWritePerSecond");
+        FLINK_112_METRIC_NAME_MAP.put("source_input_bps", "flink_taskmanager_job_task_operator_chunjun_byteReadPerSecond");
 
         specialDealmetricName.add("source_input_tps");
         specialDealmetricName.add("sink_output_rps");

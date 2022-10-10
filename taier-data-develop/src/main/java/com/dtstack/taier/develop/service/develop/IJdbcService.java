@@ -1,6 +1,6 @@
 package com.dtstack.taier.develop.service.develop;
 
-import com.dtstack.dtcenter.loader.dto.source.ISourceDTO;
+import com.dtstack.taier.datasource.api.dto.source.ISourceDTO;
 
 import java.util.List;
 

@@ -49,7 +49,6 @@ import com.google.common.io.Files;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.fs.FSDataOutputStream;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.IOUtils;
@@ -58,9 +57,6 @@ import org.apache.hadoop.security.UserGroupInformation;
 import org.apache.hadoop.yarn.api.records.ApplicationId;
 import org.apache.hadoop.yarn.api.records.ApplicationReport;
 import org.apache.hadoop.yarn.api.records.FinalApplicationStatus;
-import org.apache.hadoop.yarn.api.records.NodeReport;
-import org.apache.hadoop.yarn.api.records.NodeState;
-import org.apache.hadoop.yarn.api.records.Resource;
 import org.apache.hadoop.yarn.api.records.YarnApplicationState;
 import org.apache.hadoop.yarn.client.api.YarnClient;
 import org.apache.hadoop.yarn.conf.YarnConfiguration;
@@ -69,7 +65,6 @@ import org.apache.hadoop.yarn.util.ConverterUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -447,160 +442,6 @@ public class HadoopClient extends AbstractClient {
         ComponentTestResult testResult = new ComponentTestResult();
         testResult.setResult(false);
         return testResult;
-    }
-
-
-
-    /**
-     * 上传文件到hdfs中
-     *
-     * @param bytes
-     * @param hdfsPath 文件路径
-     * @return
-     */
-    @Override
-    public String uploadStringToHdfs(String bytes, String hdfsPath) {
-        try {
-            return KerberosUtils.login(config, () -> {
-                FileSystem fs = null;
-                try {
-                    ByteArrayInputStream is = new ByteArrayInputStream(bytes.getBytes());
-                    fs = FileSystem.get(conf);
-                    Path destP = new Path(hdfsPath);
-                    FSDataOutputStream os = fs.create(destP);
-                    IOUtils.copyBytes(is, os, 4096, true);
-                } catch (IOException e) {
-                    LOG.error("submit file {} to hdfs error", hdfsPath, e);
-                    throw new PluginDefineException("上传文件失败", e);
-                } finally {
-                    if (null != fs) {
-                        try {
-                            fs.close();
-                        } catch (IOException e) {
-                        }
-                    }
-                }
-                if (LOG.isDebugEnabled()) {
-                    LOG.debug("submit file {} to hdfs success.", hdfsPath);
-                }
-                return conf.get("fs.defaultFS") + hdfsPath;
-            }, conf);
-        } catch (Exception e) {
-            throw new PluginDefineException("上传文件失败", e);
-        }
-    }
-
-    private ComponentTestResult checkHdfsConnect(Config testConnectConf) {
-        //测试hdfs联通性
-        ComponentTestResult componentTestResult = new ComponentTestResult();
-        try {
-            if (null == testConnectConf) {
-                componentTestResult.setResult(false);
-                componentTestResult.setErrorMsg("配置信息不能你为空");
-                return componentTestResult;
-            }
-            KerberosUtils.login(testConnectConf, () -> {
-                HadoopConf hadoopConf = new HadoopConf();
-                hadoopConf.initHadoopConf(testConnectConf.getHadoopConf());
-                Configuration configuration = hadoopConf.getConfiguration();
-                FileSystem fs = null;
-                try {
-                    fs = FileSystem.get(configuration);
-                } catch (Exception e) {
-                    componentTestResult.setResult(false);
-                    componentTestResult.setErrorMsg(ExceptionUtil.getErrorMessage(e));
-                    return componentTestResult;
-                } finally {
-                    if (null != fs) {
-                        try {
-                            fs.close();
-                        } catch (IOException e) {
-                            LOG.error("close file system error ", e);
-                        }
-                    }
-                }
-
-                componentTestResult.setResult(true);
-                return componentTestResult;
-            }, KerberosUtils.convertMapConfToConfiguration(testConnectConf.getHadoopConf()));
-
-        } catch (Exception e) {
-            LOG.error("close hdfs connect  error ", e);
-            componentTestResult.setResult(false);
-            componentTestResult.setErrorMsg(ExceptionUtil.getErrorMessage(e));
-        }
-        return componentTestResult;
-    }
-
-    @Override
-    public ClusterResource getClusterResource() {
-        ClusterResource clusterResource = new ClusterResource();
-        try {
-            KerberosUtils.login(config, () -> {
-                YarnClient resourceClient = null;
-                try {
-                    resourceClient = YarnClient.createYarnClient();
-                    resourceClient.init(conf);
-                    resourceClient.start();
-                    List<NodeReport> nodes = resourceClient.getNodeReports(NodeState.RUNNING);
-                    List<ClusterResource.NodeDescription> clusterNodes = new ArrayList<>();
-
-                    Integer totalMem = 0;
-                    Integer totalCores = 0;
-                    Integer usedMem = 0;
-                    Integer usedCores = 0;
-
-                    for (NodeReport rep : nodes) {
-                        ClusterResource.NodeDescription node = new ClusterResource.NodeDescription();
-                        String nodeName = rep.getHttpAddress().split(":")[0];
-                        node.setNodeName(nodeName);
-                        node.setMemory(rep.getCapability().getMemory());
-                        node.setUsedMemory(rep.getUsed().getMemory());
-                        node.setUsedVirtualCores(rep.getUsed().getVirtualCores());
-                        node.setVirtualCores(rep.getCapability().getVirtualCores());
-                        clusterNodes.add(node);
-
-                        // 计算集群资源总量和使用量
-                        Resource capability = rep.getCapability();
-                        Resource used = rep.getUsed();
-                        totalMem += capability.getMemory();
-                        totalCores += capability.getVirtualCores();
-                        usedMem += used.getMemory();
-                        usedCores += used.getVirtualCores();
-                    }
-
-                    ClusterResource.ResourceMetrics metrics = createResourceMetrics(
-                            totalMem, usedMem, totalCores, usedCores);
-
-                    clusterResource.setNodes(clusterNodes);
-                    String webAddress = getYarnWebAddress(yarnClient);
-                    String schedulerUrl = String.format(YARN_SCHEDULER_FORMAT, webAddress);
-                    String schedulerInfoMsg = PoolHttpClient.get(schedulerUrl, null);
-                    JSONObject schedulerInfo = JSONObject.parseObject(schedulerInfoMsg);
-                    if (schedulerInfo.containsKey("scheduler")) {
-                        clusterResource.setScheduleInfo(schedulerInfo.getJSONObject("scheduler").getJSONObject("schedulerInfo"));
-                    }
-                    clusterResource.setQueues(getQueueResource(yarnClient));
-                    clusterResource.setResourceMetrics(metrics);
-
-                } catch (Exception e) {
-                    LOG.error("close reource error ", e);
-                } finally {
-                    if (null != resourceClient) {
-                        try {
-                            resourceClient.close();
-                        } catch (IOException e) {
-                            LOG.error("close reource error ", e);
-                        }
-                    }
-                }
-                return clusterResource;
-            }, conf);
-
-        } catch (Exception e) {
-            throw new PluginDefineException(e.getMessage());
-        }
-        return clusterResource;
     }
 
     private ClusterResource.ResourceMetrics createResourceMetrics(
