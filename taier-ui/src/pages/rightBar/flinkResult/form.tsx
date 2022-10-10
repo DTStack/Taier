@@ -76,19 +76,10 @@ import Editor from '@/components/editor';
 import { NAME_FIELD } from '.';
 import { FormContext } from '@/services/rightBarService';
 import DataPreviewModal from '@/pages/editor/streamCollection/source/dataPreviewModal';
+import { taskRenderService } from '@/services';
 
 const FormItem = Form.Item;
 const { Option } = Select;
-
-/**
- * 默认可选择的数据源
- */
-const DATA_SOURCE_OPTIONS = [
-	DATA_SOURCE_ENUM.HBASE,
-	DATA_SOURCE_ENUM.ES6,
-	DATA_SOURCE_ENUM.ES7,
-	DATA_SOURCE_ENUM.MYSQL,
-];
 
 interface IResultProps {
 	/**
@@ -472,7 +463,7 @@ export default function ResultForm({
 						option?.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
 					}
 				>
-					{DATA_SOURCE_OPTIONS.map((item) => (
+					{taskRenderService.getState().supportSourceList.flinkSqlSinks.map((item) => (
 						<Option key={item} value={item}>
 							{DATA_SOURCE_TEXT[item]}
 						</Option>

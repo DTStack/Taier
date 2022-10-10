@@ -32,6 +32,7 @@ import com.dtstack.taier.develop.vo.develop.query.DevelopDatasourceTableCreateVO
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -107,7 +108,7 @@ public class DatasourceAddController {
             @Override
             protected Boolean process() throws RdosDefineException {
                 DataSourceVO dataSourceVO = new DataSourceParam2SourceVOConverter().convert(addDataSourceParam);
-                return datasourceService.checkConnection(dataSourceVO);
+                return datasourceService.checkConnectionWithConf(dataSourceVO, null);
             }
         }.execute();
     }
@@ -190,7 +191,7 @@ public class DatasourceAddController {
     @ApiOperation(value = "解析kerberos文件获取principal列表")
     @PostMapping("/getPrincipalsWithConf")
     @FileUpload
-    public R<List<String>> getPrincipalsWithConf(@RequestParam(value = "file", required = false) MultipartFile file, Map<String, Object> params) {
+    public R<List<String>> getPrincipalsWithConf(@RequestParam(value = "file") MultipartFile file, Map<String, Object> params) {
         Pair<String, String> resource = (Pair<String, String>) params.get("resource");
         params.remove(RESOURCE);
         DataSourceVO dataSourceVo = PublicUtil.mapToObject(params, DataSourceVO.class);
@@ -200,22 +201,22 @@ public class DatasourceAddController {
 
     @PostMapping(value = "tablelist")
     @ApiOperation(value = "获取表列表")
-    public R<List<String>> tablelist(@RequestBody(required = false) DevelopDataSourceTableListVO sourceVO) {
+    public R<List<String>> tableList(@RequestBody(required = false) DevelopDataSourceTableListVO sourceVO) {
         return new APITemplate<List<String>>() {
             @Override
             protected List<String> process() {
-                return datasourceService.tablelist(sourceVO.getSourceId(), sourceVO.getSchema(), sourceVO.getName());
+                return datasourceService.tableList(sourceVO.getSourceId(), sourceVO.getSchema(), sourceVO.getName());
             }
         }.execute();
     }
 
     @PostMapping(value = "tablecolumn")
     @ApiOperation(value = "获取表字段信息")
-    public R<List<JSONObject>> tablecolumn(@RequestBody DevelopDataSourceTableColumnVO vo) {
+    public R<List<JSONObject>> tableColumn(@RequestBody DevelopDataSourceTableColumnVO vo) {
         return new APITemplate<List<JSONObject>>() {
             @Override
             protected List<JSONObject> process() {
-                return datasourceService.tablecolumn(vo.getUserId(), vo.getSourceId(), vo.getTableName(), vo.getIsIncludePart(), vo.getSchema());
+                return datasourceService.tableColumn(vo.getSourceId(), vo.getTableName(), vo.getIsIncludePart(), vo.getSchema());
             }
         }.execute();
     }
@@ -225,8 +226,15 @@ public class DatasourceAddController {
     public R<Set<JSONObject>> columnForSyncopate(@RequestBody DevelopDataSourceColumnForSyncopateVO vo) {
         return new APITemplate<Set<JSONObject>>() {
             @Override
+            protected void checkParams() throws IllegalArgumentException {
+                if(CollectionUtils.isEmpty(vo.getTableName())){
+                    throw new RdosDefineException("table can not be null");
+                }
+            }
+
+            @Override
             protected Set<JSONObject> process() {
-                return datasourceService.columnForSyncopate(vo.getUserId(), vo.getSourceId(), vo.getTableName(), vo.getSchema());
+                return datasourceService.columnForSyncopate(vo.getSourceId(), vo.getTableName().get(0), vo.getSchema());
             }
         }.execute();
     }

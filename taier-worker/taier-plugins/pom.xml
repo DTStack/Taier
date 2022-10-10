@@ -24,12 +24,10 @@
         <module>dummy</module>
         <module>flink</module>
         <module>hadoop</module>
-        <module>rdbs</module>
         <module>spark</module>
-        <module>stores</module>
-        <module>schedules</module>
         <module>local-test</module>
         <module>flink/flink112-standalone</module>
+        <module>script</module>
     </modules>
 
     <dependencies>

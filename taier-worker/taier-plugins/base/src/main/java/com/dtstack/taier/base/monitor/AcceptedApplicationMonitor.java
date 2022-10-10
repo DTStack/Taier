@@ -38,12 +38,6 @@ import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
-/**
- * company: www.dtstack.com
- * author: xiuzhu
- * create: 2020/07/23
- */
-
 public class AcceptedApplicationMonitor implements Runnable {
 
     private static Logger logger = LoggerFactory.getLogger(AcceptedApplicationMonitor.class);

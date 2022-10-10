@@ -51,8 +51,6 @@ public class StreamJobMetricService {
 
     private static Map<String,List<String>> chartMetricMap = new HashMap<>();
 
-    private static final String TOPIC_LAG_112 = "flink_taskmanager_job_task_operator_flinkx_KafkaConsumer_topic_partition_lag";
-
     static {
         chartMetricMap.put("data_acquisition_rps",Arrays.asList("data_acquisition_input_rps","data_acquisition_output_rps"));
         chartMetricMap.put("data_acquisition_bps",Arrays.asList("data_acquisition_input_bps","data_acquisition_output_bps"));

@@ -21,8 +21,6 @@ import { message, Modal, Alert } from 'antd';
 import ajax from '../../api';
 import { getTenantId, getUserId } from '@/utils';
 
-const { confirm } = Modal;
-
 export const CONTAINER_ID = 'container_wrapper';
 
 export default ({ taskId }: { taskId: number }) => {
@@ -38,41 +36,14 @@ export default ({ taskId }: { taskId: number }) => {
 			preSave: true,
 		})
 			.then((res) => {
-				const { data, code } = res;
+				const { code } = res;
 				if (code === 1) {
-					switch (data?.errorSign) {
-						case 0: {
-							message.success('提交成功！');
-							changeVisible(false);
-							break;
-						}
-						case 1: {
-							changeVisible(false);
-							return Modal.warning({
-								title: '无法提交任务',
-								content: <p>{data?.errorMessage || '未知错误'}</p>,
-							});
-						}
-						default: {
-							confirm({
-								title: '无法提交任务',
-								content: <p>{data?.errorMessage || '未知错误'}</p>,
-								okText: '仍要提交',
-								cancelText: '确定',
-								onOk() {
-									checkPublishTask();
-								},
-								onCancel() {
-									changeVisible(false);
-								},
-							});
-						}
-					}
+					message.success('提交成功！');
+					changeVisible(false);
 				}
 			})
 			.finally(() => {
 				changeLoading(false);
-				changeVisible(false);
 			});
 	};
 	return (
@@ -94,7 +65,11 @@ export default ({ taskId }: { taskId: number }) => {
 				closable={false}
 			/>
 			<br />
-			<Alert message="新提交的任务需要第二天才能生成周期实例" type="warning" closable={false} />
+			<Alert
+				message="新提交的任务需要第二天才能生成周期实例"
+				type="warning"
+				closable={false}
+			/>
 		</Modal>
 	);
 };

@@ -2,6 +2,7 @@ package com.dtstack.taier.base.util;
 
 import com.dtstack.taier.base.BaseConfig;
 import com.dtstack.taier.pluginapi.exception.PluginDefineException;
+import com.google.common.base.Preconditions;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hadoop.conf.Configuration;
@@ -24,6 +25,20 @@ public class HadoopUtils {
 
     private static final Logger LOG = LoggerFactory.getLogger(HadoopUtils.class);
 
+    public static String getHadoopUserName(BaseConfig config) {
+        String hadoopUserName = config.getHadoopUserName();
+        if (StringUtils.isBlank(hadoopUserName)) {
+            hadoopUserName = config.getDtProxyUserName();
+        }
+        if (StringUtils.isBlank(hadoopUserName)) {
+            hadoopUserName = System.getenv("HADOOP_USER_NAME");
+        }
+        if (StringUtils.isBlank(hadoopUserName)) {
+            hadoopUserName = System.getProperty("HADOOP_USER_NAME");
+        }
+        Preconditions.checkNotNull(hadoopUserName, "hadoopUserName is null");
+        return hadoopUserName;
+    }
 
     public static Configuration initConfiguration(BaseConfig baseConfig, Map<String, Object> hadoopConf) {
         return initConfiguration(baseConfig, hadoopConf, false);

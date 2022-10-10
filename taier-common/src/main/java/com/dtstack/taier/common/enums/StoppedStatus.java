@@ -24,7 +24,8 @@ public enum StoppedStatus {
     //已停止
     STOPPED(1),
     MISSED(2),
-    RETRY(3);
+    RETRY(3),
+    NO_OPERATE(4);
 
     Integer type;
     StoppedStatus(int type){

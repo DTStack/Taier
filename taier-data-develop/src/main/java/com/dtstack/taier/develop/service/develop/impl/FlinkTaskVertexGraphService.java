@@ -15,7 +15,7 @@ import com.dtstack.taier.develop.dto.devlop.FlinkTaskDTO;
 import com.dtstack.taier.develop.dto.devlop.SubJobVerticeDTO;
 import com.dtstack.taier.develop.dto.devlop.TaskVerticesDTO;
 import com.dtstack.taier.develop.enums.develop.DAGShownType;
-import com.dtstack.taier.develop.utils.develop.common.HdfsOperator;
+import com.dtstack.taier.develop.utils.develop.common.UnitUtil;
 import com.dtstack.taier.scheduler.service.ScheduleJobExpandService;
 import com.google.common.collect.Lists;
 import org.apache.commons.collections.CollectionUtils;
@@ -169,8 +169,8 @@ public class FlinkTaskVertexGraphService {
                     }
                 }
             }
-            taskVertice.setBytesReceived(HdfsOperator.unitConverter(bytesIn));
-            taskVertice.setBytesSent(HdfsOperator.unitConverter(bytesOut));
+            taskVertice.setBytesReceived(UnitUtil.unitConverter(bytesIn));
+            taskVertice.setBytesSent(UnitUtil.unitConverter(bytesOut));
             taskVertice.setRecordsReceived(recordsIn);
             taskVertice.setRecordsSent(recordsOut);
         }

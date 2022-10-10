@@ -30,6 +30,8 @@ public enum TempJobType {
      */
     SYNC_TASK(2),
 
+    PYTHON_SHELL(4),
+
     /**
      *
      */

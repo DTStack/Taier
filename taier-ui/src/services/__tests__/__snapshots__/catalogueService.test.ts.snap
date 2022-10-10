@@ -1,0 +1,131 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Test catalogue service Should load root folder 1`] = `
+TreeNodeModel {
+  "children": Array [
+    TreeNodeModel {
+      "children": Array [],
+      "data": Object {
+        "catalogueType": "ResourceManager",
+        "id": 35,
+        "name": "资源管理",
+        "type": "folder",
+      },
+      "fileType": undefined,
+      "icon": "code",
+      "id": 35,
+      "isLeaf": true,
+      "name": "资源管理",
+    },
+  ],
+  "data": Object {
+    "catalogueType": "ResourceManager",
+    "children": Array [
+      Object {
+        "catalogueType": "ResourceManager",
+        "id": 35,
+        "name": "资源管理",
+        "type": "folder",
+      },
+    ],
+    "id": 1,
+    "name": "资源管理",
+    "type": "folder",
+  },
+  "fileType": undefined,
+  "icon": "code",
+  "id": 1,
+  "isLeaf": true,
+  "name": "资源管理",
+}
+`;
+
+exports[`Test catalogue service Should load root folder 2`] = `
+TreeNodeModel {
+  "children": Array [
+    TreeNodeModel {
+      "children": Array [],
+      "data": Object {
+        "catalogueType": "FunctionManager",
+        "id": 39,
+        "name": "函数管理",
+        "type": "folder",
+      },
+      "fileType": undefined,
+      "icon": "code",
+      "id": "39-folder",
+      "isLeaf": true,
+      "location": "函数管理",
+      "name": "函数管理",
+    },
+  ],
+  "data": Object {
+    "catalogueType": "FunctionManager",
+    "children": Array [
+      Object {
+        "catalogueType": "FunctionManager",
+        "id": 39,
+        "name": "函数管理",
+        "type": "folder",
+      },
+    ],
+    "id": 2,
+    "name": "函数管理",
+    "type": "folder",
+  },
+  "fileType": undefined,
+  "icon": "code",
+  "id": "2-folder",
+  "isLeaf": true,
+  "location": "函数管理",
+  "name": "函数管理",
+}
+`;
+
+exports[`Test catalogue service Should load root folder 3`] = `
+TreeNodeModel {
+  "children": Array [],
+  "data": Object {
+    "catalogueType": "TaskDevelop",
+    "id": 3,
+    "name": "任务开发",
+    "type": "folder",
+  },
+  "fileType": undefined,
+  "icon": "code",
+  "id": 3,
+  "isLeaf": true,
+  "location": "任务开发",
+  "name": "任务开发",
+}
+`;
+
+exports[`Test catalogue service Should load tree node 1`] = `
+Object {
+  "children": Array [
+    TreeNodeModel {
+      "children": Array [],
+      "data": Object {
+        "catalogueType": "TaskManager",
+        "children": Array [
+          Object {
+            "id": 259,
+            "name": "test",
+            "taskType": 2,
+            "type": "file",
+          },
+        ],
+        "id": 0,
+        "name": "任务管理",
+        "type": "folder",
+      },
+      "fileType": undefined,
+      "icon": "code",
+      "id": 0,
+      "isLeaf": true,
+      "location": "任务管理",
+      "name": "任务管理",
+    },
+  ],
+}
+`;

@@ -17,6 +17,7 @@ import { singleton } from 'tsyringe';
 import { RightBarKind } from '@/interface';
 import { taskRenderService } from '.';
 import TaskConfig from '@/pages/rightBar/taskConfig';
+import QueueConfig from '@/pages/rightBar/queueConfig';
 
 interface IRightBarService {
 	/**
@@ -137,6 +138,8 @@ export default class RightBarService extends Component<IRightbarState> implement
 				return '结果表';
 			case RightBarKind.FLINKSQL_DIMENSION:
 				return '维表';
+			case RightBarKind.QUEUE:
+				return '队列管理';
 			default:
 				return '未知';
 		}
@@ -186,6 +189,8 @@ export default class RightBarService extends Component<IRightbarState> implement
 				return this.withForm(<FlinkResultPanel key="result" current={current} />);
 			case RightBarKind.FLINKSQL_DIMENSION:
 				return this.withForm(<FlinkDimensionPanel key="dimension" current={current} />);
+			case RightBarKind.QUEUE:
+				return <QueueConfig current={current} />;
 			default:
 				return null;
 		}

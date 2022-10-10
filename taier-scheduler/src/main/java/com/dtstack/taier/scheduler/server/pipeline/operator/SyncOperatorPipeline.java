@@ -36,12 +36,18 @@ import com.dtstack.taier.dao.domain.ScheduleJob;
 import com.dtstack.taier.dao.domain.ScheduleTaskShade;
 import com.dtstack.taier.dao.dto.ScheduleTaskParamShade;
 import com.dtstack.taier.dao.mapper.ScheduleJobMapper;
+import com.dtstack.taier.datasource.api.base.ClientCache;
+import com.dtstack.taier.datasource.api.client.IClient;
+import com.dtstack.taier.datasource.api.dto.SqlQueryDTO;
+import com.dtstack.taier.datasource.api.dto.source.ISourceDTO;
 import com.dtstack.taier.pluginapi.constrant.ConfigConstant;
 import com.dtstack.taier.pluginapi.enums.EDeployMode;
 import com.dtstack.taier.pluginapi.enums.TaskStatus;
 import com.dtstack.taier.pluginapi.exception.ExceptionUtil;
 import com.dtstack.taier.pluginapi.util.RetryUtil;
 import com.dtstack.taier.scheduler.WorkerOperator;
+import com.dtstack.taier.scheduler.datasource.convert.engine.PluginInfoToSourceDTO;
+import com.dtstack.taier.scheduler.executor.DatasourceOperator;
 import com.dtstack.taier.scheduler.server.pipeline.IPipeline;
 import com.dtstack.taier.scheduler.server.pipeline.JobParamReplace;
 import com.dtstack.taier.scheduler.service.ClusterService;
@@ -50,6 +56,7 @@ import com.dtstack.taier.scheduler.service.ComponentService;
 import com.google.common.base.Charsets;
 import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
+import com.google.common.collect.Lists;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
@@ -246,13 +253,10 @@ public class SyncOperatorPipeline extends IPipeline.AbstractPipeline {
                 String alterSql = String.format(ADD_PART_TEMP, tableName, taskName, time);
                 String location = "";
                 if (DataSourceType.hadoopDirtyDataSource.contains(sourceType)) {
-                    Cluster cluster = clusterService.getCluster(tenantId);
-//                    Component metadataComponent = componentService.getMetadataComponent(cluster.getId());c
-                    Component metadataComponent = null;
-                    EComponentType metadataComponentType = EComponentType.getByCode(null == metadataComponent ? EComponentType.SPARK_THRIFT.getTypeCode() : metadataComponent.getComponentTypeCode());
-                    JSONObject pluginInfo = clusterService.getConfigByKey(tenantId, metadataComponentType.getConfName(), null);
-                    String typeName = getHiveTypeName(DataSourceType.getSourceType(sourceType));
-                    pluginInfo.put(ConfigConstant.TYPE_NAME_KEY, typeName);
+                    JSONObject pluginInfo = clusterService.getConfigByKey(tenantId, EComponentType.SPARK_THRIFT.getConfName(), null);
+                    IClient client = ClientCache.getClient(sourceType);
+                    pluginInfo.put(DatasourceOperator.DATA_SOURCE_TYPE,sourceType);
+                    pluginInfo.put("schema",db);
                     pluginInfo.compute(ConfigConstant.JDBCURL, (jdbcUrl, val) -> {
                         String jdbcUrlVal = (String) val;
                         if (StringUtils.isBlank(jdbcUrlVal)) {
@@ -260,8 +264,10 @@ public class SyncOperatorPipeline extends IPipeline.AbstractPipeline {
                         }
                         return jdbcUrlVal.replace("/%s", environmentContext.getComponentJdbcToReplace());
                     });
-                    workerOperator.executeQuery(pluginInfo.toJSONString(), alterSql, db);
-                    location = this.getTableLocation(pluginInfo, db, String.format("desc formatted %s", tableName));
+
+                    ISourceDTO sourceDTO = PluginInfoToSourceDTO.getSourceDTO(pluginInfo.toJSONString());
+                    client.executeQuery(sourceDTO, SqlQueryDTO.builder().sql(alterSql).schema(db).build());
+                    location = this.getTableLocation(client, sourceDTO, db, String.format("desc formatted %s", tableName));
                 }
                 if (StringUtils.isBlank(location)) {
                     LOGGER.warn("table {} replace dirty path is null,dirtyType {} ", tableName, sourceType);
@@ -278,13 +284,12 @@ public class SyncOperatorPipeline extends IPipeline.AbstractPipeline {
         return sqlObject.toJSONString();
     }
 
-    public String getTableLocation(JSONObject pluginInfo, String dbName,String sql) throws Exception {
+    public String getTableLocation(IClient client, ISourceDTO sourceDTO, String dbName,String sql) {
         String location = null;
-        List<List<Object>> result = workerOperator.executeQuery(pluginInfo.toJSONString(), sql, dbName);
-        Iterator<List<Object>> iterator = result.iterator();
+        List<Map<String, Object>> result = client.executeQuery(sourceDTO, SqlQueryDTO.builder().sql(sql).schema(dbName).build());
 
-        while (iterator.hasNext()) {
-            List<Object> objects = iterator.next();
+        for (Map<String, Object> next : result) {
+            List<Object> objects = Lists.newArrayList(next.values());
             if (objects.get(0).toString().contains("Location")) {
                 location = objects.get(1).toString();
             }
@@ -341,9 +346,13 @@ public class SyncOperatorPipeline extends IPipeline.AbstractPipeline {
                 RetryUtil.executeWithRetry(() -> {
                     LOGGER.info("create partition tenantId {} {}", tenantId, sql);
                     JSONObject pluginInfo = buildDataSourcePluginInfo(parameter.getJSONObject("hadoopConfig"), sourceType, username, password, jdbcUrl);
-                    String realDataBase = pluginInfo.getString("realDataBase");
-                    pluginInfo.put(ConfigConstant.TYPE_NAME_KEY,getHiveTypeName(DataSourceType.getSourceType(sourceType)));
-                    workerOperator.executeQuery(pluginInfo.toJSONString(), sql, null != realDataBase ? realDataBase : "");
+                    pluginInfo.put(DatasourceOperator.DATA_SOURCE_TYPE, sourceType);
+                    // 以脚本中的 schema 为主
+                    String schema = parameter.getString("schema");
+                    pluginInfo.put("schema", schema);
+                    IClient client = ClientCache.getClient(sourceType);
+                    ISourceDTO sourceDTO = PluginInfoToSourceDTO.getSourceDTO(pluginInfo.toJSONString());
+                    client.executeQuery(sourceDTO, SqlQueryDTO.builder().sql(sql).build());
                     cleanFileName(parameter);
                     return null;
                 }, environmentContext.getRetryFrequency(), environmentContext.getRetryInterval(), false, null);

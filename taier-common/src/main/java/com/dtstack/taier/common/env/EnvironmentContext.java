@@ -18,8 +18,15 @@
 
 package com.dtstack.taier.common.env;
 
-import com.dtstack.dtcenter.loader.client.ClientCache;
+import com.dtstack.taier.common.config.DatasourceConfig;
+import com.dtstack.taier.common.constant.CommonConstant;
 import com.dtstack.taier.common.util.AddressUtil;
+import com.dtstack.taier.datasource.api.base.ClientCache;
+import com.dtstack.taier.datasource.api.config.Configuration;
+import com.dtstack.taier.datasource.api.context.ClientEnvironment;
+import com.dtstack.taier.datasource.api.manager.list.ClientManager;
+import com.google.common.collect.Maps;
+import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,6 +34,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
+
+import java.util.Map;
 
 
 /**
@@ -39,6 +48,9 @@ public class EnvironmentContext implements InitializingBean {
 
     @Autowired
     private Environment environment;
+
+    @Autowired
+    private DatasourceConfig datasourceConfig;
 
     @Value("${jdbc.driverClassName:com.mysql.jdbc.Driver}")
     private String jdbcDriverClassName;
@@ -252,7 +264,26 @@ public class EnvironmentContext implements InitializingBean {
 
     @Override
     public void afterPropertiesSet() throws Exception {
-        ClientCache.setUserDir(getDataSourcePluginPath());
+        // 读取全局配置并初始化 datasource
+        Map<String, Object> dataConfig = handleDataConfig(datasourceConfig.getDatasource());
+        Configuration configuration = new Configuration(dataConfig);
+        ClientEnvironment clientEnvironment = new ClientEnvironment(configuration);
+        clientEnvironment.start();
+        ClientCache.setEnv(clientEnvironment.getManagerFactory().getManager(ClientManager.class));
+    }
+
+    /**
+     * 处理 data config
+     *
+     * @return 处理后的 config
+     */
+    private Map<String, Object> handleDataConfig(Map<String, Object> dataConfig) {
+        Map<String, Object> dataConfigNew = Maps.newHashMap();
+        if (MapUtils.isNotEmpty(dataConfig)) {
+            dataConfig.keySet().forEach(key ->
+                    dataConfigNew.put(CommonConstant.DATASOURCE_PREFIX + key, dataConfig.get(key)));
+        }
+        return dataConfigNew;
     }
 
     private volatile String localAddress;

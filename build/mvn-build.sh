@@ -19,5 +19,7 @@ taier-worker/taier-plugins/schedules/yarn2,\
 taier-worker/taier-plugins/schedules/yarn3,\
 taier-worker/taier-plugins/rdbs/hive,\
 taier-worker/taier-plugins/rdbs/hive2,\
-taier-worker/taier-plugins/rdbs/hive3 \
+taier-worker/taier-plugins/rdbs/hive3,\
+taier-worker/taier-plugins/script/yarn2-hdfs2-script/script-client,\
+taier-worker/taier-plugins/script/yarn3-hdfs3-script/script-client \
 -am
