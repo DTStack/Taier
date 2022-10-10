@@ -222,8 +222,7 @@ public class DevelopTaskParamService {
 
     public List<DevelopTaskParam> saveTaskParams(final Long taskId, final List<DevelopParamDTO> developParamDTOS) {
         this.developTaskParamDao.delete(Wrappers.lambdaQuery(DevelopTaskParam.class).eq(DevelopTaskParam::getTaskId, taskId));
-        final List<DevelopTaskParam> developTaskParams = this.buildBatchTaskParams(taskId, developParamDTOS);
-        return developTaskParams;
+        return this.buildBatchTaskParams(taskId, developParamDTOS);
     }
 
     public DevelopTaskParam addOrUpdate(final DevelopTaskParam developTaskParam) {
