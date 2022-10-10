@@ -1,8 +1,7 @@
 package com.dtstack.taier.develop.service.develop.impl;
 
-
-import com.dtstack.dtcenter.loader.IDownloader;
-import com.dtstack.dtcenter.loader.utils.AssertUtils;
+import com.dtstack.taier.datasource.api.downloader.IDownloader;
+import com.dtstack.taier.datasource.api.utils.AssertUtils;
 import com.dtstack.taier.common.enums.EComponentType;
 import com.dtstack.taier.common.exception.DtCenterDefException;
 import com.dtstack.taier.dao.domain.ScheduleJob;
@@ -31,7 +30,6 @@ public class FlinkDownloadLogService {
     @Autowired
     private ClusterService clusterService;
 
-
     /**
      * 根据 UIC 租户 ID 和 yarn 上任务 ID 下载任务日志
      *
@@ -50,8 +48,6 @@ public class FlinkDownloadLogService {
         Map hadoopConf = clusterService.getComponentByTenantId(tenantId, EComponentType.HDFS.getTypeCode(), false,
                 Map.class, null);
         return new LogPluginDownload(applicationId, hadoopConf, yarnConf, null, limitNum).getHdfsLogDownloader();
-
-
     }
 
     /**
@@ -73,7 +69,6 @@ public class FlinkDownloadLogService {
         }
     }
 
-
     public ScheduleJob getByJobId(String jobId) {
         List<ScheduleJob> scheduleJobs = scheduleJobMapper.getRdosJobByJobIds(Arrays.asList(jobId));
         if (org.apache.commons.collections.CollectionUtils.isNotEmpty(scheduleJobs)) {
@@ -82,5 +77,4 @@ public class FlinkDownloadLogService {
             return null;
         }
     }
-
 }

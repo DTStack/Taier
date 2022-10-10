@@ -161,4 +161,6 @@ export default {
 	GET_RESOUCE_LOCATION: `${BASE_URI}/batchCatalogue/getCatalogueIds`, // 获取当前目录的位置
 	VALIDATE_REPEAT_TASK_NAME: `${BASE_URI}/task/checkTaskNameRepeat`, // 校验当前任务名称是否重名
 	QUERY_SYNC_DATA_SOURCE: `${BASE_URI}/task/getSyncProperties`, // 获取当前数据同步任务的数据
+	QUERY_SUPPORT_SOURCE: `${BASE_URI}/dataSource/manager/support`, // 获取当前各组件支持的数据源
+	GET_RESOURCES_BY_TENANT: `${BASE_URI}/console/clusterResourcesByTenantId`, // 基于租户 ID 获取集群信息
 };

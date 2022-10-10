@@ -1,6 +1,7 @@
 package com.dtstack.taier.develop.controller.datasource;
 
 import com.alibaba.fastjson.JSONObject;
+import com.dtstack.taier.datasource.api.source.DataSourceType;
 import com.dtstack.taier.common.exception.RdosDefineException;
 import com.dtstack.taier.common.lang.coc.APITemplate;
 import com.dtstack.taier.common.lang.web.R;
@@ -16,12 +17,15 @@ import com.dtstack.taier.develop.mapstruct.datasource.DsDetailTransfer;
 import com.dtstack.taier.develop.service.datasource.impl.DatasourceService;
 import com.dtstack.taier.develop.service.datasource.impl.DsInfoService;
 import com.dtstack.taier.develop.service.datasource.impl.DsTypeService;
+import com.dtstack.taier.develop.service.template.SyncBuilderFactory;
 import com.dtstack.taier.develop.utils.Asserts;
 import com.dtstack.taier.develop.vo.datasource.DsDetailVO;
 import com.dtstack.taier.develop.vo.datasource.DsInfoVO;
 import com.dtstack.taier.develop.vo.datasource.DsListVO;
+import com.dtstack.taier.develop.vo.datasource.DsSupportVO;
 import com.dtstack.taier.develop.vo.datasource.DsTypeListVO;
 import com.dtstack.taier.develop.vo.develop.query.KafkaTopicGetVO;
+import com.google.common.collect.Lists;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,9 +38,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
- *
  * @author 全阅
  * @Description: 数据源中心控制层
  * @Date: 2021/3/8 18:57
@@ -54,6 +59,9 @@ public class DataSourceController {
 
     @Autowired
     private DatasourceService datasourceService;
+
+    @Autowired
+    private SyncBuilderFactory syncBuilderFactory;
 
     @ApiOperation("数据源列表分页信息")
     @PostMapping("page")
@@ -123,7 +131,7 @@ public class DataSourceController {
         return new APITemplate<JSONObject>() {
             @Override
             protected JSONObject process() {
-               return dsInfoService.pollPreview(pollPreviewParam.getSourceId(), pollPreviewParam.getTableName(), pollPreviewParam.getSchema());
+                return dsInfoService.pollPreview(pollPreviewParam.getSourceId(), pollPreviewParam.getTableName(), pollPreviewParam.getSchema());
             }
         }.execute();
     }
@@ -153,6 +161,7 @@ public class DataSourceController {
 
     /**
      * 判断 oracle 数据源是否开启 cdb
+     *
      * @return 判断结果
      */
     @ApiOperation(value = "判断 oracle 数据源是否开启 cdb")
@@ -166,4 +175,28 @@ public class DataSourceController {
         }.execute();
     }
 
+    @ApiOperation(value = "判断数据源是否支持向导模式")
+    @PostMapping("support")
+    public R<DsSupportVO> support() {
+        DsSupportVO supportVO = new DsSupportVO();
+        Set<DataSourceType> writeDataSourceType = syncBuilderFactory.writerBuilderMap.keySet();
+        Set<DataSourceType> readDataSourceType = syncBuilderFactory.readBuilderMap.keySet();
+
+        supportVO.setReaders(readDataSourceType.stream()
+                .map(DataSourceType::getVal)
+                .collect(Collectors.toList()));
+        supportVO.setWriters(writeDataSourceType.stream()
+                .map(DataSourceType::getVal)
+                .collect(Collectors.toList()));
+        supportVO.setFlinkSqlSources(Lists.newArrayList(DataSourceType.KAFKA.getVal(),
+                DataSourceType.KAFKA_10.getVal(),
+                DataSourceType.KAFKA_2X.getVal(),
+                DataSourceType.KAFKA_11.getVal()));
+        supportVO.setFlinkSqlSinks(Lists.newArrayList(DataSourceType.MySQL.getVal(),
+                DataSourceType.HBASE2.getVal(),
+                DataSourceType.ES6.getVal(),
+                DataSourceType.ES7.getVal()));
+        supportVO.setFlinkSqlSides(Lists.newArrayList(DataSourceType.MySQL.getVal()));
+        return R.ok(supportVO);
+    }
 }

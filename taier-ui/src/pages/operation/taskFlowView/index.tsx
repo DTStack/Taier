@@ -274,9 +274,9 @@ const TaskFlowView = ({ tabData, onPatchData, onForzenTasks }: ITaskFlowViewProp
 					onContextMenu={handleContextMenu}
 					onDrawVertex={(data) => {
 						if (data.scheduleStatus === SCHEDULE_STATUS.FORZON) {
-							return 'whiteSpace=wrap;fillColor=#EFFFFE;strokeColor=#26DAD1;';
+							return 'whiteSpace=wrap;fillColor=var(--badge-pending-background);strokeColor=var(--badge-pending-border);';
 						}
-						return 'shape=swimlane;startSize=200;whiteSpace=wrap;fillColor=#EDF6FF;strokeColor=#A7CDF0;';
+						return 'whiteSpace=wrap;fillColor=var(--badge-running-background);strokeColor=var(--badge-running-border);';
 					}}
 				/>
 			</Modal>

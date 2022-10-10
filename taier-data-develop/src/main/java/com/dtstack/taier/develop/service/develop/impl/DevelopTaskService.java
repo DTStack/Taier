@@ -26,31 +26,47 @@ import com.alibaba.fastjson.TypeReference;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.dtstack.dtcenter.loader.client.ClientCache;
-import com.dtstack.dtcenter.loader.client.IClient;
-import com.dtstack.dtcenter.loader.client.IKerberos;
-import com.dtstack.dtcenter.loader.dto.ColumnMetaDTO;
-import com.dtstack.dtcenter.loader.dto.SqlQueryDTO;
-import com.dtstack.dtcenter.loader.dto.source.ISourceDTO;
-import com.dtstack.dtcenter.loader.source.DataSourceType;
-import com.dtstack.taier.common.enums.*;
+import com.dtstack.taier.datasource.api.base.ClientCache;
+import com.dtstack.taier.datasource.api.client.IClient;
+import com.dtstack.taier.datasource.api.dto.ColumnMetaDTO;
+import com.dtstack.taier.datasource.api.dto.SqlQueryDTO;
+import com.dtstack.taier.datasource.api.dto.source.ISourceDTO;
+import com.dtstack.taier.datasource.api.source.DataSourceType;
+import com.dtstack.taier.common.enums.CatalogueType;
+import com.dtstack.taier.common.enums.Deleted;
+import com.dtstack.taier.common.enums.DictType;
+import com.dtstack.taier.common.enums.EComputeType;
+import com.dtstack.taier.common.enums.EScheduleJobType;
+import com.dtstack.taier.common.enums.EScheduleStatus;
+import com.dtstack.taier.common.enums.ResourceRefType;
+import com.dtstack.taier.common.enums.TaskTemplateType;
 import com.dtstack.taier.common.env.EnvironmentContext;
 import com.dtstack.taier.common.exception.DtCenterDefException;
 import com.dtstack.taier.common.exception.ErrorCode;
 import com.dtstack.taier.common.exception.RdosDefineException;
-import com.dtstack.taier.common.kerberos.KerberosConfigVerify;
 import com.dtstack.taier.common.util.AssertUtils;
 import com.dtstack.taier.common.util.PublicUtil;
-import com.dtstack.taier.common.util.Strings;
-import com.dtstack.taier.dao.domain.*;
+import com.dtstack.taier.dao.domain.Component;
+import com.dtstack.taier.dao.domain.DevelopCatalogue;
+import com.dtstack.taier.dao.domain.DevelopDataSource;
+import com.dtstack.taier.dao.domain.DevelopSysParameter;
+import com.dtstack.taier.dao.domain.DevelopTaskParam;
+import com.dtstack.taier.dao.domain.DevelopTaskTask;
+import com.dtstack.taier.dao.domain.Dict;
+import com.dtstack.taier.dao.domain.ScheduleTaskShade;
+import com.dtstack.taier.dao.domain.ScheduleTaskTaskShade;
+import com.dtstack.taier.dao.domain.Task;
+import com.dtstack.taier.dao.domain.TaskDirtyDataManage;
+import com.dtstack.taier.dao.domain.TaskTemplate;
+import com.dtstack.taier.dao.domain.Tenant;
 import com.dtstack.taier.dao.mapper.DevelopTaskMapper;
+import com.dtstack.taier.develop.datasource.convert.load.SourceLoaderService;
 import com.dtstack.taier.develop.dto.devlop.TaskCatalogueVO;
 import com.dtstack.taier.develop.dto.devlop.TaskCheckResultVO;
 import com.dtstack.taier.develop.dto.devlop.TaskGetNotDeleteVO;
 import com.dtstack.taier.develop.dto.devlop.TaskResourceParam;
 import com.dtstack.taier.develop.dto.devlop.TaskVO;
 import com.dtstack.taier.develop.enums.develop.FlinkVersion;
-import com.dtstack.taier.develop.enums.develop.SourceDTOType;
 import com.dtstack.taier.develop.enums.develop.TaskCreateModelType;
 import com.dtstack.taier.develop.enums.develop.WorkFlowScheduleConfEnum;
 import com.dtstack.taier.develop.mapstruct.vo.TaskDirtyDataManageTransfer;
@@ -59,6 +75,7 @@ import com.dtstack.taier.develop.service.console.TenantService;
 import com.dtstack.taier.develop.service.datasource.impl.DatasourceService;
 import com.dtstack.taier.develop.service.develop.ITaskSaver;
 import com.dtstack.taier.develop.service.develop.TaskConfiguration;
+import com.dtstack.taier.develop.service.develop.runner.ScriptTaskRunner;
 import com.dtstack.taier.develop.service.develop.saver.AbstractTaskSaver;
 import com.dtstack.taier.develop.service.schedule.TaskService;
 import com.dtstack.taier.develop.service.task.TaskTemplateService;
@@ -70,16 +87,14 @@ import com.dtstack.taier.develop.vo.develop.result.DevelopAllProductGlobalReturn
 import com.dtstack.taier.develop.vo.develop.result.DevelopTaskGetComponentVersionResultVO;
 import com.dtstack.taier.develop.vo.develop.result.DevelopTaskTypeVO;
 import com.dtstack.taier.develop.vo.develop.result.job.TaskProperties;
+import com.dtstack.taier.pluginapi.constrant.ConfigConstant;
 import com.dtstack.taier.pluginapi.enums.TaskStatus;
 import com.dtstack.taier.scheduler.dto.schedule.SavaTaskDTO;
 import com.dtstack.taier.scheduler.dto.schedule.ScheduleTaskShadeDTO;
-import com.dtstack.taier.scheduler.service.ClusterService;
 import com.dtstack.taier.scheduler.service.ComponentService;
 import com.dtstack.taier.scheduler.service.ScheduleActionService;
 import com.dtstack.taier.scheduler.service.ScheduleTaskTaskService;
-import com.dtstack.taier.scheduler.enums.ESchedulePeriodType;
-import com.dtstack.taier.scheduler.impl.pojo.ParamTaskAction;
-import com.dtstack.taier.scheduler.service.*;
+import com.dtstack.taier.scheduler.service.ScheduleDictService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
@@ -97,7 +112,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.io.File;
 import java.sql.Timestamp;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -182,9 +196,6 @@ public class DevelopTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
     private FlinkTaskService flinkTaskService;
 
     @Autowired
-    private ClusterService clusterService;
-
-    @Autowired
     private TaskConfiguration taskConfiguration;
 
     @Autowired
@@ -196,17 +207,14 @@ public class DevelopTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
     @Autowired
     private ScheduleDictService scheduleDictService;
 
-    private static final String KERBEROS_CONFIG = "kerberosConfig";
+    @Autowired
+    private DevelopScriptService developScriptService;
 
-    /**
-     * kerberos认证文件在 ftp上的相对路径
-     */
-    private static final String KERBEROS_DIR = "kerberosDir";
+    @Autowired
+    private ScriptTaskRunner scriptTaskRunner;
 
-    /**
-     * Kerberos 文件上传的时间戳
-     */
-    private static final String KERBEROS_FILE_TIMESTAMP = "kerberosFileTimestamp";
+    @Autowired
+    private SourceLoaderService sourceLoaderService;
 
     private static final Integer IS_FILE = 1;
 
@@ -250,7 +258,22 @@ public class DevelopTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
         TaskDirtyDataManage oneByTaskId = taskDirtyDataManageService.getOneByTaskId(task.getId());
         taskVO.setTaskDirtyDataManageVO(TaskDirtyDataManageTransfer.INSTANCE.taskDirtyDataManageToTaskDirtyDataManageVO(oneByTaskId));
         taskVO.setOpenDirtyDataManage(taskVO.getTaskDirtyDataManageVO() != null);
+        populatePythonVersionIfNeed(task, taskVO);
         return taskVO;
+    }
+
+    private void populatePythonVersionIfNeed(Task task, TaskVO taskVO) {
+        if (!task.getTaskType().equals(EScheduleJobType.PYTHON.getType())) {
+            return;
+        }
+        JSONObject exeArgsJson = JSON.parseObject(task.getExeArgs());
+        String appType = exeArgsJson.getString(ConfigConstant.APP_TYPE);
+        if (StringUtils.isEmpty(appType)) {
+            return;
+        }
+        // python2、python3 remove prefix 「python」to find version
+        String pythonVersion = StringUtils.removeStartIgnoreCase(appType, EScheduleJobType.PYTHON.name());
+        taskVO.setPythonVersion(pythonVersion);
     }
 
     /**
@@ -563,6 +586,8 @@ public class DevelopTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
             String sqlText = taskSaver.processScheduleRunSqlText(task.getTenantId(), task.getTaskType(), task.getSqlText());
             actionParam.put("sqlText", sqlText);
         }
+        String taskExeArgs = buildExeArgs(task);
+        Optional.ofNullable(taskExeArgs).ifPresent(v -> actionParam.put("exeArgs", taskExeArgs));
         actionParam.put("taskId", taskId);
         actionParam.put("taskType", task.getTaskType());
         actionParam.put("name", task.getName());
@@ -914,44 +939,6 @@ public class DevelopTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
         return this.developTaskMapper.selectById(taskId);
     }
 
-
-    /**
-     * 判断任务是否可以发布
-     * 当前只对sql任务做判断--不允许提交空的sql任务
-     *
-     * @return
-     */
-    private boolean checkTaskCanSubmit(final Task task) {
-        if (task.getTaskType().equals(EScheduleJobType.SPARK_SQL.getVal()) && StringUtils.isEmpty(task.getSqlText())) {
-            throw new RdosDefineException(task.getName() + "任务的SQL为空", ErrorCode.TASK_CAN_NOT_SUBMIT);
-        } else if (task.getTaskType().equals(EScheduleJobType.SYNC.getVal()) || task.getTaskType().equals(EScheduleJobType.DATA_ACQUISITION.getVal())) {
-            if (StringUtils.isBlank(task.getSqlText())) {
-                throw new RdosDefineException(task.getName() + "任务配置信息为空", ErrorCode.TASK_CAN_NOT_SUBMIT);
-            }
-            final String sqlText = task.getSqlText();
-            final JSONObject jsonObject = JSON.parseObject(sqlText);
-            if (jsonObject.containsKey("parser")) {
-                final JSONObject parser = jsonObject.getJSONObject("parser");
-                if (parser.containsKey("targetMap")) {
-                    dataSourceService.checkConnectionById(parser.getJSONObject("targetMap").getLong("sourceId"));
-                }
-                if (parser.containsKey("sourceMap")) {
-                    final JSONObject sourceMap = parser.getJSONObject("sourceMap");
-                    if (sourceMap.containsKey("sourceList")) {
-                        final JSONArray sourceList = sourceMap.getJSONArray("sourceList");
-                        for (final Object o : sourceList) {
-                            final JSONObject source = (JSONObject) o;
-                            dataSourceService.checkConnectionById(source.getLong("sourceId"));
-                        }
-                    } else {
-                        dataSourceService.checkConnectionById(parser.getJSONObject("sourceMap").getLong("sourceId"));
-                    }
-                }
-            }
-        }
-        return true;
-    }
-
     /**
      * 数据开发-获取所有系统参数
      */
@@ -1190,16 +1177,14 @@ public class DevelopTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
             if (part == null) {
                 part = false;
             }
-            JSONObject dataJson = JSONObject.parseObject(source.getDataJson());
-            Map<String, Object> kerberosConfig = fillKerberosConfig(source.getId());
-            IClient iClient = ClientCache.getClient(source.getType());
+            ISourceDTO sourceDTO = sourceLoaderService.buildSourceDTO(source, schema);
+            IClient client = ClientCache.getClient(sourceDTO.getSourceType());
             SqlQueryDTO sqlQueryDTO = SqlQueryDTO.builder()
                     .tableName(tableName)
                     .schema(schema)
                     .filterPartitionColumns(part)
                     .build();
-            ISourceDTO iSourceDTO = SourceDTOType.getSourceDTO(dataJson, source.getType(), kerberosConfig, Maps.newHashMap());
-            List<ColumnMetaDTO> columnMetaData = iClient.getColumnMetaData(iSourceDTO, sqlQueryDTO);
+            List<ColumnMetaDTO> columnMetaData = client.getColumnMetaData(sourceDTO, sqlQueryDTO);
             List<JSONObject> list = new ArrayList<>();
             if (CollectionUtils.isNotEmpty(columnMetaData)) {
                 for (ColumnMetaDTO columnMetaDTO : columnMetaData) {
@@ -1214,66 +1199,6 @@ public class DevelopTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
         } catch (Exception e) {
             throw new RdosDefineException(ErrorCode.GET_COLUMN_ERROR, e);
         }
-
-    }
-
-    /**
-     * 下载检查kerberos配置
-     *
-     * @param sourceId
-     * @return 返回该数据源的完整kerberos配置
-     */
-    public Map<String, Object> fillKerberosConfig(Long sourceId) {
-        DevelopDataSource source = dataSourceService.getOne(sourceId);
-        Long tenantId = tenantService.getDtTenantId(source.getTenantId());
-        JSONObject dataJson = JSON.parseObject(source.getDataJson());
-        JSONObject kerberosConfig = dataJson.getJSONObject(KERBEROS_CONFIG);
-        if (MapUtils.isNotEmpty(kerberosConfig)) {
-            String localKerberosConf = getLocalKerberosConf(sourceId);
-            downloadKerberosFromSftp(kerberosConfig.getString(KERBEROS_DIR), localKerberosConf, tenantId, dataJson.getTimestamp(KERBEROS_FILE_TIMESTAMP));
-            return handleKerberos(source.getType(), kerberosConfig, localKerberosConf);
-        }
-        return new HashMap<>();
-    }
-
-    private String getLocalKerberosConf(Long sourceId) {
-        String key = getSourceKey(sourceId);
-        return environmentContext.getTempDir() + File.separator + key;
-    }
-
-    private String getSourceKey(Long sourceId) {
-        return Optional.ofNullable(sourceId).orElse(0L).toString();
-    }
-
-    private void downloadKerberosFromSftp(String kerberosFile, String localKerberosConf, Long tenantId, Timestamp kerberosFileTimestamp) {
-        //需要读取配置文件
-        Map<String, String> sftpMap = clusterService.getComponentByTenantId(tenantId, EComponentType.SFTP.getTypeCode(), false, Map.class, null);
-        try {
-            KerberosConfigVerify.downloadKerberosFromSftp(kerberosFile, localKerberosConf, sftpMap, kerberosFileTimestamp);
-        } catch (Exception e) {
-            //允许下载失败
-            LOGGER.info("download kerberosFile failed {}", kerberosFile, e);
-        }
-    }
-
-
-    /**
-     * kerberos配置预处理、替换相对路径为绝对路径等操作
-     *
-     * @param sourceType
-     * @param kerberosMap
-     * @param localKerberosConf
-     * @return
-     */
-    private Map<String, Object> handleKerberos(Integer sourceType, Map<String, Object> kerberosMap, String localKerberosConf) {
-        IKerberos kerberos = ClientCache.getKerberos(sourceType);
-        HashMap<String, Object> tmpKerberosConfig = new HashMap<>(kerberosMap);
-        try {
-            kerberos.prepareKerberosForConnect(tmpKerberosConfig, localKerberosConf);
-        } catch (Exception e) {
-            throw new RdosDefineException("common-loader中kerberos配置文件处理失败", e);
-        }
-        return tmpKerberosConfig;
     }
 
     /**
@@ -1497,5 +1422,14 @@ public class DevelopTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
             return new JSONObject();
         }
         return JSONObject.parseObject(dicts.get(0).getDictValue());
+    }
+
+    private String buildExeArgs(Task task) {
+        if (!scriptTaskRunner.support().contains(EScheduleJobType.getByTaskType(task.getTaskType()))) {
+            return null;
+        }
+        // add place holder
+        String fileDir = "${uploadPath}";
+        return developScriptService.buildExeArgs(task, fileDir);
     }
 }

@@ -30,7 +30,7 @@ public enum EJobType {
     MR(1),
     //数据同步任务
     SYNC(2),
-    //离线MR任务--python_job
+    //离线MR任务--python_job or shell_job
     PYTHON(3),
     ;
     private int type;

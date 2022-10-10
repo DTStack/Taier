@@ -404,6 +404,11 @@ public class JobStopDealer implements InitializingBean, DisposableBean {
 
 
             ParamAction paramAction = PublicUtil.jsonStrToObject(jobCache.getJobInfo(), ParamAction.class);
+            EJobClientType jobClientType = EScheduleJobType.getByTaskType(paramAction.getTaskType()).getJobClientType();
+            if (EJobClientType.DATASOURCE_PLUGIN.equals(jobClientType)) {
+                return StoppedStatus.NO_OPERATE;
+            }
+
             paramAction.setEngineTaskId(scheduleJob.getEngineJobId());
             paramAction.setApplicationId(scheduleJob.getApplicationId());
             JobClient jobClient = new JobClient(paramAction);

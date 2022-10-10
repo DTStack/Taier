@@ -3,7 +3,7 @@ import { singleton } from 'tsyringe';
 import { lazy, Suspense } from 'react';
 import { Modal } from 'antd';
 import api from '@/api';
-import { TASK_TYPE_ENUM } from '@/constant';
+import { DATA_SOURCE_ENUM, TASK_TYPE_ENUM } from '@/constant';
 import type { FormInstance } from 'antd';
 import {
 	DataCollectionIcon,
@@ -11,6 +11,8 @@ import {
 	FlinkSQLIcon,
 	HiveSQLIcon,
 	OceanBaseIcon,
+	PythonIcon,
+	ShellIcon,
 	SparkSQLIcon,
 	VirtualIcon,
 	WorkflowIcon,
@@ -30,6 +32,36 @@ import { Component } from '@dtinsight/molecule/esm/react';
 
 export interface ITaskRenderState {
 	supportTaskList: ISupportJobTypes[];
+	supportSourceList: {
+		/**
+		 * 数据同步 writers 支持的数据源类型
+		 */
+		writers: DATA_SOURCE_ENUM[];
+		/**
+		 * 数据同步 readers 支持的数据源类型
+		 */
+		readers: DATA_SOURCE_ENUM[];
+		/**
+		 * 实时采集 writer 支持的数据源类型
+		 */
+		dataAcquisitionWriter: DATA_SOURCE_ENUM[];
+		/**
+		 * 实时采集 reader 支持的数据源类型
+		 */
+		dataAcquisitionReader: DATA_SOURCE_ENUM[];
+		/**
+		 * flinkSql 源表支持的数据源类型
+		 */
+		flinkSqlSources: DATA_SOURCE_ENUM[];
+		/**
+		 * flinkSql 结果表支持的数据源类型
+		 */
+		flinkSqlSinks: DATA_SOURCE_ENUM[];
+		/**
+		 * flinkSql 维表支持的数据源类型
+		 */
+		flinkSqlSides: DATA_SOURCE_ENUM[];
+	};
 }
 
 @singleton()
@@ -39,11 +71,21 @@ export default class TaskRenderService extends Component<ITaskRenderState> {
 		 * 当前支持的全部任务列表
 		 */
 		supportTaskList: [],
+		supportSourceList: {
+			writers: [],
+			readers: [],
+			dataAcquisitionWriter: [],
+			dataAcquisitionReader: [],
+			flinkSqlSources: [],
+			flinkSqlSinks: [],
+			flinkSqlSides: [],
+		},
 	};
 
 	constructor() {
 		super();
 		this.getTaskTypes();
+		this.getSupportSource();
 	}
 
 	// 获取当前支持的任务类型
@@ -57,6 +99,33 @@ export default class TaskRenderService extends Component<ITaskRenderState> {
 				notification.error({
 					key: 'FailedJob',
 					message: `获取支持的类型失败，将无法创建新的任务！`,
+				});
+			}
+		});
+	}
+
+	public getSupportSource() {
+		api.getSupportSource<ITaskRenderState['supportSourceList']>({}).then((res) => {
+			if (res.code === 1) {
+				const {
+					writers = [],
+					readers = [],
+					dataAcquisitionReader = [],
+					dataAcquisitionWriter = [],
+					flinkSqlSides = [],
+					flinkSqlSinks = [],
+					flinkSqlSources = [],
+				} = res.data;
+				this.setState({
+					supportSourceList: {
+						writers,
+						readers,
+						dataAcquisitionReader,
+						dataAcquisitionWriter,
+						flinkSqlSides,
+						flinkSqlSinks,
+						flinkSqlSources,
+					},
 				});
 			}
 		});
@@ -79,6 +148,13 @@ export default class TaskRenderService extends Component<ITaskRenderState> {
 			<>
 				{field.formField?.map((f) => {
 					const DefinedComponent = scaffolds[f];
+					if (!DefinedComponent) {
+						notification.error({
+							key: 'UNDEFINED_DEFINED_COMPONENT',
+							message: `未定义的表单组件-「${f}」`,
+						});
+						return null;
+					}
 					return (
 						<DefinedComponent
 							key={f}
@@ -129,6 +205,10 @@ export default class TaskRenderService extends Component<ITaskRenderState> {
 				return <VirtualIcon />;
 			case TASK_TYPE_ENUM.WORK_FLOW:
 				return <WorkflowIcon style={{ color: '#2491F7' }} />;
+			case TASK_TYPE_ENUM.PYTHON:
+				return <PythonIcon />;
+			case TASK_TYPE_ENUM.SHELL:
+				return <ShellIcon />;
 			default:
 				return 'file';
 		}

@@ -36,11 +36,13 @@ import com.dtstack.taier.dao.domain.DevelopFunctionResource;
 import com.dtstack.taier.dao.domain.DevelopResource;
 import com.dtstack.taier.dao.domain.DevelopTaskResource;
 import com.dtstack.taier.dao.mapper.DevelopResourceMapper;
+import com.dtstack.taier.datasource.api.base.ClientCache;
+import com.dtstack.taier.datasource.api.dto.source.ISourceDTO;
+import com.dtstack.taier.develop.datasource.convert.load.ConsoleLoaderService;
 import com.dtstack.taier.develop.dto.devlop.CatalogueVO;
 import com.dtstack.taier.develop.dto.devlop.DevelopResourceAddDTO;
 import com.dtstack.taier.develop.dto.devlop.DevelopResourceVO;
 import com.dtstack.taier.develop.service.user.UserService;
-import com.dtstack.taier.develop.utils.develop.common.HdfsOperator;
 import com.dtstack.taier.pluginapi.constrant.ConfigConstant;
 import com.dtstack.taier.scheduler.service.ClusterService;
 import org.apache.commons.lang3.StringUtils;
@@ -88,6 +90,9 @@ public class DevelopResourceService {
 
     @Autowired
     private ClusterService clusterService;
+
+    @Autowired
+    private ConsoleLoaderService consoleLoaderService;
 
     public static final String TAIER_RESOURCE = "/taier/resource";
 
@@ -194,8 +199,10 @@ public class DevelopResourceService {
         //删除资源在hdfs的实际存储文件
         DevelopResource resource = getResource(resourceId);
         try {
-            JSONObject hdfsConf = clusterService.getConfigByKey(tenantId, EComponentType.HDFS.getConfName(), null);
-            HdfsOperator.checkAndDele(hdfsConf, hdfsConf.getJSONObject(ConfigConstant.KERBEROS_CONFIG), resource.getUrl());
+            ISourceDTO hdfsSource = consoleLoaderService.getHdfsSource(tenantId);
+            ClientCache
+                    .getHdfs(hdfsSource.getSourceType())
+                    .checkAndDelete(hdfsSource, resource.getUrl());
         } catch (Exception e) {
             LOGGER.error("tenantId:{}  resourceId:{} fail delete resource from HDFS", tenantId, resourceId, e);
         }
@@ -293,10 +300,11 @@ public class DevelopResourceService {
 
         String hdfsFileName = String.format("%s_%s_%s", tenantId, resourceName, originalFilename);
         String hdfsPath = this.getBatchHdfsPath(tenantId, hdfsFileName);
-
         try {
-            JSONObject hdfsConf = clusterService.getConfigByKey(tenantId,EComponentType.HDFS.getConfName(), null);
-            HdfsOperator.uploadLocalFileToHdfs(hdfsConf, hdfsConf.getJSONObject(ConfigConstant.KERBEROS_CONFIG), tmpPath, hdfsPath);
+            ISourceDTO hdfsSource = consoleLoaderService.getHdfsSource(tenantId);
+            ClientCache
+                    .getHdfs(hdfsSource.getSourceType())
+                    .uploadLocalFileToHdfs(hdfsSource, tmpPath, hdfsPath);
         } catch (Exception e) {
             throw new RdosDefineException(ErrorCode.SERVER_EXCEPTION, e);
         } finally {

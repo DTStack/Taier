@@ -51,11 +51,10 @@ import type { IDataColumnsProps, IDataSourceUsedInSyncProps, IFlinkSideProps } f
 import { createSeries } from '@/utils';
 import { NAME_FIELD } from '.';
 import { FormContext } from '@/services/rightBarService';
+import { taskRenderService } from '@/services';
 
 const FormItem = Form.Item;
 const { Option } = Select;
-
-const DATA_SOURCE_OPTIONS = [DATA_SOURCE_ENUM.MYSQL];
 
 type IFormFieldProps = IFlinkSideProps;
 
@@ -325,7 +324,7 @@ export default function DimensionForm({
 						option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
 					}
 				>
-					{DATA_SOURCE_OPTIONS.map((v) => (
+					{taskRenderService.getState().supportSourceList.flinkSqlSides.map((v) => (
 						<Option value={v} key={v}>
 							{DATA_SOURCE_TEXT[v]}
 						</Option>

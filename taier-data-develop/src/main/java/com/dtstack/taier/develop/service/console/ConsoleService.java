@@ -26,6 +26,7 @@ import com.dtstack.taier.common.enums.OperatorType;
 import com.dtstack.taier.common.exception.ErrorCode;
 import com.dtstack.taier.common.exception.RdosDefineException;
 import com.dtstack.taier.common.util.ComponentVersionUtil;
+import com.dtstack.taier.common.util.DatasourceTypeUtil;
 import com.dtstack.taier.dao.domain.Cluster;
 import com.dtstack.taier.dao.domain.Component;
 import com.dtstack.taier.dao.domain.KerberosConfig;
@@ -41,6 +42,11 @@ import com.dtstack.taier.dao.mapper.ScheduleJobOperatorRecordMapper;
 import com.dtstack.taier.dao.mapper.TenantMapper;
 import com.dtstack.taier.dao.pager.PageQuery;
 import com.dtstack.taier.dao.pager.PageResult;
+import com.dtstack.taier.datasource.api.base.ClientCache;
+import com.dtstack.taier.datasource.api.client.IYarn;
+import com.dtstack.taier.datasource.api.dto.source.ISourceDTO;
+import com.dtstack.taier.datasource.api.dto.yarn.YarnResourceDTO;
+import com.dtstack.taier.develop.mapstruct.vo.DatasourceMapstructTransfer;
 import com.dtstack.taier.develop.vo.console.ConsoleJobInfoVO;
 import com.dtstack.taier.develop.vo.console.ConsoleJobVO;
 import com.dtstack.taier.pluginapi.JobClient;
@@ -51,6 +57,8 @@ import com.dtstack.taier.pluginapi.pojo.ParamAction;
 import com.dtstack.taier.pluginapi.util.DateUtil;
 import com.dtstack.taier.pluginapi.util.PublicUtil;
 import com.dtstack.taier.scheduler.WorkerOperator;
+import com.dtstack.taier.scheduler.datasource.convert.engine.PluginInfoToSourceDTO;
+import com.dtstack.taier.scheduler.executor.DatasourceOperator;
 import com.dtstack.taier.scheduler.jobdealer.JobDealer;
 import com.dtstack.taier.scheduler.server.queue.GroupPriorityQueue;
 import com.dtstack.taier.scheduler.service.ComponentService;
@@ -123,7 +131,7 @@ public class ConsoleService {
     private ConsoleKerberosMapper consoleKerberosMapper;
 
     @Autowired
-    private ConsoleComponentService consoleComponentService;
+    private DatasourceMapstructTransfer datasourceMapstructTransfer;
 
 
     public List<String> nodeAddress() {
@@ -469,14 +477,14 @@ public class ConsoleService {
                 Map sftpMap = componentService.getComponentByClusterId(cluster.getId(), EComponentType.SFTP.getTypeCode(), false, Map.class,null);
                 pluginInfo = componentService.wrapperConfig(yarnComponent.getComponentTypeCode(),componentConfig.toJSONString(),sftpMap,kerberosConfig,cluster.getId());
             }
-            String typeName = componentConfig.getString(ConfigConstant.TYPE_NAME_KEY);
-            if (StringUtils.isBlank(typeName)) {
-                //获取对应的插件名称
-                typeName = consoleComponentService.convertComponentTypeToClient(cluster.getId(),
-                        EComponentType.YARN.getTypeCode(),yarnComponent.getVersionName(),null,null);
-            }
-            pluginInfo.put(ConfigConstant.TYPE_NAME_KEY,typeName);
-            return workerOperator.clusterResource(pluginInfo.toJSONString());
+            Integer datasourceType = DatasourceTypeUtil.getTypeByComponentAndVersion(yarnComponent.getComponentTypeCode(), yarnComponent.getVersionName());
+            pluginInfo.put(DatasourceOperator.DATA_SOURCE_TYPE, datasourceType);
+
+
+            IYarn yarn = ClientCache.getYarn(datasourceType);
+            ISourceDTO sourceDTO = PluginInfoToSourceDTO.getSourceDTO(pluginInfo.toJSONString());
+            YarnResourceDTO yarnResource = yarn.getYarnResource(sourceDTO);
+            return datasourceMapstructTransfer.yarnResourceDTOtoClusterResource(yarnResource);
         } catch (Exception e) {
             LOGGER.error("getResources error: ", e);
             throw new RdosDefineException("acquire flink resources error.");

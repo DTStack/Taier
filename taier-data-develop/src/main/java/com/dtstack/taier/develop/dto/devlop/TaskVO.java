@@ -99,6 +99,19 @@ public class TaskVO extends Task {
      */
     private String flowName;
 
+    /**
+     * python 版本，如 2、3
+     */
+    private String pythonVersion;
+
+    public String getPythonVersion() {
+        return pythonVersion;
+    }
+
+    public void setPythonVersion(String pythonVersion) {
+        this.pythonVersion = pythonVersion;
+    }
+
     public List<Long> getResourceIdList() {
         return resourceIdList;
     }

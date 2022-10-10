@@ -2,7 +2,7 @@ package com.dtstack.taier.develop.service.develop.saver;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
-import com.dtstack.dtcenter.loader.source.DataSourceType;
+import com.dtstack.taier.datasource.api.source.DataSourceType;
 import com.dtstack.taier.common.enums.EScheduleJobType;
 import com.dtstack.taier.common.exception.ErrorCode;
 import com.dtstack.taier.common.exception.RdosDefineException;
@@ -17,12 +17,11 @@ import com.dtstack.taier.develop.service.develop.impl.TaskDirtyDataManageService
 import com.dtstack.taier.develop.service.template.DefaultSetting;
 import com.dtstack.taier.develop.service.template.FlinkxJobTemplate;
 import com.dtstack.taier.develop.service.template.Restoration;
+import com.dtstack.taier.develop.service.template.SyncBuilderFactory;
 import com.dtstack.taier.develop.service.template.bulider.nameMapping.NameMappingBuilder;
 import com.dtstack.taier.develop.service.template.bulider.nameMapping.NameMappingBuilderFactory;
 import com.dtstack.taier.develop.service.template.bulider.reader.DaReaderBuilder;
-import com.dtstack.taier.develop.service.template.bulider.reader.DaReaderBuilderFactory;
 import com.dtstack.taier.develop.service.template.bulider.writer.DaWriterBuilder;
-import com.dtstack.taier.develop.service.template.bulider.writer.DaWriterBuilderFactory;
 import com.google.common.collect.Lists;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang.BooleanUtils;
@@ -42,6 +41,7 @@ import static com.dtstack.taier.develop.utils.develop.common.enums.Constant.CREA
 
 /**
  * 实时采集和数据同步任务共用
+ *
  * @Author: zhichen
  * @Date: 2022/05/29/5:14 PM
  */
@@ -51,15 +51,12 @@ public class SyncTaskSaver extends AbstractTaskSaver {
     public static Logger LOGGER = LoggerFactory.getLogger(SyncTaskSaver.class);
 
     @Autowired
-    private DaReaderBuilderFactory daReaderBuilderFactory;
-
-    @Autowired
-    private DaWriterBuilderFactory daWriterBuilderFactory;
+    private SyncBuilderFactory syncBuilderFactory;
 
     @Autowired
     private NameMappingBuilderFactory nameMappingBuilderFactory;
     @Autowired
-    private DefaultTaskSaver defaultTaskSaver ;
+    private DefaultTaskSaver defaultTaskSaver;
     @Autowired
     private TaskDirtyDataManageService taskDirtyDataManageService;
 
@@ -177,7 +174,7 @@ public class SyncTaskSaver extends AbstractTaskSaver {
             //格式化入参(前端会在sourceMap传入很多无效参数，需要格式化入参获取真正需要的参数)
             int sourceType = Integer.parseInt(String.valueOf(param.getSourceMap().get("type")));
             DataSourceType dataSourceType = DataSourceType.getSourceType(sourceType);
-            DaReaderBuilder daReaderBuilder = daReaderBuilderFactory.getDaReaderBuilder(dataSourceType);
+            DaReaderBuilder daReaderBuilder = syncBuilderFactory.getReadBuilder(dataSourceType);
             if (daReaderBuilder == null) {
                 throw new RdosDefineException(ErrorCode.SOURCE_CAN_NOT_AS_INPUT);
             }
@@ -198,7 +195,7 @@ public class SyncTaskSaver extends AbstractTaskSaver {
             JSONObject nameMappingJson = null;
             Integer targetType = Integer.parseInt(String.valueOf(targetMap.get("type")));
             DataSourceType targetDataSourceType = DataSourceType.getSourceType(targetType);
-            DaWriterBuilder daWriterBuilder = daWriterBuilderFactory.getDaWriterBuilder(targetDataSourceType);
+            DaWriterBuilder daWriterBuilder = syncBuilderFactory.getWriterBuilder(targetDataSourceType);
             writer = daWriterBuilder.daWriterBuild(param);
             setting = PublicUtil.objectToObject(settingMap, DefaultSetting.class);
 

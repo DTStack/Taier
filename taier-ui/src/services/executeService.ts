@@ -259,6 +259,8 @@ export default class ExecuteService extends Component<IExecuteStates> implements
 			}
 			return;
 		}
+
+		this.stopSign.set(currentTabId, true);
 		const jobId = this.runningSql.get(currentTabId);
 		if (!jobId) return;
 

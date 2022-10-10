@@ -11,6 +11,7 @@ import {
 	FLINK_VERSIONS,
 	rdbmsDaType,
 	SOURCE_TIME_TYPE,
+	SUPPROT_SUB_LIBRARY_DB_ARRAY,
 	TASK_TYPE_ENUM,
 } from '@/constant';
 import { cloneDeep } from 'lodash';
@@ -400,6 +401,18 @@ class TaskSaveService extends GlobalEvent {
 								molecule.folderTree.get(data.flowId)?.data.parentId;
 						}
 
+						const isSupportSub = SUPPROT_SUB_LIBRARY_DB_ARRAY.includes(
+							params.sourceMap.type || -1,
+						);
+
+						if (params.settingMap) {
+							params.settingMap.speed = /[\u4e00-\u9fa5]/.test(
+								params.settingMap!.speed,
+							)
+								? '-1'
+								: params.settingMap?.speed;
+						}
+
 						api.saveOfflineJobData({
 							...params,
 							// 修改task配置时接口要求的标记位
@@ -408,13 +421,18 @@ class TaskSaveService extends GlobalEvent {
 							computeType: IComputeType.BATCH,
 							sourceMap: {
 								...params.sourceMap,
+								sourceList: isSupportSub
+									? [
+											{
+												key: 'main',
+												tables: params.sourceMap.table,
+												type: params.sourceMap.type,
+												name: params.sourceMap.name,
+												sourceId: params.sourceMap.sourceId,
+											},
+									  ]
+									: [],
 								rdbmsDaType: rdbmsDaType.Poll,
-							},
-							settingMap: {
-								...params.settingMap,
-								speed: /[\u4e00-\u9fa5]/.test(params.settingMap!.speed)
-									? '-1'
-									: params.settingMap?.speed,
 							},
 						}).then((res) => {
 							if (res.code === 1) {

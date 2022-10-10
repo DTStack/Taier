@@ -1,5 +1,6 @@
 .idea/
 pluginLibs/
+datasource-plugins/
 logs/
 target/
 *.iml

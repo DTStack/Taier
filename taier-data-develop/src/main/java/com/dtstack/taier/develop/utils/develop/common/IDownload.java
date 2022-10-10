@@ -26,8 +26,6 @@ import java.util.List;
  */
 public interface IDownload {
 
-    void configure() throws Exception;
-
     List<String> getMetaInfo() throws Exception;
 
     Object readNext();
@@ -35,6 +33,4 @@ public interface IDownload {
     boolean reachedEnd();
 
     void close() throws Exception;
-
-    String getFileName();
 }

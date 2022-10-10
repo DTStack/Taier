@@ -115,7 +115,8 @@ export default function ClusterDetail() {
 	 */
 	const findComponentVOS = (key?: string) => {
 		if (!key) return;
-		const [major, minor] = key.split('-');
+		const [major, ...rest] = key.split('-');
+		const minor = rest.join('-');
 		return currentCluster?.componentVOS.find((component) => {
 			const isSubComponent = !!minor;
 			return (
@@ -182,6 +183,8 @@ export default function ClusterDetail() {
 			clusterId,
 			componentType: code,
 			storeType: 2,
+			// TODO
+			deployType: versionName?.endsWith('standalone') ? 0 : undefined,
 			versionName,
 		});
 		if (res.code === 1) {
@@ -307,7 +310,9 @@ export default function ClusterDetail() {
 		if (!currentCluster) return;
 		const nextCurrent = { ...currentCluster };
 		keys.forEach((key) => {
-			const [major, minor] = key.split('-');
+			const [major, ...rest] = key.split('-');
+			const minor = rest.join('-');
+
 			const target = componentsData.find(
 				(layout) => layout.componentCode.toString() === major,
 			);
@@ -344,6 +349,7 @@ export default function ClusterDetail() {
 			}
 		});
 
+		console.log('next:', nextCurrent);
 		setCurrent(nextCurrent);
 
 		// 自动选择第一个
