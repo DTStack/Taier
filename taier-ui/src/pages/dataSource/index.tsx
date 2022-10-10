@@ -16,114 +16,48 @@
  * limitations under the License.
  */
 
-import { useEffect, useState } from 'react';
-import { Button, Empty, message, Modal, Tag } from 'antd';
-import Base64 from 'base-64';
+import { useMemo, useState } from 'react';
+import { Empty, message, Modal } from 'antd';
 import molecule from '@dtinsight/molecule';
 import { ActionBar, Menu, useContextView } from '@dtinsight/molecule/esm/components';
 import { Content, Header } from '@dtinsight/molecule/esm/workbench/sidebar';
 import { connect } from '@dtinsight/molecule/esm/react';
-import dataSourceService from '@/services/dataSourceService';
+import { dataSourceService } from '@/services';
 import API from '@/api';
 import { ExclamationCircleOutlined } from '@ant-design/icons';
 import { getEventPosition } from '@dtinsight/molecule/esm/common/dom';
 import { ID_COLLECTIONS } from '@/constant';
 import { DetailInfoModal } from '@/components/detailInfo';
-import type { IDataSourceProps } from '@/interface';
 import Search from './search';
 import Add from './add';
 import classNames from 'classnames';
 import { DataSourceLinkFailed, DataSourceLinkSuccess } from '@/components/icon';
+import type { IDataSourceProps } from '@/interface';
+import type { IDataSourceState } from '@/services/dataSourceService';
 import './index.scss';
 
 const { confirm } = Modal;
 
-interface IPagination {
-	currentPage: number;
-	pageSize: number;
-}
-
 interface IOther {
 	search: string;
 	dataTypeList: string[];
-	appTypeList: number[];
-	isMeta: number;
-	status: number[];
 }
 
-const DataSourceView = () => {
-	const [dataSources, setDataSources] = useState<IDataSourceProps[]>([]);
-	const [params, setParams] = useState<IPagination>({
-		currentPage: 1, // 当前页码
-		pageSize: 20, // 分页个数
-	});
+const DataSourceView = ({ dataSource }: IDataSourceState) => {
 	const [other, setOther] = useState<IOther>({
 		search: '',
 		dataTypeList: [],
-		appTypeList: [],
-		isMeta: 0,
-		status: [],
 	});
-
-	const [total, setTotal] = useState<number>(0);
 
 	const [visible, setVisible] = useState<boolean>(false);
 	const [detailView, setView] = useState<IDataSourceProps | undefined>(undefined);
 
 	const contextView = useContextView();
 
-	// 获取表格数据
-	const requestTableData = async (query?: any, appendMode: boolean = false) => {
-		const requestParams = {
-			...params,
-			...other,
-			...query,
-		};
-		if (typeof requestParams.isMeta === 'boolean') {
-			requestParams.isMeta = Number(requestParams.isMeta);
-		}
-		const { data, success } = await API.dataSourcepage(requestParams);
-		if (success) {
-			const { currentPage, totalCount } = data;
-			setParams({
-				currentPage, // 当前页码
-				pageSize: 20, // 分页个数
-			});
-			const nextData: IDataSourceProps[] = ((data.data as IDataSourceProps[]) || []).map(
-				(ele) => {
-					const canConvertLinkJson =
-						ele.linkJson && !ele.linkJson.includes('{') && !ele.linkJson.includes('}');
-
-					return {
-						...ele,
-						linkJson: canConvertLinkJson ? Base64.decode(ele.linkJson!) : ele.linkJson,
-					};
-				},
-			);
-
-			setTotal(totalCount); // 总页数
-
-			if (!appendMode) {
-				setDataSources(nextData || []);
-			} else {
-				setDataSources((sources) => {
-					const nextSources = sources.concat();
-					nextSources.push(...nextData);
-					return nextSources;
-				});
-			}
-		}
-	};
-
 	// 搜索事件
 	const handleSearch = (value: Record<string, any>) => {
-		const data = { ...other, ...value, currentPage: 1 };
+		const data = { ...other, ...value };
 		setOther(data);
-		requestTableData(data);
-	};
-
-	const handleLoadMore = () => {
-		requestTableData({ currentPage: params.currentPage + 1 }, true);
 	};
 
 	const handleOpenDetail = (record: IDataSourceProps) => {
@@ -139,7 +73,8 @@ const DataSourceView = () => {
 
 		if (success) {
 			message.success('删除成功');
-			requestTableData(); // 更新表格
+			// 更新表格
+			dataSourceService.reloadDataSource();
 		} else {
 			message.error(`${msg}`);
 		}
@@ -164,7 +99,7 @@ const DataSourceView = () => {
 							<Add
 								key={ID_COLLECTIONS.EDIT_DATASOURCE_PREFIX}
 								record={record}
-								onSubmit={handleSubmitDataSource}
+								onSubmit={() => dataSourceService.reloadDataSource()}
 							/>
 						),
 						breadcrumb: [
@@ -222,14 +157,6 @@ const DataSourceView = () => {
 		));
 	};
 
-	const handleSubmitDataSource = () => {
-		const nextParams = {
-			currentPage: 1,
-		};
-		setParams((p) => ({ ...p, ...nextParams }));
-		requestTableData(nextParams);
-	};
-
 	const handleHeaderBarClick = () => {
 		if (molecule.editor.isOpened(ID_COLLECTIONS.CREATE_DATASOURCE_PREFIX)) {
 			message.warning('请先保存或关闭新增数据源');
@@ -245,7 +172,7 @@ const DataSourceView = () => {
 				renderPane: (
 					<Add
 						key={ID_COLLECTIONS.CREATE_DATASOURCE_PREFIX}
-						onSubmit={handleSubmitDataSource}
+						onSubmit={() => dataSourceService.reloadDataSource()}
 					/>
 				),
 				breadcrumb: [
@@ -262,9 +189,22 @@ const DataSourceView = () => {
 		}
 	};
 
-	useEffect(() => {
-		requestTableData();
-	}, []);
+	const renderFilterDataSource = (item: IDataSourceProps) => {
+		if (other.search) {
+			return item.dataName.includes(other.search);
+		}
+
+		if (other.dataTypeList?.length) {
+			return other.dataTypeList.includes(item.dataType);
+		}
+
+		return true;
+	};
+
+	const filterDataSource = useMemo(
+		() => dataSource.filter(renderFilterDataSource),
+		[dataSource, other],
+	);
 
 	return (
 		<div className="datasource-container">
@@ -286,10 +226,10 @@ const DataSourceView = () => {
 			/>
 			<Content>
 				<Search onSearch={handleSearch} />
-				{dataSources.length ? (
+				{filterDataSource.length ? (
 					<div tabIndex={0} className="datasource-content">
 						<ul className="datasource-list">
-							{dataSources.map((item) => (
+							{filterDataSource.map((item) => (
 								<li
 									key={item.dataInfoId}
 									tabIndex={-1}
@@ -307,34 +247,17 @@ const DataSourceView = () => {
 										/>
 									)}
 									<div className="datasource-title">
-										{item.isMeta === 0 ? (
-											<>
-												<span className="title" title={item.dataName}>
-													{item.dataName}({item.dataType}
-													{item.dataVersion || ''})
-												</span>
-												<span className={classNames('desc')}>
-													{item.dataDesc || '--'}
-												</span>
-											</>
-										) : (
-											<>
-												<span className="title" title={item.dataName}>
-													{item.dataName}({item.dataType}
-													{item.dataVersion || ''})
-												</span>
-												<Tag>Meta</Tag>
-											</>
-										)}
+										<span className="title" title={item.dataName}>
+											{item.dataName}({item.dataType}
+											{item.dataVersion || ''})
+										</span>
+										<span className={classNames('desc')}>
+											{item.dataDesc || '--'}
+										</span>
 									</div>
 								</li>
 							))}
 						</ul>
-						{total !== dataSources.length && !!total && (
-							<Button block onClick={handleLoadMore}>
-								加载更多...
-							</Button>
-						)}
 					</div>
 				) : (
 					<Empty image={Empty.PRESENTED_IMAGE_SIMPLE} />
