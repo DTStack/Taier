@@ -1121,6 +1121,11 @@ public class ConsoleComponentService {
                                            Map<String, String> sftpConfig, Integer storeType, Integer deployType) {
         ComponentTestResult componentTestResult = new ComponentTestResult();
         try {
+            if (EComponentType.NOT_CHECK_COMPONENT.contains(EComponentType.getByCode(componentType))) {
+                componentTestResult.setResult(true);
+                return componentTestResult;
+            }
+
             JSONObject pluginInfo = componentService.wrapperConfig(componentType, componentConfig, sftpConfig, kerberosConfig, clusterId);
             componentTestResult = datasourceOperator.testConnect(componentType, pluginInfo.toJSONString(), versionName);
             if (null == componentTestResult) {
