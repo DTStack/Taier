@@ -76,7 +76,7 @@ public class EnvironmentContext implements InitializingBean {
     @Value("${hadoop.user.name:admin}")
     private String hadoopUserName;
 
-    @Value("${hdfs.task.path:/dtInsight/taier/}")
+    @Value("${hdfs.task.path:/taier/}")
     private String hdfsTaskPath;
 
     @Value("${nodeZkAddress:}")
@@ -121,7 +121,7 @@ public class EnvironmentContext implements InitializingBean {
     @Value("${job.log.pool:2}")
     private Integer jobLogPool;
 
-    @Value("${job.submit.concurrent:1}")
+    @Value("${job.submit.concurrent:10}")
     private int jobSubmitConcurrent;
 
     @Value("${job.graph.builder:false}")

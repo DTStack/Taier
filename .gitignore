@@ -37,3 +37,4 @@ engine-ui/packages/**/**/dist/
 .history
 node_modules
 conf/application.properties
+/dist

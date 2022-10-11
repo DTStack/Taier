@@ -4,7 +4,6 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.JSONObject;
-import com.dtstack.taier.datasource.api.dto.source.ISourceDTO;
 import com.dtstack.taier.common.constant.CommonConstant;
 import com.dtstack.taier.common.enums.EComponentType;
 import com.dtstack.taier.common.enums.EScheduleJobType;
@@ -15,6 +14,7 @@ import com.dtstack.taier.dao.domain.DevelopSelectSql;
 import com.dtstack.taier.dao.domain.ScheduleJob;
 import com.dtstack.taier.dao.domain.ScheduleJobExpand;
 import com.dtstack.taier.dao.domain.Task;
+import com.dtstack.taier.datasource.api.dto.source.ISourceDTO;
 import com.dtstack.taier.develop.bo.ExecuteContent;
 import com.dtstack.taier.develop.dto.devlop.BuildSqlVO;
 import com.dtstack.taier.develop.dto.devlop.ExecuteResultVO;
@@ -22,7 +22,6 @@ import com.dtstack.taier.develop.service.develop.impl.DevelopFunctionService;
 import com.dtstack.taier.develop.service.develop.impl.DevelopSelectSqlService;
 import com.dtstack.taier.develop.service.develop.impl.DevelopTaskParamService;
 import com.dtstack.taier.develop.service.develop.impl.HiveSelectDownload;
-import com.dtstack.taier.develop.service.develop.impl.JobParamReplace;
 import com.dtstack.taier.develop.sql.ParseResult;
 import com.dtstack.taier.develop.sql.SqlParserImpl;
 import com.dtstack.taier.develop.sql.SqlType;
@@ -37,7 +36,6 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
-import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -69,18 +67,13 @@ public abstract class HadoopJdbcTaskRunner extends JdbcTaskRunner {
     @Autowired
     protected DevelopTaskParamService developTaskParamService;
 
-    @Autowired
-    private JobParamReplace jobParamReplace;
-
-    private static final String USE_DB = "use %s; %s ;";
-
     private static final String USER_DB_TEMP_FUNCTION = "use %s; %s %s ;";
 
     public static final String TEMP_TABLE_PREFIX = "select_sql_temp_table_";
 
     private static final String CREATE_FUNCTION_TEMP_TABLE = "use %s;%s create table %s stored as orc as select * from (%s)temp";
 
-    private static final String CREATE_TEMP_TABLE = "use %s; create table %s stored as orc as select * from (%s)temp";
+    private static final String CREATE_TEMP_TABLE = "create table %s stored as orc as select * from (%s)temp";
 
     @Override
     public abstract List<EScheduleJobType> support();
@@ -207,7 +200,7 @@ public abstract class HadoopJdbcTaskRunner extends JdbcTaskRunner {
         String jobId = selectSql.getJobId();
         ExecuteResultVO result = new ExecuteResultVO(jobId);
         if (selectSql.getIsSelectSql() == TempJobType.SELECT.getType()) {
-            result.setResult(queryData(tenantId, selectSql.getTempTableName(), taskType));
+            result.setResult(queryData(tenantId, selectSql.getTempTableName(), taskType, task.getDatasourceId()));
             result.setSqlText(selectSql.getSqlText());
         } else {
             ScheduleJob scheduleJob = jobService.getScheduleJob(selectSql.getJobId());
@@ -217,9 +210,9 @@ public abstract class HadoopJdbcTaskRunner extends JdbcTaskRunner {
         return result;
     }
 
-    private List<Object> queryData(Long tenantId, String tableName, Integer taskType) throws Exception {
+    private List<Object> queryData(Long tenantId, String tableName, Integer taskType, Long dataSourceId) throws Exception {
         List<Object> queryResult = Lists.newArrayList();
-        IDownload resultDownload = new HiveSelectDownload(getSourceDTO(tenantId, null, taskType, true), tableName);
+        IDownload resultDownload = new HiveSelectDownload(getSourceDTO(tenantId, null, taskType, true, dataSourceId), tableName);
         Integer num = environmentContext.getSelectLimit();
         int readCounter = 0;
         // 第一行插入传字段信息
@@ -364,7 +357,7 @@ public abstract class HadoopJdbcTaskRunner extends JdbcTaskRunner {
                 return String.format(USER_DB_TEMP_FUNCTION, database, functionSql, originSql);
             }
         }
-        return String.format(USE_DB, database, originSql);
+        return originSql;
     }
 
     /**
@@ -382,11 +375,13 @@ public abstract class HadoopJdbcTaskRunner extends JdbcTaskRunner {
         if (StringUtils.isNotBlank(createFunction)) {
             return String.format(CREATE_FUNCTION_TEMP_TABLE, database, createFunction, tempTable, originSql);
         }
-        return String.format(CREATE_TEMP_TABLE, database, tempTable, originSql);
+        return String.format(CREATE_TEMP_TABLE, tempTable, originSql);
     }
 
     @Override
-    public abstract ISourceDTO getSourceDTO(Long tenantId, Long userId, Integer taskType, boolean useSchema);
+    public ISourceDTO getSourceDTO(Long tenantId, Long userId, Integer taskType, boolean useSchema, Long datasourceId) {
+        return sourceLoaderService.buildSourceDTO(datasourceId);
+    }
 
 
     @Override

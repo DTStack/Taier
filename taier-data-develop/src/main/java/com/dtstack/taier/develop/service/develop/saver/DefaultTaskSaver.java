@@ -1,10 +1,14 @@
 package com.dtstack.taier.develop.service.develop.saver;
 
+import com.dtstack.taier.common.enums.EComputeType;
 import com.dtstack.taier.common.enums.EScheduleJobType;
+import com.dtstack.taier.common.exception.ErrorCode;
+import com.dtstack.taier.common.exception.RdosDefineException;
 import com.dtstack.taier.develop.dto.devlop.TaskResourceParam;
 import com.dtstack.taier.develop.dto.devlop.TaskVO;
 import com.dtstack.taier.develop.service.develop.impl.DevelopTaskTaskService;
 import com.dtstack.taier.develop.service.user.UserService;
+import com.dtstack.taier.pluginapi.enums.EJobType;
 import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,6 +37,13 @@ public class DefaultTaskSaver extends AbstractTaskSaver {
 
     @Override
     public TaskResourceParam beforeProcessing(TaskResourceParam taskResourceParam) {
+        // sql 任务必须选择数据源
+        EScheduleJobType scheduleJobType = EScheduleJobType.getByTaskType(taskResourceParam.getTaskType());
+        if (EComputeType.BATCH.getType() == scheduleJobType.getComputeType().getType() && EJobType.SQL.getType() == scheduleJobType.getEngineJobType()) {
+            if (null == taskResourceParam.getDatasourceId()) {
+                throw new RdosDefineException(ErrorCode.DATA_SOURCE_NOT_SET);
+            }
+        }
         // 如果是修改任务的基本属性（目录、名称），禁止处理任务信息
         if (BooleanUtils.isTrue(taskResourceParam.getEditBaseInfo())
                 && Objects.nonNull(taskResourceParam.getId())

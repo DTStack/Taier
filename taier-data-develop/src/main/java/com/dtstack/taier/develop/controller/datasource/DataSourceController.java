@@ -1,12 +1,12 @@
 package com.dtstack.taier.develop.controller.datasource;
 
 import com.alibaba.fastjson.JSONObject;
-import com.dtstack.taier.datasource.api.source.DataSourceType;
 import com.dtstack.taier.common.exception.RdosDefineException;
 import com.dtstack.taier.common.lang.coc.APITemplate;
 import com.dtstack.taier.common.lang.web.R;
 import com.dtstack.taier.dao.domain.DsInfo;
 import com.dtstack.taier.dao.pager.PageResult;
+import com.dtstack.taier.datasource.api.source.DataSourceType;
 import com.dtstack.taier.develop.bo.datasource.DsInfoIdParam;
 import com.dtstack.taier.develop.bo.datasource.DsKafkaDataParam;
 import com.dtstack.taier.develop.bo.datasource.DsListParam;
@@ -68,6 +68,13 @@ public class DataSourceController {
     public R<PageResult<List<DsListVO>>> dsPage(@RequestBody DsListParam dsListParam) {
 
         return R.ok(dsInfoService.dsPage(dsListParam));
+    }
+
+    @ApiOperation("数据源列表总信息")
+    @PostMapping("total")
+    public R<List<DsListVO>> total(@RequestBody DsListParam dsListParam) {
+
+        return R.ok(dsInfoService.total(dsListParam));
     }
 
     @ApiOperation("获取数据源基本详情")

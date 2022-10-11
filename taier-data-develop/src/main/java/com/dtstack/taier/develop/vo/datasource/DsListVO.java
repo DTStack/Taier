@@ -49,6 +49,17 @@ public class DsListVO {
     @ApiModelProperty(value = "schema名称，离线创建的meta数据源才有")
     private String schemaName;
 
+    @ApiModelProperty("数据源类型")
+    private Integer dataTypeCode;
+
+    public Integer getDataTypeCode() {
+        return dataTypeCode;
+    }
+
+    public void setDataTypeCode(Integer dataTypeCode) {
+        this.dataTypeCode = dataTypeCode;
+    }
+
     public Long getDataInfoId() {
         return dataInfoId;
     }

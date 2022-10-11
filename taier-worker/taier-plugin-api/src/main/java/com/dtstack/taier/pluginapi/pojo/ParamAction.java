@@ -94,6 +94,16 @@ public class ParamAction {
 
 	private String queueName;
 
+	private Long datasourceId;
+
+	public Long getDatasourceId() {
+		return datasourceId;
+	}
+
+	public void setDatasourceId(Long datasourceId) {
+		this.datasourceId = datasourceId;
+	}
+
 	public Integer getType() {
 		return type;
 	}
