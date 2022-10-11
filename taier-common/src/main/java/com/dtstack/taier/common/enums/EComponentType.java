@@ -129,6 +129,9 @@ public enum EComponentType {
     );
 
     public static MultiEngineType getEngineTypeByComponent(EComponentType componentType, Integer deployType) {
+        if (EComponentType.FLINK.equals(componentType) && EDeployType.STANDALONE.getType().equals(deployType)) {
+            return MultiEngineType.FLINK_ON_STANDALONE;
+        }
         if (HadoopComponents.contains(componentType)) {
             return MultiEngineType.HADOOP;
         }
