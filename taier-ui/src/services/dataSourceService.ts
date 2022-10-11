@@ -16,24 +16,64 @@
  * limitations under the License.
  */
 
+import { IDataSourceProps } from '@/interface';
 import { Component } from '@dtinsight/molecule/esm/react';
+import Base64 from 'base-64';
+import api from '@/api';
 
-interface IDataSource {
-  dataSource: any[];
-  current: number;
-  filters: any;
+export interface IDataSourceState {
+	dataSource: IDataSourceProps[];
 }
 
-class FunctionManagerService extends Component<IDataSource> {
-  protected state: IDataSource;
-  constructor() {
-    super();
-    this.state = {
-      dataSource: [],
-      current: 1,
-      filters: {},
-    };
-  }
+interface IDataSourceService {
+	getDataSource: () => IDataSourceProps[];
+	reloadDataSource: () => void;
 }
 
-export default new FunctionManagerService();
+export default class DataSourceService
+	extends Component<IDataSourceState>
+	implements IDataSourceService
+{
+	protected state: IDataSourceState = {
+		dataSource: [],
+	};
+
+	constructor() {
+		super();
+		this.queryDataSource();
+	}
+
+	private queryDataSource = () => {
+		api.getAllDataSource({}).then((res) => {
+			if (res.code === 1) {
+				const nextData: IDataSourceProps[] = ((res.data as IDataSourceProps[]) || []).map(
+					(ele) => {
+						const canConvertLinkJson =
+							ele.linkJson &&
+							!ele.linkJson.includes('{') &&
+							!ele.linkJson.includes('}');
+
+						return {
+							...ele,
+							linkJson: canConvertLinkJson
+								? Base64.decode(ele.linkJson!)
+								: ele.linkJson,
+						};
+					},
+				);
+
+				this.setState({
+					dataSource: nextData,
+				});
+			}
+		});
+	};
+
+	getDataSource = () => {
+		return this.state.dataSource || [];
+	};
+
+	reloadDataSource = () => {
+		this.queryDataSource();
+	};
+}

@@ -6,10 +6,14 @@ import {
 	FLINK_VERSION_TYPE,
 	PythonVersionKind,
 } from '@/constant';
-import { Form, Input, Radio, Select } from 'antd';
+import { Button, Empty, Form, Input, Radio, Select } from 'antd';
 import { syncModeHelp, syncTaskHelp } from '../helpDoc/docs';
 import FolderPicker from '../folderPicker';
 import resourceManagerTree from '@/services/resourceManagerService';
+import { dataSourceService, taskRenderService } from '@/services';
+import { useEffect, useState } from 'react';
+import { IDataSourceProps } from '@/interface';
+import molecule from '@dtinsight/molecule';
 
 interface ICreateFormProps {
 	disabled?: boolean;
@@ -148,14 +152,96 @@ const ExeArgs = () => (
 	</Form.Item>
 );
 
-const PythonVersion = () => (
-	<Form.Item label="Python 版本" name="pythonVersion">
-		<Radio.Group>
+const PythonVersion = ({ disabled }: ICreateFormProps) => (
+	<Form.Item
+		label="Python 版本"
+		name="pythonVersion"
+		rules={[
+			{
+				required: true,
+				message: '请选择 Python 版本',
+			},
+		]}
+		initialValue={PythonVersionKind.py2}
+	>
+		<Radio.Group disabled={disabled}>
 			<Radio value={PythonVersionKind.py2}>Python 2.x</Radio>
 			<Radio value={PythonVersionKind.py3}>Python 3.x</Radio>
 		</Radio.Group>
 	</Form.Item>
 );
+
+/**
+ * 任务绑定对应数据源物料
+ */
+const DataSource = () => {
+	const form = Form.useFormInstance();
+	const taskType = Form.useWatch('taskType');
+	const [dataSource, setDataSource] = useState<IDataSourceProps[]>([]);
+
+	const handleGotoSourceCenter = () => {
+		molecule.sidebar.setActive('dataSource');
+		molecule.activityBar.setActive('dataSource');
+	};
+
+	useEffect(() => {
+		setDataSource(dataSourceService.getDataSource());
+
+		const listener = (_: any, next: { dataSource: IDataSourceProps[] }) => {
+			setDataSource(next.dataSource || []);
+		};
+
+		dataSourceService.onUpdateState(listener);
+		return () => {
+			dataSourceService.removeOnUpdateState(listener);
+		};
+	}, []);
+
+	useEffect(() => {
+		if (taskType !== undefined) {
+			form.resetFields(['datasourceId']);
+		}
+	}, [taskType]);
+
+	return (
+		<Form.Item label="数据源" name="datasourceId" required>
+			<Select
+				placeholder="请选择任务执行的对应数据源"
+				optionFilterProp="label"
+				options={dataSource
+					.filter((source) =>
+						taskRenderService
+							.getState()
+							.supportTaskList.find((i) => i.key === taskType)
+							?.taskProperties?.dataTypeCodes?.includes(source.dataTypeCode),
+					)
+					.map((i) => ({
+						label: `${i.dataName}(${i.dataType})`,
+						value: i.dataInfoId,
+					}))}
+				notFoundContent={
+					<Empty
+						image={Empty.PRESENTED_IMAGE_SIMPLE}
+						description={
+							<span>
+								未找到
+								{taskRenderService
+									.getState()
+									.supportTaskList.find((i) => i.key === taskType)?.value ||
+									'未知'}
+								所支持的对应数据源，请先至
+								<Button type="link" size="small" onClick={handleGotoSourceCenter}>
+									数据源中心
+								</Button>
+								配置
+							</span>
+						}
+					/>
+				}
+			/>
+		</Form.Item>
+	);
+};
 
 /**
  * key 值为服务端字段名，value 为组件名
@@ -168,4 +254,5 @@ export default {
 	mainClass: MainClass,
 	exeArgs: ExeArgs,
 	pythonVersion: PythonVersion,
+	datasource: DataSource,
 } as Record<string, (...args: any[]) => JSX.Element>;

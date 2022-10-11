@@ -17,9 +17,9 @@
  */
 
 import { useEffect, useState } from 'react';
-import { Form, Checkbox, Select, Tooltip, Input } from 'antd';
+import { Form, Select, Input } from 'antd';
 import API from '@/api';
-import { SearchOutlined, QuestionCircleOutlined } from '@ant-design/icons';
+import { SearchOutlined } from '@ant-design/icons';
 import './search.scss';
 
 interface IProps {
@@ -35,22 +35,17 @@ interface ITypeProps {
 interface IFormFieldProps {
 	search: string;
 	dataTypeList: string[];
-	isMeta: number;
 }
-
-const ALL = '全部';
 
 export default function Search({ onSearch }: IProps) {
 	const [form] = Form.useForm<IFormFieldProps>();
 	const [typeList, setTypeList] = useState<ITypeProps[]>([]);
 
-	const handleSearch = (params: Partial<IFormFieldProps> = {}) => {
-		const { search = '', dataTypeList, isMeta } = form.getFieldsValue();
+	const handleSearch = () => {
+		const { search = '', dataTypeList } = form.getFieldsValue();
 		onSearch({
 			search: search.trim(),
-			dataTypeList: dataTypeList.includes(ALL) ? [] : dataTypeList,
-			isMeta,
-			...params,
+			dataTypeList,
 		});
 	};
 
@@ -58,21 +53,7 @@ export default function Search({ onSearch }: IProps) {
 		const { data, success } = await API.typeList({});
 
 		if (success) {
-			if (Array.isArray(data)) {
-				data.unshift({
-					dataType: ALL,
-				});
-			}
 			setTypeList(data || []);
-		}
-	};
-
-	const handleSelectType = (value: string[]) => {
-		if (value.includes(ALL)) {
-			form.setFieldsValue({ dataTypeList: [ALL] });
-			handleSearch({ dataTypeList: [] });
-		} else {
-			handleSearch({ dataTypeList: value });
 		}
 	};
 
@@ -82,14 +63,7 @@ export default function Search({ onSearch }: IProps) {
 
 	return (
 		<div className="top-search">
-			<Form<IFormFieldProps>
-				form={form}
-				wrapperCol={{ span: 24 }}
-				autoComplete='off'
-				initialValues={{
-					dataTypeList: [ALL],
-				}}
-			>
+			<Form<IFormFieldProps> form={form} wrapperCol={{ span: 24 }} autoComplete="off">
 				<Form.Item name="search">
 					<Input
 						placeholder="数据源名称/描述"
@@ -102,51 +76,25 @@ export default function Search({ onSearch }: IProps) {
 						}
 					/>
 				</Form.Item>
-				<Form.Item
-					noStyle
-					shouldUpdate={(prev, next) => prev.dataTypeList !== next.dataTypeList}
-				>
-					{({ getFieldValue }) => (
-						<Form.Item name="dataTypeList">
-							<Select<string[]>
-								mode="multiple"
-								placeholder="请选择类型"
-								allowClear
-								showSearch
-								maxTagCount={1}
-								showArrow={true}
-								optionFilterProp="children"
-								onChange={handleSelectType}
-							>
-								{typeList.map((item) => {
-									return (
-										<Option
-											disabled={
-												getFieldValue('dataTypeList').includes(ALL) &&
-												item.dataType !== ALL
-											}
-											value={item.dataType}
-											key={item.dataType}
-										>
-											{item.dataType}
-										</Option>
-									);
-								})}
-							</Select>
-						</Form.Item>
-					)}
-				</Form.Item>
-				<Form.Item>
-					<Form.Item name="isMeta" valuePropName="checked" noStyle initialValue={0}>
-						<Checkbox
-							onChange={(e) => handleSearch({ isMeta: Number(e.target.checked) })}
-						>
-							显示默认数据库
-						</Checkbox>
-					</Form.Item>
-					<Tooltip title="各模块在创建项目时的默认数据源">
-						<QuestionCircleOutlined color="#999" />
-					</Tooltip>
+				<Form.Item name="dataTypeList">
+					<Select<string[]>
+						mode="multiple"
+						placeholder="请选择类型"
+						allowClear
+						showSearch
+						maxTagCount={1}
+						showArrow
+						optionFilterProp="children"
+						onChange={() => handleSearch()}
+					>
+						{typeList.map((item) => {
+							return (
+								<Option value={item.dataType} key={item.dataType}>
+									{item.dataType}
+								</Option>
+							);
+						})}
+					</Select>
 				</Form.Item>
 			</Form>
 		</div>
