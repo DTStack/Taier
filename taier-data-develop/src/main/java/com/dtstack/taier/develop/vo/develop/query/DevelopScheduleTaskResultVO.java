@@ -59,9 +59,6 @@ public class DevelopScheduleTaskResultVO {
     @ApiModelProperty(value = "是否覆盖更新", example = "true")
     private Boolean forceUpdate = false;
 
-    @ApiModelProperty(value = "数据源 ID", example = "2")
-    private Long dataSourceId;
-
     @ApiModelProperty(value = "任务信息")
     private DevelopScheduleTaskResultVO subNodes;
 
@@ -282,13 +279,6 @@ public class DevelopScheduleTaskResultVO {
         this.forceUpdate = forceUpdate;
     }
 
-    public Long getDataSourceId() {
-        return dataSourceId;
-    }
-
-    public void setDataSourceId(Long dataSourceId) {
-        this.dataSourceId = dataSourceId;
-    }
 
     public DevelopScheduleTaskResultVO getSubNodes() {
         return subNodes;

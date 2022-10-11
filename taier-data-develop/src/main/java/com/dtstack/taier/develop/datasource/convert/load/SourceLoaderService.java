@@ -3,9 +3,11 @@ package com.dtstack.taier.develop.datasource.convert.load;
 import com.alibaba.fastjson.JSONObject;
 import com.dtstack.taier.common.enums.DataSourceTypeEnum;
 import com.dtstack.taier.common.exception.DtCenterDefException;
+import com.dtstack.taier.common.source.SourceDTOLoader;
 import com.dtstack.taier.dao.domain.DevelopDataSource;
 import com.dtstack.taier.datasource.api.dto.SSLConfig;
 import com.dtstack.taier.datasource.api.dto.source.AbstractSourceDTO;
+import com.dtstack.taier.datasource.api.dto.source.HdfsSourceDTO;
 import com.dtstack.taier.datasource.api.dto.source.ISourceDTO;
 import com.dtstack.taier.datasource.api.source.DataSourceType;
 import com.dtstack.taier.develop.datasource.convert.dto.ConfigDTO;
@@ -38,7 +40,7 @@ import static com.dtstack.taier.develop.datasource.convert.Consistent.SSL_CONFIG
 import static com.dtstack.taier.develop.datasource.convert.Consistent.SSL_FILE_TIMESTAMP;
 
 /**
- * 用于 Loader 数据源，通过数据源中心 sourceID ，调用数据源中心 SDK 获取数据源信息，进行转化为 common-loader
+ * 用于 Loader 数据源，通过数据源中心 sourceID ，调用数据源中心 获取数据源信息，进行转化为 common-loader
  * 中需要的 ISourceDTO，并进行一些 kerberos 的处理：像替换路径、SFTP kerberos 配置下载等
  *
  * @author ：wangchuan
@@ -46,10 +48,10 @@ import static com.dtstack.taier.develop.datasource.convert.Consistent.SSL_FILE_T
  * company: www.dtstack.com
  */
 @Service
-public class SourceLoaderService {
+public class SourceLoaderService implements SourceDTOLoader {
 
     /**
-     * 数据源中心 SDK 客户端
+     * 数据源中心
      */
     @Autowired
     private DatasourceService datasourceService;

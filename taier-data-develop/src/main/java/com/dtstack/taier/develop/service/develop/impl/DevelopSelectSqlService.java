@@ -40,6 +40,7 @@ import java.util.Collections;
 
 /**
  * 执行选中的sql或者脚本
+ *
  * @author jiangbo
  */
 @Service
@@ -63,20 +64,20 @@ public class DevelopSelectSqlService {
         return developHiveSelectSqlDao.getByJobId(s, tenantId, o);
     }
 
-    public DevelopSelectSql getByJobId(String jobId, Long tenantId, Integer isDeleted){
+    public DevelopSelectSql getByJobId(String jobId, Long tenantId, Integer isDeleted) {
         DevelopSelectSql selectSql = getSelectSql(tenantId, jobId, isDeleted);
-        if (selectSql == null){
+        if (selectSql == null) {
             throw new RdosDefineException("select job not exists");
         }
         return selectSql;
     }
 
-    public void stopSelectJob(String jobId,Long tenantId){
+    public void stopSelectJob(String jobId, Long tenantId) {
         try {
             actionService.stop(Collections.singletonList(jobId), ComputeType.BATCH.getType());
             // 这里用逻辑删除，是为了在调度端删除可能生成的临时表
             developHiveSelectSqlDao.deleteByJobId(jobId, tenantId);
-        }catch (Exception e){
+        } catch (Exception e) {
             LOGGER.error(e.getMessage(), e);
         }
     }
@@ -87,7 +88,7 @@ public class DevelopSelectSqlService {
     }
 
     @Transactional(rollbackFor = Exception.class)
-    public void addSelectSql(String jobId, String tempTable, Integer isSelectSql, Long tenantId, String sql, Long userId, String parsedColumns, Integer taskType){
+    public void addSelectSql(String jobId, String tempTable, Integer isSelectSql, Long tenantId, String sql, Long userId, String parsedColumns, Integer taskType) {
         DevelopSelectSql hiveSelectSql = new DevelopSelectSql();
         hiveSelectSql.setJobId(jobId);
         hiveSelectSql.setTempTableName(tempTable);
@@ -136,6 +137,7 @@ public class DevelopSelectSqlService {
         paramActionExt.setTaskParams(taskParams);
         paramActionExt.setTenantId(task.getTenantId());
         paramActionExt.setQueueName(task.getQueueName());
+        paramActionExt.setDatasourceId(task.getDatasourceId());
         actionService.start(paramActionExt);
         return jobId;
     }

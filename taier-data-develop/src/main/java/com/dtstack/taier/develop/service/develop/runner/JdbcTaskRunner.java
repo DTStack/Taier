@@ -1,7 +1,6 @@
 package com.dtstack.taier.develop.service.develop.runner;
 
 import com.alibaba.fastjson.JSONObject;
-import com.dtstack.taier.datasource.api.dto.source.ISourceDTO;
 import com.dtstack.taier.common.engine.JdbcInfo;
 import com.dtstack.taier.common.enums.EComponentType;
 import com.dtstack.taier.common.enums.EScheduleJobType;
@@ -12,6 +11,8 @@ import com.dtstack.taier.dao.domain.DevelopSelectSql;
 import com.dtstack.taier.dao.domain.ScheduleJob;
 import com.dtstack.taier.dao.domain.Task;
 import com.dtstack.taier.dao.domain.TenantComponent;
+import com.dtstack.taier.datasource.api.dto.source.ISourceDTO;
+import com.dtstack.taier.develop.datasource.convert.load.SourceLoaderService;
 import com.dtstack.taier.develop.dto.devlop.BuildSqlVO;
 import com.dtstack.taier.develop.dto.devlop.ExecuteResultVO;
 import com.dtstack.taier.develop.service.develop.IJdbcService;
@@ -63,6 +64,9 @@ public abstract class JdbcTaskRunner implements ITaskRunner {
     @Autowired
     protected DevelopTaskService developTaskService;
 
+    @Autowired
+    protected SourceLoaderService sourceLoaderService;
+
     @Override
     public abstract List<EScheduleJobType> support();
 
@@ -71,7 +75,7 @@ public abstract class JdbcTaskRunner implements ITaskRunner {
         ExecuteResultVO<List<Object>> result = new ExecuteResultVO<>();
         result.setContinue(false);
         EScheduleJobType taskType = EScheduleJobType.getByTaskType(task.getTaskType());
-        ISourceDTO sourceDTO = getSourceDTO(tenantId, userId, taskType.getType(), true);
+        ISourceDTO sourceDTO = getSourceDTO(tenantId, userId, taskType.getType(), true, task.getDatasourceId());
         if (RegexUtils.isQuery(sql)) {
             List<List<Object>> executeResult = jdbcService.executeQuery(sourceDTO, Lists.newArrayList(sql), task.getTaskParams(), environmentContext.getSelectLimit());
             result.setResult(executeResult);
@@ -117,12 +121,14 @@ public abstract class JdbcTaskRunner implements ITaskRunner {
 
     @Override
     public List<String> getAllSchema(Long tenantId, Integer taskType) {
-        ISourceDTO sourceDTO = getSourceDTO(tenantId, null, taskType, false);
+        ISourceDTO sourceDTO = getSourceDTO(tenantId, null, taskType, false, null);
         return jdbcService.getAllDataBases(sourceDTO);
     }
 
     @Override
-    public abstract ISourceDTO getSourceDTO(Long tenantId, Long userId, Integer taskType, boolean useSchema);
+    public ISourceDTO getSourceDTO(Long tenantId, Long userId, Integer taskType, boolean useSchema, Long datasourceId) {
+        return sourceLoaderService.buildSourceDTO(datasourceId);
+    }
 
 
     /**

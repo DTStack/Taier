@@ -253,6 +253,17 @@ public class DevelopTaskGetTaskByIdResultVO {
     @ApiModelProperty(value = "python 版本，2或者3")
     private String pythonVersion;
 
+    @ApiModelProperty(value = "数据源id")
+    private Long datasourceId;
+
+    public Long getDatasourceId() {
+        return datasourceId;
+    }
+
+    public void setDatasourceId(Long datasourceId) {
+        this.datasourceId = datasourceId;
+    }
+
     public String getPythonVersion() {
         return pythonVersion;
     }
@@ -387,14 +398,6 @@ public class DevelopTaskGetTaskByIdResultVO {
 
     public void setForceUpdate(Boolean forceUpdate) {
         this.forceUpdate = forceUpdate;
-    }
-
-    public Long getDataSourceId() {
-        return dataSourceId;
-    }
-
-    public void setDataSourceId(Long dataSourceId) {
-        this.dataSourceId = dataSourceId;
     }
 
     public DevelopScheduleTaskResultVO getSubNodes() {
