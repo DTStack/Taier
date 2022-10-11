@@ -34,7 +34,7 @@ public class ScheduleTaskShade implements Serializable {
     /**
      * 唯一标识
      */
-    @TableId(value="id", type= IdType.AUTO)
+    @TableId(value = "id", type = IdType.AUTO)
     private Long id;
 
     /**
@@ -155,6 +155,16 @@ public class ScheduleTaskShade implements Serializable {
      * yarn 队列名称
      */
     private String queueName;
+
+    private Long datasourceId;
+
+    public Long getDatasourceId() {
+        return datasourceId;
+    }
+
+    public void setDatasourceId(Long datasourceId) {
+        this.datasourceId = datasourceId;
+    }
 
     public Long getId() {
         return id;

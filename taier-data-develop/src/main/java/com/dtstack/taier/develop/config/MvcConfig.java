@@ -21,6 +21,7 @@ package com.dtstack.taier.develop.config;
 
 import com.dtstack.taier.develop.interceptor.LoginInterceptor;
 import com.dtstack.taier.pluginapi.constrant.ConfigConstant;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.MediaType;
@@ -38,6 +39,10 @@ import java.util.List;
 
 @Configuration
 public class MvcConfig extends DelegatingWebMvcConfiguration {
+
+
+    @Value("${ui.path:file:dist/}")
+    public String uiPath;
 
 
     @Override
@@ -79,13 +84,13 @@ public class MvcConfig extends DelegatingWebMvcConfiguration {
 
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
-        registry.addResourceHandler("/static/**").addResourceLocations("file:dist/static/");
+        registry.addResourceHandler("/static/**").addResourceLocations(uiPath + "/static/");
         registry.addResourceHandler("swagger-ui.html").addResourceLocations(
                 "classpath:/META-INF/resources/");
         registry.addResourceHandler("/webjars/**").addResourceLocations(
                 "classpath:/META-INF/resources/webjars/");
-        registry.addResourceHandler("/taier/**").addResourceLocations("file:dist/");
-        registry.addResourceHandler("/**").addResourceLocations("file:dist/");
+        registry.addResourceHandler("/taier/**").addResourceLocations(uiPath);
+        registry.addResourceHandler("/**").addResourceLocations(uiPath);
         super.addResourceHandlers(registry);
     }
 

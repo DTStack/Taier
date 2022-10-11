@@ -71,8 +71,6 @@ public class TaskResourceParam extends Task {
 
     private List<Map> taskVariables;
 
-    private Long dataSourceId;
-
     /**
      * 操作模式 0-资源模式，1-编辑模式
      */
@@ -269,13 +267,6 @@ public class TaskResourceParam extends Task {
         this.taskVariables = taskVariables;
     }
 
-    public Long getDataSourceId() {
-        return dataSourceId;
-    }
-
-    public void setDataSourceId(Long dataSourceId) {
-        this.dataSourceId = dataSourceId;
-    }
 
     public int getOperateModel() {
         return operateModel;
