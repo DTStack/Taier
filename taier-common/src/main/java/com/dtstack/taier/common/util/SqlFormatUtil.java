@@ -23,10 +23,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
-import java.util.Deque;
-import java.util.LinkedList;
 import java.util.List;
-import java.util.Stack;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -45,12 +42,6 @@ public class SqlFormatUtil {
 
     private static final String NEWLINE_REGEX = "\n";
 
-    private static final String COMMENTS_REGEX = "--.*";
-
-    public static final String EXTERNAL = "external";
-
-    public static final String EXTERNAL_X = "external_x";
-
     private static final String COMMENTS_REGEX_LIBRA = "\\/\\*\\*+.*\\*\\*+\\/";
 
     private static final String COMMENTS_REGEX_LIBRA_SINGLE_QUOTATION_MARKS = "/\\*{1,2}\\*/";
@@ -61,13 +52,7 @@ public class SqlFormatUtil {
 
     private static final String CATALOGUE_REGEX = "(?i)catalogue\\s+(?<catalogue>[1-9]\\d*)";
 
-    private static final String STORE_REGEX = "(?i)store\\s+(?<store>[a-Z]\\d*)";
-
-    public static Pattern selectStarPattern = Pattern.compile("(?i)select\\s+\\*");
-
     private static final String CREATE_REGEX = "(?i)create\\s+(external|temporary)*\\s*table\\s+[\\W\\w]+";
-
-    private static final String DDL_REGEX = "(?i)(insert|create|drop|alter|truncate|set|update|delete)+\\s+[\\W\\w]+";
 
     private static final String SQL_SPLIT_REGEX = "('[^']*?')|(\"[^\"]*?\")";
 
@@ -79,25 +64,10 @@ public class SqlFormatUtil {
     }
 
     /**
-     * 是否为ddl语句
-     */
-    public static boolean isDDLSql(String sql) {
-        return sql.matches(DDL_REGEX);
-    }
-
-    /**
      * 是否为建表语句
      */
     public static boolean isCreateSql(String sql) {
         return sql.matches(CREATE_REGEX);
-    }
-
-
-    public static List<String> splitSqlWithoutSemi(String sqlText) {
-        if (!sqlText.endsWith(";")) {
-            sqlText = sqlText + ";";
-        }
-        return splitSqlText(sqlText);
     }
 
 
@@ -126,19 +96,6 @@ public class SqlFormatUtil {
         return sqls;
     }
 
-    public static void checkSql(String sql) throws Exception {
-        if (StringUtils.isEmpty(sql)) {
-            throw new IllegalArgumentException("sql语句不能为空");
-        }
-
-        String sqlCopy = sql;
-        sqlCopy = SqlFormatUtil.init(sqlCopy).getSql();
-        String[] strings = Strings.splitIgnoreQuotaBrackets(sqlCopy, ";");
-        if (strings.length > 2) {
-            throw new IllegalArgumentException("只能执行单条sql");
-        }
-    }
-
 
     public static SqlFormatUtil init(String sql) {
         SqlFormatUtil util = new SqlFormatUtil();
@@ -152,13 +109,10 @@ public class SqlFormatUtil {
                 .toOneLine()
                 .removeBlank()
                 .removeEndChar()
+                .toOneLine()
                 .getSql();
     }
 
-    public static boolean checkSelectStar(String sql) {
-
-        return selectStarPattern.matcher(sql).find();
-    }
 
     /**
      * 标准化sql
@@ -171,22 +125,12 @@ public class SqlFormatUtil {
                 .getSql();
     }
 
-    public static String replaceKeyWord(String sql) {
-
-        return sql.replaceAll(EXTERNAL, EXTERNAL_X);
-    }
 
     public SqlFormatUtil removeBlanks() {
         sql = sql.replaceAll(MULTIPLE_BLANKS, " ");
         return this;
     }
 
-    public SqlFormatUtil toSingleSql() {
-        if (sql.contains(SPLIT_CHAR)) {
-            sql = sql.split(SPLIT_CHAR)[0];
-        }
-        return this;
-    }
 
     public SqlFormatUtil toOneLine() {
         sql = sql.replaceAll(RETURN_REGEX, " ").replaceAll(NEWLINE_REGEX, " ");
@@ -269,132 +213,8 @@ public class SqlFormatUtil {
         return sql;
     }
 
-    public static String removeLimit(String sql) {
-        if (StringUtils.isBlank(sql)) {
-            return sql;
-        }
-        String formattedSql = sql;
-        Pattern compile = Pattern.compile(SqlRegexUtil.LIMIT);
-        Matcher matcher = compile.matcher(sql);
-        while (matcher.find()) {
-            String group = matcher.group(0);
-            formattedSql = sql.replaceAll(group, " ");
-        }
-        return formattedSql;
-    }
-
-    /**
-     * 删除'' 内容
-     *
-     * @param sql
-     * @return
-     */
-    public static String removeComment(String sql) {
-        return StringUtils.isBlank(sql) ? "" : sql.replaceAll("(?i)comment\\s*'([^']*)'", StringUtils.EMPTY);
-    }
-
-
-    /**
-     * 删除 comment ""
-     *
-     * @param sql
-     * @return
-     */
-    public static String removeDoubleQuotesComment(String sql) {
-        return StringUtils.isBlank(sql) ? "" : sql.replaceAll("(?i)comment\\s*\"([^\"]*)\"", StringUtils.EMPTY);
-    }
 
     public static Pattern pattern = Pattern.compile("(?i)(map|struct|array)<");
-
-
-    /**
-     * 处理 array<struct<room_id:string,days:array<struct<day_id:string,price:int>>>> 格式
-     *
-     * @param sql
-     * @return
-     */
-    public static String formatType(String sql) {
-
-        if (StringUtils.isBlank(sql)) {
-            return sql;
-        }
-        Matcher matcher = pattern.matcher(sql);
-        if (!matcher.find()) {
-            return sql;
-        }
-        String replace_type = sql.replaceAll("(?i)(map|struct|array)\\s*<", "replace_type<");
-        Stack<String> stack = new Stack<>();
-        String[] s = replace_type.split("replace_type");
-        StringBuilder stringBuilder = new StringBuilder();
-        boolean isBegin = false;
-        for (int i = 0; i < s.length; i++) {
-            String data = s[i];
-            if (data.contains("replace_type")) {
-                isBegin = true;
-            }
-            for (char c : data.toCharArray()) {
-                String value = String.valueOf(c);
-                if ("<".equalsIgnoreCase(value)) {
-                    stack.push(value);
-                } else if (">".equals(value)) {
-                    stack.pop();
-                    if (stack.isEmpty()) {
-                        isBegin = false;
-                    }
-                }
-                if (!isBegin && stack.isEmpty() && !">".equals(value)) {
-                    stringBuilder.append(value);
-                }
-            }
-            if (i != s.length - 1 && !isBegin && stack.isEmpty()) {
-                stringBuilder.append(" string ");
-            }
-        }
-        return stringBuilder.toString();
-    }
-
-
-    /**
-     * 向后读一个token
-     *
-     * @param originSql
-     * @param start
-     * @return
-     */
-    public static String readTokenBackwards(String originSql, int start) {
-        Deque<Character> charStack = new LinkedList<>();
-        for (int i = start; i < originSql.length(); i++) {
-            char c = originSql.charAt(i);
-            if (!charStack.isEmpty()) {
-                //栈不为空判断栈顶元素，如果是结束标志，则结束，否则压栈
-                Character peek = charStack.peek();
-                if (isStopSignal(peek)) {
-                    charStack.pop();
-                    break;
-                }
-                charStack.push(c);
-            } else {
-                //栈为空则直接压栈非空元素
-                if (' ' == c) {
-                    continue;
-                }
-                charStack.push(c);
-            }
-        }
-        StringBuilder builder = new StringBuilder();
-        while (!charStack.isEmpty()) {
-            Character pop = charStack.removeLast();
-            builder.append(pop);
-        }
-        return builder.toString();
-    }
-
-    private static boolean isStopSignal(char c) {
-        if (' ' == c || ',' == c || '(' == c || ')' == c) {
-            return true;
-        }
-        return false;
-    }
 
 
     private static final Logger logger = LoggerFactory.getLogger(SqlFormatUtil.class);

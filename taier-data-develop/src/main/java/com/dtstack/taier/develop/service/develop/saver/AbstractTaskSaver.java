@@ -140,6 +140,7 @@ public abstract class AbstractTaskSaver implements ITaskSaver {
     public TaskVO updateTaskInfo(TaskResourceParam taskResourceParam) {
         TaskVO taskVO = TaskMapstructTransfer.INSTANCE.TaskResourceParamToTaskVO(taskResourceParam);
         taskVO.setModifyUserId(taskResourceParam.getUserId());
+        taskVO.setDatasourceId(taskResourceParam.getDatasourceId());
         if (StringUtils.isBlank(taskVO.getName())) {
             throw new RdosDefineException("名称不能为空", ErrorCode.INVALID_PARAMETERS);
         }

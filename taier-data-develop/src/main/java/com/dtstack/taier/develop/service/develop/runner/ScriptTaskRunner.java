@@ -137,7 +137,7 @@ public class ScriptTaskRunner implements ITaskRunner {
     }
 
     @Override
-    public ISourceDTO getSourceDTO(Long tenantId, Long userId, Integer taskType, boolean useSchema) {
+    public ISourceDTO getSourceDTO(Long tenantId, Long userId, Integer taskType, boolean useSchema, Long datasourceId) {
         throw new RdosDefineException("not support");
     }
 
