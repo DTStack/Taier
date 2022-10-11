@@ -128,12 +128,8 @@ function registerWorkers() {
 				case TASK_LANGUAGE.SQL: {
 					return './sql.worker.js';
 				}
-				case TASK_LANGUAGE.PYTHON: {
-					return './python.worker.js';
-				}
-				case TASK_LANGUAGE.SHELL: {
-					return './shell.worker.js';
-				}
+				case TASK_LANGUAGE.PYTHON:
+				case TASK_LANGUAGE.SHELL:
 				default: {
 					return './editor.worker.js';
 				}
