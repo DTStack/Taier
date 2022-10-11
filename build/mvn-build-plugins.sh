@@ -7,7 +7,6 @@ taier-worker/taier-plugins/dummy,\
 taier-worker/taier-plugins/flink/common,\
 taier-worker/taier-plugins/flink/yarn3-hdfs3-flink112,\
 taier-worker/taier-plugins/flink/yarn2-hdfs2-flink112,\
-taier-worker/taier-plugins/flink/flink112-standalone,\
 taier-worker/taier-plugins/spark/yarn3-hdfs3-spark210/spark-yarn-client,\
 taier-worker/taier-plugins/spark/yarn3-hdfs3-spark210/spark-sql-proxy,\
 taier-worker/taier-plugins/spark/yarn2-hdfs2-spark210/spark-yarn-client,\

@@ -163,4 +163,5 @@ export default {
 	QUERY_SYNC_DATA_SOURCE: `${BASE_URI}/task/getSyncProperties`, // 获取当前数据同步任务的数据
 	QUERY_SUPPORT_SOURCE: `${BASE_URI}/dataSource/manager/support`, // 获取当前各组件支持的数据源
 	GET_RESOURCES_BY_TENANT: `${BASE_URI}/console/clusterResourcesByTenantId`, // 基于租户 ID 获取集群信息
+	GET_ALL_DATA_SOURCE: `${BASE_URI}/dataSource/manager/total`, // 获取全部数据源
 };

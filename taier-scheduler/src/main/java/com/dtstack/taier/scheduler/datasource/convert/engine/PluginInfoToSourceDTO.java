@@ -680,6 +680,7 @@ public enum PluginInfoToSourceDTO {
         if (hadoopConf != null) {
             allConf.putAll(hadoopConf);
         }
+        allConf.putAll(pluginInfo);
         return allConf;
     }
 }
