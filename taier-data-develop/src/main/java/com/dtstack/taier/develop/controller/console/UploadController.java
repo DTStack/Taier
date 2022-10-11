@@ -105,8 +105,14 @@ public class UploadController {
                     }
                 }
                 //存储只能配置hdfs
+
+                //todo 参数处理下，第一次保存 deployType 赋值 0
+                Integer deployTypeCode = deployType;
+                if ("1.12-standalone".equals(versionName)) {
+                    deployTypeCode = 0;
+                }
                 return consoleComponentService.addOrUpdateComponent(clusterId, finalComponentConfig, resources,
-                        finalVersionName, kerberosFileName, componentType, EComponentType.HDFS.getTypeCode(), principals, principal, isMetadata, isDefault, deployType);
+                        finalVersionName, kerberosFileName, componentType, EComponentType.HDFS.getTypeCode(), principals, principal, isMetadata, isDefault, deployTypeCode);
             }
         }.execute();
 
