@@ -81,7 +81,7 @@ public class SyncTaskRunner implements ITaskRunner {
     }
 
     @Override
-    public ISourceDTO getSourceDTO(Long tenantId, Long userId, Integer taskType, boolean useSchema) {
+    public ISourceDTO getSourceDTO(Long tenantId, Long userId, Integer taskType, boolean useSchema,Long datasourceId) {
         return null;
     }
 

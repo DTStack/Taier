@@ -140,6 +140,16 @@ public class JobClient implements Serializable {
 
     private String queueName;
 
+    private Long datasourceId;
+
+    public Long getDatasourceId() {
+        return datasourceId;
+    }
+
+    public void setDatasourceId(Long datasourceId) {
+        this.datasourceId = datasourceId;
+    }
+
     public String getQueueName() {
         return queueName;
     }
@@ -201,7 +211,7 @@ public class JobClient implements Serializable {
         this.componentVersion = paramAction.getComponentVersion();
         this.taskType = paramAction.getTaskType();
         this.queueName = paramAction.getQueueName();
-
+        this.datasourceId = paramAction.getDatasourceId();
         this.maxRetryNum = paramAction.getMaxRetryNum() == null ? 0 : paramAction.getMaxRetryNum();
         if (taskParams != null) {
             this.confProperties = PublicUtil.stringToProperties(taskParams);
@@ -250,6 +260,7 @@ public class JobClient implements Serializable {
         action.setComponentVersion(componentVersion);
         action.setTaskType(taskType);
         action.setQueueName(queueName);
+        action.setDatasourceId(datasourceId);
         return action;
     }
 

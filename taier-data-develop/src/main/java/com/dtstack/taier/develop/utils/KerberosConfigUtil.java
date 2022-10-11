@@ -1,9 +1,12 @@
 package com.dtstack.taier.develop.utils;
 
+import com.dtstack.taier.common.exception.DtCenterDefException;
 import com.dtstack.taier.common.exception.RdosDefineException;
 import com.dtstack.taier.common.sftp.SFTPHandler;
+import com.google.common.collect.Lists;
 import com.jcraft.jsch.ChannelSftp;
 import com.jcraft.jsch.SftpException;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,6 +15,7 @@ import java.io.File;
 import java.io.IOException;
 import java.sql.Timestamp;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Vector;
@@ -27,12 +31,6 @@ public class KerberosConfigUtil {
     private static final String LOCK_SUFFIX = ".lock";
 
     private static final String SEPARATE = File.separator;
-
-    protected static String localKerberosDir = String.format("%s/kerberosConf", System.getProperty("user.dir"));
-
-    protected static String localSslDir = String.format("%s/sslConf", System.getProperty("user.dir"));
-
-    protected static String localConfDir = String.format("%s/sourceConfDir", System.getProperty("user.dir"));
 
     /**
      * 从 SFTP 上下载 kerberos 配置文件到本地。
@@ -171,32 +169,30 @@ public class KerberosConfigUtil {
     }
 
     /**
-     * 该数据源存放文件夹命名（sftp和本地）
+     * 列出 sftp 上指定路径下的文件名列表
      *
-     * @param dtCenterSourceId 数据源中心id
-     * @return sftp 数据源命名
+     * @param sftpPath sftp 路径
+     * @param sftpMap  sftp 配置
+     * @return 文件名集合
      */
-    public static String getLocalKerberosPath(Long dtCenterSourceId) {
-        return localKerberosDir + SEPARATE + "_" + Optional.ofNullable(dtCenterSourceId).orElse(0L);
-    }
-
-    /**
-     * 该数据源存放文件夹命名（sftp和本地）
-     *
-     * @param dtCenterSourceId 数据源中心id
-     * @return sftp 数据源命名
-     */
-    public static String getLocalSslDir(Long dtCenterSourceId) {
-        return localSslDir + SEPARATE + "_" + Optional.ofNullable(dtCenterSourceId).orElse(0L);
-    }
-
-    /**
-     * 该数据源配置存放文件夹命名（sftp和本地）
-     *
-     * @param dtCenterSourceId 数据源中心id
-     * @return sftp 数据源命名
-     */
-    public static String getLocalConfDir(Long dtCenterSourceId) {
-        return localConfDir + SEPARATE + "_" + Optional.ofNullable(dtCenterSourceId).orElse(0L);
+    @SuppressWarnings("unchecked")
+    public static List<String> listFileNameFromSftp(String sftpPath, Map<String, String> sftpMap) {
+        SFTPHandler handler = null;
+        List<String> fileNames = Lists.newArrayList();
+        try {
+            handler = SFTPHandler.getInstance(sftpMap);
+            Vector vector = handler.listFile(sftpPath);
+            if (CollectionUtils.isEmpty(vector)) {
+                return fileNames;
+            }
+            vector.forEach(file -> fileNames.add(((ChannelSftp.LsEntry) file).getFilename()));
+        } catch (Exception e) {
+            throw new DtCenterDefException(String.format("从 SFTP 下载配置文件异常: %s", e.getMessage()), e);
+        } finally {
+            if (handler != null) {
+                handler.close();
+            }
+        }
+        return fileNames;
     }
 }

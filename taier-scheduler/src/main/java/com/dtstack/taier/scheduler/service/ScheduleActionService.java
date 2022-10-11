@@ -245,6 +245,7 @@ public class ScheduleActionService {
         actionParam.put("type", scheduleJob.getType());
         actionParam.put("tenantId", task.getTenantId());
         actionParam.put("queueName", task.getQueueName());
+        actionParam.put("datasourceId", task.getDatasourceId());
         actionParam.putAll(parseRetryParam(task));
         return PublicUtil.mapToObject(actionParam, ParamActionExt.class);
     }
@@ -283,7 +284,7 @@ public class ScheduleActionService {
                 || EScheduleJobType.VIRTUAL.getType().equals(task.getTaskType())) {
             pipeline = unnecessaryPreprocessJobPipeline;
         } else if (EScheduleJobType.PYTHON.getType().equals(task.getTaskType())
-            || EScheduleJobType.SHELL.getType().equals(task.getTaskType())) {
+                || EScheduleJobType.SHELL.getType().equals(task.getTaskType())) {
             handleExeArgsIfNeed(actionParam, task, taskParamsToReplace, scheduleJob);
             return;
         } else {
@@ -316,7 +317,7 @@ public class ScheduleActionService {
 
     public Boolean stop(List<String> jobIds, Integer isForce) {
         List<ScheduleJob> jobs = new ArrayList<>(scheduleJobService.getByJobIds(jobIds));
-        if(CollectionUtils.isNotEmpty(jobs)){
+        if (CollectionUtils.isNotEmpty(jobs)) {
             jobStopDealer.addStopJobs(jobs, isForce);
         }
         return true;
@@ -518,6 +519,7 @@ public class ScheduleActionService {
 
     /**
      * sqlText 上传到 hdfs 得到路径后，替换占位符
+     *
      * @param actionParam
      * @param task
      * @param taskParamsToReplace
@@ -548,6 +550,7 @@ public class ScheduleActionService {
 
     /**
      * 将脚本上传到 hdfs
+     *
      * @param sqlText
      * @param task
      * @param scheduleJob

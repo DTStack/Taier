@@ -98,7 +98,7 @@ public interface ITaskRunner {
      * @param taskType
      * @return
      */
-    ISourceDTO getSourceDTO(Long tenantId, Long userId, Integer taskType,boolean useSchema);
+    ISourceDTO getSourceDTO(Long tenantId, Long userId, Integer taskType, boolean useSchema, Long datasourceId);
 
 
     /**

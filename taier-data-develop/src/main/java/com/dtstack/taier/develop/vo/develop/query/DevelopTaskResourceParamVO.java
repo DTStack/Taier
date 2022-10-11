@@ -78,9 +78,6 @@ public class DevelopTaskResourceParamVO extends DtInsightAuthParam {
     @ApiModelProperty(value = "任务版本 ID")
     private List<Map> taskVariables;
 
-    @ApiModelProperty(value = "数据源 ID", example = "24")
-    private Long dataSourceId;
-
     @ApiModelProperty(value = "0-向导模式,1-脚本模式", example = "1")
     private Integer createModel = 0;
 
@@ -376,14 +373,6 @@ public class DevelopTaskResourceParamVO extends DtInsightAuthParam {
 
     public void setTaskVariables(List<Map> taskVariables) {
         this.taskVariables = taskVariables;
-    }
-
-    public Long getDataSourceId() {
-        return dataSourceId;
-    }
-
-    public void setDataSourceId(Long dataSourceId) {
-        this.dataSourceId = dataSourceId;
     }
 
     public Integer getCreateModel() {
