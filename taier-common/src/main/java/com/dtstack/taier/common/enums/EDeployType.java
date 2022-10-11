@@ -32,16 +32,16 @@ public enum EDeployType {
     //
     KUBERNETES(2, "kubernetes");
 
-    int type;
+    Integer type;
 
     String name;
 
-    EDeployType(int type, String name){
+    EDeployType(Integer type, String name){
         this.type = type;
         this.name = name;
     }
 
-    public int getType() {
+    public Integer getType() {
         return type;
     }
 
@@ -67,13 +67,12 @@ public enum EDeployType {
         return null;
     }
 
-    public static EDeployType getDeployType(int type){
-        for(EDeployType eType : EDeployType.values()){
-            if(eType.getType() == type){
+    public static EDeployType getDeployType(Integer type) {
+        for (EDeployType eType : EDeployType.values()) {
+            if (eType.getType().equals(type)) {
                 return eType;
             }
         }
-
         return null;
     }
 }

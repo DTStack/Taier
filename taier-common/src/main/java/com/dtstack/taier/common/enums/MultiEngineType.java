@@ -20,7 +20,9 @@ package com.dtstack.taier.common.enums;
 
 public enum MultiEngineType {
     COMMON(-1,"Common"),
-    HADOOP(1,"Hadoop");
+    HADOOP(1,"Hadoop"),
+    FLINK_ON_STANDALONE(8,"FlinkOnStandalone");
+
 
     private int type;
 
