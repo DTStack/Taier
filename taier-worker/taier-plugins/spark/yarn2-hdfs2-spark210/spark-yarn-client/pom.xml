@@ -204,10 +204,10 @@
                             <tasks>
                                 <move file="${basedir}/target/${project.name}-${project.version}.jar"
                                       tofile="${basedir}/target/${jar.name}.jar"/>
-                                <copy todir="${basedir}/target/../../../../../../pluginLibs/${pluginDir.name}/"
+                                <copy todir="${basedir}/target/../../../../../../worker-plugins/${pluginDir.name}/"
                                       file="${basedir}/target/${jar.name}.jar"/>
                                 <delete>
-                                    <fileset dir="${basedir}/target/../../../../../../pluginLibs/${pluginDir.name}/"
+                                    <fileset dir="${basedir}/target/../../../../../../worker-plugins/${pluginDir.name}/"
                                              includes="${jar.name}-*.jar"
                                              excludes="${jar.name}.jar"/>
                                 </delete>

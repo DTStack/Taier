@@ -129,6 +129,7 @@ public enum DataSourceType {
 
     private static final List<Integer> RDBM_S = new ArrayList<>();
     private static final List<Integer> KAFKA_S = new ArrayList<>();
+    public static final List<Integer> GET_SCHEMA = new ArrayList<>();
     public static final Map<String, List<Integer>> GROUP = new HashMap<>(DataSourceType.values().length);
 
     static {
@@ -179,6 +180,12 @@ public enum DataSourceType {
         KAFKA_S.add(KAFKA_10.val);
         KAFKA_S.add(KAFKA_11.val);
         KAFKA_S.add(KAFKA_2X.val);
+
+        GET_SCHEMA.add(SparkThrift2_1.val);
+        GET_SCHEMA.add(HIVE.val);
+        GET_SCHEMA.add(HIVE1X.val);
+        GET_SCHEMA.add(HIVE3X.val);
+        GET_SCHEMA.add(HIVE3_CDP.val);
 
         for (DataSourceType dataSourceType : DataSourceType.values()) {
             List<Integer> types = DataSourceType.GROUP.get(dataSourceType.getGroupTag());

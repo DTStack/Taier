@@ -2,10 +2,8 @@ package com.dtstack.taier.develop.service.develop.saver;
 
 import com.dtstack.taier.common.enums.EScheduleJobType;
 import com.dtstack.taier.common.util.SqlFormatUtil;
-import com.dtstack.taier.datasource.api.base.ClientCache;
-import com.dtstack.taier.datasource.api.client.IClient;
-import com.dtstack.taier.datasource.api.dto.source.ISourceDTO;
-import com.dtstack.taier.develop.datasource.convert.load.SourceLoaderService;
+import com.dtstack.taier.dao.domain.DevelopDataSource;
+import com.dtstack.taier.develop.service.datasource.impl.DatasourceService;
 import com.dtstack.taier.develop.service.develop.impl.DevelopFunctionService;
 import com.dtstack.taier.develop.utils.develop.common.SqlUtils;
 import com.google.common.collect.Lists;
@@ -29,15 +27,14 @@ public class SparkHiveSqlTaskSaver extends DefaultTaskSaver {
     private DevelopFunctionService developFunctionService;
 
     @Autowired
-    private SourceLoaderService sourceLoaderService;
+    private DatasourceService datasourceService;
 
     @Override
     public String processScheduleRunSqlText(Long tenantId, Integer taskType, String sqlText, Long datasourceId) {
         String currentDatabase = "";
         if (EScheduleJobType.SPARK_SQL.getType().equals(taskType)) {
-            ISourceDTO sourceDTO = sourceLoaderService.buildSourceDTO(datasourceId);
-            IClient client = ClientCache.getClient(sourceDTO.getSourceType());
-            currentDatabase = client.getCurrentDatabase(sourceDTO);
+            DevelopDataSource dataSource = datasourceService.getOne(datasourceId);
+            currentDatabase = dataSource.getSchemaName();
         }
         String sqlPlus = buildCustomFunctionSparkHiveSql(sqlText, tenantId, taskType);
         return processSql(sqlPlus, currentDatabase);
