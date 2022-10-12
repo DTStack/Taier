@@ -47,6 +47,8 @@ public enum EComponentType {
     DB2(17, "DB2", "db2Conf", EComponentScheduleType.COMPUTE),
     TRINO(18, "Trino", "trinoConf", EComponentScheduleType.COMPUTE),
     HANA(19, "Hana", "hanaConf", EComponentScheduleType.COMPUTE),
+    CLICK_HOUSE(20, "ClickHouse", "clickHouseConf", EComponentScheduleType.COMPUTE),
+    DORIS(21, "Doris", "dorisConf", EComponentScheduleType.COMPUTE)
     ;
 
     private final Integer typeCode;
@@ -104,6 +106,10 @@ public enum EComponentType {
         throw new IllegalArgumentException("No enum constant with conf name:" + confName);
     }
 
+    public static boolean isUnnecessaryCheckConnectComponents(Integer componentType) {
+        return unnecessaryCheckConnectComponents.contains(getByCode(componentType));
+    }
+
     public Integer getTypeCode() {
         return typeCode;
     }
@@ -154,6 +160,9 @@ public enum EComponentType {
 
     //没有控件渲染的组件
     public static final List<EComponentType> noControlComponents = Lists.newArrayList(EComponentType.YARN, EComponentType.HDFS);
+
+    // 不需要测试联通性的组件
+    public static final List<EComponentType> unnecessaryCheckConnectComponents = Lists.newArrayList(EComponentType.SPARK, EComponentType.SCRIPT, EComponentType.FLINK);
 
 }
 
