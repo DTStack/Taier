@@ -26,6 +26,7 @@ import com.dtstack.taier.dao.domain.ComponentConfig;
 import com.dtstack.taier.dao.domain.Dict;
 import com.dtstack.taier.dao.mapper.ComponentConfigMapper;
 import com.dtstack.taier.dao.mapper.DictMapper;
+import com.dtstack.taier.pluginapi.enums.EDeployMode;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -110,7 +111,7 @@ public class ScheduleDictService {
         return groupPairs;
     }
 
-    public String convertVersionNameToValue(String componentVersion, Integer taskType) {
+    public String convertVersionNameToValue(String componentVersion, Integer taskType,  Integer deployMode) {
         if (StringUtils.isBlank(componentVersion)) {
             return "";
         }
@@ -120,6 +121,9 @@ public class ScheduleDictService {
         if (null != dictType) {
             Dict versionDict = getByNameAndValue(dictType, componentVersion.trim(), null, null);
             if (null != versionDict) {
+                if(EDeployMode.STANDALONE.getType().equals(deployMode)) {
+                    return versionDict.getDictValue() + "_standalone";
+                }
                 return versionDict.getDictValue();
             }
         }

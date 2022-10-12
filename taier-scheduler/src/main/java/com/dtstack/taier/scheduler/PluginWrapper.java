@@ -50,14 +50,14 @@ public class PluginWrapper {
         if (clusterService.hasStandalone(tenantId, EComponentType.FLINK.getTypeCode())) {
             deployMode = EDeployMode.STANDALONE;
         }
-        String componentVersionValue = scheduleDictService.convertVersionNameToValue(componentVersion, taskType);
+        String componentVersionValue = scheduleDictService.convertVersionNameToValue(componentVersion, taskType, deployMode.getType());
         JSONObject pluginInfo = clusterService.pluginInfoJSON(tenantId, taskType, deployMode.getType(), componentVersionValue, queueName);
         pluginInfo.put(DEPLOY_MODEL, deployMode.getType());
         return pluginInfo;
     }
 
     public Map<String, Object> wrapperPluginInfo(Integer taskType, String componentVersion, Long tenantId, Integer deployMode, String queueName) {
-        String componentVersionValue = scheduleDictService.convertVersionNameToValue(componentVersion, taskType);
+        String componentVersionValue = scheduleDictService.convertVersionNameToValue(componentVersion, taskType, deployMode);
         return clusterService.pluginInfoJSON(tenantId, taskType, deployMode, componentVersionValue, queueName);
     }
 

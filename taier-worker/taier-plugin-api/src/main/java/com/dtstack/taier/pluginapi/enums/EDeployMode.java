@@ -20,12 +20,13 @@ package com.dtstack.taier.pluginapi.enums;
 
 import com.dtstack.taier.pluginapi.exception.PluginDefineException;
 
-public enum EDeployMode{
+public enum EDeployMode {
     PERJOB("perjob", 1),
     SESSION("session", 2),
     STANDALONE("standalone", 3);
-    private String mode;
-    private Integer type;
+
+    private final String mode;
+    private final Integer type;
 
     public String getMode() {
         return mode;
