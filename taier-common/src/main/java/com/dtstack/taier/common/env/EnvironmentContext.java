@@ -253,13 +253,13 @@ public class EnvironmentContext implements InitializingBean {
     @Value("${datasource.plugin.path:}")
     private String dataSourcePluginPath;
 
-    @Value("${plugin.path:#{systemProperties['user.dir']}/pluginLibs}")
+    @Value("${plugin.path:#{systemProperties['user.dir']}/worker-plugins}")
     private String pluginPath;
 
     @Value("${stopLimit:100000}")
     private Integer stopLimit;
 
-    @Value("${logs.limit.num:10000}")
+    @Value("${logs.limit.num:5242880}")
     private Integer logsLimitNum;
 
     @Override

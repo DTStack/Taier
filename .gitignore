@@ -38,3 +38,4 @@ engine-ui/packages/**/**/dist/
 node_modules
 conf/application.properties
 /dist
+/worker-plugins/

@@ -1,11 +1,7 @@
 package com.dtstack.taier.develop.service.develop.runner;
 
-import com.alibaba.fastjson.JSONObject;
-import com.dtstack.taier.common.engine.JdbcInfo;
-import com.dtstack.taier.common.enums.EComponentType;
 import com.dtstack.taier.common.enums.EScheduleJobType;
 import com.dtstack.taier.common.env.EnvironmentContext;
-import com.dtstack.taier.common.exception.DtCenterDefException;
 import com.dtstack.taier.common.util.RegexUtils;
 import com.dtstack.taier.dao.domain.DevelopSelectSql;
 import com.dtstack.taier.dao.domain.ScheduleJob;
@@ -14,6 +10,7 @@ import com.dtstack.taier.datasource.api.dto.source.ISourceDTO;
 import com.dtstack.taier.develop.datasource.convert.load.SourceLoaderService;
 import com.dtstack.taier.develop.dto.devlop.BuildSqlVO;
 import com.dtstack.taier.develop.dto.devlop.ExecuteResultVO;
+import com.dtstack.taier.develop.service.datasource.impl.DatasourceService;
 import com.dtstack.taier.develop.service.develop.IJdbcService;
 import com.dtstack.taier.develop.service.develop.ITaskRunner;
 import com.dtstack.taier.develop.service.develop.impl.DevelopTaskService;
@@ -26,7 +23,6 @@ import com.dtstack.taier.scheduler.service.ClusterService;
 import com.dtstack.taier.scheduler.service.ComponentService;
 import com.dtstack.taier.scheduler.service.ScheduleActionService;
 import com.google.common.collect.Lists;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;
@@ -61,6 +57,9 @@ public abstract class JdbcTaskRunner implements ITaskRunner {
 
     @Autowired
     protected SourceLoaderService sourceLoaderService;
+
+    @Autowired
+    protected DatasourceService datasourceService;
 
     @Override
     public abstract List<EScheduleJobType> support();
@@ -125,45 +124,8 @@ public abstract class JdbcTaskRunner implements ITaskRunner {
         return sourceLoaderService.buildSourceDTO(datasourceId);
     }
 
-
-    /**
-     * 根据db构建url
-     *
-     * @param jdbcUrl url
-     * @param dbName  数据库
-     * @return 构建后的url
-     */
-    protected String buildUrlWithDb(String jdbcUrl, String dbName) {
-        dbName = StringUtils.isNotBlank(dbName) ? dbName.trim() : "";
-        if (StringUtils.isNotBlank(jdbcUrl) && jdbcUrl.trim().contains("%s")) {
-            return String.format(jdbcUrl, dbName);
-        }
-        return jdbcUrl;
-    }
-
-
-    /**
-     * 获取集群组件 JDBC 信息
-     *
-     * @param tenantId      集群ID
-     * @param componentType 组件类型
-     * @return
-     */
-    protected JdbcInfo getJdbcInCluster(Long tenantId, EComponentType componentType, String componentVersion) {
-        JSONObject componentConfig = clusterService.getConfigByKey(tenantId, componentType.getConfName(), componentVersion);
-        if (Objects.isNull(componentConfig)) {
-            throw new DtCenterDefException(String.format("please config component %s", componentType.getName()));
-        }
-        return componentConfig.toJavaObject(JdbcInfo.class);
-    }
-
     @Override
-    public String getCurrentDb(Long tenantId, Integer taskType) {
-        return "";
-    }
-
-    @Override
-    public BuildSqlVO buildSql(ParseResult parseResult, Long userId, String database, Task task) {
+    public BuildSqlVO buildSql(ParseResult parseResult, Long userId, Task task) {
         return null;
     }
 

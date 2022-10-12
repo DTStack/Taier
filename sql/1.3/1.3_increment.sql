@@ -144,4 +144,26 @@ delete from dict where `type` = 30 and dict_code in (12, 13);
 INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default, gmt_create, gmt_modified, is_deleted) VALUES ('12', 'Python', '{"actions": ["SAVE_TASK", "RUN_TASK", "STOP_TASK", "SUBMIT_TASK", "OPERATOR_TASK"], "barItem": ["task", "dependency", "task_params", "env_params"], "formField": ["pythonVersion"], "renderKind": "editor"}', null, 30, 0, 'STRING', '', 1, '2022-02-11 10:28:45', '2022-02-11 10:28:45', 0);
 INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default, gmt_create, gmt_modified, is_deleted) VALUES ('13', 'Shell', '{"actions": ["SAVE_TASK", "RUN_TASK", "STOP_TASK", "SUBMIT_TASK", "OPERATOR_TASK"], "barItem": ["task", "dependency", "task_params", "env_params"], "formField": [], "renderKind": "editor"}', null, 30, 0, 'STRING', '', 1, '2022-02-11 10:28:45', '2022-02-11 10:28:45', 0);
 
+
+truncate table datasource_classify;
+INSERT INTO `datasource_classify` VALUES (1, 'total', 100, '全部', 0, '2021-03-15 17:49:27', '2021-03-15 17:50:42', 0, 0);
+INSERT INTO `datasource_classify` VALUES (2, 'mostUse', 90, '常用', 0, '2021-03-15 17:49:27', '2021-03-15 17:50:43', 0, 0);
+INSERT INTO `datasource_classify` VALUES (3, 'relational', 80, '关系型', 0, '2021-03-15 17:49:27', '2021-03-15 17:50:43', 0, 0);
+INSERT INTO `datasource_classify` VALUES (4, 'bigData', 70, '大数据存储', 0, '2021-03-15 17:49:27', '2021-03-15 17:50:43', 0, 0);
+INSERT INTO `datasource_classify` VALUES (5, 'mpp', 60, 'MPP', 0, '2021-03-15 17:49:27', '2021-03-15 17:50:43', 0, 0);
+INSERT INTO `datasource_classify` VALUES (6, 'semiStruct', 50, '半结构化', 0, '2021-03-15 17:49:27', '2021-03-15 17:50:43', 0, 0);
+INSERT INTO `datasource_classify` VALUES (7, 'analytic', 40, '分析型', 0, '2021-03-15 17:49:27', '2021-03-15 17:50:44', 0, 0);
+INSERT INTO `datasource_classify` VALUES (8, 'NoSQL', 30, 'NoSQL', 0, '2021-03-15 17:49:27', '2021-03-15 17:50:44', 0, 0);
+INSERT INTO `datasource_classify` VALUES (0, 'actualTime', 20, '实时', 0, '2021-03-15 17:49:27', '2021-03-15 17:50:44', 0, 0);
+INSERT INTO `datasource_classify` VALUES (10, 'api', 0, '接口', 0, '2021-03-15 17:49:27', '2021-03-15 17:50:44', 0, 0);
+INSERT INTO `datasource_classify` VALUES (11, 'sequential', 10, '时序', 0, '2021-06-09 17:19:27', '2021-06-09 17:19:27', 0, 0);
+
+
+
+INSERT INTO datasource_type (data_type, data_classify_id, weight, img_url, is_deleted, gmt_create, gmt_modified, create_user_id, modify_user_id, sorted, invisible) VALUES ('OceanBase', 5, 1.0, 'OceanBase.png', 0, '2021-08-05 10:22:10', '2021-08-17 11:53:29', 0, 0, 1200, 0);
+
+INSERT INTO datasource_form_field (name, label, widget, required, invisible, default_value, place_hold, request_api, is_link, valid_info, tooltip, style, regex, is_deleted, gmt_create, gmt_modified, create_user_id, modify_user_id, type_version, options) VALUES ('jdbcUrl', 'JDBC URL', 'Input', 1, 0, null, null, null, 1, '{"regex":{"message":"JDBC URL格式不符合规则!"}}', '示例：jdbc:oceanbase://host:port/dbName', null, '/jdbc:oceanbase:\\/\\/(.)+/', 0, '2021-08-05 09:35:57', '2021-08-05 16:07:17', 0, 0, 'OceanBase', '');
+INSERT INTO datasource_form_field (name, label, widget, required, invisible, default_value, place_hold, request_api, is_link, valid_info, tooltip, style, regex, is_deleted, gmt_create, gmt_modified, create_user_id, modify_user_id, type_version, options) VALUES ('username', '用户名', 'Input', 0, 0, null, null, null, 1, '', null, null, null, 0, '2021-08-05 09:35:57', '2021-08-05 10:08:08', 0, 0, 'OceanBase', '');
+INSERT INTO datasource_form_field (name, label, widget, required, invisible, default_value, place_hold, request_api, is_link, valid_info, tooltip, style, regex, is_deleted, gmt_create, gmt_modified, create_user_id, modify_user_id, type_version, options) VALUES ('password', '密码', 'Password', 0, 0, null, null, null, 0, '', null, null, null, 0, '2021-08-05 09:35:57', '2021-08-05 10:08:12', 0, 0, 'OceanBase', '');
+
 COMMIT;

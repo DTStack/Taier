@@ -173,10 +173,10 @@
                             <tasks>
                                 <copy file="${basedir}/target/${artifactId}-${project.version}.jar"
                                       tofile="${basedir}/target/script-core-script.jar" />
-                                <copy todir="${basedir}/target/../../../../pluginLibs/${plugin.dir.name}/"
+                                <copy todir="${basedir}/target/../../../../worker-plugins/${plugin.dir.name}/"
                                       file="${basedir}/target/script-core-script.jar"/>
                                 <delete>
-                                    <fileset dir="${basedir}/target/../../../../pluginLibs/${plugin.dir.name}/"
+                                    <fileset dir="${basedir}/target/../../../../worker-plugins/${plugin.dir.name}/"
                                              includes="${jar.name}-*.jar"
                                              excludes="script-core-script.jar"/>
                                 </delete>
