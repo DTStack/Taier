@@ -6,6 +6,7 @@ import com.dtstack.taier.common.exception.ExceptionEnums;
 import com.dtstack.taier.common.exception.RdosDefineException;
 import com.dtstack.taier.common.lang.web.R;
 import com.dtstack.taier.pluginapi.constrant.ConfigConstant;
+import com.dtstack.taier.pluginapi.exception.ExceptionUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.MethodParameter;
@@ -104,7 +105,7 @@ public class ResponseAdvisor implements ResponseBodyAdvice<Object> {
             }
         } else {
             errorCode = ErrorCode.SERVER_EXCEPTION;
-            errorMsg = e.getMessage();
+            errorMsg = ExceptionUtil.getErrorMessage(e);
             LOGGER.error("", e.getMessage());
         }
 
