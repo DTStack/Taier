@@ -22,6 +22,9 @@ public class FlinkPluginInfoStrategy implements ComponentPluginInfoStrategy {
         if (!StringUtils.isBlank(typeName)) {
             clusterConfigJson.put(TYPE_NAME_KEY, typeName);
         }
+        if(EDeployMode.STANDALONE.getType().equals(deployMode) ) {
+            return confConfig;
+        }
         confConfig = confConfig.getJSONObject(deploy.getMode());
         if (Objects.isNull(confConfig)) {
             throw new RdosDefineException(String.format("Flink Corresponding mode [%s] no information is configured", deploy.name()));

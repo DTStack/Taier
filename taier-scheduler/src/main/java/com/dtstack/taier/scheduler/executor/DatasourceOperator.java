@@ -78,7 +78,7 @@ public class DatasourceOperator {
 
     private String getPluginInfo(JobClient jobClient, Integer dataSourceType) {
         try {
-            String componentVersionValue = scheduleDictService.convertVersionNameToValue(jobClient.getComponentVersion(), jobClient.getTaskType());
+            String componentVersionValue = scheduleDictService.convertVersionNameToValue(jobClient.getComponentVersion(), jobClient.getTaskType(), jobClient.getDeployMode());
             JSONObject info = clusterService.pluginInfoJSON(jobClient.getTenantId(), jobClient.getTaskType(),
                     jobClient.getDeployMode(), componentVersionValue, jobClient.getQueueName());
             if (Objects.isNull(info)) {
