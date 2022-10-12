@@ -196,5 +196,13 @@
   {
     "datasource-type": 76,
     "component-type": 19
+  },
+  {
+    "datasource-type": 25,
+    "component-type": 20
+  },
+  {
+    "datasource-type": 64,
+    "component-type": 21
   }
 ]

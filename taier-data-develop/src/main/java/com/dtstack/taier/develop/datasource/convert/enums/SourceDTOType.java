@@ -73,6 +73,7 @@ import org.apache.commons.lang3.StringUtils;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 
 /**
  * 将 dataJson、kerberosConfig 转换为 ISourceDTO
@@ -501,9 +502,10 @@ public enum SourceDTOType {
     DorisRestful(DataSourceType.DorisRestful.getVal()) {
         @Override
         public ISourceDTO getSourceDTO(JSONObject dataJson, ConfigDTO configDTO) {
+            String schema = Optional.ofNullable(configDTO).map(ConfigDTO::getSchema).orElse(dataJson.getString(Consistent.SCHEMA));
             return DorisRestfulSourceDTO.builder()
                     .url(dataJson.getString(Consistent.URL))
-                    .schema(configDTO.getSchema())
+                    .schema(schema)
                     .userName(dataJson.getString(Consistent.USERNAME))
                     .password(dataJson.getString(Consistent.PASSWORD))
                     .build();
