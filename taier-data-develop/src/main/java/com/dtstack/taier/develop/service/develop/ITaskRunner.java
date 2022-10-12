@@ -1,9 +1,9 @@
 package com.dtstack.taier.develop.service.develop;
 
-import com.dtstack.taier.datasource.api.dto.source.ISourceDTO;
 import com.dtstack.taier.common.enums.EScheduleJobType;
 import com.dtstack.taier.dao.domain.DevelopSelectSql;
 import com.dtstack.taier.dao.domain.Task;
+import com.dtstack.taier.datasource.api.dto.source.ISourceDTO;
 import com.dtstack.taier.develop.dto.devlop.BuildSqlVO;
 import com.dtstack.taier.develop.dto.devlop.ExecuteResultVO;
 import com.dtstack.taier.develop.sql.ParseResult;
@@ -102,24 +102,14 @@ public interface ITaskRunner {
 
 
     /**
-     * 获取当前租户绑定的db
-     *
-     * @param tenantId
-     * @param taskType
-     * @return
-     */
-    String getCurrentDb(Long tenantId, Integer taskType);
-
-    /**
      * 构建sqlVO （支持：sql运行直接走调度任务的方式）
      *
      * @param parseResult
      * @param userId
-     * @param database
      * @param task
      * @return
      */
-    BuildSqlVO buildSql(ParseResult parseResult, Long userId, String database, Task task);
+    BuildSqlVO buildSql(ParseResult parseResult, Long userId, Task task);
 
 
     /**

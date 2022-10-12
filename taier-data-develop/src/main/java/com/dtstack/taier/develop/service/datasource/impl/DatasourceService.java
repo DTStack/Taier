@@ -81,6 +81,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.StringJoiner;
+import java.util.function.Consumer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -285,6 +286,16 @@ public class DatasourceService {
         return ClientCache.getClient(sourceDTOConn.getSourceType()).testCon(sourceDTOConn);
     }
 
+    public Boolean checkConnectionWithConf(DataSourceVO source, Map<String, Object> kerberosConfig, Consumer<String> schemaConsumer) {
+        ISourceDTO sourceDTOConn = sourceLoaderService.buildSourceDTO(source, kerberosConfig);
+        IClient client = ClientCache.getClient(sourceDTOConn.getSourceType());
+        Boolean testResult = client.testCon(sourceDTOConn);
+        if (testResult && DataSourceType.GET_SCHEMA.contains(sourceDTOConn.getSourceType())) {
+            String currentDatabase = client.getCurrentDatabase(sourceDTOConn);
+            schemaConsumer.accept(currentDatabase);
+        }
+        return testResult;
+    }
 
     /**
      * 设置前台传入的principals
@@ -394,7 +405,7 @@ public class DatasourceService {
      * @return 数据源 id
      */
     public Long addOrUpdateSource(DataSourceVO dataSourceVO, Long userId) {
-        if (!checkConnectionWithConf(dataSourceVO, null)) {
+        if (!checkConnectionWithConf(dataSourceVO, null, dataSourceVO::setSchemaName)) {
             throw new PubSvcDefineException("不能添加连接失败的数据源" + ErrorCode.CONFIG_ERROR);
         }
         return addOrUpdate(dataSourceVO, userId);

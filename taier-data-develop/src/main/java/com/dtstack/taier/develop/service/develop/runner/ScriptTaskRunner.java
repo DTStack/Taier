@@ -142,12 +142,7 @@ public class ScriptTaskRunner implements ITaskRunner {
     }
 
     @Override
-    public String getCurrentDb(Long tenantId, Integer taskType) {
-        throw new RdosDefineException("not support");
-    }
-
-    @Override
-    public BuildSqlVO buildSql(ParseResult parseResult, Long userId, String database, Task task) {
+    public BuildSqlVO buildSql(ParseResult parseResult, Long userId, Task task) {
         throw new RdosDefineException("not support");
     }
 
