@@ -81,7 +81,7 @@
                             <tasks>
                                 <move file="${basedir}/target/${project.name}-${project.version}.jar"
                                       tofile="${basedir}/target/${pluginDir.name}.jar"/>
-                                <copy todir="${basedir}/target/../../../../../pluginLibs/flinkcommon/"
+                                <copy todir="${basedir}/target/../../../../../worker-plugins/flinkcommon/"
                                       file="${basedir}/target/${pluginDir.name}.jar"/>
                             </tasks>
                         </configuration>

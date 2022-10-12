@@ -10,6 +10,7 @@ import com.dtstack.taier.common.enums.EScheduleJobType;
 import com.dtstack.taier.common.enums.ETableType;
 import com.dtstack.taier.common.enums.TempJobType;
 import com.dtstack.taier.common.util.SqlFormatUtil;
+import com.dtstack.taier.dao.domain.DevelopDataSource;
 import com.dtstack.taier.dao.domain.DevelopSelectSql;
 import com.dtstack.taier.dao.domain.ScheduleJob;
 import com.dtstack.taier.dao.domain.ScheduleJobExpand;
@@ -67,11 +68,11 @@ public abstract class HadoopJdbcTaskRunner extends JdbcTaskRunner {
     @Autowired
     protected DevelopTaskParamService developTaskParamService;
 
-    private static final String USER_DB_TEMP_FUNCTION = "use %s; %s %s ;";
+    private static final String USER_DB_TEMP_FUNCTION = "%s %s ;";
 
     public static final String TEMP_TABLE_PREFIX = "select_sql_temp_table_";
 
-    private static final String CREATE_FUNCTION_TEMP_TABLE = "use %s;%s create table %s stored as orc as select * from (%s)temp";
+    private static final String CREATE_FUNCTION_TEMP_TABLE = "%s create table %s stored as orc as select * from (%s)temp";
 
     private static final String CREATE_TEMP_TABLE = "create table %s stored as orc as select * from (%s)temp";
 
@@ -100,9 +101,8 @@ public abstract class HadoopJdbcTaskRunner extends JdbcTaskRunner {
 
     public ExecuteResultVO startRunInScheduler(Long userId, Task task, ExecuteContent content) {
         ParseResult parseResult = content.getParseResult();
-        String database = content.getDatabase();
         String jobId = actionService.generateUniqueSign();
-        developSelectSqlService.runSqlByTask(parseResult, userId, database, task, content.getTaskType(), jobId);
+        developSelectSqlService.runSqlByTask(parseResult, userId, task, content.getTaskType(), jobId);
         ExecuteResultVO<List<Object>> result = new ExecuteResultVO<>();
         result.setJobId(jobId);
         result.setContinue(true);
@@ -134,8 +134,6 @@ public abstract class HadoopJdbcTaskRunner extends JdbcTaskRunner {
 
     private void prepareExecuteContent(final ExecuteContent executeContent) {
         String sql = executeContent.getSql();
-        executeContent.setDatabase(getCurrentDb(executeContent.getTenantId(), executeContent.getTaskType()));
-
         //set sql / cache lazy table 暂时不解析血缘
         if (StringUtils.isNotBlank(sql)
                 && (sql.toLowerCase().trim().startsWith("set") || CACHE_LAZY_SQL_PATTEN.matcher(sql).matches())) {
@@ -314,7 +312,7 @@ public abstract class HadoopJdbcTaskRunner extends JdbcTaskRunner {
     }
 
     @Override
-    public BuildSqlVO buildSql(ParseResult parseResult, Long userId, String database, Task task) {
+    public BuildSqlVO buildSql(ParseResult parseResult, Long userId, Task task) {
         String originSql = parseResult.getStandardSql();
         String tempTable = TEMP_TABLE_PREFIX + System.nanoTime();
         if (StringUtils.isEmpty(originSql)) {
@@ -324,10 +322,15 @@ public abstract class HadoopJdbcTaskRunner extends JdbcTaskRunner {
         String sql;
         if (SqlType.QUERY.equals(parseResult.getSqlType())) {
             isSelectSql = TempJobType.SELECT.getType();
-            sql = buildSelectSqlCustomFunction(originSql, task.getTenantId(), database, tempTable, task.getTaskType());
+            sql = buildSelectSqlCustomFunction(originSql, task.getTenantId(), tempTable, task.getTaskType());
         } else {
             isSelectSql = TempJobType.OTHER.getType();
-            sql = buildCustomFunctionAndDbSql(originSql, task.getTenantId(), database, true, task.getTaskType());
+            sql = buildCustomFunctionAndDbSql(originSql, task.getTenantId(), true, task.getTaskType());
+        }
+        if (EScheduleJobType.SPARK_SQL.getType().equals(task.getTaskType())) {
+            DevelopDataSource dataSource = datasourceService.getOne(task.getDatasourceId());
+            String currentDatabase = dataSource.getSchemaName();
+            sql = String.format("use %s; %s", currentDatabase, sql);
         }
         BuildSqlVO buildSqlVO = new BuildSqlVO();
         buildSqlVO.setSql(sql);
@@ -345,16 +348,15 @@ public abstract class HadoopJdbcTaskRunner extends JdbcTaskRunner {
      *
      * @param originSql
      * @param tenantId
-     * @param database
      * @param addCustomFunction
      * @param taskType
      * @return
      */
-    private String buildCustomFunctionAndDbSql(String originSql, Long tenantId, String database, Boolean addCustomFunction, Integer taskType) {
+    private String buildCustomFunctionAndDbSql(String originSql, Long tenantId, Boolean addCustomFunction, Integer taskType) {
         if (BooleanUtils.isTrue(addCustomFunction)) {
             String functionSql = developFunctionService.buildContainFunction(originSql, tenantId, taskType);
             if (StringUtils.isNotBlank(functionSql)) {
-                return String.format(USER_DB_TEMP_FUNCTION, database, functionSql, originSql);
+                return String.format(USER_DB_TEMP_FUNCTION, functionSql, originSql);
             }
         }
         return originSql;
@@ -365,15 +367,14 @@ public abstract class HadoopJdbcTaskRunner extends JdbcTaskRunner {
      *
      * @param originSql
      * @param tenantId
-     * @param database
      * @param tempTable
      * @return
      */
-    private String buildSelectSqlCustomFunction(String originSql, Long tenantId, String database, String tempTable, Integer taskType) {
+    private String buildSelectSqlCustomFunction(String originSql, Long tenantId, String tempTable, Integer taskType) {
         // 判断是否是自定义函数
         String createFunction = developFunctionService.buildContainFunction(originSql, tenantId, taskType);
         if (StringUtils.isNotBlank(createFunction)) {
-            return String.format(CREATE_FUNCTION_TEMP_TABLE, database, createFunction, tempTable, originSql);
+            return String.format(CREATE_FUNCTION_TEMP_TABLE, createFunction, tempTable, originSql);
         }
         return String.format(CREATE_TEMP_TABLE, tempTable, originSql);
     }

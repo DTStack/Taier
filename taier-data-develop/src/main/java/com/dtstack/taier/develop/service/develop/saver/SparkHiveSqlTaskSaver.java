@@ -2,15 +2,16 @@ package com.dtstack.taier.develop.service.develop.saver;
 
 import com.dtstack.taier.common.enums.EScheduleJobType;
 import com.dtstack.taier.common.util.SqlFormatUtil;
-import com.dtstack.taier.dao.domain.TenantComponent;
+import com.dtstack.taier.dao.domain.DevelopDataSource;
+import com.dtstack.taier.develop.service.datasource.impl.DatasourceService;
 import com.dtstack.taier.develop.service.develop.impl.DevelopFunctionService;
-import com.dtstack.taier.develop.service.develop.impl.DevelopTenantComponentService;
 import com.dtstack.taier.develop.utils.develop.common.SqlUtils;
 import com.google.common.collect.Lists;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
 import java.util.List;
 
 /**
@@ -23,17 +24,20 @@ public class SparkHiveSqlTaskSaver extends DefaultTaskSaver {
     private static final String CREATE_TEMP_FUNCTION_SQL = "%s %s";
 
     @Autowired
-    private DevelopTenantComponentService developTenantComponentService;
-
-    @Autowired
     private DevelopFunctionService developFunctionService;
 
+    @Autowired
+    private DatasourceService datasourceService;
 
     @Override
-    public String processScheduleRunSqlText(Long tenantId, Integer taskType, String sqlText) {
-        TenantComponent tenantEngine = developTenantComponentService.getByTenantAndTaskType(tenantId, taskType);
+    public String processScheduleRunSqlText(Long tenantId, Integer taskType, String sqlText, Long datasourceId) {
+        String currentDatabase = "";
+        if (EScheduleJobType.SPARK_SQL.getType().equals(taskType)) {
+            DevelopDataSource dataSource = datasourceService.getOne(datasourceId);
+            currentDatabase = dataSource.getSchemaName();
+        }
         String sqlPlus = buildCustomFunctionSparkHiveSql(sqlText, tenantId, taskType);
-        return processSql(sqlPlus, tenantEngine.getComponentIdentity());
+        return processSql(sqlPlus, currentDatabase);
     }
 
     @Override
@@ -51,10 +55,10 @@ public class SparkHiveSqlTaskSaver extends DefaultTaskSaver {
      */
     public String buildCustomFunctionSparkHiveSql(String sqlText, Long tenantId, Integer taskType) {
         String sqlPlus = SqlFormatUtil.formatSql(sqlText);
-        if (EScheduleJobType.SPARK_SQL.getType().equals(taskType)|| EScheduleJobType.HIVE_SQL.getType().equals(taskType)) {
+        if (EScheduleJobType.SPARK_SQL.getType().equals(taskType) || EScheduleJobType.HIVE_SQL.getType().equals(taskType)) {
             String containFunction = developFunctionService.buildContainFunction(sqlText, tenantId, taskType);
             if (StringUtils.isNotBlank(containFunction)) {
-                sqlPlus = String.format(CREATE_TEMP_FUNCTION_SQL,containFunction,sqlPlus);
+                sqlPlus = String.format(CREATE_TEMP_FUNCTION_SQL, containFunction, sqlPlus);
             }
         }
         return sqlPlus;
@@ -75,7 +79,9 @@ public class SparkHiveSqlTaskSaver extends DefaultTaskSaver {
 
         List<String> sqls = SqlFormatUtil.splitSqlText(sqlText);
         StringBuilder sqlBuild = new StringBuilder();
-        sqlBuild.append("use ").append(database.toLowerCase()).append(";\n");
+        if (StringUtils.isNotBlank(database)) {
+            sqlBuild.append("use ").append(database.toLowerCase()).append(";\n");
+        }
 
         if (CollectionUtils.isNotEmpty(sqls)) {
             for (String sql : sqls) {

@@ -75,6 +75,16 @@ public class DevelopDataSource extends TenantEntity {
 
     private String dataVersion;
 
+    private String schemaName;
+
+    public String getSchemaName() {
+        return schemaName;
+    }
+
+    public void setSchemaName(String schemaName) {
+        this.schemaName = schemaName;
+    }
+
     public String getDataVersion() {
         return dataVersion;
     }

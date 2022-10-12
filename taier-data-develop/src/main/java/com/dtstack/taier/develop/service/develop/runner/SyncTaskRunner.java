@@ -81,17 +81,12 @@ public class SyncTaskRunner implements ITaskRunner {
     }
 
     @Override
-    public ISourceDTO getSourceDTO(Long tenantId, Long userId, Integer taskType, boolean useSchema,Long datasourceId) {
+    public ISourceDTO getSourceDTO(Long tenantId, Long userId, Integer taskType, boolean useSchema, Long datasourceId) {
         return null;
     }
 
     @Override
-    public String getCurrentDb(Long tenantId, Integer taskType) {
-        return null;
-    }
-
-    @Override
-    public BuildSqlVO buildSql(ParseResult parseResult, Long userId, String database, Task task) {
+    public BuildSqlVO buildSql(ParseResult parseResult, Long userId, Task task) {
         return null;
     }
 
@@ -102,7 +97,7 @@ public class SyncTaskRunner implements ITaskRunner {
             List<DevelopTaskParam> taskParamsToReplace = developTaskParamService.getTaskParam(task.getId());
             addConfPropAndParseJob(actionParam, tenantId, task, taskParamsToReplace);
             String name = "run_sync_task_" + task.getName() + "_" + System.currentTimeMillis();
-            actionParam.put("taskSourceId", task.getId());
+            actionParam.put("taskSourceId", task.getDatasourceId());
             actionParam.put("taskType", EScheduleJobType.SYNC.getVal());
             actionParam.put("name", name);
             actionParam.put("computeType", task.getComputeType());
