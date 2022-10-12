@@ -106,16 +106,15 @@ public class DevelopSelectSqlService {
      *
      * @param parseResult
      * @param userId
-     * @param database
      * @param taskType
      * @param preJobId
      * @return
      */
-    public String runSqlByTask(ParseResult parseResult, Long userId, String database,
+    public String runSqlByTask(ParseResult parseResult, Long userId,
                                Task task, Integer taskType, String preJobId) {
         ITaskRunner iTaskRunner = taskConfiguration.get(taskType);
         try {
-            BuildSqlVO buildSqlVO = iTaskRunner.buildSql(parseResult, userId, database, task);
+            BuildSqlVO buildSqlVO = iTaskRunner.buildSql(parseResult, userId, task);
             // 发送sql任务
             sendSqlTask(buildSqlVO.getSql(), buildSqlVO.getTaskParam(), preJobId, task, taskType);
             // 记录job

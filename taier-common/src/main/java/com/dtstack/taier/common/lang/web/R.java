@@ -1,8 +1,6 @@
 package com.dtstack.taier.common.lang.web;
 
 import com.dtstack.taier.common.exception.ErrorCode;
-import com.dtstack.taier.common.lang.i18n;
-import com.dtstack.taier.common.util.Strings;
 
 public class R<T> {
     private static String DATA_VERSION;
@@ -41,7 +39,7 @@ public class R<T> {
     public final static <T> R<T> fail(int code, String message) {
         return new R()
                 .code(code)
-                .message(Strings.isNotBlank(message) ? message : i18n.error(code));
+                .message(message);
     }
 
     public final static <T> R<T> fail(ErrorCode errorCode) {
