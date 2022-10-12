@@ -80,15 +80,6 @@ public enum EScheduleJobType {
      * Shell
      */
     SHELL(13,"Shell", EJobType.PYTHON.getType(),13, EComponentType.SCRIPT, EComputeType.BATCH, EJobClientType.ENGINE_PLUGIN),
-    /**
-     * GaussDBSQL
-     */
-    GaussDB_SQL(12, "GaussDBSQL", EJobType.SQL.getType(), 4, EComponentType.GaussDB, EComputeType.BATCH, EJobClientType.DATASOURCE_PLUGIN),
-
-    /**
-     * ImpalaSQL
-     */
-    IMPALA_SQL(13, "ImpalaSQL", EJobType.SQL.getType(), 4, EComponentType.IMPALA, EComputeType.BATCH, EJobClientType.DATASOURCE_PLUGIN),
 
     /**
      * TiDBSQL
@@ -134,6 +125,27 @@ public enum EScheduleJobType {
      * HanaSQL
      */
     HANA_SQL(23, "HanaSQL", EJobType.SQL.getType(), 4, EComponentType.HANA, EComputeType.BATCH, EJobClientType.DATASOURCE_PLUGIN),
+
+    /**
+     * GaussDBSQL
+     */
+    GaussDB_SQL(24, "GaussDBSQL", EJobType.SQL.getType(), 4, EComponentType.GaussDB, EComputeType.BATCH, EJobClientType.DATASOURCE_PLUGIN),
+
+    /**
+     * ImpalaSQL
+     */
+    IMPALA_SQL(25, "ImpalaSQL", EJobType.SQL.getType(), 4, EComponentType.IMPALA, EComputeType.BATCH, EJobClientType.DATASOURCE_PLUGIN),
+
+    /**
+     * ClickHouseSQL
+     */
+    CLICK_HOUSE_SQL(26, "ClickHouseSQL",  EJobType.SQL.getType(),14, EComponentType.CLICK_HOUSE, EComputeType.BATCH, EJobClientType.DATASOURCE_PLUGIN),
+
+    /**
+     * DorisSQL
+     */
+    DORIS_SQL(27, "DorisSQL", EJobType.SQL.getType(), 15, EComponentType.DORIS, EComputeType.BATCH, EJobClientType.DATASOURCE_PLUGIN)
+
     ;
 
     private final Integer type;

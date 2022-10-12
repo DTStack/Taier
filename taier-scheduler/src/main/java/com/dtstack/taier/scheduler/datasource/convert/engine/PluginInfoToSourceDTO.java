@@ -5,8 +5,10 @@ import com.dtstack.taier.datasource.api.dto.SSLConfig;
 import com.dtstack.taier.datasource.api.dto.source.AbstractSourceDTO;
 import com.dtstack.taier.datasource.api.dto.source.AdbForPgSourceDTO;
 import com.dtstack.taier.datasource.api.dto.source.AwsS3SourceDTO;
+import com.dtstack.taier.datasource.api.dto.source.ClickHouseSourceDTO;
 import com.dtstack.taier.datasource.api.dto.source.CspS3SourceDTO;
 import com.dtstack.taier.datasource.api.dto.source.Db2SourceDTO;
+import com.dtstack.taier.datasource.api.dto.source.DorisRestfulSourceDTO;
 import com.dtstack.taier.datasource.api.dto.source.Greenplum6SourceDTO;
 import com.dtstack.taier.datasource.api.dto.source.Hdfs3SourceDTO;
 import com.dtstack.taier.datasource.api.dto.source.HdfsSourceDTO;
@@ -461,7 +463,33 @@ public enum PluginInfoToSourceDTO {
                     .password(pluginInfo.getString(SourceConstant.PASSWORD))
                     .build();
         }
-    };
+    },
+
+    CLICK_HOUSE(DataSourceType.Clickhouse.getVal()) {
+        @Override
+        public ISourceDTO getSourceDTO(JSONObject pluginInfo) {
+            return ClickHouseSourceDTO
+                    .builder()
+                    .url(pluginInfo.getString(SourceConstant.JDBC_URL))
+                    .username(pluginInfo.getString(SourceConstant.USERNAME))
+                    .password(pluginInfo.getString(SourceConstant.PASSWORD))
+                    .build();
+        }
+    },
+
+    DORIS(DataSourceType.DorisRestful.getVal()) {
+        @Override
+        public ISourceDTO getSourceDTO(JSONObject pluginInfo) {
+            return DorisRestfulSourceDTO
+                    .builder()
+                    .url(pluginInfo.getString(SourceConstant.URL))
+                    .userName(pluginInfo.getString(SourceConstant.USERNAME))
+                    .password(pluginInfo.getString(SourceConstant.PASSWORD))
+                    .build();
+        }
+    }
+
+    ;
 
     PluginInfoToSourceDTO(Integer val) {
         this.val = val;
