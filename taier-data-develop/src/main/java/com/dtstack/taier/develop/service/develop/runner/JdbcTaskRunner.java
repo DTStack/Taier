@@ -10,7 +10,6 @@ import com.dtstack.taier.common.util.RegexUtils;
 import com.dtstack.taier.dao.domain.DevelopSelectSql;
 import com.dtstack.taier.dao.domain.ScheduleJob;
 import com.dtstack.taier.dao.domain.Task;
-import com.dtstack.taier.dao.domain.TenantComponent;
 import com.dtstack.taier.datasource.api.dto.source.ISourceDTO;
 import com.dtstack.taier.develop.datasource.convert.load.SourceLoaderService;
 import com.dtstack.taier.develop.dto.devlop.BuildSqlVO;
@@ -18,7 +17,6 @@ import com.dtstack.taier.develop.dto.devlop.ExecuteResultVO;
 import com.dtstack.taier.develop.service.develop.IJdbcService;
 import com.dtstack.taier.develop.service.develop.ITaskRunner;
 import com.dtstack.taier.develop.service.develop.impl.DevelopTaskService;
-import com.dtstack.taier.develop.service.develop.impl.DevelopTenantComponentService;
 import com.dtstack.taier.develop.service.schedule.JobExpandService;
 import com.dtstack.taier.develop.service.schedule.JobService;
 import com.dtstack.taier.develop.sql.ParseResult;
@@ -48,9 +46,6 @@ public abstract class JdbcTaskRunner implements ITaskRunner {
 
     @Autowired
     protected ComponentService componentService;
-
-    @Autowired
-    private DevelopTenantComponentService developTenantComponentService;
 
     @Autowired
     protected ScheduleActionService actionService;
@@ -164,8 +159,7 @@ public abstract class JdbcTaskRunner implements ITaskRunner {
 
     @Override
     public String getCurrentDb(Long tenantId, Integer taskType) {
-        TenantComponent tenantEngine = developTenantComponentService.getByTenantAndTaskType(tenantId, taskType);
-        return tenantEngine.getComponentIdentity();
+        return "";
     }
 
     @Override

@@ -2,7 +2,6 @@ package com.dtstack.taier.develop.service.develop.saver;
 
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
-import com.dtstack.taier.common.enums.EComputeType;
 import com.dtstack.taier.common.enums.EScheduleJobType;
 import com.dtstack.taier.common.enums.EScheduleStatus;
 import com.dtstack.taier.common.enums.ESubmitStatus;
@@ -12,7 +11,6 @@ import com.dtstack.taier.common.exception.RdosDefineException;
 import com.dtstack.taier.common.util.SqlFormatUtil;
 import com.dtstack.taier.dao.domain.Task;
 import com.dtstack.taier.dao.domain.TaskTemplate;
-import com.dtstack.taier.dao.domain.TenantComponent;
 import com.dtstack.taier.dao.mapper.DevelopTaskMapper;
 import com.dtstack.taier.develop.dto.devlop.TaskResourceParam;
 import com.dtstack.taier.develop.dto.devlop.TaskVO;
@@ -22,9 +20,7 @@ import com.dtstack.taier.develop.service.develop.ITaskSaver;
 import com.dtstack.taier.develop.service.develop.impl.DevelopTaskParamService;
 import com.dtstack.taier.develop.service.develop.impl.DevelopTaskService;
 import com.dtstack.taier.develop.service.develop.impl.DevelopTaskTaskService;
-import com.dtstack.taier.develop.service.develop.impl.DevelopTenantComponentService;
 import com.dtstack.taier.develop.service.task.TaskTemplateService;
-import com.dtstack.taier.pluginapi.enums.EJobType;
 import com.dtstack.taier.scheduler.service.ScheduleActionService;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
@@ -41,7 +37,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.function.Predicate;
 
 /**
  * @Author: zhichen
@@ -68,9 +63,6 @@ public abstract class AbstractTaskSaver implements ITaskSaver {
             "\"maxRetryNum\":\"3\"" +
             "}";
 
-    Predicate<EScheduleJobType> isBatchSQL = scheduleJobType -> EJobType.SQL.getType() == scheduleJobType.getEngineJobType()
-            && EComputeType.BATCH.equals(scheduleJobType.getComputeType());
-
     @Autowired
     public DevelopTaskService developTaskService;
 
@@ -85,9 +77,6 @@ public abstract class AbstractTaskSaver implements ITaskSaver {
 
     @Autowired
     public TaskTemplateService taskTemplateService;
-
-    @Autowired
-    private DevelopTenantComponentService developTenantComponentService;
 
     @Autowired
     private DevelopTaskTaskService developTaskTaskService;
@@ -116,19 +105,8 @@ public abstract class AbstractTaskSaver implements ITaskSaver {
     }
 
     @Override
-    public String processScheduleRunSqlText(Long tenantId, Integer taskType, String sqlText) {
-        EScheduleJobType scheduleJobType = EScheduleJobType.getByTaskType(taskType);
-        if (!isBatchSQL.test(scheduleJobType)) {
-            return SqlFormatUtil.formatSql(sqlText);
-        }
-        TenantComponent tenantEngine = developTenantComponentService.getByTenantAndTaskType(tenantId, taskType);
-        if (null == tenantEngine || StringUtils.isBlank(tenantEngine.getComponentIdentity())) {
-            return SqlFormatUtil.formatSql(sqlText);
-        }
-        StringBuilder sqlBuild = new StringBuilder();
-        sqlBuild.append("use ").append(tenantEngine.getComponentIdentity().toLowerCase()).append(";\n");
-        sqlBuild.append(SqlFormatUtil.formatSql(sqlText));
-        return sqlBuild.toString();
+    public String processScheduleRunSqlText(Long tenantId, Integer taskType, String sqlText, Long datasourceId) {
+        return SqlFormatUtil.formatSql(sqlText);
     }
 
     /**
