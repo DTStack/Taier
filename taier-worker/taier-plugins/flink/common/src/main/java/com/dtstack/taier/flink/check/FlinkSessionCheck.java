@@ -28,7 +28,11 @@ import org.apache.flink.streaming.api.functions.sink.RichSinkFunction;
 import org.apache.flink.streaming.api.functions.source.RichParallelSourceFunction;
 
 import java.io.Serializable;
-import java.util.*;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Random;
 
 /**
  * @author mowen
@@ -169,7 +173,8 @@ public class FlinkSessionCheck {
         public String value;
         public long count;
 
-        public PrefixCount() {}
+        public PrefixCount() {
+        }
 
         public PrefixCount(String prefix, String value, long count) {
             this.prefix = prefix;

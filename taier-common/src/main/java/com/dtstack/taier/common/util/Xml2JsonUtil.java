@@ -22,7 +22,12 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
-import org.dom4j.*;
+import org.dom4j.Attribute;
+import org.dom4j.Document;
+import org.dom4j.DocumentException;
+import org.dom4j.DocumentHelper;
+import org.dom4j.Element;
+import org.dom4j.QName;
 import org.dom4j.io.OutputFormat;
 import org.dom4j.io.SAXReader;
 import org.dom4j.io.XMLWriter;
@@ -34,7 +39,11 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * company: www.dtstack.com
@@ -99,13 +108,13 @@ public class Xml2JsonUtil {
         } catch (IOException e) {
             throw new IOException("读取文件失败");
         } finally {
-            if(null != fis) {
+            if (null != fis) {
                 try {
                     fis.close();
                 } catch (IOException e) {
                 }
             }
-            if(null != fc) {
+            if (null != fc) {
                 try {
                     fc.close();
                 } catch (IOException e) {

@@ -18,7 +18,13 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.sql.Timestamp;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Vector;
 
 /**
  * @author: 小北(xiaobei @ dtstack.com)
@@ -304,7 +310,7 @@ public class KerberosConfigVerify {
     /**
      * 如果不存在，则新建 .lock 文件
      *
-     * @param srcDir 远程目录
+     * @param srcDir        远程目录
      * @param isCheckExists 是否检验 .lock 文件
      * @return
      */

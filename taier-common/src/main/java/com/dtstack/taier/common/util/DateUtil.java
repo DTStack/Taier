@@ -7,7 +7,12 @@ import java.lang.ref.SoftReference;
 import java.sql.Timestamp;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.GregorianCalendar;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -217,7 +222,7 @@ public class DateUtil {
     public static String getTimeDifference(Long mill) {
         if (mill == null || mill == 0L) {
             return "0秒";
-        } else if(mill < 1000){
+        } else if (mill < 1000) {
             return mill + "毫秒";
         }
 
@@ -260,8 +265,8 @@ public class DateUtil {
         return cal.getTimeInMillis();
     }
 
-    public static Long getMillisecond(long time){
-        if(String.valueOf(time).matches("\\d{10}")){
+    public static Long getMillisecond(long time) {
+        if (String.valueOf(time).matches("\\d{10}")) {
             return time * 1000;
         } else {
             return time;
@@ -271,8 +276,8 @@ public class DateUtil {
     public static Timestamp getSqlTimeStampVal(Object val) {
         if (val == null) {
             return null;
-        } else if(val instanceof String) {
-            return new Timestamp(stringToDate((String)val).getTime());
+        } else if (val instanceof String) {
+            return new Timestamp(stringToDate((String) val).getTime());
         } else if (val instanceof Integer) {
             Integer rawData = (Integer) val;
             return new Timestamp(rawData.longValue());
@@ -281,17 +286,17 @@ public class DateUtil {
             return new Timestamp(rawData);
         } else if (val instanceof java.sql.Date) {
             return (Timestamp) val;
-        } else if(val instanceof Timestamp) {
+        } else if (val instanceof Timestamp) {
             return (Timestamp) val;
-        } else if(val instanceof Date) {
-            Date d = (Date)val;
+        } else if (val instanceof Date) {
+            Date d = (Date) val;
             return new Timestamp(d.getTime());
         }
 
         throw new IllegalArgumentException("Can't convert " + val.getClass().getName() + " to Date");
     }
 
-    public static Date stringToDate(String strDate)  {
+    public static Date stringToDate(String strDate) {
         assert strDate == null || strDate.trim().length() == 0;
 
         try {
@@ -318,10 +323,10 @@ public class DateUtil {
     }
 
     public static java.sql.Date getSqlDate(Object val) {
-        if(val == null) {
+        if (val == null) {
             return null;
-        } else if(val instanceof String) {
-            return new java.sql.Date(stringToDate((String)val).getTime());
+        } else if (val instanceof String) {
+            return new java.sql.Date(stringToDate((String) val).getTime());
         } else if (val instanceof Integer) {
             Integer rawData = (Integer) val;
             return new java.sql.Date(rawData.longValue());
@@ -330,11 +335,11 @@ public class DateUtil {
             return new java.sql.Date(rawData.longValue());
         } else if (val instanceof java.sql.Date) {
             return (java.sql.Date) val;
-        } else if(val instanceof Timestamp) {
+        } else if (val instanceof Timestamp) {
             Timestamp ts = (Timestamp) val;
             return new java.sql.Date(ts.getTime());
-        } else if(val instanceof Date) {
-            Date d = (Date)val;
+        } else if (val instanceof Date) {
+            Date d = (Date) val;
             return new java.sql.Date(d.getTime());
         }
 
@@ -345,7 +350,7 @@ public class DateUtil {
         timeZoner = TimeZone.getTimeZone(timeZone);
         datetimeFormatter = FastDateFormat.getInstance(datetimeFormat, timeZoner);
         dateFormatter = FastDateFormat.getInstance(dateFormat, timeZoner);
-        timeFormatter =  FastDateFormat.getInstance(timeFormat, timeZoner);
+        timeFormatter = FastDateFormat.getInstance(timeFormat, timeZoner);
         yearFormatter = FastDateFormat.getInstance(yearFormat, timeZoner);
     }
 }

@@ -26,17 +26,22 @@ import java.sql.Timestamp;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.ZoneOffset;
-import java.util.*;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.GregorianCalendar;
+import java.util.HashMap;
+import java.util.Locale;
+import java.util.Map;
+import java.util.SimpleTimeZone;
+import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
 
 
 /**
- * 
- *
  * Date: 2017年03月10日 下午1:16:37
  * Company: www.dtstack.com
- * @author sishu.yss
  *
+ * @author sishu.yss
  */
 public class DateUtil {
     public static final ZoneOffset DEFAULT_ZONE = ZoneOffset.of("+8");
@@ -60,37 +65,37 @@ public class DateUtil {
             THREADLOCAL_FORMATS = new ThreadLocal<SoftReference<Map<String, SimpleDateFormat>>>();
 
 
-    public static ThreadLocal<Map<String,SimpleDateFormat>> datetimeFormatter = ThreadLocal.withInitial(() -> {
+    public static ThreadLocal<Map<String, SimpleDateFormat>> datetimeFormatter = ThreadLocal.withInitial(() -> {
         TimeZone timeZone = TimeZone.getTimeZone(TIME_ZONE);
 
         Map<String, SimpleDateFormat> formatterMap = new HashMap<>();
 
         SimpleDateFormat standardDatetimeFormatter = new SimpleDateFormat(STANDARD_DATETIME_FORMAT);
         standardDatetimeFormatter.setTimeZone(timeZone);
-        formatterMap.put(STANDARD_DATETIME_FORMAT_KEY,standardDatetimeFormatter);
+        formatterMap.put(STANDARD_DATETIME_FORMAT_KEY, standardDatetimeFormatter);
 
         SimpleDateFormat unStandardDatetimeFormatter = new SimpleDateFormat(UN_STANDARD_DATETIME_FORMAT);
         unStandardDatetimeFormatter.setTimeZone(timeZone);
-        formatterMap.put(UN_STANDARD_DATETIME_FORMAT_KEY,unStandardDatetimeFormatter);
+        formatterMap.put(UN_STANDARD_DATETIME_FORMAT_KEY, unStandardDatetimeFormatter);
 
         SimpleDateFormat dateFormatter = new SimpleDateFormat(DATE_FORMAT);
         dateFormatter.setTimeZone(timeZone);
-        formatterMap.put(DATE_FORMAT_KEY,dateFormatter);
+        formatterMap.put(DATE_FORMAT_KEY, dateFormatter);
 
         SimpleDateFormat timeFormatter = new SimpleDateFormat(TIME_FORMAT);
         timeFormatter.setTimeZone(timeZone);
-        formatterMap.put(TIME_FORMAT_KEY,timeFormatter);
+        formatterMap.put(TIME_FORMAT_KEY, timeFormatter);
 
         SimpleDateFormat yearFormatter = new SimpleDateFormat(YEAR_FORMAT);
         yearFormatter.setTimeZone(timeZone);
-        formatterMap.put(YEAR_FORMAT_KEY,yearFormatter);
+        formatterMap.put(YEAR_FORMAT_KEY, yearFormatter);
 
         return formatterMap;
     });
 
 
-    public static Date stringToDate(String strDate)  {
-        if(strDate == null || strDate.trim().length() == 0) {
+    public static Date stringToDate(String strDate) {
+        if (strDate == null || strDate.trim().length() == 0) {
             return null;
         }
         try {
@@ -133,25 +138,25 @@ public class DateUtil {
         return datetimeFormatter.get().get(YEAR_FORMAT_KEY).format(date);
     }
 
-    public static SimpleDateFormat getDateTimeFormatter(){
+    public static SimpleDateFormat getDateTimeFormatter() {
         return datetimeFormatter.get().get(STANDARD_DATETIME_FORMAT_KEY);
     }
 
-    public static SimpleDateFormat getDateFormatter(){
+    public static SimpleDateFormat getDateFormatter() {
         return datetimeFormatter.get().get(DATE_FORMAT_KEY);
     }
 
-    public static SimpleDateFormat getTimeFormatter(){
+    public static SimpleDateFormat getTimeFormatter() {
         return datetimeFormatter.get().get(TIME_FORMAT_KEY);
     }
 
-    public static SimpleDateFormat getYearFormatter(){
+    public static SimpleDateFormat getYearFormatter() {
         return datetimeFormatter.get().get(YEAR_FORMAT_KEY);
     }
 
     /**
      * 获取所在日的0点的时间戳（秒值）
-     * 
+     *
      * @param day Long 时间
      * @return long
      */
@@ -173,22 +178,24 @@ public class DateUtil {
 
     /**
      * 获取所在日的0点的时间戳
-     * @param day Long 时间
+     *
+     * @param day   Long 时间
      * @param scope String 级别<br>"MS"：毫秒级<br>"S":秒级
      * @return
      */
-    public static long getTodayStart(long day,String scope) {
-    	if("MS".equals(scope)){
-    		return getTodayStart(day)*1000;
-    	}else if("S".equals(scope)){
-    		return getTodayStart(day);
-    	}else{
-    		return getTodayStart(day);
-    	}
+    public static long getTodayStart(long day, String scope) {
+        if ("MS".equals(scope)) {
+            return getTodayStart(day) * 1000;
+        } else if ("S".equals(scope)) {
+            return getTodayStart(day);
+        } else {
+            return getTodayStart(day);
+        }
     }
 
     /**
      * 获取下一天时间的0点的时间戳（秒值）
+     *
      * @param day Long 时间
      * @return long
      */
@@ -208,27 +215,28 @@ public class DateUtil {
         nextDay = (cal.getTimeInMillis() + daySpanMill) / 1000;
         return nextDay;
     }
-    
+
     /**
      * 获取下一天时间的0点的时间戳
-     * @param day Long 时间
+     *
+     * @param day   Long 时间
      * @param scope String 级别<br>"MS"：毫秒级<br>"S":秒级
      * @return
      */
-    public static long getNextDayStart(long day,String scope) {
-    	if("MS".equals(scope)){
-    		return getNextDayStart(day)*1000;
-    	}else if("S".equals(scope)){
-    		return getNextDayStart(day);
-    	}else{
-    		return getNextDayStart(day);
-    	}
+    public static long getNextDayStart(long day, String scope) {
+        if ("MS".equals(scope)) {
+            return getNextDayStart(day) * 1000;
+        } else if ("S".equals(scope)) {
+            return getNextDayStart(day);
+        } else {
+            return getNextDayStart(day);
+        }
     }
-    
+
 
     /**
      * 根据某个日期时间戳秒值，获取所在月的第一天的0点的时间戳秒值.
-     * 
+     *
      * @param day
      * @return
      */
@@ -247,7 +255,7 @@ public class DateUtil {
 
     /**
      * 根据某个日期时间戳秒值，获取所在月，月份值按实际理解，1代表一月，依此类推.
-     * 
+     *
      * @param day
      * @return
      */
@@ -259,7 +267,7 @@ public class DateUtil {
 
     /**
      * 根据某个日期时间戳秒值，获取所在年。
-     * 
+     *
      * @author yumo.lck
      */
     public static int getYear(long day) {
@@ -270,7 +278,7 @@ public class DateUtil {
 
     /**
      * 根据某个日期时间戳秒值，获取所在周的周一的0点的时间戳秒值.
-     * 
+     *
      * @param day
      * @return
      */
@@ -290,7 +298,7 @@ public class DateUtil {
 
     /**
      * 根据某个日期时间戳秒值，获取所在周在一年中是第几周.
-     * 
+     *
      * @param day
      * @return
      */
@@ -302,33 +310,33 @@ public class DateUtil {
 
     /**
      * 根据字符串取得昨天日期返回String
-     * 
-     * @param day 时间字符串
-     * @param inFormat 传入正则
+     *
+     * @param day       时间字符串
+     * @param inFormat  传入正则
      * @param outFormat 传出正则
      * @return String
      * @throws ParseException
      */
-    public static String getYesterdayByString(String day, String inFormat, String outFormat){
+    public static String getYesterdayByString(String day, String inFormat, String outFormat) {
         try {
-			SimpleDateFormat sdf = new SimpleDateFormat(inFormat);
-			Date date = sdf.parse(day);
-			Calendar calendar = Calendar.getInstance();
-			calendar.setTime(date);
-			int calendarDay = calendar.get(Calendar.DATE);
-			calendar.set(Calendar.DATE, calendarDay - 1);
-			String dayBefore = new SimpleDateFormat(outFormat).format(calendar.getTime());
-			return dayBefore;
-		} catch (ParseException e) {
-			return null;
-		}
+            SimpleDateFormat sdf = new SimpleDateFormat(inFormat);
+            Date date = sdf.parse(day);
+            Calendar calendar = Calendar.getInstance();
+            calendar.setTime(date);
+            int calendarDay = calendar.get(Calendar.DATE);
+            calendar.set(Calendar.DATE, calendarDay - 1);
+            String dayBefore = new SimpleDateFormat(outFormat).format(calendar.getTime());
+            return dayBefore;
+        } catch (ParseException e) {
+            return null;
+        }
     }
 
     /**
      * 根据字符串取得明天日期返回String
-     * 
-     * @param day 时间字符串
-     * @param inFormat 传入正则
+     *
+     * @param day       时间字符串
+     * @param inFormat  传入正则
      * @param outFormat 传出正则
      * @return String
      * @throws ParseException
@@ -343,7 +351,7 @@ public class DateUtil {
         String dayBefore = new SimpleDateFormat(outFormat).format(calendar.getTime());
         return dayBefore;
     }
-    
+
     /**
      * 根据字符串取得明天日期
      *
@@ -361,8 +369,8 @@ public class DateUtil {
     /**
      * 根据字符串取得30天前的日期返回String
      *
-     * @param day 时间字符串
-     * @param inFormat 传入正则
+     * @param day       时间字符串
+     * @param inFormat  传入正则
      * @param outFormat 传出正则
      * @return String
      * @throws ParseException
@@ -377,33 +385,33 @@ public class DateUtil {
         String dayBefore = new SimpleDateFormat(outFormat).format(calendar.getTime());
         return dayBefore;
     }
-    
+
     /**
      * 根据字符串取得30天后的日期返回String
      *
-     * @param day 时间字符串
-     * @param inFormat 传入正则
+     * @param day       时间字符串
+     * @param inFormat  传入正则
      * @param outFormat 传出正则
      * @return String
      * @throws ParseException
      */
     public static String get30DaysLaterByString(String day, String inFormat, String outFormat) throws ParseException {
-    	SimpleDateFormat sdf = new SimpleDateFormat(inFormat);
-    	Date date = sdf.parse(day);
-    	Calendar calendar = Calendar.getInstance();
-    	calendar.setTime(date);
-    	int calendarDay = calendar.get(Calendar.DATE);
-    	calendar.set(Calendar.DATE, calendarDay + 30);
-    	String dayBefore = new SimpleDateFormat(outFormat).format(calendar.getTime());
-    	return dayBefore;
+        SimpleDateFormat sdf = new SimpleDateFormat(inFormat);
+        Date date = sdf.parse(day);
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(date);
+        int calendarDay = calendar.get(Calendar.DATE);
+        calendar.set(Calendar.DATE, calendarDay + 30);
+        String dayBefore = new SimpleDateFormat(outFormat).format(calendar.getTime());
+        return dayBefore;
     }
 
 
     /**
      * 字符串日期格式转换
-     * 
-     * @param day 时间字符串
-     * @param inFormat 传入正则
+     *
+     * @param day       时间字符串
+     * @param inFormat  传入正则
      * @param outFormat 传出正则
      * @return String
      * @throws ParseException
@@ -416,22 +424,22 @@ public class DateUtil {
         String dayBefore = new SimpleDateFormat(outFormat).format(calendar.getTime());
         return dayBefore;
     }
-    
+
     public static long getDateMillTOFormat(String day, String inFormat) throws ParseException {
         SimpleDateFormat sdf = new SimpleDateFormat(inFormat);
         Date date = sdf.parse(day);
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(date);
-        return calendar.getTimeInMillis()/1000;
+        return calendar.getTimeInMillis() / 1000;
     }
 
     /**
      * 根据年和月获取这个月的第一天的秒值
-     * 
-     * @author yumo.lck
+     *
      * @param year
      * @param month
      * @return
+     * @author yumo.lck
      */
     public static long getFirstDay4Month(int year, int month) {
         long firstDay = 0L;
@@ -450,11 +458,11 @@ public class DateUtil {
 
     /**
      * 根据年和月获取这个月的最后一天的秒值
-     * 
-     * @author yumo.lck
+     *
      * @param year
      * @param month
      * @return
+     * @author yumo.lck
      */
     public static long getLastDay4Month(int year, int month) {
         long lastDay = 0L;
@@ -473,7 +481,7 @@ public class DateUtil {
 
     /**
      * 根据某个日期时间戳秒值，获取上个月第一天零点的值的秒值
-     * 
+     *
      * @author yumo.lck
      */
 
@@ -499,7 +507,7 @@ public class DateUtil {
 
     /**
      * 今日
-     * 
+     *
      * @return long
      */
     public static long getMillByOneDay() {
@@ -513,7 +521,7 @@ public class DateUtil {
 
     /**
      * 昨日
-     * 
+     *
      * @return long
      */
     public static long getMillByYesDay() {
@@ -528,7 +536,7 @@ public class DateUtil {
 
     /**
      * 一周前
-     * 
+     *
      * @return
      */
     public static long getMillByLastWeekDay() {
@@ -540,94 +548,100 @@ public class DateUtil {
         cal.set(Calendar.MILLISECOND, 0);
         return cal.getTimeInMillis() / 1000;
     }
-    
-   /**
-    * 取得秒级Long型时间
-    * @param severalDays 需要计算的天数
-    * @param condition  条件 
-    * <br> "-":当前时间点以前的时间(当前时间-需要计算的天数) 
-    * <br> "+":当前时间点以后的时间(当前时间+需要计算的天数)
-    * <br> null/其他值：为当天
-    * @return long
-    */
-    public static long getMillByDay(int severalDays,String condition) {
-    	int dateT=0;
+
+    /**
+     * 取得秒级Long型时间
+     *
+     * @param severalDays 需要计算的天数
+     * @param condition   条件
+     *                    <br> "-":当前时间点以前的时间(当前时间-需要计算的天数)
+     *                    <br> "+":当前时间点以后的时间(当前时间+需要计算的天数)
+     *                    <br> null/其他值：为当天
+     * @return long
+     */
+    public static long getMillByDay(int severalDays, String condition) {
+        int dateT = 0;
         Calendar cal = Calendar.getInstance();
-    	if(condition==null){
-    		return getMillToDay(cal,dateT);
-    	}
-        if("-".equals(condition)){
-        	dateT = (cal.get(Calendar.DATE) - severalDays);
-        	return getMillToDay(cal,dateT);
+        if (condition == null) {
+            return getMillToDay(cal, dateT);
         }
-        if("+".equals(condition)){
-        	dateT = (cal.get(Calendar.DATE) + severalDays);
-        	return getMillToDay(cal,dateT);
+        if ("-".equals(condition)) {
+            dateT = (cal.get(Calendar.DATE) - severalDays);
+            return getMillToDay(cal, dateT);
         }
-		return getMillToDay(cal,dateT);
-  }
-    
+        if ("+".equals(condition)) {
+            dateT = (cal.get(Calendar.DATE) + severalDays);
+            return getMillToDay(cal, dateT);
+        }
+        return getMillToDay(cal, dateT);
+    }
+
     /**
      * 取得毫秒级Long型时间
+     *
      * @param severalDays 需要计算的天数
-     * @param condition  条件 
-     * <br> "-":当前时间点以前的时间(当前时间-需要计算的天数) 
-     * <br> "+":当前时间点以后的时间(当前时间+需要计算的天数)
-     * <br> null/其他值：为当天
+     * @param condition   条件
+     *                    <br> "-":当前时间点以前的时间(当前时间-需要计算的天数)
+     *                    <br> "+":当前时间点以后的时间(当前时间+需要计算的天数)
+     *                    <br> null/其他值：为当天
      * @return long
      */
-    public static long getStampByDay(int severalDays,String condition) {
-    	int dateT=0;
-    	Calendar cal = Calendar.getInstance();
-    	if(condition==null){
-    		return getStampToDay(cal,dateT);
-    	}
-    	if("-".equals(condition)){
-    		dateT = (cal.get(Calendar.DATE) - severalDays);
-    		return getStampToDay(cal,dateT);
-    	}
-    	if("+".equals(condition)){
-    		dateT = (cal.get(Calendar.DATE) + severalDays);
-    		return getStampToDay(cal,dateT);
-    	}
-    	return getStampToDay(cal,dateT);
+    public static long getStampByDay(int severalDays, String condition) {
+        int dateT = 0;
+        Calendar cal = Calendar.getInstance();
+        if (condition == null) {
+            return getStampToDay(cal, dateT);
+        }
+        if ("-".equals(condition)) {
+            dateT = (cal.get(Calendar.DATE) - severalDays);
+            return getStampToDay(cal, dateT);
+        }
+        if ("+".equals(condition)) {
+            dateT = (cal.get(Calendar.DATE) + severalDays);
+            return getStampToDay(cal, dateT);
+        }
+        return getStampToDay(cal, dateT);
     }
+
     /**
      * 取得当天秒级Long型数据
+     *
      * @return long
      */
-    public static long getMillByDay(){
-		return getMillByDay(0,null);
+    public static long getMillByDay() {
+        return getMillByDay(0, null);
     }
-    
+
     /**
      * Calendar 型对日期进行计算
-     * @param cal  Calendar
-     * @param dateT Integer 
-     * @return  long
+     *
+     * @param cal   Calendar
+     * @param dateT Integer
+     * @return long
      */
-    public static long getMillToDay(Calendar cal,int dateT){
-		   if(dateT!=0){
-			   cal.set(Calendar.DATE, dateT);
-		   }
-	       cal.set(Calendar.HOUR_OF_DAY, 0);
-	       cal.set(Calendar.MINUTE, 0);
-	       cal.set(Calendar.SECOND, 0);
-	       cal.set(Calendar.MILLISECOND, 0);
-	       return cal.getTimeInMillis()/1000;
-	}
-    
+    public static long getMillToDay(Calendar cal, int dateT) {
+        if (dateT != 0) {
+            cal.set(Calendar.DATE, dateT);
+        }
+        cal.set(Calendar.HOUR_OF_DAY, 0);
+        cal.set(Calendar.MINUTE, 0);
+        cal.set(Calendar.SECOND, 0);
+        cal.set(Calendar.MILLISECOND, 0);
+        return cal.getTimeInMillis() / 1000;
+    }
+
     /**
      * Calendar 型对日期进行计算
-     * @param cal  Calendar
-     * @param dateT Integer 
-     * @return  long
+     *
+     * @param cal   Calendar
+     * @param dateT Integer
+     * @return long
      */
-    public static long getStampToDay(Calendar cal,int dateT){
-    	if(dateT!=0){
-    		cal.set(Calendar.DATE, dateT);
-    	}
-    	return cal.getTimeInMillis();
+    public static long getStampToDay(Calendar cal, int dateT) {
+        if (dateT != 0) {
+            cal.set(Calendar.DATE, dateT);
+        }
+        return cal.getTimeInMillis();
     }
 
     public static String getToday() {
@@ -637,7 +651,7 @@ public class DateUtil {
 
     /**
      * 根据秒或者毫秒获取当天的日期
-     * 
+     *
      * @param day 秒
      * @return 格式化后的日期
      */
@@ -664,60 +678,61 @@ public class DateUtil {
         SimpleDateFormat sf = new SimpleDateFormat(format);
         return sf.format(date);
     }
-    
-    
+
+
     /**
      * String型时间戳转为long型
-     * 
-     * @param day 时间
+     *
+     * @param day    时间
      * @param format 格式化
      * @return long
-     * @throws ParseException 
+     * @throws ParseException
      */
     public static long stringToLong(String day, String format) throws ParseException {
-    	SimpleDateFormat dateFormat = new SimpleDateFormat(format);
+        SimpleDateFormat dateFormat = new SimpleDateFormat(format);
         long date = dateFormat.parse(day).getTime();
-    	return date;
+        return date;
     }
-    
+
     /**
      * String型转Date型
-     * @param day 时间
+     *
+     * @param day    时间
      * @param format 格式化
      * @return Date
      * @throws ParseException
      */
-    public static Date stringToDate(String day, String format)  {
-    	try {
-			SimpleDateFormat dateFormat = new SimpleDateFormat(format);
-			 Date date = dateFormat.parse(day);
-			return date;
-		} catch (ParseException e) {
-			return new Date();
-		}
+    public static Date stringToDate(String day, String format) {
+        try {
+            SimpleDateFormat dateFormat = new SimpleDateFormat(format);
+            Date date = dateFormat.parse(day);
+            return date;
+        } catch (ParseException e) {
+            return new Date();
+        }
     }
-    
-    
+
+
     /**
      * long型时间戳转为String型
-     * 
+     *
      * @param day 秒
      * @return 格式化后的日期
-     * @throws ParseException 
+     * @throws ParseException
      */
     public static String longToString(long day, String format) throws ParseException {
-    	if (("" + day).length() <= 10){
-            day=day*1000;
+        if (("" + day).length() <= 10) {
+            day = day * 1000;
         }
-    	SimpleDateFormat dateFormat = new SimpleDateFormat(format);
-	    String date = dateFormat.format(day);
-    	return date;
+        SimpleDateFormat dateFormat = new SimpleDateFormat(format);
+        String date = dateFormat.format(day);
+        return date;
     }
 
     /**
      * 根据秒获取给定日期的前xx天的秒值
-     * 
-     * @param day 秒
+     *
+     * @param day      秒
      * @param minusDay 需要减掉的天数
      * @return 秒
      */
@@ -734,7 +749,7 @@ public class DateUtil {
 
     /**
      * 取得当前系统时间long型
-     * 
+     *
      * @return long
      */
     public static long getMillByNow() {
@@ -743,41 +758,41 @@ public class DateUtil {
         return cal.getTimeInMillis();
     }
 
-	public static int getWeeksBetweenTwoDates(long startDay, long endDay) {
-		int week = getWeekOfYear(endDay) - getWeekOfYear(startDay) + 1;
-		if(week<1){
-			week = getWeekOfYear(endDay) + getMaxWeekOfYear(startDay) - getWeekOfYear(startDay) + 1;
-		}
-		return week;
-	}
+    public static int getWeeksBetweenTwoDates(long startDay, long endDay) {
+        int week = getWeekOfYear(endDay) - getWeekOfYear(startDay) + 1;
+        if (week < 1) {
+            week = getWeekOfYear(endDay) + getMaxWeekOfYear(startDay) - getWeekOfYear(startDay) + 1;
+        }
+        return week;
+    }
 
-	public static int getMaxWeekOfYear(long startDay) {
-		Calendar cal = Calendar.getInstance();
+    public static int getMaxWeekOfYear(long startDay) {
+        Calendar cal = Calendar.getInstance();
         cal.setTime(new Date(startDay * 1000));
         return cal.getMaximum(Calendar.WEEK_OF_YEAR);
-	}
-	
-	public static int getMonthsBetweenTwoDates(long startDay, long endDay) {
-		int month = DateUtil.getMonth(endDay) - DateUtil.getMonth(startDay) + 1;
-		if(month<1){
-			month = getMonth(endDay) + 12 - getMonth(startDay) +1;
-		}
-		return month;
-	}
-	
-	public static Date parseDate(String dateStr, String pattern){
-		SimpleDateFormat sdf = new SimpleDateFormat();
-		sdf.applyPattern(pattern);
-		try {
-			return sdf.parse(dateStr);
-		} catch (ParseException e) {
-			return null;
-		}
-	}
-	
-	/**
+    }
+
+    public static int getMonthsBetweenTwoDates(long startDay, long endDay) {
+        int month = DateUtil.getMonth(endDay) - DateUtil.getMonth(startDay) + 1;
+        if (month < 1) {
+            month = getMonth(endDay) + 12 - getMonth(startDay) + 1;
+        }
+        return month;
+    }
+
+    public static Date parseDate(String dateStr, String pattern) {
+        SimpleDateFormat sdf = new SimpleDateFormat();
+        sdf.applyPattern(pattern);
+        try {
+            return sdf.parse(dateStr);
+        } catch (ParseException e) {
+            return null;
+        }
+    }
+
+    /**
      * 获取传入时间分钟的时间戳（秒值）
-     * 
+     *
      * @return long
      */
     public static long getMinuteStart(long time) {
@@ -793,10 +808,10 @@ public class DateUtil {
         firstDay = cal.getTimeInMillis() / 1000;
         return firstDay;
     }
-    
+
     /**
      * 获取传入时间小时的时间戳（秒值）
-     * 
+     *
      * @return long
      */
     public static long getHourStart(long time) {
@@ -816,54 +831,55 @@ public class DateUtil {
 
     /**
      * long 型时间转换成 date
+     *
      * @param time 秒值
      * @return Date
      */
-    public static Date getDateByLong(long time){
+    public static Date getDateByLong(long time) {
         Date date = new Date();
         date.setTime(time);
         return date;
     }
-    
 
-    public static Date parseDate(String dateStr, String pattern, Locale locale){
-    	SimpleDateFormat df = new SimpleDateFormat(
-				pattern, locale);
 
-		df.setTimeZone(TimeZone.getTimeZone("GMT+8"));
-		try {
-			return df.parse(dateStr);
-		} catch (ParseException e) {
-			return null;
-		}
-	}
-    
+    public static Date parseDate(String dateStr, String pattern, Locale locale) {
+        SimpleDateFormat df = new SimpleDateFormat(
+                pattern, locale);
+
+        df.setTimeZone(TimeZone.getTimeZone("GMT+8"));
+        try {
+            return df.parse(dateStr);
+        } catch (ParseException e) {
+            return null;
+        }
+    }
+
     public static String getDate(Date date, String format, Locale locale) {
-    	SimpleDateFormat df = new SimpleDateFormat(
-    			format, locale);
-    	df.setTimeZone(new SimpleTimeZone(0, "GMT"));
+        SimpleDateFormat df = new SimpleDateFormat(
+                format, locale);
+        df.setTimeZone(new SimpleTimeZone(0, "GMT"));
         return df.format(date);
     }
 
     public static String getTimeDifference(Long mill) {
-        if(mill != null && mill.longValue() != 0L) {
-            if(mill.longValue() < 1000L) {
+        if (mill != null && mill.longValue() != 0L) {
+            if (mill.longValue() < 1000L) {
                 return mill + "毫秒";
             } else {
-                int dif = (int)(mill.longValue() / 1000L);
+                int dif = (int) (mill.longValue() / 1000L);
                 StringBuilder time = new StringBuilder();
                 int hours = dif / 3600;
-                if(hours > 0) {
+                if (hours > 0) {
                     time.append(hours).append("小时");
                 }
 
                 int minutes = (dif - hours * 3600) / 60;
-                if(minutes > 0) {
+                if (minutes > 0) {
                     time.append(minutes).append("分钟");
                 }
 
                 int seconds = dif - hours * 3600 - minutes * 60;
-                if(seconds > 0) {
+                if (seconds > 0) {
                     time.append(seconds).append("秒");
                 }
 
@@ -922,7 +938,7 @@ public class DateUtil {
             Date date = simpleDateFormat.parse(simpleDateFormat.format(new Date()));
             return date.getTime();
         } catch (ParseException e) {
-            LOGGER.error("DateUtil.calTodayMills error:{}",e.getMessage());
+            LOGGER.error("DateUtil.calTodayMills error:{}", e.getMessage());
         }
         return 0L;
     }

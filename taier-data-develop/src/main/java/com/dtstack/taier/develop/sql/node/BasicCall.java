@@ -3,7 +3,13 @@ package com.dtstack.taier.develop.sql.node;
 import com.dtstack.taier.develop.sql.Column;
 import com.dtstack.taier.develop.sql.calcite.Operator;
 import com.google.common.collect.Lists;
-import org.apache.calcite.sql.*;
+import org.apache.calcite.sql.SqlBasicCall;
+import org.apache.calcite.sql.SqlCall;
+import org.apache.calcite.sql.SqlIdentifier;
+import org.apache.calcite.sql.SqlLiteral;
+import org.apache.calcite.sql.SqlNode;
+import org.apache.calcite.sql.SqlNodeList;
+import org.apache.calcite.sql.SqlSelect;
 import org.apache.calcite.sql.fun.SqlCase;
 import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
@@ -18,12 +24,11 @@ import java.util.stream.Collectors;
  * @Author: 尘二(chener @ dtstack.com)
  * @Date: 2019/10/26 10:45
  * @Description:对应于 {@link SqlBasicCall}常规的sqlCall，将操作数保存在列表中
- *
+ * <p>
  * operands属性: 操作数的列表。
  * operator属性: 操作类型
- *
+ * <p>
  * 在查询selectList中的函数，用于复合的identifier。将所有对字段的函数操作结点都定义为该类型。注意，这不是常规操作。
- *
  */
 public class BasicCall extends BaseCall {
 
@@ -41,7 +46,7 @@ public class BasicCall extends BaseCall {
     private List<Node> operands;
 
     public BasicCall(String defaultDb, Map<String, List<Column>> tableColumnsMap) {
-        super(defaultDb,tableColumnsMap);
+        super(defaultDb, tableColumnsMap);
     }
 
     public Operator getOperator() {
@@ -84,9 +89,9 @@ public class BasicCall extends BaseCall {
 
     @Override
     public Node parseSql(SqlNode node) {
-        SqlCall sqlCall = (SqlCall)checkNode(node);
+        SqlCall sqlCall = (SqlCall) checkNode(node);
         //用在对字段处理时。字段血缘解析时仅在selectList中的字段。
-        if (Context.CALL_IN_COLUMN == getContext() || Context.CASE_IN_COLUMN == getContext()){
+        if (Context.CALL_IN_COLUMN == getContext() || Context.CASE_IN_COLUMN == getContext()) {
             List<Identifier> allColumnInFunc = findAllColumnInFunc(node);
             this.comboList = allColumnInFunc;
         }
@@ -95,7 +100,7 @@ public class BasicCall extends BaseCall {
     }
 
     public SqlNode checkNode(SqlNode node) {
-        if (!(node instanceof SqlCall)){
+        if (!(node instanceof SqlCall)) {
             throw new IllegalArgumentException("sqlNode类型不匹配");
         }
         return node;
@@ -104,37 +109,34 @@ public class BasicCall extends BaseCall {
     private List<Identifier> findAllColumnInFunc(SqlNode sn) {
         List<Identifier> comboIdentifiers = Lists.newArrayList();
         List<SqlNode> operandList = null;
-        if (sn instanceof SqlBasicCall){
+        if (sn instanceof SqlBasicCall) {
             operandList = ((SqlCall) sn).getOperandList();
-        }
-        else if (sn instanceof SqlNodeList){
+        } else if (sn instanceof SqlNodeList) {
             operandList = ((SqlNodeList) sn).getList();
         }
         //case when只需要then和else中的字段。条件字段when中的不要
-        else if (sn instanceof SqlCase){
+        else if (sn instanceof SqlCase) {
             operandList = new ArrayList<>();
             operandList.addAll(((SqlCase) sn).getThenOperands().getList());
             operandList.add(((SqlCase) sn).getElseOperand());
-        }else if (sn instanceof SqlLiteral){
+        } else if (sn instanceof SqlLiteral) {
             //常量丢弃
-        }else if (sn instanceof SqlSelect){
+        } else if (sn instanceof SqlSelect) {
             //字段里的子查询
-            operandList=(((SqlSelect) sn).getSelectList().getList());
-        }
-        else {
+            operandList = (((SqlSelect) sn).getSelectList().getList());
+        } else {
             LOG.warn("未处理的函数内sql类型：{}", sn.getKind());
         }
         if (CollectionUtils.isNotEmpty(operandList)) {
             for (SqlNode node : operandList) {
                 if (node != null) {
 
-                    if (node instanceof SqlIdentifier){
-                        Identifier identifier = new Identifier(getDefaultDb(),getTableColumnMap());
+                    if (node instanceof SqlIdentifier) {
+                        Identifier identifier = new Identifier(getDefaultDb(), getTableColumnMap());
                         identifier.setContext(Context.IDENTIFIER_COLUMN);
                         identifier.parseSql(node);
                         comboIdentifiers.add(identifier);
-                    }
-                    else {
+                    } else {
                         comboIdentifiers.addAll(findAllColumnInFunc(node));
                     }
                 }

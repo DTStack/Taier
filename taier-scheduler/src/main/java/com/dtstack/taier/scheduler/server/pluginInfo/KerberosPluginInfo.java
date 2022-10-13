@@ -9,7 +9,13 @@ import com.dtstack.taier.dao.mapper.ConsoleKerberosMapper;
 import com.google.common.base.Preconditions;
 import org.apache.commons.lang3.StringUtils;
 
-import static com.dtstack.taier.pluginapi.constrant.ConfigConstant.*;
+import static com.dtstack.taier.pluginapi.constrant.ConfigConstant.KERBEROS_FILE_TIMESTAMP;
+import static com.dtstack.taier.pluginapi.constrant.ConfigConstant.KRB_NAME;
+import static com.dtstack.taier.pluginapi.constrant.ConfigConstant.MERGE_KRB5_CONTENT_KEY;
+import static com.dtstack.taier.pluginapi.constrant.ConfigConstant.OPEN_KERBEROS;
+import static com.dtstack.taier.pluginapi.constrant.ConfigConstant.PRINCIPAL;
+import static com.dtstack.taier.pluginapi.constrant.ConfigConstant.PRINCIPAL_FILE;
+import static com.dtstack.taier.pluginapi.constrant.ConfigConstant.REMOTE_DIR;
 
 public class KerberosPluginInfo implements SecurityPluginInfo {
 

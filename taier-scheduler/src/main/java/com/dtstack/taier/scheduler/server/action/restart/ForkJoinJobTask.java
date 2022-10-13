@@ -1,7 +1,7 @@
 package com.dtstack.taier.scheduler.server.action.restart;
 
-import com.dtstack.taier.common.enums.EScheduleJobType;
 import com.dtstack.taier.common.enums.Deleted;
+import com.dtstack.taier.common.enums.EScheduleJobType;
 import com.dtstack.taier.dao.domain.ScheduleJob;
 import com.dtstack.taier.dao.domain.ScheduleJobJob;
 import com.dtstack.taier.scheduler.service.ScheduleJobJobService;
@@ -14,7 +14,12 @@ import org.apache.commons.collections.MapUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ForkJoinTask;
 import java.util.concurrent.RecursiveTask;
@@ -25,17 +30,17 @@ import java.util.stream.Collectors;
  * @date 2021-02-01
  * 查询出当前任务的所有下游任务（同一调度日期内）
  */
-public class ForkJoinJobTask extends RecursiveTask<Map<String,String>> {
+public class ForkJoinJobTask extends RecursiveTask<Map<String, String>> {
 
     private final static Logger logger = LoggerFactory.getLogger(ForkJoinJobTask.class);
     private static final List<Integer> SPECIAL_TASK_TYPES = Lists.newArrayList(EScheduleJobType.WORK_FLOW.getVal());
     private final String jobId;
-    private final ConcurrentHashMap<String,String> results;
+    private final ConcurrentHashMap<String, String> results;
     private final ScheduleJobService scheduleJobService;
     private final ScheduleJobJobService scheduleJobJobService;
     private final boolean isOnlyNextChild;
 
-    public ForkJoinJobTask(String jobId, ConcurrentHashMap<String,String> results,
+    public ForkJoinJobTask(String jobId, ConcurrentHashMap<String, String> results,
                            ScheduleJobService scheduleJobService, ScheduleJobJobService scheduleJobJobService, boolean isOnlyNextChild) {
         this.jobId = jobId;
         this.results = results;
@@ -45,7 +50,7 @@ public class ForkJoinJobTask extends RecursiveTask<Map<String,String>> {
     }
 
     @Override
-    protected ConcurrentHashMap<String,String> compute() {
+    protected ConcurrentHashMap<String, String> compute() {
         ScheduleJob scheduleJob = scheduleJobService.lambdaQuery()
                 .eq(ScheduleJob::getJobId, jobId)
                 .eq(ScheduleJob::getIsDeleted, Deleted.NORMAL.getStatus())
@@ -94,7 +99,7 @@ public class ForkJoinJobTask extends RecursiveTask<Map<String,String>> {
             if (results.containsKey(childScheduleJob.getJobId())) {
                 continue;
             }
-            results.put(childScheduleJob.getJobId(),childScheduleJob.getCycTime());
+            results.put(childScheduleJob.getJobId(), childScheduleJob.getCycTime());
             if (isOnlyNextChild) {
                 continue;
             }
@@ -105,7 +110,7 @@ public class ForkJoinJobTask extends RecursiveTask<Map<String,String>> {
 
         Collection<ForkJoinJobTask> forkJoinJobTasks = ForkJoinTask.invokeAll(tasks);
         for (ForkJoinJobTask forkJoinJobTask : forkJoinJobTasks) {
-            Map<String,String> scheduleJobs = forkJoinJobTask.join();
+            Map<String, String> scheduleJobs = forkJoinJobTask.join();
             if (MapUtils.isNotEmpty(scheduleJobs)) {
                 results.putAll(scheduleJobs);
             }

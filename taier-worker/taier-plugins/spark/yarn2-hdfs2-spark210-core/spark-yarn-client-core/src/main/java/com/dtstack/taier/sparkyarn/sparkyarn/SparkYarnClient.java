@@ -24,7 +24,11 @@ import com.dtstack.taier.base.monitor.AcceptedApplicationMonitor;
 import com.dtstack.taier.base.util.HadoopConfTool;
 import com.dtstack.taier.base.util.KerberosUtils;
 import com.dtstack.taier.base.util.Splitter;
-import com.dtstack.taier.pluginapi.*;
+import com.dtstack.taier.pluginapi.CustomThreadFactory;
+import com.dtstack.taier.pluginapi.JarFileInfo;
+import com.dtstack.taier.pluginapi.JobClient;
+import com.dtstack.taier.pluginapi.JobIdentifier;
+import com.dtstack.taier.pluginapi.JobParam;
 import com.dtstack.taier.pluginapi.client.AbstractClient;
 import com.dtstack.taier.pluginapi.enums.ComputeType;
 import com.dtstack.taier.pluginapi.enums.EJobType;
@@ -67,7 +71,13 @@ import java.io.IOException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.security.PrivilegedExceptionAction;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -109,7 +119,9 @@ public class SparkYarnClient extends AbstractClient {
 
     private static final String USER_DIR = System.getProperty("user.dir");
 
-    /**如果请求 CLUSTER_INFO_WS_FORMAT 返回信息包含该特征则表示是alive*/
+    /**
+     * 如果请求 CLUSTER_INFO_WS_FORMAT 返回信息包含该特征则表示是alive
+     */
     private static final String ALIVE_WEB_FLAG = "clusterInfo";
 
     private List<String> webAppAddrList = Lists.newArrayList();
@@ -159,12 +171,12 @@ public class SparkYarnClient extends AbstractClient {
 
     }
 
-    private void initYarnConf(SparkYarnConfig sparkConfig){
+    private void initYarnConf(SparkYarnConfig sparkConfig) {
         HadoopConf customerConf = new HadoopConf();
         customerConf.initHadoopConf(sparkConfig.getHadoopConf());
         customerConf.initYarnConf(sparkConfig.getYarnConf());
 
-        if (sparkYarnConfig.isOpenKerberos() && MapUtils.isNotEmpty(sparkConfig.getHiveConf())){
+        if (sparkYarnConfig.isOpenKerberos() && MapUtils.isNotEmpty(sparkConfig.getHiveConf())) {
             customerConf.initHiveSecurityConf(sparkConfig.getHiveConf());
         }
 
@@ -192,7 +204,7 @@ public class SparkYarnClient extends AbstractClient {
         }
     }
 
-    private JobResult submitJobWithJar(JobClient jobClient){
+    private JobResult submitJobWithJar(JobClient jobClient) {
         setHadoopUserName(sparkYarnConfig);
         JobParam jobParam = new JobParam(jobClient);
         String mainClass = jobParam.getMainClass();
@@ -201,16 +213,16 @@ public class SparkYarnClient extends AbstractClient {
         String appName = jobParam.getJobName();
         String exeArgsStr = jobParam.getClassArgs();
 
-        if(!jarPath.startsWith(HDFS_PREFIX)){
+        if (!jarPath.startsWith(HDFS_PREFIX)) {
             throw new PluginDefineException("spark jar path protocol must be " + HDFS_PREFIX);
         }
 
-        if(Strings.isNullOrEmpty(appName)){
+        if (Strings.isNullOrEmpty(appName)) {
             throw new PluginDefineException("spark jar must set app name!");
         }
 
         String[] appArgs = new String[]{};
-        if(StringUtils.isNotBlank(exeArgsStr)){
+        if (StringUtils.isNotBlank(exeArgsStr)) {
             appArgs = exeArgsStr.split("\\s+");
         }
 
@@ -220,7 +232,7 @@ public class SparkYarnClient extends AbstractClient {
         argList.add("--class");
         argList.add(mainClass);
 
-        for(String appArg : appArgs) {
+        for (String appArg : appArgs) {
             if (StringUtils.isBlank(appArg)) {
                 continue;
             }
@@ -242,20 +254,20 @@ public class SparkYarnClient extends AbstractClient {
             clientExt.setSparkYarnConfig(sparkYarnConfig);
             String proxyUserName = sparkYarnConfig.getDtProxyUserName();
             if (StringUtils.isNotBlank(proxyUserName)) {
-                logger.info("jobId {} ugi proxyUser is {}",jobClient.getJobId(), proxyUserName);
+                logger.info("jobId {} ugi proxyUser is {}", jobClient.getJobId(), proxyUserName);
                 appId = UserGroupInformation.createProxyUser(proxyUserName, UserGroupInformation.getLoginUser()).doAs((PrivilegedExceptionAction<ApplicationId>) () -> clientExt.submitApplication(jobClient.getApplicationPriority()));
             } else {
                 appId = clientExt.submitApplication(jobClient.getApplicationPriority());
             }
             return JobResult.createSuccessResult(appId.toString());
-        } catch(Exception ex) {
+        } catch (Exception ex) {
             logger.info("", ex);
             return JobResult.createErrorResult("submit job get unknown error\n" + ExceptionUtil.getErrorMessage(ex));
         }
 
     }
 
-    private JobResult submitPythonJob(JobClient jobClient){
+    private JobResult submitPythonJob(JobClient jobClient) {
         setHadoopUserName(sparkYarnConfig);
         JobParam jobParam = new JobParam(jobClient);
         //.py .egg .zip 存储的hdfs路径
@@ -263,11 +275,11 @@ public class SparkYarnClient extends AbstractClient {
         String appName = jobParam.getJobName();
         String exeArgsStr = jobParam.getClassArgs();
 
-        if(Strings.isNullOrEmpty(pyFilePath)){
+        if (Strings.isNullOrEmpty(pyFilePath)) {
             return JobResult.createErrorResult("exe python file can't be null.");
         }
 
-        if(Strings.isNullOrEmpty(appName)){
+        if (Strings.isNullOrEmpty(appName)) {
             return JobResult.createErrorResult("an application name must be set in your configuration");
         }
         ApplicationId appId = null;
@@ -280,21 +292,21 @@ public class SparkYarnClient extends AbstractClient {
         argList.add(PYTHON_RUNNER_CLASS);
 
         String[] appArgs = new String[]{};
-        if(StringUtils.isNotBlank(exeArgsStr)){
+        if (StringUtils.isNotBlank(exeArgsStr)) {
             appArgs = exeArgsStr.split("\\s+");
         }
 
         String dependencyResource = "";
         boolean nextIsDependencyVal = false;
-        for(String appArg : appArgs) {
+        for (String appArg : appArgs) {
 
-            if(nextIsDependencyVal){
+            if (nextIsDependencyVal) {
                 dependencyResource = appArg;
                 nextIsDependencyVal = false;
                 continue;
             }
 
-            if(PYTHON_RUNNER_DEPENDENCY_RES_KEY.equals(appArg)){
+            if (PYTHON_RUNNER_DEPENDENCY_RES_KEY.equals(appArg)) {
                 nextIsDependencyVal = true;
                 continue;
             }
@@ -306,13 +318,13 @@ public class SparkYarnClient extends AbstractClient {
         }
 
         String pythonExtPath = sparkYarnConfig.getSparkPythonExtLibPath();
-        if(Strings.isNullOrEmpty(pythonExtPath)){
+        if (Strings.isNullOrEmpty(pythonExtPath)) {
             return JobResult.createErrorResult("engine node.yml setting error, " +
                     "commit spark python job need to set param of sparkPythonExtLibPath.");
         }
 
         //添加自定义的依赖包
-        if(!Strings.isNullOrEmpty(dependencyResource)){
+        if (!Strings.isNullOrEmpty(dependencyResource)) {
             pythonExtPath = pythonExtPath + "," + dependencyResource;
         }
 
@@ -324,7 +336,7 @@ public class SparkYarnClient extends AbstractClient {
         if (appEnvIndex != -1) {
             try {
                 String appEnv = args.get(appEnvIndex + 1);
-                parseAppEnv(appEnv ,sparkConf);
+                parseAppEnv(appEnv, sparkConf);
             } catch (Exception e) {
                 return JobResult.createErrorResult("Could't set appEnv to spark executor env. parsePythonCmd failed. " +
                         "Reason :" + e.getMessage());
@@ -350,19 +362,20 @@ public class SparkYarnClient extends AbstractClient {
                 appId = clientExt.submitApplication(jobClient.getApplicationPriority());
             }
             return JobResult.createSuccessResult(appId.toString());
-        } catch(Exception ex) {
+        } catch (Exception ex) {
             logger.info("", ex);
             return JobResult.createErrorResult("submit job get unknown error\n" + ExceptionUtil.getErrorMessage(ex));
         }
     }
 
-    private void parseAppEnv(String appEnv, SparkConf sparkConf){
+    private void parseAppEnv(String appEnv, SparkConf sparkConf) {
         addEnv2SparkConf(appEnv, sparkConf);
     }
 
     /**
      * 1.parse cmd.
      * 2.add key-value into container envs.
+     *
      * @param cmdStr
      */
     private void addEnv2SparkConf(String cmdStr, SparkConf sparkConf) {
@@ -374,7 +387,7 @@ public class SparkYarnClient extends AbstractClient {
             // envJson is encode, we need decode it.
             cmdStr = URLDecoder.decode(cmdStr, "UTF-8");
             logger.info("cmdStr decoded is : " + cmdStr);
-            Map<String,Object> envMap = JSON.parseObject(cmdStr.trim());
+            Map<String, Object> envMap = JSON.parseObject(cmdStr.trim());
             Iterator entries = envMap.entrySet().iterator();
             while (entries.hasNext()) {
                 Map.Entry entry = (Map.Entry) entries.next();
@@ -389,7 +402,7 @@ public class SparkYarnClient extends AbstractClient {
                 sparkConf.setExecutorEnv(key, value);
             }
         } catch (Exception e) {
-            String message = String.format("Could't parse {%s} to json format. Reason : {%s}", cmdStr , e.getMessage());
+            String message = String.format("Could't parse {%s} to json format. Reason : {%s}", cmdStr, e.getMessage());
             logger.error(message);
             throw new PluginDefineException(message, e);
         }
@@ -397,10 +410,11 @@ public class SparkYarnClient extends AbstractClient {
 
     /**
      * 执行spark 批处理sql
+     *
      * @param jobClient
      * @return
      */
-    private JobResult submitSparkSqlJobForBatch(JobClient jobClient){
+    private JobResult submitSparkSqlJobForBatch(JobClient jobClient) {
 
         Properties confProp = jobClient.getConfProperties();
         setHadoopUserName(sparkYarnConfig);
@@ -418,10 +432,10 @@ public class SparkYarnClient extends AbstractClient {
 
 
         String sqlExeJson = null;
-        try{
+        try {
             sqlExeJson = PublicUtil.objToString(paramsMap);
             sqlExeJson = URLEncoder.encode(sqlExeJson, Charsets.UTF_8.name());
-        }catch (Exception e){
+        } catch (Exception e) {
             logger.error("", e);
             throw new PluginDefineException("get unexpected exception:" + e.getMessage());
         }
@@ -456,24 +470,24 @@ public class SparkYarnClient extends AbstractClient {
                 appId = clientExt.submitApplication(jobClient.getApplicationPriority());
             }
             return JobResult.createSuccessResult(appId.toString());
-        } catch(Exception ex) {
+        } catch (Exception ex) {
             return JobResult.createErrorResult("submit job get unknown error\n" + ExceptionUtil.getErrorMessage(ex));
         }
 
     }
 
-    private Map<String, String> getSparkSessionConf(Properties confProp){
+    private Map<String, String> getSparkSessionConf(Properties confProp) {
         Map<String, String> map = Maps.newHashMap();
         map.put(KEY_DEFAULT_FILE_FORMAT, DEFAULT_FILE_FORMAT);
 
-        if(confProp == null || confProp.isEmpty()){
+        if (confProp == null || confProp.isEmpty()) {
             return map;
         }
 
-        for(Map.Entry<Object, Object> param : confProp.entrySet()){
+        for (Map.Entry<Object, Object> param : confProp.entrySet()) {
             String key = (String) param.getKey();
             String val = (String) param.getValue();
-            if(key.startsWith(SESSION_CONF_KEY_PREFIX)){
+            if (key.startsWith(SESSION_CONF_KEY_PREFIX)) {
                 key = key.replaceFirst("session\\.", "");
                 map.put(key, val);
             }
@@ -492,7 +506,7 @@ public class SparkYarnClient extends AbstractClient {
         }
     }
 
-    private SparkConf buildBasicSparkConf(JobClient jobClient){
+    private SparkConf buildBasicSparkConf(JobClient jobClient) {
 
         SparkConf sparkConf = new SparkConf();
         sparkConf.remove("spark.jars");
@@ -501,7 +515,7 @@ public class SparkYarnClient extends AbstractClient {
         sparkConf.set("spark.yarn.queue", sparkYarnConfig.getQueue());
         sparkConf.set("security", "false");
 
-        if (sparkYarnConfig.isOpenKerberos()){
+        if (sparkYarnConfig.isOpenKerberos()) {
             String[] kerberosFiles = KerberosUtils.getKerberosFile(sparkYarnConfig, null);
             String keytab = kerberosFiles[0];
             String principal = StringUtils.isNotBlank(sparkYarnConfig.getPrincipal()) ?
@@ -510,7 +524,7 @@ public class SparkYarnClient extends AbstractClient {
             sparkConf.set("spark.yarn.principal", principal);
             sparkConf.set("security", String.valueOf(sparkYarnConfig.isOpenKerberos()));
         }
-        if(sparkExtProp != null){
+        if (sparkExtProp != null) {
             sparkExtProp.forEach((key, value) -> {
                 if (key.toString().contains(".")) {
                     sparkConf.set(key.toString(), value.toString());
@@ -543,19 +557,20 @@ public class SparkYarnClient extends AbstractClient {
     /**
      * 通过提交的paramsOperator 设置sparkConf
      * 解析传递过来的参数不带spark.前面缀的
+     *
      * @param sparkConf
      * @param confProperties
      */
-    private void fillExtSparkConf(SparkConf sparkConf, Properties confProperties){
+    private void fillExtSparkConf(SparkConf sparkConf, Properties confProperties) {
 
-        if(confProperties == null){
+        if (confProperties == null) {
             return;
         }
 
-        for(Map.Entry<Object, Object> param : confProperties.entrySet()){
+        for (Map.Entry<Object, Object> param : confProperties.entrySet()) {
             String key = (String) param.getKey();
             String val = (String) param.getValue();
-            if(!key.contains(KEY_PRE_STR)){
+            if (!key.contains(KEY_PRE_STR)) {
                 key = KEY_PRE_STR + key;
             }
             sparkConf.set(key, val);
@@ -563,18 +578,18 @@ public class SparkYarnClient extends AbstractClient {
     }
 
 
-    private JobResult submitSparkSqlJobForStream(JobClient jobClient){
+    private JobResult submitSparkSqlJobForStream(JobClient jobClient) {
         throw new PluginDefineException("not support spark sql job for stream type.");
     }
 
     private JobResult submitSqlJob(JobClient jobClient) {
 
         ComputeType computeType = jobClient.getComputeType();
-        if(computeType == null){
+        if (computeType == null) {
             throw new PluginDefineException("need to set compute type.");
         }
 
-        switch (computeType){
+        switch (computeType) {
             case BATCH:
                 return submitSparkSqlJobForBatch(jobClient);
             case STREAM:
@@ -591,7 +606,7 @@ public class SparkYarnClient extends AbstractClient {
     @Override
     public JobResult cancelJob(JobIdentifier jobIdentifier) {
         try {
-            return KerberosUtils.login(sparkYarnConfig, ()->{
+            return KerberosUtils.login(sparkYarnConfig, () -> {
                 String jobId = jobIdentifier.getApplicationId();
                 try {
                     ApplicationId appId = ConverterUtils.toApplicationId(jobId);
@@ -611,10 +626,10 @@ public class SparkYarnClient extends AbstractClient {
     @Override
     public TaskStatus getJobStatus(JobIdentifier jobIdentifier) throws IOException {
         try {
-            return KerberosUtils.login(sparkYarnConfig, ()->{
+            return KerberosUtils.login(sparkYarnConfig, () -> {
                 String jobId = jobIdentifier.getApplicationId();
 
-                if(StringUtils.isEmpty(jobId)){
+                if (StringUtils.isEmpty(jobId)) {
                     return null;
                 }
 
@@ -622,7 +637,7 @@ public class SparkYarnClient extends AbstractClient {
                 try {
                     ApplicationReport report = getYarnClient().getApplicationReport(appId);
                     YarnApplicationState applicationState = report.getYarnApplicationState();
-                    switch(applicationState) {
+                    switch (applicationState) {
                         case KILLED:
                             return TaskStatus.KILLED;
                         case NEW:
@@ -638,13 +653,13 @@ public class SparkYarnClient extends AbstractClient {
                         case FINISHED:
                             //state 为finished状态下需要兼顾判断finalStatus.
                             FinalApplicationStatus finalApplicationStatus = report.getFinalApplicationStatus();
-                            if(finalApplicationStatus == FinalApplicationStatus.FAILED){
+                            if (finalApplicationStatus == FinalApplicationStatus.FAILED) {
                                 return TaskStatus.FAILED;
-                            }else if(finalApplicationStatus == FinalApplicationStatus.SUCCEEDED){
+                            } else if (finalApplicationStatus == FinalApplicationStatus.SUCCEEDED) {
                                 return TaskStatus.FINISHED;
-                            }else if(finalApplicationStatus == FinalApplicationStatus.KILLED){
+                            } else if (finalApplicationStatus == FinalApplicationStatus.KILLED) {
                                 return TaskStatus.KILLED;
-                            }else{
+                            } else {
                                 return TaskStatus.RUNNING;
                             }
 
@@ -668,21 +683,21 @@ public class SparkYarnClient extends AbstractClient {
     public String getJobMaster(JobIdentifier jobIdentifier) {
         //解析config,获取web-address
         String aliveWebAddr = null;
-        for(String addr : webAppAddrList){
+        for (String addr : webAppAddrList) {
             String response = null;
             String reqUrl = String.format(CLUSTER_INFO_WS_FORMAT, addr);
-            try{
+            try {
                 response = PoolHttpClient.get(reqUrl);
-                if(response.contains(ALIVE_WEB_FLAG)){
+                if (response.contains(ALIVE_WEB_FLAG)) {
                     aliveWebAddr = addr;
                     break;
                 }
-            }catch (Exception e){
+            } catch (Exception e) {
                 continue;
             }
         }
 
-        if(!Strings.isNullOrEmpty(aliveWebAddr)){
+        if (!Strings.isNullOrEmpty(aliveWebAddr)) {
             webAppAddrList.remove(aliveWebAddr);
             webAppAddrList.add(0, aliveWebAddr);
         }
@@ -695,28 +710,28 @@ public class SparkYarnClient extends AbstractClient {
         Iterator<Map.Entry<String, String>> iterator = yarnConf.iterator();
         List<String> tmpWebAppAddr = Lists.newArrayList();
 
-        while(iterator.hasNext()) {
-            Map.Entry<String,String> entry = iterator.next();
+        while (iterator.hasNext()) {
+            Map.Entry<String, String> entry = iterator.next();
             String key = entry.getKey();
             String value = entry.getValue();
 
-            if(key.contains("yarn.resourcemanager.webapp.address.")){
-                if(!value.startsWith(HTTP_PREFIX)){
+            if (key.contains("yarn.resourcemanager.webapp.address.")) {
+                if (!value.startsWith(HTTP_PREFIX)) {
                     value = HTTP_PREFIX + value.trim();
                 }
                 tmpWebAppAddr.add(value);
-            } else if(key.startsWith("yarn.resourcemanager.hostname.")) {
+            } else if (key.startsWith("yarn.resourcemanager.hostname.")) {
                 String rm = key.substring("yarn.resourcemanager.hostname.".length());
                 String addressKey = "yarn.resourcemanager.address." + rm;
 
                 webAppAddrList.add(HTTP_PREFIX + value + ":" + YarnConfiguration.DEFAULT_RM_WEBAPP_PORT);
-                if(yarnConf.get(addressKey) == null) {
+                if (yarnConf.get(addressKey) == null) {
                     yarnConf.set(addressKey, value + ":" + YarnConfiguration.DEFAULT_RM_PORT);
                 }
             }
         }
 
-        if(tmpWebAppAddr.size() != 0){
+        if (tmpWebAppAddr.size() != 0) {
             webAppAddrList = tmpWebAppAddr;
         }
     }
@@ -724,7 +739,7 @@ public class SparkYarnClient extends AbstractClient {
     @Override
     public String getMessageByHttp(String path) {
         String reqUrl = path;
-        if(!path.startsWith(HTTP_PREFIX)){
+        if (!path.startsWith(HTTP_PREFIX)) {
             reqUrl = String.format("%s%s", getJobMaster(null), path);
         }
 
@@ -739,7 +754,7 @@ public class SparkYarnClient extends AbstractClient {
     public String getJobLog(JobIdentifier jobIdentifier) {
         SparkJobLog sparkJobLog = new SparkJobLog();
         try {
-            return KerberosUtils.login(sparkYarnConfig, ()-> {
+            return KerberosUtils.login(sparkYarnConfig, () -> {
                 String jobId = jobIdentifier.getApplicationId();
                 ApplicationId applicationId = ConverterUtils.toApplicationId(jobId);
 
@@ -766,12 +781,12 @@ public class SparkYarnClient extends AbstractClient {
 
         try {
             return KerberosUtils.login(sparkYarnConfig, () -> {
-                    SparkYarnResourceInfo resourceInfo = SparkYarnResourceInfo.SparkYarnResourceInfoBuilder()
-                            .withYarnClient(getYarnClient())
-                            .withQueueName(sparkYarnConfig.getQueue())
-                            .withYarnAccepterTaskNumber(sparkYarnConfig.getYarnAccepterTaskNumber())
-                            .build();
-                    return resourceInfo.judgeSlots(jobClient);
+                SparkYarnResourceInfo resourceInfo = SparkYarnResourceInfo.SparkYarnResourceInfoBuilder()
+                        .withYarnClient(getYarnClient())
+                        .withQueueName(sparkYarnConfig.getQueue())
+                        .withYarnAccepterTaskNumber(sparkYarnConfig.getYarnAccepterTaskNumber())
+                        .build();
+                return resourceInfo.judgeSlots(jobClient);
             }, yarnConf, false);
         } catch (Exception e) {
             logger.error("jobId:{} judgeSlots error:", jobClient.getJobId(), e);
@@ -779,8 +794,8 @@ public class SparkYarnClient extends AbstractClient {
         }
     }
 
-    public void setHadoopUserName(SparkYarnConfig sparkYarnConfig){
-        if(Strings.isNullOrEmpty(sparkYarnConfig.getHadoopUserName())){
+    public void setHadoopUserName(SparkYarnConfig sparkYarnConfig) {
+        if (Strings.isNullOrEmpty(sparkYarnConfig.getHadoopUserName())) {
             return;
         }
 
@@ -792,24 +807,24 @@ public class SparkYarnClient extends AbstractClient {
         String sql = jobClient.getSql();
         Splitter splitter = new Splitter(';');
         List<String> sqlArr = splitter.splitEscaped(sql);
-        if(sqlArr.size() == 0){
+        if (sqlArr.size() == 0) {
             return;
         }
 
         List<String> sqlList = Lists.newArrayList(sqlArr);
         Iterator<String> sqlItera = sqlList.iterator();
 
-        while (sqlItera.hasNext()){
+        while (sqlItera.hasNext()) {
             String tmpSql = sqlItera.next();
             // handle add jar statements and comment statements on the same line
             tmpSql = AddJarOperator.handleSql(tmpSql);
-            if(AddJarOperator.verific(tmpSql)){
+            if (AddJarOperator.verific(tmpSql)) {
                 sqlItera.remove();
                 JarFileInfo jarFileInfo = AddJarOperator.parseSql(tmpSql);
 
-                if(jobClient.getJobType() == EJobType.SQL){
+                if (jobClient.getJobType() == EJobType.SQL) {
                     //SQL当前不允许提交jar包,自定义函数已经在web端处理了。
-                }else{
+                } else {
                     //非sql任务只允许提交一个附件包
                     jobClient.setCoreJarInfo(jarFileInfo);
                     break;
@@ -820,7 +835,7 @@ public class SparkYarnClient extends AbstractClient {
         jobClient.setSql(String.join(";", sqlList));
     }
 
-    public YarnClient getYarnClient(){
+    public YarnClient getYarnClient() {
         long startTime = System.currentTimeMillis();
         try {
             if (yarnClient == null) {
@@ -850,7 +865,7 @@ public class SparkYarnClient extends AbstractClient {
             yarnClient = yarnClient1;
         } finally {
             if (logger.isDebugEnabled()) {
-                long endTime= System.currentTimeMillis();
+                long endTime = System.currentTimeMillis();
                 logger.debug("cost getYarnClient start-time:{} end-time:{}, cost:{}.", startTime, endTime, endTime - startTime);
             }
         }
@@ -859,6 +874,7 @@ public class SparkYarnClient extends AbstractClient {
 
     /**
      * 创建YarnClient 增加KerberosUtils 逻辑
+     *
      * @return
      */
     private YarnClient buildYarnClient() {
@@ -869,7 +885,7 @@ public class SparkYarnClient extends AbstractClient {
                 yarnClient1.init(yarnConf);
                 yarnClient1.start();
                 return yarnClient1;
-            }, yarnConf,true);
+            }, yarnConf, true);
         } catch (Exception e) {
             logger.error("buildYarnClient initSecurity happens error", e);
             throw new PluginDefineException(e);

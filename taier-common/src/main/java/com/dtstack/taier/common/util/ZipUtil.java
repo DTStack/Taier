@@ -22,7 +22,14 @@ import org.apache.tools.zip.ZipFile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -42,8 +49,8 @@ public class ZipUtil {
 
     private static final Logger LOG = LoggerFactory.getLogger(ZipUtil.class);
 
-    private static byte[] ZIP_HEADER_1 = new byte[] { 80, 75, 3, 4 };
-    private static byte[] ZIP_HEADER_2 = new byte[] { 80, 75, 5, 6 };
+    private static byte[] ZIP_HEADER_1 = new byte[]{80, 75, 3, 4};
+    private static byte[] ZIP_HEADER_2 = new byte[]{80, 75, 5, 6};
 
     private static byte[] _byte = new byte[1024];
 
@@ -59,7 +66,7 @@ public class ZipUtil {
             zip.putNextEntry(entry);
             zip.write(rowData);
         } catch (Exception ex) {
-            LOG.error(ex.getMessage(),ex);
+            LOG.error(ex.getMessage(), ex);
         } finally {
             if (null != zip) {
                 try {
@@ -201,7 +208,7 @@ public class ZipUtil {
     /**
      * 解压缩ZIP文件，将ZIP文件里的内容解压到targetDIR目录下
      *
-     * @param zipPath           待解压缩的ZIP文件名
+     * @param zipPath 待解压缩的ZIP文件名
      * @param descDir 目标目录
      */
     public static List<File> upzipFile(String zipPath, String descDir) {
@@ -226,7 +233,7 @@ public class ZipUtil {
             for (Enumeration entries = _zipFile.getEntries(); entries.hasMoreElements(); ) {
                 org.apache.tools.zip.ZipEntry entry = (org.apache.tools.zip.ZipEntry) entries.nextElement();
                 File _file = new File(descDir + File.separator + entry.getName());
-                if(_file.isHidden()){
+                if (_file.isHidden()) {
                     continue;
                 }
                 if (entry.isDirectory()) {
@@ -289,7 +296,7 @@ public class ZipUtil {
                 file.delete();
             } else if (file.isDirectory()) {
                 String[] filelist = file.list();
-                if(null == filelist){
+                if (null == filelist) {
                     return;
                 }
                 for (int i = 0; i < filelist.length; i++) {

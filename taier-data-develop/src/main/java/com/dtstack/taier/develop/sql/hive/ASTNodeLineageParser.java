@@ -1,6 +1,12 @@
 package com.dtstack.taier.develop.sql.hive;
 
-import com.dtstack.taier.develop.sql.hive.node.*;
+import com.dtstack.taier.develop.sql.hive.node.AlterNodeParser;
+import com.dtstack.taier.develop.sql.hive.node.CreateNodeParser;
+import com.dtstack.taier.develop.sql.hive.node.DropNodeParser;
+import com.dtstack.taier.develop.sql.hive.node.InsertNodeParser;
+import com.dtstack.taier.develop.sql.hive.node.NodeParser;
+import com.dtstack.taier.develop.sql.hive.node.OtherNodeParser;
+import com.dtstack.taier.develop.sql.hive.node.SelectNodeParser;
 import com.dtstack.taier.develop.sql.utils.SqlFormatUtil;
 import org.apache.hadoop.hive.ql.lib.Node;
 import org.apache.hadoop.hive.ql.parse.ASTNode;
@@ -55,11 +61,11 @@ public class ASTNodeLineageParser {
                 parser = new CreateNodeParser();
             } else if (rootNode.getType() == HiveParser.TOK_QUERY) {
                 ArrayList<Node> children = rootNode.getChildren();
-                for (Node node : children){
-                    if (((ASTNode)node).getType() == HiveParser.TOK_INSERT ){
+                for (Node node : children) {
+                    if (((ASTNode) node).getType() == HiveParser.TOK_INSERT) {
                         ArrayList<Node> insetNode = ((ASTNode) node).getChildren();
-                        for (Node insert : insetNode){
-                            if (((ASTNode)insert).getType() == HiveParser.TOK_INSERT_INTO){
+                        for (Node insert : insetNode) {
+                            if (((ASTNode) insert).getType() == HiveParser.TOK_INSERT_INTO) {
                                 parser = new InsertNodeParser();
                                 return parser;
                             }
@@ -71,7 +77,7 @@ public class ASTNodeLineageParser {
                 parser = new DropNodeParser();
             } else if (alterType.contains(rootNode.getType())) {
                 parser = new AlterNodeParser();
-            }else {
+            } else {
                 parser = new OtherNodeParser();
             }
 

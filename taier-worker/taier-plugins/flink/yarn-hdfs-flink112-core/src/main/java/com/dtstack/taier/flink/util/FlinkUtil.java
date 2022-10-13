@@ -2,6 +2,8 @@ package com.dtstack.taier.flink.util;
 
 import com.dtstack.taier.base.enums.ClassLoaderType;
 import com.dtstack.taier.base.filesystem.FilesystemManager;
+import com.dtstack.taier.flink.config.PluginConfig;
+import com.dtstack.taier.flink.constant.ConfigConstant;
 import com.dtstack.taier.pluginapi.JarFileInfo;
 import com.dtstack.taier.pluginapi.JobClient;
 import com.dtstack.taier.pluginapi.enums.EJobType;
@@ -9,8 +11,6 @@ import com.dtstack.taier.pluginapi.exception.PluginDefineException;
 import com.dtstack.taier.pluginapi.loader.DtClassLoader;
 import com.dtstack.taier.pluginapi.util.MathUtil;
 import com.dtstack.taier.pluginapi.util.PublicUtil;
-import com.dtstack.taier.flink.constant.ConfigConstant;
-import com.dtstack.taier.flink.config.PluginConfig;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.flink.client.deployment.ClusterSpecification;
@@ -33,12 +33,16 @@ import java.lang.reflect.Field;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.util.*;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
 
 /**
  * Reason:
  * Date: 2017/2/21
  * Company: www.dtstack.com
+ *
  * @author xuchao
  */
 
@@ -48,30 +52,30 @@ public class FlinkUtil {
 
     /**
      * 数据样例
-     {
-     "taskmanagers": [
-     {
-     "id": "ac1e2d5668eb1e908e15e3d40f8b67d6",
-     "path": "akka.tcp://flink@node01:52079/user/taskmanager",
-     "dataPort": 37512,
-     "timeSinceLastHeartbeat": 1508393749742,
-     "slotsNumber": 4,
-     "freeSlots": 4,
-     "cpuCores": 4,
-     "physicalMemory": 8254550016,
-     "freeMemory": 1073741824,
-     "managedMemory": 670946944
-     }]}
+     * {
+     * "taskmanagers": [
+     * {
+     * "id": "ac1e2d5668eb1e908e15e3d40f8b67d6",
+     * "path": "akka.tcp://flink@node01:52079/user/taskmanager",
+     * "dataPort": 37512,
+     * "timeSinceLastHeartbeat": 1508393749742,
+     * "slotsNumber": 4,
+     * "freeSlots": 4,
+     * "cpuCores": 4,
+     * "physicalMemory": 8254550016,
+     * "freeMemory": 1073741824,
+     * "managedMemory": 670946944
+     * }]}
      */
     public final static String SLOTS_INFO = "/taskmanagers";
 
     /**
      * 数据样例
-     {
-     "root-exception": "org.apache.flink.runtime.jobmanager.scheduler.NoResourceAvailableException: Not enough free slots available to run the job. You can decrease the operator parallelism or increase the number of slots per TaskManager in the configuration. Task to schedule: < Attempt #0 (Source: mysqlreader (3/4)) @ (unassigned) - [SCHEDULED] > with groupID < bc764cd8ddf7a0cff126f51c16239658 > in sharing group < SlotSharingGroup [bc764cd8ddf7a0cff126f51c16239658, 20ba6b65f97481d5570070de90e4e791] >. Resources available to scheduler: Number of instances=1, total number of slots=10, available slots=0\n\tat org.apache.flink.runtime.jobmanager.scheduler.Scheduler.scheduleTask(Scheduler.java:262)\n\tat org.apache.flink.runtime.jobmanager.scheduler.Scheduler.allocateSlot(Scheduler.java:139)\n\tat org.apache.flink.runtime.executiongraph.Execution.allocateSlotForExecution(Execution.java:368)\n\tat org.apache.flink.runtime.executiongraph.ExecutionJobVertex.allocateResourcesForAll(ExecutionJobVertex.java:478)\n\tat org.apache.flink.runtime.executiongraph.ExecutionGraph.scheduleEager(ExecutionGraph.java:865)\n\tat org.apache.flink.runtime.executiongraph.ExecutionGraph.scheduleForExecution(ExecutionGraph.java:816)\n\tat org.apache.flink.runtime.jobmanager.JobManager$$anonfun$org$apache$flink$runtime$jobmanager$JobManager$$submitJob$1.apply$mcV$sp(JobManager.scala:1425)\n\tat org.apache.flink.runtime.jobmanager.JobManager$$anonfun$org$apache$flink$runtime$jobmanager$JobManager$$submitJob$1.apply(JobManager.scala:1372)\n\tat org.apache.flink.runtime.jobmanager.JobManager$$anonfun$org$apache$flink$runtime$jobmanager$JobManager$$submitJob$1.apply(JobManager.scala:1372)\n\tat scala.concurrent.impl.Future$PromiseCompletingRunnable.liftedTree1$1(Future.scala:24)\n\tat scala.concurrent.impl.Future$PromiseCompletingRunnable.run(Future.scala:24)\n\tat akka.dispatch.TaskInvocation.run(AbstractDispatcher.scala:40)\n\tat akka.dispatch.ForkJoinExecutorConfigurator$AkkaForkJoinTask.exec(AbstractDispatcher.scala:397)\n\tat scala.concurrent.forkjoin.ForkJoinTask.doExec(ForkJoinTask.java:260)\n\tat scala.concurrent.forkjoin.ForkJoinPool$WorkQueue.runTask(ForkJoinPool.java:1339)\n\tat scala.concurrent.forkjoin.ForkJoinPool.runWorker(ForkJoinPool.java:1979)\n\tat scala.concurrent.forkjoin.ForkJoinWorkerThread.run(ForkJoinWorkerThread.java:107)\n",
-     "all-exceptions": [],
-     "truncated": false
-     }
+     * {
+     * "root-exception": "org.apache.flink.runtime.jobmanager.scheduler.NoResourceAvailableException: Not enough free slots available to run the job. You can decrease the operator parallelism or increase the number of slots per TaskManager in the configuration. Task to schedule: < Attempt #0 (Source: mysqlreader (3/4)) @ (unassigned) - [SCHEDULED] > with groupID < bc764cd8ddf7a0cff126f51c16239658 > in sharing group < SlotSharingGroup [bc764cd8ddf7a0cff126f51c16239658, 20ba6b65f97481d5570070de90e4e791] >. Resources available to scheduler: Number of instances=1, total number of slots=10, available slots=0\n\tat org.apache.flink.runtime.jobmanager.scheduler.Scheduler.scheduleTask(Scheduler.java:262)\n\tat org.apache.flink.runtime.jobmanager.scheduler.Scheduler.allocateSlot(Scheduler.java:139)\n\tat org.apache.flink.runtime.executiongraph.Execution.allocateSlotForExecution(Execution.java:368)\n\tat org.apache.flink.runtime.executiongraph.ExecutionJobVertex.allocateResourcesForAll(ExecutionJobVertex.java:478)\n\tat org.apache.flink.runtime.executiongraph.ExecutionGraph.scheduleEager(ExecutionGraph.java:865)\n\tat org.apache.flink.runtime.executiongraph.ExecutionGraph.scheduleForExecution(ExecutionGraph.java:816)\n\tat org.apache.flink.runtime.jobmanager.JobManager$$anonfun$org$apache$flink$runtime$jobmanager$JobManager$$submitJob$1.apply$mcV$sp(JobManager.scala:1425)\n\tat org.apache.flink.runtime.jobmanager.JobManager$$anonfun$org$apache$flink$runtime$jobmanager$JobManager$$submitJob$1.apply(JobManager.scala:1372)\n\tat org.apache.flink.runtime.jobmanager.JobManager$$anonfun$org$apache$flink$runtime$jobmanager$JobManager$$submitJob$1.apply(JobManager.scala:1372)\n\tat scala.concurrent.impl.Future$PromiseCompletingRunnable.liftedTree1$1(Future.scala:24)\n\tat scala.concurrent.impl.Future$PromiseCompletingRunnable.run(Future.scala:24)\n\tat akka.dispatch.TaskInvocation.run(AbstractDispatcher.scala:40)\n\tat akka.dispatch.ForkJoinExecutorConfigurator$AkkaForkJoinTask.exec(AbstractDispatcher.scala:397)\n\tat scala.concurrent.forkjoin.ForkJoinTask.doExec(ForkJoinTask.java:260)\n\tat scala.concurrent.forkjoin.ForkJoinPool$WorkQueue.runTask(ForkJoinPool.java:1339)\n\tat scala.concurrent.forkjoin.ForkJoinPool.runWorker(ForkJoinPool.java:1979)\n\tat scala.concurrent.forkjoin.ForkJoinWorkerThread.run(ForkJoinWorkerThread.java:107)\n",
+     * "all-exceptions": [],
+     * "truncated": false
+     * }
      */
     public final static String EXCEPTION_INFO = "/jobs/%s/exceptions";
 
@@ -86,18 +90,18 @@ public class FlinkUtil {
         int parallelism;
 
         if (confProperties != null) {
-            if(confProperties.containsKey(JobManagerOptions.TOTAL_PROCESS_MEMORY.key())){
+            if (confProperties.containsKey(JobManagerOptions.TOTAL_PROCESS_MEMORY.key())) {
                 jobManagerMemorySize = MemorySize.parse(confProperties.getProperty(JobManagerOptions.TOTAL_PROCESS_MEMORY.key(), ConfigConstant.DEFAULT_JOBMANAGER_MEMORY));
-            }else{
+            } else {
                 jobManagerMemorySize = MemorySize.parse(envProperties.getProperty(JobManagerOptions.TOTAL_PROCESS_MEMORY.key(), ConfigConstant.DEFAULT_JOBMANAGER_MEMORY));
             }
-            if(confProperties.containsKey(TaskManagerOptions.TOTAL_PROCESS_MEMORY.key())){
+            if (confProperties.containsKey(TaskManagerOptions.TOTAL_PROCESS_MEMORY.key())) {
                 taskManagerMemorySize = MemorySize.parse(confProperties.getProperty(TaskManagerOptions.TOTAL_PROCESS_MEMORY.key(), ConfigConstant.DEFAULT_TASKMANAGER_MEMORY));
-            }else{
+            } else {
                 taskManagerMemorySize = MemorySize.parse(envProperties.getProperty(TaskManagerOptions.TOTAL_PROCESS_MEMORY.key(), ConfigConstant.DEFAULT_TASKMANAGER_MEMORY));
             }
-            numberOfTaskSlots = confProperties.containsKey(TaskManagerOptions.NUM_TASK_SLOTS.key())?
-                    MathUtil.getIntegerVal(confProperties.get(TaskManagerOptions.NUM_TASK_SLOTS.key())):
+            numberOfTaskSlots = confProperties.containsKey(TaskManagerOptions.NUM_TASK_SLOTS.key()) ?
+                    MathUtil.getIntegerVal(confProperties.get(TaskManagerOptions.NUM_TASK_SLOTS.key())) :
                     MathUtil.getIntegerVal(envProperties.get(TaskManagerOptions.NUM_TASK_SLOTS.key()), TaskManagerOptions.NUM_TASK_SLOTS.defaultValue());
             parallelism = Math.max(
                     FlinkUtil.getEnvParallelism(confProperties),
@@ -164,10 +168,10 @@ public class FlinkUtil {
      * 将远程文件下载到本地
      */
     public static File downloadJar(String remotePath, String localDir, FilesystemManager filesystemManager, boolean localPriority) throws IOException {
-        if(localPriority){
+        if (localPriority) {
             //如果不是http 或者 hdfs协议的从本地读取
             File localFile = new File(remotePath);
-            if(localFile.exists()){
+            if (localFile.exists()) {
                 return localFile;
             }
         }
@@ -189,18 +193,17 @@ public class FlinkUtil {
         return downloadFile;
     }
 
-    private static String getTmpFileName(String fileUrl, String toPath){
+    private static String getTmpFileName(String fileUrl, String toPath) {
         String fileName = StringUtils.substringAfterLast(fileUrl, File.separator);
-        String tmpFileName = toPath  + File.separator + fileName;
+        String tmpFileName = toPath + File.separator + fileName;
         return tmpFileName;
     }
 
     /**
-     *
      * FIXME 仅针对sql执行方式,暂时未找到区分设置source,transform,sink 并行度的方式
      * 设置job运行的并行度
      */
-    public static int getEnvParallelism(Properties properties){
+    public static int getEnvParallelism(Properties properties) {
         String parallelismStr = properties.getProperty(ConfigConstant.SQL_ENV_PARALLELISM);
         return StringUtils.isNotBlank(parallelismStr) ? Integer.parseInt(parallelismStr) : 1;
     }
@@ -209,7 +212,7 @@ public class FlinkUtil {
     /**
      * 针对MR类型整个job的并发度设置
      */
-    public static int getJobParallelism(Properties properties){
+    public static int getJobParallelism(Properties properties) {
         String parallelismStr = properties.getProperty(ConfigConstant.MR_JOB_PARALLELISM);
         return StringUtils.isNotBlank(parallelismStr) ? Integer.parseInt(parallelismStr) : 1;
     }
@@ -222,15 +225,15 @@ public class FlinkUtil {
                 ConfigConstant.TMP_DIR, home, Thread.currentThread().getId());
     }
 
-    public static SavepointRestoreSettings buildSavepointSetting(JobClient jobClient){
+    public static SavepointRestoreSettings buildSavepointSetting(JobClient jobClient) {
 
-        if(jobClient.getExternalPath() == null){
+        if (jobClient.getExternalPath() == null) {
             return SavepointRestoreSettings.none();
         }
 
         String externalPath = jobClient.getExternalPath();
         boolean allowNonRestoredState = false;
-        if(jobClient.getConfProperties().containsKey(ConfigConstant.FLINK_JOB_ALLOWNONRESTOREDSTATE_KEY)){
+        if (jobClient.getConfProperties().containsKey(ConfigConstant.FLINK_JOB_ALLOWNONRESTOREDSTATE_KEY)) {
             String allowNonRestored = (String) jobClient.getConfProperties().get(ConfigConstant.FLINK_JOB_ALLOWNONRESTOREDSTATE_KEY);
             allowNonRestoredState = BooleanUtils.toBoolean(allowNonRestored);
         }
@@ -266,26 +269,25 @@ public class FlinkUtil {
 
     /**
      * parse exception log, log structure like：
-     {
-     "root-exception": "org.apache.flink.runtime.jobmanager.scheduler.NoResourceAvailableException: Not enough free slots available to run the job. You can decrease the operator parallelism or increase the number of slots per TaskManager in the configuration. Task to schedule: < Attempt #0 (Source: mysqlreader (3/4)) @ (unassigned) - [SCHEDULED] > with groupID < bc764cd8ddf7a0cff126f51c16239658 > in sharing group < SlotSharingGroup [bc764cd8ddf7a0cff126f51c16239658, 20ba6b65f97481d5570070de90e4e791] >. Resources available to scheduler: Number of instances=1, total number of slots=10, available slots=0\n\tat org.apache.flink.runtime.jobmanager.scheduler.Scheduler.scheduleTask(Scheduler.java:262)\n\tat org.apache.flink.runtime.jobmanager.scheduler.Scheduler.allocateSlot(Scheduler.java:139)\n\tat org.apache.flink.runtime.executiongraph.Execution.allocateSlotForExecution(Execution.java:368)\n\tat org.apache.flink.runtime.executiongraph.ExecutionJobVertex.allocateResourcesForAll(ExecutionJobVertex.java:478)\n\tat org.apache.flink.runtime.executiongraph.ExecutionGraph.scheduleEager(ExecutionGraph.java:865)\n\tat org.apache.flink.runtime.executiongraph.ExecutionGraph.scheduleForExecution(ExecutionGraph.java:816)\n\tat org.apache.flink.runtime.jobmanager.JobManager$$anonfun$org$apache$flink$runtime$jobmanager$JobManager$$submitJob$1.apply$mcV$sp(JobManager.scala:1425)\n\tat org.apache.flink.runtime.jobmanager.JobManager$$anonfun$org$apache$flink$runtime$jobmanager$JobManager$$submitJob$1.apply(JobManager.scala:1372)\n\tat org.apache.flink.runtime.jobmanager.JobManager$$anonfun$org$apache$flink$runtime$jobmanager$JobManager$$submitJob$1.apply(JobManager.scala:1372)\n\tat scala.concurrent.impl.Future$PromiseCompletingRunnable.liftedTree1$1(Future.scala:24)\n\tat scala.concurrent.impl.Future$PromiseCompletingRunnable.run(Future.scala:24)\n\tat akka.dispatch.TaskInvocation.run(AbstractDispatcher.scala:40)\n\tat akka.dispatch.ForkJoinExecutorConfigurator$AkkaForkJoinTask.exec(AbstractDispatcher.scala:397)\n\tat scala.concurrent.forkjoin.ForkJoinTask.doExec(ForkJoinTask.java:260)\n\tat scala.concurrent.forkjoin.ForkJoinPool$WorkQueue.runTask(ForkJoinPool.java:1339)\n\tat scala.concurrent.forkjoin.ForkJoinPool.runWorker(ForkJoinPool.java:1979)\n\tat scala.concurrent.forkjoin.ForkJoinWorkerThread.run(ForkJoinWorkerThread.java:107)\n",
-     "all-exceptions": [],
-     "truncated": false
-     }
+     * {
+     * "root-exception": "org.apache.flink.runtime.jobmanager.scheduler.NoResourceAvailableException: Not enough free slots available to run the job. You can decrease the operator parallelism or increase the number of slots per TaskManager in the configuration. Task to schedule: < Attempt #0 (Source: mysqlreader (3/4)) @ (unassigned) - [SCHEDULED] > with groupID < bc764cd8ddf7a0cff126f51c16239658 > in sharing group < SlotSharingGroup [bc764cd8ddf7a0cff126f51c16239658, 20ba6b65f97481d5570070de90e4e791] >. Resources available to scheduler: Number of instances=1, total number of slots=10, available slots=0\n\tat org.apache.flink.runtime.jobmanager.scheduler.Scheduler.scheduleTask(Scheduler.java:262)\n\tat org.apache.flink.runtime.jobmanager.scheduler.Scheduler.allocateSlot(Scheduler.java:139)\n\tat org.apache.flink.runtime.executiongraph.Execution.allocateSlotForExecution(Execution.java:368)\n\tat org.apache.flink.runtime.executiongraph.ExecutionJobVertex.allocateResourcesForAll(ExecutionJobVertex.java:478)\n\tat org.apache.flink.runtime.executiongraph.ExecutionGraph.scheduleEager(ExecutionGraph.java:865)\n\tat org.apache.flink.runtime.executiongraph.ExecutionGraph.scheduleForExecution(ExecutionGraph.java:816)\n\tat org.apache.flink.runtime.jobmanager.JobManager$$anonfun$org$apache$flink$runtime$jobmanager$JobManager$$submitJob$1.apply$mcV$sp(JobManager.scala:1425)\n\tat org.apache.flink.runtime.jobmanager.JobManager$$anonfun$org$apache$flink$runtime$jobmanager$JobManager$$submitJob$1.apply(JobManager.scala:1372)\n\tat org.apache.flink.runtime.jobmanager.JobManager$$anonfun$org$apache$flink$runtime$jobmanager$JobManager$$submitJob$1.apply(JobManager.scala:1372)\n\tat scala.concurrent.impl.Future$PromiseCompletingRunnable.liftedTree1$1(Future.scala:24)\n\tat scala.concurrent.impl.Future$PromiseCompletingRunnable.run(Future.scala:24)\n\tat akka.dispatch.TaskInvocation.run(AbstractDispatcher.scala:40)\n\tat akka.dispatch.ForkJoinExecutorConfigurator$AkkaForkJoinTask.exec(AbstractDispatcher.scala:397)\n\tat scala.concurrent.forkjoin.ForkJoinTask.doExec(ForkJoinTask.java:260)\n\tat scala.concurrent.forkjoin.ForkJoinPool$WorkQueue.runTask(ForkJoinPool.java:1339)\n\tat scala.concurrent.forkjoin.ForkJoinPool.runWorker(ForkJoinPool.java:1979)\n\tat scala.concurrent.forkjoin.ForkJoinWorkerThread.run(ForkJoinWorkerThread.java:107)\n",
+     * "all-exceptions": [],
+     * "truncated": false
+     * }
      */
     public static String parseEngineLog(String exception) {
         try {
-            if(StringUtils.isNotBlank(exception)) {
+            if (StringUtils.isNotBlank(exception)) {
                 // todo: 为什么转成Map以后又转成String
-                Map<String,Object> logMap = PublicUtil.jsonStrToObject(exception, Map.class);
+                Map<String, Object> logMap = PublicUtil.jsonStrToObject(exception, Map.class);
                 return PublicUtil.objToString(logMap);
-            }else{
+            } else {
                 throw new PluginDefineException("no engineLog provided");
             }
         } catch (Exception e) {
             throw new PluginDefineException("parseEngineLog error", e);
         }
     }
-
 
 
 }

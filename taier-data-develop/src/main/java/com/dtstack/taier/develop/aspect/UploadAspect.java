@@ -18,10 +18,15 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import java.io.File;
-import java.util.*;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
+import java.util.UUID;
 
 /**
  * 上传文件切面
+ *
  * @description:
  * @author: liuxx
  * @date: 2021/3/18
@@ -47,7 +52,7 @@ public class UploadAspect {
         Map<String, Object> paramMap = new HashMap<>();
         Cookie[] cookies = request.getCookies();
         for (Cookie cookie : cookies) {
-            paramMap.put(cookie.getName(),cookie.getValue());
+            paramMap.put(cookie.getName(), cookie.getValue());
         }
         if (file != null) {
             String filename = UUID.randomUUID() + "_" + file.getOriginalFilename();
@@ -84,7 +89,6 @@ public class UploadAspect {
             file.delete();
         }
     }
-
 
 
 }

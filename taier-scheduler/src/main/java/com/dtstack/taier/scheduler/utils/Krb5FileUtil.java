@@ -29,7 +29,14 @@ import java.io.FileInputStream;
 import java.io.InputStreamReader;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.function.BiFunction;
 
 public class Krb5FileUtil {
@@ -39,7 +46,7 @@ public class Krb5FileUtil {
     public static String mergeKrb5Content(Map<String, HashMap<String, String>> mergeKrb5Content, Map<String, HashMap<String, String>> localKrb5Content) throws Exception {
         Set<String> mapKeys = mergeKrb5ContentKey(mergeKrb5Content, localKrb5Content);
 
-        for (String key: mapKeys) {
+        for (String key : mapKeys) {
             HashMap<String, String> localKrb5Section = localKrb5Content.get(key);
             if (localKrb5Section == null) {
                 continue;
@@ -87,7 +94,7 @@ public class Krb5FileUtil {
                 content.append(keyStr).append(System.lineSeparator());
             }
             Map<String, String> options = krb5.get(key);
-            for(String option : options.keySet()) {
+            for (String option : options.keySet()) {
                 String optionValue = options.get(option);
                 String optionStr = option;
                 if (StringUtils.isNotEmpty(optionValue)) {
@@ -110,18 +117,18 @@ public class Krb5FileUtil {
     public static Map<String, HashMap<String, String>> readKrb5ByPath(String krb5Path) {
         List<String> lines = new ArrayList<>();
         File krb5File = new File(krb5Path);
-        try(
+        try (
                 InputStreamReader inputReader = new InputStreamReader(new FileInputStream(krb5File));
                 BufferedReader br = new BufferedReader(inputReader);
-        ){
-            for (;;) {
+        ) {
+            for (; ; ) {
                 String line = br.readLine();
                 if (line == null) {
                     break;
                 }
                 lines.add(line);
             }
-        } catch (Exception e){
+        } catch (Exception e) {
             LOGGER.error("krb5.conf read error:", e);
             throw new RdosDefineException("krb5.conf read error");
         }
@@ -145,7 +152,7 @@ public class Krb5FileUtil {
         for (String line : krb5Lines) {
             line = StringUtils.trim(line);
             if (StringUtils.isNotEmpty(line) && !StringUtils.startsWith(line, "#") && !StringUtils.startsWith(line, ";")) {
-                if (line.startsWith("[") && line.endsWith("]")){
+                if (line.startsWith("[") && line.endsWith("]")) {
                     section = line.substring(1, line.length() - 1).trim();
                 } else {
                     if (line.contains("{")) {
@@ -190,7 +197,7 @@ public class Krb5FileUtil {
         }
         String[] krb5Lines = content.split("[\\r\\n|\\r|\\n]");
         String var6 = null;
-        for (int i=0; i < krb5Lines.length; i++) {
+        for (int i = 0; i < krb5Lines.length; i++) {
             String krb5Line = krb5Lines[i];
             if (!krb5Line.isEmpty() && !krb5Line.startsWith("#") && !krb5Line.startsWith(";")) {
                 if (krb5Line.startsWith("[")) {

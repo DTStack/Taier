@@ -18,7 +18,15 @@ import org.apache.hadoop.security.UserGroupInformation;
 import org.apache.hadoop.service.CompositeService;
 import org.apache.hadoop.yarn.api.ApplicationConstants;
 import org.apache.hadoop.yarn.api.protocolrecords.RegisterApplicationMasterResponse;
-import org.apache.hadoop.yarn.api.records.*;
+import org.apache.hadoop.yarn.api.records.ApplicationAttemptId;
+import org.apache.hadoop.yarn.api.records.Container;
+import org.apache.hadoop.yarn.api.records.ContainerId;
+import org.apache.hadoop.yarn.api.records.ContainerLaunchContext;
+import org.apache.hadoop.yarn.api.records.FinalApplicationStatus;
+import org.apache.hadoop.yarn.api.records.LocalResource;
+import org.apache.hadoop.yarn.api.records.LocalResourceType;
+import org.apache.hadoop.yarn.api.records.Priority;
+import org.apache.hadoop.yarn.api.records.Resource;
 import org.apache.hadoop.yarn.client.api.AMRMClient;
 import org.apache.hadoop.yarn.client.api.async.AMRMClientAsync;
 import org.apache.hadoop.yarn.client.api.async.NMClientAsync;
@@ -31,7 +39,12 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.URI;
 import java.security.NoSuchAlgorithmException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Vector;
 
 public class ApplicationMaster extends CompositeService {
 
@@ -194,8 +207,8 @@ public class ApplicationMaster extends CompositeService {
         if (dtconf.getLong(ScriptConfiguration.SCRIPT_WORKER_GPU, ScriptConfiguration.DEFAULT_SCRIPT_WORKER_GPU) > 0) {
             workerCapability.setResourceValue(ScriptConstants.GPU, dtconf.getLong(ScriptConfiguration.SCRIPT_WORKER_GPU, ScriptConfiguration.DEFAULT_SCRIPT_WORKER_GPU));
         }
-        String [] nodes = dtconf.getStrings(ScriptConfiguration.SCRIPT_WORKER_NODES, (String[]) null);
-        String [] racks = dtconf.getStrings(ScriptConfiguration.SCRIPT_WORKER_RACKS, (String[]) null);
+        String[] nodes = dtconf.getStrings(ScriptConfiguration.SCRIPT_WORKER_NODES, (String[]) null);
+        String[] racks = dtconf.getStrings(ScriptConfiguration.SCRIPT_WORKER_RACKS, (String[]) null);
         boolean isRelaxLocality = nodes == null && racks == null;
         List nodeList = nodes == null ? null : Arrays.asList(nodes);
         List racksList = racks == null ? null : Arrays.asList(racks);
@@ -208,7 +221,7 @@ public class ApplicationMaster extends CompositeService {
         List<String> containerLaunchcommands = new ArrayList<>();
         LOG.info("Setting up container command");
         Vector<CharSequence> vargs = new Vector<>(10);
-        vargs.add(dtconf.get(ScriptConfiguration.JAVA_PATH,"${JAVA_HOME}" + "/bin/java"));
+        vargs.add(dtconf.get(ScriptConfiguration.JAVA_PATH, "${JAVA_HOME}" + "/bin/java"));
         vargs.add("-server -XX:+UseConcMarkSweepGC -XX:-UseCompressedClassPointers -XX:+DisableExplicitGC -XX:-OmitStackTraceInFastThrow");
         vargs.add("-Xmx" + containerMemory + "m");
         vargs.add("-Xms" + containerMemory + "m");
@@ -232,7 +245,7 @@ public class ApplicationMaster extends CompositeService {
 
     private boolean run() throws IOException, NoSuchAlgorithmException, InterruptedException {
         LOG.info("ApplicationMaster Starting ...");
-        LOG.info("---ugi:" + UserGroupInformation.getCurrentUser() );
+        LOG.info("---ugi:" + UserGroupInformation.getCurrentUser());
 
 
         register();
@@ -258,7 +271,7 @@ public class ApplicationMaster extends CompositeService {
                     shipFiles[i] = new Path(shipFiles[i]).getName();
                 }
                 String join = StringUtils.join(shipFiles, ":");
-                workerContainerEnv.put("PYTHONPATH","$PYTHONPATH" + ":" + join);
+                workerContainerEnv.put("PYTHONPATH", "$PYTHONPATH" + ":" + join);
             }
         }
 
@@ -478,7 +491,7 @@ public class ApplicationMaster extends CompositeService {
 
         try (
                 ApplicationMaster appMaster = new ApplicationMaster();
-            ) {
+        ) {
             appMaster.init();
             boolean tag = appMaster.run();
             if (tag) {

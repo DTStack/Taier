@@ -4,7 +4,13 @@ package com.dtstack.taier.develop.sql.node;
 import com.dtstack.taier.develop.sql.Column;
 import com.dtstack.taier.develop.sql.Pair;
 import com.google.common.collect.Lists;
-import org.apache.calcite.sql.*;
+import org.apache.calcite.sql.SqlBasicCall;
+import org.apache.calcite.sql.SqlIdentifier;
+import org.apache.calcite.sql.SqlKind;
+import org.apache.calcite.sql.SqlNode;
+import org.apache.calcite.sql.SqlNodeList;
+import org.apache.calcite.sql.SqlOperator;
+import org.apache.calcite.sql.SqlSelect;
 import org.apache.calcite.sql.ddl.SqlCreateTable;
 import org.apache.calcite.sql.ddl.SqlCreateView;
 import org.slf4j.Logger;
@@ -85,7 +91,7 @@ public class CreateNode extends Node {
     }
 
     public CreateNode(String defaultDb, Map<String, List<Column>> tableColumnsMap) {
-        super(defaultDb,tableColumnsMap);
+        super(defaultDb, tableColumnsMap);
     }
 
     @Override
@@ -121,20 +127,20 @@ public class CreateNode extends Node {
     }
 
     private void handleQuery(SqlNode queryNode) {
-        if (queryNode instanceof SqlBasicCall){
+        if (queryNode instanceof SqlBasicCall) {
             SqlOperator operator = ((SqlBasicCall) queryNode).getOperator();
-            if (SqlKind.UNION == operator.kind){
-                UnionCall unionCall = new UnionCall(getDefaultDb(),getTableColumnMap());
+            if (SqlKind.UNION == operator.kind) {
+                UnionCall unionCall = new UnionCall(getDefaultDb(), getTableColumnMap());
                 unionCall.parseSql(queryNode);
-                NodeList nodeList = new NodeList(getDefaultDb(),getTableColumnMap());
+                NodeList nodeList = new NodeList(getDefaultDb(), getTableColumnMap());
                 nodeList.setContext(Context.INSERT_FROM_UNION);
                 List<Node> nodes = Lists.newArrayList();
                 nodes.addAll(unionCall.getComboFromList());
                 nodeList.setList(nodes);
                 this.query = nodeList;
             }
-        }else if (queryNode instanceof SqlSelect){
-            SelectNode selectNode = new SelectNode(getDefaultDb(),getTableColumnMap());
+        } else if (queryNode instanceof SqlSelect) {
+            SelectNode selectNode = new SelectNode(getDefaultDb(), getTableColumnMap());
             selectNode.parseSql(queryNode);
             this.query = selectNode;
         }
@@ -145,7 +151,7 @@ public class CreateNode extends Node {
             return;
         }
         if (sqlNode instanceof SqlNodeList) {
-            NodeList nodeList = new NodeList(getDefaultDb(),getTableColumnMap());
+            NodeList nodeList = new NodeList(getDefaultDb(), getTableColumnMap());
             List<Node> list = Lists.newArrayList();
             for (SqlNode sn : ((SqlNodeList) sqlNode).getList()) {
                 //合并as
@@ -157,7 +163,7 @@ public class CreateNode extends Node {
                     alias = sqlNodePair.getKey();
                 }
                 if (handledNode instanceof SqlIdentifier) {
-                    Identifier identifier = new Identifier(getDefaultDb(),getTableColumnMap());
+                    Identifier identifier = new Identifier(getDefaultDb(), getTableColumnMap());
                     identifier.setAlias(alias);
                     identifier.setContext(Context.IDENTIFIER_COLUMN);
                     identifier.parseSql(handledNode);
@@ -175,7 +181,7 @@ public class CreateNode extends Node {
 
     private void handleName(SqlNode nameNode) {
         if (nameNode instanceof SqlIdentifier) {
-            Identifier identifier = new Identifier(getDefaultDb(),getTableColumnMap());
+            Identifier identifier = new Identifier(getDefaultDb(), getTableColumnMap());
             identifier.setContext(Context.IDENTIFIER_TABLE);
             identifier.parseSql(nameNode);
             this.name = identifier;

@@ -21,7 +21,11 @@ package com.dtstack.taier.pluginapi.sftp;
 import com.dtstack.taier.pluginapi.IFileManage;
 import com.dtstack.taier.pluginapi.exception.PluginDefineException;
 import com.google.common.collect.Maps;
-import com.jcraft.jsch.*;
+import com.jcraft.jsch.ChannelSftp;
+import com.jcraft.jsch.JSchException;
+import com.jcraft.jsch.Session;
+import com.jcraft.jsch.SftpATTRS;
+import com.jcraft.jsch.SftpException;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.LoggerFactory;
 
@@ -58,12 +62,12 @@ public class SftpFileManage implements IFileManage {
     private SftpPool sftpPool;
     private SftpConfig sftpConfig;
 
-    public static SftpFileManage getSftpManager(SftpConfig sftpConfig){
-        return sftpMap.computeIfAbsent(sftpConfig, k-> new SftpFileManage(sftpConfig));
+    public static SftpFileManage getSftpManager(SftpConfig sftpConfig) {
+        return sftpMap.computeIfAbsent(sftpConfig, k -> new SftpFileManage(sftpConfig));
     }
 
-    public SftpFileManage retrieveSftpManager(SftpConfig sftpConfig){
-        return sftpMap.computeIfAbsent(sftpConfig, k-> new SftpFileManage(sftpConfig));
+    public SftpFileManage retrieveSftpManager(SftpConfig sftpConfig) {
+        return sftpMap.computeIfAbsent(sftpConfig, k -> new SftpFileManage(sftpConfig));
     }
 
     private static class SingletonHolder {
@@ -180,7 +184,7 @@ public class SftpFileManage implements IFileManage {
         if ((fileTimeout = sftpConfig.getFileTimeout()) != 0L && (lastModifyTime = fileLastModifyMap.get(localFile)) != null) {
             if (System.currentTimeMillis() - lastModifyTime <= fileTimeout) {
                 File file = new File(localFile);
-                if(file.exists()){
+                if (file.exists()) {
                     return localFile;
                 }
 
@@ -256,7 +260,7 @@ public class SftpFileManage implements IFileManage {
      */
     public boolean downloadDirManager(String remoteDir, String localDir) {
         try {
-            return downloadDir(remoteDir,localDir);
+            return downloadDir(remoteDir, localDir);
         } catch (Throwable e) {
             LOGGER.error("sftp downloadDir error {}", e);
         }
@@ -504,7 +508,7 @@ public class SftpFileManage implements IFileManage {
     }
 
     public void close(ChannelSftp channelSftp) {
-        if (null == channelSftp){
+        if (null == channelSftp) {
             return;
         }
         if (null != sftpPool) {

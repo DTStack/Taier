@@ -4,11 +4,11 @@ import com.dtstack.taier.script.ScriptConfiguration;
 import com.dtstack.taier.script.api.ApplicationContext;
 import com.dtstack.taier.script.api.ScriptConstants;
 import com.dtstack.taier.script.common.SecurityUtil;
+import com.dtstack.taier.script.container.ScriptContainer;
+import com.dtstack.taier.script.container.ScriptContainerId;
 import com.dtstack.taier.script.util.DebugUtil;
 import com.dtstack.taier.script.util.KrbUtils;
 import com.dtstack.taier.script.util.Utilities;
-import com.dtstack.taier.script.container.ScriptContainer;
-import com.dtstack.taier.script.container.ScriptContainerId;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
@@ -17,7 +17,15 @@ import org.apache.hadoop.security.UserGroupInformation;
 import org.apache.hadoop.service.CompositeService;
 import org.apache.hadoop.yarn.api.ApplicationConstants;
 import org.apache.hadoop.yarn.api.protocolrecords.RegisterApplicationMasterResponse;
-import org.apache.hadoop.yarn.api.records.*;
+import org.apache.hadoop.yarn.api.records.ApplicationAttemptId;
+import org.apache.hadoop.yarn.api.records.Container;
+import org.apache.hadoop.yarn.api.records.ContainerId;
+import org.apache.hadoop.yarn.api.records.ContainerLaunchContext;
+import org.apache.hadoop.yarn.api.records.FinalApplicationStatus;
+import org.apache.hadoop.yarn.api.records.LocalResource;
+import org.apache.hadoop.yarn.api.records.LocalResourceType;
+import org.apache.hadoop.yarn.api.records.Priority;
+import org.apache.hadoop.yarn.api.records.Resource;
 import org.apache.hadoop.yarn.client.api.AMRMClient;
 import org.apache.hadoop.yarn.client.api.async.AMRMClientAsync;
 import org.apache.hadoop.yarn.client.api.async.NMClientAsync;
@@ -32,7 +40,12 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.URI;
 import java.security.NoSuchAlgorithmException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Vector;
 
 
 public class ApplicationMaster extends CompositeService {
@@ -196,8 +209,8 @@ public class ApplicationMaster extends CompositeService {
 //        if (appArguments.workerGCores > 0) {
 //            workerCapability.setResourceValue(DtYarnConstants.GPU, appArguments.workerGCores);
 //        }
-        String [] nodes = dtconf.getStrings(ScriptConfiguration.SCRIPT_WORKER_NODES, (String[]) null);
-        String [] racks = dtconf.getStrings(ScriptConfiguration.SCRIPT_WORKER_RACKS, (String[]) null);
+        String[] nodes = dtconf.getStrings(ScriptConfiguration.SCRIPT_WORKER_NODES, (String[]) null);
+        String[] racks = dtconf.getStrings(ScriptConfiguration.SCRIPT_WORKER_RACKS, (String[]) null);
         boolean isRelaxLocality = nodes == null && racks == null;
         List nodeList = nodes == null ? null : Arrays.asList(nodes);
         List racksList = racks == null ? null : Arrays.asList(racks);
@@ -211,7 +224,7 @@ public class ApplicationMaster extends CompositeService {
         List<String> containerLaunchcommands = new ArrayList<>();
         LOG.info("Setting up container command");
         Vector<CharSequence> vargs = new Vector<>(11);
-        vargs.add(dtconf.get(ScriptConfiguration.JAVA_PATH,"${JAVA_HOME}" + "/bin/java"));
+        vargs.add(dtconf.get(ScriptConfiguration.JAVA_PATH, "${JAVA_HOME}" + "/bin/java"));
         vargs.add("-server -XX:+UseConcMarkSweepGC -XX:-UseCompressedClassPointers -XX:+DisableExplicitGC -XX:-OmitStackTraceInFastThrow");
         vargs.add("-Xmx" + containerMemory + "m");
         vargs.add("-Xms" + containerMemory + "m");
@@ -222,9 +235,9 @@ public class ApplicationMaster extends CompositeService {
 
         String javaOpts = dtconf.get(ScriptConfiguration.SCRIPT_JAVA_OPTS, ScriptConfiguration.DEFAULT_SCRIPT_CONTAINER_EXTRA_JAVA_OPTS);
         String logging = "-Dlog.file=" + ApplicationConstants.LOG_DIR_EXPANSION_VAR + "/worker.log";
-        logging += " -Dlog4j.configuration=file:"+ ScriptConfiguration.SCRIPT_LOG4J_FILENAME;
+        logging += " -Dlog4j.configuration=file:" + ScriptConfiguration.SCRIPT_LOG4J_FILENAME;
         vargs.add(logging);
-         if (!StringUtils.isBlank(javaOpts)) {
+        if (!StringUtils.isBlank(javaOpts)) {
             vargs.add(javaOpts);
         }
         vargs.add(ScriptContainer.class.getName());
@@ -242,7 +255,7 @@ public class ApplicationMaster extends CompositeService {
 
     private boolean run() throws IOException, NoSuchAlgorithmException, InterruptedException {
         LOG.info("ApplicationMaster Starting ...");
-        LOG.info("---ugi:" + UserGroupInformation.getCurrentUser() );
+        LOG.info("---ugi:" + UserGroupInformation.getCurrentUser());
 
         register();
 
@@ -265,7 +278,7 @@ public class ApplicationMaster extends CompositeService {
             workerContainerEnv.put(ScriptConstants.ENV_PRINCIPAL, envs.get(ScriptConstants.ENV_PRINCIPAL));
             setKrbLocalResource(containerLocalResource);
         }
-        if (envs.containsKey(ScriptConstants.Environment.PROJECT_TYPE.toString())){
+        if (envs.containsKey(ScriptConstants.Environment.PROJECT_TYPE.toString())) {
             workerContainerEnv.put(ScriptConstants.Environment.PROJECT_TYPE.toString(), "science");
             setSingleLocalResource(ScriptConstants.LOCALIZED_GATEWAY_PATH, containerLocalResource);
         }
@@ -278,8 +291,8 @@ public class ApplicationMaster extends CompositeService {
                     shipFiles[i] = new Path(shipFiles[i]).getName();
                 }
                 String join = StringUtils.join(shipFiles, ":");
-                workerContainerEnv.put("PYTHONPATH","$PYTHONPATH" + ":" + join);
-                }
+                workerContainerEnv.put("PYTHONPATH", "$PYTHONPATH" + ":" + join);
+            }
         }
 
         List<Container> acquiredWorkerContainers = handleRmCallbackOfContainerRequest(dtconf.getInt(ScriptConfiguration.SCRIPT_WORKER_NUM, ScriptConfiguration.DEFAULT_SCRIPT_WORKER_NUM), workerContainerRequest, interval);
@@ -463,6 +476,7 @@ public class ApplicationMaster extends CompositeService {
 
     /**
      * 设置Worker节点所需本地化的kerberos相关文件资源
+     *
      * @param containerLocalResource
      * @throws IOException
      */
@@ -476,7 +490,7 @@ public class ApplicationMaster extends CompositeService {
     private void setSingleLocalResource(String fileName, Map<String, LocalResource> containerLocalResource) throws IOException {
         FileSystem fs = FileSystem.get(yarnconf);
         Path remotePath = Utilities.getRemotePath(
-                (YarnConfiguration) this.yarnconf,this.dtconf,
+                (YarnConfiguration) this.yarnconf, this.dtconf,
                 this.applicationAttemptId.getApplicationId(),
                 fileName);
         containerLocalResource.put(
@@ -519,7 +533,7 @@ public class ApplicationMaster extends CompositeService {
     public static void main(String[] args) {
         try (
                 ApplicationMaster appMaster = new ApplicationMaster();
-            ) {
+        ) {
             appMaster.init();
             boolean tag = appMaster.run();
             if (tag) {

@@ -2,13 +2,21 @@ package com.dtstack.taier.common.sftp;
 
 import com.dtstack.taier.common.exception.DtCenterDefException;
 import com.google.common.collect.Maps;
-import com.jcraft.jsch.*;
+import com.jcraft.jsch.ChannelSftp;
+import com.jcraft.jsch.JSchException;
+import com.jcraft.jsch.Session;
+import com.jcraft.jsch.SftpATTRS;
+import com.jcraft.jsch.SftpException;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -228,7 +236,7 @@ public class SFTPHandler {
             String[] children = dir.list();
             for (int i = 0; i < children.length; i++) {
                 boolean success = delLocalDir(new File(dir, children[i]));
-                if (!success){
+                if (!success) {
                     return false;
                 }
             }
@@ -286,7 +294,7 @@ public class SFTPHandler {
         logger.info("路径：baseDir=" + baseDir);
         try {
             //检查路径
-            if(!mkdir(baseDir)){
+            if (!mkdir(baseDir)) {
                 logger.error("创建sftp服务器路径失败:" + baseDir);
                 return false;
             }
@@ -305,7 +313,7 @@ public class SFTPHandler {
     /**
      * sftp 删除文件
      *
-     * @param dst  目标路径
+     * @param dst 目标路径
      */
     public boolean remove(String dst) {
         try {
@@ -321,6 +329,7 @@ public class SFTPHandler {
 
     /**
      * 重命名
+     *
      * @param oldPth
      * @param newPath
      * @return
@@ -410,10 +419,10 @@ public class SFTPHandler {
         StringBuilder currPath = new StringBuilder();
         for (String dir : split) {
             currPath.append("/").append(dir).toString();
-            try{
+            try {
                 channelSftp.cd(currPath.toString());
-            }catch(SftpException sException){
-                if(ChannelSftp.SSH_FX_NO_SUCH_FILE == sException.id){
+            } catch (SftpException sException) {
+                if (ChannelSftp.SSH_FX_NO_SUCH_FILE == sException.id) {
                     try {
                         channelSftp.mkdir(currPath.toString());
                     } catch (SftpException e) {
@@ -447,7 +456,7 @@ public class SFTPHandler {
             //先检测sftp主机验证能否通过，再缓存
             SftpFactory sftpFactory = new SftpFactory(sftpConfig);
             ChannelSftp channelSftpTest = sftpFactory.create();
-            if(channelSftpTest != null) {
+            if (channelSftpTest != null) {
                 //释放资源，防止内存泄漏
                 try {
                     channelSftpTest.disconnect();
@@ -487,7 +496,7 @@ public class SFTPHandler {
                 MapUtils.getString(sftpConfig, KEY_PASSWORD, STRING_EMPTY).trim();
     }
 
-    private static void setSessionTimeout(Map<String, String> sftpConfig, ChannelSftp channelSftp){
+    private static void setSessionTimeout(Map<String, String> sftpConfig, ChannelSftp channelSftp) {
         Session sessionSftp;
         try {
             sessionSftp = channelSftp.getSession();
