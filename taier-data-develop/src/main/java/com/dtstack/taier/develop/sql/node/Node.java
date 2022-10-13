@@ -2,7 +2,11 @@ package com.dtstack.taier.develop.sql.node;
 
 import com.dtstack.taier.develop.sql.Column;
 import com.dtstack.taier.develop.sql.Pair;
-import org.apache.calcite.sql.*;
+import org.apache.calcite.sql.SqlBasicCall;
+import org.apache.calcite.sql.SqlKind;
+import org.apache.calcite.sql.SqlNode;
+import org.apache.calcite.sql.SqlNodeList;
+import org.apache.calcite.sql.SqlOperator;
 
 import java.util.List;
 import java.util.Map;
@@ -15,7 +19,7 @@ import java.util.Map;
  */
 public abstract class Node {
 
-    public Node(String defaultDb,Map<String, List<Column>> tableColumnsMap) {
+    public Node(String defaultDb, Map<String, List<Column>> tableColumnsMap) {
         this.defaultDb = defaultDb;
         this.tableColumnMap = tableColumnsMap;
     }
@@ -33,13 +37,13 @@ public abstract class Node {
     /**
      * hive 血缘专用 侧视图中属性和真正来源字段的映射  key 侧视图字段 value来源字段
      */
-    private Map<String,List<Identifier>> lateralView;
+    private Map<String, List<Identifier>> lateralView;
 
-    public Map<String,List<Identifier>> getLateralView() {
+    public Map<String, List<Identifier>> getLateralView() {
         return lateralView;
     }
 
-    public void setLateralView(Map<String,List<Identifier>> lateralView) {
+    public void setLateralView(Map<String, List<Identifier>> lateralView) {
         this.lateralView = lateralView;
     }
 
@@ -78,6 +82,7 @@ public abstract class Node {
 
     /**
      * 解析结点
+     *
      * @param node
      * @return
      */
@@ -86,34 +91,36 @@ public abstract class Node {
     /**
      * 重要：将as子树合并后再去parseSql
      * 合并as子树
+     *
      * @param node
      * @return
      */
-    public Pair<String,SqlNode> removeAs(SqlNode node){
-        if (node instanceof SqlBasicCall){
-            SqlOperator operator = ((SqlBasicCall)node).getOperator();
-            if (SqlKind.AS == operator.kind){
-                return new Pair<>(((SqlBasicCall) node).operands[1].toString(),((SqlBasicCall) node).operands[0]);
+    public Pair<String, SqlNode> removeAs(SqlNode node) {
+        if (node instanceof SqlBasicCall) {
+            SqlOperator operator = ((SqlBasicCall) node).getOperator();
+            if (SqlKind.AS == operator.kind) {
+                return new Pair<>(((SqlBasicCall) node).operands[1].toString(), ((SqlBasicCall) node).operands[0]);
             }
         }
         return null;
     }
 
-    public SqlNode removeAsAndSetAlias(SqlNode node, Node targetNode){
+    public SqlNode removeAsAndSetAlias(SqlNode node, Node targetNode) {
         Pair<String, SqlNode> sqlNodePair = removeAs(node);
         SqlNode handledNode = node;
         String alias = null;
-        if (sqlNodePair != null){
+        if (sqlNodePair != null) {
             handledNode = sqlNodePair.getValue();
             alias = sqlNodePair.getKey();
         }
         targetNode.setAlias(alias);
         return handledNode;
     }
+
     /**
      * 语法树的上下文。同一种类型的结点在不同的上下文环境中可能需要不同的处理
      */
-    public enum Context{
+    public enum Context {
         /**
          * 代表表的identifier
          */

@@ -3,14 +3,23 @@ package com.dtstack.taier.develop.sql.hive.node;
 import com.dtstack.taier.develop.sql.Column;
 import com.dtstack.taier.develop.sql.Table;
 import com.dtstack.taier.develop.sql.TableOperateEnum;
-import com.dtstack.taier.develop.sql.node.*;
+import com.dtstack.taier.develop.sql.node.Identifier;
+import com.dtstack.taier.develop.sql.node.JoinCall;
+import com.dtstack.taier.develop.sql.node.Node;
+import com.dtstack.taier.develop.sql.node.NodeList;
+import com.dtstack.taier.develop.sql.node.SelectNode;
+import com.dtstack.taier.develop.sql.node.UnionCall;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.hadoop.hive.ql.parse.ASTNode;
 import org.apache.hadoop.hive.ql.parse.HiveParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 public class SelectNodeParser extends NodeParser {
 
@@ -23,7 +32,7 @@ public class SelectNodeParser extends NodeParser {
         SelectNode selectNode = new SelectNode(defultDb, tableColumnsMap);
         selectNode.setTableMap(new HashMap<>());
         List<org.apache.hadoop.hive.ql.lib.Node> querNode = node.getChildren();
-        if (CollectionUtils.isEmpty(querNode)){
+        if (CollectionUtils.isEmpty(querNode)) {
             return null;
         }
         for (org.apache.hadoop.hive.ql.lib.Node qNode : querNode) {
@@ -37,8 +46,8 @@ public class SelectNodeParser extends NodeParser {
                 // 不能在整个树构建之后再去填充with节点  因为构建中间的特殊处理会被忽略。
                 if (!withMap.isEmpty()) {
                     //说明有with语句 遍历当前树 进行节点替换
-                    Node n = whihNodeReplace(selectNode.getFromClause(),withMap,aliasToTable);
-                    if (null != n){
+                    Node n = whihNodeReplace(selectNode.getFromClause(), withMap, aliasToTable);
+                    if (null != n) {
                         selectNode.setFromClause(n);
                     }
                 }
@@ -51,11 +60,11 @@ public class SelectNodeParser extends NodeParser {
                         selectNode.setSelectList(nodeList);
                         fillColumnTable(selectNode);
                         selectStarFill(selectNode, defultDb, tableColumnsMap, aliasToTable);
-                    }else if (HiveParser.TOK_LIMIT == ((ASTNode) n).getType()){
+                    } else if (HiveParser.TOK_LIMIT == ((ASTNode) n).getType()) {
                         List<Long> limitList = new ArrayList<>();
                         List<org.apache.hadoop.hive.ql.lib.Node> limitNode = ((ASTNode) n).getChildren();
-                        for (org.apache.hadoop.hive.ql.lib.Node limitNum : limitNode){
-                            limitList.add(Long.parseLong(((ASTNode)limitNum).getText()));
+                        for (org.apache.hadoop.hive.ql.lib.Node limitNum : limitNode) {
+                            limitList.add(Long.parseLong(((ASTNode) limitNum).getText()));
                         }
                         selectNode.setLimit(limitList);
                     }
@@ -89,7 +98,6 @@ public class SelectNodeParser extends NodeParser {
             logger.info("该类型未解析");
         }
     }
-
 
 
 }

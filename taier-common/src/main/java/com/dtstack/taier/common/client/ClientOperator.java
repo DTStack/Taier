@@ -18,7 +18,6 @@
 
 package com.dtstack.taier.common.client;
 
-import com.alibaba.fastjson.JSONObject;
 import com.dtstack.taier.common.exception.ClientAccessException;
 import com.dtstack.taier.common.exception.RdosDefineException;
 import com.dtstack.taier.pluginapi.JobClient;
@@ -27,7 +26,10 @@ import com.dtstack.taier.pluginapi.client.IClient;
 import com.dtstack.taier.pluginapi.constrant.ConfigConstant;
 import com.dtstack.taier.pluginapi.enums.TaskStatus;
 import com.dtstack.taier.pluginapi.exception.ExceptionUtil;
-import com.dtstack.taier.pluginapi.pojo.*;
+import com.dtstack.taier.pluginapi.pojo.CheckResult;
+import com.dtstack.taier.pluginapi.pojo.FileResult;
+import com.dtstack.taier.pluginapi.pojo.JobResult;
+import com.dtstack.taier.pluginapi.pojo.JudgeResult;
 import com.google.common.base.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -58,7 +60,7 @@ public class ClientOperator {
             synchronized (ClientOperator.class) {
                 if (singleton == null) {
                     clientCache = ClientCache.getInstance(pluginPath);
-                    LOGGER.info("init client operator plugin path {}",pluginPath);
+                    LOGGER.info("init client operator plugin path {}", pluginPath);
                     singleton = new ClientOperator();
                 }
             }
@@ -84,7 +86,7 @@ public class ClientOperator {
 
             return (TaskStatus) result;
         } catch (Exception e) {
-            LOGGER.error("getStatus happens error：{}",jobId, e);
+            LOGGER.error("getStatus happens error：{}", jobId, e);
             return TaskStatus.NOTFOUND;
         }
     }
@@ -159,9 +161,9 @@ public class ClientOperator {
         return clusterClient.submitJob(jobClient);
     }
 
-    public List<FileResult> listFile(String path,boolean isPathPattern, String pluginInfo) throws Exception {
+    public List<FileResult> listFile(String path, boolean isPathPattern, String pluginInfo) throws Exception {
         IClient client = clientCache.getClient(pluginInfo);
-        return client.listFile(path,isPathPattern);
+        return client.listFile(path, isPathPattern);
     }
 
 

@@ -38,13 +38,19 @@ import org.slf4j.LoggerFactory;
 import javax.security.auth.Subject;
 import javax.security.auth.kerberos.KerberosPrincipal;
 import javax.security.auth.kerberos.KerberosTicket;
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
 import java.lang.reflect.Field;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.security.PrivilegedExceptionAction;
 import java.sql.Timestamp;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 import java.util.function.Supplier;
 
 public class KerberosUtils {
@@ -67,11 +73,11 @@ public class KerberosUtils {
 
 
     /**
-     * @see HadoopKerberosName#setConfiguration(org.apache.hadoop.conf.Configuration)
      * @param ugi
      * @param supplier
      * @param <T>
      * @return
+     * @see HadoopKerberosName#setConfiguration(org.apache.hadoop.conf.Configuration)
      */
     private static <T> T loginKerberosWithCallBack(UserGroupInformation ugi, Supplier<T> supplier) {
         try {
@@ -83,7 +89,6 @@ public class KerberosUtils {
     }
 
     /**
-     * @see HadoopKerberosName#setConfiguration(org.apache.hadoop.conf.Configuration)
      * @param ugi
      * @param supplier
      * @param finalKrb5ConfPath
@@ -95,6 +100,7 @@ public class KerberosUtils {
      * @param isMergeKrb5
      * @param <T>
      * @return
+     * @see HadoopKerberosName#setConfiguration(org.apache.hadoop.conf.Configuration)
      */
     private static <T> T retryLoginKerberosWithCallBack(UserGroupInformation ugi,
                                                         Supplier<T> supplier,
@@ -120,6 +126,7 @@ public class KerberosUtils {
 
     /**
      * 重载login方法 ，增加IsCreateNewUGI 来检查是否重新create ugi
+     *
      * @param config
      * @param supplier
      * @param configuration
@@ -151,7 +158,9 @@ public class KerberosUtils {
 
         try {
             UserGroupInformation ugi;
-            String segmentName = segment.computeIfAbsent(remoteDir, key -> {return new String(remoteDir);});
+            String segmentName = segment.computeIfAbsent(remoteDir, key -> {
+                return new String(remoteDir);
+            });
             synchronized (segmentName) {
                 String keytabPath = "";
                 String krb5ConfPath = "";
@@ -168,7 +177,7 @@ public class KerberosUtils {
                         krb5ConfPath = localDir + ConfigConstant.SP + ConfigConstant.MERGE_KRB5_NAME;
                         Files.write(Paths.get(krb5ConfPath), Collections.singleton(config.getMergeKrbContent()));
                     }
-                    writeTimeLockFile(config.getKerberosFileTimestamp(),localDir);
+                    writeTimeLockFile(config.getKerberosFileTimestamp(), localDir);
                 } else {
                     keytabPath = localDir + File.separator + fileName;
                     if (isMergeKrb5) {
@@ -183,7 +192,9 @@ public class KerberosUtils {
                 threadName = Thread.currentThread().getName();
                 String principal = config.getPrincipal();
                 if (StringUtils.isEmpty(principal)) {
-                    principal = segment.computeIfAbsent(threadName, k -> {return KerberosUtils.getPrincipal(finalKeytabPath);});
+                    principal = segment.computeIfAbsent(threadName, k -> {
+                        return KerberosUtils.getPrincipal(finalKeytabPath);
+                    });
                 }
                 finalPrincipal = principal;
                 logger.info("kerberos login, principal:{}, keytabPath:{}, krb5ConfPath:{}", principal, keytabPath, krb5ConfPath);
@@ -330,7 +341,7 @@ public class KerberosUtils {
         Class<? extends UserGroupInformation> ugiClass = ugi.getClass();
         Field subjectField = ugiClass.getDeclaredField("subject");
         subjectField.setAccessible(true);
-        Subject subject = (Subject)subjectField.get(ugi);
+        Subject subject = (Subject) subjectField.get(ugi);
 
         Set<KerberosTicket> tickets = subject
                 .getPrivateCredentials(KerberosTicket.class);
@@ -436,8 +447,8 @@ public class KerberosUtils {
         return keytabPath;
     }
 
-    public static Configuration convertMapConfToConfiguration(Map<String,Object> allConfig) {
-        if(MapUtils.isEmpty(allConfig)){
+    public static Configuration convertMapConfToConfiguration(Map<String, Object> allConfig) {
+        if (MapUtils.isEmpty(allConfig)) {
             return null;
         }
         Configuration conf = new Configuration();

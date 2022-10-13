@@ -21,13 +21,18 @@ import java.net.URISyntaxException;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Vector;
 
-import static com.dtstack.taier.common.constant.FormNames.SASL_KERBEROS_SERVICE_NAME;
 import static com.google.common.base.Strings.isNullOrEmpty;
 
 /**
  * 有关解析数据源工具类
+ *
  * @description:
  * @author: liuxx
  * @date: 2021/3/24
@@ -96,6 +101,7 @@ public class DataSourceUtils {
         }
         return kafkaPlainMap;
     }
+
     /**
      * 初始化 Kafka Kerberos 服务信息
      *
@@ -109,6 +115,7 @@ public class DataSourceUtils {
         kafkaSettings.put(SASL_KERBEROS_SERVICE_NAME, serviceName);
         return kafkaSettings;
     }
+
     public static String getJdbcUrl(JSONObject dataJson) {
         return dataJson.getString(JDBC);
     }
@@ -145,12 +152,14 @@ public class DataSourceUtils {
             throw new RdosDefineException("数据源信息解码异常", e);
         }
     }
+
     public static String getAddress(JSONObject dataJson) {
         return dataJson.getString(ADDRESS);
     }
 
     /**
      * Base64加密dataJson，可选是否加密
+     *
      * @param dataJson json对象
      * @param isEncode 是否加密
      * @return
@@ -164,11 +173,14 @@ public class DataSourceUtils {
         }
         return dataJson.toJSONString();
     }
+
     public static String getBootStrapServers(JSONObject dataJson) {
         return StringUtils.isNotBlank(dataJson.getString(BROKER_LIST)) ? dataJson.getString(BROKER_LIST) : dataJson.getString(BOOT_STRAP_SERVERS);
     }
+
     /**
      * Base64加密dataJson字符串, 可选是否加密
+     *
      * @param dataJson
      * @param isEncode
      * @return
@@ -223,6 +235,7 @@ public class DataSourceUtils {
 
     /**
      * 设置openKerberos开启属性
+     *
      * @param dataJson
      * @param open
      */
@@ -232,11 +245,12 @@ public class DataSourceUtils {
 
     /**
      * 设置ssl文件属性
+     *
      * @param dataJson
      * @param fileName
      */
     public static void setKerberosFile(JSONObject dataJson, String fileName) {
-        Map<String,String> kerberosFile = new HashMap<>();
+        Map<String, String> kerberosFile = new HashMap<>();
         kerberosFile.put("name", fileName);
         kerberosFile.put("modifyTime", Timestamp.valueOf(LocalDateTime.now()).toString());
         dataJson.put(KERBEROS_FILE, kerberosFile);
@@ -245,6 +259,7 @@ public class DataSourceUtils {
 
     /**
      * 判断当前传入的dataJson是否开启Kerberos认证
+     *
      * @param dataJson
      * @return
      */
@@ -254,7 +269,7 @@ public class DataSourceUtils {
         }
         JSONObject dataJsonObj = getDataSourceJson(dataJson);
         JSONObject kerberosConfig = dataJsonObj.getJSONObject(FormNames.KERBEROS_CONFIG);
-        return kerberosConfig !=null;
+        return kerberosConfig != null;
     }
 
 
@@ -268,8 +283,7 @@ public class DataSourceUtils {
         URI uri;
         try {
             uri = new URI(url.substring(JDBC_URL_PREFIX.length()));
-        }
-        catch (URISyntaxException e) {
+        } catch (URISyntaxException e) {
             throw new SQLException("Invalid JDBC URL: " + url, e);
         }
 
@@ -279,8 +293,8 @@ public class DataSourceUtils {
         if ((uri.getPort() != -1) && (uri.getPort() < 1) || (uri.getPort() > 65535)) {
             throw new SQLException("Invalid port number: " + url);
         }
-        int port = uri.getPort() == -1 ? 80:uri.getPort();
-        return uri.getHost()+":"+port;
+        int port = uri.getPort() == -1 ? 80 : uri.getPort();
+        return uri.getHost() + ":" + port;
     }
 
     /**

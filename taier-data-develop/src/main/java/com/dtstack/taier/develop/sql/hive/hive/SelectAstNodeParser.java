@@ -19,7 +19,12 @@
 
 package com.dtstack.taier.develop.sql.hive.hive;
 
-import com.dtstack.taier.develop.sql.*;
+import com.dtstack.taier.develop.sql.Column;
+import com.dtstack.taier.develop.sql.ColumnLineageParser;
+import com.dtstack.taier.develop.sql.ParseResult;
+import com.dtstack.taier.develop.sql.QueryTableTree;
+import com.dtstack.taier.develop.sql.SelectColumn;
+import com.dtstack.taier.develop.sql.SqlType;
 import com.dtstack.taier.develop.sql.hive.ASTNodeUtil;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
@@ -28,7 +33,11 @@ import org.apache.hadoop.hive.ql.parse.ASTNode;
 import org.apache.hadoop.hive.ql.parse.HiveParser;
 
 import java.sql.SQLException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author jiangbo
@@ -58,7 +67,7 @@ public class SelectAstNodeParser extends BaseAstNodeSqlParser {
         }
 
         if (mainTable == null) {
-           super.setTableAndDb(parseResult,rootNode);
+            super.setTableAndDb(parseResult, rootNode);
         }
         columnLineageParser.setTableColumnMap(tableColumnMap);
 
@@ -224,7 +233,7 @@ public class SelectAstNodeParser extends BaseAstNodeSqlParser {
         }
     }
 
-    private void parserFullOuterJoin(ASTNode joinNode, QueryTableTree rootTree){
+    private void parserFullOuterJoin(ASTNode joinNode, QueryTableTree rootTree) {
 
         ArrayList<Node> children = joinNode.getChildren();
         for (Node child : children) {

@@ -1,10 +1,10 @@
 package com.dtstack.taier.datasource.api.dto.tsdb;
 
-import java.util.*;
-
-import com.alibaba.fastjson.annotation.JSONType;
 import lombok.Builder;
 import lombok.Data;
+
+import java.util.List;
+import java.util.Map;
 
 @Data
 @Builder

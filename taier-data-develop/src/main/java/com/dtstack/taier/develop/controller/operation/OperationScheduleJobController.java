@@ -6,13 +6,23 @@ import com.dtstack.taier.dao.pager.PageResult;
 import com.dtstack.taier.develop.mapstruct.job.JobMapstructTransfer;
 import com.dtstack.taier.develop.service.schedule.JobHistoryService;
 import com.dtstack.taier.develop.service.schedule.JobService;
-import com.dtstack.taier.develop.vo.schedule.*;
+import com.dtstack.taier.develop.vo.schedule.JobHistoryVO;
+import com.dtstack.taier.develop.vo.schedule.QueryJobListVO;
+import com.dtstack.taier.develop.vo.schedule.QueryJobStatusStatisticsVO;
+import com.dtstack.taier.develop.vo.schedule.ReturnDisplayPeriodVO;
+import com.dtstack.taier.develop.vo.schedule.ReturnJobListVO;
+import com.dtstack.taier.develop.vo.schedule.ReturnJobStatusStatisticsVO;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
@@ -63,7 +73,7 @@ public class OperationScheduleJobController {
 
     @PostMapping(value = "/listHistory")
     public R<List<JobHistoryVO>> listHistory(@RequestParam("jobId") String jobId,
-                                             @RequestParam(value = "limit",defaultValue = "20") Integer limit) {
+                                             @RequestParam(value = "limit", defaultValue = "20") Integer limit) {
         List<ScheduleJobHistory> scheduleJobHistories = jobHistoryService.listHistory(jobId, limit);
         List<JobHistoryVO> jobHistoryVOS = JobMapstructTransfer.INSTANCE.toHistoryVOS(scheduleJobHistories);
         return R.ok(jobHistoryVOS);

@@ -1,7 +1,14 @@
 package com.dtstack.taier.develop.sql.calcite;
 
 import com.dtstack.taier.develop.sql.Pair;
-import com.dtstack.taier.develop.sql.node.*;
+import com.dtstack.taier.develop.sql.node.BasicCall;
+import com.dtstack.taier.develop.sql.node.Identifier;
+import com.dtstack.taier.develop.sql.node.JoinCall;
+import com.dtstack.taier.develop.sql.node.LiteralIdentifier;
+import com.dtstack.taier.develop.sql.node.Node;
+import com.dtstack.taier.develop.sql.node.NodeList;
+import com.dtstack.taier.develop.sql.node.SelectNode;
+import com.dtstack.taier.develop.sql.node.UnionCall;
 import com.google.common.collect.Lists;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -30,53 +37,50 @@ public class SelectParser extends LineageParser {
         Node tmpSourceNode = null;
         for (int i = 0; i < selectList.getList().size(); i++) {
             Node columnNode = selectList.getList().get(i);
-            if (columnNode instanceof LiteralIdentifier){
+            if (columnNode instanceof LiteralIdentifier) {
                 LiteralIdentifier literalIdentifier = (LiteralIdentifier) columnNode;
-                if (identifier.getColumn().equalsIgnoreCase(literalIdentifier.getAlias())){
+                if (identifier.getColumn().equalsIgnoreCase(literalIdentifier.getAlias())) {
                     tmpSourceNode = literalIdentifier;
                     break;
                 }
-            }
-            else if (columnNode instanceof BasicCall){
+            } else if (columnNode instanceof BasicCall) {
                 BasicCall basicCall = (BasicCall) columnNode;
-                if (StringUtils.isNotEmpty(basicCall.getAlias())){
-                    if (identifier.getColumn().equalsIgnoreCase(basicCall.getAlias())){
+                if (StringUtils.isNotEmpty(basicCall.getAlias())) {
+                    if (identifier.getColumn().equalsIgnoreCase(basicCall.getAlias())) {
                         tmpSourceNode = basicCall;
                         break;
                     }
-                }else if (identifier.getColumn().equalsIgnoreCase(basicCall.getName())){
+                } else if (identifier.getColumn().equalsIgnoreCase(basicCall.getName())) {
                     tmpSourceNode = basicCall;
                     break;
                 }
 
-            }
-            else if (columnNode instanceof Identifier){
+            } else if (columnNode instanceof Identifier) {
                 Identifier tmpSourceColumn = (Identifier) columnNode;
                 String handledColumn = StringUtils.isEmpty(columnNode.getAlias()) ? tmpSourceColumn.getColumn() : columnNode.getAlias();
-                if (identifier.equals(tmpSourceColumn)){
+                if (identifier.equals(tmpSourceColumn)) {
                     tmpSourceNode = tmpSourceColumn;
                     break;
                 }
-                if (identifier.getColumn().equalsIgnoreCase(handledColumn)){
+                if (identifier.getColumn().equalsIgnoreCase(handledColumn)) {
                     tmpSourceNode = tmpSourceColumn;
                     break;
                 }
-            }
-            else if (tmpSourceNode instanceof SelectNode){
+            } else if (tmpSourceNode instanceof SelectNode) {
                 //TODO
             }
 
         }
 
-        if (tmpSourceNode == null){
-            LOG.warn("identifier:{}未匹配到source",identifier);
+        if (tmpSourceNode == null) {
+            LOG.warn("identifier:{}未匹配到source", identifier);
             return resList;
         }
-        if (tmpSourceNode instanceof LiteralIdentifier){
+        if (tmpSourceNode instanceof LiteralIdentifier) {
             return resList;
         }
         //字段为identifier
-        else if (tmpSourceNode instanceof Identifier){
+        else if (tmpSourceNode instanceof Identifier) {
             //找到source，判断是否是表字段，不是的话继续往下找
             if (isTableColumn((Identifier) tmpSourceNode)) {
                 resList.add((Identifier) tmpSourceNode);
@@ -92,14 +96,14 @@ public class SelectParser extends LineageParser {
                     }
                 }
                 //from表
-                else if (subFromClause instanceof Identifier){
+                else if (subFromClause instanceof Identifier) {
                     Identifier table = (Identifier) subFromClause;
-                    String tableName = StringUtils.isEmpty(table.getAlias())?table.getTable():table.getAlias();
-                    if (((Identifier)tmpSourceNode).getTable().equalsIgnoreCase(tableName)) {
-                        ((Identifier)tmpSourceNode).setTable(table.getTable());
-                        ((Identifier)tmpSourceNode).setDb(table.getDb());
-                        if (isTableColumn(((Identifier)tmpSourceNode))) {
-                            resList.add(((Identifier)tmpSourceNode));
+                    String tableName = StringUtils.isEmpty(table.getAlias()) ? table.getTable() : table.getAlias();
+                    if (((Identifier) tmpSourceNode).getTable().equalsIgnoreCase(tableName)) {
+                        ((Identifier) tmpSourceNode).setTable(table.getTable());
+                        ((Identifier) tmpSourceNode).setDb(table.getDb());
+                        if (isTableColumn(((Identifier) tmpSourceNode))) {
+                            resList.add(((Identifier) tmpSourceNode));
                         }
                     }
                 }
@@ -111,20 +115,20 @@ public class SelectParser extends LineageParser {
                         if (nd instanceof Identifier) {
                             String targetTable = ((Identifier) tmpSourceNode).getTable();
                             //子查询没有写别名的情况
-                            if (StringUtils.isEmpty(targetTable)){
+                            if (StringUtils.isEmpty(targetTable)) {
                                 continue;
                             }
-                            if (((Identifier)tmpSourceNode).getTable().equalsIgnoreCase(nd.getAlias())) {
-                                ((Identifier)tmpSourceNode).setTable(((Identifier) nd).getTable());
-                                ((Identifier)tmpSourceNode).setDb(((Identifier) nd).getDb());
-                                if (isTableColumn(((Identifier)tmpSourceNode))) {
-                                    resList.add(((Identifier)tmpSourceNode));
+                            if (((Identifier) tmpSourceNode).getTable().equalsIgnoreCase(nd.getAlias())) {
+                                ((Identifier) tmpSourceNode).setTable(((Identifier) nd).getTable());
+                                ((Identifier) tmpSourceNode).setDb(((Identifier) nd).getDb());
+                                if (isTableColumn(((Identifier) tmpSourceNode))) {
+                                    resList.add(((Identifier) tmpSourceNode));
                                 }
                             }
                         }
                         //join 子查询
                         else if (nd instanceof SelectNode) {
-                            List<Identifier> sourceList = findSource((Identifier)tmpSourceNode, (SelectNode) nd);
+                            List<Identifier> sourceList = findSource((Identifier) tmpSourceNode, (SelectNode) nd);
                             if (CollectionUtils.isNotEmpty(sourceList)) {
                                 resList.addAll(sourceList);
                             }
@@ -142,22 +146,22 @@ public class SelectParser extends LineageParser {
             }
         }
         //函数处理后的字段
-        else if (tmpSourceNode instanceof BasicCall){
+        else if (tmpSourceNode instanceof BasicCall) {
             BasicCall tmpBasicCall = (BasicCall) tmpSourceNode;
-            for (Identifier comboIdentifier : tmpBasicCall.getComboList()){
-                if (comboIdentifier instanceof LiteralIdentifier){
+            for (Identifier comboIdentifier : tmpBasicCall.getComboList()) {
+                if (comboIdentifier instanceof LiteralIdentifier) {
                     continue;
                 }
-                if (comboIdentifier instanceof Identifier){
+                if (comboIdentifier instanceof Identifier) {
                     Node subFromClause = fromClause.getFromClause();
                     //找到source，判断是否是表字段，不是的话继续往下找
                     if (isTableColumn(comboIdentifier)) {
                         resList.add(comboIdentifier);
                     }
                     //from表
-                    else if (subFromClause instanceof Identifier){
+                    else if (subFromClause instanceof Identifier) {
                         Identifier table = (Identifier) subFromClause;
-                        String tableName = StringUtils.isEmpty(table.getAlias())?table.getTable():table.getAlias();
+                        String tableName = StringUtils.isEmpty(table.getAlias()) ? table.getTable() : table.getAlias();
                         if ((comboIdentifier).getTable().equalsIgnoreCase(tableName)) {
                             (comboIdentifier).setTable(table.getTable());
                             (comboIdentifier).setDb(table.getDb());
@@ -172,7 +176,7 @@ public class SelectParser extends LineageParser {
                         for (Node nd : joinCall.getComboList()) {
                             //join table
                             if (nd instanceof Identifier) {
-                                if (StringUtils.isEmpty(comboIdentifier.getTable())){
+                                if (StringUtils.isEmpty(comboIdentifier.getTable())) {
                                     continue;
                                 }
                                 if (comboIdentifier.getTable().equalsIgnoreCase(nd.getAlias())) {
@@ -193,7 +197,7 @@ public class SelectParser extends LineageParser {
                         }
                     }
                     //from子查询
-                    else if (subFromClause instanceof SelectNode){
+                    else if (subFromClause instanceof SelectNode) {
                         List<Identifier> sourceList = findSource(comboIdentifier, (SelectNode) subFromClause);
                         if (CollectionUtils.isNotEmpty(sourceList)) {
                             resList.addAll(sourceList);
@@ -209,8 +213,7 @@ public class SelectParser extends LineageParser {
                     }
                 }
             }
-        }
-        else if (tmpSourceNode instanceof SelectNode){
+        } else if (tmpSourceNode instanceof SelectNode) {
             //TODO
         }
         return resList;

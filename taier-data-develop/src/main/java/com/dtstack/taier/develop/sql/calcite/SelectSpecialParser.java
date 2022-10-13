@@ -1,7 +1,14 @@
 package com.dtstack.taier.develop.sql.calcite;
 
 import com.dtstack.taier.develop.sql.Pair;
-import com.dtstack.taier.develop.sql.node.*;
+import com.dtstack.taier.develop.sql.node.BasicCall;
+import com.dtstack.taier.develop.sql.node.Identifier;
+import com.dtstack.taier.develop.sql.node.JoinCall;
+import com.dtstack.taier.develop.sql.node.LiteralIdentifier;
+import com.dtstack.taier.develop.sql.node.Node;
+import com.dtstack.taier.develop.sql.node.NodeList;
+import com.dtstack.taier.develop.sql.node.SelectNode;
+import com.dtstack.taier.develop.sql.node.UnionCall;
 import com.google.common.collect.Lists;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -119,20 +126,19 @@ public class SelectSpecialParser extends LineageParser {
             return resList;
         }
         //字段为identifier
-        else if (tmpSourceNode instanceof Identifier){
+        else if (tmpSourceNode instanceof Identifier) {
             //找到source，判断是否是表字段，不是的话继续往下找
             if (isTableColumn((Identifier) tmpSourceNode)) {
                 resList.add((Identifier) tmpSourceNode);
-            }
-            else {
+            } else {
                 //不是表字段，说明是子查询字段或者别名表，继续往下找
                 Node subFromClause = fromClause.getFromClause();
-                if (subFromClause == null){
+                if (subFromClause == null) {
                     return new ArrayList<>();
                 }
-                if (StringUtils.isNotEmpty(subFromClause.getAlias())){
-                    if (tableMap.get(subFromClause.getAlias())!=null){
-                        subFromClause =  tableMap.get(subFromClause.getAlias());
+                if (StringUtils.isNotEmpty(subFromClause.getAlias())) {
+                    if (tableMap.get(subFromClause.getAlias()) != null) {
+                        subFromClause = tableMap.get(subFromClause.getAlias());
                     }
 
                 }
@@ -145,14 +151,14 @@ public class SelectSpecialParser extends LineageParser {
                     }
                 }
                 //from表
-                else if (subFromClause instanceof Identifier){
+                else if (subFromClause instanceof Identifier) {
                     Identifier table = (Identifier) subFromClause;
-                    String tableName = StringUtils.isEmpty(table.getAlias())?table.getTable():table.getAlias();
-                    if (((Identifier)tmpSourceNode).getTable().equalsIgnoreCase(tableName)) {
-                        ((Identifier)tmpSourceNode).setTable(table.getTable());
-                        ((Identifier)tmpSourceNode).setDb(table.getDb());
-                        if (isTableColumn(((Identifier)tmpSourceNode))) {
-                            resList.add(((Identifier)tmpSourceNode));
+                    String tableName = StringUtils.isEmpty(table.getAlias()) ? table.getTable() : table.getAlias();
+                    if (((Identifier) tmpSourceNode).getTable().equalsIgnoreCase(tableName)) {
+                        ((Identifier) tmpSourceNode).setTable(table.getTable());
+                        ((Identifier) tmpSourceNode).setDb(table.getDb());
+                        if (isTableColumn(((Identifier) tmpSourceNode))) {
+                            resList.add(((Identifier) tmpSourceNode));
                         }
                     }
                 }
@@ -164,14 +170,14 @@ public class SelectSpecialParser extends LineageParser {
                         if (nd instanceof Identifier) {
                             String targetTable = ((Identifier) tmpSourceNode).getTable();
                             //子查询没有写别名的情况
-                            if (StringUtils.isEmpty(targetTable)){
+                            if (StringUtils.isEmpty(targetTable)) {
                                 continue;
                             }
-                            if (((Identifier)tmpSourceNode).getTable().equalsIgnoreCase(nd.getAlias())) {
-                                ((Identifier)tmpSourceNode).setTable(((Identifier) nd).getTable());
-                                ((Identifier)tmpSourceNode).setDb(((Identifier) nd).getDb());
-                                if (isTableColumn(((Identifier)tmpSourceNode))) {
-                                    resList.add(((Identifier)tmpSourceNode));
+                            if (((Identifier) tmpSourceNode).getTable().equalsIgnoreCase(nd.getAlias())) {
+                                ((Identifier) tmpSourceNode).setTable(((Identifier) nd).getTable());
+                                ((Identifier) tmpSourceNode).setDb(((Identifier) nd).getDb());
+                                if (isTableColumn(((Identifier) tmpSourceNode))) {
+                                    resList.add(((Identifier) tmpSourceNode));
                                     break;
                                 }
                             }
@@ -179,13 +185,12 @@ public class SelectSpecialParser extends LineageParser {
                         //join 子查询
                         else if (nd instanceof SelectNode) {
                             isRemoveTableAlias((Identifier) tmpSourceNode, nd);
-                            List<Identifier> sourceList = findSource((Identifier)tmpSourceNode, (SelectNode) nd);
+                            List<Identifier> sourceList = findSource((Identifier) tmpSourceNode, (SelectNode) nd);
                             if (CollectionUtils.isNotEmpty(sourceList)) {
                                 resList.addAll(sourceList);
                                 break;
                             }
-                        }
-                        else if (nd instanceof UnionCall) {
+                        } else if (nd instanceof UnionCall) {
                             //TODO 血缘分叉
                             isRemoveTableAlias((Identifier) tmpSourceNode, nd);
                             unionParser(resList, (Identifier) tmpSourceNode, (UnionCall) nd);
@@ -201,13 +206,12 @@ public class SelectSpecialParser extends LineageParser {
             }
         }
         //函数处理后的字段
-        else if (tmpSourceNode instanceof BasicCall){
+        else if (tmpSourceNode instanceof BasicCall) {
             getColumnBloodByBasicCall(fromClause, resList, (BasicCall) tmpSourceNode);
-        }
-        else if (tmpSourceNode instanceof SelectNode){
+        } else if (tmpSourceNode instanceof SelectNode) {
             //TODO  如果字段是子查询
-            Identifier iden = firstMatch(0,(SelectNode)tmpSourceNode);
-            resList.addAll(findSource(iden,(SelectNode)tmpSourceNode));
+            Identifier iden = firstMatch(0, (SelectNode) tmpSourceNode);
+            resList.addAll(findSource(iden, (SelectNode) tmpSourceNode));
         }
         return resList;
     }
@@ -217,7 +221,7 @@ public class SelectSpecialParser extends LineageParser {
         for (SelectNode sn : unionCall.getComboFromList()) {
             List<Identifier> sourceList = findSource(tmpSourceNode, sn);
             for (Identifier i : sourceList) {
-                if (!resList.contains(i)){
+                if (!resList.contains(i)) {
                     resList.add(i);
                 }
             }
@@ -239,7 +243,7 @@ public class SelectSpecialParser extends LineageParser {
         } else if (node instanceof Identifier) {
             return (Identifier) node;
         } else if (node instanceof BasicCall) {
-            Identifier identifier = new Identifier(node.getDefaultDb(),getTableColumnMap());
+            Identifier identifier = new Identifier(node.getDefaultDb(), getTableColumnMap());
             if (StringUtils.isNotEmpty(node.getAlias())) {
                 identifier.setColumn(node.getAlias());
             } else {
@@ -248,7 +252,7 @@ public class SelectSpecialParser extends LineageParser {
             return identifier;
         } else if (node instanceof SelectNode) {
             //TODO
-            Identifier identifier= firstMatch(0,((SelectNode) node));
+            Identifier identifier = firstMatch(0, ((SelectNode) node));
             identifier.setContext(Node.Context.SELECT_COLUMN_QUERY);
             return identifier;
         }
@@ -346,7 +350,7 @@ public class SelectSpecialParser extends LineageParser {
                 }
                 //from union查询
                 else if (subFromClause instanceof UnionCall) {
-                    this.isRemoveTableAlias(comboIdentifier,subFromClause);
+                    this.isRemoveTableAlias(comboIdentifier, subFromClause);
                     //TODO 血缘分叉
                     UnionCall unionCall = (UnionCall) subFromClause;
                     for (SelectNode sn : unionCall.getComboFromList()) {
@@ -362,6 +366,7 @@ public class SelectSpecialParser extends LineageParser {
 
     /**
      * 如果 要判断的 Identifier 表别名和 node的别名相同 就不用判断 表别名了
+     *
      * @param comboIdentifier
      * @param nd
      */

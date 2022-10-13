@@ -10,7 +10,9 @@ import org.apache.hadoop.fs.Path;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.regex.Matcher;
@@ -20,6 +22,7 @@ import java.util.regex.Pattern;
  * http,hdfs文件下载
  * Date: 2017/2/21
  * Company: www.dtstack.com
+ *
  * @author xuchao
  */
 public class FileUtil {
@@ -43,7 +46,7 @@ public class FileUtil {
 
     public static InputStream readStreamFromFile(String filePath, Configuration hadoopConf) throws URISyntaxException, IOException {
         Pair<String, String> pair = parseHdfsUri(filePath);
-        if(pair == null){
+        if (pair == null) {
             throw new PluginDefineException("can't parse hdfs url from given uriStr:" + filePath);
         }
 
@@ -53,20 +56,20 @@ public class FileUtil {
         URI uri = new URI(hdfsUri);
         FileSystem fs = FileSystem.get(uri, hadoopConf);
         Path hdfsFilePath = new Path(hdfsFilePathStr);
-        if(!fs.exists(hdfsFilePath)){
+        if (!fs.exists(hdfsFilePath)) {
             throw new RuntimeException(String.format("File[%s] not exit in hdfs", filePath));
         }
 
         return fs.open(hdfsFilePath);
     }
 
-    private static Pair<String, String> parseHdfsUri(String path){
+    private static Pair<String, String> parseHdfsUri(String path) {
         Matcher matcher = pattern.matcher(path);
-        if(matcher.find() && matcher.groupCount() == 2){
+        if (matcher.find() && matcher.groupCount() == 2) {
             String hdfsUri = matcher.group(1);
             String hdfsPath = matcher.group(2);
             return new MutablePair<>(hdfsUri, hdfsPath);
-        }else{
+        } else {
             return null;
         }
     }
@@ -74,17 +77,18 @@ public class FileUtil {
 
     /**
      * delete file
-     * @param filePath path
+     *
+     * @param filePath   path
      * @param hadoopConf config
      */
     public static boolean deleteFile(String filePath, Configuration hadoopConf) throws URISyntaxException, IOException {
         Pair<String, String> pair = parseHdfsUri(filePath);
         // local file
-        if(pair == null){
+        if (pair == null) {
             File file = new File(filePath);
-            if(file.exists()){
+            if (file.exists()) {
                 return file.delete();
-            }else{
+            } else {
                 return true;
             }
         }
@@ -95,7 +99,7 @@ public class FileUtil {
         URI uri = new URI(hdfsUri);
         FileSystem fs = FileSystem.get(uri, hadoopConf);
         Path hdfsFilePath = new Path(hdfsFilePathStr);
-        if(!fs.exists(hdfsFilePath)){
+        if (!fs.exists(hdfsFilePath)) {
             return true;
         }
 

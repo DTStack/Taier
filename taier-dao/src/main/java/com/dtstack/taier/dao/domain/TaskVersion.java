@@ -1,11 +1,15 @@
 package com.dtstack.taier.dao.domain;
 
-import com.baomidou.mybatisplus.annotation.*;
+import com.baomidou.mybatisplus.annotation.FieldFill;
+import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableField;
+import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.annotation.TableName;
 
 import java.sql.Timestamp;
 
 @TableName("develop_task_version")
-public class TaskVersion{
+public class TaskVersion {
     /**
      * 任务 ID
      */
@@ -104,7 +108,7 @@ public class TaskVersion{
     @TableField("dependency_task_ids")
     private String dependencyTaskIds;
 
-    @TableId(value="id", type= IdType.AUTO)
+    @TableId(value = "id", type = IdType.AUTO)
     private Long id = 0L;
 
     @TableField("is_deleted")

@@ -4,13 +4,25 @@ package com.dtstack.taier.develop.sql.node;
 import com.dtstack.taier.develop.sql.Column;
 import com.dtstack.taier.develop.sql.Pair;
 import com.google.common.collect.Lists;
-import org.apache.calcite.sql.*;
+import org.apache.calcite.sql.SqlBasicCall;
+import org.apache.calcite.sql.SqlIdentifier;
+import org.apache.calcite.sql.SqlJoin;
+import org.apache.calcite.sql.SqlKind;
+import org.apache.calcite.sql.SqlLiteral;
+import org.apache.calcite.sql.SqlNode;
+import org.apache.calcite.sql.SqlNodeList;
+import org.apache.calcite.sql.SqlOrderBy;
+import org.apache.calcite.sql.SqlSelect;
 import org.apache.calcite.sql.fun.SqlCase;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 
 /**
  * @Author: 尘二(chener @ dtstack.com)
@@ -64,8 +76,8 @@ public class SelectNode extends Node {
 
     private List<Long> limit;
 
-    public SelectNode(String defaultDb,Map<String, List<Column>> tableColumnsMap) {
-        super(defaultDb,tableColumnsMap);
+    public SelectNode(String defaultDb, Map<String, List<Column>> tableColumnsMap) {
+        super(defaultDb, tableColumnsMap);
     }
 
     public NodeList getSelectList() {
@@ -107,8 +119,8 @@ public class SelectNode extends Node {
         handleSelectList(selectList);
         SqlNode from = sqlSelect.getFrom();
         handleFrom(from);
-        List<Node> columnList= new ArrayList<>();
-        if (selectStarHandle(this.selectList,this.fromClause,columnList)) {
+        List<Node> columnList = new ArrayList<>();
+        if (selectStarHandle(this.selectList, this.fromClause, columnList)) {
             getSelectList().getList().addAll(columnList);
         }
         handleTableMap();
@@ -118,24 +130,24 @@ public class SelectNode extends Node {
     /**
      * select * 处理器
      */
-    private Boolean selectStarHandle(NodeList selectList, Node fromClause, List<Node> columns){
-        List<Node>  removeNode = new ArrayList<>();
-        Boolean flag =false;
+    private Boolean selectStarHandle(NodeList selectList, Node fromClause, List<Node> columns) {
+        List<Node> removeNode = new ArrayList<>();
+        Boolean flag = false;
         for (Node sn : selectList.getList()) {
-            if (sn instanceof Identifier){
+            if (sn instanceof Identifier) {
                 Identifier identifier = (Identifier) sn;
-                if (identifier.getContext()!=null && identifier.getContext().equals(Context.IDENTIFIER_COLUMN ) && identifier.isSelectStarFromTable()){
-                    if (StringUtils.isBlank(identifier.getTable())){
-                        getColumnByNodeSelectAll(fromClause,columns);
-                    }else {
-                        getSelectStar(identifier,fromClause,columns);
+                if (identifier.getContext() != null && identifier.getContext().equals(Context.IDENTIFIER_COLUMN) && identifier.isSelectStarFromTable()) {
+                    if (StringUtils.isBlank(identifier.getTable())) {
+                        getColumnByNodeSelectAll(fromClause, columns);
+                    } else {
+                        getSelectStar(identifier, fromClause, columns);
                     }
                     removeNode.add(sn);
-                    flag=true;
-                }else {
+                    flag = true;
+                } else {
                     columns.add(sn);
                 }
-            }else {
+            } else {
                 columns.add(sn);
             }
         }
@@ -143,12 +155,12 @@ public class SelectNode extends Node {
         return flag;
     }
 
-    private void getSelectStar(Identifier identifier, Node fromClause, List<Node> columns){
+    private void getSelectStar(Identifier identifier, Node fromClause, List<Node> columns) {
         //说明直接是表 或者是子查询
-        if (getTableColumnMap().containsKey(identifier.getFullTable())){
-            List<Column> columnList=getTableColumnMap().get(identifier.getFullTable());
-            columnList.forEach(c->{
-                Identifier i = new Identifier(identifier.getDefaultDb(),getTableColumnMap());
+        if (getTableColumnMap().containsKey(identifier.getFullTable())) {
+            List<Column> columnList = getTableColumnMap().get(identifier.getFullTable());
+            columnList.forEach(c -> {
+                Identifier i = new Identifier(identifier.getDefaultDb(), getTableColumnMap());
                 i.setColumn(c.getName());
                 i.setTable(identifier.getTable());
                 i.setAlias(c.getAlias());
@@ -156,14 +168,15 @@ public class SelectNode extends Node {
                 i.setContext(Context.IDENTIFIER_COLUMN);
                 columns.add(i);
             });
-        }else if (this.getTableMap()!=null && this.getTableMap().containsKey(identifier.getTable())){
-            Node columnNode =getTableMap().get(identifier.getTable());
-            getColumnByNode(identifier,columnNode,columns);
-        }else {
-            getColumnByNode(identifier,fromClause,columns);
+        } else if (this.getTableMap() != null && this.getTableMap().containsKey(identifier.getTable())) {
+            Node columnNode = getTableMap().get(identifier.getTable());
+            getColumnByNode(identifier, columnNode, columns);
+        } else {
+            getColumnByNode(identifier, fromClause, columns);
         }
     }
-    private void getColumnByNode(Identifier identifier, Node subFromClause, List<Node> columns){
+
+    private void getColumnByNode(Identifier identifier, Node subFromClause, List<Node> columns) {
         //子查询
         if (subFromClause instanceof SelectNode) {
             if (identifier.getTable().equalsIgnoreCase(subFromClause.getAlias())) {
@@ -171,9 +184,9 @@ public class SelectNode extends Node {
             }
         }
         //from表
-        else if (subFromClause instanceof Identifier){
-            if (identifier.getTable().equalsIgnoreCase(subFromClause.getAlias())){
-                List<Column> columnList=getTableColumnMap().get(((Identifier)subFromClause).getFullTable());
+        else if (subFromClause instanceof Identifier) {
+            if (identifier.getTable().equalsIgnoreCase(subFromClause.getAlias())) {
+                List<Column> columnList = getTableColumnMap().get(((Identifier) subFromClause).getFullTable());
                 needAddColumns((Identifier) subFromClause, columns, columnList);
             }
         }
@@ -181,17 +194,17 @@ public class SelectNode extends Node {
         else if (subFromClause instanceof JoinCall) {
             JoinCall joinCall = (JoinCall) subFromClause;
             for (Node nd : joinCall.getComboList()) {
-                if (!identifier.getTable().equalsIgnoreCase(nd.getAlias())){
+                if (!identifier.getTable().equalsIgnoreCase(nd.getAlias())) {
                     continue;
                 }
                 //join table
                 if (nd instanceof Identifier) {
-                    List<Column> columnList=getTableColumnMap().get(((Identifier)subFromClause).getFullTable());
+                    List<Column> columnList = getTableColumnMap().get(((Identifier) subFromClause).getFullTable());
                     needAddColumns((Identifier) subFromClause, columns, columnList);
                 }
                 //join 子查询
                 else if (nd instanceof SelectNode) {
-                    selectStarHandle(((SelectNode)subFromClause).getSelectList(),((SelectNode) subFromClause).getFromClause(),columns);
+                    selectStarHandle(((SelectNode) subFromClause).getSelectList(), ((SelectNode) subFromClause).getFromClause(), columns);
                 }
                 break;
             }
@@ -201,23 +214,23 @@ public class SelectNode extends Node {
             //TODO 血缘分叉
             UnionCall unionCall = (UnionCall) subFromClause;
             for (SelectNode sn : unionCall.getComboFromList()) {
-                if (!identifier.getTable().equalsIgnoreCase(sn.getAlias())){
+                if (!identifier.getTable().equalsIgnoreCase(sn.getAlias())) {
                     continue;
                 }
-                selectStarHandle(sn.getSelectList(),sn.getFromClause(),columns);
+                selectStarHandle(sn.getSelectList(), sn.getFromClause(), columns);
                 break;
             }
         }
     }
 
-    private void getColumnByNodeSelectAll(Node subFromClause, List<Node> columns){
+    private void getColumnByNodeSelectAll(Node subFromClause, List<Node> columns) {
         //子查询
         if (subFromClause instanceof SelectNode) {
-            selectStarHandle(((SelectNode)subFromClause).getSelectList(),((SelectNode) subFromClause).getFromClause(),columns);
+            selectStarHandle(((SelectNode) subFromClause).getSelectList(), ((SelectNode) subFromClause).getFromClause(), columns);
         }
         //from表
-        else if (subFromClause instanceof Identifier){
-            List<Column> columnList=getTableColumnMap().get(((Identifier)subFromClause).getFullTable());
+        else if (subFromClause instanceof Identifier) {
+            List<Column> columnList = getTableColumnMap().get(((Identifier) subFromClause).getFullTable());
             needAddColumns((Identifier) subFromClause, columns, columnList);
         }
         //join查询
@@ -226,12 +239,12 @@ public class SelectNode extends Node {
             for (Node nd : joinCall.getComboList()) {
                 //join table
                 if (nd instanceof Identifier) {
-                    List<Column> columnList=getTableColumnMap().get(((Identifier)nd).getFullTable());
+                    List<Column> columnList = getTableColumnMap().get(((Identifier) nd).getFullTable());
                     needAddColumns((Identifier) nd, columns, columnList);
                 }
                 //join 子查询
                 else if (nd instanceof SelectNode) {
-                    selectStarHandle(((SelectNode)nd).getSelectList(),((SelectNode) nd).getFromClause(),columns);
+                    selectStarHandle(((SelectNode) nd).getSelectList(), ((SelectNode) nd).getFromClause(), columns);
                 }
             }
         }
@@ -240,14 +253,14 @@ public class SelectNode extends Node {
             //TODO 血缘分叉
             UnionCall unionCall = (UnionCall) subFromClause;
             for (SelectNode sn : unionCall.getComboFromList()) {
-                selectStarHandle(sn.getSelectList(),sn.getFromClause(),columns);
+                selectStarHandle(sn.getSelectList(), sn.getFromClause(), columns);
             }
         }
     }
 
     private void needAddColumns(Identifier subFromClause, List<Node> columns, List<Column> columnList) {
-        columnList.forEach(c->{
-            Identifier i = new Identifier(subFromClause.getDefaultDb(),getTableColumnMap());
+        columnList.forEach(c -> {
+            Identifier i = new Identifier(subFromClause.getDefaultDb(), getTableColumnMap());
             i.setColumn(c.getName());
             i.setTable(subFromClause.getTable());
             i.setAlias(c.getAlias());
@@ -258,11 +271,11 @@ public class SelectNode extends Node {
     }
 
     private void handleTableMap() {
-        if(tableMap == null){
+        if (tableMap == null) {
             tableMap = new HashMap<>();
         }
-        if (fromClause != null){
-            addTableMap(fromClause.getAlias(),fromClause);
+        if (fromClause != null) {
+            addTableMap(fromClause.getAlias(), fromClause);
         }
     }
 
@@ -280,7 +293,7 @@ public class SelectNode extends Node {
         }
         //from 表
         if (handledNode instanceof SqlIdentifier) {
-            Identifier identifier = new Identifier(getDefaultDb(),getTableColumnMap());
+            Identifier identifier = new Identifier(getDefaultDb(), getTableColumnMap());
             identifier.setAlias(alias);
             identifier.setContext(Context.IDENTIFIER_TABLE);
             identifier.parseSql(handledNode);
@@ -290,7 +303,7 @@ public class SelectNode extends Node {
         }
         //join
         else if (handledNode instanceof SqlJoin) {
-            JoinCall joinCall = new JoinCall(getDefaultDb(),getTableColumnMap());
+            JoinCall joinCall = new JoinCall(getDefaultDb(), getTableColumnMap());
             joinCall.setContext(Context.CALL_JOIN);
             joinCall.setAlias(alias);
             joinCall.parseSql(handledNode);
@@ -298,7 +311,7 @@ public class SelectNode extends Node {
         }
         //union
         else if (handledNode instanceof SqlBasicCall && handledNode.getKind() == SqlKind.UNION) {
-            UnionCall unionCall = new UnionCall(getDefaultDb(),getTableColumnMap());
+            UnionCall unionCall = new UnionCall(getDefaultDb(), getTableColumnMap());
             unionCall.setContext(Context.CALL_UNION);
             unionCall.setAlias(alias);
             unionCall.parseSql(handledNode);
@@ -306,55 +319,55 @@ public class SelectNode extends Node {
         }
         //子查询
         else if (handledNode instanceof SqlSelect) {
-            SelectNode selectNode = new SelectNode(getDefaultDb(),getTableColumnMap());
+            SelectNode selectNode = new SelectNode(getDefaultDb(), getTableColumnMap());
             selectNode.setContext(Context.FROM_SUB_QUERY);
             selectNode.setAlias(alias);
             selectNode.parseSql(handledNode);
             setFromClause(selectNode);
         } //orderBy子查询
         else if (handledNode instanceof SqlOrderBy) {
-            SelectNode selectNode = new SelectNode(getDefaultDb(),getTableColumnMap());
+            SelectNode selectNode = new SelectNode(getDefaultDb(), getTableColumnMap());
             selectNode.setContext(Context.FROM_SUB_QUERY);
             selectNode.setAlias(alias);
             selectNode.parseSql(((SqlOrderBy) handledNode).getOperandList().get(0));
             setFromClause(selectNode);
         }
-        fillColumnTable(db,table);
+        fillColumnTable(db, table);
     }
 
-    private void addTableMap(String alias, Node table){
-        if (table instanceof Identifier){
-            if(StringUtils.isEmpty(alias)){
+    private void addTableMap(String alias, Node table) {
+        if (table instanceof Identifier) {
+            if (StringUtils.isEmpty(alias)) {
                 return;
             }
-            tableMap.put(alias,table);
-        }else if (table instanceof JoinCall){
+            tableMap.put(alias, table);
+        } else if (table instanceof JoinCall) {
             //暂时不添加子查询别名
-            if (StringUtils.isNotEmpty(table.getAlias())){
-                tableMap.put(table.getAlias(),table);
+            if (StringUtils.isNotEmpty(table.getAlias())) {
+                tableMap.put(table.getAlias(), table);
             }
             JoinCall jtb = (JoinCall) table;
             List<Node> comboList = jtb.getComboList();
-            for (Node cb : comboList){
-                addTableMap(cb.getAlias(),cb);
+            for (Node cb : comboList) {
+                addTableMap(cb.getAlias(), cb);
             }
-        }else if (table instanceof UnionCall){
-            if (StringUtils.isNotEmpty(table.getAlias())){
-                tableMap.put(table.getAlias(),table);
+        } else if (table instanceof UnionCall) {
+            if (StringUtils.isNotEmpty(table.getAlias())) {
+                tableMap.put(table.getAlias(), table);
             }
             UnionCall utb = (UnionCall) table;
             List<SelectNode> comboFromList = utb.getComboFromList();
-            for (Node cb : comboFromList){
-                addTableMap(cb.getAlias(),cb);
+            for (Node cb : comboFromList) {
+                addTableMap(cb.getAlias(), cb);
             }
-        }else if (table instanceof SelectNode){
-            if (StringUtils.isNotEmpty(table.getAlias())){
-                tableMap.put(table.getAlias(),table);
+        } else if (table instanceof SelectNode) {
+            if (StringUtils.isNotEmpty(table.getAlias())) {
+                tableMap.put(table.getAlias(), table);
             }
             SelectNode stb = (SelectNode) table;
             Node fromClause = stb.getFromClause();
-            if(Objects.nonNull(fromClause)){
-                addTableMap(fromClause.getAlias(),fromClause);
+            if (Objects.nonNull(fromClause)) {
+                addTableMap(fromClause.getAlias(), fromClause);
             }
         }
     }
@@ -383,7 +396,7 @@ public class SelectNode extends Node {
                     if (StringUtils.isEmpty(id.getTable())) {
                         id.setTable(alias);
                     }
-                    if(StringUtils.isNotBlank(db)){
+                    if (StringUtils.isNotBlank(db)) {
                         // 以from 解析出来为准
                         id.setDb(db);
                     }
@@ -402,7 +415,7 @@ public class SelectNode extends Node {
     }
 
     private void handleSelectList(SqlNodeList selectList) {
-        NodeList nodeList = new NodeList(getDefaultDb(),getTableColumnMap());
+        NodeList nodeList = new NodeList(getDefaultDb(), getTableColumnMap());
         List<Node> list = Lists.newArrayList();
         for (SqlNode sn : selectList.getList()) {
             //合并as
@@ -414,7 +427,7 @@ public class SelectNode extends Node {
                 alias = sqlNodePair.getKey();
             }
             if (handledNode instanceof SqlIdentifier) {
-                Identifier identifier = new Identifier(getDefaultDb(),getTableColumnMap());
+                Identifier identifier = new Identifier(getDefaultDb(), getTableColumnMap());
                 identifier.setAlias(alias);
                 identifier.setContext(Context.IDENTIFIER_COLUMN);
                 identifier.parseSql(handledNode);
@@ -422,14 +435,14 @@ public class SelectNode extends Node {
             }
             //常量
             else if (handledNode instanceof SqlLiteral) {
-                LiteralIdentifier literalIdentifier = new LiteralIdentifier(getDefaultDb(),getTableColumnMap());
+                LiteralIdentifier literalIdentifier = new LiteralIdentifier(getDefaultDb(), getTableColumnMap());
                 literalIdentifier.setAlias(alias);
                 literalIdentifier.parseSql(handledNode);
                 list.add(literalIdentifier);
             }
             //selectList中的子查询
             else if (handledNode instanceof SqlSelect) {
-                SelectNode selectNode = new SelectNode(getDefaultDb(),getTableColumnMap());
+                SelectNode selectNode = new SelectNode(getDefaultDb(), getTableColumnMap());
                 selectNode.setAlias(alias);
                 selectNode.setContext(Context.SELECT_SUB_QUERY);
                 selectNode.parseSql(handledNode);
@@ -437,7 +450,7 @@ public class SelectNode extends Node {
             }
             //函数
             else if (handledNode instanceof SqlBasicCall) {
-                BasicCall basicCall = new BasicCall(getDefaultDb(),getTableColumnMap());
+                BasicCall basicCall = new BasicCall(getDefaultDb(), getTableColumnMap());
                 basicCall.setAlias(alias);
                 basicCall.setContext(Context.CALL_IN_COLUMN);
                 basicCall.parseSql(handledNode);
@@ -445,7 +458,7 @@ public class SelectNode extends Node {
             }
             //case when
             else if (handledNode instanceof SqlCase) {
-                BasicCall basicCall = new BasicCall(getDefaultDb(),getTableColumnMap());
+                BasicCall basicCall = new BasicCall(getDefaultDb(), getTableColumnMap());
                 basicCall.setAlias(alias);
                 basicCall.setContext(Context.CASE_IN_COLUMN);
                 basicCall.parseSql(handledNode);

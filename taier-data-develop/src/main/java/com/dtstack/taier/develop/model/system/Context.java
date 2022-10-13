@@ -1,6 +1,7 @@
 package com.dtstack.taier.develop.model.system;
 
 import com.alibaba.fastjson.JSONObject;
+import com.dtstack.taier.common.enums.DictType;
 import com.dtstack.taier.common.enums.EComponentScheduleType;
 import com.dtstack.taier.common.enums.EComponentType;
 import com.dtstack.taier.common.util.Strings;
@@ -11,13 +12,17 @@ import com.dtstack.taier.develop.model.system.config.ComponentModel;
 import com.dtstack.taier.develop.model.system.config.ComponentModelExtraParameters;
 import com.dtstack.taier.develop.model.system.config.ComponentModelTypeConfig;
 import com.dtstack.taier.develop.model.system.config.SystemConfigMapperException;
-import com.dtstack.taier.common.enums.DictType;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -208,11 +213,11 @@ public class Context {
 
     public Optional<JSONObject> getModelExtraVersionParameters(EComponentType resourceType, String resourceVersion) {
         Map<String, ComponentModelExtraParameters> componentModelExtraParametersMap = componentModelExtraParams.get(resourceType);
-        if(null == componentModelExtraParametersMap){
+        if (null == componentModelExtraParametersMap) {
             return Optional.empty();
         }
         ComponentModelExtraParameters parameters = componentModelExtraParametersMap.get(resourceVersion);
-        if(null == parameters){
+        if (null == parameters) {
             return Optional.empty();
         }
         return Optional.ofNullable(parameters.getComponentModelConfig());

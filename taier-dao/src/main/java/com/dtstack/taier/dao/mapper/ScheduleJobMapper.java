@@ -10,7 +10,8 @@ import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
 import java.sql.Timestamp;
-import java.util.*;
+import java.util.List;
+import java.util.Set;
 
 /**
  * @Auther: dazhi
@@ -25,7 +26,7 @@ public interface ScheduleJobMapper extends BaseMapper<ScheduleJob> {
 
     Integer countTasksByCycTimeTypeAndAddress(@Param("nodeAddress") String nodeAddress, @Param("scheduleType") Integer scheduleType, @Param("cycStartTime") String cycStartTime, @Param("cycEndTime") String cycEndTime);
 
-    List<ScheduleJob> getRdosJobByJobIds(@Param("jobIds")List<String> jobIds);
+    List<ScheduleJob> getRdosJobByJobIds(@Param("jobIds") List<String> jobIds);
 
     ScheduleJob getByName(@Param("jobName") String jobName);
 
@@ -73,8 +74,8 @@ public interface ScheduleJobMapper extends BaseMapper<ScheduleJob> {
     /**
      * 查询容灾的时候的实例
      *
-     * @param startId 开始id
-     * @param statuses 实例状态
+     * @param startId     开始id
+     * @param statuses    实例状态
      * @param nodeAddress 节点
      * @param phaseStatus 入队状态
      * @return 简单的实例封装
@@ -84,10 +85,10 @@ public interface ScheduleJobMapper extends BaseMapper<ScheduleJob> {
     /**
      * 查询任务在给定的计划时候之前或者之后的实例
      *
-     * @param taskId 任务id
+     * @param taskId  任务id
      * @param isAfter true 向前查询 fales 向后查询
      * @param cycTime 计划时间
-     * @param type 实例类型 周期实例，补数据实例，立即运行实例
+     * @param type    实例类型 周期实例，补数据实例，立即运行实例
      * @return 实例列表
      */
     List<ScheduleJob> listAfterOrBeforeJobs(@Param("taskId") Long taskId, @Param("isAfter") Boolean isAfter, @Param("cycTime") String cycTime, @Param("type") Integer type);

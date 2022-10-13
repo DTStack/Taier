@@ -3,13 +3,24 @@ package com.dtstack.taier.develop.sql.hive.node;
 import com.dtstack.taier.develop.sql.Column;
 import com.dtstack.taier.develop.sql.Table;
 import com.dtstack.taier.develop.sql.hive.until.ASTNodeFunctionEnum;
-import com.dtstack.taier.develop.sql.node.*;
+import com.dtstack.taier.develop.sql.node.BasicCall;
+import com.dtstack.taier.develop.sql.node.Identifier;
+import com.dtstack.taier.develop.sql.node.JoinCall;
+import com.dtstack.taier.develop.sql.node.LiteralIdentifier;
+import com.dtstack.taier.develop.sql.node.Node;
+import com.dtstack.taier.develop.sql.node.NodeList;
+import com.dtstack.taier.develop.sql.node.SelectNode;
+import com.dtstack.taier.develop.sql.node.UnionCall;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hadoop.hive.ql.parse.ASTNode;
 import org.apache.hadoop.hive.ql.parse.HiveParser;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 public abstract class NodeParser {
@@ -100,7 +111,7 @@ public abstract class NodeParser {
      * @return
      */
     private Node getNodeByparsetLateRelView(ASTNode astNode, Map<String, List<Identifier>> lateralView, String defultDb, Map<String, List<Column>> tableColumnsMap, Map<String, String> aliasToTable) {
-        Node selectNode = new SelectNode(defultDb,tableColumnsMap);
+        Node selectNode = new SelectNode(defultDb, tableColumnsMap);
         ArrayList<org.apache.hadoop.hive.ql.lib.Node> children = astNode.getChildren();
         for (org.apache.hadoop.hive.ql.lib.Node node : children) {
             if (((ASTNode) node).getType() == HiveParser.TOK_SELECT) {
@@ -308,7 +319,7 @@ public abstract class NodeParser {
      * @param tableColumnsMap
      */
     public void selectStarFill(SelectNode node, String defultDb, Map<String, List<Column>> tableColumnsMap, Map<String, String> aliasToTable) {
-        if (node.getSelectList() == null){
+        if (node.getSelectList() == null) {
             return;
         }
         List<Node> columnList = node.getSelectList().getList();
@@ -572,7 +583,7 @@ public abstract class NodeParser {
             List<Node> remove = new ArrayList<>();
             List<Node> add = new ArrayList<>();
             for (Node n : nodeList.getList()) {
-                Node newNode = whihNodeReplace(n, withMap,aliasToTable);
+                Node newNode = whihNodeReplace(n, withMap, aliasToTable);
                 if (null != newNode) {
                     remove.add(n);
                     add.add(newNode);
@@ -585,7 +596,7 @@ public abstract class NodeParser {
             return null;
         } else if (node instanceof SelectNode) {
             SelectNode selectNode = (SelectNode) node;
-            Node newNode = whihNodeReplace(selectNode.getFromClause(), withMap,aliasToTable);
+            Node newNode = whihNodeReplace(selectNode.getFromClause(), withMap, aliasToTable);
             if (null != newNode) {
                 selectNode.setFromClause(newNode);
             }
@@ -595,13 +606,13 @@ public abstract class NodeParser {
             JoinCall joinCall = (JoinCall) node;
             List<Node> remove = new ArrayList<>();
             List<Node> add = new ArrayList<>();
-            Node newNode = whihNodeReplace(joinCall.getLeft(), withMap,aliasToTable);
+            Node newNode = whihNodeReplace(joinCall.getLeft(), withMap, aliasToTable);
             if (null != newNode) {
                 remove.add(joinCall.getLeft());
                 add.add(newNode);
                 joinCall.setLeft(newNode);
             }
-            newNode = whihNodeReplace(joinCall.getRight(), withMap,aliasToTable);
+            newNode = whihNodeReplace(joinCall.getRight(), withMap, aliasToTable);
             if (null != newNode) {
                 remove.add(joinCall.getRight());
                 add.add(newNode);
@@ -616,7 +627,7 @@ public abstract class NodeParser {
         } else if (node instanceof UnionCall) {
             UnionCall unionCall = (UnionCall) node;
             for (Node n : unionCall.getComboFromList()) {
-                whihNodeReplace(n, withMap,aliasToTable);
+                whihNodeReplace(n, withMap, aliasToTable);
             }
             return null;
         } else if (node instanceof Identifier) {
@@ -653,7 +664,7 @@ public abstract class NodeParser {
             //with 可能内部嵌套 例如 with t1 as (select * from a),t2 as (select * from t1) select * from t1,t2;
             //所以优先处理一下 进行提前替换  但是要忽略互相嵌套 with t1 as (select * from t1),t2 as (select * from t1) select * from t1,t2
             if (withList.size() > 1) {
-                SelectNode with = whihNodeReplace(withNode.getFromClause(), withMap,aliasToTable);
+                SelectNode with = whihNodeReplace(withNode.getFromClause(), withMap, aliasToTable);
                 if (null != with) {
                     withNode.setFromClause(with);
                     selectStarFill(withNode, defultDb, tableColumnsMap, aliasToTable);

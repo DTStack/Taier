@@ -31,7 +31,11 @@ import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+import java.util.ServiceLoader;
 
 /**
  * company: www.dtstack.com
@@ -43,7 +47,7 @@ public class ClientFactory {
     private static Map<String, ClassLoader> pluginClassLoader = Maps.newConcurrentMap();
 
     public static IClient createPluginClass(ClassLoader classLoader) throws Exception {
-        return ClassLoaderCallBackMethod.callbackAndReset(()-> {
+        return ClassLoaderCallBackMethod.callbackAndReset(() -> {
             ServiceLoader<IClient> serviceLoader = ServiceLoader.load(IClient.class);
 
             List<IClient> matchingClient = new ArrayList<>();
@@ -56,7 +60,7 @@ public class ClientFactory {
         }, classLoader, true);
     }
 
-    public static IClient buildPluginClient(String pluginInfo,String pluginPath) throws Exception {
+    public static IClient buildPluginClient(String pluginInfo, String pluginPath) throws Exception {
         Map<String, Object> params = PublicUtil.jsonStrToObject(pluginInfo, Map.class);
         String clientTypeStr = MathUtil.getString(params.get(ConfigConstant.TYPE_NAME_KEY));
         if (StringUtils.isBlank(clientTypeStr)) {

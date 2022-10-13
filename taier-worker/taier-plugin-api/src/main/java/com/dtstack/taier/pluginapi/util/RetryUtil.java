@@ -23,12 +23,17 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
-import java.util.concurrent.*;
+import java.util.concurrent.Callable;
+import java.util.concurrent.Future;
+import java.util.concurrent.SynchronousQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Utilities for handling operations that needs retrying several times
- *
+ * <p>
  * Company: www.dtstack.com
+ *
  * @author huyifan.zju@163.com
  */
 public final class RetryUtil {
@@ -114,6 +119,7 @@ public final class RetryUtil {
                 60L, TimeUnit.SECONDS, new SynchronousQueue<Runnable>(),
                 new CustomThreadFactory("asyncRetryPool"));
     }
+
     private static class Retry {
 
         public <T> T doRetry(Callable<T> callable, int retryTimes, long sleepTimeInMilliSecond, boolean exponential, List<Class<?>> retryExceptionClasss)
@@ -157,12 +163,12 @@ public final class RetryUtil {
                         long timeToSleep;
                         if (exponential) {
                             timeToSleep = sleepTimeInMilliSecond * (long) Math.pow(2, i);
-                            if(timeToSleep >= MAX_SLEEP_MILLISECOND) {
+                            if (timeToSleep >= MAX_SLEEP_MILLISECOND) {
                                 timeToSleep = MAX_SLEEP_MILLISECOND;
                             }
                         } else {
                             timeToSleep = sleepTimeInMilliSecond;
-                            if(timeToSleep >= MAX_SLEEP_MILLISECOND) {
+                            if (timeToSleep >= MAX_SLEEP_MILLISECOND) {
                                 timeToSleep = MAX_SLEEP_MILLISECOND;
                             }
                         }
@@ -172,10 +178,10 @@ public final class RetryUtil {
                         } catch (InterruptedException ignored) {
                         }
 
-                        long realTimeSleep = System.currentTimeMillis()-startTime;
+                        long realTimeSleep = System.currentTimeMillis() - startTime;
 
                         LOGGER.error(String.format("Exception when calling callable, 即将尝试执行第%s次重试.本次重试计划等待[%s]ms,实际等待[%s]ms, 异常Msg:[%s]",
-                                i+1, timeToSleep,realTimeSleep, e.getMessage()));
+                                i + 1, timeToSleep, realTimeSleep, e.getMessage()));
 
                     }
                 }

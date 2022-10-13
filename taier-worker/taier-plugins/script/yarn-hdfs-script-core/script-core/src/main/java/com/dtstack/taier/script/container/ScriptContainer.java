@@ -4,7 +4,11 @@ import com.dtstack.taier.base.util.NetUtils;
 import com.dtstack.taier.script.ScriptConfiguration;
 import com.dtstack.taier.script.api.ApplicationContainerProtocol;
 import com.dtstack.taier.script.api.ScriptConstants;
-import com.dtstack.taier.script.common.*;
+import com.dtstack.taier.script.common.AppEnvConstant;
+import com.dtstack.taier.script.common.ContainerStatus;
+import com.dtstack.taier.script.common.LocalRemotePath;
+import com.dtstack.taier.script.common.ReturnValue;
+import com.dtstack.taier.script.common.SecurityUtil;
 import com.dtstack.taier.script.common.type.AbstractAppType;
 import com.dtstack.taier.script.common.type.DummyType;
 import com.dtstack.taier.script.util.DebugUtil;
@@ -30,13 +34,24 @@ import org.apache.hadoop.yarn.conf.YarnConfiguration;
 import org.apache.hadoop.yarn.server.nodemanager.ContainerExecutor;
 import org.apache.hadoop.yarn.util.ConverterUtils;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
 import java.nio.charset.StandardCharsets;
 import java.security.PrivilegedExceptionAction;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -146,16 +161,16 @@ public class ScriptContainer {
         return this.containerId;
     }
 
-    private String[] buildPy4jEnv(int port){
+    private String[] buildPy4jEnv(int port) {
         ArrayList<String> envOpts = new ArrayList<>();
         String principal = envs.get(ScriptConstants.ENV_PRINCIPAL);
-        if(org.apache.commons.lang3.StringUtils.isBlank(principal)){
+        if (org.apache.commons.lang3.StringUtils.isBlank(principal)) {
             principal = "null";
         }
         envOpts.add(ScriptConstants.ENV_GATEWAY_PORT + "=" + port);
         envOpts.add(ScriptConstants.ENV_PRINCIPAL + "=" + principal);
         String jdbcUrl = dtconf.get("script.hive.jdbcUrl");
-        if(StringUtils.isNotBlank(jdbcUrl)){
+        if (StringUtils.isNotBlank(jdbcUrl)) {
             envOpts.add("jdbcUrl" + "=" + jdbcUrl);
             String userName = dtconf.get("script.hive.user");
             envOpts.add("user" + "=" + userName);
@@ -176,7 +191,7 @@ public class ScriptContainer {
         Process gatewayProcess = null;
         boolean hasKrb = KrbUtils.hasKrb(envs);
         boolean isPythonType = KrbUtils.isPythonType(appType.name());
-        if(envs.containsKey(ScriptConstants.Environment.PROJECT_TYPE.toString())){
+        if (envs.containsKey(ScriptConstants.Environment.PROJECT_TYPE.toString())) {
             int port = NetUtils.getAvailablePort();
             String[] py4jEnv = buildPy4jEnv(port);
             final String mainClass = "com.dtstack.python.PythonGatewayServer";
@@ -187,9 +202,9 @@ public class ScriptContainer {
             gatewayProcess = Runtime.getRuntime().exec(py4jStartCmd, py4jEnv);
             // FIXME 未来应该取消掉sleep 目前是假定sleep后gateway server已经启动好，再拉起Python进程。
             Thread.sleep(2400);
-            if(gatewayProcess.isAlive()){
+            if (gatewayProcess.isAlive()) {
                 LOG.info("start gateway succeed");
-            }else{
+            } else {
                 LOG.info("start gateway failed");
             }
             envList.add(py4jEnv[0]);
@@ -197,7 +212,7 @@ public class ScriptContainer {
 
         // set current process envs to subProcess envs
         Iterator it = envs.entrySet().iterator();
-        while(it.hasNext()) {
+        while (it.hasNext()) {
             Map.Entry entry = (Map.Entry) it.next();
             String key = (String) entry.getKey();
             String value = (String) entry.getValue();
@@ -266,8 +281,8 @@ public class ScriptContainer {
             String[] filenameArr = filenames.split(",");
 
             for (String filename : filenameArr) {
-                try ( FSDataOutputStream os = dfs.create(new Path(hdfsdir + "/" + filename));
-                      FileInputStream is = new FileInputStream(filename)){
+                try (FSDataOutputStream os = dfs.create(new Path(hdfsdir + "/" + filename));
+                     FileInputStream is = new FileInputStream(filename)) {
                     LOG.info("outputfile:" + hdfsdir + "/" + filename);
                     IOUtils.copyBytes(is, os, 4096, true);
                 } catch (IOException e) {
@@ -363,7 +378,7 @@ public class ScriptContainer {
         FSDataOutputStream stream = null;
         try {
             ContainerId cId = containerId.getContainerId();
-            Path path = Utilities.getRemotePath(yarnconf, dtconf, cId.getApplicationAttemptId().getApplicationId(), cId.toString()+".out");
+            Path path = Utilities.getRemotePath(yarnconf, dtconf, cId.getApplicationAttemptId().getApplicationId(), cId.toString() + ".out");
             if (dfs.exists(path)) {
                 dfs.delete(path);
             }
@@ -383,7 +398,7 @@ public class ScriptContainer {
         try (
                 InputStream is = new FileInputStream(filePath);
                 BufferedReader reader = new BufferedReader(new InputStreamReader(is, ScriptConfiguration.UTF8));
-            ) {
+        ) {
             line = reader.readLine();
             while (line != null) {
                 sb.append(line);
@@ -427,7 +442,7 @@ public class ScriptContainer {
 
         } catch (Throwable e) {
             LOG.error("Some errors has occurred during container running!", e);
-            if (container != null){
+            if (container != null) {
                 container.reportFailedAndExit(DebugUtil.stackTrace(e));
             }
         }
