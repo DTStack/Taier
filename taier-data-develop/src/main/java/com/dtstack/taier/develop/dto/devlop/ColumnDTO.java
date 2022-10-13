@@ -14,6 +14,7 @@ public class ColumnDTO {
     private String key;
     private String value;
     private String format;
+    private Integer index;
 
     public String getName() {
         return name;
@@ -53,5 +54,13 @@ public class ColumnDTO {
 
     public void setFormat(String format) {
         this.format = format;
+    }
+
+    public Integer getIndex() {
+        return index;
+    }
+
+    public void setIndex(Integer index) {
+        this.index = index;
     }
 }

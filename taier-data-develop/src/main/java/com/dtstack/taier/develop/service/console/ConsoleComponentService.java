@@ -1019,7 +1019,7 @@ public class ConsoleComponentService {
                     ComponentVersionUtil.isMultiVersionComponent(component.getComponentTypeCode()) ?
                             StringUtils.isNotBlank(component.getVersionValue()) ? component.getVersionValue() : componentMapper.getDefaultComponentVersionByClusterAndComponentType(cluster.getId(), component.getComponentTypeCode()) : null);
             String componentConfig = componentService.getComponentByClusterId(cluster.getId(), component.getComponentTypeCode(), false, String.class, null);
-            testResult = this.testConnect(component.getComponentTypeCode(), componentConfig, component.getVersionName(), component.getClusterId(), kerberosConfig, sftpMap, component.getStoreType(), component.getDeployType());
+            testResult = this.testConnect(component.getComponentTypeCode(), componentConfig, component.getVersionName(), component.getClusterId(), kerberosConfig, sftpMap);
         } catch (Exception e) {
             testResult.setResult(false);
             testResult.setErrorMsg(ExceptionUtil.getErrorMessage(e));
@@ -1118,8 +1118,14 @@ public class ConsoleComponentService {
      */
     public ComponentTestResult testConnect(Integer componentType, String componentConfig,
                                            String versionName, Long clusterId, KerberosConfig kerberosConfig,
-                                           Map<String, String> sftpConfig, Integer storeType, Integer deployType) {
+                                           Map<String, String> sftpConfig) {
         ComponentTestResult componentTestResult = new ComponentTestResult();
+        // 不需要测试连通性的组件,跳过 ^^
+        if (EComponentType.isUnnecessaryCheckConnectComponents(componentType)) {
+            componentTestResult.setResult(true);
+            return componentTestResult;
+        }
+
         try {
             if (EComponentType.NOT_CHECK_COMPONENT.contains(EComponentType.getByCode(componentType))) {
                 componentTestResult.setResult(true);
