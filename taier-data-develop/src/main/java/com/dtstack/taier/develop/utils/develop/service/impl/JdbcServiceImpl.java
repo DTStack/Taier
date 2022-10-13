@@ -71,9 +71,12 @@ public class JdbcServiceImpl implements IJdbcService {
         List<List<Object>> returnList = new ArrayList<>();
         IClient client = ClientCache.getClient(sourceDTO.getSourceType());
         // to json properties
-        String properties = DBUtil.propToJson(taskParam);
-        ((RdbmsSourceDTO) sourceDTO).setProperties(properties);
-        Connection con = client.getCon(sourceDTO);
+        Connection con = null;
+        if (sourceDTO instanceof RdbmsSourceDTO) {
+            String properties = DBUtil.propToJson(taskParam);
+            ((RdbmsSourceDTO) sourceDTO).setProperties(properties);
+             con = client.getCon(sourceDTO);
+        }
         // 处理 variables SQL
         try {
             sourceDTO.setConnection(con);
@@ -86,11 +89,13 @@ public class JdbcServiceImpl implements IJdbcService {
                 }
             }
 
-            List<ColumnMetaDTO> columnMetaDataWithSql = client.getColumnMetaDataWithSql(sourceDTO, SqlQueryDTO.builder().sql(sqls.get(sqls.size() - 1)).limit(0).build());
-            if (CollectionUtils.isNotEmpty(columnMetaDataWithSql)) {
-                List<Object> column = new ArrayList<>();
-                columnMetaDataWithSql.forEach(bean -> column.add(bean.getKey()));
-                returnList.add(column);
+            if (sourceDTO instanceof RdbmsSourceDTO) {
+                List<ColumnMetaDTO> columnMetaDataWithSql = client.getColumnMetaDataWithSql(sourceDTO, SqlQueryDTO.builder().sql(sqls.get(sqls.size() - 1)).limit(0).build());
+                if (CollectionUtils.isNotEmpty(columnMetaDataWithSql)) {
+                    List<Object> column = new ArrayList<>();
+                    columnMetaDataWithSql.forEach(bean -> column.add(bean.getKey()));
+                    returnList.add(column);
+                }
             }
             //数据源插件化 查询出值不符合要求  进行转化
             if (CollectionUtils.isNotEmpty(list)) {

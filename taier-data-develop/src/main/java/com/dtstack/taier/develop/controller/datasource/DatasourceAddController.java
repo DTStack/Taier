@@ -32,7 +32,6 @@ import com.dtstack.taier.develop.vo.develop.query.DevelopDatasourceTableCreateVO
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,6 +44,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 /**
@@ -227,14 +227,14 @@ public class DatasourceAddController {
         return new APITemplate<Set<JSONObject>>() {
             @Override
             protected void checkParams() throws IllegalArgumentException {
-                if(CollectionUtils.isEmpty(vo.getTableName())){
+                if(Objects.isNull(vo.getTableName())){
                     throw new RdosDefineException("table can not be null");
                 }
             }
 
             @Override
             protected Set<JSONObject> process() {
-                return datasourceService.columnForSyncopate(vo.getSourceId(), vo.getTableName().get(0), vo.getSchema());
+                return datasourceService.columnForSyncopate(vo.getSourceId(), vo.getTableName(), vo.getSchema());
             }
         }.execute();
     }

@@ -22,7 +22,6 @@ package com.dtstack.taier.common.util;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.HashMap;
-import java.util.Locale;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -153,6 +152,8 @@ public class SqlRegexUtil {
     public static final String WITH_SERDEPROPERTIES_REGEX = "(?i)(with\\s+serdeproperties\\s*\\((([^)]+))\\))";
 
     public static final String EXTERNAL_REGEX = "(?i)(external)";
+
+    public static String REMOVE_COMMENT_REGEX = "(?ms)('(?:''|[^'])*')|--.*?$|//.*?$|/\\*.*?\\*/|#.*?$|";
 
     /**
      * 不允许执行操作角色sql
@@ -465,4 +466,11 @@ public class SqlRegexUtil {
         return false;
     }
 
+    public static String removeComment(String sql) {
+        if(StringUtils.isBlank(sql)){
+            return sql;
+        }
+        Pattern pattern = Pattern.compile(REMOVE_COMMENT_REGEX);
+        return pattern.matcher(sql).replaceAll("$1").trim();
+    }
 }
