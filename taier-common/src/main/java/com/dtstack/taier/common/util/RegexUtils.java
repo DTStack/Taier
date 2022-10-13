@@ -48,6 +48,7 @@ public class RegexUtils {
      * @return
      */
     public static boolean isQuery(String sql) {
+        sql = SqlRegexUtil.removeComment(sql);
         return SqlRegexUtil.isShowSql(sql)
                 || SqlRegexUtil.isExplainSql(sql)
                 || SqlRegexUtil.isSelect(sql)

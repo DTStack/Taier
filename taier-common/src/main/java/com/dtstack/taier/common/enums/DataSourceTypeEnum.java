@@ -86,7 +86,7 @@ public enum DataSourceTypeEnum {
     OceanBase(49,"OceanBase",null),
     RESTFUL(47,"Restful",null),
     TRINO(59,"Trino",null),
-    DORIS_HTTP(64,"Doris","0.14.x(http)"),
+    DORIS_HTTP(64,"Doris","0.14.x"),
     DMDB_FOR_ORACLE(67, "DMDB", "For Oracle")
     ;
 

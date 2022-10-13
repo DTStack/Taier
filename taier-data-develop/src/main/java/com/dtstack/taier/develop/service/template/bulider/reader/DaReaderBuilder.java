@@ -22,6 +22,8 @@ public interface DaReaderBuilder {
 
     String JDBC_URL = "jdbcUrl";
 
+    String URL = "url";
+
     /**
      * 参数预处理
      * @param param

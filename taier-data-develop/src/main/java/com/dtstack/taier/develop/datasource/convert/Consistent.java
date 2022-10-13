@@ -341,6 +341,8 @@ public interface Consistent {
      */
     String MANAGEMENT_TCP_PORT = "managementTcpPort";
 
+    String SCHEMA = "schema";
+
     interface SSLConfig {
         /**
          * TLS 验证的方法。共有三种模式：（FULL 默认）CA和NONE
