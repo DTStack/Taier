@@ -8,6 +8,7 @@ import java.util.stream.Collectors;
 
 /**
  * rebuild topographic map for display
+ *
  * @author yuebai
  */
 public class LatencyMarkerInfo {
@@ -131,7 +132,7 @@ public class LatencyMarkerInfo {
         private List<Tuple2<String, String>> subJobVertices;
         private int maxParallelism;
         private int parallelism;
-        private Map<String,String> inputShipStrategyName;
+        private Map<String, String> inputShipStrategyName;
 
         public Builder setParallelism(int parallelism) {
             this.parallelism = parallelism;
@@ -168,13 +169,13 @@ public class LatencyMarkerInfo {
             return this;
         }
 
-        public Builder setInputShipStrategyName(Map<String,String> inputShipStrategyName) {
+        public Builder setInputShipStrategyName(Map<String, String> inputShipStrategyName) {
             this.inputShipStrategyName = inputShipStrategyName;
             return this;
         }
 
         public LatencyMarkerInfo build() {
-            LatencyMarkerInfo latencyMarkerInfo = new LatencyMarkerInfo(jobVertexName, jobVertexId, inputs, output,parallelism,maxParallelism);
+            LatencyMarkerInfo latencyMarkerInfo = new LatencyMarkerInfo(jobVertexName, jobVertexId, inputs, output, parallelism, maxParallelism);
             List<SubJobVertices> subJobVerticesList = this.subJobVertices.stream()
                     .map(tuple2 -> latencyMarkerInfo.new SubJobVertices(tuple2.f0, tuple2.f1))
                     .collect(Collectors.toList());

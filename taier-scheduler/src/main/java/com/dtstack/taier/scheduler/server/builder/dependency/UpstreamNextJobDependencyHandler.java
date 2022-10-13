@@ -11,7 +11,6 @@ import com.dtstack.taier.scheduler.server.builder.cron.ScheduleConfManager;
 import com.dtstack.taier.scheduler.server.builder.cron.ScheduleCorn;
 import com.dtstack.taier.scheduler.service.ScheduleJobService;
 import com.dtstack.taier.scheduler.utils.JobKeyUtils;
-import com.google.common.collect.Lists;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,11 +29,11 @@ public class UpstreamNextJobDependencyHandler extends DecoratorJobDependency {
     private static final Logger LOGGER = LoggerFactory.getLogger(UpstreamDependencyHandler.class);
 
     public UpstreamNextJobDependencyHandler(String keyPreStr,
-                                         ScheduleTaskShade currentTaskShade,
-                                         ScheduleJobService scheduleJobService,
-                                         List<ScheduleTaskShade> taskShadeList,
-                                         JobDependency jobDependency) {
-        super(keyPreStr, currentTaskShade, scheduleJobService, taskShadeList,jobDependency);
+                                            ScheduleTaskShade currentTaskShade,
+                                            ScheduleJobService scheduleJobService,
+                                            List<ScheduleTaskShade> taskShadeList,
+                                            JobDependency jobDependency) {
+        super(keyPreStr, currentTaskShade, scheduleJobService, taskShadeList, jobDependency);
     }
 
     @Override
@@ -59,7 +58,7 @@ public class UpstreamNextJobDependencyHandler extends DecoratorJobDependency {
                 scheduleJobJob.setIsDeleted(Deleted.NORMAL.getStatus());
                 jobJobList.add(scheduleJobJob);
             } catch (Exception e) {
-                LOGGER.error("",e);
+                LOGGER.error("", e);
             }
         }
         return jobJobList;
@@ -90,6 +89,6 @@ public class UpstreamNextJobDependencyHandler extends DecoratorJobDependency {
             throw new RdosDefineException("no find upstream task of last cycle");
         }
         String jobKey = JobKeyUtils.generateJobKey(keyPreStr, scheduleTaskShade.getTaskId(), lastDateStr);
-        return needCreateKey(lastDate,currentDate,jobKey);
+        return needCreateKey(lastDate, currentDate, jobKey);
     }
 }

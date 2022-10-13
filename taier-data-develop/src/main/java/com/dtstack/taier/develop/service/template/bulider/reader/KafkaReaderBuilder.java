@@ -17,7 +17,7 @@ import java.util.Map;
 public class KafkaReaderBuilder extends KafkaBaseReaderBuilder {
     @Override
     public KafkaReader createKafkaReader(Map<String, Object> sourceMap) {
-        return JSONObject.parseObject(JSONObject.toJSONString(sourceMap),KafkaReader.class);
+        return JSONObject.parseObject(JSONObject.toJSONString(sourceMap), KafkaReader.class);
     }
 
     @Override

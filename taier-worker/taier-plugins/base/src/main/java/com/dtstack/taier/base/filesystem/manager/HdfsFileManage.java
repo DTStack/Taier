@@ -34,6 +34,7 @@ import java.util.Vector;
 /**
  * Date: 2020/7/20
  * Company: www.dtstack.com
+ *
  * @author maqi
  */
 public class HdfsFileManage implements IFileManage {
@@ -66,7 +67,7 @@ public class HdfsFileManage implements IFileManage {
 
             //检查并创建本地文件目录
             File file = new File(localPath);
-            if(!file.getParentFile().exists()){
+            if (!file.getParentFile().exists()) {
                 Files.createParentDirs(file);
             }
 
@@ -123,7 +124,7 @@ public class HdfsFileManage implements IFileManage {
     @Override
     public boolean downloadDirManager(String remotePath, String localPath) {
         try {
-            return downloadDir(remotePath,localPath);
+            return downloadDir(remotePath, localPath);
         } catch (Exception e) {
             LOG.error("downloadDir from hdfs error:", e);
         }

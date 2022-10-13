@@ -20,9 +20,10 @@ public class ScheduleTaskShadeService extends ServiceImpl<ScheduleTaskShadeMappe
 
     /**
      * 生成周期实例，扫描全部任务
-     * @param startId 开始位置的taskId
+     *
+     * @param startId            开始位置的taskId
      * @param scheduleStatusList 任务的状态
-     * @param taskSize 查询出来最大的任务数
+     * @param taskSize           查询出来最大的任务数
      * @return 任务集合
      */
     public List<ScheduleTaskShade> listRunnableTask(Long startId, List<Integer> scheduleStatusList, Integer taskSize) {
@@ -33,7 +34,7 @@ public class ScheduleTaskShadeService extends ServiceImpl<ScheduleTaskShadeMappe
         if (startId < 0) {
             startId = 0L;
         }
-        return this.baseMapper.listRunnableTask(startId,scheduleStatusList,taskSize);
+        return this.baseMapper.listRunnableTask(startId, scheduleStatusList, taskSize);
     }
 
 
@@ -43,7 +44,7 @@ public class ScheduleTaskShadeService extends ServiceImpl<ScheduleTaskShadeMappe
      * @param taskId
      * @return
      */
-    public List<ScheduleTaskShade> getFlowWorkSubTasks( Long taskId) {
+    public List<ScheduleTaskShade> getFlowWorkSubTasks(Long taskId) {
         return this.baseMapper.selectList(Wrappers.lambdaQuery(ScheduleTaskShade.class)
                 .eq(ScheduleTaskShade::getFlowId, taskId)
                 .eq(ScheduleTaskShade::getIsDeleted, Deleted.NORMAL.getStatus()));

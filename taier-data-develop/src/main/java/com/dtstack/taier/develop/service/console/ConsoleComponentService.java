@@ -986,7 +986,7 @@ public class ConsoleComponentService {
 
         Map<Component, CompletableFuture<ComponentTestResult>> completableFutureMap = components.stream()
                 .collect(Collectors.toMap(component -> component,
-                        c -> CompletableFuture.supplyAsync(() -> testComponentWithResult(cluster, sftpMap, c),executor)));
+                        c -> CompletableFuture.supplyAsync(() -> testComponentWithResult(cluster, sftpMap, c), executor)));
 
         CompletableFuture<Void> totalFuture = CompletableFuture.allOf(completableFutureMap.values().toArray(new CompletableFuture[0]));
         try {

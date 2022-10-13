@@ -28,7 +28,7 @@ import com.dtstack.taier.pluginapi.exception.ExceptionUtil;
  */
 public class EngineJobRetry extends com.dtstack.taier.dao.domain.ScheduleEngineJobRetry {
 
-    public static EngineJobRetry toEntity(ScheduleJob scheduleJob, JobClient jobClient,String engineLog) {
+    public static EngineJobRetry toEntity(ScheduleJob scheduleJob, JobClient jobClient, String engineLog) {
         EngineJobRetry scheduleJobRetry = new EngineJobRetry();
         scheduleJobRetry.setJobId(scheduleJob.getJobId());
         scheduleJobRetry.setExecStartTime(scheduleJob.getExecStartTime());

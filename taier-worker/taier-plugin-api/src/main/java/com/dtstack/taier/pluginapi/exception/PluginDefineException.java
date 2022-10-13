@@ -21,16 +21,16 @@ package com.dtstack.taier.pluginapi.exception;
 
 public class PluginDefineException extends RuntimeException {
 
-    public PluginDefineException(Throwable cause){
+    public PluginDefineException(Throwable cause) {
         super(cause);
     }
 
-    public PluginDefineException(String errorMessage){
+    public PluginDefineException(String errorMessage) {
         super(errorMessage);
     }
 
-    public PluginDefineException(String errorMessage,Throwable throwable){
-        super(errorMessage,throwable);
+    public PluginDefineException(String errorMessage, Throwable throwable) {
+        super(errorMessage, throwable);
     }
 
 }

@@ -11,7 +11,7 @@ import org.apache.commons.lang3.StringUtils;
  * @author: zhichen
  * create: 2019/04/17
  */
-public class HdfsWriter extends HdfsWriterBase  {
+public class HdfsWriter extends HdfsWriterBase {
 
     private String writeMode = WriteMode.APPEND.getVal();
     private String fileName;
@@ -141,7 +141,7 @@ public class HdfsWriter extends HdfsWriterBase  {
 
     protected String partitionType;
 
-//    @Override
+    //    @Override
     public void checkFormat(JSONObject data) {
         data = data.getJSONObject("parameter");
         JSONObject hadoopConfigMap = data.getJSONObject("hadoopConfig");

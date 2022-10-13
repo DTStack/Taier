@@ -16,12 +16,12 @@
  * limitations under the License.
  */
 
-import { linkMapping } from '@/utils/enums';
-import type { IDataSourceProps } from '@/interface';
+import {linkMapping} from '@/utils/enums';
+import type {IDataSourceProps} from '@/interface';
 import './linkInfoCell.scss';
 
 export default function LinkInfoCell(props: { sourceData: IDataSourceProps }) {
-	const { sourceData } = props;
+	const {sourceData} = props;
 	const arr = linkMapping(`${sourceData.dataType}${sourceData.dataVersion || ''}`);
 
 	let data: Record<string, string> = {};
@@ -44,7 +44,7 @@ export default function LinkInfoCell(props: { sourceData: IDataSourceProps }) {
 								marginBottom: 0,
 							}}
 						>
-							<span style={{ color: '#999', flexShrink: 0 }}>{text}：</span>
+							<span style={{color: '#999', flexShrink: 0}}>{text}：</span>
 							<span className="link-json" title={data[key] || ''}>
 								{data[key] || ''}
 							</span>

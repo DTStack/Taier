@@ -8,12 +8,12 @@ import org.apache.hadoop.ipc.VersionedProtocol;
  */
 public interface ApplicationMessageProtocol extends VersionedProtocol {
 
-  public static final long versionID = 1L;
+    public static final long versionID = 1L;
 
-  /**
-   * Fetch application from ApplicationMaster.
-   */
-  Message[] fetchApplicationMessages();
+    /**
+     * Fetch application from ApplicationMaster.
+     */
+    Message[] fetchApplicationMessages();
 
-  Message[] fetchApplicationMessages(int maxBatch);
+    Message[] fetchApplicationMessages(int maxBatch);
 }

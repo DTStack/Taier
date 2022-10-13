@@ -1,5 +1,5 @@
 import '@testing-library/jest-dom';
-import { render } from '@testing-library/react';
+import {render} from '@testing-library/react';
 import {
 	DATA_SOURCE_ENUM,
 	DATA_SOURCE_TEXT,
@@ -111,7 +111,7 @@ describe('enums', () => {
 	});
 
 	it('Render Time Text', () => {
-		let component = render(TaskTimeType({ value: TASK_PERIOD_ENUM.DAY }));
+		let component = render(TaskTimeType({value: TASK_PERIOD_ENUM.DAY}));
 		expect(component.asFragment()).toMatchInlineSnapshot(`
 		<DocumentFragment>
 		  <span>
@@ -120,7 +120,7 @@ describe('enums', () => {
 		</DocumentFragment>
 	`);
 
-		component = render(TaskTimeType({ value: TASK_PERIOD_ENUM.HOUR }));
+		component = render(TaskTimeType({value: TASK_PERIOD_ENUM.HOUR}));
 		expect(component.asFragment()).toMatchInlineSnapshot(`
 		<DocumentFragment>
 		  <span>
@@ -129,7 +129,7 @@ describe('enums', () => {
 		</DocumentFragment>
 	`);
 
-		component = render(TaskTimeType({ value: TASK_PERIOD_ENUM.MINUTE }));
+		component = render(TaskTimeType({value: TASK_PERIOD_ENUM.MINUTE}));
 		expect(component.asFragment()).toMatchInlineSnapshot(`
 		<DocumentFragment>
 		  <span>
@@ -138,7 +138,7 @@ describe('enums', () => {
 		</DocumentFragment>
 	`);
 
-		component = render(TaskTimeType({ value: TASK_PERIOD_ENUM.MONTH }));
+		component = render(TaskTimeType({value: TASK_PERIOD_ENUM.MONTH}));
 		expect(component.asFragment()).toMatchInlineSnapshot(`
 		<DocumentFragment>
 		  <span>
@@ -147,7 +147,7 @@ describe('enums', () => {
 		</DocumentFragment>
 	`);
 
-		component = render(TaskTimeType({ value: TASK_PERIOD_ENUM.WEEK }));
+		component = render(TaskTimeType({value: TASK_PERIOD_ENUM.WEEK}));
 		expect(component.asFragment()).toMatchInlineSnapshot(`
 		<DocumentFragment>
 		  <span>
@@ -157,7 +157,7 @@ describe('enums', () => {
 	`);
 
 		// default is day
-		component = render(TaskTimeType({ value: 1000 }));
+		component = render(TaskTimeType({value: 1000}));
 		expect(component.asFragment()).toMatchInlineSnapshot(`
 		<DocumentFragment>
 		  <span>
@@ -168,79 +168,79 @@ describe('enums', () => {
 	});
 
 	it('Redner Task Status', () => {
-		let component = render(TaskStatus({ value: TASK_STATUS.AUTO_CANCEL }));
+		let component = render(TaskStatus({value: TASK_STATUS.AUTO_CANCEL}));
 		expect(component.asFragment()).toMatchSnapshot();
 
-		component = render(TaskStatus({ value: TASK_STATUS.COMPUTING }));
+		component = render(TaskStatus({value: TASK_STATUS.COMPUTING}));
 		expect(component.asFragment()).toMatchSnapshot();
 
-		component = render(TaskStatus({ value: TASK_STATUS.CREATED }));
+		component = render(TaskStatus({value: TASK_STATUS.CREATED}));
 		expect(component.asFragment()).toMatchSnapshot();
 
-		component = render(TaskStatus({ value: TASK_STATUS.DEPLOYING }));
+		component = render(TaskStatus({value: TASK_STATUS.DEPLOYING}));
 		expect(component.asFragment()).toMatchSnapshot();
 
-		component = render(TaskStatus({ value: TASK_STATUS.DO_FAIL }));
+		component = render(TaskStatus({value: TASK_STATUS.DO_FAIL}));
 		expect(component.asFragment()).toMatchSnapshot();
 
-		component = render(TaskStatus({ value: TASK_STATUS.ENGINEACCEPTED }));
+		component = render(TaskStatus({value: TASK_STATUS.ENGINEACCEPTED}));
 		expect(component.asFragment()).toMatchSnapshot();
 
-		component = render(TaskStatus({ value: TASK_STATUS.FINISHED }));
+		component = render(TaskStatus({value: TASK_STATUS.FINISHED}));
 		expect(component.asFragment()).toMatchSnapshot();
 
-		component = render(TaskStatus({ value: TASK_STATUS.FROZEN }));
+		component = render(TaskStatus({value: TASK_STATUS.FROZEN}));
 		expect(component.asFragment()).toMatchSnapshot();
 
-		component = render(TaskStatus({ value: TASK_STATUS.INVOKED }));
+		component = render(TaskStatus({value: TASK_STATUS.INVOKED}));
 		expect(component.asFragment()).toMatchSnapshot();
 
-		component = render(TaskStatus({ value: TASK_STATUS.KILLED }));
+		component = render(TaskStatus({value: TASK_STATUS.KILLED}));
 		expect(component.asFragment()).toMatchSnapshot();
 
-		component = render(TaskStatus({ value: TASK_STATUS.LACKING }));
+		component = render(TaskStatus({value: TASK_STATUS.LACKING}));
 		expect(component.asFragment()).toMatchSnapshot();
 
-		component = render(TaskStatus({ value: TASK_STATUS.PARENT_FAILD }));
+		component = render(TaskStatus({value: TASK_STATUS.PARENT_FAILD}));
 		expect(component.asFragment()).toMatchSnapshot();
 
-		component = render(TaskStatus({ value: TASK_STATUS.RESTARTING }));
+		component = render(TaskStatus({value: TASK_STATUS.RESTARTING}));
 		expect(component.asFragment()).toMatchSnapshot();
 
-		component = render(TaskStatus({ value: TASK_STATUS.RUNNING }));
+		component = render(TaskStatus({value: TASK_STATUS.RUNNING}));
 		expect(component.asFragment()).toMatchSnapshot();
 
-		component = render(TaskStatus({ value: TASK_STATUS.RUN_FAILED }));
+		component = render(TaskStatus({value: TASK_STATUS.RUN_FAILED}));
 		expect(component.asFragment()).toMatchSnapshot();
 
-		component = render(TaskStatus({ value: TASK_STATUS.SET_SUCCESS }));
+		component = render(TaskStatus({value: TASK_STATUS.SET_SUCCESS}));
 		expect(component.asFragment()).toMatchSnapshot();
 
-		component = render(TaskStatus({ value: TASK_STATUS.STOPED }));
+		component = render(TaskStatus({value: TASK_STATUS.STOPED}));
 		expect(component.asFragment()).toMatchSnapshot();
 
-		component = render(TaskStatus({ value: TASK_STATUS.STOPING }));
+		component = render(TaskStatus({value: TASK_STATUS.STOPING}));
 		expect(component.asFragment()).toMatchSnapshot();
 
-		component = render(TaskStatus({ value: TASK_STATUS.SUBMITTED }));
+		component = render(TaskStatus({value: TASK_STATUS.SUBMITTED}));
 		expect(component.asFragment()).toMatchSnapshot();
 
-		component = render(TaskStatus({ value: TASK_STATUS.SUBMITTING }));
+		component = render(TaskStatus({value: TASK_STATUS.SUBMITTING}));
 		expect(component.asFragment()).toMatchSnapshot();
 
-		component = render(TaskStatus({ value: TASK_STATUS.SUBMIT_FAILED }));
+		component = render(TaskStatus({value: TASK_STATUS.SUBMIT_FAILED}));
 		expect(component.asFragment()).toMatchSnapshot();
 
-		component = render(TaskStatus({ value: TASK_STATUS.TASK_STATUS_NOT_FOUND }));
+		component = render(TaskStatus({value: TASK_STATUS.TASK_STATUS_NOT_FOUND}));
 		expect(component.asFragment()).toMatchSnapshot();
 
-		component = render(TaskStatus({ value: TASK_STATUS.WAIT_COMPUTE }));
+		component = render(TaskStatus({value: TASK_STATUS.WAIT_COMPUTE}));
 		expect(component.asFragment()).toMatchSnapshot();
 
-		component = render(TaskStatus({ value: TASK_STATUS.WAIT_RUN }));
+		component = render(TaskStatus({value: TASK_STATUS.WAIT_RUN}));
 		expect(component.asFragment()).toMatchSnapshot();
 
-		component = render(TaskStatus({ value: TASK_STATUS.WAIT_SUBMIT }));
+		component = render(TaskStatus({value: TASK_STATUS.WAIT_SUBMIT}));
 		expect(component.asFragment()).toMatchSnapshot();
 	});
 
@@ -288,13 +288,13 @@ describe('enums', () => {
 	});
 
 	it('getFlinkDisabledSource', () => {
-		expect(getFlinkDisabledSource({ version: '1.12', value: 0 })).toEqual({
+		expect(getFlinkDisabledSource({version: '1.12', value: 0})).toEqual({
 			ONLY_FLINK_1_12_DISABLED: false,
 			ONLY_ALLOW_FLINK_1_10_DISABLED: false,
 			ONLY_ALLOW_FLINK_1_12_DISABLED: false,
 		});
 
-		expect(getFlinkDisabledSource({ version: '1.12', value: 0, disabled112List: [0] })).toEqual(
+		expect(getFlinkDisabledSource({version: '1.12', value: 0, disabled112List: [0]})).toEqual(
 			{
 				ONLY_FLINK_1_12_DISABLED: true,
 				ONLY_ALLOW_FLINK_1_10_DISABLED: false,

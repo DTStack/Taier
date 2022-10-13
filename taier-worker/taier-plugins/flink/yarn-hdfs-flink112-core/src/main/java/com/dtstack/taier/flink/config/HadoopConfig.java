@@ -12,34 +12,35 @@ import java.util.Map;
 
 /**
  * todo: add add-configuration method
- * @author sishu.yss
  *
+ * @author sishu.yss
  */
 public class HadoopConfig {
 
     private static final Logger LOG = LoggerFactory.getLogger(HadoopConfig.class);
 
     private Configuration coreConfiguration;
-	private YarnConfiguration yarnConfiguration;
+    private YarnConfiguration yarnConfiguration;
 
-	private HadoopConfig(){}
+    private HadoopConfig() {
+    }
 
-    public HadoopConfig(Map<String, Object> coreConf, Map<String, Object> yarnConf){
+    public HadoopConfig(Map<String, Object> coreConf, Map<String, Object> yarnConf) {
         initCoreConfig(coreConf);
         initYarnConfig(yarnConf);
     }
 
-    private void initCoreConfig(Map<String, Object> conf){
+    private void initCoreConfig(Map<String, Object> conf) {
 
         coreConfiguration = new Configuration(false);
         HadoopConfTool.setFsHdfsImplDisableCache(coreConfiguration);
         // todo: support all type conversion
-        if(MapUtils.isNotEmpty(conf)){
-            conf.keySet().forEach(key ->{
+        if (MapUtils.isNotEmpty(conf)) {
+            conf.keySet().forEach(key -> {
                 Object value = conf.get(key);
-                if (value instanceof String){
+                if (value instanceof String) {
                     coreConfiguration.set(key, (String) value);
-                } else if (value instanceof Boolean){
+                } else if (value instanceof Boolean) {
                     coreConfiguration.setBoolean(key, (boolean) value);
                 }
             });
@@ -49,16 +50,16 @@ public class HadoopConfig {
         coreConfiguration.setBoolean(CommonConfigurationKeys.IPC_CLIENT_FALLBACK_TO_SIMPLE_AUTH_ALLOWED_KEY, true);
     }
 
-    private void initYarnConfig(Map<String, Object> conf){
+    private void initYarnConfig(Map<String, Object> conf) {
 
         yarnConfiguration = new YarnConfiguration(coreConfiguration);
         // todo: support all type conversion
-        if(MapUtils.isNotEmpty(conf)){
-            conf.keySet().forEach(key ->{
+        if (MapUtils.isNotEmpty(conf)) {
+            conf.keySet().forEach(key -> {
                 Object value = conf.get(key);
-                if (value instanceof String){
+                if (value instanceof String) {
                     yarnConfiguration.set(key, (String) value);
-                } else if (value instanceof Boolean){
+                } else if (value instanceof Boolean) {
                     yarnConfiguration.setBoolean(key, (boolean) value);
                 }
             });
@@ -68,11 +69,11 @@ public class HadoopConfig {
         HadoopConfTool.setDefaultYarnConf(yarnConfiguration, conf);
     }
 
-    public Configuration getCoreConfiguration(){
+    public Configuration getCoreConfiguration() {
         return coreConfiguration;
     }
 
-    public String getDefaultFs(){
+    public String getDefaultFs() {
         return coreConfiguration.get("fs.defaultFS");
     }
 

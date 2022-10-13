@@ -59,7 +59,6 @@ public class MD5Util {
     }
 
 
-
     /**
      * 获得字符串的md5大写值
      *
@@ -88,7 +87,7 @@ public class MD5Util {
             MessageDigest md5 = MessageDigest.getInstance("MD5");
             md5.update(byteBuffer);
             ret = HexUtil.bytes2Hex(md5.digest());
-        } catch (IOException |NoSuchAlgorithmException e) {
+        } catch (IOException | NoSuchAlgorithmException e) {
             LOGGER.error("MD5Util.getFileMd5String error:", e);
         } finally {
             if (in != null) {

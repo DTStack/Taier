@@ -31,6 +31,7 @@ import java.util.List;
  * Reason:
  * Date: 2018/10/20
  * Company: www.dtstack.com
+ *
  * @author xuchao
  */
 
@@ -42,12 +43,14 @@ public class CommonFunc implements IFunction {
 
     protected String functionName;
 
-    /**byLabel 和 withoutLabel 不能同时设置*/
+    /**
+     * byLabel 和 withoutLabel 不能同时设置
+     */
     protected List<String> byLabel;
 
     protected List<String> withoutLabel;
 
-    public CommonFunc(String functionName){
+    public CommonFunc(String functionName) {
         this.functionName = functionName;
     }
 
@@ -64,22 +67,22 @@ public class CommonFunc implements IFunction {
 
     public String dealLabelFilter(String queryStr) throws UnsupportedEncodingException {
 
-        if(CollectionUtils.isEmpty(byLabel) && CollectionUtils.isEmpty(withoutLabel)){
+        if (CollectionUtils.isEmpty(byLabel) && CollectionUtils.isEmpty(withoutLabel)) {
             return queryStr;
         }
 
         //by 和 without 必须配合函数一起使用
-        if(CollectionUtils.isNotEmpty(byLabel) && CollectionUtils.isNotEmpty(withoutLabel)){
+        if (CollectionUtils.isNotEmpty(byLabel) && CollectionUtils.isNotEmpty(withoutLabel)) {
             throw new RuntimeException("'by label' and 'without label' can't set at the same time");
         }
 
-        if(CollectionUtils.isNotEmpty(byLabel)){
+        if (CollectionUtils.isNotEmpty(byLabel)) {
             String labels = String.join(",", byLabel);
             String byLabels = URLEncoder.encode(BY_LABEL_TPL.replace("${label}", labels), Charsets.UTF_8.name());
             queryStr += byLabels;
         }
 
-        if(CollectionUtils.isNotEmpty(withoutLabel)){
+        if (CollectionUtils.isNotEmpty(withoutLabel)) {
             String labels = String.join(",", withoutLabel);
             String withoutLabels = URLEncoder.encode(WITHOUT_LABEL_TPL.replace("${label}", labels), Charsets.UTF_8.name());
             queryStr += withoutLabels;

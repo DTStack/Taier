@@ -6,9 +6,9 @@
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -18,6 +18,40 @@
 
 package org.apache.hive.jdbc;
 
+import org.apache.commons.lang3.BooleanUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.apache.hadoop.hive.conf.HiveConf;
+import org.apache.hive.jdbc.Utils.JdbcConnectionParams;
+import org.apache.hive.service.auth.HiveAuthFactory;
+import org.apache.hive.service.auth.KerberosSaslHelper;
+import org.apache.hive.service.auth.PlainSaslHelper;
+import org.apache.hive.service.auth.SaslQOP;
+import org.apache.hive.service.cli.thrift.EmbeddedThriftBinaryCLIService;
+import org.apache.hive.service.cli.thrift.TCLIService;
+import org.apache.hive.service.cli.thrift.TCancelDelegationTokenReq;
+import org.apache.hive.service.cli.thrift.TCancelDelegationTokenResp;
+import org.apache.hive.service.cli.thrift.TCloseSessionReq;
+import org.apache.hive.service.cli.thrift.TGetDelegationTokenReq;
+import org.apache.hive.service.cli.thrift.TGetDelegationTokenResp;
+import org.apache.hive.service.cli.thrift.TOpenSessionReq;
+import org.apache.hive.service.cli.thrift.TOpenSessionResp;
+import org.apache.hive.service.cli.thrift.TProtocolVersion;
+import org.apache.hive.service.cli.thrift.TRenewDelegationTokenReq;
+import org.apache.hive.service.cli.thrift.TRenewDelegationTokenResp;
+import org.apache.hive.service.cli.thrift.TSessionHandle;
+import org.apache.http.HttpRequestInterceptor;
+import org.apache.http.conn.scheme.Scheme;
+import org.apache.http.conn.ssl.SSLSocketFactory;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.thrift.TException;
+import org.apache.thrift.protocol.TBinaryProtocol;
+import org.apache.thrift.transport.THttpClient;
+import org.apache.thrift.transport.TTransport;
+import org.apache.thrift.transport.TTransportException;
+
+import javax.security.sasl.Sasl;
+import javax.security.sasl.SaslException;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.security.KeyStore;
@@ -46,42 +80,6 @@ import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
-
-import javax.security.sasl.Sasl;
-import javax.security.sasl.SaslException;
-
-import org.apache.commons.lang3.BooleanUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.apache.hadoop.hive.conf.HiveConf;
-import org.apache.hadoop.hive.shims.ShimLoader;
-import org.apache.hive.jdbc.Utils.JdbcConnectionParams;
-import org.apache.hive.service.auth.HiveAuthFactory;
-import org.apache.hive.service.auth.KerberosSaslHelper;
-import org.apache.hive.service.auth.PlainSaslHelper;
-import org.apache.hive.service.auth.SaslQOP;
-import org.apache.hive.service.cli.thrift.EmbeddedThriftBinaryCLIService;
-import org.apache.hive.service.cli.thrift.TCLIService;
-import org.apache.hive.service.cli.thrift.TCancelDelegationTokenReq;
-import org.apache.hive.service.cli.thrift.TCancelDelegationTokenResp;
-import org.apache.hive.service.cli.thrift.TCloseSessionReq;
-import org.apache.hive.service.cli.thrift.TGetDelegationTokenReq;
-import org.apache.hive.service.cli.thrift.TGetDelegationTokenResp;
-import org.apache.hive.service.cli.thrift.TOpenSessionReq;
-import org.apache.hive.service.cli.thrift.TOpenSessionResp;
-import org.apache.hive.service.cli.thrift.TProtocolVersion;
-import org.apache.hive.service.cli.thrift.TRenewDelegationTokenReq;
-import org.apache.hive.service.cli.thrift.TRenewDelegationTokenResp;
-import org.apache.hive.service.cli.thrift.TSessionHandle;
-import org.apache.http.HttpRequestInterceptor;
-import org.apache.http.conn.scheme.Scheme;
-import org.apache.http.conn.ssl.SSLSocketFactory;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.thrift.TException;
-import org.apache.thrift.protocol.TBinaryProtocol;
-import org.apache.thrift.transport.THttpClient;
-import org.apache.thrift.transport.TTransport;
-import org.apache.thrift.transport.TTransportException;
 
 /**
  * HiveConnection.
@@ -262,9 +260,8 @@ public class HiveConnection implements java.sql.Connection {
             if (openResp != null) {
                 client.CloseSession(new TCloseSessionReq(openResp.getSessionHandle()));
             }
-        }
-        catch (TException e) {
-            String msg =  "Could not create http connection to " +
+        } catch (TException e) {
+            String msg = "Could not create http connection to " +
                     jdbcUriString + ". " + e.getMessage();
             throw new TTransportException(msg, e);
         }
@@ -287,8 +284,7 @@ public class HiveConnection implements java.sql.Connection {
             requestInterceptor =
                     new HttpKerberosRequestInterceptor(sessConfMap.get(JdbcConnectionParams.AUTH_PRINCIPAL),
                             host, getServerHttpUrl(useSsl), assumeSubject);
-        }
-        else {
+        } else {
             /**
              * Add an interceptor to pass username/password in the header.
              * In https mode, the entire information is encrypted
@@ -318,8 +314,7 @@ public class HiveConnection implements java.sql.Connection {
                 if (sslTrustStorePath == null || sslTrustStorePath.isEmpty()) {
                     // Create a default socket factory based on standard JSSE trust material
                     socketFactory = SSLSocketFactory.getSocketFactory();
-                }
-                else {
+                } else {
                     // Pick trust store config from the given path
                     sslTrustStore = KeyStore.getInstance(JdbcConnectionParams.SSL_TRUST_STORE_TYPE);
                     sslTrustStore.load(new FileInputStream(sslTrustStorePath),
@@ -329,9 +324,8 @@ public class HiveConnection implements java.sql.Connection {
                 socketFactory.setHostnameVerifier(SSLSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER);
                 Scheme sslScheme = new Scheme("https", 443, socketFactory);
                 httpClient.getConnectionManager().getSchemeRegistry().register(sslScheme);
-            }
-            catch (Exception e) {
-                String msg =  "Could not create an https connection to " +
+            } catch (Exception e) {
+                String msg = "Could not create an https connection to " +
                         jdbcUriString + ". " + e.getMessage();
                 throw new SQLException(msg, " 08S01", e);
             }
@@ -506,7 +500,7 @@ public class HiveConnection implements java.sql.Connection {
 
     private boolean isHttpTransportMode() {
         String transportMode = sessConfMap.get(JdbcConnectionParams.TRANSPORT_MODE);
-        if(transportMode != null && (transportMode.equalsIgnoreCase("http"))) {
+        if (transportMode != null && (transportMode.equalsIgnoreCase("http"))) {
             return true;
         }
         return false;

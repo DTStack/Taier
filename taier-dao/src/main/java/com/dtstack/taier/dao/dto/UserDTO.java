@@ -1,6 +1,6 @@
 package com.dtstack.taier.dao.dto;
 
-public class UserDTO  {
+public class UserDTO {
 
     private String userName;
 

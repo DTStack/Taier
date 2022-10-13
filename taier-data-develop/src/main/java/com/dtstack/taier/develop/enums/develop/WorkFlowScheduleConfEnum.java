@@ -101,8 +101,7 @@ public enum WorkFlowScheduleConfEnum {
             applyParentScheduleConf(childNodeTask, parentJsonObject, BEGIN_DATE_KEY_NAME, END_DATE_KEY_NAME, DAY_KEY_NAME,
                     HOUR_KEY_NAME, MIN_KEY_NAME, PERIOD_TYPE);
         }
-    }
-    ;
+    };
     /**
      * 开始小时键名
      */

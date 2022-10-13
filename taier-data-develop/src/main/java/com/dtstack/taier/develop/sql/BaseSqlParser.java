@@ -58,10 +58,10 @@ public abstract class BaseSqlParser implements SqlParserImpl {
         String standardSql = parseResult.getOriginSql();
 
         Matcher matcher;
-        if(parseResult.getMainTable().getLifecycle() == null){
+        if (parseResult.getMainTable().getLifecycle() == null) {
             matcher = LIFECYCLE_PATTERN.matcher(standardSql);
             int lifecycle = DEFAULT_LIFECYCLE;
-            if(matcher.find()){
+            if (matcher.find()) {
                 lifecycle = Integer.parseInt(matcher.group("lifecycle"));
                 standardSql = matcher.replaceAll("");
             }
@@ -69,11 +69,11 @@ public abstract class BaseSqlParser implements SqlParserImpl {
             parseResult.getMainTable().setOperate(TableOperateEnum.CREATE);
         }
 
-        if(parseResult.getMainTable().getCatalogueId() == null){
+        if (parseResult.getMainTable().getCatalogueId() == null) {
             // 解析类目
             Long catalogueId = null;
             matcher = CATALOGUE_PATTERN.matcher(standardSql);
-            if(matcher.find()){
+            if (matcher.find()) {
                 catalogueId = Long.parseLong(matcher.group("catalogue"));
                 standardSql = matcher.replaceAll("");
             }

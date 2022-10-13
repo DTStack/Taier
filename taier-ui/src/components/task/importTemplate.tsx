@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'react';
-import { Divider, Form, message, Modal, Select, Tooltip } from 'antd';
+import {useEffect, useState} from 'react';
+import {Divider, Form, message, Modal, Select, Tooltip} from 'antd';
 import api from '@/api';
 import {
 	DATA_SOURCE_ENUM_OBJ,
@@ -8,11 +8,11 @@ import {
 	notSupportSourceTypesInScript,
 	notSupportTargetTypesInScript,
 } from '@/constant';
-import type { IDataSourceUsedInSyncProps } from '@/interface';
-import { getTenantId } from '@/utils';
+import type {IDataSourceUsedInSyncProps} from '@/interface';
+import {getTenantId} from '@/utils';
 
 const FormItem = Form.Item;
-const { Option } = Select;
+const {Option} = Select;
 
 const SOURCE_TYPE_OPTIONS = Object.values(DATA_SOURCE_ENUM_OBJ).map((sourceType) => {
 	const disableSelect = notSupportSourceTypesInScript.includes(sourceType);
@@ -46,14 +46,14 @@ interface IFormFieldProps {
 	targetSourceId: number;
 }
 
-export default function ImportTemplate({ taskId, onSuccess }: IImportTemplateProps) {
+export default function ImportTemplate({taskId, onSuccess}: IImportTemplateProps) {
 	const [form] = Form.useForm<IFormFieldProps>();
 	const [visible, setVisible] = useState(true);
 	const [loading, setLoading] = useState(false);
 	const [dataSourceList, setDataSourceList] = useState<IDataSourceUsedInSyncProps[]>([]);
 
 	const getDataSourceList = () => {
-		api.queryByTenantId<IDataSourceUsedInSyncProps[]>({ tenantId: getTenantId() }).then((res) => {
+		api.queryByTenantId<IDataSourceUsedInSyncProps[]>({tenantId: getTenantId()}).then((res) => {
 			if (res.code === 1) {
 				setDataSourceList(res.data || []);
 			}
@@ -153,7 +153,7 @@ export default function ImportTemplate({ taskId, onSuccess }: IImportTemplatePro
 					</Select>
 				</FormItem>
 				<FormItem noStyle dependencies={['sourceType']}>
-					{({ getFieldValue }) => (
+					{({getFieldValue}) => (
 						<FormItem
 							label="数据源"
 							name="sourceId"
@@ -173,7 +173,7 @@ export default function ImportTemplate({ taskId, onSuccess }: IImportTemplatePro
 						</FormItem>
 					)}
 				</FormItem>
-				<Divider />
+				<Divider/>
 				<FormItem
 					label="目标类型"
 					name="targetType"
@@ -194,7 +194,7 @@ export default function ImportTemplate({ taskId, onSuccess }: IImportTemplatePro
 					</Select>
 				</FormItem>
 				<FormItem noStyle dependencies={['targetType']}>
-					{({ getFieldValue }) => (
+					{({getFieldValue}) => (
 						<FormItem
 							label="数据源"
 							name="targetSourceId"

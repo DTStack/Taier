@@ -20,7 +20,6 @@ package com.dtstack.taier.pluginapi.enums;
 
 
 /**
- *
  * Date: 2017年03月03日 下午1:25:18
  * Company: www.dtstack.com
  *
@@ -52,8 +51,8 @@ public enum ComputeType {
         return this.type;
     }
 
-    public boolean typeEqual(Integer targetType){
-        if(type.equals(targetType)){
+    public boolean typeEqual(Integer targetType) {
+        if (type.equals(targetType)) {
             return true;
         }
 

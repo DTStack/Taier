@@ -38,10 +38,10 @@ public class DevelopTaskResourceShadeService {
     private DevelopTaskResourceShadeMapper developTaskResourceShadeDao;
 
     public void addOrUpdate(DevelopTaskResourceShade developTaskResourceShade) {
-        if (developTaskResourceShade.getId()!= null && developTaskResourceShade.getId()>0) {
+        if (developTaskResourceShade.getId() != null && developTaskResourceShade.getId() > 0) {
             //查询是否传入参数有问题
             DevelopTaskResourceShade one = developTaskResourceShadeDao.selectById(developTaskResourceShade.getId());
-            if (one == null){
+            if (one == null) {
                 throw new RdosDefineException(String.format("未查询到id = %s对应的记录", developTaskResourceShade.getId()));
             }
             developTaskResourceShadeDao.updateById(developTaskResourceShade);
@@ -59,7 +59,7 @@ public class DevelopTaskResourceShadeService {
      */
     public Integer deleteByTaskId(Long taskId) {
         return developTaskResourceShadeDao.delete(Wrappers.lambdaQuery(DevelopTaskResourceShade.class)
-                .eq(DevelopTaskResourceShade::getTaskId,taskId));
+                .eq(DevelopTaskResourceShade::getTaskId, taskId));
     }
 
 }

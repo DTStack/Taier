@@ -1,7 +1,7 @@
 package com.dtstack.taier.datasource.plugin.hdfs3;
 
-import com.dtstack.taier.datasource.plugin.kerberos.core.hdfs.HadoopConfUtil;
 import com.dtstack.taier.datasource.api.exception.SourceException;
+import com.dtstack.taier.datasource.plugin.kerberos.core.hdfs.HadoopConfUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.MapUtils;
 import org.apache.hadoop.conf.Configuration;

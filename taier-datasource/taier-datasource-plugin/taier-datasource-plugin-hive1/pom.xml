@@ -413,7 +413,6 @@
         </dependency>
 
 
-
         <dependency>
             <groupId>org.apache.kerby</groupId>
             <artifactId>kerb-util</artifactId>
@@ -525,7 +524,7 @@
                         <configuration>
                             <tasks>
                                 <copy file="${basedir}/target/${project.name}-${datasource.version}.jar"
-                                      tofile="${basedir}/../../../datasource-plugins/${jar.package.name}/${jar.name}--${datasource.version}.jar" />
+                                      tofile="${basedir}/../../../datasource-plugins/${jar.package.name}/${jar.name}--${datasource.version}.jar"/>
                                 <delete>
                                     <fileset dir="${basedir}/../../../datasource-plugins/${jar.package.name}/"
                                              includes="${jar.name}-*.jar"

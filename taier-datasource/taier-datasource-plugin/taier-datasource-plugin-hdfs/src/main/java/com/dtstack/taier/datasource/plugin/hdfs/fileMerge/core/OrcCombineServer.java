@@ -1,10 +1,10 @@
 package com.dtstack.taier.datasource.plugin.hdfs.fileMerge.core;
 
+import com.dtstack.taier.datasource.api.enums.FileFormat;
+import com.dtstack.taier.datasource.api.exception.SourceException;
 import com.dtstack.taier.datasource.plugin.hdfs.fileMerge.ECompressType;
 import com.dtstack.taier.datasource.plugin.hdfs.fileMerge.meta.OrcMetaData;
 import com.dtstack.taier.datasource.plugin.hdfs.util.FileSystemUtils;
-import com.dtstack.taier.datasource.api.enums.FileFormat;
-import com.dtstack.taier.datasource.api.exception.SourceException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.Path;
@@ -48,7 +48,7 @@ public class OrcCombineServer extends CombineServer {
 
         try {
             for (FileStatus fileStatus : combineFiles) {
-                log.info("start read {}",fileStatus.getPath());
+                log.info("start read {}", fileStatus.getPath());
                 Reader reader = getReader(fileStatus);
 
                 RecordReader rows = reader.rows();

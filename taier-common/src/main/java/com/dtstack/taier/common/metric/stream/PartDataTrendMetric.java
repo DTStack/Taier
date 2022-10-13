@@ -81,19 +81,19 @@ public class PartDataTrendMetric extends DataDelayMetric {
     @Override
     public Object getMetric() {
         QueryInfo queryInfo = buildQueryInfo();
-        MetricResult metricResult = prometheusMetricQuery.queryRange(getMetricName(),startTime,endTime,queryInfo,getTagName());
+        MetricResult metricResult = prometheusMetricQuery.queryRange(getMetricName(), startTime, endTime, queryInfo, getTagName());
         return formatData(metricResult);
     }
 
     @Override
     public JSONArray formatData(MetricResult metricResult) {
         JSONArray data = new JSONArray();
-        if(metricResult != null && CollectionUtils.isNotEmpty(metricResult.getMetricDataList())){
+        if (metricResult != null && CollectionUtils.isNotEmpty(metricResult.getMetricDataList())) {
             for (MetricData metricData : metricResult.getMetricDataList()) {
                 for (Object dp : metricData.getDps()) {
                     JSONObject item = new JSONObject();
-                    item.put("data",((Tuple<Long, Long>)dp).getTwo());
-                    item.put("time",((Tuple<Long, Long>)dp).getOne());
+                    item.put("data", ((Tuple<Long, Long>) dp).getTwo());
+                    item.put("time", ((Tuple<Long, Long>) dp).getOne());
                     data.add(item);
                 }
             }
@@ -108,7 +108,7 @@ public class PartDataTrendMetric extends DataDelayMetric {
     }
 
     @Override
-    public String getTagName(){
+    public String getTagName() {
         return "partition";
     }
 

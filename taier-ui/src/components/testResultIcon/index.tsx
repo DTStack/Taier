@@ -16,12 +16,12 @@
  * limitations under the License.
  */
 
-import { useState } from 'react';
-import { CheckCircleFilled, CloseCircleFilled } from '@ant-design/icons';
-import { Tooltip, Modal } from 'antd';
-import { isArray } from 'lodash';
+import {useState} from 'react';
+import {CheckCircleFilled, CloseCircleFilled} from '@ant-design/icons';
+import {Modal, Tooltip} from 'antd';
+import {isArray} from 'lodash';
 import classNames from 'classnames';
-import type { COMPONENT_TYPE_VALUE } from '@/constant';
+import type {COMPONENT_TYPE_VALUE} from '@/constant';
 import './index.scss';
 
 const TEST_STATUS = {
@@ -38,9 +38,9 @@ interface ITestStatusProps {
 		| string
 		| null
 		| {
-				componentVersion?: string | null;
-				errorMsg: string | null;
-		  }[];
+		componentVersion?: string | null;
+		errorMsg: string | null;
+	}[];
 	result: null | boolean;
 }
 
@@ -48,7 +48,7 @@ interface ITestRestIconProps {
 	testStatus: ITestStatusProps;
 }
 
-export default function TestRestIcon({ testStatus }: ITestRestIconProps) {
+export default function TestRestIcon({testStatus}: ITestRestIconProps) {
 	const [showMsg, setShowMsg] = useState(false);
 
 	const showDetailErrMessage = (msgContent: JSX.Element | JSX.Element[]) => {
@@ -56,7 +56,7 @@ export default function TestRestIcon({ testStatus }: ITestRestIconProps) {
 		Modal.error({
 			title: `错误信息`,
 			content: (
-				<div style={{ maxHeight: 'calc(100vh - 300px)', overflow: 'auto' }}>
+				<div style={{maxHeight: 'calc(100vh - 300px)', overflow: 'auto'}}>
 					{msgContent}
 				</div>
 			),
@@ -67,7 +67,7 @@ export default function TestRestIcon({ testStatus }: ITestRestIconProps) {
 	const matchCompTest = (testResult: ITestStatusProps) => {
 		switch (testResult?.result) {
 			case TEST_STATUS.SUCCESS: {
-				return <CheckCircleFilled className="success-icon" />;
+				return <CheckCircleFilled className="success-icon"/>;
 			}
 			case TEST_STATUS.FAIL: {
 				const msgContent = isArray(testResult?.errorMsg) ? (
@@ -93,9 +93,9 @@ export default function TestRestIcon({ testStatus }: ITestRestIconProps) {
 						}
 						placement="right"
 						onVisibleChange={(v) => setShowMsg(v)}
-						overlayInnerStyle={{ maxHeight: 300, overflow: 'auto' }}
+						overlayInnerStyle={{maxHeight: 300, overflow: 'auto'}}
 					>
-						<CloseCircleFilled className="err-icon" />
+						<CloseCircleFilled className="err-icon"/>
 					</Tooltip>
 				);
 			}

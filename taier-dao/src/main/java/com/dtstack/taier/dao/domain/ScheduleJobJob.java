@@ -37,7 +37,7 @@ public class ScheduleJobJob {
     /**
      * 唯一标识
      */
-    @TableId(value="id", type= IdType.AUTO)
+    @TableId(value = "id", type = IdType.AUTO)
     private Long id;
 
     /**
@@ -57,16 +57,16 @@ public class ScheduleJobJob {
 
     /**
      * parentJobKey类型： RelyType
-     *   1. 自依赖实例key
-     *   2. 上游任务key
-     *   3. 上游任务的下一个周期key
+     * 1. 自依赖实例key
+     * 2. 上游任务key
+     * 3. 上游任务的下一个周期key
      */
     private Integer jobKeyType;
 
     /**
      * 依赖规则: RelyRule
-     *  1. 父实例运行完成，可以运行
-     *  2. 父实例运行成功，可以运行
+     * 1. 父实例运行完成，可以运行
+     * 2. 父实例运行成功，可以运行
      */
     private Integer rule;
 

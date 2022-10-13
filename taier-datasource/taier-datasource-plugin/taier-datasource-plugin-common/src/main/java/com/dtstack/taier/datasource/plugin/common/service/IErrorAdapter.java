@@ -14,7 +14,7 @@ public interface IErrorAdapter {
     /**
      * 获取连接失败分析
      *
-     * @param errorMsg 错误信息
+     * @param errorMsg     错误信息
      * @param errorPattern 对应的正则实现类
      * @return 统一的错误描述
      */
@@ -23,7 +23,7 @@ public interface IErrorAdapter {
     /**
      * sql执行失败分析
      *
-     * @param errorMsg 错误信息
+     * @param errorMsg     错误信息
      * @param errorPattern 对应的正则实现类
      * @return 统一的错误描述
      */

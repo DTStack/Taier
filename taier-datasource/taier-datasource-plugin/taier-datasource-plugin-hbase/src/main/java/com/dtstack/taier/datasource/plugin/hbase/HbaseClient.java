@@ -1,12 +1,12 @@
 package com.dtstack.taier.datasource.plugin.hbase;
 
-import com.dtstack.taier.datasource.plugin.common.nosql.AbsNoSqlClient;
-import com.dtstack.taier.datasource.plugin.common.utils.SearchUtil;
 import com.dtstack.taier.datasource.api.dto.ColumnMetaDTO;
 import com.dtstack.taier.datasource.api.dto.SqlQueryDTO;
 import com.dtstack.taier.datasource.api.dto.source.HbaseSourceDTO;
 import com.dtstack.taier.datasource.api.dto.source.ISourceDTO;
 import com.dtstack.taier.datasource.api.exception.SourceException;
+import com.dtstack.taier.datasource.plugin.common.nosql.AbsNoSqlClient;
+import com.dtstack.taier.datasource.plugin.common.utils.SearchUtil;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import lombok.extern.slf4j.Slf4j;
@@ -81,7 +81,7 @@ public class HbaseClient extends AbsNoSqlClient {
             throw new SourceException(String.format("get hbase table list exception,%s", e.getMessage()), e);
         } finally {
             closeAdmin(admin);
-            closeConnection(hConn,hbaseSourceDTO);
+            closeConnection(hConn, hbaseSourceDTO);
             destroyProperty();
         }
         return SearchUtil.handleSearchAndLimit(tableList, queryDTO);
@@ -119,7 +119,7 @@ public class HbaseClient extends AbsNoSqlClient {
             tb = hConn.getTable(tableName);
             HTableDescriptor hTableDescriptor = tb.getTableDescriptor();
             HColumnDescriptor[] columnDescriptors = hTableDescriptor.getColumnFamilies();
-            for(HColumnDescriptor columnDescriptor: columnDescriptors) {
+            for (HColumnDescriptor columnDescriptor : columnDescriptors) {
                 ColumnMetaDTO columnMetaDTO = new ColumnMetaDTO();
                 columnMetaDTO.setKey(columnDescriptor.getNameAsString());
                 cfList.add(columnMetaDTO);
@@ -128,7 +128,7 @@ public class HbaseClient extends AbsNoSqlClient {
             throw new SourceException(String.format("hbase list column families error,%s", e.getMessage()), e);
         } finally {
             closeTable(tb);
-            closeConnection(hConn,hbaseSourceDTO);
+            closeConnection(hConn, hbaseSourceDTO);
             destroyProperty();
         }
         return cfList;
@@ -160,7 +160,7 @@ public class HbaseClient extends AbsNoSqlClient {
                     break;
                 }
             }
-        } catch (Exception e){
+        } catch (Exception e) {
             throw new SourceException(String.format("Data preview failed,%s", e.getMessage()), e);
         } finally {
             if (hbaseSourceDTO.getPoolConfig() == null || MapUtils.isNotEmpty(hbaseSourceDTO.getKerberosConfig())) {
@@ -176,11 +176,11 @@ public class HbaseClient extends AbsNoSqlClient {
             List<Cell> cells = result.listCells();
             long timestamp = 0L;
             HashMap<String, Object> row = Maps.newHashMap();
-            for (Cell cell : cells){
-                row.put(ROWKEY, Bytes.toString(cell.getRowArray(), cell.getRowOffset(),cell.getRowLength()));
-                String family = Bytes.toString(cell.getFamilyArray(), cell.getFamilyOffset(),cell.getFamilyLength());
-                String qualifier = Bytes.toString(cell.getQualifierArray(), cell.getQualifierOffset(),cell.getQualifierLength());
-                String value = Bytes.toString(cell.getValueArray(), cell.getValueOffset(),cell.getValueLength());
+            for (Cell cell : cells) {
+                row.put(ROWKEY, Bytes.toString(cell.getRowArray(), cell.getRowOffset(), cell.getRowLength()));
+                String family = Bytes.toString(cell.getFamilyArray(), cell.getFamilyOffset(), cell.getFamilyLength());
+                String qualifier = Bytes.toString(cell.getQualifierArray(), cell.getQualifierOffset(), cell.getQualifierLength());
+                String value = Bytes.toString(cell.getValueArray(), cell.getValueOffset(), cell.getValueLength());
                 row.put(String.format(FAMILY_QUALIFIER, family, qualifier), value);
                 //取到最新变动的时间
                 if (cell.getTimestamp() > timestamp) {
@@ -247,7 +247,7 @@ public class HbaseClient extends AbsNoSqlClient {
     }
 
     public static void closeTable(Table table) {
-        if(table != null) {
+        if (table != null) {
             try {
                 table.close();
             } catch (IOException e) {

@@ -15,14 +15,14 @@ public class QueryJobLogVO {
     /**
      * 任务实例ID
      */
-    @ApiModelProperty(value = "任务实例ID",example = "1", required = true)
+    @ApiModelProperty(value = "任务实例ID", example = "1", required = true)
     @NotNull
     private String jobId;
 
     /**
      * 页数
      */
-    @ApiModelProperty(value = "页数 默认 1",example = "1")
+    @ApiModelProperty(value = "页数 默认 1", example = "1")
     private Integer pageInfo;
 
     public String getJobId() {

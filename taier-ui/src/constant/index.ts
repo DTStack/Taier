@@ -17,7 +17,7 @@
  */
 
 import type molecule from '@dtinsight/molecule';
-import type { ISubMenuProps } from '@dtinsight/molecule/esm/components';
+import type {ISubMenuProps} from '@dtinsight/molecule/esm/components';
 
 /**
  * ID 集合
@@ -171,35 +171,35 @@ export const DDL_IDE_PLACEHOLDER =
 // 表单正常布局
 export const formItemLayout = {
 	labelCol: {
-		xs: { span: 24 },
-		sm: { span: 6 },
+		xs: {span: 24},
+		sm: {span: 6},
 	},
 	wrapperCol: {
-		xs: { span: 24 },
-		sm: { span: 16 },
+		xs: {span: 24},
+		sm: {span: 16},
 	},
 };
 
 export const scheduleConfigLayout = {
 	labelCol: {
-		xs: { span: 24 },
-		sm: { span: 6 },
+		xs: {span: 24},
+		sm: {span: 6},
 	},
 	wrapperCol: {
-		xs: { span: 24 },
-		sm: { span: 18 },
+		xs: {span: 24},
+		sm: {span: 18},
 	},
 };
 
 // 表单对称布局
 export const specFormItemLayout = {
 	labelCol: {
-		xs: { span: 24 },
-		sm: { span: 8 },
+		xs: {span: 24},
+		sm: {span: 8},
 	},
 	wrapperCol: {
-		xs: { span: 24 },
-		sm: { span: 14 },
+		xs: {span: 24},
+		sm: {span: 14},
 	},
 };
 
@@ -445,6 +445,7 @@ export const HELP_DOC_URL = {
 	ASSET_MANAGE: `/public/helpSite/assets/v4.0/Datamodel/standardtable.html#_功能介绍`,
 	HBASE: `/public/helpSite/stream/v4.0/DataSource/HBase.html`,
 };
+
 /**
  *
  * 数据同步模式
@@ -1020,8 +1021,8 @@ export const RESOURCE_ACTIONS = {
 		id: ID_COLLECTIONS.RESOURCE_CREATE,
 		name: '新建文件夹',
 	} as ISubMenuProps,
-	DELETE: { id: ID_COLLECTIONS.RESOURCE_DELETE, name: '删除' } as ISubMenuProps,
-	EDIT: { id: ID_COLLECTIONS.RESOURCE_EDIT, name: '编辑' } as ISubMenuProps,
+	DELETE: {id: ID_COLLECTIONS.RESOURCE_DELETE, name: '删除'} as ISubMenuProps,
+	EDIT: {id: ID_COLLECTIONS.RESOURCE_EDIT, name: '编辑'} as ISubMenuProps,
 } as const;
 
 /**
@@ -1293,7 +1294,7 @@ export const FLINK_VERSIONS = {
  * FlinkSQL 目前支持的版本
  */
 export const FLINK_VERSION_TYPE = [
-	{ value: FLINK_VERSIONS.FLINK_1_12, label: 'flink1.12', text: '1.12' },
+	{value: FLINK_VERSIONS.FLINK_1_12, label: 'flink1.12', text: '1.12'},
 ];
 
 export enum KAFKA_DATA_TYPE {
@@ -1306,20 +1307,23 @@ export enum KAFKA_DATA_TYPE {
 }
 
 export const KAFKA_DATA_LIST = [
-	{ text: 'json', value: KAFKA_DATA_TYPE.TYPE_JSON },
-	{ text: 'csv', value: KAFKA_DATA_TYPE.TYPE_CSV },
-	{ text: 'avro', value: KAFKA_DATA_TYPE.TYPE_AVRO },
+	{text: 'json', value: KAFKA_DATA_TYPE.TYPE_JSON},
+	{text: 'csv', value: KAFKA_DATA_TYPE.TYPE_CSV},
+	{text: 'avro', value: KAFKA_DATA_TYPE.TYPE_AVRO},
 ];
+
 // 表来源
 export enum TABLE_SOURCE {
 	DATA_ASSET = 1,
 	DATA_CREATE = 0,
 }
+
 /** 源表中时间特征字段 */
 export enum SOURCE_TIME_TYPE {
 	PROC_TIME = 1,
 	EVENT_TIME = 2,
 }
+
 export enum NODE_TYPE {
 	KAFKA_11 = 'COMPONENT_SOURCE',
 	MYSQL_DES = 2, // 维表mysql
@@ -1344,11 +1348,13 @@ export enum COLLECT_TYPE {
 	BEGIN = 4,
 	LSN = 5,
 }
+
 export enum QOS_TYPE {
 	AT_MOST_ONCE = 0,
 	AT_LEAST_ONCE = 1,
 	EXACTLY_ONCE = 2,
 }
+
 // 任务类型
 export enum SYNC_TYPE {
 	BINLOG = 1,
@@ -1356,6 +1362,7 @@ export enum SYNC_TYPE {
 	RESET = 3,
 	LogMiner = 4,
 }
+
 /**
  * 数据操作类型
  */
@@ -1373,6 +1380,7 @@ export enum CAT_TYPE {
 	 */
 	DELETE = 3,
 }
+
 /**
  * 读取方式
  */
@@ -1391,27 +1399,30 @@ export const READ_MODE_NAME = {
 	[READ_MODE_TYPE.LENGTH]: '固定消息长度读取',
 	[READ_MODE_TYPE.STRING]: '分割字符串读取',
 };
-export const RESTFUL_PROPTOCOL = [{ text: 'HTTP/HTTPS', value: 'http' }];
+export const RESTFUL_PROPTOCOL = [{text: 'HTTP/HTTPS', value: 'http'}];
 export const RESTFUL_METHOD = [
-	{ text: 'GET', value: 'get' },
-	{ text: 'POST', value: 'post' },
+	{text: 'GET', value: 'get'},
+	{text: 'POST', value: 'post'},
 ];
 export const RESTFUL_RESP_MODE = [
-	{ text: 'TEXT', value: 'text' },
-	{ text: 'JSON', value: 'json' },
+	{text: 'TEXT', value: 'text'},
+	{text: 'JSON', value: 'json'},
 ];
 export const SLOAR_CONFIG_TYPE = {
 	1: '选择已有Slot',
 	2: '创建Slot',
 };
+
 export enum PARTITION_TYPE {
 	HOUR = 0,
 	DAY = 1,
 }
+
 export enum WRITE_TABLE_TYPE {
 	AUTO = '0',
 	HAND = '1',
 }
+
 /** 有版本区分的数据源的版本后缀 */
 export const DATA_SOURCE_VERSION: Partial<{ [key in DATA_SOURCE_ENUM]: string }> = {
 	[DATA_SOURCE_ENUM.HIVE]: '2.x',
@@ -1427,41 +1438,47 @@ export const DATA_SOURCE_VERSION: Partial<{ [key in DATA_SOURCE_ENUM]: string }>
 	[DATA_SOURCE_ENUM.KAFKA_CONFLUENT]: '5.x',
 };
 export const NEST_KEYS = [
-	{ text: ', (英文逗号)', value: ',' },
-	{ text: '_ (下划线)', value: '_' },
-	{ text: '/ (斜杠)', value: '/' },
-	{ text: '. (英文句号)', value: '.' },
-	{ text: '- (中划线)', value: '-' },
-	{ text: ': (冒号)', value: ':' },
+	{text: ', (英文逗号)', value: ','},
+	{text: '_ (下划线)', value: '_'},
+	{text: '/ (斜杠)', value: '/'},
+	{text: '. (英文句号)', value: '.'},
+	{text: '- (中划线)', value: '-'},
+	{text: ': (冒号)', value: ':'},
 ];
 export const RESTFUL_STRATEGY = [
-	{ text: '立刻停止任务', value: 'stop' },
-	{ text: '连续三次后停止任务', value: 'retry' },
+	{text: '立刻停止任务', value: 'stop'},
+	{text: '连续三次后停止任务', value: 'retry'},
 ];
+
 export enum INTERVAL_TYPE {
 	EVERY = 0,
 	WORKDAY = 1,
 	CUSTOM = 2,
 }
+
 // 启停策略 - 启动方式
 export enum STRATEGY_TYPE {
 	RERUN = 0,
 	CONTINUERUN = 1,
 }
+
 export const STRATEGY_START_TYPE = [
-	{ text: '重跑', value: STRATEGY_TYPE.RERUN },
-	{ text: '续跑', value: STRATEGY_TYPE.CONTINUERUN },
+	{text: '重跑', value: STRATEGY_TYPE.RERUN},
+	{text: '续跑', value: STRATEGY_TYPE.CONTINUERUN},
 ];
+
 export enum CODE_TYPE {
 	UTF_8 = 'utf-8',
 	GBK_2312 = 'gbk2312',
 	GB_2312 = 'gb2312',
 }
+
 export enum TABLE_TYPE {
 	SOURCE_TABLE = 1,
 	OUTPUT_TABLE = 2,
 	DIMENSION_TABLE = 3,
 }
+
 export const hbaseColsText = `列簇: 字段名 类型 as 别名, 比如
 user_info: name varchar as name
 user_info: age varchar as age

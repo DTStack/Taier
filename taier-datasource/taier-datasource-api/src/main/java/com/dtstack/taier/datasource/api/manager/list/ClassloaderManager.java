@@ -4,6 +4,7 @@ import com.dtstack.taier.datasource.api.classloader.ChildFirstClassLoader;
 import com.dtstack.taier.datasource.api.constant.ConfigConstants;
 import com.dtstack.taier.datasource.api.exception.InitializeException;
 import com.dtstack.taier.datasource.api.manager.AbstractManager;
+import lombok.extern.slf4j.Slf4j;
 
 import java.io.File;
 import java.net.URL;
@@ -13,8 +14,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
-
-import lombok.extern.slf4j.Slf4j;
 
 /**
  * 用于管理 classloader, 每个插件仅维护一份 classloader

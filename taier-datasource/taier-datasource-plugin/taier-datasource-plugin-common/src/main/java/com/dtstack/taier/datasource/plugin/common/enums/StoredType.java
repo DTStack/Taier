@@ -40,12 +40,12 @@ public enum StoredType {
     /**
      * KUDU
      */
-    KUDU("kudu", "KUDU","Kudu","Kudu"),
+    KUDU("kudu", "KUDU", "Kudu", "Kudu"),
 
     /**
      * 未知存储类型
      */
-    UN_KNOW_TYPE("unknown stored type","unknown stored type","unknown stored type","unknown stored type"),
+    UN_KNOW_TYPE("unknown stored type", "unknown stored type", "unknown stored type", "unknown stored type"),
 
     /**
      * Default, depending on hive.default.fileformat configuration

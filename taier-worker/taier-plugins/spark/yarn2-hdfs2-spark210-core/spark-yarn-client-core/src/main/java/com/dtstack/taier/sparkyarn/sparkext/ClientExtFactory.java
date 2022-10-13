@@ -28,6 +28,7 @@ import org.apache.spark.deploy.yarn.ClientArguments;
  * Reason:
  * Date: 2019/1/21
  * Company: www.dtstack.com
+ *
  * @author xuchao
  */
 
@@ -36,7 +37,7 @@ public class ClientExtFactory {
     public static ClientExt getClientExt(FilesystemManager filesystemManager,
                                          ClientArguments args,
                                          Configuration hadoopConf,
-                                         SparkConf sparkConf){
+                                         SparkConf sparkConf) {
 
         return new ClientExt(filesystemManager, args, hadoopConf, sparkConf);
     }

@@ -48,8 +48,7 @@ public enum EComponentType {
     TRINO(18, "Trino", "trinoConf", EComponentScheduleType.COMPUTE),
     HANA(19, "Hana", "hanaConf", EComponentScheduleType.COMPUTE),
     CLICK_HOUSE(20, "ClickHouse", "clickHouseConf", EComponentScheduleType.COMPUTE),
-    DORIS(21, "Doris", "dorisConf", EComponentScheduleType.COMPUTE)
-    ;
+    DORIS(21, "Doris", "dorisConf", EComponentScheduleType.COMPUTE);
 
     private final Integer typeCode;
 

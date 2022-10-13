@@ -9,25 +9,25 @@ package com.dtstack.taier.common.enums;
  */
 public enum EComputeType {
 
-    STREAM(0),BATCH(1);
+    STREAM(0), BATCH(1);
 
     private final int type;
 
-    EComputeType(int type){
+    EComputeType(int type) {
         this.type = type;
     }
 
-    public static EComputeType getComputeType(int type){
+    public static EComputeType getComputeType(int type) {
         EComputeType[] computeTypes = EComputeType.values();
-        for(EComputeType computeType:computeTypes){
-            if(computeType.type == type){
+        for (EComputeType computeType : computeTypes) {
+            if (computeType.type == type) {
                 return computeType;
             }
         }
         return null;
     }
 
-    public int getType(){
+    public int getType() {
         return this.type;
     }
 }

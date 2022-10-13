@@ -1,7 +1,7 @@
 package com.dtstack.taier.scheduler.server.builder.dependency;
 
-import com.dtstack.taier.common.enums.DependencyType;
 import com.dtstack.taier.common.enums.Deleted;
+import com.dtstack.taier.common.enums.DependencyType;
 import com.dtstack.taier.dao.domain.ScheduleTaskShade;
 import com.dtstack.taier.dao.domain.ScheduleTaskTaskShade;
 import com.dtstack.taier.scheduler.server.builder.ScheduleConf;
@@ -62,7 +62,7 @@ public class DependencyManager {
         }
 
         // 上游任务的依赖处理器
-        JobDependency jobDependency = new UpstreamDependencyHandler(keyPreStr, currentTaskShade,scheduleJobService,taskShadeList);
+        JobDependency jobDependency = new UpstreamDependencyHandler(keyPreStr, currentTaskShade, scheduleJobService, taskShadeList);
 
         // 判断是否设置自依赖
         ScheduleConf scheduleConf = corn.getScheduleConf();
@@ -74,7 +74,7 @@ public class DependencyManager {
                 || DependencyType.PRE_PERIOD_CHILD_DEPENDENCY_END.getType().equals(scheduleConf.getSelfReliance())) {
             if (CollectionUtils.isNotEmpty(taskShadeList)) {
                 // 依赖下游任务的上一个周期 对jobDependency进行增强
-                jobDependency = new UpstreamNextJobDependencyHandler(keyPreStr, currentTaskShade, scheduleJobService, taskShadeList,jobDependency);
+                jobDependency = new UpstreamNextJobDependencyHandler(keyPreStr, currentTaskShade, scheduleJobService, taskShadeList, jobDependency);
             }
         }
 

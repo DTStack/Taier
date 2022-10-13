@@ -1,5 +1,14 @@
 package com.dtstack.taier.datasource.plugin.hive2.client;
 
+import com.dtstack.taier.datasource.api.client.ITable;
+import com.dtstack.taier.datasource.api.downloader.IDownloader;
+import com.dtstack.taier.datasource.api.dto.ColumnMetaDTO;
+import com.dtstack.taier.datasource.api.dto.SqlQueryDTO;
+import com.dtstack.taier.datasource.api.dto.Table;
+import com.dtstack.taier.datasource.api.dto.source.HiveSourceDTO;
+import com.dtstack.taier.datasource.api.dto.source.ISourceDTO;
+import com.dtstack.taier.datasource.api.exception.SourceException;
+import com.dtstack.taier.datasource.api.source.DataSourceType;
 import com.dtstack.taier.datasource.plugin.common.DtClassConsistent;
 import com.dtstack.taier.datasource.plugin.common.enums.StoredType;
 import com.dtstack.taier.datasource.plugin.common.utils.DBUtil;
@@ -16,15 +25,6 @@ import com.dtstack.taier.datasource.plugin.kerberos.core.hdfs.HdfsOperator;
 import com.dtstack.taier.datasource.plugin.kerberos.core.util.KerberosLoginUtil;
 import com.dtstack.taier.datasource.plugin.rdbms.AbsRdbmsClient;
 import com.dtstack.taier.datasource.plugin.rdbms.ConnFactory;
-import com.dtstack.taier.datasource.api.client.ITable;
-import com.dtstack.taier.datasource.api.dto.ColumnMetaDTO;
-import com.dtstack.taier.datasource.api.dto.SqlQueryDTO;
-import com.dtstack.taier.datasource.api.dto.Table;
-import com.dtstack.taier.datasource.api.dto.source.HiveSourceDTO;
-import com.dtstack.taier.datasource.api.dto.source.ISourceDTO;
-import com.dtstack.taier.datasource.api.exception.SourceException;
-import com.dtstack.taier.datasource.api.source.DataSourceType;
-import com.dtstack.taier.datasource.api.downloader.IDownloader;
 import com.google.common.collect.Lists;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
@@ -272,7 +272,7 @@ public class HiveClient extends AbsRdbmsClient {
         List<ColumnMetaDTO> columns = super.getColumnMetaDataWithSql(sourceDTO, queryDTO);
         columns.forEach(column -> {
             String key = column.getKey();
-            if (StringUtils.isNotBlank(key) && key.split("\\.", -1).length ==2) {
+            if (StringUtils.isNotBlank(key) && key.split("\\.", -1).length == 2) {
                 column.setKey(key.split("\\.", -1)[1]);
             }
         });
@@ -546,7 +546,7 @@ public class HiveClient extends AbsRdbmsClient {
             }
 
             // 兼容一下返回值 Type 的情况
-            if (("Type".equals(colName.trim()) || "Type:".equals(colName.trim()))  && StringUtils.isEmpty(tableInfo.getExternalOrManaged())) {
+            if (("Type".equals(colName.trim()) || "Type:".equals(colName.trim())) && StringUtils.isEmpty(tableInfo.getExternalOrManaged())) {
                 if (ReflectUtil.fieldExists(Table.class, "isView")) {
                     tableInfo.setIsView(StringUtils.containsIgnoreCase(dataType, "VIEW"));
                 }

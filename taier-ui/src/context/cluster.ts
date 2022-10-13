@@ -1,4 +1,4 @@
-import { createContext } from 'react';
+import {createContext} from 'react';
 
 interface IClusterContext {
 	/**
@@ -17,9 +17,12 @@ interface IClusterContext {
 
 export default createContext<IClusterContext>({
 	connectable: {},
-	setConnectable: () => {},
+	setConnectable: () => {
+	},
 	editedComponents: {},
-	setEdited: () => {},
+	setEdited: () => {
+	},
 	principals: [],
-	setPrincipals: () => {},
+	setPrincipals: () => {
+	},
 });

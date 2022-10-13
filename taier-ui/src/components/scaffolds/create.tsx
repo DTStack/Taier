@@ -2,17 +2,17 @@ import {
 	CATALOGUE_TYPE,
 	CREATE_MODEL_TYPE,
 	DATA_SYNC_MODE,
-	FLINK_VERSIONS,
 	FLINK_VERSION_TYPE,
+	FLINK_VERSIONS,
 	PythonVersionKind,
 } from '@/constant';
-import { Button, Empty, Form, Input, Radio, Select } from 'antd';
-import { syncModeHelp, syncTaskHelp } from '../helpDoc/docs';
+import {Button, Empty, Form, Input, Radio, Select} from 'antd';
+import {syncModeHelp, syncTaskHelp} from '../helpDoc/docs';
 import FolderPicker from '../folderPicker';
 import resourceManagerTree from '@/services/resourceManagerService';
-import { dataSourceService, taskRenderService } from '@/services';
-import { useEffect, useState } from 'react';
-import { IDataSourceProps } from '@/interface';
+import {dataSourceService, taskRenderService} from '@/services';
+import {useEffect, useState} from 'react';
+import {IDataSourceProps} from '@/interface';
 import molecule from '@dtinsight/molecule';
 
 interface ICreateFormProps {
@@ -23,7 +23,7 @@ interface ICreateFormProps {
 /**
  * 配置模式物料
  */
-const CreateModel = ({ disabled }: ICreateFormProps) => (
+const CreateModel = ({disabled}: ICreateFormProps) => (
 	<Form.Item
 		label="配置模式"
 		name="createModel"
@@ -46,7 +46,7 @@ const CreateModel = ({ disabled }: ICreateFormProps) => (
 /**
  * 同步模式物料
  */
-const SyncModel = ({ disabled }: ICreateFormProps) => (
+const SyncModel = ({disabled}: ICreateFormProps) => (
 	<Form.Item
 		label="同步模式"
 		name={['sourceMap', 'syncModel']}
@@ -69,10 +69,10 @@ const SyncModel = ({ disabled }: ICreateFormProps) => (
 /**
  * 引擎版本物料
  */
-const ComponentVersion = ({ onChange }: ICreateFormProps) => (
+const ComponentVersion = ({onChange}: ICreateFormProps) => (
 	<Form.Item label="引擎版本" name="componentVersion" initialValue={FLINK_VERSIONS.FLINK_1_12}>
 		<Select onChange={onChange}>
-			{FLINK_VERSION_TYPE.map(({ value, label }) => (
+			{FLINK_VERSION_TYPE.map(({value, label}) => (
 				<Select.Option key={value} value={value}>
 					{label}
 				</Select.Option>
@@ -121,7 +121,7 @@ const Resource = () => (
 			},
 		]}
 	>
-		<FolderPicker dataType={CATALOGUE_TYPE.RESOURCE} showFile />
+		<FolderPicker dataType={CATALOGUE_TYPE.RESOURCE} showFile/>
 	</Form.Item>
 );
 
@@ -139,7 +139,7 @@ const MainClass = () => (
 			},
 		]}
 	>
-		<Input placeholder="请输入 mainClass" />
+		<Input placeholder="请输入 mainClass"/>
 	</Form.Item>
 );
 
@@ -148,11 +148,11 @@ const MainClass = () => (
  */
 const ExeArgs = () => (
 	<Form.Item label="命令行参数" name="exeArgs">
-		<Input placeholder="请输入命令行参数" />
+		<Input placeholder="请输入命令行参数"/>
 	</Form.Item>
 );
 
-const PythonVersion = ({ disabled }: ICreateFormProps) => (
+const PythonVersion = ({disabled}: ICreateFormProps) => (
 	<Form.Item
 		label="Python 版本"
 		name="pythonVersion"
@@ -226,8 +226,8 @@ const DataSource = () => {
 							<span>
 								未找到
 								{taskRenderService
-									.getState()
-									.supportTaskList.find((i) => i.key === taskType)?.value ||
+										.getState()
+										.supportTaskList.find((i) => i.key === taskType)?.value ||
 									'未知'}
 								所支持的对应数据源，请先至
 								<Button type="link" size="small" onClick={handleGotoSourceCenter}>

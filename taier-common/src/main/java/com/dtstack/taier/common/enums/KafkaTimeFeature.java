@@ -1,6 +1,6 @@
 package com.dtstack.taier.common.enums;
 
-public enum  KafkaTimeFeature {
+public enum KafkaTimeFeature {
     /**
      *
      */
@@ -12,7 +12,7 @@ public enum  KafkaTimeFeature {
 
     private int value;
 
-    KafkaTimeFeature(int value){
+    KafkaTimeFeature(int value) {
         this.value = value;
     }
 

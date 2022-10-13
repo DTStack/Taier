@@ -16,16 +16,16 @@
  * limitations under the License.
  */
 
-import { useState, useEffect } from 'react';
-import { Modal, Select, Input, Form, Spin } from 'antd';
+import {useEffect, useState} from 'react';
+import {Form, Input, Modal, Select, Spin} from 'antd';
 import api from '@/api';
-import { InfoCircleOutlined } from '@ant-design/icons';
-import { formItemLayout, ENGINE_SOURCE_TYPE_ENUM, ENGINE_SOURCE_TYPE } from '@/constant';
-import { useEnv } from '../customHooks';
-import { getEngineSourceTypeName } from '@/utils/enums';
+import {InfoCircleOutlined} from '@ant-design/icons';
+import {ENGINE_SOURCE_TYPE, ENGINE_SOURCE_TYPE_ENUM, formItemLayout} from '@/constant';
+import {useEnv} from '../customHooks';
+import {getEngineSourceTypeName} from '@/utils/enums';
 import './index.scss';
 
-const { Option } = Select;
+const {Option} = Select;
 const FormItem = Form.Item;
 
 interface IBindModal {
@@ -84,16 +84,16 @@ interface ITenantProps {
 }
 
 export default ({
-	title,
-	visible,
-	clusterList,
-	clusterId,
-	isBindTenant,
-	disabled,
-	tenantInfo,
-	onCancel,
-	onOk,
-}: IBindModal) => {
+					title,
+					visible,
+					clusterList,
+					clusterId,
+					isBindTenant,
+					disabled,
+					tenantInfo,
+					onCancel,
+					onOk,
+				}: IBindModal) => {
 	const [form] = Form.useForm<IFormFieldProps>();
 	const [tenantList, setTenantList] = useState<ITenantProps[]>([]);
 	const [queueList, setQueueList] = useState<string[]>([]);
@@ -101,7 +101,7 @@ export default ({
 	const [queueLoading, setQueueLoading] = useState(false);
 	// 是否支持队列选择，只有当前集群下有 hadoop 才支持队列选择
 	const [isHaveQueue, setHaveQueue] = useState(false);
-	const { env } = useEnv({
+	const {env} = useEnv({
 		clusterId: form?.getFieldValue('clusterId') || clusterId,
 		visible,
 		form,
@@ -122,7 +122,7 @@ export default ({
 
 	const getQueueList = async (value: number) => {
 		setQueueLoading(true);
-		const res = await api.getEnginesByCluster({ clusterId: value });
+		const res = await api.getEnginesByCluster({clusterId: value});
 		if (res.code) {
 			const engines = res.data.engines || [];
 			const hadoopEngine = engines.find(
@@ -191,7 +191,7 @@ export default ({
 			<>
 				{isBindTenant && (
 					<div className="info-title">
-						<InfoCircleOutlined style={{ color: '#2491F7' }} />
+						<InfoCircleOutlined style={{color: '#2491F7'}}/>
 						<span className="info-text">
 							将租户绑定到集群，可使用集群内的每种计算引擎，绑定后，不能切换其他集群。
 						</span>
@@ -297,7 +297,7 @@ export default ({
 								name="namespace"
 								initialValue={tenantInfo?.queue || ''}
 							>
-								<Input />
+								<Input/>
 							</FormItem>
 						</div>
 					)}

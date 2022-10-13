@@ -1,8 +1,6 @@
 package com.dtstack.taier.dao.mapper;
 
 
-
-
 import com.dtstack.taier.dao.domain.DsClassify;
 
 import java.util.List;
@@ -12,5 +10,5 @@ import java.util.List;
  */
 public interface DsClassifyMapper {
 
-    List<DsClassify>  queryDsClassifyList();
+    List<DsClassify> queryDsClassifyList();
 }

@@ -16,33 +16,33 @@
  * limitations under the License.
  */
 
-import { useState, useMemo, useContext } from 'react';
-import { Tooltip, Dropdown, Menu, Modal, message, Button } from 'antd';
+import {useContext, useMemo, useState} from 'react';
+import {Button, Dropdown, Menu, message, Modal, Tooltip} from 'antd';
 import type moment from 'moment';
-import { history } from 'umi';
-import type { ColumnsType } from 'antd/lib/table';
-import type { FilterValue } from 'antd/lib/table/interface';
+import {history} from 'umi';
+import type {ColumnsType} from 'antd/lib/table';
+import type {FilterValue} from 'antd/lib/table/interface';
 import context from '@/context';
-import { SyncOutlined, DownOutlined } from '@ant-design/icons';
+import {DownOutlined, SyncOutlined} from '@ant-design/icons';
 import SlidePane from '@/components/slidePane';
 import Api from '@/api';
-import Sketch, { useSketchRef } from '@/components/sketch';
-import type { TASK_PERIOD_ENUM } from '@/constant';
-import { TASK_TYPE_ENUM } from '@/constant';
+import Sketch, {useSketchRef} from '@/components/sketch';
+import type {TASK_PERIOD_ENUM} from '@/constant';
 import {
-	TASK_STATUS_FILTERS,
+	offlineTaskPeriodFilter,
 	RESTART_STATUS_ENUM,
 	STATISTICS_TYPE_ENUM,
 	TASK_STATUS,
-	offlineTaskPeriodFilter,
+	TASK_STATUS_FILTERS,
+	TASK_TYPE_ENUM
 } from '@/constant';
-import { getTodayTime, removePopUpMenu } from '@/utils';
-import { TaskStatus, TaskTimeType } from '@/utils/enums';
+import {getTodayTime, removePopUpMenu} from '@/utils';
+import {TaskStatus, TaskTimeType} from '@/utils/enums';
 import KillJobForm from './killJobForm';
 import TaskJobFlowView from './taskJobFlowView';
 import './schedule.scss';
 
-const { confirm } = Modal;
+const {confirm} = Modal;
 
 // Form 表单类型
 interface IFormFieldProps {
@@ -90,7 +90,7 @@ export interface IScheduleTaskProps {
 }
 
 export default () => {
-	const { supportJobTypes } = useContext(context);
+	const {supportJobTypes} = useContext(context);
 	const [statistics, setStatistics] = useState<Record<string, number>>({});
 	const [visibleSlidePane, setSlideVisible] = useState(false);
 	const [killJobVisible, setKillJobVisible] = useState(false);
@@ -298,37 +298,37 @@ export default () => {
 		return [
 			{
 				className: 'status_overview_count_font',
-				children: [{ title: '总数', dataSource: ALL }],
+				children: [{title: '总数', dataSource: ALL}],
 			},
 			{
 				className: 'status_overview_running_font',
-				children: [{ title: '运行中', dataSource: RUNNING }],
+				children: [{title: '运行中', dataSource: RUNNING}],
 			},
 			{
 				className: 'status_overview_yellow_font',
 				children: [
-					{ title: '等待提交', dataSource: UNSUBMIT },
-					{ title: '提交中', dataSource: SUBMITTING },
-					{ title: '等待运行', dataSource: WAITENGINE },
+					{title: '等待提交', dataSource: UNSUBMIT},
+					{title: '提交中', dataSource: SUBMITTING},
+					{title: '等待运行', dataSource: WAITENGINE},
 				],
 			},
 			{
 				className: 'status_overview_finished_font',
-				children: [{ title: '成功', dataSource: FINISHED }],
+				children: [{title: '成功', dataSource: FINISHED}],
 			},
 			{
 				className: 'status_overview_grey_font',
 				children: [
-					{ title: '取消', dataSource: CANCELED },
-					{ title: '冻结', dataSource: FROZEN },
+					{title: '取消', dataSource: CANCELED},
+					{title: '冻结', dataSource: FROZEN},
 				],
 			},
 			{
 				className: 'status_overview_fail_font',
 				children: [
-					{ title: '提交失败', dataSource: SUBMITFAILD },
-					{ title: '运行失败', dataSource: FAILED },
-					{ title: '上游失败', dataSource: PARENTFAILED },
+					{title: '提交失败', dataSource: SUBMITFAILD},
+					{title: '运行失败', dataSource: FAILED},
+					{title: '上游失败', dataSource: PARENTFAILED},
 				],
 			},
 		];
@@ -363,7 +363,7 @@ export default () => {
 				key: 'status',
 				width: 120,
 				render: (text) => {
-					return <TaskStatus value={text} />;
+					return <TaskStatus value={text}/>;
 				},
 				filters: TASK_STATUS_FILTERS,
 				filterMultiple: true,
@@ -376,14 +376,14 @@ export default () => {
 					return supportJobTypes.find((t) => t.key === text)?.value || '未知';
 				},
 				width: 100,
-				filters: supportJobTypes.map((t) => ({ text: t.value, value: t.key })),
+				filters: supportJobTypes.map((t) => ({text: t.value, value: t.key})),
 			},
 			{
 				title: '调度周期',
 				dataIndex: 'periodType',
 				key: 'periodType',
 				render: (text) => {
-					return <TaskTimeType value={text} />;
+					return <TaskTimeType value={text}/>;
 				},
 				width: 100,
 				filters: offlineTaskPeriodFilter,
@@ -435,7 +435,7 @@ export default () => {
 
 	const renderStatus = (list: typeof statusList) => {
 		return list.map((item, index) => {
-			const { className, children } = item;
+			const {className, children} = item;
 			return (
 				<span key={index} className={className}>
 					{children.map((childItem) => {
@@ -469,7 +469,7 @@ export default () => {
 		record: Pick<IScheduleTaskProps, 'jobId'>,
 	): Promise<IScheduleTaskProps[]> => {
 		if (expanded) {
-			const res = await Api.getSubJobs<IScheduleTaskProps[]>({ jobId: record.jobId });
+			const res = await Api.getSubJobs<IScheduleTaskProps[]>({jobId: record.jobId});
 			if (res.code === 1) {
 				return res.data;
 			}
@@ -480,13 +480,13 @@ export default () => {
 
 	const handleGetTableData = async (
 		values: IFormFieldProps,
-		{ current, pageSize }: { current: number; pageSize: number },
+		{current, pageSize}: { current: number; pageSize: number },
 		filters: Record<string, FilterValue | null>,
 		sorter: any,
 	): Promise<{ total: number; data: IScheduleTaskProps[] } | undefined> => {
 		const params = convertToParams(values);
-		const { status = [], periodType = [], taskType = [] } = filters;
-		const { field = 'cycTime', order } = sorter || {};
+		const {status = [], periodType = [], taskType = []} = filters;
+		const {field = 'cycTime', order} = sorter || {};
 
 		const sortMapping: Record<string, string> = {
 			cycTime: 'cycSort',
@@ -526,10 +526,10 @@ export default () => {
 				return pre;
 			}, []);
 
-			Promise.all(pendingGetChildrenList.map((jobId) => handleExpandJobs(true, { jobId })))
+			Promise.all(pendingGetChildrenList.map((jobId) => handleExpandJobs(true, {jobId})))
 				.then((results) =>
 					results.reduce<Record<string, IScheduleTaskProps[]>>(
-						(pre, cur, idx) => ({ ...pre, [pendingGetChildrenList[idx]]: cur }),
+						(pre, cur, idx) => ({...pre, [pendingGetChildrenList[idx]]: cur}),
 						{},
 					),
 				)
@@ -601,7 +601,7 @@ export default () => {
 				extra={
 					<Tooltip title="刷新数据">
 						<Button className="dt-refresh">
-							<SyncOutlined onClick={() => handleRefresh()} />
+							<SyncOutlined onClick={() => handleRefresh()}/>
 						</Button>
 					</Tooltip>
 				}
@@ -625,13 +625,13 @@ export default () => {
 						type="primary"
 						onClick={batchKillJobs}
 						overlay={
-							<Menu onClick={() => showKillJobsByDate(true)} style={{ width: 114 }}>
+							<Menu onClick={() => showKillJobsByDate(true)} style={{width: 114}}>
 								<Menu.Item key="1">按业务日期杀</Menu.Item>
 							</Menu>
 						}
 						trigger={['click']}
-						style={{ marginRight: 10 }}
-						icon={<DownOutlined />}
+						style={{marginRight: 10}}
+						icon={<DownOutlined/>}
 					>
 						批量杀任务
 					</Dropdown.Button>,
@@ -645,7 +645,7 @@ export default () => {
 							</Menu>
 						}
 						trigger={['click']}
-						icon={<DownOutlined />}
+						icon={<DownOutlined/>}
 					>
 						重跑当前任务
 					</Dropdown.Button>,
@@ -663,7 +663,7 @@ export default () => {
 					position: 'fixed',
 				}}
 			>
-				<TaskJobFlowView reload={actionRef.current?.submit} taskJob={selectedTask} />
+				<TaskJobFlowView reload={actionRef.current?.submit} taskJob={selectedTask}/>
 			</SlidePane>
 
 			<KillJobForm

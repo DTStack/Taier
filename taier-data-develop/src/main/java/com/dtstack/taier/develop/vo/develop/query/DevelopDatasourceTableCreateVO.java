@@ -10,7 +10,7 @@ public class DevelopDatasourceTableCreateVO extends DtInsightAuthParam {
     @ApiModelProperty(value = "建表sql", example = "create table", required = true)
     private String sql;
 
-    @ApiModelProperty(value = "数据源 ID",  example = "11", required = true)
+    @ApiModelProperty(value = "数据源 ID", example = "11", required = true)
     private Long sourceId;
 
     public String getSql() {

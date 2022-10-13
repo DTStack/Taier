@@ -2,13 +2,13 @@ package com.dtstack.taier.develop.service.template.bulider.reader;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.dtstack.taier.common.exception.RdosDefineException;
+import com.dtstack.taier.common.util.DataSourceUtils;
+import com.dtstack.taier.dao.domain.DsInfo;
 import com.dtstack.taier.datasource.api.client.IClient;
 import com.dtstack.taier.datasource.api.dto.ColumnMetaDTO;
 import com.dtstack.taier.datasource.api.dto.SqlQueryDTO;
 import com.dtstack.taier.datasource.api.dto.source.RdbmsSourceDTO;
-import com.dtstack.taier.common.exception.RdosDefineException;
-import com.dtstack.taier.common.util.DataSourceUtils;
-import com.dtstack.taier.dao.domain.DsInfo;
 import com.dtstack.taier.develop.common.template.Reader;
 import com.dtstack.taier.develop.dto.devlop.ColumnDTO;
 import com.dtstack.taier.develop.dto.devlop.ConnectionDTO;

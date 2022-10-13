@@ -92,7 +92,7 @@ public class CombineMergeBuilder {
         combine.setMaxCombinedFileSize(maxCombinedFileSize);
         combine.setFs(FileSystem.get(configuration));
 
-        log.info("combine info {}",combine);
+        log.info("combine info {}", combine);
         return combine;
     }
 

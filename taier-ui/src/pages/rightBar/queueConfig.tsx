@@ -1,11 +1,11 @@
 import api from '@/api';
-import { formItemLayout } from '@/constant';
-import { IRightBarComponentProps } from '@/services/rightBarService';
+import {formItemLayout} from '@/constant';
+import {IRightBarComponentProps} from '@/services/rightBarService';
 import molecule from '@dtinsight/molecule';
-import { Collapse, Form, Select } from 'antd';
-import { useEffect, useState } from 'react';
+import {Collapse, Form, Select} from 'antd';
+import {useEffect, useState} from 'react';
 
-export default function QueueConfig({ current }: IRightBarComponentProps) {
+export default function QueueConfig({current}: IRightBarComponentProps) {
 	const [form] = Form.useForm();
 	const [resourceList, setResourceList] = useState<string[]>([]);
 
@@ -45,7 +45,7 @@ export default function QueueConfig({ current }: IRightBarComponentProps) {
 						<Select
 							placeholder="请选择 YARN 队列"
 							getPopupContainer={(node) => node.parentNode}
-							options={resourceList.map((r) => ({ label: r, value: r }))}
+							options={resourceList.map((r) => ({label: r, value: r}))}
 						></Select>
 					</Form.Item>
 				</Form>

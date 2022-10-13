@@ -14,7 +14,7 @@ public class ElasticSearchPool extends Pool<RestClient> {
 
     private ElasticSearchPoolConfig config;
 
-    public ElasticSearchPool(ElasticSearchPoolConfig config){
+    public ElasticSearchPool(ElasticSearchPoolConfig config) {
         super(config, new ElasticSearchPoolFactory(config));
         this.config = config;
     }

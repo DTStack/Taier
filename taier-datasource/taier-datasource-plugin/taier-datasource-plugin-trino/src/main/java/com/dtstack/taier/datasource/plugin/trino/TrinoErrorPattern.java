@@ -3,7 +3,6 @@ package com.dtstack.taier.datasource.plugin.trino;
 import com.dtstack.taier.datasource.plugin.common.exception.AbsErrorPattern;
 
 /**
- *
  * 用于 trino 数据源获取连接失败原因匹配
  *
  * @author ：wangchuan

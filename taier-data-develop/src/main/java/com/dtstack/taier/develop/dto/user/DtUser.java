@@ -22,113 +22,113 @@ package com.dtstack.taier.develop.dto.user;
  * @author toutian
  */
 public class DtUser {
-	
-	private Long userId;
-	
-	private String userName;
-	
-	private String email;
-	
-	private String phone;
-	
-	private Long tenantId;
 
-	/**
-	 * 租户所有者用户id
-	 */
-	private Long tenantOwnerId;
+    private Long userId;
 
-	private String tenantName;
-	
-	private Boolean tenantOwner;
+    private String userName;
 
-	/**
-	 * 仅标注是否是管理员
-	 */
-	private Boolean isRootOnly;
+    private String email;
 
-	/**
-	 * 仅标注是否是tenant owner
-	 */
-	private Boolean isOwnerOnly;
+    private String phone;
 
-	public Boolean getTenantOwner() {
-		return tenantOwner;
-	}
+    private Long tenantId;
 
-	public void setTenantOwner(Boolean tenantOwner) {
-		this.tenantOwner = tenantOwner;
-	}
+    /**
+     * 租户所有者用户id
+     */
+    private Long tenantOwnerId;
 
-	public Long getUserId() {
-		return userId;
-	}
+    private String tenantName;
 
-	public void setUserId(Long userId) {
-		this.userId = userId;
-	}
+    private Boolean tenantOwner;
 
-	public String getUserName() {
-		return userName;
-	}
+    /**
+     * 仅标注是否是管理员
+     */
+    private Boolean isRootOnly;
 
-	public void setUserName(String userName) {
-		this.userName = userName;
-	}
+    /**
+     * 仅标注是否是tenant owner
+     */
+    private Boolean isOwnerOnly;
 
-	public String getEmail() {
-		return email;
-	}
+    public Boolean getTenantOwner() {
+        return tenantOwner;
+    }
 
-	public void setEmail(String email) {
-		this.email = email;
-	}
+    public void setTenantOwner(Boolean tenantOwner) {
+        this.tenantOwner = tenantOwner;
+    }
 
-	public String getPhone() {
-		return phone;
-	}
+    public Long getUserId() {
+        return userId;
+    }
 
-	public void setPhone(String phone) {
-		this.phone = phone;
-	}
+    public void setUserId(Long userId) {
+        this.userId = userId;
+    }
 
-	public Long getTenantId() {
-		return tenantId;
-	}
+    public String getUserName() {
+        return userName;
+    }
 
-	public void setTenantId(Long tenantId) {
-		this.tenantId = tenantId;
-	}
+    public void setUserName(String userName) {
+        this.userName = userName;
+    }
 
-	public Long getTenantOwnerId() {
-		return tenantOwnerId;
-	}
+    public String getEmail() {
+        return email;
+    }
 
-	public void setTenantOwnerId(Long tenantOwnerId) {
-		this.tenantOwnerId = tenantOwnerId;
-	}
+    public void setEmail(String email) {
+        this.email = email;
+    }
 
-	public String getTenantName() {
-		return tenantName;
-	}
+    public String getPhone() {
+        return phone;
+    }
 
-	public void setTenantName(String tenantName) {
-		this.tenantName = tenantName;
-	}
+    public void setPhone(String phone) {
+        this.phone = phone;
+    }
 
-	public Boolean getRootOnly() {
-		return isRootOnly;
-	}
+    public Long getTenantId() {
+        return tenantId;
+    }
 
-	public void setRootOnly(Boolean rootOnly) {
-		isRootOnly = rootOnly;
-	}
+    public void setTenantId(Long tenantId) {
+        this.tenantId = tenantId;
+    }
 
-	public Boolean getOwnerOnly() {
-		return isOwnerOnly;
-	}
+    public Long getTenantOwnerId() {
+        return tenantOwnerId;
+    }
 
-	public void setOwnerOnly(Boolean ownerOnly) {
-		isOwnerOnly = ownerOnly;
-	}
+    public void setTenantOwnerId(Long tenantOwnerId) {
+        this.tenantOwnerId = tenantOwnerId;
+    }
+
+    public String getTenantName() {
+        return tenantName;
+    }
+
+    public void setTenantName(String tenantName) {
+        this.tenantName = tenantName;
+    }
+
+    public Boolean getRootOnly() {
+        return isRootOnly;
+    }
+
+    public void setRootOnly(Boolean rootOnly) {
+        isRootOnly = rootOnly;
+    }
+
+    public Boolean getOwnerOnly() {
+        return isOwnerOnly;
+    }
+
+    public void setOwnerOnly(Boolean ownerOnly) {
+        isOwnerOnly = ownerOnly;
+    }
 }

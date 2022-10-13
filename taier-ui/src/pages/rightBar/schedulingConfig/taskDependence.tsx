@@ -16,15 +16,15 @@
  * limitations under the License.
  */
 
-import { Row, Col, Table, Form } from 'antd';
-import { PlusCircleOutlined } from '@ant-design/icons';
-import { useMemo, useState } from 'react';
-import type { IOfflineTaskProps, ITaskVOProps } from '@/interface';
-import type { ColumnsType } from 'antd/lib/table';
-import { getCookie } from '@/utils';
-import type { ITaskSearchResultProps } from './upstreamDependentTasks';
+import {Col, Form, Row, Table} from 'antd';
+import {PlusCircleOutlined} from '@ant-design/icons';
+import {useMemo, useState} from 'react';
+import type {IOfflineTaskProps, ITaskVOProps} from '@/interface';
+import type {ColumnsType} from 'antd/lib/table';
+import {getCookie} from '@/utils';
+import type {ITaskSearchResultProps} from './upstreamDependentTasks';
 import UpstreamDependentTasks from './upstreamDependentTasks';
-import { taskRenderService } from '@/services';
+import {taskRenderService} from '@/services';
 
 interface ITaskDependenceProps {
 	tabData: IOfflineTaskProps;
@@ -33,16 +33,16 @@ interface ITaskDependenceProps {
 }
 
 export default function TaskDependence({
-	tabData,
-	handleDelVOS,
-	handleAddVOS,
-}: ITaskDependenceProps) {
+										   tabData,
+										   handleDelVOS,
+										   handleAddVOS,
+									   }: ITaskDependenceProps) {
 	const [form] = Form.useForm();
 	const [modalVisible, setModalVisible] = useState(false);
 	const [currentTenantName] = useState(getCookie('tenant_name'));
 
 	const goEdit = (task: ITaskVOProps) => {
-		taskRenderService.openTask({ id: task.id.toString() });
+		taskRenderService.openTask({id: task.id.toString()});
 	};
 
 	const getSpanBottom = () => {
@@ -121,7 +121,7 @@ export default function TaskDependence({
 						pagination={
 							Array.isArray(tabData.dependencyTasks) &&
 							tabData.dependencyTasks.length > 5
-								? { pageSize: 5, total: tabData.dependencyTasks.length }
+								? {pageSize: 5, total: tabData.dependencyTasks.length}
 								: false
 						}
 						style={{
@@ -134,7 +134,7 @@ export default function TaskDependence({
 						}}
 						columns={columns}
 						bordered={false}
-						scroll={{ x: 450 }}
+						scroll={{x: 450}}
 						dataSource={tabData.dependencyTasks || []}
 						rowKey="taskId"
 					/>
@@ -149,7 +149,7 @@ export default function TaskDependence({
 						}}
 						onClick={dependencyModalShow}
 					>
-						<PlusCircleOutlined style={{ display: 'inline', paddingRight: '4px' }} />
+						<PlusCircleOutlined style={{display: 'inline', paddingRight: '4px'}}/>
 						添加依赖
 					</span>
 				</Col>

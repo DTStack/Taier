@@ -56,7 +56,8 @@
 ![architecture](/website/static/img/readme/taier-architecture.png)
 
 ## 快速开始
-#### [docker 启动](https://dtstack.github.io/Taier/docs/quickstart/deploy/docker#2-%E4%BD%BF%E7%94%A8docker-compose) 
+
+#### [docker 启动](https://dtstack.github.io/Taier/docs/quickstart/deploy/docker#2-%E4%BD%BF%E7%94%A8docker-compose)
 
 ```shell
 $ wget https://github.com/DTStack/Taier/blob/master/docker-compose.yml
@@ -64,19 +65,20 @@ $ docker-compose up -d
 ```
 
 #### [开发任务](https://dtstack.github.io/Taier/docs/quickstart/start)
+
 ![main](/website/static/img/readme/main.png)
 
 ## 任务类型
 
-| 任务类型      | 文档说明 |
-| :---:        |    :----:   |
-| 数据同步      | [文档](https://dtstack.github.io/Taier/docs/functions/task/sync)|
-| 实时采集      | [文档](https://dtstack.github.io/Taier/docs/functions/task/data-acquisition)     |
-| Flink SQL   | [文档](https://dtstack.github.io/Taier/docs/functions/task/flink-sql)      |
-| Spark SQL   | [文档](https://dtstack.github.io/Taier/docs/functions/task/spark-sql)     |
-| Hive SQL   |[文档](https://dtstack.github.io/Taier/docs/functions/task/hive-sql)     |
-| OceanBase SQL   |[文档](https://dtstack.github.io/Taier/docs/functions/task/oceanbase-sql)   |
-| 自定义扩展   |[文档](https://dtstack.github.io/Taier/docs/expand/task)   |
+|     任务类型      |                                    文档说明                                    |
+|:-------------:|:--------------------------------------------------------------------------:|
+|     数据同步      |       [文档](https://dtstack.github.io/Taier/docs/functions/task/sync)       |
+|     实时采集      | [文档](https://dtstack.github.io/Taier/docs/functions/task/data-acquisition) |
+|   Flink SQL   |    [文档](https://dtstack.github.io/Taier/docs/functions/task/flink-sql)     |
+|   Spark SQL   |    [文档](https://dtstack.github.io/Taier/docs/functions/task/spark-sql)     |
+|   Hive SQL    |     [文档](https://dtstack.github.io/Taier/docs/functions/task/hive-sql)     |
+| OceanBase SQL |  [文档](https://dtstack.github.io/Taier/docs/functions/task/oceanbase-sql)   |
+|     自定义扩展     |           [文档](https://dtstack.github.io/Taier/docs/expand/task)           |
 
 ## 问题反馈
 

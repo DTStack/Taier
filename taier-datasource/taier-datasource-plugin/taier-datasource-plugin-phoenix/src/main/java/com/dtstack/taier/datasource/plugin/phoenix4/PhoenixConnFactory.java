@@ -1,7 +1,7 @@
 package com.dtstack.taier.datasource.plugin.phoenix4;
 
-import com.dtstack.taier.datasource.plugin.rdbms.ConnFactory;
 import com.dtstack.taier.datasource.api.source.DataBaseType;
+import com.dtstack.taier.datasource.plugin.rdbms.ConnFactory;
 import lombok.extern.slf4j.Slf4j;
 
 /**

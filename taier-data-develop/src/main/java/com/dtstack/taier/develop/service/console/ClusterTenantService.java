@@ -39,7 +39,7 @@ public class ClusterTenantService {
      * @param tenantId
      * @return
      */
-    public Long getClusterIdByTenantId(Long tenantId){
+    public Long getClusterIdByTenantId(Long tenantId) {
         return clusterTenantMapper.getClusterIdByTenantId(tenantId);
     }
 

@@ -25,9 +25,10 @@ import com.dtstack.taier.pluginapi.sftp.SftpConfig;
 import com.dtstack.taier.pluginapi.sftp.SftpFileManage;
 
 /**
- *  sftp文件管理
+ * sftp文件管理
  * Date: 2020/7/20
  * Company: www.dtstack.com
+ *
  * @author maqi
  */
 public class SftpFileManageFactory implements IFileManageFactory<FileConfig> {

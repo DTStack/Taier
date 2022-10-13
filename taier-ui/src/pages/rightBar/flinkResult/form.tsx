@@ -16,13 +16,13 @@
  * limitations under the License.
  */
 
-import React, { useContext, useMemo, useRef, useState } from 'react';
+import React, {useContext, useMemo, useRef, useState} from 'react';
 import {
 	DATA_SOURCE_ENUM,
 	DATA_SOURCE_TEXT,
 	DATA_SOURCE_VERSION,
-	defaultColsText,
 	DEFAULT_MAPPING_TEXT,
+	defaultColsText,
 	FLINK_VERSIONS,
 	formItemLayout,
 	hbaseColsText,
@@ -32,6 +32,8 @@ import {
 	KAFKA_DATA_TYPE,
 } from '@/constant';
 import {
+	isAvro,
+	isES,
 	isHaveCollection,
 	isHaveDataPreview,
 	isHaveParallelism,
@@ -42,44 +44,30 @@ import {
 	isHaveUpdateMode,
 	isHaveUpdateStrategy,
 	isHaveUpsert,
-	isAvro,
-	isES,
 	isHbase,
 	isKafka,
-	isSqlServer,
+	isRDB,
+	isRedis,
 	isShowBucket,
 	isShowSchema,
-	isRedis,
-	isRDB,
+	isSqlServer,
 } from '@/utils/is';
-import type { FormInstance } from 'antd';
-import {
-	Button,
-	Checkbox,
-	Form,
-	Input,
-	InputNumber,
-	message,
-	Popconfirm,
-	Radio,
-	Select,
-	Table,
-	Tooltip,
-} from 'antd';
-import { CloseOutlined, UpOutlined, DownOutlined } from '@ant-design/icons';
+import type {FormInstance} from 'antd';
+import {Button, Checkbox, Form, Input, InputNumber, message, Popconfirm, Radio, Select, Table, Tooltip,} from 'antd';
+import {CloseOutlined, DownOutlined, UpOutlined} from '@ant-design/icons';
 import Column from 'antd/lib/table/Column';
-import { debounce, isUndefined } from 'lodash';
-import { getColumnsByColumnsText } from '@/utils';
-import { CustomParams } from '../customParams';
-import type { IDataColumnsProps, IDataSourceUsedInSyncProps, IFlinkSinkProps } from '@/interface';
+import {debounce, isUndefined} from 'lodash';
+import {getColumnsByColumnsText} from '@/utils';
+import {CustomParams} from '../customParams';
+import type {IDataColumnsProps, IDataSourceUsedInSyncProps, IFlinkSinkProps} from '@/interface';
 import Editor from '@/components/editor';
-import { NAME_FIELD } from '.';
-import { FormContext } from '@/services/rightBarService';
+import {NAME_FIELD} from '.';
+import {FormContext} from '@/services/rightBarService';
 import DataPreviewModal from '@/pages/editor/streamCollection/source/dataPreviewModal';
-import { taskRenderService } from '@/services';
+import {taskRenderService} from '@/services';
 
 const FormItem = Form.Item;
-const { Option } = Select;
+const {Option} = Select;
 
 interface IResultProps {
 	/**
@@ -205,16 +193,16 @@ const originOption = (type: string, arrData: any[]) => {
 };
 
 export default function ResultForm({
-	index,
-	dataSourceOptionList = [],
-	tableOptionType = {},
-	tableColumnOptionType = [],
-	topicOptionType = [],
-	componentVersion = FLINK_VERSIONS.FLINK_1_12,
-	getTableType,
-	onColumnsChange,
-}: IResultProps) {
-	const { form } = useContext(FormContext) as {
+									   index,
+									   dataSourceOptionList = [],
+									   tableOptionType = {},
+									   tableColumnOptionType = [],
+									   topicOptionType = [],
+									   componentVersion = FLINK_VERSIONS.FLINK_1_12,
+									   getTableType,
+									   onColumnsChange,
+								   }: IResultProps) {
+	const {form} = useContext(FormContext) as {
 		form?: FormInstance<{ [NAME_FIELD]: Partial<IFlinkSinkProps>[] }>;
 	};
 	const [visible, setVisible] = useState(false);
@@ -263,7 +251,7 @@ export default function ResultForm({
 					message.error('数据预览需要选择数据源和索引！');
 					return;
 				}
-				nextParams = { sourceId, tableName: tableIndex };
+				nextParams = {sourceId, tableName: tableIndex};
 				break;
 			}
 			case DATA_SOURCE_ENUM.REDIS:
@@ -279,7 +267,7 @@ export default function ResultForm({
 					message.error('数据预览需要选择数据源和表！');
 					return;
 				}
-				nextParams = { sourceId, tableName: table };
+				nextParams = {sourceId, tableName: table};
 				break;
 			}
 			case DATA_SOURCE_ENUM.ORACLE: {
@@ -287,7 +275,7 @@ export default function ResultForm({
 					message.error('数据预览需要选择数据源、表和schema！');
 					return;
 				}
-				nextParams = { sourceId, tableName: table, schema };
+				nextParams = {sourceId, tableName: table, schema};
 				break;
 			}
 			case DATA_SOURCE_ENUM.SQLSERVER:
@@ -296,7 +284,7 @@ export default function ResultForm({
 					message.error('数据预览需要选择数据源和表！');
 					return;
 				}
-				nextParams = { sourceId, tableName: table, schema };
+				nextParams = {sourceId, tableName: table, schema};
 				break;
 			}
 			default:
@@ -329,14 +317,14 @@ export default function ResultForm({
 					column: column.key,
 					type: column.type,
 				}));
-				form!.setFieldsValue({ ...nextValue });
+				form!.setFieldsValue({...nextValue});
 
 				// 由于 setFieldsValue 不会触发表单的 onValuesChange 所以需要额外触发将 columns 保存到 tab 中
 				const changedValue: any[] = [];
 				changedValue[index] = {
 					columns: nextValue[NAME_FIELD][index].columns,
 				};
-				onColumnsChange?.({ [NAME_FIELD]: changedValue }, form?.getFieldsValue());
+				onColumnsChange?.({[NAME_FIELD]: changedValue}, form?.getFieldsValue());
 				break;
 			}
 
@@ -344,7 +332,7 @@ export default function ResultForm({
 				const nextValue = form!.getFieldsValue();
 				nextValue[NAME_FIELD][index].columns = [];
 				nextValue[NAME_FIELD][index].primaryKey = [];
-				form!.setFieldsValue({ ...nextValue });
+				form!.setFieldsValue({...nextValue});
 
 				// 由于 setFieldsValue 不会触发表单的 onValuesChange 所以需要额外触发将 columns 保存到 tab 中
 				const changedValue: any[] = [];
@@ -352,7 +340,7 @@ export default function ResultForm({
 					columns: [],
 					primaryKey: [],
 				};
-				onColumnsChange?.({ [NAME_FIELD]: changedValue }, form?.getFieldsValue());
+				onColumnsChange?.({[NAME_FIELD]: changedValue}, form?.getFieldsValue());
 				break;
 			}
 
@@ -360,14 +348,14 @@ export default function ResultForm({
 				const nextValue = form!.getFieldsValue();
 				nextValue[NAME_FIELD][index].columns = nextValue[NAME_FIELD][index].columns || [];
 				nextValue[NAME_FIELD][index].columns!.push({});
-				form!.setFieldsValue({ ...nextValue });
+				form!.setFieldsValue({...nextValue});
 
 				// 由于 setFieldsValue 不会触发表单的 onValuesChange 所以需要额外触发将 columns 保存到 tab 中
 				const changedValue: any[] = [];
 				changedValue[index] = {
 					columns: nextValue[NAME_FIELD][index].columns,
 				};
-				onColumnsChange?.({ [NAME_FIELD]: changedValue }, form?.getFieldsValue());
+				onColumnsChange?.({[NAME_FIELD]: changedValue}, form?.getFieldsValue());
 				break;
 			}
 
@@ -376,7 +364,7 @@ export default function ResultForm({
 				const deleteCol = nextValue[NAME_FIELD][index].columns?.splice(i!, 1) || [];
 				// 删除一条字段的副作用是若该行是 primaryKey 则删除
 				if (deleteCol.length) {
-					const { primaryKey } = nextValue[NAME_FIELD][index];
+					const {primaryKey} = nextValue[NAME_FIELD][index];
 					if (
 						Array.isArray(primaryKey) &&
 						primaryKey.findIndex((key) => key === deleteCol[0].column) !== -1
@@ -385,7 +373,7 @@ export default function ResultForm({
 						primaryKey.splice(idx, 1);
 					}
 				}
-				form!.setFieldsValue({ ...nextValue });
+				form!.setFieldsValue({...nextValue});
 
 				// 由于 setFieldsValue 不会触发表单的 onValuesChange 所以需要额外触发将 columns 保存到 tab 中
 				const changedValue: any[] = [];
@@ -393,7 +381,7 @@ export default function ResultForm({
 					columns: nextValue[NAME_FIELD][index].columns,
 					primaryKey: nextValue[NAME_FIELD][index].primaryKey,
 				};
-				onColumnsChange?.({ [NAME_FIELD]: changedValue }, form?.getFieldsValue());
+				onColumnsChange?.({[NAME_FIELD]: changedValue}, form?.getFieldsValue());
 
 				break;
 			}
@@ -401,14 +389,14 @@ export default function ResultForm({
 			case COLUMNS_OPERATORS.CHANGE_ONE_LINE: {
 				const nextValue = form!.getFieldsValue();
 				nextValue[NAME_FIELD][index].columns![i!] = value!;
-				form!.setFieldsValue({ ...nextValue });
+				form!.setFieldsValue({...nextValue});
 
 				// 由于 setFieldsValue 不会触发表单的 onValuesChange 所以需要额外触发将 columns 保存到 tab 中
 				const changedValue: any[] = [];
 				changedValue[index] = {
 					columns: nextValue[NAME_FIELD][index].columns,
 				};
-				onColumnsChange?.({ [NAME_FIELD]: changedValue }, form?.getFieldsValue());
+				onColumnsChange?.({[NAME_FIELD]: changedValue}, form?.getFieldsValue());
 				break;
 			}
 
@@ -428,11 +416,11 @@ export default function ResultForm({
 
 	const schemaRequired = data?.type
 		? [
-				DATA_SOURCE_ENUM.POSTGRESQL,
-				DATA_SOURCE_ENUM.KINGBASE8,
-				DATA_SOURCE_ENUM.SQLSERVER,
-				DATA_SOURCE_ENUM.SQLSERVER_2017_LATER,
-		  ].includes(data?.type)
+			DATA_SOURCE_ENUM.POSTGRESQL,
+			DATA_SOURCE_ENUM.KINGBASE8,
+			DATA_SOURCE_ENUM.SQLSERVER,
+			DATA_SOURCE_ENUM.SQLSERVER_2017_LATER,
+		].includes(data?.type)
 		: false;
 
 	const isFlink112 = useMemo(
@@ -453,12 +441,12 @@ export default function ResultForm({
 			<FormItem
 				label="存储类型"
 				name={[index, 'type']}
-				rules={[{ required: true, message: '请选择存储类型' }]}
+				rules={[{required: true, message: '请选择存储类型'}]}
 			>
 				<Select
 					className="right-select"
 					showSearch
-					style={{ width: '100%' }}
+					style={{width: '100%'}}
 					filterOption={(input, option) =>
 						option?.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
 					}
@@ -473,7 +461,7 @@ export default function ResultForm({
 			<FormItem
 				label="数据源"
 				name={[index, 'sourceId']}
-				rules={[{ required: true, message: '请选择数据源' }]}
+				rules={[{required: true, message: '请选择数据源'}]}
 			>
 				<Select
 					showSearch
@@ -493,13 +481,13 @@ export default function ResultForm({
 				</Select>
 			</FormItem>
 			<FormItem noStyle dependencies={[[index, 'type']]}>
-				{({ getFieldValue }) => (
+				{({getFieldValue}) => (
 					<>
 						{isHaveCollection(getFieldValue(NAME_FIELD)[index].type) && (
 							<FormItem
 								label="Collection"
 								name={[index, 'collection']}
-								rules={[{ required: true, message: '请选择Collection' }]}
+								rules={[{required: true, message: '请选择Collection'}]}
 							>
 								<Select
 									showSearch
@@ -540,12 +528,12 @@ export default function ResultForm({
 								<FormItem
 									label="ObjectName"
 									name={[index, 'objectName']}
-									rules={[{ required: true, message: '请输入ObjectName' }]}
+									rules={[{required: true, message: '请输入ObjectName'}]}
 									tooltip="默认以标准存储，txt格式保存至S3 Bucket内"
 								>
 									<Input
 										placeholder="请输入ObjectName"
-										style={{ width: '90%' }}
+										style={{width: '90%'}}
 									/>
 								</FormItem>
 							</>
@@ -574,7 +562,7 @@ export default function ResultForm({
 							<FormItem
 								label="Topic"
 								name={[index, 'topic']}
-								rules={[{ required: true, message: '请选择Topic' }]}
+								rules={[{required: true, message: '请选择Topic'}]}
 							>
 								<Select
 									placeholder="请选择Topic"
@@ -592,7 +580,7 @@ export default function ResultForm({
 								<FormItem
 									label="表"
 									name={[index, 'table']}
-									rules={[{ required: true, message: '请选择表' }]}
+									rules={[{required: true, message: '请选择表'}]}
 								>
 									<Select
 										showSearch
@@ -611,9 +599,9 @@ export default function ResultForm({
 							<FormItem
 								label="表"
 								name={[index, 'table']}
-								rules={[{ required: true, message: '请输入表名' }]}
+								rules={[{required: true, message: '请输入表名'}]}
 							>
-								<Input placeholder="请输入表名" />
+								<Input placeholder="请输入表名"/>
 							</FormItem>
 						)}
 						{isES(getFieldValue(NAME_FIELD)[index].type) && (
@@ -634,9 +622,9 @@ export default function ResultForm({
 									</span>
 								}
 								name={[index, 'index']}
-								rules={[{ required: true, message: '请输入索引' }]}
+								rules={[{required: true, message: '请输入索引'}]}
 							>
-								<Input placeholder="请输入索引" />
+								<Input placeholder="请输入索引"/>
 							</FormItem>
 						)}
 						{isHaveDataPreview(getFieldValue(NAME_FIELD)[index].type) && (
@@ -655,9 +643,9 @@ export default function ResultForm({
 							<FormItem
 								label="主键"
 								name={[index, 'primaryKey']}
-								rules={[{ required: true, message: '请输入主键' }]}
+								rules={[{required: true, message: '请输入主键'}]}
 							>
-								<Input placeholder="结果表主键，多个字段用英文逗号隔开" />
+								<Input placeholder="结果表主键，多个字段用英文逗号隔开"/>
 							</FormItem>
 						)}
 						{isES(getFieldValue(NAME_FIELD)[index].type) && (
@@ -666,7 +654,7 @@ export default function ResultForm({
 								tooltip="id生成规则：填写字段的索引位置（从0开始）"
 								name={[index, 'esId']}
 							>
-								<Input placeholder="请输入id" />
+								<Input placeholder="请输入id"/>
 							</FormItem>
 						)}
 						{[DATA_SOURCE_ENUM.ES, DATA_SOURCE_ENUM.ES6].includes(
@@ -675,9 +663,9 @@ export default function ResultForm({
 							<FormItem
 								label="索引类型"
 								name={[index, 'esType']}
-								rules={[{ required: true, message: '请输入索引类型' }]}
+								rules={[{required: true, message: '请输入索引类型'}]}
 							>
-								<Input placeholder="请输入索引类型" />
+								<Input placeholder="请输入索引类型"/>
 							</FormItem>
 						)}
 						{getFieldValue(NAME_FIELD)[index].type === DATA_SOURCE_ENUM.HBASE && (
@@ -700,18 +688,18 @@ export default function ResultForm({
 									)
 								}
 							>
-								<div style={{ display: 'flex' }}>
+								<div style={{display: 'flex'}}>
 									<FormItem
-										style={{ flex: 1 }}
+										style={{flex: 1}}
 										name={[index, 'rowKey']}
 										rules={[
-											{ required: true, message: '请输入rowKey' },
+											{required: true, message: '请输入rowKey'},
 											isFlink112
 												? {
-														pattern: /^\w{1,64}$/,
-														message:
-															'只能由字母，数字和下划线组成，且不超过64个字符',
-												  }
+													pattern: /^\w{1,64}$/,
+													message:
+														'只能由字母，数字和下划线组成，且不超过64个字符',
+												}
 												: {},
 										]}
 									>
@@ -727,7 +715,7 @@ export default function ResultForm({
 										<>
 											<span>&nbsp; 类型：</span>
 											<FormItem
-												style={{ flex: 1 }}
+												style={{flex: 1}}
 												name={[index, 'rowKeyType']}
 												rules={[
 													{
@@ -736,7 +724,7 @@ export default function ResultForm({
 													},
 												]}
 											>
-												<Input placeholder="请输入类型" />
+												<Input placeholder="请输入类型"/>
 											</FormItem>
 										</>
 									)}
@@ -750,9 +738,9 @@ export default function ResultForm({
 								label="rowKey"
 								tooltip="支持拼接规则：md5(fieldA+fieldB) + fieldC + '常量字符'"
 								name={[index, 'rowKey']}
-								rules={[{ required: true, message: '请输入rowKey' }]}
+								rules={[{required: true, message: '请输入rowKey'}]}
 							>
-								<Input placeholder="rowKey 格式：填写字段1+填写字段2 " />
+								<Input placeholder="rowKey 格式：填写字段1+填写字段2 "/>
 							</FormItem>
 						)}
 					</>
@@ -761,12 +749,12 @@ export default function ResultForm({
 			<FormItem
 				label="映射表"
 				name={[index, 'tableName']}
-				rules={[{ required: true, message: '请输入映射表名' }]}
+				rules={[{required: true, message: '请输入映射表名'}]}
 			>
-				<Input placeholder="请输入映射表名" />
+				<Input placeholder="请输入映射表名"/>
 			</FormItem>
 			{/* 隐藏 columns 字段，通过 table 修改 */}
-			<FormItem hidden name="columns" />
+			<FormItem hidden name="columns"/>
 			<FormItem
 				label="字段"
 				required
@@ -775,7 +763,7 @@ export default function ResultForm({
 					[index, 'columns'],
 				]}
 			>
-				{({ getFieldValue }) =>
+				{({getFieldValue}) =>
 					isHaveTableColumn(getFieldValue(NAME_FIELD)[index].type) ? (
 						<div className="column-container">
 							<Table<IFlinkSinkProps['columns'][number]>
@@ -886,7 +874,7 @@ export default function ResultForm({
 										onClick={() =>
 											handleColumnsChanged(COLUMNS_OPERATORS.ADD_ALL_LINES)
 										}
-										style={{ marginRight: 12 }}
+										style={{marginRight: 12}}
 									>
 										导入全部字段
 									</a>
@@ -904,7 +892,7 @@ export default function ResultForm({
 											<a>清空</a>
 										</Popconfirm>
 									) : (
-										<a style={{ color: 'var(--editor-foreground)' }}>清空</a>
+										<a style={{color: 'var(--editor-foreground)'}}>清空</a>
 									)}
 								</span>
 							</div>
@@ -928,16 +916,16 @@ export default function ResultForm({
 				}
 			</FormItem>
 			<FormItem noStyle dependencies={[[index, 'type']]}>
-				{({ getFieldValue }) => (
+				{({getFieldValue}) => (
 					<>
 						{isKafka(getFieldValue(NAME_FIELD)[index].type) && (
 							<React.Fragment>
 								<FormItem
 									label="输出类型"
 									name={[index, 'sinkDataType']}
-									rules={[{ required: true, message: '请选择输出类型' }]}
+									rules={[{required: true, message: '请选择输出类型'}]}
 								>
-									<Select style={{ width: '100%' }}>
+									<Select style={{width: '100%'}}>
 										{getFieldValue(NAME_FIELD)[index].type ===
 										DATA_SOURCE_ENUM.KAFKA_CONFLUENT ? (
 											<Option
@@ -947,7 +935,7 @@ export default function ResultForm({
 												{KAFKA_DATA_TYPE.TYPE_AVRO_CONFLUENT}
 											</Option>
 										) : (
-											KAFKA_DATA_LIST.map(({ text, value }) => (
+											KAFKA_DATA_LIST.map(({text, value}) => (
 												<Option value={value} key={text + value}>
 													{text}
 												</Option>
@@ -956,7 +944,7 @@ export default function ResultForm({
 									</Select>
 								</FormItem>
 								<FormItem noStyle dependencies={[[index, 'sinkDataType']]}>
-									{({ getFieldValue: getField }) =>
+									{({getFieldValue: getField}) =>
 										isAvro(getField(NAME_FIELD)[index].sinkDataType) && (
 											<FormItem
 												label="Schema"
@@ -983,7 +971,7 @@ export default function ResultForm({
 								<FormItem
 									label="更新模式"
 									name={[index, 'updateMode']}
-									rules={[{ required: true, message: '请选择更新模式' }]}
+									rules={[{required: true, message: '请选择更新模式'}]}
 								>
 									<Radio.Group
 										disabled={isDisabledUpdateMode(
@@ -1006,7 +994,7 @@ export default function ResultForm({
 									</Radio.Group>
 								</FormItem>
 								<FormItem noStyle dependencies={[[index, 'updateMode']]}>
-									{({ getFieldValue: getField }) => (
+									{({getFieldValue: getField}) => (
 										<>
 											{getField(NAME_FIELD)[index].updateMode === 'upsert' &&
 												isHaveUpdateStrategy(
@@ -1035,8 +1023,8 @@ export default function ResultForm({
 												)}
 											{getField(NAME_FIELD)[index].updateMode === 'upsert' &&
 												(isHavePrimaryKey(
-													getFieldValue(NAME_FIELD)[index].type,
-												) ||
+														getFieldValue(NAME_FIELD)[index].type,
+													) ||
 													!isDisabledUpdateMode(
 														getFieldValue(NAME_FIELD)[index].type,
 														disableUpdateMode,
@@ -1079,28 +1067,28 @@ export default function ResultForm({
 				)}
 			</FormItem>
 			{/* 高级参数按钮 */}
-			<FormItem wrapperCol={{ span: 24 }}>
+			<FormItem wrapperCol={{span: 24}}>
 				<Button
 					block
 					type="link"
 					onClick={() => setShowAdvancedParams(!showAdvancedParams)}
 				>
-					高级参数{showAdvancedParams ? <UpOutlined /> : <DownOutlined />}
+					高级参数{showAdvancedParams ? <UpOutlined/> : <DownOutlined/>}
 				</Button>
 			</FormItem>
 			{/* 高级参数抽屉 */}
 			<FormItem hidden={!showAdvancedParams} noStyle dependencies={[[index, 'type']]}>
-				{({ getFieldValue }) => (
+				{({getFieldValue}) => (
 					<>
 						{isHaveParallelism(getFieldValue(NAME_FIELD)[index].type) && (
 							<FormItem name={[index, 'parallelism']} label="并行度">
-								<InputNumber style={{ width: '100%' }} min={1} precision={0} />
+								<InputNumber style={{width: '100%'}} min={1} precision={0}/>
 							</FormItem>
 						)}
 						{isES(getFieldValue(NAME_FIELD)[index].type) && isFlink112 && (
 							<FormItem name={[index, 'bulkFlushMaxActions']} label="数据输出条数">
 								<InputNumber
-									style={{ width: '100%' }}
+									style={{width: '100%'}}
 									min={1}
 									max={10000}
 									precision={0}
@@ -1113,7 +1101,7 @@ export default function ResultForm({
 								name={[index, 'enableKeyPartitions']}
 								valuePropName="checked"
 							>
-								<Checkbox style={{ marginLeft: 90 }} defaultChecked={false}>
+								<Checkbox style={{marginLeft: 90}} defaultChecked={false}>
 									根据字段(Key)分区
 								</Checkbox>
 							</FormItem>
@@ -1137,17 +1125,17 @@ export default function ResultForm({
 							>
 								<Input.TextArea
 									placeholder={DEFAULT_MAPPING_TEXT}
-									style={{ minHeight: '200px' }}
+									style={{minHeight: '200px'}}
 								/>
 							</FormItem>
 						)}
 						<FormItem noStyle dependencies={[[index, 'enableKeyPartitions']]}>
-							{({ getFieldValue: getField }) =>
+							{({getFieldValue: getField}) =>
 								getField(NAME_FIELD)[index].enableKeyPartitions && (
 									<FormItem
 										label="分区字段"
 										name={[index, 'partitionKeys']}
-										rules={[{ required: true, message: '请选择分区字段' }]}
+										rules={[{required: true, message: '请选择分区字段'}]}
 									>
 										<Select
 											className="right-select"
@@ -1180,10 +1168,10 @@ export default function ResultForm({
 								<FormItem
 									label="数据输出时间"
 									name={[index, 'batchWaitInterval']}
-									rules={[{ required: true, message: '请输入数据输出时间' }]}
+									rules={[{required: true, message: '请输入数据输出时间'}]}
 								>
 									<InputNumber
-										style={{ width: '100%' }}
+										style={{width: '100%'}}
 										min={0}
 										max={600000}
 										precision={0}
@@ -1193,10 +1181,10 @@ export default function ResultForm({
 								<FormItem
 									label="数据输出条数"
 									name={[index, 'batchSize']}
-									rules={[{ required: true, message: '请输入数据输出条数' }]}
+									rules={[{required: true, message: '请输入数据输出条数'}]}
 								>
 									<InputNumber
-										style={{ width: '100%' }}
+										style={{width: '100%'}}
 										min={0}
 										max={
 											getFieldValue(NAME_FIELD)[index].type ===
@@ -1226,13 +1214,13 @@ export default function ResultForm({
 						)}
 						{/* 添加自定义参数 */}
 						{!isSqlServer(getFieldValue(NAME_FIELD)[index].type) && (
-							<CustomParams index={index} />
+							<CustomParams index={index}/>
 						)}
 					</>
 				)}
 			</FormItem>
 			<FormItem shouldUpdate noStyle>
-				{({ getFieldValue }) => (
+				{({getFieldValue}) => (
 					<DataPreviewModal
 						visible={visible}
 						type={getFieldValue(NAME_FIELD)[index].type}

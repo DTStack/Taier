@@ -38,6 +38,7 @@ import java.util.regex.Pattern;
  * command--->${}格式的里面的参数需要计算,其他的直接替换
  * Date: 2017/6/6
  * Company: www.dtstack.com
+ *
  * @author xuchao
  */
 

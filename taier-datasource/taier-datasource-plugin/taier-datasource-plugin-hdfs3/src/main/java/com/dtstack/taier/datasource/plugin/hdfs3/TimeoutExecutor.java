@@ -1,7 +1,7 @@
 package com.dtstack.taier.datasource.plugin.hdfs3;
 
-import com.dtstack.taier.datasource.plugin.common.DtClassThreadFactory;
 import com.dtstack.taier.datasource.api.exception.SourceException;
+import com.dtstack.taier.datasource.plugin.common.DtClassThreadFactory;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.Objects;
@@ -32,7 +32,7 @@ public class TimeoutExecutor {
      * 异步执行方法，超时时间默认两分钟
      *
      * @param exec 执行方法
-     * @param <T> 范型
+     * @param <T>  范型
      * @return 返回方法执行结果
      */
     public static <T> T execAsync(Callable<T> exec) {
@@ -42,9 +42,9 @@ public class TimeoutExecutor {
     /**
      * 异步执行方法，可以设置超时时间
      *
-     * @param exec 执行方法
+     * @param exec    执行方法
      * @param timeout 超时时间
-     * @param <T> 范型
+     * @param <T>     范型
      * @return 返回方法执行结果
      */
     public static <T> T execAsync(Callable<T> exec, Integer timeout) {

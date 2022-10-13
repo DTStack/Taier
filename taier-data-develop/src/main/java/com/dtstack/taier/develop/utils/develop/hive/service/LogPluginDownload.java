@@ -18,14 +18,14 @@
 
 package com.dtstack.taier.develop.utils.develop.hive.service;
 
+import com.dtstack.taier.common.exception.DtCenterDefException;
+import com.dtstack.taier.common.util.PublicUtil;
 import com.dtstack.taier.datasource.api.base.ClientCache;
 import com.dtstack.taier.datasource.api.client.IHdfsFile;
 import com.dtstack.taier.datasource.api.downloader.IDownloader;
 import com.dtstack.taier.datasource.api.dto.SqlQueryDTO;
 import com.dtstack.taier.datasource.api.dto.source.HdfsSourceDTO;
 import com.dtstack.taier.datasource.api.source.DataSourceType;
-import com.dtstack.taier.common.exception.DtCenterDefException;
-import com.dtstack.taier.common.util.PublicUtil;
 import com.dtstack.taier.develop.utils.develop.common.IDownload;
 
 import java.util.List;
@@ -88,7 +88,7 @@ public class LogPluginDownload implements IDownload {
         }
         sourceDTO = HdfsSourceDTO.builder()
                 .config(PublicUtil.objectToStr(hdfsConf))
-                .defaultFS(hdfsConf.getOrDefault("fs.defaultFS","").toString())
+                .defaultFS(hdfsConf.getOrDefault("fs.defaultFS", "").toString())
                 .kerberosConfig(kerberosConfMap)
                 .yarnConf(yarnConf)
                 .appIdStr(applicationStr)

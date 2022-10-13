@@ -17,8 +17,8 @@
  */
 
 import api from '@/api';
-import { PARAMS_ENUM } from '@/constant';
-import { Component } from '@dtinsight/molecule/esm/react';
+import {PARAMS_ENUM} from '@/constant';
+import {Component} from '@dtinsight/molecule/esm/react';
 
 export interface IParamsProps {
 	id?: number;
@@ -40,6 +40,7 @@ interface ITaskParamsStates {
 
 class TaskParamsService extends Component<ITaskParamsStates> implements ITaskParamsService {
 	protected state: ITaskParamsStates;
+
 	constructor() {
 		super();
 		this.state = {

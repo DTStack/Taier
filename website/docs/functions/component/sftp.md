@@ -3,8 +3,8 @@ title: SFTP
 sidebar_label: SFTP
 ---
 
-
 ## 配置sftp
+
 ![SFTP 配置](/img/readme/sftp.png)
 
 :::tip

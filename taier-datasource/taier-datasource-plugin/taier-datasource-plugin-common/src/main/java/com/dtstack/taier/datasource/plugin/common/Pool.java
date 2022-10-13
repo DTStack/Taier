@@ -47,6 +47,7 @@ public class Pool<T> implements Cloneable {
 
     /**
      * 从对象池中获取一个对象
+     *
      * @return
      */
     public T getResource() {
@@ -59,6 +60,7 @@ public class Pool<T> implements Cloneable {
 
     /**
      * 对象使用完之后，归还到对象池
+     *
      * @param resource
      */
     public void returnResource(final T resource) {
@@ -80,6 +82,7 @@ public class Pool<T> implements Cloneable {
 
     /**
      * 销毁对象
+     *
      * @param resource
      */
     public void returnBrokenResource(final T resource) {
@@ -92,7 +95,7 @@ public class Pool<T> implements Cloneable {
         try {
             internalPool.invalidateObject(resource);
         } catch (Exception e) {
-            throw new SourceException(String.format("Could not return the resource to the pool, %s",e.getMessage()), e);
+            throw new SourceException(String.format("Could not return the resource to the pool, %s", e.getMessage()), e);
         }
     }
 
@@ -147,6 +150,7 @@ public class Pool<T> implements Cloneable {
 
     /**
      * 添加多少个连接给连接池
+     *
      * @param count
      * @throws Exception
      */

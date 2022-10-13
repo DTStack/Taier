@@ -15,8 +15,8 @@ import java.util.Map;
 public class NodeList extends Node {
     private List<Node> list;
 
-    public NodeList(String defaultDb, Map<String, List<Column>> tableColumnsMap){
-        super(defaultDb,tableColumnsMap);
+    public NodeList(String defaultDb, Map<String, List<Column>> tableColumnsMap) {
+        super(defaultDb, tableColumnsMap);
     }
 
     public List<Node> getList() {
@@ -36,8 +36,8 @@ public class NodeList extends Node {
         return null;
     }
 
-    private SqlNodeList checkNode(SqlNode node){
-        if (!(node instanceof SqlNodeList)){
+    private SqlNodeList checkNode(SqlNode node) {
+        if (!(node instanceof SqlNodeList)) {
             throw new IllegalStateException("sqlNode类型不匹配");
         }
         return (SqlNodeList) node;

@@ -16,21 +16,21 @@
  * limitations under the License.
  */
 
-import { useRef, useContext, useEffect, useMemo, useState } from 'react';
-import type { FormInstance } from 'antd';
-import { Button, Collapse, Form, Popconfirm } from 'antd';
+import {useContext, useEffect, useMemo, useRef, useState} from 'react';
+import type {FormInstance} from 'antd';
+import {Button, Collapse, Form, Popconfirm} from 'antd';
 import classNames from 'classnames';
-import { PlusOutlined, DeleteOutlined } from '@ant-design/icons';
-import { DATA_SOURCE_ENUM, formItemLayout } from '@/constant';
+import {DeleteOutlined, PlusOutlined} from '@ant-design/icons';
+import {DATA_SOURCE_ENUM, formItemLayout} from '@/constant';
 import stream from '@/api';
-import { isHaveSchema, isHaveTableColumn, isHaveTableList, isCacheExceptLRU } from '@/utils/is';
+import {isCacheExceptLRU, isHaveSchema, isHaveTableColumn, isHaveTableList} from '@/utils/is';
 import molecule from '@dtinsight/molecule';
-import type { IDataColumnsProps, IDataSourceUsedInSyncProps, IFlinkSideProps } from '@/interface';
+import type {IDataColumnsProps, IDataSourceUsedInSyncProps, IFlinkSideProps} from '@/interface';
 import DimensionForm from './form';
-import type { IRightBarComponentProps } from '@/services/rightBarService';
-import { FormContext } from '@/services/rightBarService';
+import type {IRightBarComponentProps} from '@/services/rightBarService';
+import {FormContext} from '@/services/rightBarService';
 
-const { Panel } = Collapse;
+const {Panel} = Collapse;
 
 const DEFAULT_INPUT_VALUE: Partial<IFlinkSideProps> = {
 	type: DATA_SOURCE_ENUM.MYSQL,
@@ -60,14 +60,12 @@ interface IFormFieldProps {
 	[NAME_FIELD]: Partial<IFlinkSideProps>[];
 }
 
-export default function FlinkDimensionPanel({ current }: IRightBarComponentProps) {
-	const { form } = useContext(FormContext) as { form?: FormInstance<IFormFieldProps> };
+export default function FlinkDimensionPanel({current}: IRightBarComponentProps) {
+	const {form} = useContext(FormContext) as { form?: FormInstance<IFormFieldProps> };
 
 	const [panelActiveKey, setPanelKey] = useState<string[]>([]);
 	// 数据源下拉列表，用 key 值缓存结果
-	const [dataSourceOptions, setDataSourceOptions] = useState<
-		Record<string, IDataSourceUsedInSyncProps[]>
-	>({});
+	const [dataSourceOptions, setDataSourceOptions] = useState<Record<string, IDataSourceUsedInSyncProps[]>>({});
 	/**
 	 * 表下拉列表,以 soureceId-schema 拼接作 key 值，后以 searchKey 作为 key 值，最后是搜索结果
 	 * {
@@ -99,7 +97,7 @@ export default function FlinkDimensionPanel({ current }: IRightBarComponentProps
 						setColOptions((options) => {
 							const next = options;
 							next[uniqKey] = v.data;
-							return { ...next };
+							return {...next};
 						});
 					}
 				});
@@ -110,16 +108,17 @@ export default function FlinkDimensionPanel({ current }: IRightBarComponentProps
 	 * 获取Schema列表
 	 * @deprecated 暂时没有数据源会有请求 schema 列表
 	 */
-	const getSchemaData = async () => {};
+	const getSchemaData = async () => {
+	};
 
 	const getTypeOriginData = (type: DATA_SOURCE_ENUM) => {
 		if (!dataSourceOptions[type]) {
-			stream.getTypeOriginData({ type }).then((v) => {
+			stream.getTypeOriginData({type}).then((v) => {
 				if (v.code === 1) {
 					setDataSourceOptions((options) => {
 						const next = options;
 						next[type] = v.data;
-						return { ...next };
+						return {...next};
 					});
 				}
 			});
@@ -155,9 +154,9 @@ export default function FlinkDimensionPanel({ current }: IRightBarComponentProps
 						if (next[uniqKey]) {
 							next[uniqKey][searchKey || ''] = res.data;
 						} else {
-							next[uniqKey] = { [searchKey || '']: res.data };
+							next[uniqKey] = {[searchKey || '']: res.data};
 						}
-						return { ...next };
+						return {...next};
 					});
 				}
 			});
@@ -191,7 +190,7 @@ export default function FlinkDimensionPanel({ current }: IRightBarComponentProps
 			getTypeOriginData(value!);
 
 			// reset all fields
-			const nextValue = { ...values };
+			const nextValue = {...values};
 			nextValue[NAME_FIELD][changeIndex] = {
 				...DEFAULT_INPUT_VALUE,
 				type: value,
@@ -202,7 +201,7 @@ export default function FlinkDimensionPanel({ current }: IRightBarComponentProps
 
 		if (checkedKeys.includes('sourceId')) {
 			const value = changedValues[NAME_FIELD][changeIndex].sourceId;
-			const nextValue = { ...values };
+			const nextValue = {...values};
 			// reset fields
 			nextValue[NAME_FIELD][changeIndex] = {
 				...DEFAULT_INPUT_VALUE,
@@ -224,7 +223,7 @@ export default function FlinkDimensionPanel({ current }: IRightBarComponentProps
 
 		if (checkedKeys.includes('schema')) {
 			const value = changedValues[NAME_FIELD][changeIndex].schema;
-			const nextValue = { ...values };
+			const nextValue = {...values};
 			// reset fields
 			nextValue[NAME_FIELD][changeIndex] = {
 				...DEFAULT_INPUT_VALUE,
@@ -244,7 +243,7 @@ export default function FlinkDimensionPanel({ current }: IRightBarComponentProps
 
 		if (checkedKeys.includes('table')) {
 			const value = changedValues[NAME_FIELD][changeIndex].table;
-			const nextValue = { ...values };
+			const nextValue = {...values};
 			// reset fields
 			nextValue[NAME_FIELD][changeIndex] = {
 				...DEFAULT_INPUT_VALUE,
@@ -324,7 +323,7 @@ export default function FlinkDimensionPanel({ current }: IRightBarComponentProps
 					initialValues={initialValues}
 				>
 					<Form.List name={NAME_FIELD}>
-						{(fields, { add, remove }) => (
+						{(fields, {add, remove}) => (
 							<>
 								<Collapse
 									activeKey={panelActiveKey}
@@ -367,7 +366,7 @@ export default function FlinkDimensionPanel({ current }: IRightBarComponentProps
 														/>
 													</Popconfirm>
 												}
-												style={{ position: 'relative' }}
+												style={{position: 'relative'}}
 												className="input-panel"
 											>
 												<DimensionForm
@@ -376,14 +375,14 @@ export default function FlinkDimensionPanel({ current }: IRightBarComponentProps
 													tableOptions={
 														tableOptions[
 															`${col.sourceId}-${col.schema}`
-														]
+															]
 													}
 													columnsOptions={
 														columnsOptions[
 															`${col.sourceId}-${col.table}-${
 																col.schema || ''
 															}`
-														]
+															]
 													}
 													onTableSearch={getTableType}
 													onColumnsChange={handleFormValuesChange}
@@ -397,10 +396,10 @@ export default function FlinkDimensionPanel({ current }: IRightBarComponentProps
 									block
 									onClick={() =>
 										handlePanelChanged('add').then(() =>
-											add({ ...DEFAULT_INPUT_VALUE }),
+											add({...DEFAULT_INPUT_VALUE}),
 										)
 									}
-									icon={<PlusOutlined />}
+									icon={<PlusOutlined/>}
 								>
 									<span>添加维表</span>
 								</Button>

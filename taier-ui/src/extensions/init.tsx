@@ -16,34 +16,26 @@
  * limitations under the License.
  */
 
-import { createRoot } from 'react-dom/client';
+import {createRoot} from 'react-dom/client';
 import molecule from '@dtinsight/molecule';
-import {
-	CONSOLE,
-	OPERATIONS,
-	ID_COLLECTIONS,
-	DRAWER_MENU_ENUM,
-	RESOURCE_ACTIONS,
-	FUNCTOIN_ACTIONS,
-} from '@/constant';
+import {CONSOLE, DRAWER_MENU_ENUM, FUNCTOIN_ACTIONS, ID_COLLECTIONS, OPERATIONS, RESOURCE_ACTIONS,} from '@/constant';
 import EditorEntry from '@/components/editorEntry';
 import ResourceManager from '@/pages/resource';
-import { history } from 'umi';
+import {history} from 'umi';
 import classNames from 'classnames';
 import FunctionManager from '@/pages/function';
-import type { UniqueId } from '@dtinsight/molecule/esm/common/types';
+import type {UniqueId} from '@dtinsight/molecule/esm/common/types';
 import DataSource from '@/pages/dataSource';
-import type { IActivityMenuItemProps, IExtension } from '@dtinsight/molecule/esm/model';
-import { Float } from '@dtinsight/molecule/esm/model';
-import { ColorThemeMode } from '@dtinsight/molecule/esm/model';
+import type {IActivityMenuItemProps, IExtension} from '@dtinsight/molecule/esm/model';
+import {ColorThemeMode, Float} from '@dtinsight/molecule/esm/model';
 import LogEditor from '@/components/logEditor';
 import http from '@/api/http';
 import resourceManagerService from '@/services/resourceManagerService';
 import functionManagerService from '@/services/functionManagerService';
-import { showLoginModal } from '@/pages/login';
-import { getCookie, deleteCookie } from '@/utils';
-import { Button, message } from 'antd';
-import { Logo } from '@/components/icon';
+import {showLoginModal} from '@/pages/login';
+import {deleteCookie, getCookie} from '@/utils';
+import {Button, message} from 'antd';
+import {Logo} from '@/components/icon';
 import Language from '@/components/language';
 import AddTenantModal from '@/components/addTenantModal';
 import SchemaModal from '@/pages/account/schemaModal';
@@ -68,6 +60,7 @@ function removeStyles() {
 export default class InitializeExtension implements IExtension {
 	id: UniqueId = 'initialize';
 	name: string = 'initialize';
+
 	activate(): void {
 		initializeColorTheme();
 		initializeEntry();
@@ -83,6 +76,7 @@ export default class InitializeExtension implements IExtension {
 		initLanguage();
 		initExpandCollapse();
 	}
+
 	dispose(): void {
 		throw new Error('Method not implemented.');
 	}
@@ -92,7 +86,7 @@ export default class InitializeExtension implements IExtension {
  * 设置默认展开的左侧目录树项
  */
 function initExpandCollapse() {
-	const { SAMPLE_FOLDER_PANEL_ID, EDITOR_PANEL_ID } = molecule.builtin.getConstants();
+	const {SAMPLE_FOLDER_PANEL_ID, EDITOR_PANEL_ID} = molecule.builtin.getConstants();
 	molecule.explorer.setExpandedPanels([EDITOR_PANEL_ID!, SAMPLE_FOLDER_PANEL_ID!]);
 }
 
@@ -131,7 +125,7 @@ function initializeColorTheme() {
  * 初始化入口页
  */
 function initializeEntry() {
-	molecule.editor.setEntry(<EditorEntry />);
+	molecule.editor.setEntry(<EditorEntry/>);
 
 	const handleGoto = (url: string) => {
 		history.push({
@@ -146,7 +140,7 @@ function initializeEntry() {
 		<div className={classNames('mt-20px', 'text-center', 'text-xs')}>
 			未找到任务开发目录，请先
 			<Button
-				style={{ padding: 0 }}
+				style={{padding: 0}}
 				type="link"
 				onClick={() => handleGoto(DRAWER_MENU_ENUM.CLUSTER)}
 			>
@@ -154,7 +148,7 @@ function initializeEntry() {
 			</Button>
 			并进行
 			<Button
-				style={{ padding: 0 }}
+				style={{padding: 0}}
 				type="link"
 				onClick={() => handleGoto(DRAWER_MENU_ENUM.RESOURCE)}
 			>
@@ -168,7 +162,7 @@ function initializeEntry() {
 		<div className={classNames('mt-20px', 'text-center', 'text-xs')}>
 			未找到资源开发目录，请先
 			<Button
-				style={{ padding: 0 }}
+				style={{padding: 0}}
 				type="link"
 				onClick={() => handleGoto(DRAWER_MENU_ENUM.CLUSTER)}
 			>
@@ -176,7 +170,7 @@ function initializeEntry() {
 			</Button>
 			并进行
 			<Button
-				style={{ padding: 0 }}
+				style={{padding: 0}}
 				type="link"
 				onClick={() => handleGoto(DRAWER_MENU_ENUM.RESOURCE)}
 			>
@@ -190,7 +184,7 @@ function initializeEntry() {
 		<div className={classNames('mt-20px', 'text-center', 'text-xs')}>
 			未找到函数管理目录，请先
 			<Button
-				style={{ padding: 0 }}
+				style={{padding: 0}}
 				type="link"
 				onClick={() => handleGoto(DRAWER_MENU_ENUM.CLUSTER)}
 			>
@@ -198,7 +192,7 @@ function initializeEntry() {
 			</Button>
 			并进行
 			<Button
-				style={{ padding: 0 }}
+				style={{padding: 0}}
 				type="link"
 				onClick={() => handleGoto(DRAWER_MENU_ENUM.RESOURCE)}
 			>
@@ -241,7 +235,7 @@ function initResourceManager() {
 	molecule.sidebar.add({
 		id: resourceManager.id,
 		title: resourceManager.name,
-		render: () => <ResourceManager panel={resourceManager} headerToolBar={headerToolBar} />,
+		render: () => <ResourceManager panel={resourceManager} headerToolBar={headerToolBar}/>,
 	});
 }
 
@@ -255,7 +249,7 @@ function initFunctionManager() {
 		name: '函数管理',
 		title: '函数管理',
 	};
-	const { CONTEXT_MENU_SEARCH } = molecule.builtin.getConstants();
+	const {CONTEXT_MENU_SEARCH} = molecule.builtin.getConstants();
 
 	molecule.activityBar.remove([CONTEXT_MENU_SEARCH!]);
 
@@ -277,7 +271,7 @@ function initFunctionManager() {
 	molecule.sidebar.add({
 		id: functionManager.id,
 		title: functionManager.name,
-		render: () => <FunctionManager panel={functionManager} headerToolBar={headerToolBar} />,
+		render: () => <FunctionManager panel={functionManager} headerToolBar={headerToolBar}/>,
 	});
 }
 
@@ -289,7 +283,7 @@ function initializePane() {
 		id: ID_COLLECTIONS.OUTPUT_LOG_ID,
 		name: '日志',
 		closable: false,
-		renderPane: () => <LogEditor />,
+		renderPane: () => <LogEditor/>,
 	});
 	molecule.panel.setActive(ID_COLLECTIONS.OUTPUT_LOG_ID);
 }
@@ -299,7 +293,7 @@ function initializePane() {
  */
 function initMenuBar() {
 	molecule.menuBar.setState({
-		logo: <Logo />,
+		logo: <Logo/>,
 	});
 	molecule.layout.setMenuBarMode('horizontal');
 	const state = molecule.menuBar.getState();
@@ -325,12 +319,12 @@ function initMenuBar() {
 
 function updateAccountContext(contextMenu: IActivityMenuItemProps[]) {
 	const nextData = molecule.activityBar.getState().data || [];
-	const { ACTIVITY_BAR_GLOBAL_ACCOUNT } = molecule.builtin.getConstants();
+	const {ACTIVITY_BAR_GLOBAL_ACCOUNT} = molecule.builtin.getConstants();
 	const target = nextData.find((item) => item.id === ACTIVITY_BAR_GLOBAL_ACCOUNT);
 	if (target) {
 		target.contextMenu = contextMenu;
 	}
-	molecule.activityBar.setState({ data: nextData });
+	molecule.activityBar.setState({data: nextData});
 }
 
 /**
@@ -342,77 +336,77 @@ function initLogin() {
 	updateAccountContext(
 		userName
 			? [
-					{
-						id: 'username',
-						disabled: !!userName,
-						icon: 'person',
-						name: userName,
+				{
+					id: 'username',
+					disabled: !!userName,
+					icon: 'person',
+					name: userName,
+				},
+				{
+					id: 'divider',
+					type: 'divider',
+				},
+				{
+					id: 'tenant-change',
+					icon: 'feedback',
+					name: tenantName,
+					onClick: () => showLoginModal(),
+				},
+				{
+					id: ID_COLLECTIONS.ADD_TENANT,
+					name: '新增租户',
+					icon: 'person-add',
+					onClick: () => {
+						const node = document.createElement('div');
+						node.id = 'add-tenant-modal';
+						document.getElementById('molecule')!.appendChild(node);
+						const root = createRoot(node);
+						root.render(<AddTenantModal/>);
 					},
-					{
-						id: 'divider',
-						type: 'divider',
+				},
+				{
+					id: ID_COLLECTIONS.ADD_SCHEMA,
+					name: '配置 Schema',
+					icon: 'combine',
+					onClick: () => {
+						const node = document.createElement('div');
+						node.id = 'add-tenant-modal';
+						document.getElementById('molecule')!.appendChild(node);
+						const root = createRoot(node);
+						root.render(<SchemaModal/>);
 					},
-					{
-						id: 'tenant-change',
-						icon: 'feedback',
-						name: tenantName,
-						onClick: () => showLoginModal(),
+				},
+				{
+					id: 'logout',
+					icon: 'log-out',
+					name: '登出',
+					onClick: () => {
+						http.post('/taier/api/user/logout')
+							.then((res) => {
+								if (!res.data) {
+									return message.error('登出失败');
+								}
+								// clear login infos in cookie
+								deleteCookie('userId');
+								deleteCookie('username');
+								deleteCookie('tenantId');
+								deleteCookie('tenant_name');
+								window.location.reload();
+							})
+							.catch(() => {
+								message.error('登出失败');
+							});
 					},
-					{
-						id: ID_COLLECTIONS.ADD_TENANT,
-						name: '新增租户',
-						icon: 'person-add',
-						onClick: () => {
-							const node = document.createElement('div');
-							node.id = 'add-tenant-modal';
-							document.getElementById('molecule')!.appendChild(node);
-							const root = createRoot(node);
-							root.render(<AddTenantModal />);
-						},
-					},
-					{
-						id: ID_COLLECTIONS.ADD_SCHEMA,
-						name: '配置 Schema',
-						icon: 'combine',
-						onClick: () => {
-							const node = document.createElement('div');
-							node.id = 'add-tenant-modal';
-							document.getElementById('molecule')!.appendChild(node);
-							const root = createRoot(node);
-							root.render(<SchemaModal />);
-						},
-					},
-					{
-						id: 'logout',
-						icon: 'log-out',
-						name: '登出',
-						onClick: () => {
-							http.post('/taier/api/user/logout')
-								.then((res) => {
-									if (!res.data) {
-										return message.error('登出失败');
-									}
-									// clear login infos in cookie
-									deleteCookie('userId');
-									deleteCookie('username');
-									deleteCookie('tenantId');
-									deleteCookie('tenant_name');
-									window.location.reload();
-								})
-								.catch(() => {
-									message.error('登出失败');
-								});
-						},
-					},
-			  ]
+				},
+			]
 			: [
-					{
-						id: 'login',
-						name: '去登录',
-						icon: 'log-in',
-						onClick: () => showLoginModal(),
-					},
-			  ],
+				{
+					id: 'login',
+					name: '去登录',
+					icon: 'log-in',
+					onClick: () => showLoginModal(),
+				},
+			],
 	);
 
 	molecule.statusBar.add(
@@ -436,7 +430,7 @@ function initLogin() {
 function initExplorer() {
 	// 优化右键菜单
 	const explorerData = molecule.explorer.getState().data?.concat() || [];
-	const { SAMPLE_FOLDER_PANEL_ID } = molecule.builtin.getConstants();
+	const {SAMPLE_FOLDER_PANEL_ID} = molecule.builtin.getConstants();
 	const folderTreePane = explorerData.find((item) => item.id === SAMPLE_FOLDER_PANEL_ID);
 	if (folderTreePane?.toolbar) {
 		folderTreePane.toolbar[0].title = '新建任务';
@@ -466,7 +460,7 @@ function initDataSource() {
 	molecule.sidebar.add({
 		id: dataSource.id,
 		title: dataSource.name,
-		render: () => <DataSource />,
+		render: () => <DataSource/>,
 	});
 }
 
@@ -477,7 +471,7 @@ function initLanguage() {
 	molecule.statusBar.add(
 		{
 			id: ID_COLLECTIONS.LANGUAGE_STATUS_BAR,
-			render: () => <Language />,
+			render: () => <Language/>,
 		},
 		Float.right,
 	);

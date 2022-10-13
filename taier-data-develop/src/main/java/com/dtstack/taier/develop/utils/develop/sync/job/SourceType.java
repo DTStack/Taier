@@ -22,6 +22,7 @@ package com.dtstack.taier.develop.utils.develop.sync.job;
  * 数据来源类型
  * Date: 2018/8/7
  * Company: www.dtstack.com
+ *
  * @author xuchao
  */
 
@@ -35,11 +36,11 @@ public enum SourceType {
 
     Integer type;
 
-    SourceType(Integer type){
+    SourceType(Integer type) {
         this.type = type;
     }
 
-    public Integer getType(){
+    public Integer getType() {
         return type;
     }
 }

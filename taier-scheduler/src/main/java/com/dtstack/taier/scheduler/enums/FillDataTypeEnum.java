@@ -7,8 +7,8 @@ package com.dtstack.taier.scheduler.enums;
  * @Description:
  */
 public enum FillDataTypeEnum {
-    BATCH(0,"批量生成"),
-    PROJECT(1,"按照工程补数据"),
+    BATCH(0, "批量生成"),
+    PROJECT(1, "按照工程补数据"),
     ;
     private final Integer type;
 

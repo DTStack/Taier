@@ -47,7 +47,7 @@ public class DefaultSetting implements Setting {
     private Long sourceId;
 
     private boolean isRestore = false;
-    private boolean isStream  = false;
+    private boolean isStream = false;
 
     private String restoreColumnName;
 
@@ -186,7 +186,7 @@ public class DefaultSetting implements Setting {
 
         if (isRestore) {
             restore.put("restoreColumnName", restoreColumnName);
-            restore.put("restoreColumnIndex",restoreColumnIndex);
+            restore.put("restoreColumnIndex", restoreColumnIndex);
         }
 
 

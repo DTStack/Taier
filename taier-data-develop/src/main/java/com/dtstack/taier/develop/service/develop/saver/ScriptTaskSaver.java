@@ -41,7 +41,7 @@ public class ScriptTaskSaver extends AbstractTaskSaver {
     }
 
     @Override
-    public String processScheduleRunSqlText(Long tenantId, Integer taskType, String sqlText,Long datasourceId) {
+    public String processScheduleRunSqlText(Long tenantId, Integer taskType, String sqlText, Long datasourceId) {
         return sqlText;
     }
 

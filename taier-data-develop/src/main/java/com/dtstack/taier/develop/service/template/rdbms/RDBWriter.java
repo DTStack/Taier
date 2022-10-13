@@ -2,8 +2,8 @@ package com.dtstack.taier.develop.service.template.rdbms;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import com.dtstack.taier.datasource.api.source.DataSourceType;
 import com.dtstack.taier.common.exception.RdosDefineException;
+import com.dtstack.taier.datasource.api.source.DataSourceType;
 import com.dtstack.taier.develop.service.template.BaseWriterPlugin;
 import org.apache.commons.lang.StringUtils;
 
@@ -12,6 +12,7 @@ import java.util.Map;
 
 /**
  * RDB字段
+ *
  * @author ：daojin
  * date：Created in 上午10:40 2021/7/7
  */
@@ -160,7 +161,7 @@ public abstract class RDBWriter extends BaseWriterPlugin {
     public void checkFormat(JSONObject data) {
         data = data.getJSONObject("parameter");
 
-        if (data.get("column") == null){
+        if (data.get("column") == null) {
             throw new RdosDefineException("column 不能为空，需要匹配映射");
         }
         if (!(data.get("column") instanceof JSONArray)) {

@@ -19,7 +19,7 @@
         <jar.package.name>csp_s3</jar.package.name>
         <jar.name>dtCspS3</jar.name>
 
-        <cosapi.version>5.6.3</cosapi.version>
+        <cosapi.version>5.6.107</cosapi.version>
     </properties>
 
     <dependencies>
@@ -97,7 +97,7 @@
                         <configuration>
                             <tasks>
                                 <copy file="${basedir}/target/${project.name}-${datasource.version}.jar"
-                                      tofile="${basedir}/../../../datasource-plugins/${jar.package.name}/${jar.name}--${datasource.version}.jar" />
+                                      tofile="${basedir}/../../../datasource-plugins/${jar.package.name}/${jar.name}--${datasource.version}.jar"/>
                                 <delete>
                                     <fileset dir="${basedir}/../../../datasource-plugins/${jar.package.name}/"
                                              includes="${jar.name}-*.jar"

@@ -24,6 +24,7 @@ import com.dtstack.taier.pluginapi.sftp.SftpFileManage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+
 /**
  * company: www.dtstack.com
  * author: toutian
@@ -36,7 +37,7 @@ public class MasterServerBeanConfig {
     private EnvironmentContext environmentContext;
 
     @Bean
-    public ClientOperator clientOperator(){
+    public ClientOperator clientOperator() {
         return ClientOperator.getInstance(environmentContext.getPluginPath());
     }
 

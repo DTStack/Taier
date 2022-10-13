@@ -66,7 +66,7 @@ public class CycleJobScheduler extends AbstractJobSummitScheduler {
     protected Long getMinSort() {
         String triggerTime = new DateTime().toString(DATA_YMD);
         triggerTime += "000000";
-        return JobExecuteOrderUtil.buildJobExecuteOrder(triggerTime,0);
+        return JobExecuteOrderUtil.buildJobExecuteOrder(triggerTime, 0);
     }
 
     @Override

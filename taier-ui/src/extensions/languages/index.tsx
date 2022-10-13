@@ -16,13 +16,13 @@
  * limitations under the License.
  */
 
-import { debounce } from 'lodash';
+import {debounce} from 'lodash';
 import molecule from '@dtinsight/molecule';
-import type { IEditorTab, IExtension, IProblemsItem } from '@dtinsight/molecule/esm/model';
-import { MarkerSeverity } from '@dtinsight/molecule/esm/model';
-import { LanguageService } from 'monaco-sql-languages/out/esm/languageService';
-import type { UniqueId } from '@dtinsight/molecule/esm/common/types';
-import { TASK_LANGUAGE } from '@/constant';
+import type {IEditorTab, IExtension, IProblemsItem} from '@dtinsight/molecule/esm/model';
+import {MarkerSeverity} from '@dtinsight/molecule/esm/model';
+import {LanguageService} from 'monaco-sql-languages/out/esm/languageService';
+import type {UniqueId} from '@dtinsight/molecule/esm/common/types';
+import {TASK_LANGUAGE} from '@/constant';
 import 'monaco-sql-languages/out/esm/sparksql/sparksql.contribution';
 import 'monaco-sql-languages/out/esm/hivesql/hivesql.contribution';
 import 'monaco-sql-languages/out/esm/sql/sql.contribution';
@@ -144,16 +144,18 @@ function registerWorkers() {
 export class ExtendsSparkSQL implements IExtension {
 	id: UniqueId = 'sparkSql';
 	name: string = 'sparkSql';
+
 	dispose(): void {
 		throw new Error('Method not implemented.');
 	}
+
 	activate(): void {
 		registerWorkers();
 		molecule.editor.onUpdateTab(debounce(analyseProblems, 600));
 		molecule.editor.onOpenTab(analyseProblems);
 
 		molecule.editor.onCloseTab((tabId) => {
-			const { data } = molecule.problems.getState();
+			const {data} = molecule.problems.getState();
 			const isExist = data.find((item) => item.id === Number(tabId));
 			if (isExist) {
 				molecule.problems.remove(Number(tabId));

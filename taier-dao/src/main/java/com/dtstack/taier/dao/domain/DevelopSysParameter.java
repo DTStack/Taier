@@ -17,7 +17,6 @@
  */
 
 
-
 package com.dtstack.taier.dao.domain;
 
 import org.apache.commons.lang3.StringUtils;

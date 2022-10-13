@@ -30,7 +30,6 @@ import com.dtstack.taier.pluginapi.enums.TaskStatus;
 import com.dtstack.taier.pluginapi.exception.ClientArgumentException;
 import com.dtstack.taier.pluginapi.exception.ExceptionUtil;
 import com.dtstack.taier.pluginapi.pojo.CheckResult;
-import com.dtstack.taier.pluginapi.pojo.ClusterResource;
 import com.dtstack.taier.pluginapi.pojo.ComponentTestResult;
 import com.dtstack.taier.pluginapi.pojo.FileResult;
 import com.dtstack.taier.pluginapi.pojo.JobResult;

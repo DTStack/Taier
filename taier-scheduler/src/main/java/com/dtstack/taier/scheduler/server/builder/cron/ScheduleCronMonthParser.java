@@ -26,6 +26,7 @@ import com.dtstack.taier.scheduler.server.builder.ScheduleConf;
  * 按月周期调度
  * Date: 2017/5/4
  * Company: www.dtstack.com
+ *
  * @author xuchao
  */
 
@@ -35,21 +36,21 @@ public class ScheduleCronMonthParser implements IScheduleConfParser {
     @Override
     public String parse(ScheduleConf scheduleConf) {
         if (scheduleConf.getMin() == null) {
-            throw new RdosDefineException(String.format(ScheduleConfManager.CustomError.ERROR_INFO,scheduleConf.getPeriodType(),"min"));
+            throw new RdosDefineException(String.format(ScheduleConfManager.CustomError.ERROR_INFO, scheduleConf.getPeriodType(), "min"));
         }
 
         if (scheduleConf.getHour() == null) {
-            throw new RdosDefineException(String.format(ScheduleConfManager.CustomError.ERROR_INFO,scheduleConf.getPeriodType(),"hour"));
+            throw new RdosDefineException(String.format(ScheduleConfManager.CustomError.ERROR_INFO, scheduleConf.getPeriodType(), "hour"));
         }
 
         if (scheduleConf.getDay() == null) {
-            throw new RdosDefineException(String.format(ScheduleConfManager.CustomError.ERROR_INFO,scheduleConf.getPeriodType(),"weekDay"));
+            throw new RdosDefineException(String.format(ScheduleConfManager.CustomError.ERROR_INFO, scheduleConf.getPeriodType(), "weekDay"));
         }
         int minute = scheduleConf.getMin();
         int hour = scheduleConf.getHour();
         String days = scheduleConf.getDay();
 
         return CRON_FORMAT.replace("${min}", minute + "").replace("${hour}", hour + "")
-                .replace("${days}", days+"");
+                .replace("${days}", days + "");
     }
 }

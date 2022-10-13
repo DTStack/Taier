@@ -16,8 +16,8 @@
  * limitations under the License.
  */
 
-import { useEffect, useState } from 'react';
-import { ENGINE_SOURCE_TYPE, RESOURCE_TYPE } from '@/constant';
+import {useEffect, useState} from 'react';
+import {ENGINE_SOURCE_TYPE, RESOURCE_TYPE} from '@/constant';
 
 /**
  * 初始化
@@ -38,23 +38,23 @@ function handleEngine(enginList: any[], type: string) {
 }
 
 function useEnv({
-	clusterId,
-	form,
-	clusterList,
-	visible,
-}: {
+					clusterId,
+					form,
+					clusterList,
+					visible,
+				}: {
 	clusterId: any;
 	form: any;
 	clusterList: any[];
 	visible: boolean;
 }) {
 	const [queueList, setQueueList] = useState([]);
-	const [env, setEnv] = useState({ ...initailValue() });
+	const [env, setEnv] = useState({...initailValue()});
 	useEffect(() => {
 		if (!clusterId) return;
 		if (!visible) {
 			form.resetFields(['queueId']);
-			setEnv({ ...initailValue() });
+			setEnv({...initailValue()});
 			setQueueList([]);
 			return;
 		}
@@ -74,9 +74,10 @@ function useEnv({
 				(ENGINE_SOURCE_TYPE as any)[key],
 			);
 		}
-		setEnv({ ...newEnv });
+		setEnv({...newEnv});
 		setQueueList(hadoopEngine?.[0]?.queues || []);
 	}, [clusterId, clusterList, visible, form]);
-	return { env, queueList };
+	return {env, queueList};
 }
+
 export default useEnv;

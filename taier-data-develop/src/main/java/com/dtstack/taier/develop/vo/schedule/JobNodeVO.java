@@ -59,13 +59,13 @@ public class JobNodeVO {
     /**
      * 操作人
      */
-    @ApiModelProperty(value = "责任人id",example = "1")
+    @ApiModelProperty(value = "责任人id", example = "1")
     private Long operatorId;
 
     /**
      * 操作人
      */
-    @ApiModelProperty(value = "责任人名称",example = "1")
+    @ApiModelProperty(value = "责任人名称", example = "1")
     private String operatorName;
 
     /**

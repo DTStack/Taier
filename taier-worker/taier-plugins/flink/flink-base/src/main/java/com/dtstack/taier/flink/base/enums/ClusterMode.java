@@ -48,28 +48,31 @@ public enum ClusterMode {
 
     /**
      * check if it's perjob mode
+     *
      * @param clusterMode clusterMode
      * @return true if it's perjob mode
      */
-    public static boolean isPerjob(ClusterMode clusterMode){
+    public static boolean isPerjob(ClusterMode clusterMode) {
         return ClusterMode.PER_JOB.equals(clusterMode);
     }
 
     /**
      * check if it's session mode
+     *
      * @param clusterMode clusterMode
      * @return true if it's session mode
      */
-    public static boolean isSession(ClusterMode clusterMode){
+    public static boolean isSession(ClusterMode clusterMode) {
         return ClusterMode.SESSION.equals(clusterMode);
     }
 
     /**
      * check if it's standalone mode
+     *
      * @param clusterMode clusterMode
      * @return true if it's standalone mode
      */
-    public static boolean isStandalone(ClusterMode clusterMode){
+    public static boolean isStandalone(ClusterMode clusterMode) {
         return ClusterMode.STANDALONE.equals(clusterMode);
     }
 

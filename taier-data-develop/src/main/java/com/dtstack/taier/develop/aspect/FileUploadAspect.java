@@ -57,6 +57,7 @@ public class FileUploadAspect {
 
     /**
      * 文件上传前处理，生产临时文件
+     *
      * @param joinPoint
      * @throws Throwable
      */
@@ -66,7 +67,7 @@ public class FileUploadAspect {
         if (args.length < 2) {
             throw new RdosDefineException("upload method args less than 2.");
         }
-        if (!MultipartFile.class.isAssignableFrom(args[1].getClass())){
+        if (!MultipartFile.class.isAssignableFrom(args[1].getClass())) {
             throw new RdosDefineException("upload method args[1] not AssignableFrom MultipartFile.");
         }
 
@@ -99,6 +100,7 @@ public class FileUploadAspect {
 
     /**
      * 文件上传之后处理，删除临时文件
+     *
      * @param joinPoint
      */
     @After("fileUploadPointCut()")

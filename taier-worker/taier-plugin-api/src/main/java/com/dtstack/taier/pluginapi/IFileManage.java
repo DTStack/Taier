@@ -24,10 +24,11 @@ import java.io.File;
 import java.util.Vector;
 
 /**
- *  文件管理接口
- *
+ * 文件管理接口
+ * <p>
  * Date: 2020/7/20
  * Company: www.dtstack.com
+ *
  * @author maqi
  */
 public interface IFileManage {
@@ -35,11 +36,14 @@ public interface IFileManage {
 
     /**
      * 获取文件处理器能处理的文件前缀：hdfs://, sftp://, local://, http://
+     *
      * @return
      */
     String getPrefix();
+
     /**
      * 文件管理器能处理的文件路径
+     *
      * @param remotePath
      * @return
      */
@@ -47,6 +51,7 @@ public interface IFileManage {
 
     /**
      * 是否过滤url文件前缀标识
+     *
      * @return
      */
     default boolean filterPrefix() {
@@ -54,14 +59,16 @@ public interface IFileManage {
     }
 
     /**
-     *  下载文件
+     * 下载文件
+     *
      * @param remotePath
      * @param localPath
      */
     boolean downloadFile(String remotePath, String localPath);
 
     /**
-     *  下载目录
+     * 下载目录
+     *
      * @param remotePath
      * @param localPath
      */
@@ -69,7 +76,8 @@ public interface IFileManage {
 
 
     /**
-     *  下载目录 无异常
+     * 下载目录 无异常
+     *
      * @param remotePath
      * @param localPath
      */
@@ -77,6 +85,7 @@ public interface IFileManage {
 
     /**
      * 上传文件
+     *
      * @param remotePath
      * @param localPath
      * @return
@@ -85,15 +94,17 @@ public interface IFileManage {
 
     /**
      * 上传文件到指定目录
-     * @param remotePath  远程文件夹
-     * @param localPath   本地文件
-     * @param fileName    文件名称
+     *
+     * @param remotePath 远程文件夹
+     * @param localPath  本地文件
+     * @param fileName   文件名称
      * @return
      */
     boolean uploadFile(String remotePath, String localPath, String fileName);
 
     /**
      * 上传文件夹
+     *
      * @param remotePath
      * @param localPath
      * @return
@@ -101,19 +112,22 @@ public interface IFileManage {
     boolean uploadDir(String remotePath, String localPath);
 
     /**
-     *  删除文件
+     * 删除文件
+     *
      * @param remotePath
      */
     boolean deleteFile(String remotePath);
 
     /**
-     *  删除文件夹
+     * 删除文件夹
+     *
      * @param remotePath
      */
     boolean deleteDir(String remotePath);
 
     /**
      * 创建文件夹
+     *
      * @param path
      * @return
      */
@@ -121,6 +135,7 @@ public interface IFileManage {
 
     /**
      * 重命名
+     *
      * @param oldPth
      * @param newPath
      * @return
@@ -128,7 +143,8 @@ public interface IFileManage {
     boolean renamePath(String oldPth, String newPath);
 
     /**
-     *  查看路径文件
+     * 查看路径文件
+     *
      * @param remotePath
      * @return
      */
@@ -142,6 +158,7 @@ public interface IFileManage {
 
     /**
      * 文件下载失败，清理已下载文件
+     *
      * @param delPath
      */
     default void clearDownloadFile(String delPath) {

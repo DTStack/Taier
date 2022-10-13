@@ -54,16 +54,14 @@ import org.elasticsearch.client.indices.PutMappingRequest;
 import org.elasticsearch.client.indices.UnfreezeIndexRequest;
 import org.elasticsearch.client.indices.rollover.RolloverRequest;
 import org.elasticsearch.common.Strings;
-import org.elasticsearch.rest.BaseRestHandler;
 
 import java.io.IOException;
 import java.util.Locale;
 
-import static org.elasticsearch.rest.BaseRestHandler.INCLUDE_TYPE_NAME_PARAMETER;
-
 final class IndicesRequestConverters {
 
-    private IndicesRequestConverters() {}
+    private IndicesRequestConverters() {
+    }
 
     static Request deleteIndex(DeleteIndexRequest deleteIndexRequest) {
         String endpoint = RequestConverters.endpoint(deleteIndexRequest.indices());
@@ -101,7 +99,7 @@ final class IndicesRequestConverters {
 
     static Request createIndex(CreateIndexRequest createIndexRequest) throws IOException {
         String endpoint = new RequestConverters.EndpointBuilder()
-            .addPathPart(createIndexRequest.index()).build();
+                .addPathPart(createIndexRequest.index()).build();
         Request request = new Request(HttpPut.METHOD_NAME, endpoint);
 
         RequestConverters.Params parameters = new RequestConverters.Params(request);
@@ -164,7 +162,7 @@ final class IndicesRequestConverters {
         }
 
         Request request = new Request(HttpPut.METHOD_NAME, RequestConverters.endpoint(putMappingRequest.indices(),
-            "_mapping", putMappingRequest.type()));
+                "_mapping", putMappingRequest.type()));
 
         RequestConverters.Params parameters = new RequestConverters.Params(request);
         parameters.withTimeout(putMappingRequest.timeout());
@@ -210,11 +208,11 @@ final class IndicesRequestConverters {
         String[] fields = getFieldMappingsRequest.fields() == null ? Strings.EMPTY_ARRAY : getFieldMappingsRequest.fields();
 
         String endpoint = new RequestConverters.EndpointBuilder()
-            .addCommaSeparatedPathParts(indices)
-            .addPathPartAsIs("_mapping")
-            .addPathPartAsIs("field")
-            .addCommaSeparatedPathParts(fields)
-            .build();
+                .addCommaSeparatedPathParts(indices)
+                .addPathPartAsIs("_mapping")
+                .addPathPartAsIs("field")
+                .addCommaSeparatedPathParts(fields)
+                .build();
 
         Request request = new Request(HttpGet.METHOD_NAME, endpoint);
 
@@ -234,9 +232,9 @@ final class IndicesRequestConverters {
         String[] fields = getFieldMappingsRequest.fields() == null ? Strings.EMPTY_ARRAY : getFieldMappingsRequest.fields();
 
         String endpoint = new RequestConverters.EndpointBuilder().addCommaSeparatedPathParts(indices)
-            .addPathPartAsIs("_mapping").addCommaSeparatedPathParts(types)
-            .addPathPartAsIs("field").addCommaSeparatedPathParts(fields)
-            .build();
+                .addPathPartAsIs("_mapping").addCommaSeparatedPathParts(types)
+                .addPathPartAsIs("field").addCommaSeparatedPathParts(fields)
+                .build();
 
         Request request = new Request(HttpGet.METHOD_NAME, endpoint);
 
@@ -290,7 +288,7 @@ final class IndicesRequestConverters {
     }
 
     static Request clearCache(ClearIndicesCacheRequest clearIndicesCacheRequest) {
-        String[] indices = clearIndicesCacheRequest.indices() == null ? Strings.EMPTY_ARRAY :clearIndicesCacheRequest.indices();
+        String[] indices = clearIndicesCacheRequest.indices() == null ? Strings.EMPTY_ARRAY : clearIndicesCacheRequest.indices();
         Request request = new Request(HttpPost.METHOD_NAME, RequestConverters.endpoint(indices, "_cache/clear"));
 
         RequestConverters.Params parameters = new RequestConverters.Params(request);
@@ -350,7 +348,7 @@ final class IndicesRequestConverters {
 
     static Request rollover(RolloverRequest rolloverRequest) throws IOException {
         String endpoint = new RequestConverters.EndpointBuilder().addPathPart(rolloverRequest.getAlias()).addPathPartAsIs("_rollover")
-            .addPathPart(rolloverRequest.getNewIndexName()).build();
+                .addPathPart(rolloverRequest.getNewIndexName()).build();
         Request request = new Request(HttpPost.METHOD_NAME, endpoint);
 
         RequestConverters.Params params = new RequestConverters.Params(request);
@@ -369,7 +367,7 @@ final class IndicesRequestConverters {
     @Deprecated
     static Request rollover(org.elasticsearch.action.admin.indices.rollover.RolloverRequest rolloverRequest) throws IOException {
         String endpoint = new RequestConverters.EndpointBuilder().addPathPart(rolloverRequest.getAlias()).addPathPartAsIs("_rollover")
-            .addPathPart(rolloverRequest.getNewIndexName()).build();
+                .addPathPart(rolloverRequest.getNewIndexName()).build();
         Request request = new Request(HttpPost.METHOD_NAME, endpoint);
 
         RequestConverters.Params params = new RequestConverters.Params(request);
@@ -495,14 +493,14 @@ final class IndicesRequestConverters {
     }
 
     /**
-     * @deprecated This uses the old form of PutIndexTemplateRequest which uses types. 
+     * @deprecated This uses the old form of PutIndexTemplateRequest which uses types.
      * Use (@link {@link #putTemplate(PutIndexTemplateRequest)} instead
      */
     @Deprecated
-    static Request putTemplate(org.elasticsearch.action.admin.indices.template.put.PutIndexTemplateRequest putIndexTemplateRequest) 
+    static Request putTemplate(org.elasticsearch.action.admin.indices.template.put.PutIndexTemplateRequest putIndexTemplateRequest)
             throws IOException {
         String endpoint = new RequestConverters.EndpointBuilder().addPathPartAsIs("_template")
-            .addPathPart(putIndexTemplateRequest.name()).build();
+                .addPathPart(putIndexTemplateRequest.name()).build();
         Request request = new Request(HttpPut.METHOD_NAME, endpoint);
         RequestConverters.Params params = new RequestConverters.Params(request);
         params.withMasterTimeout(putIndexTemplateRequest.masterNodeTimeout());
@@ -519,7 +517,7 @@ final class IndicesRequestConverters {
 
     static Request putTemplate(PutIndexTemplateRequest putIndexTemplateRequest) throws IOException {
         String endpoint = new RequestConverters.EndpointBuilder().addPathPartAsIs("_template")
-            .addPathPart(putIndexTemplateRequest.name()).build();
+                .addPathPart(putIndexTemplateRequest.name()).build();
         Request request = new Request(HttpPut.METHOD_NAME, endpoint);
         RequestConverters.Params params = new RequestConverters.Params(request);
         params.withMasterTimeout(putIndexTemplateRequest.masterNodeTimeout());
@@ -565,29 +563,29 @@ final class IndicesRequestConverters {
     static Request getTemplatesWithDocumentTypes(GetIndexTemplatesRequest getIndexTemplatesRequest) {
         return getTemplates(getIndexTemplatesRequest, true);
     }
-    
+
     static Request getTemplates(GetIndexTemplatesRequest getIndexTemplatesRequest) {
         return getTemplates(getIndexTemplatesRequest, false);
     }
-    
+
     private static Request getTemplates(GetIndexTemplatesRequest getIndexTemplatesRequest, boolean includeTypeName) {
         final String endpoint = new RequestConverters.EndpointBuilder()
-            .addPathPartAsIs("_template")
-            .addCommaSeparatedPathParts(getIndexTemplatesRequest.names())
-            .build();
+                .addPathPartAsIs("_template")
+                .addCommaSeparatedPathParts(getIndexTemplatesRequest.names())
+                .build();
         final Request request = new Request(HttpGet.METHOD_NAME, endpoint);
         final RequestConverters.Params params = new RequestConverters.Params(request);
         params.withLocal(getIndexTemplatesRequest.isLocal());
         params.withMasterTimeout(getIndexTemplatesRequest.getMasterNodeTimeout());
         // params.putParam(BaseRestHandler.INCLUDE_TYPE_NAME_PARAMETER, Boolean.toString(includeTypeName));
         return request;
-    }    
+    }
 
     static Request templatesExist(IndexTemplatesExistRequest indexTemplatesExistRequest) {
         final String endpoint = new RequestConverters.EndpointBuilder()
-            .addPathPartAsIs("_template")
-            .addCommaSeparatedPathParts(indexTemplatesExistRequest.names())
-            .build();
+                .addPathPartAsIs("_template")
+                .addCommaSeparatedPathParts(indexTemplatesExistRequest.names())
+                .build();
         final Request request = new Request(HttpHead.METHOD_NAME, endpoint);
         final RequestConverters.Params params = new RequestConverters.Params(request);
         params.withLocal(indexTemplatesExistRequest.isLocal());

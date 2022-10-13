@@ -21,16 +21,18 @@ package com.dtstack.taier.base.filesystem.factory;
 import com.dtstack.taier.pluginapi.IFileManage;
 
 /**
- *  传递配置文件，创建IFileManage
- *
+ * 传递配置文件，创建IFileManage
+ * <p>
  * Date: 2020/7/20
  * Company: www.dtstack.com
+ *
  * @author maqi
  */
 public interface IFileManageFactory<T> {
 
     /**
-     *  创建IFileManage
+     * 创建IFileManage
+     *
      * @param config
      * @return
      */

@@ -32,6 +32,7 @@ public interface DevelopFunctionMapper extends BaseMapper<DevelopFunction> {
 
     /**
      * 根据 租户、父目录id 查询
+     *
      * @param tenantId
      * @param nodePid
      * @return
@@ -40,6 +41,7 @@ public interface DevelopFunctionMapper extends BaseMapper<DevelopFunction> {
 
     /**
      * 根据引擎类型 查询对应函数的跟目录
+     *
      * @param taskType
      * @return
      */
@@ -47,6 +49,7 @@ public interface DevelopFunctionMapper extends BaseMapper<DevelopFunction> {
 
     /**
      * 根据 租户 查询
+     *
      * @param tenantId
      * @param functionType
      * @param taskType
@@ -57,6 +60,7 @@ public interface DevelopFunctionMapper extends BaseMapper<DevelopFunction> {
 
     /**
      * 根据 租户 查询
+     *
      * @param tenantId
      * @param taskType
      * @return
@@ -66,6 +70,7 @@ public interface DevelopFunctionMapper extends BaseMapper<DevelopFunction> {
 
     /**
      * 根据 租户、名称、类型 查询
+     *
      * @param tenantId
      * @param name
      * @param type
@@ -75,6 +80,7 @@ public interface DevelopFunctionMapper extends BaseMapper<DevelopFunction> {
 
     /**
      * 根据 租户、名称 查询
+     *
      * @param tenantId
      * @param name
      * @return
@@ -83,6 +89,7 @@ public interface DevelopFunctionMapper extends BaseMapper<DevelopFunction> {
 
     /**
      * 根据 租户、名称查询
+     *
      * @param tenantId
      * @param taskType
      * @return
@@ -91,6 +98,7 @@ public interface DevelopFunctionMapper extends BaseMapper<DevelopFunction> {
 
     /**
      * 通用查询
+     *
      * @param query
      * @return
      */
@@ -98,6 +106,7 @@ public interface DevelopFunctionMapper extends BaseMapper<DevelopFunction> {
 
     /**
      * 通用查询统计
+     *
      * @param model
      * @return
      */

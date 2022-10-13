@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-import { useEffect, useRef, useState } from 'react';
+import {useEffect, useRef, useState} from 'react';
 
 interface IPagination {
 	current?: number;
@@ -25,25 +25,25 @@ interface IPagination {
 }
 
 export const usePagination = ({
-	current: initialCurrent = 1,
-	pageSize: initalPageSize = 20,
-	total: initialTotal = 0,
-}: IPagination) => {
+								  current: initialCurrent = 1,
+								  pageSize: initalPageSize = 20,
+								  total: initialTotal = 0,
+							  }: IPagination) => {
 	const [current, setCurrent] = useState(initialCurrent);
 	const [pageSize, setPageSize] = useState(initalPageSize);
 	const [total, setTotal] = useState(initialTotal);
 
 	// ensure get the lastest value inside async function
-	const pageInfoRef = useRef({ current, pageSize, total });
+	const pageInfoRef = useRef({current, pageSize, total});
 	useEffect(() => {
-		pageInfoRef.current = { current, pageSize, total };
+		pageInfoRef.current = {current, pageSize, total};
 	});
 
 	const setPagination = ({
-		current: c,
-		pageSize: p,
-		total: t,
-	}: {
+							   current: c,
+							   pageSize: p,
+							   total: t,
+						   }: {
 		current?: number;
 		pageSize?: number;
 		total?: number;
@@ -59,7 +59,7 @@ export const usePagination = ({
 		}
 	};
 
-	return { ...pageInfoRef.current, setPagination };
+	return {...pageInfoRef.current, setPagination};
 };
 
 export function useConstant<T>(val: T) {

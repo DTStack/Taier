@@ -151,14 +151,13 @@ public final class Strings {
     }
 
 
-
     /***
      * 根据指定分隔符分割字符串---忽略在引号 和 括号 里面的分隔符
      * @param str
      * @param delimter
      * @return
      */
-    public static String[] splitIgnoreQuotaBrackets(String str, String delimter){
+    public static String[] splitIgnoreQuotaBrackets(String str, String delimter) {
         String splitPatternStr = delimter + "(?![^()]*+\\))(?![^{}]*+})(?![^\\[\\]]*+\\])(?=(?:[^\"]|\"[^\"]*\")*$)";
         return str.split(splitPatternStr);
     }

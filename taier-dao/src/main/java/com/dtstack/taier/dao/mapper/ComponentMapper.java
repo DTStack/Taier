@@ -26,11 +26,11 @@ import java.util.List;
 
 public interface ComponentMapper extends BaseMapper<Component> {
 
-    List<Component> listByClusterId(@Param("clusterId") Long clusterId,@Param("type") Integer typeCode, @Param("isDefault") boolean isDefault);
+    List<Component> listByClusterId(@Param("clusterId") Long clusterId, @Param("type") Integer typeCode, @Param("isDefault") boolean isDefault);
 
-    Component getByClusterIdAndComponentType(@Param("clusterId") Long clusterId, @Param("type") Integer type,@Param("componentVersion")String componentVersion,@Param("deployType") Integer deployType);
+    Component getByClusterIdAndComponentType(@Param("clusterId") Long clusterId, @Param("type") Integer type, @Param("componentVersion") String componentVersion, @Param("deployType") Integer deployType);
 
-    Component getByVersionName(@Param("clusterId") Long clusterId, @Param("type") Integer type,@Param("versionName")String versionName,@Param("deployType") Integer deployType);
+    Component getByVersionName(@Param("clusterId") Long clusterId, @Param("type") Integer type, @Param("versionName") String versionName, @Param("deployType") Integer deployType);
 
     Long getClusterIdByComponentId(@Param("componentId") Long componentId);
 
@@ -42,7 +42,7 @@ public interface ComponentMapper extends BaseMapper<Component> {
      */
     List<Component> getComponentVersionByEngineType(@Param("tenantId") Long tenantId, @Param("componentTypeCode") Integer componentTypeCode);
 
-    int updateDefault(@Param("clusterId")Long clusterId, @Param("componentType")Integer componentType, @Param("isDefault") boolean isDefault);
+    int updateDefault(@Param("clusterId") Long clusterId, @Param("componentType") Integer componentType, @Param("isDefault") boolean isDefault);
 
     List<Component> listByTenantId(@Param("tenantId") Long tenantId);
 }

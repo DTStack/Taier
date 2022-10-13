@@ -2,6 +2,10 @@ package com.dtstack.taier.develop.service.template.bulider.reader;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.dtstack.taier.common.enums.EScheduleJobType;
+import com.dtstack.taier.common.exception.ErrorCode;
+import com.dtstack.taier.common.exception.RdosDefineException;
+import com.dtstack.taier.dao.domain.DsInfo;
 import com.dtstack.taier.datasource.api.base.ClientCache;
 import com.dtstack.taier.datasource.api.client.IClient;
 import com.dtstack.taier.datasource.api.dto.ColumnMetaDTO;
@@ -9,10 +13,6 @@ import com.dtstack.taier.datasource.api.dto.SqlQueryDTO;
 import com.dtstack.taier.datasource.api.dto.Table;
 import com.dtstack.taier.datasource.api.dto.source.ISourceDTO;
 import com.dtstack.taier.datasource.api.source.DataSourceType;
-import com.dtstack.taier.common.enums.EScheduleJobType;
-import com.dtstack.taier.common.exception.ErrorCode;
-import com.dtstack.taier.common.exception.RdosDefineException;
-import com.dtstack.taier.dao.domain.DsInfo;
 import com.dtstack.taier.develop.common.template.Reader;
 import com.dtstack.taier.develop.datasource.convert.load.SourceLoaderService;
 import com.dtstack.taier.develop.dto.devlop.TaskResourceParam;
@@ -85,10 +85,10 @@ public class Hive2XReaderBuilder implements DaReaderBuilder {
         setReaderJson(param);
         Map<String, Object> sourceMap = param.getSourceMap();
         DsInfo targetSource = (DsInfo) sourceMap.get("source");
-       if (Objects.equals(param.getTaskType(), EScheduleJobType.SYNC.getVal())) {
-           Hive2XReader hive2XReader = new Hive2XReader();
-            datasourceService.setSftpConfig(JSONObject.parseObject(targetSource.getDataJson()),param.getTenantId() ,sourceMap,  HADOOP_CONFIG);
-           Hive2XReaderParam hive2XReaderParam = JSON.parseObject(JSON.toJSONString(sourceMap), Hive2XReaderParam.class);
+        if (Objects.equals(param.getTaskType(), EScheduleJobType.SYNC.getVal())) {
+            Hive2XReader hive2XReader = new Hive2XReader();
+            datasourceService.setSftpConfig(JSONObject.parseObject(targetSource.getDataJson()), param.getTenantId(), sourceMap, HADOOP_CONFIG);
+            Hive2XReaderParam hive2XReaderParam = JSON.parseObject(JSON.toJSONString(sourceMap), Hive2XReaderParam.class);
             if (StringUtils.isNotBlank(hive2XReaderParam.getTable())) {
                 try {
                     //获取hive客户端
@@ -130,13 +130,13 @@ public class Hive2XReaderBuilder implements DaReaderBuilder {
             } else {
                 hive2XReaderParam.setWriteMode(SyncWriteMode.HIVE_OVERWRITE.getMode());
             }
-           hive2XReader.setColumn(ColumnUtil.getColumns(hive2XReaderParam.getColumn(), PluginName.Hive_R));
-           hive2XReader.setWriteMode(hive2XReaderParam.getWriteMode());
-           hive2XReader.setDefaultFS(hive2XReaderParam.getDefaultFS());
-           hive2XReader.setEncoding(hive2XReaderParam.getEncoding());
-           hive2XReader.setFieldDelimiter(hive2XReaderParam.getFieldDelimiter());
-           hive2XReader.setFileType(hive2XReaderParam.getFileType());
-           hive2XReader.setPath(hive2XReaderParam.getPath().trim());
+            hive2XReader.setColumn(ColumnUtil.getColumns(hive2XReaderParam.getColumn(), PluginName.Hive_R));
+            hive2XReader.setWriteMode(hive2XReaderParam.getWriteMode());
+            hive2XReader.setDefaultFS(hive2XReaderParam.getDefaultFS());
+            hive2XReader.setEncoding(hive2XReaderParam.getEncoding());
+            hive2XReader.setFieldDelimiter(hive2XReaderParam.getFieldDelimiter());
+            hive2XReader.setFileType(hive2XReaderParam.getFileType());
+            hive2XReader.setPath(hive2XReaderParam.getPath().trim());
             if (StringUtils.isNotEmpty(hive2XReaderParam.getPartition())) {
                 hive2XReader.setFileName(hive2XReaderParam.getPartition());
                 hive2XReader.setPartition(hive2XReaderParam.getPartition());
@@ -146,20 +146,20 @@ public class Hive2XReaderBuilder implements DaReaderBuilder {
             if (StringUtils.isNotEmpty(hive2XReaderParam.getTable())) {
                 hive2XReader.setTable(hive2XReaderParam.getTable());
             }
-           hive2XReader.setHadoopConfig(hive2XReaderParam.getHadoopConfig());
+            hive2XReader.setHadoopConfig(hive2XReaderParam.getHadoopConfig());
 
-           hive2XReader.setUsername(hive2XReaderParam.getUsername());
-           hive2XReader.setPassword(hive2XReaderParam.getPassword());
-           hive2XReader.setJdbcUrl(hive2XReaderParam.getJdbcUrl());
+            hive2XReader.setUsername(hive2XReaderParam.getUsername());
+            hive2XReader.setPassword(hive2XReaderParam.getPassword());
+            hive2XReader.setJdbcUrl(hive2XReaderParam.getJdbcUrl());
             if (StringUtils.isNotEmpty(hive2XReaderParam.getJdbcUrl())) {
                 JSONObject connection = new JSONObject(2);
                 connection.put("jdbcUrl", hive2XReaderParam.getJdbcUrl());
                 connection.put("table", StringUtils.isNotBlank(hive2XReaderParam.getTable()) ? Lists.newArrayList(hive2XReaderParam.getTable()) : Lists.newArrayList());
                 hive2XReader.setConnection(Lists.newArrayList(connection));
             }
-           hive2XReader.setExtralConfig(hive2XReaderParam.getExtralConfig());
-           hive2XReader.setSftpConf(hive2XReaderParam.getSftpConf());
-           hive2XReader.setRemoteDir(hive2XReaderParam.getRemoteDir());
+            hive2XReader.setExtralConfig(hive2XReaderParam.getExtralConfig());
+            hive2XReader.setSftpConf(hive2XReaderParam.getSftpConf());
+            hive2XReader.setRemoteDir(hive2XReaderParam.getRemoteDir());
             return hive2XReader;
         }
         return new Hive2XReader();

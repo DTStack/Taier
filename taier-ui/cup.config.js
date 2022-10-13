@@ -13,7 +13,7 @@ module.exports = {
 	listen: 8080,
 	root: './dist',
 	proxyTable: {
-		'/taier':{
+		'/taier': {
 			target: `${publicURL}:8090`,
 			changeOrigin: true,
 			secure: false,

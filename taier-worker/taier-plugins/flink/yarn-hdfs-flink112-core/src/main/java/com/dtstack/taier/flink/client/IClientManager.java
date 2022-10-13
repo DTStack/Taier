@@ -14,6 +14,7 @@ public interface IClientManager {
 
     /**
      * get flink clusterClient
+     *
      * @param jobIdentifier jobIndentifier
      * @return yarnClient
      */
@@ -22,6 +23,7 @@ public interface IClientManager {
 
     /**
      * get yarn client
+     *
      * @return yarnClient
      */
     YarnClient getYarnClient();
@@ -29,5 +31,6 @@ public interface IClientManager {
     /**
      * do something when job submit failed
      */
-    default void dealWithClientError() {}
+    default void dealWithClientError() {
+    }
 }

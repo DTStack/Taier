@@ -19,8 +19,8 @@ public enum ASTNodeFunctionEnum {
     EQUAL_NS(21),
     KW_OR(193),
     KW_AND(34),
-    KW_NOT(184)
-    ;
+    KW_NOT(184);
+
     ASTNodeFunctionEnum(Integer value) {
         this.value = value;
     }
@@ -35,9 +35,9 @@ public enum ASTNodeFunctionEnum {
         this.value = value;
     }
 
-    public static Boolean isFunction(Integer type){
+    public static Boolean isFunction(Integer type) {
         for (ASTNodeFunctionEnum value : ASTNodeFunctionEnum.values()) {
-            if (type.equals(value.getValue())){
+            if (type.equals(value.getValue())) {
                 return true;
             }
         }

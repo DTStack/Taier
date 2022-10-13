@@ -24,7 +24,8 @@ public class Hive2XWriter extends HiveWriterBase {
     protected String remoteDir;
     protected Map<String, Object> sftpConf;
     protected String encoding = "utf-8";
-//    @Override
+
+    //    @Override
     public void checkFormat(JSONObject data) {
         data = data.getJSONObject("parameter");
         if (StringUtils.isEmpty(data.getString("jdbcUrl"))) {
@@ -92,7 +93,7 @@ public class Hive2XWriter extends HiveWriterBase {
     public String pluginName() {
         if (CollectionUtils.isNotEmpty(connection)) {
             return PluginName.HDFS_W;
-        }else {
+        } else {
             return PluginName.HIVE_W;
         }
     }

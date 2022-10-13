@@ -24,7 +24,7 @@ import io.swagger.annotations.ApiModelProperty;
 import java.util.List;
 
 @ApiModel("任务目录信息")
-public class TaskCatalogueResultVO{
+public class TaskCatalogueResultVO {
 
     @ApiModelProperty(value = "调度状态", example = "1")
     private Integer scheduleStatus;
@@ -45,7 +45,7 @@ public class TaskCatalogueResultVO{
     private List<DevelopTaskResultVO> dependencyTasks;
 
     @ApiModelProperty(value = "列表信息")
-    private List<List<Object>>  lists;
+    private List<List<Object>> lists;
 
     @ApiModelProperty(value = "目录id", example = "1")
     private Long id = 0L;

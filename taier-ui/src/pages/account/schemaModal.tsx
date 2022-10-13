@@ -1,9 +1,9 @@
 import api from '@/api';
-import { formItemLayout } from '@/constant';
-import { getTenantId } from '@/utils';
-import { Badge, Form, message, Modal, Select, Spin } from 'antd';
-import { useEffect, useState } from 'react';
-import type { TASK_TYPE_ENUM } from '@/constant';
+import type {TASK_TYPE_ENUM} from '@/constant';
+import {formItemLayout} from '@/constant';
+import {getTenantId} from '@/utils';
+import {Badge, Form, message, Modal, Select, Spin} from 'antd';
+import {useEffect, useState} from 'react';
 
 interface IFormFieldProps {
 	taskType: TASK_TYPE_ENUM;
@@ -27,7 +27,7 @@ export default function SchemaModal() {
 
 	const getComponentList = () => {
 		setLoading(true);
-		api.getComponentSchemaConfig<IComponentListProps[]>({ tenantId: getTenantId() })
+		api.getComponentSchemaConfig<IComponentListProps[]>({tenantId: getTenantId()})
 			.then((res) => {
 				if (res.code === 1) {
 					setTaskList(res.data || []);
@@ -40,7 +40,7 @@ export default function SchemaModal() {
 
 	const getSchemaViaType = (taskType: TASK_TYPE_ENUM) => {
 		setFetching(true);
-		api.getSchemaListByComponent<string[]>({ taskType })
+		api.getSchemaListByComponent<string[]>({taskType})
 			.then((res) => {
 				if (res.code === 1) {
 					setSchemaList(res.data || []);
@@ -117,11 +117,11 @@ export default function SchemaModal() {
 					onValuesChange={handleFormFieldChanged}
 				>
 					<Form.Item name="taskType" label="任务类型" required>
-						<Select style={{ width: '100%' }}>
+						<Select style={{width: '100%'}}>
 							{taskList.map((l) => {
 								return (
 									<Select.Option key={l.taskType} value={l.taskType}>
-										<Badge status={l.schema ? 'success' : 'default'} />
+										<Badge status={l.schema ? 'success' : 'default'}/>
 										{l.taskTypeName}
 									</Select.Option>
 								);
@@ -130,12 +130,12 @@ export default function SchemaModal() {
 					</Form.Item>
 					<Form.Item name="schema" label="Schema" required>
 						<Select<string>
-							style={{ width: '100%' }}
+							style={{width: '100%'}}
 							placeholder="请选择 Schema"
 							showSearch
-							notFoundContent={fetching ? <Spin size="small" /> : null}
+							notFoundContent={fetching ? <Spin size="small"/> : null}
 							optionFilterProp="label"
-							options={schemaList.map((l) => ({ label: l, value: l }))}
+							options={schemaList.map((l) => ({label: l, value: l}))}
 						/>
 					</Form.Item>
 				</Form>

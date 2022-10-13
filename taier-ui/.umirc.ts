@@ -1,4 +1,4 @@
-import { defineConfig } from 'umi';
+import {defineConfig} from 'umi';
 import MonacoWebpackPlugin from 'monaco-editor-webpack-plugin';
 
 export default defineConfig({
@@ -25,7 +25,7 @@ export default defineConfig({
 			],
 		},
 	],
-	chainWebpack(memo, { env }) {
+	chainWebpack(memo, {env}) {
 		memo.output.globalObject('this').set('globalObject', 'this');
 		memo.entry('sparksql.worker').add(
 			'monaco-sql-languages/out/esm/sparksql/sparksql.worker.js',

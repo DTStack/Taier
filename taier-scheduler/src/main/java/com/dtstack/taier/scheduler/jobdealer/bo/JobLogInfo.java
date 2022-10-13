@@ -15,7 +15,7 @@ public class JobLogInfo implements Delayed {
     private String customLog;
     private EJobLogType logType;
 
-    public JobLogInfo(String jobId, JobIdentifier jobIdentifier, int computeType, long delay, EJobLogType logType){
+    public JobLogInfo(String jobId, JobIdentifier jobIdentifier, int computeType, long delay, EJobLogType logType) {
         this.jobId = jobId;
         this.jobIdentifier = jobIdentifier;
         this.computeType = computeType;

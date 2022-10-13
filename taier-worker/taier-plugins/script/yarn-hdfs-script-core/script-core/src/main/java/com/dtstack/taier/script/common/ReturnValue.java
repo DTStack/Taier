@@ -9,7 +9,7 @@ public class ReturnValue {
     private int exitValue;
     private String errorLog;
 
-    public ReturnValue(int exitValue, String errorLog){
+    public ReturnValue(int exitValue, String errorLog) {
         this.exitValue = exitValue;
         this.errorLog = errorLog;
     }

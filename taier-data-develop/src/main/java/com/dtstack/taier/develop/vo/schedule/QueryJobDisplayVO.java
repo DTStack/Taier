@@ -13,7 +13,7 @@ public class QueryJobDisplayVO {
     /**
      * 任务id
      */
-    @ApiModelProperty(value = "任务id",required  = true)
+    @ApiModelProperty(value = "任务id", required = true)
     private String jobId;
 
     /**
@@ -27,7 +27,7 @@ public class QueryJobDisplayVO {
      */
     @ApiModelProperty(value = "查询方向:\n" +
             "FATHER(1):向上查询 \n" +
-            "CHILD(2):向下查询",required = true)
+            "CHILD(2):向下查询", required = true)
     private Integer directType;
 
 

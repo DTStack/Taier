@@ -36,7 +36,7 @@ public class MysqlBinLogReader extends BaseReaderPlugin implements Reader {
 
     private Integer port;
 
-    private List<String> table ;
+    private List<String> table;
 
     private String filter;
 
@@ -147,7 +147,6 @@ public class MysqlBinLogReader extends BaseReaderPlugin implements Reader {
             this.timestamp = timestamp;
         }
     }
-
 
 
     @Override

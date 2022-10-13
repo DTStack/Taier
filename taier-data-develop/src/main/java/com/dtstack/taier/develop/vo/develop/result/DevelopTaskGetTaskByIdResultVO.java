@@ -188,7 +188,7 @@ public class DevelopTaskGetTaskByIdResultVO {
     private Integer isDeleted = 0;
 
     @ApiModelProperty(value = "")
-    private  String EMPYT = "";
+    private String EMPYT = "";
 
     @ApiModelProperty(value = "组件版本", example = "1.8")
     private String componentVersion;
@@ -759,6 +759,7 @@ public class DevelopTaskGetTaskByIdResultVO {
     public void setComponentVersion(String componentVersion) {
         this.componentVersion = componentVersion;
     }
+
     public List<DevelopResourceResultVO> getRefResourceList() {
         return refResourceList;
     }

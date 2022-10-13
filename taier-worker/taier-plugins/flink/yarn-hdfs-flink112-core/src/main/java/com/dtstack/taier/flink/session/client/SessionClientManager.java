@@ -1,4 +1,3 @@
-
 package com.dtstack.taier.flink.session.client;
 
 import com.dtstack.taier.base.util.KerberosUtils;
@@ -91,7 +90,7 @@ public class SessionClientManager extends AbstractClientManager {
 
         this.lockPath = String.format("%s/%s",
                 this.sessionAppNameSuffix,
-                flinkConfig.getFlinkSessionName().replace("\\s",""));
+                flinkConfig.getFlinkSessionName().replace("\\s", ""));
 
         start();
     }
@@ -115,7 +114,7 @@ public class SessionClientManager extends AbstractClientManager {
     /**
      * check if session start, if not, build a new session
      */
-    public void start(){
+    public void start() {
         try {
             // flush role at current worker node.
             flushRole();
@@ -136,7 +135,7 @@ public class SessionClientManager extends AbstractClientManager {
 
     private void startYarnSessionClientMonitor() {
 
-        String threadName = String.format("%s-%s",sessionAppNameSuffix, "flink_yarn_monitor");
+        String threadName = String.format("%s-%s", sessionAppNameSuffix, "flink_yarn_monitor");
         LOG.warn("Start a yarn session client monitor [{}].", threadName);
         yarnMonitorService = new ThreadPoolExecutor(1, 1, 0L, TimeUnit.MILLISECONDS,
                 new LinkedBlockingQueue<>(), new CustomThreadFactory(threadName));
@@ -176,7 +175,7 @@ public class SessionClientManager extends AbstractClientManager {
             }
 
             LOG.info("Current role is [{}] and session start auto is {} and Lock path is {}", isLeader.get() ? "Leader" : "Follower", flinkConfig.getSessionStartAuto(), lockPath);
-            if(isLeader.get() && flinkConfig.getSessionStartAuto()){
+            if (isLeader.get() && flinkConfig.getSessionStartAuto()) {
                 try {
                     try (
                             YarnClusterDescriptor yarnSessionDescriptor = createYarnSessionClusterDescriptor();
@@ -201,6 +200,7 @@ public class SessionClientManager extends AbstractClientManager {
      * get cluster client by session status montior
      * need'nt judge session state.
      * because it's watch session state. when session is unhealthy, it will restart session by this cluster client.
+     *
      * @return
      */
     public ClusterClient<ApplicationId> getClusterClient() {
@@ -211,6 +211,7 @@ public class SessionClientManager extends AbstractClientManager {
      * get cluster client by flink client.
      * should judge session state is healthy.
      * because this method provides external services.
+     *
      * @param jobIdentifier
      * @return
      */
@@ -281,7 +282,7 @@ public class SessionClientManager extends AbstractClientManager {
                 boolean checkQueue = report.getQueue().endsWith(flinkConfig.getQueue());
                 boolean checkPrefixName = report.getName().startsWith(flinkConfig.getFlinkSessionName());
                 boolean checkSuffixName = report.getName().endsWith(sessionAppNameSuffix);
-                if(!checkState || !checkQueue || !checkPrefixName || !checkSuffixName){
+                if (!checkState || !checkQueue || !checkPrefixName || !checkSuffixName) {
                     continue;
                 }
 
@@ -349,7 +350,7 @@ public class SessionClientManager extends AbstractClientManager {
                 clusterDescriptor.addShipFiles(pluginPaths);
             }
         }
-        if(CollectionUtils.isNotEmpty(keytabFiles)){
+        if (CollectionUtils.isNotEmpty(keytabFiles)) {
             clusterDescriptor.addShipFiles(keytabFiles);
         }
         List<URL> classpaths = getFlinkJarFile(flinkJarPath, clusterDescriptor);
@@ -405,7 +406,7 @@ public class SessionClientManager extends AbstractClientManager {
     /**
      * flush current node role.
      */
-    public void flushRole(){
+    public void flushRole() {
         boolean isLock = tryLock(lockPath);
         if (LOG.isDebugEnabled()) {
             LOG.debug("LockPath {}, lock result {} ", lockPath, isLock);
@@ -415,6 +416,7 @@ public class SessionClientManager extends AbstractClientManager {
 
     /**
      * get distribute lock
+     *
      * @return
      */
     private boolean tryLock(String lockPath) {
@@ -439,7 +441,7 @@ public class SessionClientManager extends AbstractClientManager {
      */
     public void releaseLock() {
         LOG.debug("==> SessionClientFactory.releaseLock()");
-        if (!isLeader.get()){
+        if (!isLeader.get()) {
             return;
         }
 

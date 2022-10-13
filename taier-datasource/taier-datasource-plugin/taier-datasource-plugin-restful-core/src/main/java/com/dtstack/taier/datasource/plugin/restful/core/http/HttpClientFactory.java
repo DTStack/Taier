@@ -1,14 +1,14 @@
 package com.dtstack.taier.datasource.plugin.restful.core.http;
 
+import com.dtstack.taier.datasource.api.dto.SSLConfig;
+import com.dtstack.taier.datasource.api.dto.source.ISourceDTO;
+import com.dtstack.taier.datasource.api.dto.source.RestfulSourceDTO;
+import com.dtstack.taier.datasource.api.exception.SourceException;
 import com.dtstack.taier.datasource.plugin.common.DtClassThreadFactory;
 import com.dtstack.taier.datasource.plugin.common.utils.MD5Util;
 import com.dtstack.taier.datasource.plugin.common.utils.ReflectUtil;
 import com.dtstack.taier.datasource.plugin.common.utils.SSLUtil;
 import com.dtstack.taier.datasource.plugin.kerberos.core.util.KerberosLoginUtil;
-import com.dtstack.taier.datasource.api.dto.SSLConfig;
-import com.dtstack.taier.datasource.api.dto.source.ISourceDTO;
-import com.dtstack.taier.datasource.api.dto.source.RestfulSourceDTO;
-import com.dtstack.taier.datasource.api.exception.SourceException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang.BooleanUtils;
@@ -134,6 +134,7 @@ public class HttpClientFactory {
 
     /**
      * 跳过 ssl 认证
+     *
      * @return {@link SSLIOSessionStrategy}
      */
     public static SSLIOSessionStrategy getDefaultSSLConnectionSocketFactory() {

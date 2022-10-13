@@ -1,7 +1,7 @@
-import { useState, useEffect, useMemo } from 'react';
-import { Table, Breadcrumb } from 'antd';
-import { IStreamJobProps } from '@/interface';
-import type { ColumnsType } from 'antd/lib/table';
+import {useEffect, useMemo, useState} from 'react';
+import {Breadcrumb, Table} from 'antd';
+import {IStreamJobProps} from '@/interface';
+import type {ColumnsType} from 'antd/lib/table';
 import stream from '@/api';
 
 interface IProps {
@@ -16,13 +16,13 @@ export interface ITaskList {
 	slotsNumber: number;
 }
 
-export default function TaskManagerList({ data, onTaskDetail }: IProps) {
+export default function TaskManagerList({data, onTaskDetail}: IProps) {
 	const [taskList, setTaskList] = useState<ITaskList[]>([]);
 	const [loading, setLoading] = useState(false);
 
 	const getTaskManageList = async () => {
 		setLoading(true);
-		const res = await stream.listTaskManager({ taskId: data?.id });
+		const res = await stream.listTaskManager({taskId: data?.id});
 		if (res.code == 1) {
 			setTaskList(res.data || []);
 		}
@@ -70,14 +70,14 @@ export default function TaskManagerList({ data, onTaskDetail }: IProps) {
 		];
 	}, []);
 	return (
-		<div style={{ padding: '0 20px 25px' }}>
+		<div style={{padding: '0 20px 25px'}}>
 			<Breadcrumb>
 				<Breadcrumb.Item>Task List</Breadcrumb.Item>
 			</Breadcrumb>
 			<Table<ITaskList>
 				loading={loading}
 				columns={columns}
-				style={{ marginTop: 16 }}
+				style={{marginTop: 16}}
 				dataSource={taskList}
 				className="dt-table-border"
 				pagination={false}

@@ -20,7 +20,7 @@ public class RestartCurrentNodeRestartJob extends AbstractRestartJob {
 
 
     public RestartCurrentNodeRestartJob(EnvironmentContext environmentContext, ApplicationContext applicationContext) {
-        super(environmentContext,applicationContext);
+        super(environmentContext, applicationContext);
     }
 
     @Override

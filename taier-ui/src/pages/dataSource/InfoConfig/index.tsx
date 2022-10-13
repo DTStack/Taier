@@ -16,44 +16,30 @@
  * limitations under the License.
  */
 
-import { useEffect, useState, useImperativeHandle, forwardRef } from 'react';
+import {forwardRef, useEffect, useImperativeHandle, useState} from 'react';
 import {
-	QuestionCircleOutlined,
-	CopyOutlined,
-	PlusCircleOutlined,
-	UploadOutlined,
 	CloseOutlined,
+	CopyOutlined,
 	LinkOutlined,
+	PlusCircleOutlined,
+	QuestionCircleOutlined,
+	UploadOutlined,
 } from '@ant-design/icons';
-import {
-	Input,
-	Button,
-	Upload,
-	message,
-	Select,
-	Radio,
-	InputNumber,
-	Tooltip,
-	Switch,
-	Form,
-	Space,
-	Spin,
-} from 'antd';
+import {Button, Form, Input, InputNumber, message, Radio, Select, Space, Spin, Switch, Tooltip, Upload,} from 'antd';
 import copy from 'copy-to-clipboard';
 import moment from 'moment';
 import Base64 from 'base-64';
 import api from '@/api';
-import { HDFSCONG } from '@/constant';
-import { utf8to16 } from '@/utils';
-import { formItemLayout } from '@/constant';
-import type { RcFile } from 'antd/lib/upload';
-import { getRules } from './formRules';
+import type {DATA_SOURCE_ENUM} from '@/constant';
+import {formItemLayout, HDFSCONG} from '@/constant';
+import {utf8to16} from '@/utils';
+import type {RcFile} from 'antd/lib/upload';
+import {getRules} from './formRules';
 import HDFSTooltips from './tooltips';
-import type { DATA_SOURCE_ENUM } from '@/constant';
 import './index.scss';
 
-const { TextArea } = Input;
-const { Option } = Select;
+const {TextArea} = Input;
+const {Option} = Select;
 
 interface IProps {
 	record: {
@@ -184,7 +170,7 @@ export interface IFormFieldVoList {
 	initialValue?: any;
 }
 
-export default forwardRef(({ record, version = '', onValuesChange }: IProps, ref) => {
+export default forwardRef(({record, version = '', onValuesChange}: IProps, ref) => {
 	const [form] = Form.useForm();
 	const [templateData, setTemplateData] = useState<IFormFieldVoList[]>([]);
 	const [principalsList, setPrincipalsList] = useState<any[]>([]);
@@ -198,7 +184,7 @@ export default forwardRef(({ record, version = '', onValuesChange }: IProps, ref
 		dataType: string;
 		dataVersion: string;
 	}> => {
-		const { data } = await api.findTemplateByTypeVersion({
+		const {data} = await api.findTemplateByTypeVersion({
 			dataType: record?.dataType,
 			dataVersion: version,
 		});
@@ -206,7 +192,7 @@ export default forwardRef(({ record, version = '', onValuesChange }: IProps, ref
 	};
 
 	const getDetail = async () => {
-		const { data } = await api.detail({
+		const {data} = await api.detail({
 			dataInfoId: record?.dataInfoId,
 		});
 		return data || {};
@@ -214,7 +200,7 @@ export default forwardRef(({ record, version = '', onValuesChange }: IProps, ref
 
 	const getAllData = async () => {
 		setLoading(true);
-		const { fromFieldVoList = [] } = await templateForm();
+		const {fromFieldVoList = []} = await templateForm();
 
 		const formFieldVoList = fromFieldVoList.filter(
 			(item) => item.invisible !== FORM_FIELD_VISIBLE_ENUM.invisible,
@@ -294,7 +280,7 @@ export default forwardRef(({ record, version = '', onValuesChange }: IProps, ref
 				return;
 			}
 			// 上传文件前清空 masterKer、regionserverKer
-			form.setFieldsValue({ principal: res.data[0] });
+			form.setFieldsValue({principal: res.data[0]});
 			setPrincipalsList(res.data || []);
 		});
 		return false;
@@ -359,10 +345,11 @@ export default forwardRef(({ record, version = '', onValuesChange }: IProps, ref
 						showUploadList={false}
 						beforeUpload={handleBeforeUpload}
 					>
-						<Button style={{ color: '#999' }}>
-							<UploadOutlined /> 上传文件
+						<Button style={{color: '#999'}}>
+							<UploadOutlined/> 上传文件
 						</Button>
-						<Tooltip title="仅支持Zip格式，压缩包需包含xxx.keytab、krb5.config文件。上传文件前，请在控制台开启SFTP服务。">
+						<Tooltip
+							title="仅支持Zip格式，压缩包需包含xxx.keytab、krb5.config文件。上传文件前，请在控制台开启SFTP服务。">
 							<QuestionCircleOutlined
 								style={{
 									fontSize: '14px',
@@ -388,10 +375,10 @@ export default forwardRef(({ record, version = '', onValuesChange }: IProps, ref
 						offset: formItemLayout.labelCol.sm.span,
 						span: formItemLayout.wrapperCol.sm.span,
 					}}
-					style={{ marginBottom: 0 }}
+					style={{marginBottom: 0}}
 					shouldUpdate={(pre, cur) => pre.kerberosFile !== cur.kerberosFile}
 				>
-					{({ getFieldValue, setFieldsValue }) =>
+					{({getFieldValue, setFieldsValue}) =>
 						!!getFieldValue('kerberosFile') && (
 							<div
 								style={{
@@ -399,7 +386,7 @@ export default forwardRef(({ record, version = '', onValuesChange }: IProps, ref
 									alignItems: 'center',
 								}}
 							>
-								<LinkOutlined />
+								<LinkOutlined/>
 								<Input
 									style={{
 										border: 0,
@@ -465,7 +452,7 @@ export default forwardRef(({ record, version = '', onValuesChange }: IProps, ref
 								disabled={!!item.disabled}
 							/>
 						</Form.Item>
-						<CopyOutlined onClick={() => handleCopy(item)} />
+						<CopyOutlined onClick={() => handleCopy(item)}/>
 					</Form.Item>
 				);
 			case 'Select':
@@ -495,19 +482,19 @@ export default forwardRef(({ record, version = '', onValuesChange }: IProps, ref
 						required={!!item.required}
 						{...getRules(item)}
 					>
-						<TextArea rows={4} placeholder={item.placeHold || `请输入${item.label}`} />
+						<TextArea rows={4} placeholder={item.placeHold || `请输入${item.label}`}/>
 					</Form.Item>
 				);
 			case 'TextAreaWithCopy':
 				return (
 					<Form.Item
 						label={item.label}
-						tooltip={<HDFSTooltips />}
+						tooltip={<HDFSTooltips/>}
 						key={index}
 						required={!!item.required}
 					>
 						<Form.Item noStyle name={item.name} {...getRules(item)}>
-							<TextArea id="copy" rows={4} placeholder={item.placeHold || ''} />
+							<TextArea id="copy" rows={4} placeholder={item.placeHold || ''}/>
 						</Form.Item>
 						<div className="help-module">
 							<span onClick={() => handleCopy(item)}>点击复制模板</span>
@@ -565,7 +552,7 @@ export default forwardRef(({ record, version = '', onValuesChange }: IProps, ref
 						required={!!item.required}
 						{...getRules(item)}
 					>
-						<InputNumber autoComplete="off" className="w-full" />
+						<InputNumber autoComplete="off" className="w-full"/>
 					</Form.Item>
 				);
 			case 'Switch':
@@ -578,7 +565,7 @@ export default forwardRef(({ record, version = '', onValuesChange }: IProps, ref
 						valuePropName="checked"
 						{...getRules(item)}
 					>
-						<Switch />
+						<Switch/>
 					</Form.Item>
 				);
 			// 定制化内容
@@ -594,7 +581,7 @@ export default forwardRef(({ record, version = '', onValuesChange }: IProps, ref
 							initialValue={detailData?.openKerberos || false}
 							valuePropName="checked"
 						>
-							<Switch />
+							<Switch/>
 						</Form.Item>
 
 						<Form.Item
@@ -603,7 +590,7 @@ export default forwardRef(({ record, version = '', onValuesChange }: IProps, ref
 								prevValues.openKerberos !== curValues.openKerberos
 							}
 						>
-							{({ getFieldValue }) => getFieldValue('openKerberos') && uploadForm()}
+							{({getFieldValue}) => getFieldValue('openKerberos') && uploadForm()}
 						</Form.Item>
 
 						<Form.Item
@@ -613,7 +600,7 @@ export default forwardRef(({ record, version = '', onValuesChange }: IProps, ref
 								prevValues.openKerberos !== curValues.openKerberos
 							}
 						>
-							{({ getFieldValue }) =>
+							{({getFieldValue}) =>
 								getFieldValue('kerberosFile') &&
 								getFieldValue('openKerberos') && (
 									<Form.Item
@@ -648,7 +635,7 @@ export default forwardRef(({ record, version = '', onValuesChange }: IProps, ref
 							required={!!item.required}
 							initialValue={detailData?.openKerberos || false}
 						>
-							<Switch />
+							<Switch/>
 						</Form.Item>
 						<Form.Item
 							noStyle
@@ -656,7 +643,7 @@ export default forwardRef(({ record, version = '', onValuesChange }: IProps, ref
 								prevValues.openKerberos !== curValues.openKerberos
 							}
 						>
-							{({ getFieldValue }) => getFieldValue('openKerberos') && uploadForm()}
+							{({getFieldValue}) => getFieldValue('openKerberos') && uploadForm()}
 						</Form.Item>
 
 						<Form.Item
@@ -666,7 +653,7 @@ export default forwardRef(({ record, version = '', onValuesChange }: IProps, ref
 								prevValues.openKerberos !== curValues.openKerberos
 							}
 						>
-							{({ getFieldValue }) =>
+							{({getFieldValue}) =>
 								getFieldValue('kerberosFile') &&
 								getFieldValue('openKerberos') && (
 									<>
@@ -704,7 +691,7 @@ export default forwardRef(({ record, version = '', onValuesChange }: IProps, ref
 												},
 											]}
 										>
-											<Input autoComplete="off" />
+											<Input autoComplete="off"/>
 										</Form.Item>
 										<Form.Item
 											label="regioserver.kerberos"
@@ -725,7 +712,7 @@ export default forwardRef(({ record, version = '', onValuesChange }: IProps, ref
 												},
 											]}
 										>
-											<Input autoComplete="off" />
+											<Input autoComplete="off"/>
 										</Form.Item>
 									</>
 								)
@@ -760,7 +747,7 @@ export default forwardRef(({ record, version = '', onValuesChange }: IProps, ref
 								prevValues.protocol !== curValues.protocol
 							}
 						>
-							{({ getFieldValue }) =>
+							{({getFieldValue}) =>
 								getFieldValue('protocol') === PROTOCOL_VALUE.FTP && (
 									<Form.Item
 										label="连接模式"
@@ -795,7 +782,7 @@ export default forwardRef(({ record, version = '', onValuesChange }: IProps, ref
 								prevValues.protocol !== curValues.protocol
 							}
 						>
-							{({ getFieldValue }) =>
+							{({getFieldValue}) =>
 								getFieldValue('protocol') === PROTOCOL_VALUE.SFTP && (
 									<>
 										<Form.Item
@@ -828,9 +815,9 @@ export default forwardRef(({ record, version = '', onValuesChange }: IProps, ref
 												prevValues.auth !== curValues.auth
 											}
 										>
-											{({ getFieldValue: otherGetFieldValue }) =>
+											{({getFieldValue: otherGetFieldValue}) =>
 												otherGetFieldValue('auth') ===
-													PROTOCOL_AUTH_MODE_VALUE.SSH && (
+												PROTOCOL_AUTH_MODE_VALUE.SSH && (
 													<Form.Item
 														label="私钥地址"
 														required
@@ -844,7 +831,7 @@ export default forwardRef(({ record, version = '', onValuesChange }: IProps, ref
 															},
 														]}
 													>
-														<Input autoComplete="off" />
+														<Input autoComplete="off"/>
 													</Form.Item>
 												)
 											}
@@ -877,7 +864,7 @@ export default forwardRef(({ record, version = '', onValuesChange }: IProps, ref
 								prevValues.hdfsCustomConfig !== curValues.hdfsCustomConfig
 							}
 						>
-							{({ getFieldValue }) =>
+							{({getFieldValue}) =>
 								getFieldValue('hdfsCustomConfig') === HDFS_CONFIG_VALUE.CUSTOM && (
 									<>
 										<Form.Item
@@ -899,7 +886,7 @@ export default forwardRef(({ record, version = '', onValuesChange }: IProps, ref
 										</Form.Item>
 										<Form.Item label="高可用配置">
 											<Form.Item
-												tooltip={<HDFSTooltips />}
+												tooltip={<HDFSTooltips/>}
 												name="hadoopConfig"
 												noStyle
 												initialValue={detailData?.hadoopConfig || ''}
@@ -956,7 +943,7 @@ export default forwardRef(({ record, version = '', onValuesChange }: IProps, ref
 								prevValues.kafkaType !== curValues.kafkaType
 							}
 						>
-							{({ getFieldValue }) =>
+							{({getFieldValue}) =>
 								// eslint-disable-next-line no-nested-ternary
 								getFieldValue('kafkaType') === KAFKA_CONNECTION_TYPE.CLUSTER ? (
 									<Form.Item
@@ -1026,9 +1013,9 @@ export default forwardRef(({ record, version = '', onValuesChange }: IProps, ref
 								prevValues.authentication !== curValues.authentication
 							}
 						>
-							{({ getFieldValue }) =>
+							{({getFieldValue}) =>
 								getFieldValue('authentication') ===
-									KAFKA_AUTH_VALUES.SASL_PLAINTEXT && (
+								KAFKA_AUTH_VALUES.SASL_PLAINTEXT && (
 									<>
 										<Form.Item
 											label="用户名"
@@ -1043,7 +1030,7 @@ export default forwardRef(({ record, version = '', onValuesChange }: IProps, ref
 												},
 											]}
 										>
-											<Input type="text" />
+											<Input type="text"/>
 										</Form.Item>
 										<Form.Item
 											label="密码"
@@ -1052,7 +1039,7 @@ export default forwardRef(({ record, version = '', onValuesChange }: IProps, ref
 											initialValue={detailData?.password}
 											required={!!item.required}
 										>
-											<Input type="password" />
+											<Input type="password"/>
 										</Form.Item>
 									</>
 								)
@@ -1065,7 +1052,7 @@ export default forwardRef(({ record, version = '', onValuesChange }: IProps, ref
 								prevValues.kerberosFile !== curValues.kerberosFile
 							}
 						>
-							{({ getFieldValue }) =>
+							{({getFieldValue}) =>
 								getFieldValue('authentication') === KAFKA_AUTH_VALUES.KERBEROS && (
 									<>
 										<Form.Item
@@ -1130,7 +1117,7 @@ export default forwardRef(({ record, version = '', onValuesChange }: IProps, ref
 								prevValues.redisType !== curValues.redisType
 							}
 						>
-							{({ getFieldValue }) => (
+							{({getFieldValue}) => (
 								<Form.Item
 									label="地址"
 									key="hostPort"
@@ -1162,7 +1149,7 @@ export default forwardRef(({ record, version = '', onValuesChange }: IProps, ref
 								prevValues.redisType !== curValues.redisType
 							}
 						>
-							{({ getFieldValue }) =>
+							{({getFieldValue}) =>
 								getFieldValue('redisType') === REDIS_TYPE_VALUE.SENTINEL && (
 									<Form.Item
 										label="master名称"
@@ -1177,7 +1164,7 @@ export default forwardRef(({ record, version = '', onValuesChange }: IProps, ref
 											},
 										]}
 									>
-										<Input placeholder="请输入master名称" autoComplete="off" />
+										<Input placeholder="请输入master名称" autoComplete="off"/>
 									</Form.Item>
 								)
 							}
@@ -1188,7 +1175,7 @@ export default forwardRef(({ record, version = '', onValuesChange }: IProps, ref
 								prevValues.redisType !== curValues.redisType
 							}
 						>
-							{({ getFieldValue }) =>
+							{({getFieldValue}) =>
 								(getFieldValue('redisType') === REDIS_TYPE_VALUE.STANDALONE ||
 									getFieldValue('redisType') === REDIS_TYPE_VALUE.SENTINEL) && (
 									<Form.Item
@@ -1196,7 +1183,7 @@ export default forwardRef(({ record, version = '', onValuesChange }: IProps, ref
 										name="database"
 										initialValue={detailData?.database || ''}
 									>
-										<Input autoComplete="off" />
+										<Input autoComplete="off"/>
 									</Form.Item>
 								)
 							}
@@ -1206,7 +1193,7 @@ export default forwardRef(({ record, version = '', onValuesChange }: IProps, ref
 							name="password"
 							initialValue={detailData?.password || ''}
 						>
-							<Input.Password visibilityToggle={false} />
+							<Input.Password visibilityToggle={false}/>
 						</Form.Item>
 					</>
 				);
@@ -1214,7 +1201,7 @@ export default forwardRef(({ record, version = '', onValuesChange }: IProps, ref
 				return (
 					<Form.Item label="鉴权参数" key="webSocketParams">
 						<Form.List name="webSocketParams">
-							{(fields, { add, remove }) => (
+							{(fields, {add, remove}) => (
 								<>
 									{fields.map((field) => (
 										<Space
@@ -1248,7 +1235,7 @@ export default forwardRef(({ record, version = '', onValuesChange }: IProps, ref
 										</Space>
 									))}
 									<span className="ws-add" onClick={() => handleAddws(add)}>
-										<PlusCircleOutlined />
+										<PlusCircleOutlined/>
 										<span>新增参数</span>
 									</span>
 								</>
@@ -1286,7 +1273,7 @@ export default forwardRef(({ record, version = '', onValuesChange }: IProps, ref
 						},
 					]}
 				>
-					<Input disabled />
+					<Input disabled/>
 				</Form.Item>
 				<Spin spinning={loading}>{formItem}</Spin>
 			</Form>

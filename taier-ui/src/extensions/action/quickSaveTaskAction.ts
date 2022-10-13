@@ -1,12 +1,12 @@
-import { message } from 'antd';
-import { KeyMod, KeyCode } from '@dtinsight/molecule/esm/monaco';
-import { ID_COLLECTIONS } from '@/constant';
-import { taskRenderService } from '@/services';
-import { isTaskTab } from '@/utils/is';
+import {message} from 'antd';
+import {KeyCode, KeyMod} from '@dtinsight/molecule/esm/monaco';
+import {ID_COLLECTIONS} from '@/constant';
+import {taskRenderService} from '@/services';
+import {isTaskTab} from '@/utils/is';
 import molecule from '@dtinsight/molecule';
-import { Action2 } from '@dtinsight/molecule/esm/monaco/action';
-import { KeybindingWeight } from '@dtinsight/molecule/esm/monaco/common';
-import type { CatalogueDataProps, IOfflineTaskProps } from '@/interface';
+import {Action2} from '@dtinsight/molecule/esm/monaco/action';
+import {KeybindingWeight} from '@dtinsight/molecule/esm/monaco/common';
+import type {CatalogueDataProps, IOfflineTaskProps} from '@/interface';
 import taskSaveService from '@/services/taskSaveService';
 
 export default class QuickSaveTaskAction extends Action2 {
@@ -34,7 +34,7 @@ export default class QuickSaveTaskAction extends Action2 {
 	}
 
 	run() {
-		const { current } = molecule.editor.getState();
+		const {current} = molecule.editor.getState();
 		if (current && isTaskTab(current.tab?.id)) {
 			const currentTabData: CatalogueDataProps & IOfflineTaskProps = current?.tab?.data;
 			const taskToolbar = taskRenderService.renderEditorActions(

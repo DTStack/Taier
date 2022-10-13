@@ -1,4 +1,4 @@
-import { createContext } from 'react';
+import {createContext} from 'react';
 
 export const Context = createContext<{
 	optionCollections: Record<string, any[]>;
@@ -9,8 +9,9 @@ export const Context = createContext<{
 			collection: any[];
 		};
 	}>;
-	transformerFactory: Record<
-		string,
-		(value: any, index: number, array: any[]) => any | undefined
-	>;
-}>({ optionCollections: {}, dispatch: () => {}, transformerFactory: {} });
+	transformerFactory: Record<string,
+		(value: any, index: number, array: any[]) => any | undefined>;
+}>({
+	optionCollections: {}, dispatch: () => {
+	}, transformerFactory: {}
+});

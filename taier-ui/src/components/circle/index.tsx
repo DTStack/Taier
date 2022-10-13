@@ -40,7 +40,7 @@ interface CircleProps {
 	children?: React.ReactNode;
 }
 
-export default function Circle({ className, type, children, ...other }: CircleProps) {
+export default function Circle({className, type, children, ...other}: CircleProps) {
 	const prefixCls = 'dtc-circle';
 	const classes = classNames({
 		className,

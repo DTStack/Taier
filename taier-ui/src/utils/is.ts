@@ -6,7 +6,7 @@ import {
 	KAFKA_DATA_TYPE,
 	RDB_TYPE_ARRAY,
 } from '@/constant';
-import type { UniqueId } from '@dtinsight/molecule/esm/common/types';
+import type {UniqueId} from '@dtinsight/molecule/esm/common/types';
 
 /**
  * 是否需要 schema

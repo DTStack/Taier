@@ -1,91 +1,290 @@
 BEGIN;
-INSERT INTO `dict` (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default, gmt_create, gmt_modified, is_deleted) VALUES ('component_model_config', '1.12-standalone', '{"1.12-standalone":"flink112-standalone"}', null, 14, 1, 'STRING', 'FLINK', 0, now(), now(), 0);
-INSERT INTO `dict` (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default, gmt_create, gmt_modified, is_deleted) VALUES ('typename_mapping', 'flink112-standalone', '-120', NULL, 6, 0, 'LONG', '', 0, now(), now(), 0);
-INSERT INTO `dict` (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default, gmt_create, gmt_modified, is_deleted) VALUES ('flink_version', '1.12-standalone', '112_standalone', null, 1, 2, 'INTEGER', '', 0, now(),now(), 0);
+INSERT INTO `dict` (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default,
+                    gmt_create, gmt_modified, is_deleted)
+VALUES ('component_model_config', '1.12-standalone', '{"1.12-standalone":"flink112-standalone"}', null, 14, 1, 'STRING',
+        'FLINK', 0, now(), now(), 0);
+INSERT INTO `dict` (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default,
+                    gmt_create, gmt_modified, is_deleted)
+VALUES ('typename_mapping', 'flink112-standalone', '-120', NULL, 6, 0, 'LONG', '', 0, now(), now(), 0);
+INSERT INTO `dict` (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default,
+                    gmt_create, gmt_modified, is_deleted)
+VALUES ('flink_version', '1.12-standalone', '112_standalone', null, 1, 2, 'INTEGER', '', 0, now(), now(), 0);
 
 
-INSERT INTO `console_component_config` ( `cluster_id`, `component_id`, `component_type_code`, `type`, `required`, `key`, `value`, `values`, `dependencyKey`, `dependencyValue`, `desc`, `gmt_create`, `gmt_modified`, `is_deleted`) VALUES ( -2, -120, 0, 'INPUT', 0, 'jobmanager.rpc.address', '', NULL, NULL, NULL, NULL, now(), now(), 0);
-INSERT INTO `console_component_config` ( `cluster_id`, `component_id`, `component_type_code`, `type`, `required`, `key`, `value`, `values`, `dependencyKey`, `dependencyValue`, `desc`, `gmt_create`, `gmt_modified`, `is_deleted`) VALUES ( -2, -120, 0, 'INPUT', 0, 'jobmanager.rpc.port', '', NULL, NULL, NULL, NULL, now(), now(), 0);
-INSERT INTO `console_component_config` ( `cluster_id`, `component_id`, `component_type_code`, `type`, `required`, `key`, `value`, `values`, `dependencyKey`, `dependencyValue`, `desc`, `gmt_create`, `gmt_modified`, `is_deleted`) VALUES ( -2, -120, 0, 'INPUT', 1, 'prometheusHost', '', NULL, NULL, NULL, NULL, now(), now(), 0);
-INSERT INTO `console_component_config` ( `cluster_id`, `component_id`, `component_type_code`, `type`, `required`, `key`, `value`, `values`, `dependencyKey`, `dependencyValue`, `desc`, `gmt_create`, `gmt_modified`, `is_deleted`) VALUES ( -2, -120, 0, 'INPUT', 1, 'prometheusPort', '', NULL, NULL, NULL, NULL, now(), now(), 0);
-INSERT INTO `console_component_config` ( `cluster_id`, `component_id`, `component_type_code`, `type`, `required`, `key`, `value`, `values`, `dependencyKey`, `dependencyValue`, `desc`, `gmt_create`, `gmt_modified`, `is_deleted`) VALUES ( -2, -120, 0, 'INPUT', 0, 'high-availability', '', NULL, NULL, NULL, NULL, now(), now(), 0);
-INSERT INTO `console_component_config` ( `cluster_id`, `component_id`, `component_type_code`, `type`, `required`, `key`, `value`, `values`, `dependencyKey`, `dependencyValue`, `desc`, `gmt_create`, `gmt_modified`, `is_deleted`) VALUES ( -2, -120, 0, 'INPUT', 0, 'high-availability.zookeeper.quorum', '', NULL, NULL, NULL, NULL, now(), now(), 0);
-INSERT INTO `console_component_config` ( `cluster_id`, `component_id`, `component_type_code`, `type`, `required`, `key`, `value`, `values`, `dependencyKey`, `dependencyValue`, `desc`, `gmt_create`, `gmt_modified`, `is_deleted`) VALUES ( -2, -120, 0, 'INPUT', 0, 'high-availability.zookeeper.path.root', '', NULL, NULL, NULL, NULL, now(), now(), 0);
-INSERT INTO `console_component_config` ( `cluster_id`, `component_id`, `component_type_code`, `type`, `required`, `key`, `value`, `values`, `dependencyKey`, `dependencyValue`, `desc`, `gmt_create`, `gmt_modified`, `is_deleted`) VALUES ( -2, -120, 0, 'INPUT', 0, 'high-availability.storageDir', '', NULL, NULL, NULL, NULL, now(), now(), 0);
-INSERT INTO `console_component_config` ( `cluster_id`, `component_id`, `component_type_code`, `type`, `required`, `key`, `value`, `values`, `dependencyKey`, `dependencyValue`, `desc`, `gmt_create`, `gmt_modified`, `is_deleted`) VALUES ( -2, -120, 0, 'INPUT', 0, 'high-availability.cluster-id', '', NULL, NULL, NULL, NULL, now(), now(), 0);
-INSERT INTO `console_component_config` ( `cluster_id`, `component_id`, `component_type_code`, `type`, `required`, `key`, `value`, `values`, `dependencyKey`, `dependencyValue`, `desc`, `gmt_create`, `gmt_modified`, `is_deleted`) VALUES ( -2, -120, 0, 'INPUT', 1, 'flinkLibDir', '/data/insight_plugin/flink112_lib', NULL, NULL, NULL, NULL, now(), now(), 0);
-INSERT INTO `console_component_config` ( `cluster_id`, `component_id`, `component_type_code`, `type`, `required`, `key`, `value`, `values`, `dependencyKey`, `dependencyValue`, `desc`, `gmt_create`, `gmt_modified`, `is_deleted`) VALUES ( -2, -120, 0, 'INPUT', 1, 'chunjunDistDir', '/data/insight_plugin112/flinkxplugin', NULL, NULL, NULL, NULL, now(), now(), 0);
-INSERT INTO `console_component_config` ( `cluster_id`, `component_id`, `component_type_code`, `type`, `required`, `key`, `value`, `values`, `dependencyKey`, `dependencyValue`, `desc`, `gmt_create`, `gmt_modified`, `is_deleted`) VALUES ( -2, -120, 0, 'INPUT', 1, 'remoteChunjunDistDir', '/data/insight_plugin112/flinkxplugin', NULL, NULL, NULL, NULL, now(), now(), 0);
-INSERT INTO `console_component_config` ( `cluster_id`, `component_id`, `component_type_code`, `type`, `required`, `key`, `value`, `values`, `dependencyKey`, `dependencyValue`, `desc`, `gmt_create`, `gmt_modified`, `is_deleted`) VALUES ( -2, -120, 0, 'INPUT', 1, 'clusterMode', 'standalone', NULL, NULL, NULL, NULL, now(), now(), 0);
-INSERT INTO `console_component_config` ( `cluster_id`, `component_id`, `component_type_code`, `type`, `required`, `key`, `value`, `values`, `dependencyKey`, `dependencyValue`, `desc`, `gmt_create`, `gmt_modified`, `is_deleted`) VALUES ( -2, -120, 0, '', 0, 'false', 'false', NULL, 'metrics.reporter.promgateway.deleteOnShutdown', NULL, NULL, now(), now(), 0);
-INSERT INTO `console_component_config` ( `cluster_id`, `component_id`, `component_type_code`, `type`, `required`, `key`, `value`, `values`, `dependencyKey`, `dependencyValue`, `desc`, `gmt_create`, `gmt_modified`, `is_deleted`) VALUES ( -2, -120, 0, '', 0, 'true', 'true', NULL, 'metrics.reporter.promgateway.deleteOnShutdown', NULL, NULL, now(), now(), 0);
-INSERT INTO `console_component_config` ( `cluster_id`, `component_id`, `component_type_code`, `type`, `required`, `key`, `value`, `values`, `dependencyKey`, `dependencyValue`, `desc`, `gmt_create`, `gmt_modified`, `is_deleted`) VALUES ( -2, -120, 0, '', 0, 'false', 'false', NULL, 'metrics.reporter.promgateway.randomJobNameSuffix', NULL, NULL, now(), now(), 0);
-INSERT INTO `console_component_config` ( `cluster_id`, `component_id`, `component_type_code`, `type`, `required`, `key`, `value`, `values`, `dependencyKey`, `dependencyValue`, `desc`, `gmt_create`, `gmt_modified`, `is_deleted`) VALUES ( -2, -120, 0, '', 0, 'true', 'true', NULL, 'metrics.reporter.promgateway.randomJobNameSuffix', NULL, NULL, now(), now(), 0);
-INSERT INTO `console_component_config` ( `cluster_id`, `component_id`, `component_type_code`, `type`, `required`, `key`, `value`, `values`, `dependencyKey`, `dependencyValue`, `desc`, `gmt_create`, `gmt_modified`, `is_deleted`) VALUES ( -2, -120, 0, 'INPUT', 0, 'rest.port', '8081', NULL, NULL, NULL, NULL, now(), now(), 0);
-INSERT INTO `console_component_config` ( `cluster_id`, `component_id`, `component_type_code`, `type`, `required`, `key`, `value`, `values`, `dependencyKey`, `dependencyValue`, `desc`, `gmt_create`, `gmt_modified`, `is_deleted`) VALUES ( -2, -120, 0, 'INPUT', 1, 'metrics.reporter.promgateway.class', 'org.apache.flink.metrics.prometheus.PrometheusPushGatewayReporter', NULL, NULL, NULL, NULL, now(), now(), 0);
-INSERT INTO `console_component_config` ( `cluster_id`, `component_id`, `component_type_code`, `type`, `required`, `key`, `value`, `values`, `dependencyKey`, `dependencyValue`, `desc`, `gmt_create`, `gmt_modified`, `is_deleted`) VALUES ( -2, -120, 0, 'INPUT', 1, 'metrics.reporter.promgateway.deleteOnShutdown', 'true', NULL, NULL, NULL, NULL, now(), now(), 0);
-INSERT INTO `console_component_config` ( `cluster_id`, `component_id`, `component_type_code`, `type`, `required`, `key`, `value`, `values`, `dependencyKey`, `dependencyValue`, `desc`, `gmt_create`, `gmt_modified`, `is_deleted`) VALUES ( -2, -120, 0, 'INPUT', 1, 'metrics.reporter.promgateway.host', '', NULL, NULL, NULL, NULL, now(), now(), 0);
-INSERT INTO `console_component_config` ( `cluster_id`, `component_id`, `component_type_code`, `type`, `required`, `key`, `value`, `values`, `dependencyKey`, `dependencyValue`, `desc`, `gmt_create`, `gmt_modified`, `is_deleted`) VALUES ( -2, -120, 0, 'INPUT', 1, 'metrics.reporter.promgateway.jobName', '112job', NULL, NULL, NULL, NULL, now(), now(), 0);
-INSERT INTO `console_component_config` ( `cluster_id`, `component_id`, `component_type_code`, `type`, `required`, `key`, `value`, `values`, `dependencyKey`, `dependencyValue`, `desc`, `gmt_create`, `gmt_modified`, `is_deleted`) VALUES ( -2, -120, 0, 'INPUT', 1, 'metrics.reporter.promgateway.port', '9091', NULL, NULL, NULL, NULL, now(), now(), 0);
-INSERT INTO `console_component_config` ( `cluster_id`, `component_id`, `component_type_code`, `type`, `required`, `key`, `value`, `values`, `dependencyKey`, `dependencyValue`, `desc`, `gmt_create`, `gmt_modified`, `is_deleted`) VALUES ( -2, -120, 0, 'INPUT', 1, 'metrics.reporter.promgateway.randomJobNameSuffix', 'true', NULL, NULL, NULL, NULL, now(), now(), 0);
-INSERT INTO `console_component_config` ( `cluster_id`, `component_id`, `component_type_code`, `type`, `required`, `key`, `value`, `values`, `dependencyKey`, `dependencyValue`, `desc`, `gmt_create`, `gmt_modified`, `is_deleted`) VALUES ( -2, -120, 0, 'INPUT', 0, 'state.backend', 'jobmanager', NULL, NULL, NULL, NULL, now(), now(), 0);
-INSERT INTO `console_component_config` ( `cluster_id`, `component_id`, `component_type_code`, `type`, `required`, `key`, `value`, `values`, `dependencyKey`, `dependencyValue`, `desc`, `gmt_create`, `gmt_modified`, `is_deleted`) VALUES ( -2, -120, 0, 'INPUT', 0, 'pluginLoadMode', 'classpath', NULL, NULL, NULL, NULL, now(), now(), 0);
-
+INSERT INTO `console_component_config` (`cluster_id`, `component_id`, `component_type_code`, `type`, `required`, `key`,
+                                        `value`, `values`, `dependencyKey`, `dependencyValue`, `desc`, `gmt_create`,
+                                        `gmt_modified`, `is_deleted`)
+VALUES (-2, -120, 0, 'INPUT', 0, 'jobmanager.rpc.address', '', NULL, NULL, NULL, NULL, now(), now(), 0);
+INSERT INTO `console_component_config` (`cluster_id`, `component_id`, `component_type_code`, `type`, `required`, `key`,
+                                        `value`, `values`, `dependencyKey`, `dependencyValue`, `desc`, `gmt_create`,
+                                        `gmt_modified`, `is_deleted`)
+VALUES (-2, -120, 0, 'INPUT', 0, 'jobmanager.rpc.port', '', NULL, NULL, NULL, NULL, now(), now(), 0);
+INSERT INTO `console_component_config` (`cluster_id`, `component_id`, `component_type_code`, `type`, `required`, `key`,
+                                        `value`, `values`, `dependencyKey`, `dependencyValue`, `desc`, `gmt_create`,
+                                        `gmt_modified`, `is_deleted`)
+VALUES (-2, -120, 0, 'INPUT', 1, 'prometheusHost', '', NULL, NULL, NULL, NULL, now(), now(), 0);
+INSERT INTO `console_component_config` (`cluster_id`, `component_id`, `component_type_code`, `type`, `required`, `key`,
+                                        `value`, `values`, `dependencyKey`, `dependencyValue`, `desc`, `gmt_create`,
+                                        `gmt_modified`, `is_deleted`)
+VALUES (-2, -120, 0, 'INPUT', 1, 'prometheusPort', '', NULL, NULL, NULL, NULL, now(), now(), 0);
+INSERT INTO `console_component_config` (`cluster_id`, `component_id`, `component_type_code`, `type`, `required`, `key`,
+                                        `value`, `values`, `dependencyKey`, `dependencyValue`, `desc`, `gmt_create`,
+                                        `gmt_modified`, `is_deleted`)
+VALUES (-2, -120, 0, 'INPUT', 0, 'high-availability', '', NULL, NULL, NULL, NULL, now(), now(), 0);
+INSERT INTO `console_component_config` (`cluster_id`, `component_id`, `component_type_code`, `type`, `required`, `key`,
+                                        `value`, `values`, `dependencyKey`, `dependencyValue`, `desc`, `gmt_create`,
+                                        `gmt_modified`, `is_deleted`)
+VALUES (-2, -120, 0, 'INPUT', 0, 'high-availability.zookeeper.quorum', '', NULL, NULL, NULL, NULL, now(), now(), 0);
+INSERT INTO `console_component_config` (`cluster_id`, `component_id`, `component_type_code`, `type`, `required`, `key`,
+                                        `value`, `values`, `dependencyKey`, `dependencyValue`, `desc`, `gmt_create`,
+                                        `gmt_modified`, `is_deleted`)
+VALUES (-2, -120, 0, 'INPUT', 0, 'high-availability.zookeeper.path.root', '', NULL, NULL, NULL, NULL, now(), now(), 0);
+INSERT INTO `console_component_config` (`cluster_id`, `component_id`, `component_type_code`, `type`, `required`, `key`,
+                                        `value`, `values`, `dependencyKey`, `dependencyValue`, `desc`, `gmt_create`,
+                                        `gmt_modified`, `is_deleted`)
+VALUES (-2, -120, 0, 'INPUT', 0, 'high-availability.storageDir', '', NULL, NULL, NULL, NULL, now(), now(), 0);
+INSERT INTO `console_component_config` (`cluster_id`, `component_id`, `component_type_code`, `type`, `required`, `key`,
+                                        `value`, `values`, `dependencyKey`, `dependencyValue`, `desc`, `gmt_create`,
+                                        `gmt_modified`, `is_deleted`)
+VALUES (-2, -120, 0, 'INPUT', 0, 'high-availability.cluster-id', '', NULL, NULL, NULL, NULL, now(), now(), 0);
+INSERT INTO `console_component_config` (`cluster_id`, `component_id`, `component_type_code`, `type`, `required`, `key`,
+                                        `value`, `values`, `dependencyKey`, `dependencyValue`, `desc`, `gmt_create`,
+                                        `gmt_modified`, `is_deleted`)
+VALUES (-2, -120, 0, 'INPUT', 1, 'flinkLibDir', '/data/insight_plugin/flink112_lib', NULL, NULL, NULL, NULL, now(),
+        now(), 0);
+INSERT INTO `console_component_config` (`cluster_id`, `component_id`, `component_type_code`, `type`, `required`, `key`,
+                                        `value`, `values`, `dependencyKey`, `dependencyValue`, `desc`, `gmt_create`,
+                                        `gmt_modified`, `is_deleted`)
+VALUES (-2, -120, 0, 'INPUT', 1, 'chunjunDistDir', '/data/insight_plugin112/flinkxplugin', NULL, NULL, NULL, NULL,
+        now(), now(), 0);
+INSERT INTO `console_component_config` (`cluster_id`, `component_id`, `component_type_code`, `type`, `required`, `key`,
+                                        `value`, `values`, `dependencyKey`, `dependencyValue`, `desc`, `gmt_create`,
+                                        `gmt_modified`, `is_deleted`)
+VALUES (-2, -120, 0, 'INPUT', 1, 'remoteChunjunDistDir', '/data/insight_plugin112/flinkxplugin', NULL, NULL, NULL, NULL,
+        now(), now(), 0);
+INSERT INTO `console_component_config` (`cluster_id`, `component_id`, `component_type_code`, `type`, `required`, `key`,
+                                        `value`, `values`, `dependencyKey`, `dependencyValue`, `desc`, `gmt_create`,
+                                        `gmt_modified`, `is_deleted`)
+VALUES (-2, -120, 0, 'INPUT', 1, 'clusterMode', 'standalone', NULL, NULL, NULL, NULL, now(), now(), 0);
+INSERT INTO `console_component_config` (`cluster_id`, `component_id`, `component_type_code`, `type`, `required`, `key`,
+                                        `value`, `values`, `dependencyKey`, `dependencyValue`, `desc`, `gmt_create`,
+                                        `gmt_modified`, `is_deleted`)
+VALUES (-2, -120, 0, '', 0, 'false', 'false', NULL, 'metrics.reporter.promgateway.deleteOnShutdown', NULL, NULL, now(),
+        now(), 0);
+INSERT INTO `console_component_config` (`cluster_id`, `component_id`, `component_type_code`, `type`, `required`, `key`,
+                                        `value`, `values`, `dependencyKey`, `dependencyValue`, `desc`, `gmt_create`,
+                                        `gmt_modified`, `is_deleted`)
+VALUES (-2, -120, 0, '', 0, 'true', 'true', NULL, 'metrics.reporter.promgateway.deleteOnShutdown', NULL, NULL, now(),
+        now(), 0);
+INSERT INTO `console_component_config` (`cluster_id`, `component_id`, `component_type_code`, `type`, `required`, `key`,
+                                        `value`, `values`, `dependencyKey`, `dependencyValue`, `desc`, `gmt_create`,
+                                        `gmt_modified`, `is_deleted`)
+VALUES (-2, -120, 0, '', 0, 'false', 'false', NULL, 'metrics.reporter.promgateway.randomJobNameSuffix', NULL, NULL,
+        now(), now(), 0);
+INSERT INTO `console_component_config` (`cluster_id`, `component_id`, `component_type_code`, `type`, `required`, `key`,
+                                        `value`, `values`, `dependencyKey`, `dependencyValue`, `desc`, `gmt_create`,
+                                        `gmt_modified`, `is_deleted`)
+VALUES (-2, -120, 0, '', 0, 'true', 'true', NULL, 'metrics.reporter.promgateway.randomJobNameSuffix', NULL, NULL, now(),
+        now(), 0);
+INSERT INTO `console_component_config` (`cluster_id`, `component_id`, `component_type_code`, `type`, `required`, `key`,
+                                        `value`, `values`, `dependencyKey`, `dependencyValue`, `desc`, `gmt_create`,
+                                        `gmt_modified`, `is_deleted`)
+VALUES (-2, -120, 0, 'INPUT', 0, 'rest.port', '8081', NULL, NULL, NULL, NULL, now(), now(), 0);
+INSERT INTO `console_component_config` (`cluster_id`, `component_id`, `component_type_code`, `type`, `required`, `key`,
+                                        `value`, `values`, `dependencyKey`, `dependencyValue`, `desc`, `gmt_create`,
+                                        `gmt_modified`, `is_deleted`)
+VALUES (-2, -120, 0, 'INPUT', 1, 'metrics.reporter.promgateway.class',
+        'org.apache.flink.metrics.prometheus.PrometheusPushGatewayReporter', NULL, NULL, NULL, NULL, now(), now(), 0);
+INSERT INTO `console_component_config` (`cluster_id`, `component_id`, `component_type_code`, `type`, `required`, `key`,
+                                        `value`, `values`, `dependencyKey`, `dependencyValue`, `desc`, `gmt_create`,
+                                        `gmt_modified`, `is_deleted`)
+VALUES (-2, -120, 0, 'INPUT', 1, 'metrics.reporter.promgateway.deleteOnShutdown', 'true', NULL, NULL, NULL, NULL, now(),
+        now(), 0);
+INSERT INTO `console_component_config` (`cluster_id`, `component_id`, `component_type_code`, `type`, `required`, `key`,
+                                        `value`, `values`, `dependencyKey`, `dependencyValue`, `desc`, `gmt_create`,
+                                        `gmt_modified`, `is_deleted`)
+VALUES (-2, -120, 0, 'INPUT', 1, 'metrics.reporter.promgateway.host', '', NULL, NULL, NULL, NULL, now(), now(), 0);
+INSERT INTO `console_component_config` (`cluster_id`, `component_id`, `component_type_code`, `type`, `required`, `key`,
+                                        `value`, `values`, `dependencyKey`, `dependencyValue`, `desc`, `gmt_create`,
+                                        `gmt_modified`, `is_deleted`)
+VALUES (-2, -120, 0, 'INPUT', 1, 'metrics.reporter.promgateway.jobName', '112job', NULL, NULL, NULL, NULL, now(), now(),
+        0);
+INSERT INTO `console_component_config` (`cluster_id`, `component_id`, `component_type_code`, `type`, `required`, `key`,
+                                        `value`, `values`, `dependencyKey`, `dependencyValue`, `desc`, `gmt_create`,
+                                        `gmt_modified`, `is_deleted`)
+VALUES (-2, -120, 0, 'INPUT', 1, 'metrics.reporter.promgateway.port', '9091', NULL, NULL, NULL, NULL, now(), now(), 0);
+INSERT INTO `console_component_config` (`cluster_id`, `component_id`, `component_type_code`, `type`, `required`, `key`,
+                                        `value`, `values`, `dependencyKey`, `dependencyValue`, `desc`, `gmt_create`,
+                                        `gmt_modified`, `is_deleted`)
+VALUES (-2, -120, 0, 'INPUT', 1, 'metrics.reporter.promgateway.randomJobNameSuffix', 'true', NULL, NULL, NULL, NULL,
+        now(), now(), 0);
+INSERT INTO `console_component_config` (`cluster_id`, `component_id`, `component_type_code`, `type`, `required`, `key`,
+                                        `value`, `values`, `dependencyKey`, `dependencyValue`, `desc`, `gmt_create`,
+                                        `gmt_modified`, `is_deleted`)
+VALUES (-2, -120, 0, 'INPUT', 0, 'state.backend', 'jobmanager', NULL, NULL, NULL, NULL, now(), now(), 0);
+INSERT INTO `console_component_config` (`cluster_id`, `component_id`, `component_type_code`, `type`, `required`, `key`,
+                                        `value`, `values`, `dependencyKey`, `dependencyValue`, `desc`, `gmt_create`,
+                                        `gmt_modified`, `is_deleted`)
+VALUES (-2, -120, 0, 'INPUT', 0, 'pluginLoadMode', 'classpath', NULL, NULL, NULL, NULL, now(), now(), 0);
 
 
 -- 任务和集群队列绑定
-alter table develop_task add queue_name varchar(64) default  null comment 'yarn队列名称';
-alter table develop_task add datasource_id int(11) default  null comment '数据源id';
+alter table develop_task
+    add queue_name varchar(64) default null comment 'yarn队列名称';
+alter table develop_task
+    add datasource_id int(11) default  null comment '数据源id';
 
-alter table schedule_task_shade add queue_name varchar(64) default  null comment 'yarn队列名称';
-alter table schedule_task_shade add datasource_id int(11) default  null comment '数据源id';
+alter table schedule_task_shade
+    add queue_name varchar(64) default null comment 'yarn队列名称';
+alter table schedule_task_shade
+    add datasource_id int(11) default  null comment '数据源id';
 
-DELETE FROM dict WHERE type in (30,17);
+DELETE
+FROM dict
+WHERE type in (30, 17);
 
-INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default, gmt_create, gmt_modified, is_deleted) VALUES ('SYNC', '','{"children":[{"children":[{"name":"syncModel","type":"number","title":"同步模式","noStyle":true},{"bind":{"field":"sourceMap.sourceId","transformer":"{{optionCollections.sourceMap_sourceId#find.type}}"},"name":"type","type":"number","title":"类型","noStyle":true},{"widget":"select","name":"sourceId","type":"number","title":"数据源","required":true,"props":{"method":"get","name":"sourceMap_sourceId","transformer":"sourceIdOnReader","optionsFromRequest":true,"placeholder":"请选择数据源","url":"/taier/api/dataSource/manager/queryByTenantId"}},{"widget":"select","hidden":[{"field":"form.sourceMap.type","isNot":true,"value":"2,4"}],"depends":["sourceMap.sourceId"],"name":"schema","type":"number","title":"schema","props":{"method":"post","name":"sourcemap_schema","transformer":"table","optionsFromRequest":true,"placeholder":"请选择 schema","params":{"sourceId":"{{form#sourceMap.sourceId}}"},"url":"/taier/api/dataSource/addDs/getAllSchemas","required":["sourceId"]}},{"widget":"SelectWithPreviewer","hidden":[{"field":"form.sourceMap.type","isNot":true,"value":"1,2,3,4,7,8,27,45,50"}],"depends":["sourceMap.sourceId","sourceMap.schema"],"name":"table","type":"string","title":"表名","required":true,"props":{"method":"post","name":"sourcemap_table","transformer":"table","optionsFromRequest":true,"placeholder":"请选择表名","params":{"sourceId":"{{form#sourceMap.sourceId}}","schema":"{{form#sourceMap.schema}}","isRead":true,"isSys":false},"url":"/taier/api/dataSource/addDs/tablelist","required":["sourceId"]}},{"widget":"select","hidden":[{"field":"form.sourceMap.type","isNot":true,"value":"1,2,3,4"},{"field":"form.sourceMap.syncModel","isNot":true,"value":"1"}],"depends":["sourceMap.table"],"name":"increColumn","type":"string","title":"增量标识字段","required":true,"props":{"method":"post","name":"sourcemap_increColumn","transformer":"incrementColumn","optionsFromRequest":true,"placeholder":"请选择增量标识字段","params":{"sourceId":"{{form#sourceMap.sourceId}}","schema":"{{form#sourceMap.schema}}","tableName":"{{form#sourceMap.table}}"},"url":"/taier/api/task/getIncreColumn","required":["sourceId","tableName"]}},{"widget":"select","hidden":[{"field":"form.sourceMap.type","isNot":true,"value":"8"}],"name":"encoding","type":"string","title":"编码","initialValue":"utf-8","required":true,"props":{"options":[{"label":"utf-8","value":"utf-8"},{"label":"gdb","value":"gdb"}],"placeholder":"请选择编码"}},{"hidden":[{"field":"form.sourceMap.type","isNot":true,"value":"8"}],"name":"startRowkey","type":"string","title":"开始行健","props":{"placeholder":"请输入开始行健"}},{"hidden":[{"field":"form.sourceMap.type","isNot":true,"value":"8"}],"name":"endRowkey","type":"string","title":"结束行健","props":{"placeholder":"请输入结束行健"}},{"widget":"radio","hidden":[{"field":"form.sourceMap.type","isNot":true,"value":"8"}],"name":"isBinaryRowkey","type":"string","title":"行健二进制转换","initialValue":"0","props":{"options":[{"label":"FALSE","value":"0"},{"label":"TRUE","value":"1"}]}},{"widget":"inputNumber","hidden":[{"field":"form.sourceMap.type","isNot":true,"value":"8"}],"name":"scanCacheSize","type":"string","title":"每次RPC请求获取行数","props":{"min":0,"placeholder":"请输入大小, 默认为256","suffix":"行"}},{"widget":"inputNumber","hidden":[{"field":"form.sourceMap.type","isNot":true,"value":"8"}],"name":"scanBatchSize","type":"string","title":"每次RPC请求获取列数","props":{"min":0,"placeholder":"请输入大小, 默认为100","suffix":"列"}},{"widget":"textarea","hidden":[{"field":"form.sourceMap.type","isNot":true,"value":"1,2,3,4"}],"name":"where","rules":[{"max":1000,"message":"过滤语句不可超过1000个字符!"}],"type":"string","title":"数据过滤","props":{"autoSize":{"minRows":2,"maxRows":6},"placeholder":"请参考相关SQL语法填写where过滤语句（不要填写where关键字）。该过滤语句通常用作增量同步"}},{"widget":"select","hidden":[{"field":"form.sourceMap.type","isNot":true,"value":"1,2,3,4"}],"depends":["sourceMap.table"],"name":"split","type":"string","title":"切分键","props":{"method":"post","name":"sourcemap_split","transformer":"split","optionsFromRequest":true,"placeholder":"请选择切分键","params":{"sourceId":"{{form#sourceMap.sourceId}}","schema":"{{form#sourceMap.schema}}","tableName":"{{form#sourceMap.table}}"},"url":"/taier/api/dataSource/addDs/columnForSyncopate","required":["sourceId","tableName"]}},{"hidden":[{"field":"form.sourceMap.type","isNot":true,"value":"6"}],"name":"path","rules":[{"max":200,"message":"路径不得超过200个字符！"}],"type":"string","title":"路径","required":true,"props":{"placeholder":"例如: /rdos/batch"}},{"widget":"select","hidden":[{"field":"form.sourceMap.type","isNot":true,"value":"6"}],"name":"fileType","type":"string","title":"文件类型","initialValue":"text","required":true,"props":{"options":[{"label":"orc","value":"orc"},{"label":"text","value":"text"},{"label":"parquet","value":"parquet"}],"placeholder":"请选择文件类型"}},{"hidden":[{"field":"form.sourceMap.type","isNot":true,"value":"6"},{"field":"form.sourceMap.fileType","isNot":true,"value":"text"}],"name":"fieldDelimiter","type":"string","title":"列分隔符","props":{"placeholder":"若不填写，则默认为\\\\\\\\\\\\\\\\001"}},{"widget":"autoComplete","hidden":[{"field":"form.sourceMap.type","isNot":true,"value":"7,27,45,50"}],"depends":["sourceMap.table"],"name":"partition","type":"string","title":"分区","props":{"method":"post","name":"sourcemap_partition","transformer":"table","optionsFromRequest":true,"placeholder":"请填写分区信息","params":{"sourceId":"{{form#sourceMap.sourceId}}","tableName":"{{form#sourceMap.table}}"},"url":"/taier/api/dataSource/addDs/getHivePartitions","required":["sourceId","tableName"]}},{"widget":"select","hidden":[{"field":"form.sourceMap.type","isNot":true,"value":"11,33,46"}],"depends":["sourceMap.sourceId"],"name":"index","type":"string","title":"index","required":true,"props":{"method":"post","name":"sourcemap_schema","transformer":"table","optionsFromRequest":true,"placeholder":"请选择index","params":{"sourceId":"{{form#sourceMap.sourceId}}"},"url":"/taier/api/dataSource/addDs/getAllSchemas","required":["sourceId"]}},{"widget":"select","hidden":[{"field":"form.sourceMap.type","isNot":true,"value":"11,33"}],"depends":["sourceMap.index"],"name":"indexType","type":"string","title":"type","required":true,"props":{"method":"post","name":"sourcemap_table","transformer":"table","optionsFromRequest":true,"placeholder":"请选择indexType！","params":{"sourceId":"{{form#sourceMap.sourceId}}","schema":"{{form#sourceMap.schema}}","isRead":true,"isSys":false},"url":"/taier/api/dataSource/addDs/tablelist","required":["sourceId","schema"]}},{"widget":"textarea","hidden":[{"field":"form.sourceMap.type","isNot":true,"value":"11,33,46"}],"name":"query","rules":[{"max":1024,"message":"仅支持1-1024个任意字符"}],"type":"string","title":"query","props":{"autoSize":{"minRows":2,"maxRows":6},"placeholder":"\"match_all\":{}\"}},{"widget":"textarea","hidden":[{"field":"form.sourceMap.sourceId","value":"undefined"}],"name":"extralConfig","validator":"json","type":"string","title":"高级配置","props":{"autoSize":{"minRows":2,"maxRows":6},"placeholder":"以JSON格式添加高级参数，例如对关系型数据库可配置fetchSize"}},{"hidden":true,"name":"column","type":"string","title":"列"}],"name":"sourceMap","type":"object","title":"数据来源"},{"children":[{"bind":{"field":"targetMap.sourceId","transformer":"{{optionCollections.targetmap_sourceId#find.type}}"},"name":"type","type":"number","title":"类型","noStyle":true},{"widget":"select","name":"sourceId","type":"number","title":"数据源","required":true,"props":{"method":"get","name":"targetmap_sourceId","transformer":"sourceIdOnWriter","optionsFromRequest":true,"placeholder":"请选择数据源","url":"/taier/api/dataSource/manager/queryByTenantId"}},{"widget":"select","hidden":[{"field":"form.targetMap.type","isNot":true,"value":"2,4"}],"depends":["targetMap.sourceId"],"name":"schema","type":"number","title":"schema","props":{"method":"post","name":"targetmap_schema","transformer":"table","optionsFromRequest":true,"placeholder":"请选择 schema","params":{"sourceId":"{{form#targetMap.sourceId}}"},"url":"/taier/api/dataSource/addDs/getAllSchemas","required":["sourceId"]}},{"widget":"SelectWithCreate","hidden":[{"field":"form.targetMap.type","isNot":true,"value":"1,2,3,4,7,8,27,45,50"}],"depends":["targetMap.sourceId","targetMap.schema"],"name":"table","type":"string","title":"表名","required":true,"props":{"method":"post","name":"targetmap_table","transformer":"table","optionsFromRequest":true,"placeholder":"请选择表名","params":{"sourceId":"{{form#targetMap.sourceId}}","schema":"{{form#targetMap.schema}}","isRead":true,"isSys":false},"url":"/taier/api/dataSource/addDs/tablelist","required":["sourceId"]}},{"widget":"autoComplete","hidden":[{"field":"form.targetMap.type","isNot":true,"value":"7,27,45,50"}],"depends":["targetMap.table"],"name":"partition","type":"string","title":"分区","props":{"method":"post","name":"targetmap_partition","transformer":"table","optionsFromRequest":true,"placeholder":"请填写分区信息","params":{"sourceId":"{{form#targetMap.sourceId}}","tableName":"{{form#targetMap.table}}"},"url":"/taier/api/dataSource/addDs/getHivePartitions","required":["sourceId","tableName"]}},{"widget":"textarea","hidden":[{"field":"form.targetMap.type","isNot":true,"value":"1,2,3,4"}],"depends":["targetMap.type"],"name":"preSql","type":"string","title":"导入前准备语句","props":{"autoSize":{"minRows":2,"maxRows":6},"placeholder":"请输入导入数据前执行的 SQL 脚本"}},{"widget":"textarea","hidden":[{"field":"form.targetMap.type","isNot":true,"value":"1,2,3,4"}],"depends":["targetMap.type"],"name":"postSql","type":"string","title":"导入后准备语句","props":{"autoSize":{"minRows":2,"maxRows":6},"placeholder":"请输入导入数据后执行的 SQL 脚本"}},{"hidden":[{"field":"form.targetMap.type","isNot":true,"value":"6"}],"name":"path","rules":[{"max":200,"message":"路径不得超过200个字符！"}],"type":"string","title":"路径","required":true,"props":{"placeholder":"例如: /app/batch"}},{"hidden":[{"field":"form.targetMap.type","isNot":true,"value":"6"}],"name":"fileName","type":"string","title":"文件名","required":true,"props":{"placeholder":"请输入文件名"}},{"widget":"select","hidden":[{"field":"form.targetMap.type","isNot":true,"value":"6"}],"name":"fileType","type":"string","title":"文件类型","initialValue":"orc","required":true,"props":{"options":[{"label":"orc","value":"orc"},{"label":"text","value":"text"},{"label":"parquet","value":"parquet"}],"placeholder":"请选择文件类型"}},{"hidden":[{"field":"form.targetMap.type","isNot":true,"value":"6"}],"name":"fieldDelimiter","type":"string","title":"列分隔符","initialValue":",","props":{"placeholder":"例如: 目标为 hive 则分隔符为\\\\\\\\\\\\\\\\001"}},{"widget":"select","hidden":[{"field":"form.targetMap.type","isNot":true,"value":"6,8"}],"name":"encoding","type":"string","title":"编码","initialValue":"utf-8","required":true,"props":{"options":[{"label":"utf-8","value":"utf-8"},{"label":"gdb","value":"gdb"}],"placeholder":"请选择编码"}},{"widget":"radio","hidden":[{"field":"form.targetMap.type","isNot":true,"value":"2,4,6,7,27,45,50"}],"depends":["targetMap.sourceId"],"name":"writeMode","type":"string","title":"写入模式","props":{"options":[{"label":"覆盖（Insert Overwrite）","value":"replace"},{"label":"追加（Insert Into）","value":"insert"}]}},{"widget":"radio","hidden":[{"field":"form.targetMap.type","isNot":true,"value":"8"}],"name":"nullMode","type":"string","title":"读取为空时的处理方式","initialValue":"skip","props":{"options":[{"label":"SKIP","value":"skip"},{"label":"EMPTY","value":"empty"}]}},{"widget":"inputNumber","hidden":[{"field":"form.targetMap.type","isNot":true,"value":"8"}],"name":"writeBufferSize","type":"string","title":"写入缓存大小","props":{"placeholder":"请输入缓存大小","suffix":"KB"}},{"widget":"select","hidden":[{"field":"form.targetMap.type","isNot":true,"value":"11,33,46"}],"depends":["targetMap.sourceId"],"name":"index","type":"string","title":"index","required":true,"props":{"method":"post","name":"targetmap_schema","transformer":"table","optionsFromRequest":true,"placeholder":"请选择index","params":{"sourceId":"{{form#targetMap.sourceId}}"},"url":"/taier/api/dataSource/addDs/getAllSchemas","required":["sourceId"]}},{"widget":"select","hidden":[{"field":"form.targetMap.type","isNot":true,"value":"11,33"}],"depends":["targetMap.index"],"name":"indexType","type":"string","title":"type","required":true,"props":{"method":"post","name":"targetmap_table","transformer":"table","optionsFromRequest":true,"placeholder":"请选择indexType！","params":{"sourceId":"{{form#targetMap.sourceId}}","schema":"{{form#targetMap.schema}}","isRead":true,"isSys":false},"url":"/taier/api/dataSource/addDs/tablelist","required":["sourceId","schema"]}},{"widget":"inputNumber","hidden":[{"field":"form.targetMap.type","isNot":true,"value":"11,33,46"}],"name":"bulkAction","type":"number","title":"bulkAction","initialValue":100,"required":true,"props":{"min":1,"max":200000,"precision":0,"placeholder":"请输入 bulkAction"}},{"widget":"textarea","hidden":[{"field":"form.targetMap.sourceId","value":"undefined"}],"name":"extralConfig","validator":"json","type":"string","title":"高级配置","props":{"autoSize":{"minRows":2,"maxRows":6},"placeholder":"以JSON格式添加高级参数，例如对关系型数据库可配置fetchSize"}},{"hidden":true,"name":"column","type":"string","title":"列"}],"name":"targetMap","type":"object","title":"选择目标"},{"children":[{"widget":"KeyMap","type":"any"}],"name":"mapping","type":"object","title":"字段映射"},{"children":[{"widget":"autoComplete","name":"speed","type":"string","title":"作业速率上限","initialValue":"不限制传输速率","required":true,"props":{"options":[{"value":"不限制传输速率"},{"value":"1"},{"value":"2"},{"value":"3"},{"value":"4"},{"value":"5"},{"value":"6"},{"value":"7"},{"value":"8"},{"value":"9"},{"value":"10"}],"placeholder":"请选择作业速率上限","suffix":"MB/s"}},{"widget":"autoComplete","name":"channel","type":"string","title":"作业并发数","initialValue":"1","required":true,"props":{"options":[{"value":"1"},{"value":"2"},{"value":"3"},{"value":"4"},{"value":"5"}],"placeholder":"请选择作业并发数"}},{"hidden":[{"field":"form.sourceMap.type","isNot":true,"value":"1,2,3,4,8,19,22,24,25,28,29,31,32,35,36,40,53,54,61,71,73"},{"field":"form.targetMap.type","isNot":true,"value":"1,2,3,4,7,8,10,19,22,24,25,27,28,29,31,32,35,36,40,53,54,61,71,73"}],"name":"isRestore","type":"boolean","title":"断点续传"},{"widget":"select","hidden":[{"field":"form.settingMap.isRestore","value":"false,undefined"}],"name":"restoreColumnName","type":"string","title":"标识字段","required":true,"props":{"method":"post","name":"settingmap_restore","transformer":"restore","optionsFromRequest":true,"placeholder":"请选择标识字段","params":{"sourceId":"{{form#sourceMap.sourceId}}","schema":"{{form#sourceMap.schema}}","tableName":"{{form#sourceMap.table}}"},"url":"/taier/api/task/getIncreColumn","required":["sourceId","tableName"]}}],"name":"settingMap","type":"object","title":"通道控制"}],"type":"object"}', null, 17, 1, 'STRING', '', 1, '2022-02-11 10:28:45', '2022-02-11 10:28:45', 0);
-INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default, gmt_create, gmt_modified, is_deleted) VALUES ('-1', '虚节点', '{"formField": [], "renderKind": "virtual"}', null, 30, -1, 'STRING', '', 1, '2022-02-11 10:28:45', '2022-02-11 10:28:45', 0);
-INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default, gmt_create, gmt_modified, is_deleted) VALUES ('0', 'SparkSQL', '{"actions": ["SAVE_TASK", "RUN_TASK", "STOP_TASK", "SUBMIT_TASK", "OPERATOR_TASK"], "barItem": ["task", "dependency", "task_params", "env_params"], "formField": ["datasource"], "renderKind": "editor"}', null, 30, 0, 'STRING', '', 1, '2022-02-11 10:28:45', '2022-02-11 10:28:45', 0);
-INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default, gmt_create, gmt_modified, is_deleted) VALUES ('2', 'SYNC', '{"actions": ["SAVE_TASK", "RUN_TASK", "STOP_TASK", "SUBMIT_TASK", "OPERATOR_TASK"], "barItem": ["task", "dependency", "task_config", "task_params", "env_params","queue"], "formField": ["createModel", "syncModel"], "renderKind": "dataSync", "renderCondition": {"key": "createModel", "value": 0, "renderKind": "editor"}, "actionsCondition": {"key": "createModel", "value": 0, "actions": ["CONVERT_TASK", "SAVE_TASK", "RUN_TASK", "STOP_TASK", "SUBMIT_TASK", "OPERATOR_TASK"]}}', null, 30, 2, 'STRING', '', 1, '2022-02-11 10:28:45', '2022-02-11 10:28:45', 0);
-INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default, gmt_create, gmt_modified, is_deleted) VALUES ('5', 'FlinkSQL', '{"actions": ["GRAMMAR_TASK", "SAVE_TASK", "OPERATOR_TASK"], "barItem": ["task", "env_params"], "formField": ["componentVersion"], "renderKind": "editor", "actionsCondition": {"key": "createModel", "value": 0, "actions": ["CONVERT_TASK", "FORMAT_TASK", "GRAMMAR_TASK", "SAVE_TASK", "OPERATOR_TASK"]}, "barItemCondition": {"key": "createModel", "value": 0, "barItem": ["task", "flinksql_source", "flinksql_result", "flinksql_dimension", "env_params"]}}', null, 30, 5, 'STRING', '', 0, '2022-09-03 07:25:04', '2022-09-03 07:25:04', 0);
-INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default, gmt_create, gmt_modified, is_deleted) VALUES ('6', '实时采集', '{"actions": ["SAVE_TASK", "OPERATOR_TASK"], "barItem": ["task", "task_config", "env_params"], "formField": ["createModel", "componentVersion"], "renderKind": "streamCollection", "renderCondition": {"key": "createModel", "value": 0}, "actionsCondition": {"key": "createModel", "value": 0, "actions": ["CONVERT_TASK", "SAVE_TASK", "OPERATOR_TASK"]}}', null, 30, 6, 'STRING', '', 0, '2022-09-03 07:25:04', '2022-09-03 07:25:04', 0);
-INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default, gmt_create, gmt_modified, is_deleted) VALUES ('7', 'HiveSQL', '{"actions": ["SAVE_TASK", "RUN_TASK", "STOP_TASK", "SUBMIT_TASK", "OPERATOR_TASK"], "barItem": ["task", "dependency", "task_params", "env_params","datasource"], "formField": [], "renderKind": "editor"}', null, 30, 0, 'STRING', '', 0, '2022-09-03 07:27:25', '2022-09-03 07:27:25', 0);
-INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default, gmt_create, gmt_modified, is_deleted) VALUES ('8', 'OceanBaseSQL', '{"actions": ["SAVE_TASK", "RUN_TASK", "STOP_TASK", "SUBMIT_TASK", "OPERATOR_TASK"], "barItem": ["task", "dependency", "task_params", "env_params"], "formField": ["datasource"], "renderKind": "editor"}', null, 30, 0, 'STRING', '', 0, '2022-09-03 07:27:25', '2022-09-03 07:27:25', 0);
-INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default, gmt_create, gmt_modified, is_deleted) VALUES ('10', '工作流', '{"actions": ["SAVE_TASK", "SUBMIT_TASK", "OPERATOR_TASK"], "barItem": ["task", "dependency"], "formField": [], "renderKind": "workflow"}', null, 30, 0, 'STRING', '', 0, '2022-09-03 07:27:25', '2022-09-03 07:27:25', 0);
-INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default, gmt_create, gmt_modified, is_deleted) VALUES ('11', 'Flink', '{"formField": ["resourceIdList", "mainClass", "exeArgs", "componentVersion"], "renderKind": "flink"}', null, 30, 0, 'STRING', '', 0, '2022-09-03 07:27:25', '2022-09-03 07:27:25', 0);
+INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default,
+                  gmt_create, gmt_modified, is_deleted)
+VALUES ('SYNC', '',
+        '{"children":[{"children":[{"name":"syncModel","type":"number","title":"同步模式","noStyle":true},{"bind":{"field":"sourceMap.sourceId","transformer":"{{optionCollections.sourceMap_sourceId#find.type}}"},"name":"type","type":"number","title":"类型","noStyle":true},{"widget":"select","name":"sourceId","type":"number","title":"数据源","required":true,"props":{"method":"get","name":"sourceMap_sourceId","transformer":"sourceIdOnReader","optionsFromRequest":true,"placeholder":"请选择数据源","url":"/taier/api/dataSource/manager/queryByTenantId"}},{"widget":"select","hidden":[{"field":"form.sourceMap.type","isNot":true,"value":"2,4"}],"depends":["sourceMap.sourceId"],"name":"schema","type":"number","title":"schema","props":{"method":"post","name":"sourcemap_schema","transformer":"table","optionsFromRequest":true,"placeholder":"请选择 schema","params":{"sourceId":"{{form#sourceMap.sourceId}}"},"url":"/taier/api/dataSource/addDs/getAllSchemas","required":["sourceId"]}},{"widget":"SelectWithPreviewer","hidden":[{"field":"form.sourceMap.type","isNot":true,"value":"1,2,3,4,7,8,27,45,50"}],"depends":["sourceMap.sourceId","sourceMap.schema"],"name":"table","type":"string","title":"表名","required":true,"props":{"method":"post","name":"sourcemap_table","transformer":"table","optionsFromRequest":true,"placeholder":"请选择表名","params":{"sourceId":"{{form#sourceMap.sourceId}}","schema":"{{form#sourceMap.schema}}","isRead":true,"isSys":false},"url":"/taier/api/dataSource/addDs/tablelist","required":["sourceId"]}},{"widget":"select","hidden":[{"field":"form.sourceMap.type","isNot":true,"value":"1,2,3,4"},{"field":"form.sourceMap.syncModel","isNot":true,"value":"1"}],"depends":["sourceMap.table"],"name":"increColumn","type":"string","title":"增量标识字段","required":true,"props":{"method":"post","name":"sourcemap_increColumn","transformer":"incrementColumn","optionsFromRequest":true,"placeholder":"请选择增量标识字段","params":{"sourceId":"{{form#sourceMap.sourceId}}","schema":"{{form#sourceMap.schema}}","tableName":"{{form#sourceMap.table}}"},"url":"/taier/api/task/getIncreColumn","required":["sourceId","tableName"]}},{"widget":"select","hidden":[{"field":"form.sourceMap.type","isNot":true,"value":"8"}],"name":"encoding","type":"string","title":"编码","initialValue":"utf-8","required":true,"props":{"options":[{"label":"utf-8","value":"utf-8"},{"label":"gdb","value":"gdb"}],"placeholder":"请选择编码"}},{"hidden":[{"field":"form.sourceMap.type","isNot":true,"value":"8"}],"name":"startRowkey","type":"string","title":"开始行健","props":{"placeholder":"请输入开始行健"}},{"hidden":[{"field":"form.sourceMap.type","isNot":true,"value":"8"}],"name":"endRowkey","type":"string","title":"结束行健","props":{"placeholder":"请输入结束行健"}},{"widget":"radio","hidden":[{"field":"form.sourceMap.type","isNot":true,"value":"8"}],"name":"isBinaryRowkey","type":"string","title":"行健二进制转换","initialValue":"0","props":{"options":[{"label":"FALSE","value":"0"},{"label":"TRUE","value":"1"}]}},{"widget":"inputNumber","hidden":[{"field":"form.sourceMap.type","isNot":true,"value":"8"}],"name":"scanCacheSize","type":"string","title":"每次RPC请求获取行数","props":{"min":0,"placeholder":"请输入大小, 默认为256","suffix":"行"}},{"widget":"inputNumber","hidden":[{"field":"form.sourceMap.type","isNot":true,"value":"8"}],"name":"scanBatchSize","type":"string","title":"每次RPC请求获取列数","props":{"min":0,"placeholder":"请输入大小, 默认为100","suffix":"列"}},{"widget":"textarea","hidden":[{"field":"form.sourceMap.type","isNot":true,"value":"1,2,3,4"}],"name":"where","rules":[{"max":1000,"message":"过滤语句不可超过1000个字符!"}],"type":"string","title":"数据过滤","props":{"autoSize":{"minRows":2,"maxRows":6},"placeholder":"请参考相关SQL语法填写where过滤语句（不要填写where关键字）。该过滤语句通常用作增量同步"}},{"widget":"select","hidden":[{"field":"form.sourceMap.type","isNot":true,"value":"1,2,3,4"}],"depends":["sourceMap.table"],"name":"split","type":"string","title":"切分键","props":{"method":"post","name":"sourcemap_split","transformer":"split","optionsFromRequest":true,"placeholder":"请选择切分键","params":{"sourceId":"{{form#sourceMap.sourceId}}","schema":"{{form#sourceMap.schema}}","tableName":"{{form#sourceMap.table}}"},"url":"/taier/api/dataSource/addDs/columnForSyncopate","required":["sourceId","tableName"]}},{"hidden":[{"field":"form.sourceMap.type","isNot":true,"value":"6"}],"name":"path","rules":[{"max":200,"message":"路径不得超过200个字符！"}],"type":"string","title":"路径","required":true,"props":{"placeholder":"例如: /rdos/batch"}},{"widget":"select","hidden":[{"field":"form.sourceMap.type","isNot":true,"value":"6"}],"name":"fileType","type":"string","title":"文件类型","initialValue":"text","required":true,"props":{"options":[{"label":"orc","value":"orc"},{"label":"text","value":"text"},{"label":"parquet","value":"parquet"}],"placeholder":"请选择文件类型"}},{"hidden":[{"field":"form.sourceMap.type","isNot":true,"value":"6"},{"field":"form.sourceMap.fileType","isNot":true,"value":"text"}],"name":"fieldDelimiter","type":"string","title":"列分隔符","props":{"placeholder":"若不填写，则默认为\\\\\\\\\\\\\\\\001"}},{"widget":"autoComplete","hidden":[{"field":"form.sourceMap.type","isNot":true,"value":"7,27,45,50"}],"depends":["sourceMap.table"],"name":"partition","type":"string","title":"分区","props":{"method":"post","name":"sourcemap_partition","transformer":"table","optionsFromRequest":true,"placeholder":"请填写分区信息","params":{"sourceId":"{{form#sourceMap.sourceId}}","tableName":"{{form#sourceMap.table}}"},"url":"/taier/api/dataSource/addDs/getHivePartitions","required":["sourceId","tableName"]}},{"widget":"select","hidden":[{"field":"form.sourceMap.type","isNot":true,"value":"11,33,46"}],"depends":["sourceMap.sourceId"],"name":"index","type":"string","title":"index","required":true,"props":{"method":"post","name":"sourcemap_schema","transformer":"table","optionsFromRequest":true,"placeholder":"请选择index","params":{"sourceId":"{{form#sourceMap.sourceId}}"},"url":"/taier/api/dataSource/addDs/getAllSchemas","required":["sourceId"]}},{"widget":"select","hidden":[{"field":"form.sourceMap.type","isNot":true,"value":"11,33"}],"depends":["sourceMap.index"],"name":"indexType","type":"string","title":"type","required":true,"props":{"method":"post","name":"sourcemap_table","transformer":"table","optionsFromRequest":true,"placeholder":"请选择indexType！","params":{"sourceId":"{{form#sourceMap.sourceId}}","schema":"{{form#sourceMap.schema}}","isRead":true,"isSys":false},"url":"/taier/api/dataSource/addDs/tablelist","required":["sourceId","schema"]}},{"widget":"textarea","hidden":[{"field":"form.sourceMap.type","isNot":true,"value":"11,33,46"}],"name":"query","rules":[{"max":1024,"message":"仅支持1-1024个任意字符"}],"type":"string","title":"query","props":{"autoSize":{"minRows":2,"maxRows":6},"placeholder":"\"match_all\":{}\"}},{"widget":"textarea","hidden":[{"field":"form.sourceMap.sourceId","value":"undefined"}],"name":"extralConfig","validator":"json","type":"string","title":"高级配置","props":{"autoSize":{"minRows":2,"maxRows":6},"placeholder":"以JSON格式添加高级参数，例如对关系型数据库可配置fetchSize"}},{"hidden":true,"name":"column","type":"string","title":"列"}],"name":"sourceMap","type":"object","title":"数据来源"},{"children":[{"bind":{"field":"targetMap.sourceId","transformer":"{{optionCollections.targetmap_sourceId#find.type}}"},"name":"type","type":"number","title":"类型","noStyle":true},{"widget":"select","name":"sourceId","type":"number","title":"数据源","required":true,"props":{"method":"get","name":"targetmap_sourceId","transformer":"sourceIdOnWriter","optionsFromRequest":true,"placeholder":"请选择数据源","url":"/taier/api/dataSource/manager/queryByTenantId"}},{"widget":"select","hidden":[{"field":"form.targetMap.type","isNot":true,"value":"2,4"}],"depends":["targetMap.sourceId"],"name":"schema","type":"number","title":"schema","props":{"method":"post","name":"targetmap_schema","transformer":"table","optionsFromRequest":true,"placeholder":"请选择 schema","params":{"sourceId":"{{form#targetMap.sourceId}}"},"url":"/taier/api/dataSource/addDs/getAllSchemas","required":["sourceId"]}},{"widget":"SelectWithCreate","hidden":[{"field":"form.targetMap.type","isNot":true,"value":"1,2,3,4,7,8,27,45,50"}],"depends":["targetMap.sourceId","targetMap.schema"],"name":"table","type":"string","title":"表名","required":true,"props":{"method":"post","name":"targetmap_table","transformer":"table","optionsFromRequest":true,"placeholder":"请选择表名","params":{"sourceId":"{{form#targetMap.sourceId}}","schema":"{{form#targetMap.schema}}","isRead":true,"isSys":false},"url":"/taier/api/dataSource/addDs/tablelist","required":["sourceId"]}},{"widget":"autoComplete","hidden":[{"field":"form.targetMap.type","isNot":true,"value":"7,27,45,50"}],"depends":["targetMap.table"],"name":"partition","type":"string","title":"分区","props":{"method":"post","name":"targetmap_partition","transformer":"table","optionsFromRequest":true,"placeholder":"请填写分区信息","params":{"sourceId":"{{form#targetMap.sourceId}}","tableName":"{{form#targetMap.table}}"},"url":"/taier/api/dataSource/addDs/getHivePartitions","required":["sourceId","tableName"]}},{"widget":"textarea","hidden":[{"field":"form.targetMap.type","isNot":true,"value":"1,2,3,4"}],"depends":["targetMap.type"],"name":"preSql","type":"string","title":"导入前准备语句","props":{"autoSize":{"minRows":2,"maxRows":6},"placeholder":"请输入导入数据前执行的 SQL 脚本"}},{"widget":"textarea","hidden":[{"field":"form.targetMap.type","isNot":true,"value":"1,2,3,4"}],"depends":["targetMap.type"],"name":"postSql","type":"string","title":"导入后准备语句","props":{"autoSize":{"minRows":2,"maxRows":6},"placeholder":"请输入导入数据后执行的 SQL 脚本"}},{"hidden":[{"field":"form.targetMap.type","isNot":true,"value":"6"}],"name":"path","rules":[{"max":200,"message":"路径不得超过200个字符！"}],"type":"string","title":"路径","required":true,"props":{"placeholder":"例如: /app/batch"}},{"hidden":[{"field":"form.targetMap.type","isNot":true,"value":"6"}],"name":"fileName","type":"string","title":"文件名","required":true,"props":{"placeholder":"请输入文件名"}},{"widget":"select","hidden":[{"field":"form.targetMap.type","isNot":true,"value":"6"}],"name":"fileType","type":"string","title":"文件类型","initialValue":"orc","required":true,"props":{"options":[{"label":"orc","value":"orc"},{"label":"text","value":"text"},{"label":"parquet","value":"parquet"}],"placeholder":"请选择文件类型"}},{"hidden":[{"field":"form.targetMap.type","isNot":true,"value":"6"}],"name":"fieldDelimiter","type":"string","title":"列分隔符","initialValue":",","props":{"placeholder":"例如: 目标为 hive 则分隔符为\\\\\\\\\\\\\\\\001"}},{"widget":"select","hidden":[{"field":"form.targetMap.type","isNot":true,"value":"6,8"}],"name":"encoding","type":"string","title":"编码","initialValue":"utf-8","required":true,"props":{"options":[{"label":"utf-8","value":"utf-8"},{"label":"gdb","value":"gdb"}],"placeholder":"请选择编码"}},{"widget":"radio","hidden":[{"field":"form.targetMap.type","isNot":true,"value":"2,4,6,7,27,45,50"}],"depends":["targetMap.sourceId"],"name":"writeMode","type":"string","title":"写入模式","props":{"options":[{"label":"覆盖（Insert Overwrite）","value":"replace"},{"label":"追加（Insert Into）","value":"insert"}]}},{"widget":"radio","hidden":[{"field":"form.targetMap.type","isNot":true,"value":"8"}],"name":"nullMode","type":"string","title":"读取为空时的处理方式","initialValue":"skip","props":{"options":[{"label":"SKIP","value":"skip"},{"label":"EMPTY","value":"empty"}]}},{"widget":"inputNumber","hidden":[{"field":"form.targetMap.type","isNot":true,"value":"8"}],"name":"writeBufferSize","type":"string","title":"写入缓存大小","props":{"placeholder":"请输入缓存大小","suffix":"KB"}},{"widget":"select","hidden":[{"field":"form.targetMap.type","isNot":true,"value":"11,33,46"}],"depends":["targetMap.sourceId"],"name":"index","type":"string","title":"index","required":true,"props":{"method":"post","name":"targetmap_schema","transformer":"table","optionsFromRequest":true,"placeholder":"请选择index","params":{"sourceId":"{{form#targetMap.sourceId}}"},"url":"/taier/api/dataSource/addDs/getAllSchemas","required":["sourceId"]}},{"widget":"select","hidden":[{"field":"form.targetMap.type","isNot":true,"value":"11,33"}],"depends":["targetMap.index"],"name":"indexType","type":"string","title":"type","required":true,"props":{"method":"post","name":"targetmap_table","transformer":"table","optionsFromRequest":true,"placeholder":"请选择indexType！","params":{"sourceId":"{{form#targetMap.sourceId}}","schema":"{{form#targetMap.schema}}","isRead":true,"isSys":false},"url":"/taier/api/dataSource/addDs/tablelist","required":["sourceId","schema"]}},{"widget":"inputNumber","hidden":[{"field":"form.targetMap.type","isNot":true,"value":"11,33,46"}],"name":"bulkAction","type":"number","title":"bulkAction","initialValue":100,"required":true,"props":{"min":1,"max":200000,"precision":0,"placeholder":"请输入 bulkAction"}},{"widget":"textarea","hidden":[{"field":"form.targetMap.sourceId","value":"undefined"}],"name":"extralConfig","validator":"json","type":"string","title":"高级配置","props":{"autoSize":{"minRows":2,"maxRows":6},"placeholder":"以JSON格式添加高级参数，例如对关系型数据库可配置fetchSize"}},{"hidden":true,"name":"column","type":"string","title":"列"}],"name":"targetMap","type":"object","title":"选择目标"},{"children":[{"widget":"KeyMap","type":"any"}],"name":"mapping","type":"object","title":"字段映射"},{"children":[{"widget":"autoComplete","name":"speed","type":"string","title":"作业速率上限","initialValue":"不限制传输速率","required":true,"props":{"options":[{"value":"不限制传输速率"},{"value":"1"},{"value":"2"},{"value":"3"},{"value":"4"},{"value":"5"},{"value":"6"},{"value":"7"},{"value":"8"},{"value":"9"},{"value":"10"}],"placeholder":"请选择作业速率上限","suffix":"MB/s"}},{"widget":"autoComplete","name":"channel","type":"string","title":"作业并发数","initialValue":"1","required":true,"props":{"options":[{"value":"1"},{"value":"2"},{"value":"3"},{"value":"4"},{"value":"5"}],"placeholder":"请选择作业并发数"}},{"hidden":[{"field":"form.sourceMap.type","isNot":true,"value":"1,2,3,4,8,19,22,24,25,28,29,31,32,35,36,40,53,54,61,71,73"},{"field":"form.targetMap.type","isNot":true,"value":"1,2,3,4,7,8,10,19,22,24,25,27,28,29,31,32,35,36,40,53,54,61,71,73"}],"name":"isRestore","type":"boolean","title":"断点续传"},{"widget":"select","hidden":[{"field":"form.settingMap.isRestore","value":"false,undefined"}],"name":"restoreColumnName","type":"string","title":"标识字段","required":true,"props":{"method":"post","name":"settingmap_restore","transformer":"restore","optionsFromRequest":true,"placeholder":"请选择标识字段","params":{"sourceId":"{{form#sourceMap.sourceId}}","schema":"{{form#sourceMap.schema}}","tableName":"{{form#sourceMap.table}}"},"url":"/taier/api/task/getIncreColumn","required":["sourceId","tableName"]}}],"name":"settingMap","type":"object","title":"通道控制"}],"type":"object"}',
+        null, 17, 1, 'STRING', '', 1, '2022-02-11 10:28:45', '2022-02-11 10:28:45', 0);
+INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default,
+                  gmt_create, gmt_modified, is_deleted)
+VALUES ('-1', '虚节点', '{"formField": [], "renderKind": "virtual"}', null, 30, -1, 'STRING', '', 1,
+        '2022-02-11 10:28:45', '2022-02-11 10:28:45', 0);
+INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default,
+                  gmt_create, gmt_modified, is_deleted)
+VALUES ('0', 'SparkSQL',
+        '{"actions": ["SAVE_TASK", "RUN_TASK", "STOP_TASK", "SUBMIT_TASK", "OPERATOR_TASK"], "barItem": ["task", "dependency", "task_params", "env_params"], "formField": ["datasource"], "renderKind": "editor"}',
+        null, 30, 0, 'STRING', '', 1, '2022-02-11 10:28:45', '2022-02-11 10:28:45', 0);
+INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default,
+                  gmt_create, gmt_modified, is_deleted)
+VALUES ('2', 'SYNC',
+        '{"actions": ["SAVE_TASK", "RUN_TASK", "STOP_TASK", "SUBMIT_TASK", "OPERATOR_TASK"], "barItem": ["task", "dependency", "task_config", "task_params", "env_params","queue"], "formField": ["createModel", "syncModel"], "renderKind": "dataSync", "renderCondition": {"key": "createModel", "value": 0, "renderKind": "editor"}, "actionsCondition": {"key": "createModel", "value": 0, "actions": ["CONVERT_TASK", "SAVE_TASK", "RUN_TASK", "STOP_TASK", "SUBMIT_TASK", "OPERATOR_TASK"]}}',
+        null, 30, 2, 'STRING', '', 1, '2022-02-11 10:28:45', '2022-02-11 10:28:45', 0);
+INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default,
+                  gmt_create, gmt_modified, is_deleted)
+VALUES ('5', 'FlinkSQL',
+        '{"actions": ["GRAMMAR_TASK", "SAVE_TASK", "OPERATOR_TASK"], "barItem": ["task", "env_params"], "formField": ["componentVersion"], "renderKind": "editor", "actionsCondition": {"key": "createModel", "value": 0, "actions": ["CONVERT_TASK", "FORMAT_TASK", "GRAMMAR_TASK", "SAVE_TASK", "OPERATOR_TASK"]}, "barItemCondition": {"key": "createModel", "value": 0, "barItem": ["task", "flinksql_source", "flinksql_result", "flinksql_dimension", "env_params"]}}',
+        null, 30, 5, 'STRING', '', 0, '2022-09-03 07:25:04', '2022-09-03 07:25:04', 0);
+INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default,
+                  gmt_create, gmt_modified, is_deleted)
+VALUES ('6', '实时采集',
+        '{"actions": ["SAVE_TASK", "OPERATOR_TASK"], "barItem": ["task", "task_config", "env_params"], "formField": ["createModel", "componentVersion"], "renderKind": "streamCollection", "renderCondition": {"key": "createModel", "value": 0}, "actionsCondition": {"key": "createModel", "value": 0, "actions": ["CONVERT_TASK", "SAVE_TASK", "OPERATOR_TASK"]}}',
+        null, 30, 6, 'STRING', '', 0, '2022-09-03 07:25:04', '2022-09-03 07:25:04', 0);
+INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default,
+                  gmt_create, gmt_modified, is_deleted)
+VALUES ('7', 'HiveSQL',
+        '{"actions": ["SAVE_TASK", "RUN_TASK", "STOP_TASK", "SUBMIT_TASK", "OPERATOR_TASK"], "barItem": ["task", "dependency", "task_params", "env_params","datasource"], "formField": [], "renderKind": "editor"}',
+        null, 30, 0, 'STRING', '', 0, '2022-09-03 07:27:25', '2022-09-03 07:27:25', 0);
+INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default,
+                  gmt_create, gmt_modified, is_deleted)
+VALUES ('8', 'OceanBaseSQL',
+        '{"actions": ["SAVE_TASK", "RUN_TASK", "STOP_TASK", "SUBMIT_TASK", "OPERATOR_TASK"], "barItem": ["task", "dependency", "task_params", "env_params"], "formField": ["datasource"], "renderKind": "editor"}',
+        null, 30, 0, 'STRING', '', 0, '2022-09-03 07:27:25', '2022-09-03 07:27:25', 0);
+INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default,
+                  gmt_create, gmt_modified, is_deleted)
+VALUES ('10', '工作流',
+        '{"actions": ["SAVE_TASK", "SUBMIT_TASK", "OPERATOR_TASK"], "barItem": ["task", "dependency"], "formField": [], "renderKind": "workflow"}',
+        null, 30, 0, 'STRING', '', 0, '2022-09-03 07:27:25', '2022-09-03 07:27:25', 0);
+INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default,
+                  gmt_create, gmt_modified, is_deleted)
+VALUES ('11', 'Flink',
+        '{"formField": ["resourceIdList", "mainClass", "exeArgs", "componentVersion"], "renderKind": "flink"}', null,
+        30, 0, 'STRING', '', 0, '2022-09-03 07:27:25', '2022-09-03 07:27:25', 0);
 
 -- ----------------------------
 -- add script component_model
 -- ----------------------------
-DELETE FROM dict WHERE dict_code = 'component_model' AND dict_name = 'SCRIPT';
-INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default, gmt_create, gmt_modified, is_deleted) VALUES
-    ('component_model', 'SCRIPT', '{"owner": "COMPUTE", "dependsOn": ["RESOURCE", "STORAGE"], "allowKerberos": "true", "allowCoexistence": false, "uploadConfigType": "0", "versionDictionary": ""}', null, 12, 0, 'STRING', '', 0, now(), now(), 0);
+DELETE
+FROM dict
+WHERE dict_code = 'component_model'
+  AND dict_name = 'SCRIPT';
+INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default,
+                  gmt_create, gmt_modified, is_deleted)
+VALUES ('component_model', 'SCRIPT',
+        '{"owner": "COMPUTE", "dependsOn": ["RESOURCE", "STORAGE"], "allowKerberos": "true", "allowCoexistence": false, "uploadConfigType": "0", "versionDictionary": ""}',
+        null, 12, 0, 'STRING', '', 0, now(), now(), 0);
 
-DELETE FROM dict WHERE dict_code = 'typename_mapping' AND dict_name = 'yarn2-hdfs2-script';
-INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default, gmt_create, gmt_modified, is_deleted) VALUES
-    ('typename_mapping', 'yarn2-hdfs2-script', '-100', null, 6, 0, 'LONG', '', 0, now(), now(), 0);
+DELETE
+FROM dict
+WHERE dict_code = 'typename_mapping'
+  AND dict_name = 'yarn2-hdfs2-script';
+INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default,
+                  gmt_create, gmt_modified, is_deleted)
+VALUES ('typename_mapping', 'yarn2-hdfs2-script', '-100', null, 6, 0, 'LONG', '', 0, now(), now(), 0);
 
-DELETE FROM dict WHERE dict_code = 'typename_mapping' AND dict_name = 'yarn3-hdfs3-script';
-INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default, gmt_create, gmt_modified, is_deleted) VALUES
-    ('typename_mapping', 'yarn3-hdfs3-script', '-100', null, 6, 0, 'LONG', '', 0, now(), now(), 0);
+DELETE
+FROM dict
+WHERE dict_code = 'typename_mapping'
+  AND dict_name = 'yarn3-hdfs3-script';
+INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default,
+                  gmt_create, gmt_modified, is_deleted)
+VALUES ('typename_mapping', 'yarn3-hdfs3-script', '-100', null, 6, 0, 'LONG', '', 0, now(), now(), 0);
 
-DELETE FROM `console_component_config` WHERE `cluster_id` = -2 AND `component_id` = -100 AND `component_type_code` = 8;
-INSERT INTO `console_component_config`(`cluster_id`, `component_id`, `component_type_code`, `type`, `required`, `key`, `value`, `values`, `dependencyKey`, `dependencyValue`, `desc`, `gmt_create`, `gmt_modified`, `is_deleted`) VALUES (-2, -100, 8, 'INPUT', 1, 'script.java.opts', '-Dfile.encoding=UTF-8', NULL, NULL, NULL, NULL, now(), now(), 0);
-INSERT INTO `console_component_config`(`cluster_id`, `component_id`, `component_type_code`, `type`, `required`, `key`, `value`, `values`, `dependencyKey`, `dependencyValue`, `desc`, `gmt_create`, `gmt_modified`, `is_deleted`) VALUES (-2, -100, 8, 'INPUT', 1, 'script.am.memory', '512m', NULL, NULL, NULL, NULL, now(), now(), 0);
-INSERT INTO `console_component_config`(`cluster_id`, `component_id`, `component_type_code`, `type`, `required`, `key`, `value`, `values`, `dependencyKey`, `dependencyValue`, `desc`, `gmt_create`, `gmt_modified`, `is_deleted`) VALUES (-2, -100, 8, 'INPUT', 1, 'script.am.cores', '1', NULL, NULL, NULL, NULL, now(), now(), 0);
-INSERT INTO `console_component_config`(`cluster_id`, `component_id`, `component_type_code`, `type`, `required`, `key`, `value`, `values`, `dependencyKey`, `dependencyValue`, `desc`, `gmt_create`, `gmt_modified`, `is_deleted`) VALUES (-2, -100, 8, 'INPUT', 1, 'script.worker.memory', '512m', NULL, NULL, NULL, NULL, now(), now(), 0);
-INSERT INTO `console_component_config`(`cluster_id`, `component_id`, `component_type_code`, `type`, `required`, `key`, `value`, `values`, `dependencyKey`, `dependencyValue`, `desc`, `gmt_create`, `gmt_modified`, `is_deleted`) VALUES (-2, -100, 8, 'INPUT', 1, 'script.worker.cores', '1', NULL, NULL, NULL, NULL, now(), now(), 0);
-INSERT INTO `console_component_config`(`cluster_id`, `component_id`, `component_type_code`, `type`, `required`, `key`, `value`, `values`, `dependencyKey`, `dependencyValue`, `desc`, `gmt_create`, `gmt_modified`, `is_deleted`) VALUES (-2, -100, 8, 'INPUT', 1, 'script.worker.num', '1', NULL, NULL, NULL, NULL, now(), now(), 0);
-INSERT INTO `console_component_config`(`cluster_id`, `component_id`, `component_type_code`, `type`, `required`, `key`, `value`, `values`, `dependencyKey`, `dependencyValue`, `desc`, `gmt_create`, `gmt_modified`, `is_deleted`) VALUES (-2, -100, 8, 'INPUT', 1, 'container.staging.dir', '/insight/script/staging', NULL, NULL, NULL, NULL, now(), now(), 0);
-INSERT INTO `console_component_config`(`cluster_id`, `component_id`, `component_type_code`, `type`, `required`, `key`, `value`, `values`, `dependencyKey`, `dependencyValue`, `desc`, `gmt_create`, `gmt_modified`, `is_deleted`) VALUES (-2, -100, 8, 'INPUT', 1, 'script.container.heartbeat.interval', '10000', NULL, NULL, NULL, NULL, now(), now(), 0);
-INSERT INTO `console_component_config`(`cluster_id`, `component_id`, `component_type_code`, `type`, `required`, `key`, `value`, `values`, `dependencyKey`, `dependencyValue`, `desc`, `gmt_create`, `gmt_modified`, `is_deleted`) VALUES (-2, -100, 8, 'INPUT', 1, 'script.container.heartbeat.timeout', '120000', NULL, NULL, NULL, NULL, now(), now(), 0);
-INSERT INTO `console_component_config`(`cluster_id`, `component_id`, `component_type_code`, `type`, `required`, `key`, `value`, `values`, `dependencyKey`, `dependencyValue`, `desc`, `gmt_create`, `gmt_modified`, `is_deleted`) VALUES (-2, -100, 8, 'INPUT', 1, 'script.python2.path', '/data/miniconda2/bin/python2', NULL, NULL, NULL, NULL, now(), now(), 0);
-INSERT INTO `console_component_config`(`cluster_id`, `component_id`, `component_type_code`, `type`, `required`, `key`, `value`, `values`, `dependencyKey`, `dependencyValue`, `desc`, `gmt_create`, `gmt_modified`, `is_deleted`) VALUES (-2, -100, 8, 'INPUT', 1, 'script.python3.path', '/data/miniconda3/bin/python3', NULL, NULL, NULL, NULL, now(), now(), 0);
+DELETE
+FROM `console_component_config`
+WHERE `cluster_id` = -2
+  AND `component_id` = -100
+  AND `component_type_code` = 8;
+INSERT INTO `console_component_config`(`cluster_id`, `component_id`, `component_type_code`, `type`, `required`, `key`,
+                                       `value`, `values`, `dependencyKey`, `dependencyValue`, `desc`, `gmt_create`,
+                                       `gmt_modified`, `is_deleted`)
+VALUES (-2, -100, 8, 'INPUT', 1, 'script.java.opts', '-Dfile.encoding=UTF-8', NULL, NULL, NULL, NULL, now(), now(), 0);
+INSERT INTO `console_component_config`(`cluster_id`, `component_id`, `component_type_code`, `type`, `required`, `key`,
+                                       `value`, `values`, `dependencyKey`, `dependencyValue`, `desc`, `gmt_create`,
+                                       `gmt_modified`, `is_deleted`)
+VALUES (-2, -100, 8, 'INPUT', 1, 'script.am.memory', '512m', NULL, NULL, NULL, NULL, now(), now(), 0);
+INSERT INTO `console_component_config`(`cluster_id`, `component_id`, `component_type_code`, `type`, `required`, `key`,
+                                       `value`, `values`, `dependencyKey`, `dependencyValue`, `desc`, `gmt_create`,
+                                       `gmt_modified`, `is_deleted`)
+VALUES (-2, -100, 8, 'INPUT', 1, 'script.am.cores', '1', NULL, NULL, NULL, NULL, now(), now(), 0);
+INSERT INTO `console_component_config`(`cluster_id`, `component_id`, `component_type_code`, `type`, `required`, `key`,
+                                       `value`, `values`, `dependencyKey`, `dependencyValue`, `desc`, `gmt_create`,
+                                       `gmt_modified`, `is_deleted`)
+VALUES (-2, -100, 8, 'INPUT', 1, 'script.worker.memory', '512m', NULL, NULL, NULL, NULL, now(), now(), 0);
+INSERT INTO `console_component_config`(`cluster_id`, `component_id`, `component_type_code`, `type`, `required`, `key`,
+                                       `value`, `values`, `dependencyKey`, `dependencyValue`, `desc`, `gmt_create`,
+                                       `gmt_modified`, `is_deleted`)
+VALUES (-2, -100, 8, 'INPUT', 1, 'script.worker.cores', '1', NULL, NULL, NULL, NULL, now(), now(), 0);
+INSERT INTO `console_component_config`(`cluster_id`, `component_id`, `component_type_code`, `type`, `required`, `key`,
+                                       `value`, `values`, `dependencyKey`, `dependencyValue`, `desc`, `gmt_create`,
+                                       `gmt_modified`, `is_deleted`)
+VALUES (-2, -100, 8, 'INPUT', 1, 'script.worker.num', '1', NULL, NULL, NULL, NULL, now(), now(), 0);
+INSERT INTO `console_component_config`(`cluster_id`, `component_id`, `component_type_code`, `type`, `required`, `key`,
+                                       `value`, `values`, `dependencyKey`, `dependencyValue`, `desc`, `gmt_create`,
+                                       `gmt_modified`, `is_deleted`)
+VALUES (-2, -100, 8, 'INPUT', 1, 'container.staging.dir', '/insight/script/staging', NULL, NULL, NULL, NULL, now(),
+        now(), 0);
+INSERT INTO `console_component_config`(`cluster_id`, `component_id`, `component_type_code`, `type`, `required`, `key`,
+                                       `value`, `values`, `dependencyKey`, `dependencyValue`, `desc`, `gmt_create`,
+                                       `gmt_modified`, `is_deleted`)
+VALUES (-2, -100, 8, 'INPUT', 1, 'script.container.heartbeat.interval', '10000', NULL, NULL, NULL, NULL, now(), now(),
+        0);
+INSERT INTO `console_component_config`(`cluster_id`, `component_id`, `component_type_code`, `type`, `required`, `key`,
+                                       `value`, `values`, `dependencyKey`, `dependencyValue`, `desc`, `gmt_create`,
+                                       `gmt_modified`, `is_deleted`)
+VALUES (-2, -100, 8, 'INPUT', 1, 'script.container.heartbeat.timeout', '120000', NULL, NULL, NULL, NULL, now(), now(),
+        0);
+INSERT INTO `console_component_config`(`cluster_id`, `component_id`, `component_type_code`, `type`, `required`, `key`,
+                                       `value`, `values`, `dependencyKey`, `dependencyValue`, `desc`, `gmt_create`,
+                                       `gmt_modified`, `is_deleted`)
+VALUES (-2, -100, 8, 'INPUT', 1, 'script.python2.path', '/data/miniconda2/bin/python2', NULL, NULL, NULL, NULL, now(),
+        now(), 0);
+INSERT INTO `console_component_config`(`cluster_id`, `component_id`, `component_type_code`, `type`, `required`, `key`,
+                                       `value`, `values`, `dependencyKey`, `dependencyValue`, `desc`, `gmt_create`,
+                                       `gmt_modified`, `is_deleted`)
+VALUES (-2, -100, 8, 'INPUT', 1, 'script.python3.path', '/data/miniconda3/bin/python3', NULL, NULL, NULL, NULL, now(),
+        now(), 0);
 
 -- task template
 -- python
-DELETE FROM task_template WHERE task_type = 12 AND type = 0;
-INSERT INTO task_template (task_type, type, value_type, content, gmt_create, gmt_modified, is_deleted) VALUES
-    (12, 0, '', '## 每个worker所占内存，比如512m
+DELETE
+FROM task_template
+WHERE task_type = 12
+  AND type = 0;
+INSERT INTO task_template (task_type, type, value_type, content, gmt_create, gmt_modified, is_deleted)
+VALUES (12, 0, '', '## 每个worker所占内存，比如512m
 # script.worker.memory=512m
 
 ## 每个worker所占的cpu核的数量
@@ -107,12 +306,15 @@ job.priority=10
 # script.worker.racks=
 
 ## 日志级别可选ALL, DEBUG, ERROR, FATAL, INFO, OFF, TRACE, WARN
-logLevel=INFO',now(),now(), 0);
+logLevel=INFO', now(), now(), 0);
 
 -- shell
-DELETE FROM task_template WHERE task_type = 13 AND type = 0;
-INSERT INTO task_template (task_type, type, value_type, content, gmt_create, gmt_modified, is_deleted) VALUES
-    (13, 0, '', '## 每个worker所占内存，比如512m
+DELETE
+FROM task_template
+WHERE task_type = 13
+  AND type = 0;
+INSERT INTO task_template (task_type, type, value_type, content, gmt_create, gmt_modified, is_deleted)
+VALUES (13, 0, '', '## 每个worker所占内存，比如512m
 # script.worker.memory=512m
 
 ## 每个worker所占的cpu核的数量
@@ -134,56 +336,133 @@ job.priority=10
 # script.worker.racks=
 
 ## 日志级别可选ALL, DEBUG, ERROR, FATAL, INFO, OFF, TRACE, WARN
-logLevel=INFO',now(),now(), 0);
+logLevel=INFO', now(), now(), 0);
 
 -- change old name
-update dict set dict_value = REPLACE(dict_value, '-dtscript', '-script') where `type` = 14 and depend_name = 'YARN' and dict_value like '%dtscript%';
-update dict set dict_value = REPLACE(dict_value, 'DT_SCRIPT', 'SCRIPT') where `type` = 14 and depend_name = 'YARN' and dict_value like '%DT_SCRIPT%';
+update dict
+set dict_value = REPLACE(dict_value, '-dtscript', '-script')
+where `type` = 14
+  and depend_name = 'YARN'
+  and dict_value like '%dtscript%';
+update dict
+set dict_value = REPLACE(dict_value, 'DT_SCRIPT', 'SCRIPT')
+where `type` = 14
+  and depend_name = 'YARN'
+  and dict_value like '%DT_SCRIPT%';
 
-delete from dict where `type` = 30 and dict_code in (12, 13);
-INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default, gmt_create, gmt_modified, is_deleted) VALUES ('12', 'Python', '{"actions": ["SAVE_TASK", "RUN_TASK", "STOP_TASK", "SUBMIT_TASK", "OPERATOR_TASK"], "barItem": ["task", "dependency", "task_params", "env_params"], "formField": ["pythonVersion"], "renderKind": "editor"}', null, 30, 0, 'STRING', '', 1, '2022-02-11 10:28:45', '2022-02-11 10:28:45', 0);
-INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default, gmt_create, gmt_modified, is_deleted) VALUES ('13', 'Shell', '{"actions": ["SAVE_TASK", "RUN_TASK", "STOP_TASK", "SUBMIT_TASK", "OPERATOR_TASK"], "barItem": ["task", "dependency", "task_params", "env_params"], "formField": [], "renderKind": "editor"}', null, 30, 0, 'STRING', '', 1, '2022-02-11 10:28:45', '2022-02-11 10:28:45', 0);
+delete
+from dict
+where `type` = 30
+  and dict_code in (12, 13);
+INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default,
+                  gmt_create, gmt_modified, is_deleted)
+VALUES ('12', 'Python',
+        '{"actions": ["SAVE_TASK", "RUN_TASK", "STOP_TASK", "SUBMIT_TASK", "OPERATOR_TASK"], "barItem": ["task", "dependency", "task_params", "env_params"], "formField": ["pythonVersion"], "renderKind": "editor"}',
+        null, 30, 0, 'STRING', '', 1, '2022-02-11 10:28:45', '2022-02-11 10:28:45', 0);
+INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default,
+                  gmt_create, gmt_modified, is_deleted)
+VALUES ('13', 'Shell',
+        '{"actions": ["SAVE_TASK", "RUN_TASK", "STOP_TASK", "SUBMIT_TASK", "OPERATOR_TASK"], "barItem": ["task", "dependency", "task_params", "env_params"], "formField": [], "renderKind": "editor"}',
+        null, 30, 0, 'STRING', '', 1, '2022-02-11 10:28:45', '2022-02-11 10:28:45', 0);
 
-delete from dict where `type` = 25 and dict_desc = '8';
-INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default, gmt_create, gmt_modified, is_deleted) VALUES ('tips', 'script.java.opts', 'script container jvm 扩展参数', '8', 25, 0, 'STRING', '', 0, now(), now(), 0);
-INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default, gmt_create, gmt_modified, is_deleted) VALUES ('tips', 'script.am.memory', 'am container 使用的内存量', '8', 25, 0, 'STRING', '', 0, now(), now(), 0);
-INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default, gmt_create, gmt_modified, is_deleted) VALUES ('tips', 'script.am.cores', 'am container 使用的 cpu 核数', '8', 25, 0, 'STRING', '', 0, now(), now(), 0);
-INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default, gmt_create, gmt_modified, is_deleted) VALUES ('tips', 'script.worker.memory', 'work container 使用的内存量', '8', 25, 0, 'STRING', '', 0, now(), now(), 0);
-INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default, gmt_create, gmt_modified, is_deleted) VALUES ('tips', 'script.worker.cores', 'work container 使用的 cpu 核数', '8', 25, 0, 'STRING', '', 0, now(), now(), 0);
-INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default, gmt_create, gmt_modified, is_deleted) VALUES ('tips', 'script.worker.num', 'work container 实例数量', '8', 25, 0, 'STRING', '', 0, now(), now(), 0);
-INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default, gmt_create, gmt_modified, is_deleted) VALUES ('tips', 'container.staging.dir', '任务临时文件路径', '8', 25, 0, 'STRING', '', 0, now(), now(), 0);
-INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default, gmt_create, gmt_modified, is_deleted) VALUES ('tips', 'script.container.heartbeat.interval', 'am 和 work 之间的心跳间隔，单位毫秒', '8', 25, 0, 'STRING', '', 0, now(), now(), 0);
-INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default, gmt_create, gmt_modified, is_deleted) VALUES ('tips', 'script.container.heartbeat.timeout', 'am 和 work 之间的心跳超时时间，单位毫秒', '8', 25, 0, 'STRING', '', 0, now(), now(), 0);
-INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default, gmt_create, gmt_modified, is_deleted) VALUES ('tips', 'script.python2.path', 'python2.x 二进制可执行文件地址', '8', 25, 0, 'STRING', '', 0, now(), now(), 0);
-INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default, gmt_create, gmt_modified, is_deleted) VALUES ('tips', 'script.python3.path', 'python3.x 二进制可执行文件地址', '8', 25, 0, 'STRING', '', 0, now(), now(), 0);
+delete
+from dict
+where `type` = 25
+  and dict_desc = '8';
+INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default,
+                  gmt_create, gmt_modified, is_deleted)
+VALUES ('tips', 'script.java.opts', 'script container jvm 扩展参数', '8', 25, 0, 'STRING', '', 0, now(), now(), 0);
+INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default,
+                  gmt_create, gmt_modified, is_deleted)
+VALUES ('tips', 'script.am.memory', 'am container 使用的内存量', '8', 25, 0, 'STRING', '', 0, now(), now(), 0);
+INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default,
+                  gmt_create, gmt_modified, is_deleted)
+VALUES ('tips', 'script.am.cores', 'am container 使用的 cpu 核数', '8', 25, 0, 'STRING', '', 0, now(), now(), 0);
+INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default,
+                  gmt_create, gmt_modified, is_deleted)
+VALUES ('tips', 'script.worker.memory', 'work container 使用的内存量', '8', 25, 0, 'STRING', '', 0, now(), now(), 0);
+INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default,
+                  gmt_create, gmt_modified, is_deleted)
+VALUES ('tips', 'script.worker.cores', 'work container 使用的 cpu 核数', '8', 25, 0, 'STRING', '', 0, now(), now(), 0);
+INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default,
+                  gmt_create, gmt_modified, is_deleted)
+VALUES ('tips', 'script.worker.num', 'work container 实例数量', '8', 25, 0, 'STRING', '', 0, now(), now(), 0);
+INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default,
+                  gmt_create, gmt_modified, is_deleted)
+VALUES ('tips', 'container.staging.dir', '任务临时文件路径', '8', 25, 0, 'STRING', '', 0, now(), now(), 0);
+INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default,
+                  gmt_create, gmt_modified, is_deleted)
+VALUES ('tips', 'script.container.heartbeat.interval', 'am 和 work 之间的心跳间隔，单位毫秒', '8', 25, 0, 'STRING', '',
+        0, now(), now(), 0);
+INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default,
+                  gmt_create, gmt_modified, is_deleted)
+VALUES ('tips', 'script.container.heartbeat.timeout', 'am 和 work 之间的心跳超时时间，单位毫秒', '8', 25, 0, 'STRING',
+        '', 0, now(), now(), 0);
+INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default,
+                  gmt_create, gmt_modified, is_deleted)
+VALUES ('tips', 'script.python2.path', 'python2.x 二进制可执行文件地址', '8', 25, 0, 'STRING', '', 0, now(), now(), 0);
+INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default,
+                  gmt_create, gmt_modified, is_deleted)
+VALUES ('tips', 'script.python3.path', 'python3.x 二进制可执行文件地址', '8', 25, 0, 'STRING', '', 0, now(), now(), 0);
 
 truncate table datasource_classify;
-INSERT INTO `datasource_classify` VALUES (1, 'total', 100, '全部', 0, '2021-03-15 17:49:27', '2021-03-15 17:50:42', 0, 0);
-INSERT INTO `datasource_classify` VALUES (2, 'mostUse', 90, '常用', 0, '2021-03-15 17:49:27', '2021-03-15 17:50:43', 0, 0);
-INSERT INTO `datasource_classify` VALUES (3, 'relational', 80, '关系型', 0, '2021-03-15 17:49:27', '2021-03-15 17:50:43', 0, 0);
-INSERT INTO `datasource_classify` VALUES (4, 'bigData', 70, '大数据存储', 0, '2021-03-15 17:49:27', '2021-03-15 17:50:43', 0, 0);
-INSERT INTO `datasource_classify` VALUES (5, 'mpp', 60, 'MPP', 0, '2021-03-15 17:49:27', '2021-03-15 17:50:43', 0, 0);
-INSERT INTO `datasource_classify` VALUES (6, 'semiStruct', 50, '半结构化', 0, '2021-03-15 17:49:27', '2021-03-15 17:50:43', 0, 0);
-INSERT INTO `datasource_classify` VALUES (7, 'analytic', 40, '分析型', 0, '2021-03-15 17:49:27', '2021-03-15 17:50:44', 0, 0);
-INSERT INTO `datasource_classify` VALUES (8, 'NoSQL', 30, 'NoSQL', 0, '2021-03-15 17:49:27', '2021-03-15 17:50:44', 0, 0);
-INSERT INTO `datasource_classify` VALUES (0, 'actualTime', 20, '实时', 0, '2021-03-15 17:49:27', '2021-03-15 17:50:44', 0, 0);
-INSERT INTO `datasource_classify` VALUES (10, 'api', 0, '接口', 0, '2021-03-15 17:49:27', '2021-03-15 17:50:44', 0, 0);
-INSERT INTO `datasource_classify` VALUES (11, 'sequential', 10, '时序', 0, '2021-06-09 17:19:27', '2021-06-09 17:19:27', 0, 0);
+INSERT INTO `datasource_classify`
+VALUES (1, 'total', 100, '全部', 0, '2021-03-15 17:49:27', '2021-03-15 17:50:42', 0, 0);
+INSERT INTO `datasource_classify`
+VALUES (2, 'mostUse', 90, '常用', 0, '2021-03-15 17:49:27', '2021-03-15 17:50:43', 0, 0);
+INSERT INTO `datasource_classify`
+VALUES (3, 'relational', 80, '关系型', 0, '2021-03-15 17:49:27', '2021-03-15 17:50:43', 0, 0);
+INSERT INTO `datasource_classify`
+VALUES (4, 'bigData', 70, '大数据存储', 0, '2021-03-15 17:49:27', '2021-03-15 17:50:43', 0, 0);
+INSERT INTO `datasource_classify`
+VALUES (5, 'mpp', 60, 'MPP', 0, '2021-03-15 17:49:27', '2021-03-15 17:50:43', 0, 0);
+INSERT INTO `datasource_classify`
+VALUES (6, 'semiStruct', 50, '半结构化', 0, '2021-03-15 17:49:27', '2021-03-15 17:50:43', 0, 0);
+INSERT INTO `datasource_classify`
+VALUES (7, 'analytic', 40, '分析型', 0, '2021-03-15 17:49:27', '2021-03-15 17:50:44', 0, 0);
+INSERT INTO `datasource_classify`
+VALUES (8, 'NoSQL', 30, 'NoSQL', 0, '2021-03-15 17:49:27', '2021-03-15 17:50:44', 0, 0);
+INSERT INTO `datasource_classify`
+VALUES (0, 'actualTime', 20, '实时', 0, '2021-03-15 17:49:27', '2021-03-15 17:50:44', 0, 0);
+INSERT INTO `datasource_classify`
+VALUES (10, 'api', 0, '接口', 0, '2021-03-15 17:49:27', '2021-03-15 17:50:44', 0, 0);
+INSERT INTO `datasource_classify`
+VALUES (11, 'sequential', 10, '时序', 0, '2021-06-09 17:19:27', '2021-06-09 17:19:27', 0, 0);
 
 
 
-INSERT INTO datasource_type (data_type, data_classify_id, weight, img_url, is_deleted, gmt_create, gmt_modified, create_user_id, modify_user_id, sorted, invisible) VALUES ('OceanBase', 5, 1.0, 'OceanBase.png', 0, '2021-08-05 10:22:10', '2021-08-17 11:53:29', 0, 0, 1200, 0);
+INSERT INTO datasource_type (data_type, data_classify_id, weight, img_url, is_deleted, gmt_create, gmt_modified,
+                             create_user_id, modify_user_id, sorted, invisible)
+VALUES ('OceanBase', 5, 1.0, 'OceanBase.png', 0, '2021-08-05 10:22:10', '2021-08-17 11:53:29', 0, 0, 1200, 0);
 
-INSERT INTO datasource_form_field (name, label, widget, required, invisible, default_value, place_hold, request_api, is_link, valid_info, tooltip, style, regex, is_deleted, gmt_create, gmt_modified, create_user_id, modify_user_id, type_version, options) VALUES ('jdbcUrl', 'JDBC URL', 'Input', 1, 0, null, null, null, 1, '{"regex":{"message":"JDBC URL格式不符合规则!"}}', '示例：jdbc:oceanbase://host:port/dbName', null, '/jdbc:oceanbase:\\/\\/(.)+/', 0, '2021-08-05 09:35:57', '2021-08-05 16:07:17', 0, 0, 'OceanBase', '');
-INSERT INTO datasource_form_field (name, label, widget, required, invisible, default_value, place_hold, request_api, is_link, valid_info, tooltip, style, regex, is_deleted, gmt_create, gmt_modified, create_user_id, modify_user_id, type_version, options) VALUES ('username', '用户名', 'Input', 0, 0, null, null, null, 1, '', null, null, null, 0, '2021-08-05 09:35:57', '2021-08-05 10:08:08', 0, 0, 'OceanBase', '');
-INSERT INTO datasource_form_field (name, label, widget, required, invisible, default_value, place_hold, request_api, is_link, valid_info, tooltip, style, regex, is_deleted, gmt_create, gmt_modified, create_user_id, modify_user_id, type_version, options) VALUES ('password', '密码', 'Password', 0, 0, null, null, null, 0, '', null, null, null, 0, '2021-08-05 09:35:57', '2021-08-05 10:08:12', 0, 0, 'OceanBase', '');
+INSERT INTO datasource_form_field (name, label, widget, required, invisible, default_value, place_hold, request_api,
+                                   is_link, valid_info, tooltip, style, regex, is_deleted, gmt_create, gmt_modified,
+                                   create_user_id, modify_user_id, type_version, options)
+VALUES ('jdbcUrl', 'JDBC URL', 'Input', 1, 0, null, null, null, 1, '{"regex":{"message":"JDBC URL格式不符合规则!"}}',
+        '示例：jdbc:oceanbase://host:port/dbName', null, '/jdbc:oceanbase:\\/\\/(.)+/', 0, '2021-08-05 09:35:57',
+        '2021-08-05 16:07:17', 0, 0, 'OceanBase', '');
+INSERT INTO datasource_form_field (name, label, widget, required, invisible, default_value, place_hold, request_api,
+                                   is_link, valid_info, tooltip, style, regex, is_deleted, gmt_create, gmt_modified,
+                                   create_user_id, modify_user_id, type_version, options)
+VALUES ('username', '用户名', 'Input', 0, 0, null, null, null, 1, '', null, null, null, 0, '2021-08-05 09:35:57',
+        '2021-08-05 10:08:08', 0, 0, 'OceanBase', '');
+INSERT INTO datasource_form_field (name, label, widget, required, invisible, default_value, place_hold, request_api,
+                                   is_link, valid_info, tooltip, style, regex, is_deleted, gmt_create, gmt_modified,
+                                   create_user_id, modify_user_id, type_version, options)
+VALUES ('password', '密码', 'Password', 0, 0, null, null, null, 0, '', null, null, null, 0, '2021-08-05 09:35:57',
+        '2021-08-05 10:08:12', 0, 0, 'OceanBase', '');
 
 
 -- ----------------------------
 -- 增加 clickhouse
 -- ----------------------------
-DELETE FROM dict WHERE type = 30 AND dict_code = 26 ;
-INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default, gmt_create, gmt_modified, is_deleted) VALUES ('26', 'ClickHouseSQL', '{
+DELETE
+FROM dict
+WHERE type = 30
+  AND dict_code = 26;
+INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default,
+                  gmt_create, gmt_modified, is_deleted)
+VALUES ('26', 'ClickHouseSQL', '{
     "actions":[
         "SAVE_TASK",
         "RUN_TASK",
@@ -210,34 +489,53 @@ INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_
 -- ----------------------------
 
 -- 修改 doris 数据源模板
-UPDATE datasource_form_field SET `name` = 'url', `label` = 'url' ,`place_hold` = 'http://localhost:8030', `valid_info` = '{"regex":{"message":"URL格式不符合规则!"}}',`tooltip` = '',`regex`='' WHERE `type_version` = 'Doris-0.14.x' AND name = 'jdbcUrl';
-INSERT INTO `datasource_form_field` (`name`, `label`, `widget`, `required`, `invisible`, `default_value`, `place_hold`, `request_api`, `is_link`, `valid_info`, `tooltip`, `style`, `regex`, `type_version`, `is_deleted`, `gmt_create`, `gmt_modified`, `create_user_id`, `modify_user_id`, `options`) VALUES
-    ('schema', 'schema', 'Input', '1', '0', NULL, NULL, NULL, '0', NULL, NULL, NULL, NULL, 'Doris-0.14.x', '0', now(), now(), '0', '0', '');
+UPDATE datasource_form_field
+SET `name`       = 'url',
+    `label`      = 'url',
+    `place_hold` = 'http://localhost:8030',
+    `valid_info` = '{"regex":{"message":"URL格式不符合规则!"}}',
+    `tooltip`    = '',
+    `regex`=''
+WHERE `type_version` = 'Doris-0.14.x'
+  AND name = 'jdbcUrl';
+INSERT INTO `datasource_form_field` (`name`, `label`, `widget`, `required`, `invisible`, `default_value`, `place_hold`,
+                                     `request_api`, `is_link`, `valid_info`, `tooltip`, `style`, `regex`,
+                                     `type_version`, `is_deleted`, `gmt_create`, `gmt_modified`, `create_user_id`,
+                                     `modify_user_id`, `options`)
+VALUES ('schema', 'schema', 'Input', '1', '0', NULL, NULL, NULL, '0', NULL, NULL, NULL, NULL, 'Doris-0.14.x', '0',
+        now(), now(), '0', '0', '');
 
-DELETE FROM dict WHERE type = 30 AND dict_code = 27 ;
-INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default, gmt_create, gmt_modified, is_deleted) VALUES ('27', 'DorisSQL',
-'{
-    "actions":[
-        "SAVE_TASK",
-        "RUN_TASK",
-        "STOP_TASK",
-        "SUBMIT_TASK",
-        "OPERATOR_TASK"
-    ],
-    "barItem":[
-        "task",
-        "dependency",
-        "task_params",
-        "env_params"
-    ],
-    "formField":[
-        "datasource"
-    ],
-    "renderKind":"editor",
-    "dataTypeCodes":[64]
-}', null, 30, 0, 'STRING', '', 0, now(), now(), 0);
+DELETE
+FROM dict
+WHERE type = 30
+  AND dict_code = 27;
+INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default,
+                  gmt_create, gmt_modified, is_deleted)
+VALUES ('27', 'DorisSQL',
+        '{
+            "actions":[
+                "SAVE_TASK",
+                "RUN_TASK",
+                "STOP_TASK",
+                "SUBMIT_TASK",
+                "OPERATOR_TASK"
+            ],
+            "barItem":[
+                "task",
+                "dependency",
+                "task_params",
+                "env_params"
+            ],
+            "formField":[
+                "datasource"
+            ],
+            "renderKind":"editor",
+            "dataTypeCodes":[64]
+        }', null, 30, 0, 'STRING', '', 0, now(), now(), 0);
 
 -- 数据同步向导模式增加 clickhouse 和 doris
-UPDATE dict SET dict_value = '{"children":[{"children":[{"name":"syncModel","type":"number","title":"同步模式","noStyle":true},{"bind":{"field":"sourceMap.sourceId","transformer":"{{optionCollections.sourceMap_sourceId#find.type}}"},"name":"type","type":"number","title":"类型","noStyle":true},{"widget":"select","name":"sourceId","type":"number","title":"数据源","required":true,"props":{"method":"get","name":"sourceMap_sourceId","transformer":"sourceIdOnReader","optionsFromRequest":true,"placeholder":"请选择数据源","url":"/taier/api/dataSource/manager/queryByTenantId"}},{"widget":"select","hidden":[{"field":"form.sourceMap.type","isNot":true,"value":"2,4"}],"depends":["sourceMap.sourceId"],"name":"schema","type":"number","title":"schema","props":{"method":"post","name":"sourcemap_schema","transformer":"table","optionsFromRequest":true,"placeholder":"请选择 schema","params":{"sourceId":"{{form#sourceMap.sourceId}}"},"url":"/taier/api/dataSource/addDs/getAllSchemas","required":["sourceId"]}},{"widget":"SelectWithPreviewer","hidden":[{"field":"form.sourceMap.type","isNot":true,"value":"1,2,3,4,7,8,25,27,45,50"}],"depends":["sourceMap.sourceId","sourceMap.schema"],"name":"table","type":"string","title":"表名","required":true,"props":{"method":"post","name":"sourcemap_table","transformer":"table","optionsFromRequest":true,"placeholder":"请选择表名","params":{"sourceId":"{{form#sourceMap.sourceId}}","schema":"{{form#sourceMap.schema}}","isRead":true,"isSys":false},"url":"/taier/api/dataSource/addDs/tablelist","required":["sourceId"]}},{"widget":"select","hidden":[{"field":"form.sourceMap.type","isNot":true,"value":"1,2,3,4,25"},{"field":"form.sourceMap.syncModel","isNot":true,"value":"1"}],"depends":["sourceMap.table"],"name":"increColumn","type":"string","title":"增量标识字段","required":true,"props":{"method":"post","name":"sourcemap_increColumn","transformer":"incrementColumn","optionsFromRequest":true,"placeholder":"请选择增量标识字段","params":{"sourceId":"{{form#sourceMap.sourceId}}","schema":"{{form#sourceMap.schema}}","tableName":"{{form#sourceMap.table}}"},"url":"/taier/api/task/getIncreColumn","required":["sourceId","tableName"]}},{"widget":"select","hidden":[{"field":"form.sourceMap.type","isNot":true,"value":"8"}],"name":"encoding","type":"string","title":"编码","initialValue":"utf-8","required":true,"props":{"options":[{"label":"utf-8","value":"utf-8"},{"label":"gdb","value":"gdb"}],"placeholder":"请选择编码"}},{"hidden":[{"field":"form.sourceMap.type","isNot":true,"value":"8"}],"name":"startRowkey","type":"string","title":"开始行健","props":{"placeholder":"请输入开始行健"}},{"hidden":[{"field":"form.sourceMap.type","isNot":true,"value":"8"}],"name":"endRowkey","type":"string","title":"结束行健","props":{"placeholder":"请输入结束行健"}},{"widget":"radio","hidden":[{"field":"form.sourceMap.type","isNot":true,"value":"8"}],"name":"isBinaryRowkey","type":"string","title":"行健二进制转换","initialValue":"0","props":{"options":[{"label":"FALSE","value":"0"},{"label":"TRUE","value":"1"}]}},{"widget":"inputNumber","hidden":[{"field":"form.sourceMap.t ype","isNot":true,"value":"8"}],"name":"scanCacheSize","type":"string","title":"每次RPC请求获取行数","props":{"min":0,"placeholder":"请输入大小, 默认为256","suffix":"行"}},{"widget":"inputNumber","hidden":[{"field":"form.sourceMap.type","isNot":true,"value":"8"}],"name":"scanBatchSize","type":"string","title":"每次RPC请求获取列数","props":{"min":0,"placeholder":"请输入大小, 默认为100","suffix":"列"}},{"widget":"textarea","hidden":[{"field":"form.sourceMap.type","isNot":true,"value":"1,2,3,4,25"}],"name":"where","rules":[{"max":1000,"message":"过滤语句不可超过1000个字符!"}],"type":"string","title":"数据过滤","props":{"autoSize":{"minRows":2,"maxRows":6},"placeholder":"请参考相关SQL语法填写where过滤语句（不要填写where关键字）。该过滤语句通常用作增量同步"}},{"widget":"select","hidden":[{"field":"form.sourceMap.type","isNot":true,"value":"1,2,3,4,25"}],"depends":["sourceMap.table"],"name":"split","type":"string","title":"切分键","props":{"method":"post","name":"sourcemap_split","transformer":"split","optionsFromRequest":true,"placeholder":"请选择切分键","params":{"sourceId":"{{form#sourceMap.sourceId}}","schema":"{{form#sourceMap.schema}}","tableName":"{{form#sourceMap.table}}"},"url":"/taier/api/dataSource/addDs/columnForSyncopate","required":["sourceId","tableName"]}},{"hidden":[{"field":"form.sourceMap.type","isNot":true,"value":"6"}],"name":"path","rules":[{"max":200,"message":"路径不得超过200个字符！"}],"type":"string","title":"路径","required":true,"props":{"placeholder":"例如: /rdos/batch"}},{"widget":"select","hidden":[{"field":"form.sourceMap.type","isNot":true,"value":"6"}],"name":"fileType","type":"string","title":"文件类型","initialValue":"text","required":true,"props":{"options":[{"label":"orc","value":"orc"},{"label":"text","value":"text"},{"label":"parquet","value":"parquet"}],"placeholder":"请选择文件类型"}},{"hidden":[{"field":"form.sourceMap.type","isNot":true,"value":"6"},{"field":"form.sourceMap.fileType","isNot":true,"value":"text"}],"name":"fieldDelimiter","type":"string","title":"列分隔符","props":{"placeholder":"若不填写，则默认为\\\\\\\\001"}},{"widget":"autoComplete","hidden":[{"field":"form.sourceMap.type","isNot":true,"value":"7,27,45,50"}],"depends":["sourceMap.table"],"name":"partition","type":"string","title":"分区","props":{"method":"post","name":"sourcemap_partition","transformer":"table","optionsFromRequest":true,"placeholder":"请填写分区信息","params":{"sourceId":"{{form#sourceMap.sourceId}}","tableName":"{{form#sourceMap.table}}"},"url":"/taier/api/dataSource/addDs/getHivePartitions","required":["sourceId","tableName"]}},{"widget":"select","hidden":[{"field":"form.sourceMap.type","isNot":true,"value":"11,33,46"}],"depends":["sourceMap.sourceId"],"name":"index","type":"string","title":"index","required":true,"props":{"method":"post","name":"sourcemap_schema","transformer":"table","optionsFromRequest":true,"placeholder":"请选择index","params":{"sourceId":"{{form#sourceMap.sourceId}}"},"url":"/taier/api/dataSource/addDs/getAllSchemas","required":["sourceId"]}},{"widget":"select","hidden":[{"field":"form.sourceMap.type","isNot":true,"value":"11,33"}],"depends":["sourceMap.index"],"name":"indexType","type":"string","title":"type","required":true,"props":{"method":"post","name":"sourcemap_table","transformer":"table","optionsFromRequest":true,"placeholder":"请选择indexType！","params":{"sourceId":"{{form#sourceMap.sourceId}}","schema":"{{form#sourceMap.schema}}","isRead":true,"isSys":false},"url":"/taier/api/dataSource/addDs/tablelist","required":["sourceId","schema"]}},{"widget":"textarea","hidden":[{"field":"form.sourceMap.type","isNot":true,"value":"11,33,46"}],"name":"query","rules":[{"max":1024,"message":"仅支持1-1024个任意字符"}],"type":"string","title":"query","props":{"autoSize":{"minRows":2,"maxRows":6},"placeholder":"\\"match_all\\":{}\\""}},{"widget":"textarea","hidden":[{"field":"form.sourceMap.sourceId","value":"undefined"}],"name":"extralConfig","validator":"json","type":"string","title":"高级配置","props":{"autoSize":{"minRows":2,"maxRows":6},"placeholder":"以JSON格式添加高级参数，例如对关系型数据库可配置fetchSize"}},{"hidden":true,"name":"column","type":"string","title":"列"}],"name":"sourceMap","type":"object","title":"数据来源"},{"children":[{"bind":{"field":"targetMap.sourceId","transformer":"{{optionCollections.targetmap_sourceId#find.type}}"},"name":"type","type":"number","title":"类型","noStyle":true},{"widget":"select","name":"sourceId","type":"number","title":"数据源","required":true,"props":{"method":"get","name":"targetmap_sourceId","transformer":"sourceIdOnWriter","optionsFromRequest":true,"placeholder":"请选择数据源","url":"/taier/api/dataSource/manager/queryByTenantId"}},{"widget":"select","hidden":[{"field":"form.targetMap.type","isNot":true,"value":"2,4,64"}],"depends":["targetMap.sourceId"],"name":"schema","type":"number","title":"schema","props":{"method":"post","name":"targetmap_schema","transformer":"table","optionsFromRequest":true,"placeholder":"请选择 schema","params":{"sourceId":"{{form#targetMap.sourceId}}"},"url":"/taier/api/dataSource/addDs/getAllSchemas","required":["sourceId"]}},{"widget":"SelectWithCreate","hidden":[{"field":"form.targetMap.type","isNot":true,"value":"1,2,3,4,7,8,25,27,45,50,64"}],"depends":["targetMap.sourceId","targetMap.schema"],"name":"table","type":"string","title":"表名","required":true,"props":{"method":"post","name":"targetmap_table","transformer":"table","optionsFromRequest":true,"placeholder":"请选择表名","params":{"sourceId":"{{form#targetMap.sourceId}}","schema":"{{form#targetMap.schema}}","isRead":true,"isSys":false},"url":"/taier/api/dataSource/addDs/tablelist","required":["sourceId"]}},{"widget":"autoComplete","hidden":[{"field":"form.targetMap.type","isNot":true,"value":"7,27,45,50"}],"depends":["targetMap.table"],"name":"partition","type":"string","title":"分区","props":{"method":"post","name":"targetmap_partition","transformer":"table","optionsFromRequest":true,"placeholder":"请填写分区信息","params":{"sourceId":"{{form#targetMap.sourceId}}","tableName":"{{form#targetMap.table}}"},"url":"/taier/api/dataSource/addDs/getHivePartitions","required":["sourceId","tableName"]}},{"widget":"textarea","hidden":[{"field":"form.targetMap.type","isNot":true,"value":"1,2,3,4,25,64"}],"depends":["targetMap.type"],"name":"preSql","type":"string","title":"导入前准备语句","props":{"autoSize":{"minRows":2,"maxRows":6},"placeholder":"请输入导入数据前执行的 SQL 脚本"}},{"widget":"textarea","hidden":[{"field":"form.targetMap.type","isNot":true,"value":"1,2,3,4,25,64"}],"depends":["targetMap.type"],"name":"postSql","type":"string","title":"导入后准备语句","props":{"autoSize":{"minRows":2,"maxRows":6},"placeholder":"请输入导入数据后执行的 SQL 脚本"}},{"hidden":[{"field":"form.targetMap.type","isNot":true,"value":"6"}],"name":"path","rules":[{"max":200,"message":"路径不得超过200个字符！"}],"type":"string","title":"路径","required":true,"props":{"placeholder":"例如: /app/batch"}},{"hidden":[{"field":"form.targetMap.type","isNot":true,"value":"6"}],"name":"fileName","type":"string","title":"文件名","required":true,"props":{"placeholder":"请输入文件名"}},{"widget":"select","hidden":[{"field":"form.targetMap.type","isNot":true,"value":"6"}],"name":"fileType","type":"string","title":"文件类型","initialValue":"orc","required":true,"props":{"options":[{"label":"orc","value":"orc"},{"label":"text","value":"text"},{"label":"parquet","value":"parquet"}],"placeholder":"请选择文件类型"}},{"hidden":[{"field":"form.targetMap.type","isNot":true,"value":"6"}],"name":"fieldDelimiter","type":"string","title":"列分隔符","initialValue":",","props":{"placeholder":"例如: 目标为 hive 则分隔符为\\\\\\\\001"}},{"widget":"select","hidden":[{"field":"form.targetMap.type","isNot":true,"value":"6,8"}],"name":"encoding","type":"string","title":"编码","initialValue":"utf-8","required":true,"props":{"options":[{"label":"utf-8","value":"utf-8"},{"label":"gdb","value":"gdb"}],"placeholder":"请选择编码"}},{"widget":"radio","hidden":[{"field":"form.targetMap.type","isNot":true,"value":"2,4,6,7,25,27,45,50"}],"depends":["targetMap.sourceId"],"name":"writeMode","type":"string","title":"写入模式","required":true,"props":{"options":[{"label":"覆盖（Insert Overwrite）","value":"replace"},{"label":"追加（Insert Into）","value":"insert"}]}},{"widget":"radio","hidden":[{"field":"form.targetMap.type","isNot":true,"value":"8"}],"name":"nullMode","type":"string","title":"读取为空时的处理方式","initialValue":"skip","props":{"options":[{"label":"SKIP","value":"skip"},{"label":"EMPTY","value":"empty"}]}},{"widget":"inputNumber","hidden":[{"field":"form.targetMap.type","isNot":true,"value":"8"}],"name":"writeBufferSize","type":"string","title":"写入缓存大小","props":{"placeholder":"请输入缓存大小","suffix":"KB"}},{"widget":"select","hidden":[{"field":"form.targetMap.type","isNot":true,"value":"11,33,46"}],"depends":["targetMap.sourceId"],"name":"index","type":"string","title":"index","required":true,"props":{"method":"post","name":"targetmap_schema","transformer":"table","optionsFromRequest":true,"placeholder":"请选择index","params":{"sourceId":"{{form#targetMap.sourceId}}"},"url":"/taier/api/dataSource/addDs/getAllSchemas","required":["sourceId"]}},{"widget":"select","hidden":[{"field":"form.targetMap.type","isNot":true,"value":"11,33"}],"depends":["targetMap.index"],"name":"indexType","type":"string","title":"type","required":true,"props":{"method":"post","name":"targetmap_table","transformer":"table","optionsFromRequest":true,"placeholder":"请选择indexType！","params":{"sourceId":"{{form#targetMap.sourceId}}","schema":"{{form#targetMap.schema}}","isRead":true,"isSys":false},"url":"/taier/api/dataSource/addDs/tablelist","required":["sourceId","schema"]}},{"widget":"inputNumber","hidden":[{"field":"form.targetMap.type","isNot":true,"value":"11,33,46"}],"name":"bulkAction","type":"number","title":"bulkAction","initialValue":100,"required":true,"props":{"min":1,"max":200000,"precision":0,"placeholder":"请输入 bulkAction"}},{"widget":"textarea","hidden":[{"field":"form.targetMap.sourceId","value":"undefined"}],"name":"extralConfig","validator":"json","type":"string","title":"高级配置","props":{"autoSize":{"minRows":2,"maxRows":6},"placeholder":"以JSON格式添加高级参数，例如对关系型数据库可配置fetchSize"}},{"hidden":true,"name":"column","type":"string","title":"列"}],"name":"targetMap","type":"object","title":"选择目标"},{"children":[{"widget":"KeyMap","type":"any"}],"name":"mapping","type":"object","title":"字段映射"},{"children":[{"widget":"autoComplete","name":"speed","type":"string","title":"作业速率上限","initialValue":"不限制传输速率","required":true,"props":{"options":[{"value":"不限制传输速率"},{"value":"1"},{"value":"2"},{"value":"3"},{"value":"4"},{"value":"5"},{"value":"6"},{"value":"7"},{"value":"8"},{"value":"9"},{"value":"10"}],"placeholder":"请选择作业速率上限","suffix":"MB/s"}},{"widget":"autoComplete","name":"channel","type":"string","title":"作业并发数","initialValue":"1","required":true,"props":{"options":[{"value":"1"},{"value":"2"},{"value":"3"},{"value":"4"},{"value":"5"}],"placeholder":"请选择作业并发数"}},{"hidden":[{"field":"form.sourceMap.type","isNot":true,"value":"1,2,3,4,8,19,22,24,25,28,29,31,32,35,36,40,53,54,61,71,73"},{"field":"form.targetMap.type","isNot":true,"value":"1,2,3,4,7,8,10,19,22,24,25,27,28,29,31,32,35,36,40,53,54,61,71,73"}],"name":"isRestore","type":"boolean","title":"断点续传"},{"widget":"select","hidden":[{"field":"form.settingMap.isRestore","value":"false,undefined"}],"name":"restoreColumnName","type":"string","title":"标识字段","required":true,"props":{"method":"post","name":"settingmap_restore","transformer":"restore","optionsFromRequest":true,"placeholder":"请选择标识字段","params":{"sourceId":"{{form#sourceMap.sourceId}}","schema":"{{form#sourceMap.schema}}","tableName":"{{form#sourceMap.table}}"},"url":"/taier/api/task/getIncreColumn","required":["sourceId","tableName"]}}],"name":"settingMap","type":"object","title":"通道控制"}],"type":"object"}'
-WHERE `type` = 17 and dict_code = 'SYNC';
+UPDATE dict
+SET dict_value = '{"children":[{"children":[{"name":"syncModel","type":"number","title":"同步模式","noStyle":true},{"bind":{"field":"sourceMap.sourceId","transformer":"{{optionCollections.sourceMap_sourceId#find.type}}"},"name":"type","type":"number","title":"类型","noStyle":true},{"widget":"select","name":"sourceId","type":"number","title":"数据源","required":true,"props":{"method":"get","name":"sourceMap_sourceId","transformer":"sourceIdOnReader","optionsFromRequest":true,"placeholder":"请选择数据源","url":"/taier/api/dataSource/manager/queryByTenantId"}},{"widget":"select","hidden":[{"field":"form.sourceMap.type","isNot":true,"value":"2,4"}],"depends":["sourceMap.sourceId"],"name":"schema","type":"number","title":"schema","props":{"method":"post","name":"sourcemap_schema","transformer":"table","optionsFromRequest":true,"placeholder":"请选择 schema","params":{"sourceId":"{{form#sourceMap.sourceId}}"},"url":"/taier/api/dataSource/addDs/getAllSchemas","required":["sourceId"]}},{"widget":"SelectWithPreviewer","hidden":[{"field":"form.sourceMap.type","isNot":true,"value":"1,2,3,4,7,8,25,27,45,50"}],"depends":["sourceMap.sourceId","sourceMap.schema"],"name":"table","type":"string","title":"表名","required":true,"props":{"method":"post","name":"sourcemap_table","transformer":"table","optionsFromRequest":true,"placeholder":"请选择表名","params":{"sourceId":"{{form#sourceMap.sourceId}}","schema":"{{form#sourceMap.schema}}","isRead":true,"isSys":false},"url":"/taier/api/dataSource/addDs/tablelist","required":["sourceId"]}},{"widget":"select","hidden":[{"field":"form.sourceMap.type","isNot":true,"value":"1,2,3,4,25"},{"field":"form.sourceMap.syncModel","isNot":true,"value":"1"}],"depends":["sourceMap.table"],"name":"increColumn","type":"string","title":"增量标识字段","required":true,"props":{"method":"post","name":"sourcemap_increColumn","transformer":"incrementColumn","optionsFromRequest":true,"placeholder":"请选择增量标识字段","params":{"sourceId":"{{form#sourceMap.sourceId}}","schema":"{{form#sourceMap.schema}}","tableName":"{{form#sourceMap.table}}"},"url":"/taier/api/task/getIncreColumn","required":["sourceId","tableName"]}},{"widget":"select","hidden":[{"field":"form.sourceMap.type","isNot":true,"value":"8"}],"name":"encoding","type":"string","title":"编码","initialValue":"utf-8","required":true,"props":{"options":[{"label":"utf-8","value":"utf-8"},{"label":"gdb","value":"gdb"}],"placeholder":"请选择编码"}},{"hidden":[{"field":"form.sourceMap.type","isNot":true,"value":"8"}],"name":"startRowkey","type":"string","title":"开始行健","props":{"placeholder":"请输入开始行健"}},{"hidden":[{"field":"form.sourceMap.type","isNot":true,"value":"8"}],"name":"endRowkey","type":"string","title":"结束行健","props":{"placeholder":"请输入结束行健"}},{"widget":"radio","hidden":[{"field":"form.sourceMap.type","isNot":true,"value":"8"}],"name":"isBinaryRowkey","type":"string","title":"行健二进制转换","initialValue":"0","props":{"options":[{"label":"FALSE","value":"0"},{"label":"TRUE","value":"1"}]}},{"widget":"inputNumber","hidden":[{"field":"form.sourceMap.t ype","isNot":true,"value":"8"}],"name":"scanCacheSize","type":"string","title":"每次RPC请求获取行数","props":{"min":0,"placeholder":"请输入大小, 默认为256","suffix":"行"}},{"widget":"inputNumber","hidden":[{"field":"form.sourceMap.type","isNot":true,"value":"8"}],"name":"scanBatchSize","type":"string","title":"每次RPC请求获取列数","props":{"min":0,"placeholder":"请输入大小, 默认为100","suffix":"列"}},{"widget":"textarea","hidden":[{"field":"form.sourceMap.type","isNot":true,"value":"1,2,3,4,25"}],"name":"where","rules":[{"max":1000,"message":"过滤语句不可超过1000个字符!"}],"type":"string","title":"数据过滤","props":{"autoSize":{"minRows":2,"maxRows":6},"placeholder":"请参考相关SQL语法填写where过滤语句（不要填写where关键字）。该过滤语句通常用作增量同步"}},{"widget":"select","hidden":[{"field":"form.sourceMap.type","isNot":true,"value":"1,2,3,4,25"}],"depends":["sourceMap.table"],"name":"split","type":"string","title":"切分键","props":{"method":"post","name":"sourcemap_split","transformer":"split","optionsFromRequest":true,"placeholder":"请选择切分键","params":{"sourceId":"{{form#sourceMap.sourceId}}","schema":"{{form#sourceMap.schema}}","tableName":"{{form#sourceMap.table}}"},"url":"/taier/api/dataSource/addDs/columnForSyncopate","required":["sourceId","tableName"]}},{"hidden":[{"field":"form.sourceMap.type","isNot":true,"value":"6"}],"name":"path","rules":[{"max":200,"message":"路径不得超过200个字符！"}],"type":"string","title":"路径","required":true,"props":{"placeholder":"例如: /rdos/batch"}},{"widget":"select","hidden":[{"field":"form.sourceMap.type","isNot":true,"value":"6"}],"name":"fileType","type":"string","title":"文件类型","initialValue":"text","required":true,"props":{"options":[{"label":"orc","value":"orc"},{"label":"text","value":"text"},{"label":"parquet","value":"parquet"}],"placeholder":"请选择文件类型"}},{"hidden":[{"field":"form.sourceMap.type","isNot":true,"value":"6"},{"field":"form.sourceMap.fileType","isNot":true,"value":"text"}],"name":"fieldDelimiter","type":"string","title":"列分隔符","props":{"placeholder":"若不填写，则默认为\\\\\\\\001"}},{"widget":"autoComplete","hidden":[{"field":"form.sourceMap.type","isNot":true,"value":"7,27,45,50"}],"depends":["sourceMap.table"],"name":"partition","type":"string","title":"分区","props":{"method":"post","name":"sourcemap_partition","transformer":"table","optionsFromRequest":true,"placeholder":"请填写分区信息","params":{"sourceId":"{{form#sourceMap.sourceId}}","tableName":"{{form#sourceMap.table}}"},"url":"/taier/api/dataSource/addDs/getHivePartitions","required":["sourceId","tableName"]}},{"widget":"select","hidden":[{"field":"form.sourceMap.type","isNot":true,"value":"11,33,46"}],"depends":["sourceMap.sourceId"],"name":"index","type":"string","title":"index","required":true,"props":{"method":"post","name":"sourcemap_schema","transformer":"table","optionsFromRequest":true,"placeholder":"请选择index","params":{"sourceId":"{{form#sourceMap.sourceId}}"},"url":"/taier/api/dataSource/addDs/getAllSchemas","required":["sourceId"]}},{"widget":"select","hidden":[{"field":"form.sourceMap.type","isNot":true,"value":"11,33"}],"depends":["sourceMap.index"],"name":"indexType","type":"string","title":"type","required":true,"props":{"method":"post","name":"sourcemap_table","transformer":"table","optionsFromRequest":true,"placeholder":"请选择indexType！","params":{"sourceId":"{{form#sourceMap.sourceId}}","schema":"{{form#sourceMap.schema}}","isRead":true,"isSys":false},"url":"/taier/api/dataSource/addDs/tablelist","required":["sourceId","schema"]}},{"widget":"textarea","hidden":[{"field":"form.sourceMap.type","isNot":true,"value":"11,33,46"}],"name":"query","rules":[{"max":1024,"message":"仅支持1-1024个任意字符"}],"type":"string","title":"query","props":{"autoSize":{"minRows":2,"maxRows":6},"placeholder":"\\"match_all\\":{}\\""}},{"widget":"textarea","hidden":[{"field":"form.sourceMap.sourceId","value":"undefined"}],"name":"extralConfig","validator":"json","type":"string","title":"高级配置","props":{"autoSize":{"minRows":2,"maxRows":6},"placeholder":"以JSON格式添加高级参数，例如对关系型数据库可配置fetchSize"}},{"hidden":true,"name":"column","type":"string","title":"列"}],"name":"sourceMap","type":"object","title":"数据来源"},{"children":[{"bind":{"field":"targetMap.sourceId","transformer":"{{optionCollections.targetmap_sourceId#find.type}}"},"name":"type","type":"number","title":"类型","noStyle":true},{"widget":"select","name":"sourceId","type":"number","title":"数据源","required":true,"props":{"method":"get","name":"targetmap_sourceId","transformer":"sourceIdOnWriter","optionsFromRequest":true,"placeholder":"请选择数据源","url":"/taier/api/dataSource/manager/queryByTenantId"}},{"widget":"select","hidden":[{"field":"form.targetMap.type","isNot":true,"value":"2,4,64"}],"depends":["targetMap.sourceId"],"name":"schema","type":"number","title":"schema","props":{"method":"post","name":"targetmap_schema","transformer":"table","optionsFromRequest":true,"placeholder":"请选择 schema","params":{"sourceId":"{{form#targetMap.sourceId}}"},"url":"/taier/api/dataSource/addDs/getAllSchemas","required":["sourceId"]}},{"widget":"SelectWithCreate","hidden":[{"field":"form.targetMap.type","isNot":true,"value":"1,2,3,4,7,8,25,27,45,50,64"}],"depends":["targetMap.sourceId","targetMap.schema"],"name":"table","type":"string","title":"表名","required":true,"props":{"method":"post","name":"targetmap_table","transformer":"table","optionsFromRequest":true,"placeholder":"请选择表名","params":{"sourceId":"{{form#targetMap.sourceId}}","schema":"{{form#targetMap.schema}}","isRead":true,"isSys":false},"url":"/taier/api/dataSource/addDs/tablelist","required":["sourceId"]}},{"widget":"autoComplete","hidden":[{"field":"form.targetMap.type","isNot":true,"value":"7,27,45,50"}],"depends":["targetMap.table"],"name":"partition","type":"string","title":"分区","props":{"method":"post","name":"targetmap_partition","transformer":"table","optionsFromRequest":true,"placeholder":"请填写分区信息","params":{"sourceId":"{{form#targetMap.sourceId}}","tableName":"{{form#targetMap.table}}"},"url":"/taier/api/dataSource/addDs/getHivePartitions","required":["sourceId","tableName"]}},{"widget":"textarea","hidden":[{"field":"form.targetMap.type","isNot":true,"value":"1,2,3,4,25,64"}],"depends":["targetMap.type"],"name":"preSql","type":"string","title":"导入前准备语句","props":{"autoSize":{"minRows":2,"maxRows":6},"placeholder":"请输入导入数据前执行的 SQL 脚本"}},{"widget":"textarea","hidden":[{"field":"form.targetMap.type","isNot":true,"value":"1,2,3,4,25,64"}],"depends":["targetMap.type"],"name":"postSql","type":"string","title":"导入后准备语句","props":{"autoSize":{"minRows":2,"maxRows":6},"placeholder":"请输入导入数据后执行的 SQL 脚本"}},{"hidden":[{"field":"form.targetMap.type","isNot":true,"value":"6"}],"name":"path","rules":[{"max":200,"message":"路径不得超过200个字符！"}],"type":"string","title":"路径","required":true,"props":{"placeholder":"例如: /app/batch"}},{"hidden":[{"field":"form.targetMap.type","isNot":true,"value":"6"}],"name":"fileName","type":"string","title":"文件名","required":true,"props":{"placeholder":"请输入文件名"}},{"widget":"select","hidden":[{"field":"form.targetMap.type","isNot":true,"value":"6"}],"name":"fileType","type":"string","title":"文件类型","initialValue":"orc","required":true,"props":{"options":[{"label":"orc","value":"orc"},{"label":"text","value":"text"},{"label":"parquet","value":"parquet"}],"placeholder":"请选择文件类型"}},{"hidden":[{"field":"form.targetMap.type","isNot":true,"value":"6"}],"name":"fieldDelimiter","type":"string","title":"列分隔符","initialValue":",","props":{"placeholder":"例如: 目标为 hive 则分隔符为\\\\\\\\001"}},{"widget":"select","hidden":[{"field":"form.targetMap.type","isNot":true,"value":"6,8"}],"name":"encoding","type":"string","title":"编码","initialValue":"utf-8","required":true,"props":{"options":[{"label":"utf-8","value":"utf-8"},{"label":"gdb","value":"gdb"}],"placeholder":"请选择编码"}},{"widget":"radio","hidden":[{"field":"form.targetMap.type","isNot":true,"value":"2,4,6,7,25,27,45,50"}],"depends":["targetMap.sourceId"],"name":"writeMode","type":"string","title":"写入模式","required":true,"props":{"options":[{"label":"覆盖（Insert Overwrite）","value":"replace"},{"label":"追加（Insert Into）","value":"insert"}]}},{"widget":"radio","hidden":[{"field":"form.targetMap.type","isNot":true,"value":"8"}],"name":"nullMode","type":"string","title":"读取为空时的处理方式","initialValue":"skip","props":{"options":[{"label":"SKIP","value":"skip"},{"label":"EMPTY","value":"empty"}]}},{"widget":"inputNumber","hidden":[{"field":"form.targetMap.type","isNot":true,"value":"8"}],"name":"writeBufferSize","type":"string","title":"写入缓存大小","props":{"placeholder":"请输入缓存大小","suffix":"KB"}},{"widget":"select","hidden":[{"field":"form.targetMap.type","isNot":true,"value":"11,33,46"}],"depends":["targetMap.sourceId"],"name":"index","type":"string","title":"index","required":true,"props":{"method":"post","name":"targetmap_schema","transformer":"table","optionsFromRequest":true,"placeholder":"请选择index","params":{"sourceId":"{{form#targetMap.sourceId}}"},"url":"/taier/api/dataSource/addDs/getAllSchemas","required":["sourceId"]}},{"widget":"select","hidden":[{"field":"form.targetMap.type","isNot":true,"value":"11,33"}],"depends":["targetMap.index"],"name":"indexType","type":"string","title":"type","required":true,"props":{"method":"post","name":"targetmap_table","transformer":"table","optionsFromRequest":true,"placeholder":"请选择indexType！","params":{"sourceId":"{{form#targetMap.sourceId}}","schema":"{{form#targetMap.schema}}","isRead":true,"isSys":false},"url":"/taier/api/dataSource/addDs/tablelist","required":["sourceId","schema"]}},{"widget":"inputNumber","hidden":[{"field":"form.targetMap.type","isNot":true,"value":"11,33,46"}],"name":"bulkAction","type":"number","title":"bulkAction","initialValue":100,"required":true,"props":{"min":1,"max":200000,"precision":0,"placeholder":"请输入 bulkAction"}},{"widget":"textarea","hidden":[{"field":"form.targetMap.sourceId","value":"undefined"}],"name":"extralConfig","validator":"json","type":"string","title":"高级配置","props":{"autoSize":{"minRows":2,"maxRows":6},"placeholder":"以JSON格式添加高级参数，例如对关系型数据库可配置fetchSize"}},{"hidden":true,"name":"column","type":"string","title":"列"}],"name":"targetMap","type":"object","title":"选择目标"},{"children":[{"widget":"KeyMap","type":"any"}],"name":"mapping","type":"object","title":"字段映射"},{"children":[{"widget":"autoComplete","name":"speed","type":"string","title":"作业速率上限","initialValue":"不限制传输速率","required":true,"props":{"options":[{"value":"不限制传输速率"},{"value":"1"},{"value":"2"},{"value":"3"},{"value":"4"},{"value":"5"},{"value":"6"},{"value":"7"},{"value":"8"},{"value":"9"},{"value":"10"}],"placeholder":"请选择作业速率上限","suffix":"MB/s"}},{"widget":"autoComplete","name":"channel","type":"string","title":"作业并发数","initialValue":"1","required":true,"props":{"options":[{"value":"1"},{"value":"2"},{"value":"3"},{"value":"4"},{"value":"5"}],"placeholder":"请选择作业并发数"}},{"hidden":[{"field":"form.sourceMap.type","isNot":true,"value":"1,2,3,4,8,19,22,24,25,28,29,31,32,35,36,40,53,54,61,71,73"},{"field":"form.targetMap.type","isNot":true,"value":"1,2,3,4,7,8,10,19,22,24,25,27,28,29,31,32,35,36,40,53,54,61,71,73"}],"name":"isRestore","type":"boolean","title":"断点续传"},{"widget":"select","hidden":[{"field":"form.settingMap.isRestore","value":"false,undefined"}],"name":"restoreColumnName","type":"string","title":"标识字段","required":true,"props":{"method":"post","name":"settingmap_restore","transformer":"restore","optionsFromRequest":true,"placeholder":"请选择标识字段","params":{"sourceId":"{{form#sourceMap.sourceId}}","schema":"{{form#sourceMap.schema}}","tableName":"{{form#sourceMap.table}}"},"url":"/taier/api/task/getIncreColumn","required":["sourceId","tableName"]}}],"name":"settingMap","type":"object","title":"通道控制"}],"type":"object"}'
+WHERE `type` = 17
+  and dict_code = 'SYNC';
 COMMIT;

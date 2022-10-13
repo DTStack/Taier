@@ -1,4 +1,3 @@
-
 package com.dtstack.taier.datasource.plugin.hdfs.util;
 
 import java.util.ArrayList;

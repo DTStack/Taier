@@ -52,24 +52,24 @@ public class DownloadController {
     @Value("${user.dir}")
     private String path;
 
-    @RequestMapping(value="/component/downloadFile", method = {RequestMethod.GET})
+    @RequestMapping(value = "/component/downloadFile", method = {RequestMethod.GET})
     @ApiOperation(value = "下载文件")
     @ApiImplicitParams({
-            @ApiImplicitParam(name="type",value="0:kerberos配置文件 1:配置文件 2:模板文件",required=true, dataType = "int")
+            @ApiImplicitParam(name = "type", value = "0:kerberos配置文件 1:配置文件 2:模板文件", required = true, dataType = "int")
     })
-    public R<Void> handleDownload(@RequestParam(value = "componentId",required = false) Long componentId,
+    public R<Void> handleDownload(@RequestParam(value = "componentId", required = false) Long componentId,
                                   @RequestParam("type") Integer downloadType,
                                   @RequestParam("componentType") Integer componentType,
                                   @RequestParam("versionName") String versionName,
                                   @RequestParam("clusterId") Long clusterId,
-                                  @RequestParam(value = "deployType",required = false) Integer deployType,
+                                  @RequestParam(value = "deployType", required = false) Integer deployType,
                                   HttpServletResponse response) {
         response.setHeader("Content-Type", "application/octet-stream;charset=UTF-8");
         response.setHeader("Pragma", "no-cache");
         response.setHeader("Cache-Control", "no-cache");
         File downLoadFile = null;
         try {
-            downLoadFile = consoleComponentService.downloadFile(componentId, downloadType, componentType, versionName, clusterId,deployType);
+            downLoadFile = consoleComponentService.downloadFile(componentId, downloadType, componentType, versionName, clusterId, deployType);
             if (null != downLoadFile && downLoadFile.isFile()) {
                 response.setHeader("Content-Disposition", "attachment;filename=" + encodeURIComponent(downLoadFile.getName()));
                 ServletOutputStream outputStream = response.getOutputStream();
@@ -86,7 +86,7 @@ public class DownloadController {
                 LOGGER.error("", eMsg);
             }
         } finally {
-            if(null != downLoadFile){
+            if (null != downLoadFile) {
                 downLoadFile.delete();
             }
         }

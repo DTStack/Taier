@@ -10,6 +10,7 @@ public interface Sort {
 
     /**
      * 获得排序序列
+     *
      * @return 排序序列
      */
     Integer getSort();

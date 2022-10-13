@@ -1,15 +1,15 @@
 package com.dtstack.taier.datasource.plugin.phoenix5;
 
-import com.dtstack.taier.datasource.plugin.common.DtClassConsistent;
-import com.dtstack.taier.datasource.plugin.common.utils.DBUtil;
-import com.dtstack.taier.datasource.plugin.common.utils.SearchUtil;
-import com.dtstack.taier.datasource.plugin.rdbms.AbsRdbmsClient;
-import com.dtstack.taier.datasource.plugin.rdbms.ConnFactory;
 import com.dtstack.taier.datasource.api.dto.SqlQueryDTO;
 import com.dtstack.taier.datasource.api.dto.source.ISourceDTO;
 import com.dtstack.taier.datasource.api.dto.source.Phoenix5SourceDTO;
 import com.dtstack.taier.datasource.api.exception.SourceException;
 import com.dtstack.taier.datasource.api.source.DataSourceType;
+import com.dtstack.taier.datasource.plugin.common.DtClassConsistent;
+import com.dtstack.taier.datasource.plugin.common.utils.DBUtil;
+import com.dtstack.taier.datasource.plugin.common.utils.SearchUtil;
+import com.dtstack.taier.datasource.plugin.rdbms.AbsRdbmsClient;
+import com.dtstack.taier.datasource.plugin.rdbms.ConnFactory;
 import org.apache.commons.lang3.StringUtils;
 
 import java.sql.Connection;

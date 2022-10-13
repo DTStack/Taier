@@ -22,22 +22,22 @@ public class ScheduleFillDataInfoVO {
      * 必填
      */
     @NotNull(message = "fillDataType is not null")
-    @Min(value = 0,message = " Supplement data type: 0 Develop supplement data 1 Project supplement data")
-    @Max(value = 1,message = " Supplement data type: 0 Develop supplement data 1 Project supplement data")
-    @ApiModelProperty(value = "补数据类型： 0 批量补数据fillDataType = 0时，taskIds字段有效" ,required = true)
+    @Min(value = 0, message = " Supplement data type: 0 Develop supplement data 1 Project supplement data")
+    @Max(value = 1, message = " Supplement data type: 0 Develop supplement data 1 Project supplement data")
+    @ApiModelProperty(value = "补数据类型： 0 批量补数据fillDataType = 0时，taskIds字段有效", required = true)
     private Integer fillDataType;
 
 
     /**
      * 批量补数据任务列表
      */
-    @ApiModelProperty(value = "批量补数据任务列表:fillDataType = 0 且 rootTaskId == null的时候，有效" )
+    @ApiModelProperty(value = "批量补数据任务列表:fillDataType = 0 且 rootTaskId == null的时候，有效")
     private List<FillDataChooseTaskVO> taskIds;
 
     /**
      * 头节点
      */
-    @ApiModelProperty(value = "批量补数据任务列表:fillDataType = 0有效,rootTaskId优先级大于taskIds" )
+    @ApiModelProperty(value = "批量补数据任务列表:fillDataType = 0有效,rootTaskId优先级大于taskIds")
     private FillDataChooseTaskVO rootTaskId;
 
     public Integer getFillDataType() {

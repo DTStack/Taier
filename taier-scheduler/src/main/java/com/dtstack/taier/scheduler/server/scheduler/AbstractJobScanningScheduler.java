@@ -51,15 +51,17 @@ public abstract class AbstractJobScanningScheduler implements Scheduler, Initial
 
     /**
      * 获得实例列表
-     * @param startSort 开始id
+     *
+     * @param startSort   开始id
      * @param nodeAddress 查询的实例对应的节点
-     * @param isEq sql中是否包含第一个
+     * @param isEq        sql中是否包含第一个
      * @return 实例列表
      */
     protected abstract List<ScheduleJobDetails> listExecJob(Long startSort, String nodeAddress, Boolean isEq);
 
     /**
      * 获得排序最小序号
+     *
      * @return 最小序号
      */
     protected abstract Long getMinSort();
@@ -75,7 +77,7 @@ public abstract class AbstractJobScanningScheduler implements Scheduler, Initial
     /**
      * 扫描实例
      */
-    private void scanningJob () {
+    private void scanningJob() {
         try {
             if (!env.isOpenJobSchedule()) {
                 return;
@@ -85,7 +87,7 @@ public abstract class AbstractJobScanningScheduler implements Scheduler, Initial
             if (StringUtils.isBlank(nodeAddress)) {
                 return;
             }
-            LOGGER.info("scanningJob start scheduleType : {} nodeAddress:{}", getSchedulerName(),nodeAddress);
+            LOGGER.info("scanningJob start scheduleType : {} nodeAddress:{}", getSchedulerName(), nodeAddress);
 
             // 2. 获得排序最小序号
             Long minSort = getMinSort();

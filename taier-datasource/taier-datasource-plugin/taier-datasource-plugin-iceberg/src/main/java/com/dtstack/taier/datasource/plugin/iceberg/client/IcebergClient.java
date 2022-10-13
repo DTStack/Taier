@@ -1,9 +1,5 @@
 package com.dtstack.taier.datasource.plugin.iceberg.client;
 
-import com.dtstack.taier.datasource.plugin.common.utils.SearchUtil;
-import com.dtstack.taier.datasource.plugin.iceberg.pool.IcebergHiveCatalogManager;
-import com.dtstack.taier.datasource.plugin.rdbms.AbsRdbmsClient;
-import com.dtstack.taier.datasource.plugin.rdbms.ConnFactory;
 import com.dtstack.taier.datasource.api.dto.ColumnMetaDTO;
 import com.dtstack.taier.datasource.api.dto.SqlQueryDTO;
 import com.dtstack.taier.datasource.api.dto.source.ISourceDTO;
@@ -11,6 +7,10 @@ import com.dtstack.taier.datasource.api.dto.source.IcebergSourceDTO;
 import com.dtstack.taier.datasource.api.exception.SourceException;
 import com.dtstack.taier.datasource.api.source.DataSourceType;
 import com.dtstack.taier.datasource.api.utils.AssertUtils;
+import com.dtstack.taier.datasource.plugin.common.utils.SearchUtil;
+import com.dtstack.taier.datasource.plugin.iceberg.pool.IcebergHiveCatalogManager;
+import com.dtstack.taier.datasource.plugin.rdbms.AbsRdbmsClient;
+import com.dtstack.taier.datasource.plugin.rdbms.ConnFactory;
 import com.google.common.collect.Lists;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;

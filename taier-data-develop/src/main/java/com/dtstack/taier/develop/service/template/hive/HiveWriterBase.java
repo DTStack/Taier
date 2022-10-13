@@ -1,13 +1,13 @@
 package com.dtstack.taier.develop.service.template.hive;
 
 import com.alibaba.fastjson.JSONObject;
+import com.dtstack.taier.common.exception.RdosDefineException;
 import com.dtstack.taier.datasource.api.base.ClientCache;
 import com.dtstack.taier.datasource.api.client.IClient;
 import com.dtstack.taier.datasource.api.dto.SqlQueryDTO;
 import com.dtstack.taier.datasource.api.dto.Table;
 import com.dtstack.taier.datasource.api.dto.source.HiveSourceDTO;
 import com.dtstack.taier.datasource.api.source.DataSourceType;
-import com.dtstack.taier.common.exception.RdosDefineException;
 import com.dtstack.taier.develop.service.datasource.impl.DsInfoService;
 import com.dtstack.taier.develop.service.template.hdfs.HdfsWriterBase;
 import org.apache.commons.lang.StringUtils;

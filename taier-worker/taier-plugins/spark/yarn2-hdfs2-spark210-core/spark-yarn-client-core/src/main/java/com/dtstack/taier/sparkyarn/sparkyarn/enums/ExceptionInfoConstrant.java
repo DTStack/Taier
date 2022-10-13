@@ -35,16 +35,16 @@ public class ExceptionInfoConstrant {
     private static List<String> needRestartExceptions = Lists.newArrayList();
 
     static {
-        try{
+        try {
             Field[] fields = ExceptionInfoConstrant.class.getDeclaredFields();
-            for(Field f:fields){
+            for (Field f : fields) {
                 String name = f.getName();
-                if(name.indexOf("RESTART_EXCEPTION")>=0){
+                if (name.indexOf("RESTART_EXCEPTION") >= 0) {
                     needRestartExceptions.add(f.get(f.getName()).toString());
                 }
             }
-        }catch (Throwable e){
-            logger.error("",e);
+        } catch (Throwable e) {
+            logger.error("", e);
         }
     }
 

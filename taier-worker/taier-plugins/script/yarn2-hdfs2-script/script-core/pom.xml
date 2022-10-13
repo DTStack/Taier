@@ -138,7 +138,8 @@
                             <createDependencyReducedPom>false</createDependencyReducedPom>
 
                             <transformers>
-                                <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                                <transformer
+                                        implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
                                     <mainClass>com.dtstack.taier.script.am.ApplicationMaster</mainClass>
                                 </transformer>
                             </transformers>
@@ -189,5 +190,5 @@
             </plugin>
         </plugins>
     </build>
-    
+
 </project>

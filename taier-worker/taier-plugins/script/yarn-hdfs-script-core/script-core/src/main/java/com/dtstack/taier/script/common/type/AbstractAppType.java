@@ -18,7 +18,7 @@ public abstract class AbstractAppType {
         } else if (type.equalsIgnoreCase(AppTypeEnum.PYTHON.name()) || type.equalsIgnoreCase(AppTypeEnum.PYTHON2.name())) {
             return new Python2Type();
         } else if (type.equalsIgnoreCase(AppTypeEnum.PYTHON3.name())) {
-          return new Python3Type();
+            return new Python3Type();
         }
         throw new IllegalArgumentException("Unsupported appType: " + type);
     }
@@ -31,7 +31,7 @@ public abstract class AbstractAppType {
         if (StringUtils.isNotBlank(dtconf.get(ScriptConfiguration.SCRIPT_LAUNCH_CMD))) {
             return dtconf.get(ScriptConfiguration.SCRIPT_LAUNCH_CMD);
         } else {
-            String fullPath = StringUtils.split(dtconf.get(ScriptConfiguration.SCRIPT_FILES),",")[0];
+            String fullPath = StringUtils.split(dtconf.get(ScriptConfiguration.SCRIPT_FILES), ",")[0];
             String[] parts = fullPath.split("/");
             String encodedOpts = "";
             return cmdPrefix(dtconf) + " " + parts[parts.length - 1] + " " + encodedOpts;

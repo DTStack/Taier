@@ -37,6 +37,7 @@ public class TaskParamsUtils {
 
     /**
      * 解析对应数据同步任务的环境参数 获取对应数据同步模式
+     *
      * @param taskParams
      * @return
      */

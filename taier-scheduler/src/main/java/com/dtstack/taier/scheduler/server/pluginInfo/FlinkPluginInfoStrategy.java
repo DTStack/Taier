@@ -22,7 +22,7 @@ public class FlinkPluginInfoStrategy implements ComponentPluginInfoStrategy {
         if (!StringUtils.isBlank(typeName)) {
             clusterConfigJson.put(TYPE_NAME_KEY, typeName);
         }
-        if(EDeployMode.STANDALONE.getType().equals(deployMode) ) {
+        if (EDeployMode.STANDALONE.getType().equals(deployMode)) {
             return confConfig;
         }
         confConfig = confConfig.getJSONObject(deploy.getMode());

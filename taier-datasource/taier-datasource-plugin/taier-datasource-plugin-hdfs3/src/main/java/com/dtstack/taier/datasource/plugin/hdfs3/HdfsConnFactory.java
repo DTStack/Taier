@@ -1,9 +1,9 @@
 package com.dtstack.taier.datasource.plugin.hdfs3;
 
-import com.dtstack.taier.datasource.plugin.kerberos.core.hdfs.HdfsOperator;
 import com.dtstack.taier.datasource.api.dto.source.Hdfs3SourceDTO;
 import com.dtstack.taier.datasource.api.dto.source.ISourceDTO;
 import com.dtstack.taier.datasource.api.exception.SourceException;
+import com.dtstack.taier.datasource.plugin.kerberos.core.hdfs.HdfsOperator;
 import org.apache.commons.lang3.StringUtils;
 
 /**

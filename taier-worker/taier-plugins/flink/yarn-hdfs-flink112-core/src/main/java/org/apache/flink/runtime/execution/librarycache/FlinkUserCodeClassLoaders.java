@@ -32,10 +32,13 @@ import java.util.Enumeration;
 import java.util.List;
 import java.util.function.Consumer;
 
-/** Gives the URLClassLoader a nicer name for debugging purposes. */
+/**
+ * Gives the URLClassLoader a nicer name for debugging purposes.
+ */
 public class FlinkUserCodeClassLoaders {
 
-    private FlinkUserCodeClassLoaders() {}
+    private FlinkUserCodeClassLoaders() {
+    }
 
     public static URLClassLoader parentFirst(
             URL[] urls,
@@ -118,7 +121,9 @@ public class FlinkUserCodeClassLoaders {
                 : classLoader;
     }
 
-    /** Class resolution order for Flink URL {@link ClassLoader}. */
+    /**
+     * Class resolution order for Flink URL {@link ClassLoader}.
+     */
     public enum ResolveOrder {
         CHILD_FIRST,
         PARENT_FIRST;

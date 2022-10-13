@@ -9,10 +9,10 @@ import io.swagger.annotations.ApiModelProperty;
  * @Description:
  */
 public class ReturnJobStatusStatisticsVO {
-    @ApiModelProperty(value = "状态key",example = "FAILED")
+    @ApiModelProperty(value = "状态key", example = "FAILED")
     private String statusKey;
 
-    @ApiModelProperty(value = "状态数量",example = "30")
+    @ApiModelProperty(value = "状态数量", example = "30")
     private Long count;
 
     public String getStatusKey() {

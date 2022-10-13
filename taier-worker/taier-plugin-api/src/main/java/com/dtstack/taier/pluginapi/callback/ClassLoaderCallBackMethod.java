@@ -29,8 +29,8 @@ public class ClassLoaderCallBackMethod {
         try {
             Thread.currentThread().setContextClassLoader(toSetClassLoader);
             return callBack.execute();
-        }finally {
-            if(reset){
+        } finally {
+            if (reset) {
                 Thread.currentThread().setContextClassLoader(oldClassLoader);
             }
         }

@@ -40,14 +40,14 @@ import java.util.stream.Collectors;
 public class XmlFileUtil {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(XmlFileUtil.class);
-    private final static List<String> BASE_XML = Lists.newArrayList( "core-site.xml", "hdfs-site.xml", "yarn-site.xml");
+    private final static List<String> BASE_XML = Lists.newArrayList("core-site.xml", "hdfs-site.xml", "yarn-site.xml");
     private final static String XML_SUFFIX = ".xml";
 
     public static List<File> filterXml(List<File> xmlFiles, List<String> validXml) {
         if (xmlFiles == null) {
             throw new RdosDefineException("The necessary configuration file is missing：" + StringUtils.join(BASE_XML, ","));
         }
-        if(null == validXml){
+        if (null == validXml) {
             validXml = Collections.emptyList();
         }
         xmlFiles = xmlFiles.stream().filter(f -> {
@@ -59,20 +59,20 @@ public class XmlFileUtil {
             if (checkFiles.contains(fileName)) {
                 checkFiles.remove(fileName);
             }
-            if(validXml.contains(fileName)){
+            if (validXml.contains(fileName)) {
                 validXml.remove(fileName);
             }
         }
         if (!checkFiles.isEmpty() || !validXml.isEmpty()) {
-            throw new RdosDefineException("The necessary profile is missing：" + StringUtils.join(checkFiles, ",")+StringUtils.join(validXml, ","));
+            throw new RdosDefineException("The necessary profile is missing：" + StringUtils.join(checkFiles, ",") + StringUtils.join(validXml, ","));
         }
         return xmlFiles;
     }
 
-    public static List<File> getFilesFromZip(String zipLocation, String unzipLocation,List<String> validXml) {
+    public static List<File> getFilesFromZip(String zipLocation, String unzipLocation, List<String> validXml) {
         try {
             List<File> xmlFiles = ZipUtil.upzipFile(zipLocation, unzipLocation);
-            return CollectionUtils.isEmpty(validXml)? xmlFiles : filterXml(xmlFiles, validXml);
+            return CollectionUtils.isEmpty(validXml) ? xmlFiles : filterXml(xmlFiles, validXml);
         } catch (Exception e) {
             LOGGER.error(e.getMessage(), e);
             throw new RdosDefineException("Failed to decompress the compressed package");

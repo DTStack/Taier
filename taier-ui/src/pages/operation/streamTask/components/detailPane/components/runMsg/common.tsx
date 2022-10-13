@@ -1,10 +1,10 @@
-import { useState, useEffect, useMemo } from 'react';
-import type { mxCell, mxGraph } from 'mxgraph';
+import {useEffect, useMemo, useState} from 'react';
+import type {mxCell, mxGraph} from 'mxgraph';
 import * as ReactDOMServer from 'react-dom/server';
-import { Modal } from 'antd';
+import {Modal} from 'antd';
 import MxGraphContainer from '@/components/mxGraph/container';
-import { cloneDeep } from 'lodash';
-import type { IFlinkJsonProps } from '.';
+import {cloneDeep} from 'lodash';
+import type {IFlinkJsonProps} from '.';
 import classnames from 'classnames';
 import './common.scss';
 
@@ -56,7 +56,7 @@ const getBackPressureColor = (backPressure: number, type: string) => {
 	return color;
 };
 
-export default function Common({ flinkJson, loading, refresh }: ICommonProps) {
+export default function Common({flinkJson, loading, refresh}: ICommonProps) {
 	const [graphData, setGraphData] = useState<ITopological[] | null>(null);
 	// 当前选中的 cell
 	const [selectedCell, setSelectedCell] = useState<mxCell | null>(null);
@@ -91,35 +91,35 @@ export default function Common({ flinkJson, loading, refresh }: ICommonProps) {
 			const res = ReactDOMServer.renderToString(
 				<div
 					className="vertex-diagram"
-					style={{ background: getBackPressureColor(backPressured, 'title') }}
+					style={{background: getBackPressureColor(backPressured, 'title')}}
 				>
 					<div className="vertex-title">
 						<div className="t_title">{title}</div>
 						{subJobVertices?.length && (
-							<img className="cursor-pointer" src="images/expand.svg" />
+							<img className="cursor-pointer" src="images/expand.svg"/>
 						)}
 					</div>
 					<div
 						className="vertex-content"
-						style={{ background: getBackPressureColor(backPressured, 'content') }}
+						style={{background: getBackPressureColor(backPressured, 'content')}}
 					>
 						<div className="tcolumn" title={desc}>
 							{desc}
 						</div>
 						{[
-							{ field: 'delay', title: 'Delay', data: `${delay}ms` },
-							{ field: 'parallelism', title: 'Parallelism', data: parallelism },
-							{ field: 'received', title: 'Record Received', data: received },
-							{ field: 'sent', title: 'Record Sent', data: sent },
+							{field: 'delay', title: 'Delay', data: `${delay}ms`},
+							{field: 'parallelism', title: 'Parallelism', data: parallelism},
+							{field: 'received', title: 'Record Received', data: received},
+							{field: 'sent', title: 'Record Sent', data: sent},
 							{
 								field: 'dashboard',
 								title: 'BackPressured(max)',
 								data: `${(backPressured * 100).toFixed(0)}%`,
 							},
-						].map(({ field, title: fieldTitle, data }) => (
+						].map(({field, title: fieldTitle, data}) => (
 							<div className="t-text-col" title={fieldTitle}>
 								<span className="t-text-col-key">
-									<img src={`images/${field}.svg`} className="t-text-col_img" />$
+									<img src={`images/${field}.svg`} className="t-text-col_img"/>$
 									{fieldTitle}
 								</span>
 								<span className="t-text-col-value">{data}</span>
@@ -168,7 +168,7 @@ export default function Common({ flinkJson, loading, refresh }: ICommonProps) {
 					this.point = this.point[0].childNode;
 				}
 			},
-			{ point: res },
+			{point: res},
 		);
 
 		return res;
@@ -241,7 +241,7 @@ export default function Common({ flinkJson, loading, refresh }: ICommonProps) {
 				width={900}
 				destroyOnClose
 			>
-				<div style={{ height: 500 }}>
+				<div style={{height: 500}}>
 					<MxGraphContainer<ITopological>
 						config={{
 							tooltips: false,

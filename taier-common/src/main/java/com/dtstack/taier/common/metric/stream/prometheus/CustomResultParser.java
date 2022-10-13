@@ -104,7 +104,8 @@ public class CustomResultParser {
     private static MetricResultVO buildMetricResultVO(JSONObject singleMetric) {
         JSONObject metric = singleMetric.getJSONObject("metric");
         // json -> map
-        Map<String, String> metricMap = JSONObject.parseObject(metric.toJSONString(), new TypeReference<Map<String, String>>() {});
+        Map<String, String> metricMap = JSONObject.parseObject(metric.toJSONString(), new TypeReference<Map<String, String>>() {
+        });
         MetricResultVO metricResultVO = new MetricResultVO();
         metricResultVO.setMetric(metricMap);
         return metricResultVO;

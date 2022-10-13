@@ -54,6 +54,7 @@ public class Base64Util {
 
     /**
      * 字符串编码
+     *
      * @param str
      * @return
      */
@@ -63,12 +64,14 @@ public class Base64Util {
 
     /**
      * 解码成字符串
+     *
      * @param str
      * @return
      */
-    public static String decodeToStr(String str){
-        return new String(Base64.getDecoder().decode(str),StandardCharsets.UTF_8);
+    public static String decodeToStr(String str) {
+        return new String(Base64.getDecoder().decode(str), StandardCharsets.UTF_8);
     }
+
     /**
      * Base64字符串 转换为 byte数组
      */

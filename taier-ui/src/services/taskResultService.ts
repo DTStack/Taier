@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-import { Component } from '@dtinsight/molecule/esm/react';
+import {Component} from '@dtinsight/molecule/esm/react';
 import moment from 'moment';
 
 export interface ITaskResultService {
@@ -64,6 +64,7 @@ export function createTitle(title = '') {
 export function createLinkMark(attrs: Record<string, string | null>) {
 	return `${window.location.origin}${attrs.href}`;
 }
+
 export interface ITaskResultStates {
 	/**
 	 * 存储不同任务执行的日志结果
@@ -90,13 +91,13 @@ class TaskResultService extends Component<ITaskResultStates> implements ITaskRes
 	public setResult(key: `${string}-${string}`, res: any) {
 		const nextResults = this.state.results;
 		nextResults[key] = res;
-		this.setState({ results: { ...nextResults } });
+		this.setState({results: {...nextResults}});
 	}
 
 	public clearResult(key: string) {
 		const nextResults = this.state.results;
 		Reflect.deleteProperty(nextResults, key);
-		this.setState({ results: { ...nextResults } });
+		this.setState({results: {...nextResults}});
 	}
 
 	public appendLogs(key: string, log: string) {
@@ -104,7 +105,7 @@ class TaskResultService extends Component<ITaskResultStates> implements ITaskRes
 		nextLogs[key] = nextLogs[key] || '';
 		nextLogs[key] += `${log}\n`;
 		this.setState({
-			logs: { ...nextLogs },
+			logs: {...nextLogs},
 		});
 	}
 
@@ -112,7 +113,7 @@ class TaskResultService extends Component<ITaskResultStates> implements ITaskRes
 		const nextLogs = this.state.logs;
 		nextLogs[key] = '';
 		this.setState({
-			logs: { ...nextLogs },
+			logs: {...nextLogs},
 		});
 	}
 }

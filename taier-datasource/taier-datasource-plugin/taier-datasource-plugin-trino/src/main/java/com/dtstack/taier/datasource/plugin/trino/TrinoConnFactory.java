@@ -1,6 +1,13 @@
 package com.dtstack.taier.datasource.plugin.trino;
 
+import com.dtstack.taier.datasource.api.dto.source.ISourceDTO;
+import com.dtstack.taier.datasource.api.dto.source.TrinoSourceDTO;
+import com.dtstack.taier.datasource.api.exception.SourceException;
+import com.dtstack.taier.datasource.api.source.DataBaseType;
+import com.dtstack.taier.datasource.api.source.DataSourceType;
+import com.dtstack.taier.datasource.api.utils.AssertUtils;
 import com.dtstack.taier.datasource.plugin.common.DtClassConsistent;
+import com.dtstack.taier.datasource.plugin.common.constant.KerberosConstant;
 import com.dtstack.taier.datasource.plugin.common.exception.ErrorCode;
 import com.dtstack.taier.datasource.plugin.common.utils.PropertiesUtil;
 import com.dtstack.taier.datasource.plugin.common.utils.PropertyUtil;
@@ -9,13 +16,6 @@ import com.dtstack.taier.datasource.plugin.common.utils.SSLUtil;
 import com.dtstack.taier.datasource.plugin.kerberos.core.util.KerberosConfigUtil;
 import com.dtstack.taier.datasource.plugin.kerberos.core.util.KerberosUtil;
 import com.dtstack.taier.datasource.plugin.rdbms.ConnFactory;
-import com.dtstack.taier.datasource.api.dto.source.ISourceDTO;
-import com.dtstack.taier.datasource.api.dto.source.TrinoSourceDTO;
-import com.dtstack.taier.datasource.api.exception.SourceException;
-import com.dtstack.taier.datasource.plugin.common.constant.KerberosConstant;
-import com.dtstack.taier.datasource.api.source.DataBaseType;
-import com.dtstack.taier.datasource.api.source.DataSourceType;
-import com.dtstack.taier.datasource.api.utils.AssertUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
@@ -182,9 +182,10 @@ public class TrinoConnFactory extends ConnFactory {
 
     /**
      * 校验 catalog 和 schema 是否存在
-     *  @param catalog    catalog 信息
-     * @param schema     schema 信息
-     * @param connection 链接信息
+     *
+     * @param catalog         catalog 信息
+     * @param schema          schema 信息
+     * @param connection      链接信息
      * @param needCheckSchema 是否校验 schema
      */
     private void checkCatalogSchemaExists(String catalog, String schema, Connection connection, boolean needCheckSchema) {
@@ -195,7 +196,7 @@ public class TrinoConnFactory extends ConnFactory {
         }
         // 校验 catalog 是否存在
         boolean catalogExists = false;
-        try (ResultSet catalogs = connection.getMetaData().getCatalogs()){
+        try (ResultSet catalogs = connection.getMetaData().getCatalogs()) {
             while (catalogs.next()) {
                 if (catalog.equalsIgnoreCase(catalogs.getString(1))) {
                     catalogExists = true;
@@ -224,7 +225,7 @@ public class TrinoConnFactory extends ConnFactory {
         }
         // 校验 schema 是否存在
         boolean schemaExists = false;
-        try (ResultSet schemas = connection.getMetaData().getSchemas(catalog, null)){
+        try (ResultSet schemas = connection.getMetaData().getSchemas(catalog, null)) {
             while (schemas.next()) {
                 if (schema.equalsIgnoreCase(schemas.getString(1))) {
                     schemaExists = true;

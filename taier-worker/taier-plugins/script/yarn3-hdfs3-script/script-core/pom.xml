@@ -137,7 +137,8 @@
                             <createDependencyReducedPom>false</createDependencyReducedPom>
 
                             <transformers>
-                                <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                                <transformer
+                                        implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
                                     <mainClass>com.dtstack.taier.script.am.ApplicationMaster</mainClass>
                                 </transformer>
                             </transformers>
@@ -172,7 +173,7 @@
                         <configuration>
                             <tasks>
                                 <copy file="${basedir}/target/${artifactId}-${project.version}.jar"
-                                      tofile="${basedir}/target/script-core-script.jar" />
+                                      tofile="${basedir}/target/script-core-script.jar"/>
                                 <copy todir="${basedir}/target/../../../../worker-plugins/${plugin.dir.name}/"
                                       file="${basedir}/target/script-core-script.jar"/>
                                 <delete>

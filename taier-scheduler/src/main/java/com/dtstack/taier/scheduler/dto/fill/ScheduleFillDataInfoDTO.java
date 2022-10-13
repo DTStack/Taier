@@ -8,8 +8,7 @@ import java.util.List;
  * @Email:dazhi@dtstack.com
  * @Description:
  */
-public class ScheduleFillDataInfoDTO
-{
+public class ScheduleFillDataInfoDTO {
 
     /**
      * 补数据类型： 0 批量补数据 1 工程补数据
@@ -22,14 +21,14 @@ public class ScheduleFillDataInfoDTO
 
     /**
      * 批量补数据任务列表
-     *
+     * <p>
      * fillDataType = 2 且 rootTaskId == null的时候，有效
      */
     private List<FillDataChooseTaskDTO> taskIds;
 
     /**
      * 头节点
-     *
+     * <p>
      * fillDataType = 2 时有效，rootTaskId优先级大于taskIds
      */
     private FillDataChooseTaskDTO rootTaskId;

@@ -1,17 +1,17 @@
 package com.dtstack.taier.datasource.plugin.kafka.util;
 
-import com.dtstack.taier.datasource.api.enums.KafkaAuthenticationType;
-import com.dtstack.taier.datasource.plugin.common.utils.ReflectUtil;
-import com.dtstack.taier.datasource.plugin.common.utils.TelUtil;
-import com.dtstack.taier.datasource.plugin.kerberos.core.util.JaasUtil;
-import com.dtstack.taier.datasource.plugin.kafka.KafkaConsistent;
-import com.dtstack.taier.datasource.plugin.kafka.enums.EConsumeType;
 import com.dtstack.taier.datasource.api.dto.KafkaConsumerDTO;
 import com.dtstack.taier.datasource.api.dto.KafkaOffsetDTO;
 import com.dtstack.taier.datasource.api.dto.KafkaPartitionDTO;
 import com.dtstack.taier.datasource.api.dto.source.KafkaSourceDTO;
+import com.dtstack.taier.datasource.api.enums.KafkaAuthenticationType;
 import com.dtstack.taier.datasource.api.exception.SourceException;
 import com.dtstack.taier.datasource.plugin.common.constant.KerberosConstant;
+import com.dtstack.taier.datasource.plugin.common.utils.ReflectUtil;
+import com.dtstack.taier.datasource.plugin.common.utils.TelUtil;
+import com.dtstack.taier.datasource.plugin.kafka.KafkaConsistent;
+import com.dtstack.taier.datasource.plugin.kafka.enums.EConsumeType;
+import com.dtstack.taier.datasource.plugin.kerberos.core.util.JaasUtil;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import kafka.cluster.Broker;
@@ -277,7 +277,7 @@ public class KafkaUtil {
                     // scram-512
                     props.put("sasl.mechanism", KafkaAuthenticationType.SASL_SCRAM_512.getMechanism());
                     props.put("sasl.jaas.config", String.format(KafkaConsistent.KAFKA_SASL_SCRAM_CONTENT, sourceDTO.getUsername(), sourceDTO.getPassword()));
-                }else {
+                } else {
                     props.put("sasl.mechanism", KafkaAuthenticationType.SASL_PLAINTEXT.getMechanism());
                     props.put("sasl.jaas.config", String.format(KafkaConsistent.KAFKA_SASL_PLAIN_CONTENT, sourceDTO.getUsername(), sourceDTO.getPassword()));
                 }
@@ -291,7 +291,7 @@ public class KafkaUtil {
             // 只需要认证的用户名
             String kafkaKbrServiceName = MapUtils.getString(sourceDTO.getKerberosConfig(), KerberosConstant.KAFKA_KERBEROS_SERVICE_NAME, DEFAULT_KERBEROS_NAME);
             kafkaKbrServiceName = kafkaKbrServiceName.split("/")[0];
-            String kafkaLoginConf = JaasUtil.writeJaasConf(sourceDTO.getKerberosConfig(),JaasUtil.KAFKA_JAAS_CONTENT);
+            String kafkaLoginConf = JaasUtil.writeJaasConf(sourceDTO.getKerberosConfig(), JaasUtil.KAFKA_JAAS_CONTENT);
 
             // 刷新kerberos认证信息，在设置完java.security.krb5.conf后进行，否则会使用上次的krb5文件进行 refresh 导致认证失败
             try {
@@ -566,7 +566,7 @@ public class KafkaUtil {
         Properties prop = initProperties(sourceDTO);
         // 获取kafka client
         kafka.admin.AdminClient adminClient = kafka.admin.AdminClient.create(prop);
-        try (KafkaConsumer<String, String> consumer = new KafkaConsumer<>(prop)){
+        try (KafkaConsumer<String, String> consumer = new KafkaConsumer<>(prop)) {
 
             if (StringUtils.isNotBlank(groupId)) {
                 kafka.admin.AdminClient.ConsumerGroupSummary groupSummary = adminClient.describeConsumerGroup(groupId, 5000L);

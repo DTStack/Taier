@@ -30,6 +30,7 @@ import java.util.Map;
  * 按天调度解析
  * Date: 2017/5/4
  * Company: www.dtstack.com
+ *
  * @author xuchao
  */
 
@@ -61,11 +62,11 @@ public class ScheduleCronDayParser extends ScheduleCron {
 
     @Override
     public List<String> getTriggerTime(String specifyDate) throws ParseException {
-        if(!checkSpecifyDayCanExe(specifyDate)){
+        if (!checkSpecifyDayCanExe(specifyDate)) {
             return Lists.newArrayList();
         }
 
-        String exeTime = specifyDate +  " " + getTimeStr(hour) + ":" + getTimeStr(minute) + ":00";
+        String exeTime = specifyDate + " " + getTimeStr(hour) + ":" + getTimeStr(minute) + ":00";
         List<String> result = Lists.newArrayList();
         result.add(exeTime);
         return result;

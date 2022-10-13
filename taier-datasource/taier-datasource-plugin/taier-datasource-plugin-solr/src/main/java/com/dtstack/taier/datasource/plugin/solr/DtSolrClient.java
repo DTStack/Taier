@@ -1,14 +1,14 @@
 package com.dtstack.taier.datasource.plugin.solr;
 
-import com.dtstack.taier.datasource.plugin.common.nosql.AbsNoSqlClient;
-import com.dtstack.taier.datasource.plugin.common.utils.SearchUtil;
-import com.dtstack.taier.datasource.plugin.solr.pool.SolrManager;
-import com.dtstack.taier.datasource.plugin.solr.pool.SolrPool;
 import com.dtstack.taier.datasource.api.dto.ColumnMetaDTO;
 import com.dtstack.taier.datasource.api.dto.SqlQueryDTO;
 import com.dtstack.taier.datasource.api.dto.source.ISourceDTO;
 import com.dtstack.taier.datasource.api.dto.source.SolrSourceDTO;
 import com.dtstack.taier.datasource.api.exception.SourceException;
+import com.dtstack.taier.datasource.plugin.common.nosql.AbsNoSqlClient;
+import com.dtstack.taier.datasource.plugin.common.utils.SearchUtil;
+import com.dtstack.taier.datasource.plugin.solr.pool.SolrManager;
+import com.dtstack.taier.datasource.plugin.solr.pool.SolrPool;
 import com.google.common.collect.Lists;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.MapUtils;
@@ -119,7 +119,7 @@ public class DtSolrClient extends AbsNoSqlClient {
                     solrPool.returnResource(solrClient);
                 }
             }
-            if(MapUtils.isNotEmpty(solrSourceDTO.getKerberosConfig())) {
+            if (MapUtils.isNotEmpty(solrSourceDTO.getKerberosConfig())) {
                 SolrUtils.destroyKerberosProperty();
             }
         } catch (IOException e) {
@@ -226,6 +226,7 @@ public class DtSolrClient extends AbsNoSqlClient {
 
     /**
      * 自定义查询
+     *
      * @param source
      * @param queryDTO
      * @return

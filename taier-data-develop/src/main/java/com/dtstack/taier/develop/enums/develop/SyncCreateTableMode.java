@@ -30,10 +30,10 @@ public enum SyncCreateTableMode {
         this.mode = mode;
     }
 
-    public static SyncCreateTableMode getByMode(Integer mode){
+    public static SyncCreateTableMode getByMode(Integer mode) {
         SyncCreateTableMode[] values = SyncCreateTableMode.values();
         for (SyncCreateTableMode value : values) {
-            if (value.getMode().equals(mode)){
+            if (value.getMode().equals(mode)) {
                 return value;
             }
         }

@@ -1,7 +1,7 @@
 package com.dtstack.taier.develop.service.template;
 
-import com.dtstack.taier.datasource.api.source.DataSourceType;
 import com.dtstack.taier.common.exception.RdosDefineException;
+import com.dtstack.taier.datasource.api.source.DataSourceType;
 import com.dtstack.taier.develop.service.template.bulider.reader.DaReaderBuilder;
 import com.dtstack.taier.develop.service.template.bulider.writer.DaWriterBuilder;
 import org.springframework.beans.BeansException;

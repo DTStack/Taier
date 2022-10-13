@@ -1,9 +1,9 @@
 package com.dtstack.taier.datasource.plugin.mysql5;
 
-import com.dtstack.taier.datasource.plugin.rdbms.ConnFactory;
 import com.dtstack.taier.datasource.api.dto.source.ISourceDTO;
 import com.dtstack.taier.datasource.api.exception.SourceException;
 import com.dtstack.taier.datasource.api.source.DataBaseType;
+import com.dtstack.taier.datasource.plugin.rdbms.ConnFactory;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.lang3.StringUtils;
 
@@ -32,7 +32,7 @@ public class MysqlConnFactory extends ConnFactory {
                 throw new SourceException(
                         "For jdk8 or above, please modify the disabled protocol in java.security, " +
                                 "or add useSSL=false after the url. ", e);
-            }else {
+            } else {
                 throw new SourceException(e.getMessage(), e);
             }
         }
@@ -58,7 +58,7 @@ public class MysqlConnFactory extends ConnFactory {
         if (StringUtils.isBlank(schema)) {
             return conn;
         }
-        try(Statement statement = conn.createStatement()) {
+        try (Statement statement = conn.createStatement()) {
             //选择schema
             String useSchema = String.format("USE %s", schema);
             statement.execute(useSchema);

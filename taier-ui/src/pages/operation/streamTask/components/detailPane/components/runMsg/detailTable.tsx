@@ -1,13 +1,13 @@
-import { Table } from 'antd';
-import type { ColumnsType } from 'antd/lib/table';
-import type { IFlinkJsonProps } from './index';
+import {Table} from 'antd';
+import type {ColumnsType} from 'antd/lib/table';
+import type {IFlinkJsonProps} from './index';
 
 interface IProps {
 	loading: boolean;
 	tableData: IFlinkJsonProps[];
 }
 
-export default function DetailTable({ loading, tableData }: IProps) {
+export default function DetailTable({loading, tableData}: IProps) {
 	const columns: ColumnsType<IFlinkJsonProps> = [
 		{
 			title: 'Name',
@@ -44,7 +44,7 @@ export default function DetailTable({ loading, tableData }: IProps) {
 	return (
 		<Table<IFlinkJsonProps>
 			rowKey="jobVertexId"
-			style={{ margin: '0 20px' }}
+			style={{margin: '0 20px'}}
 			loading={loading}
 			dataSource={tableData}
 			columns={columns}

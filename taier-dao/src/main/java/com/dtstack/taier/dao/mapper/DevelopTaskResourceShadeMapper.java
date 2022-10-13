@@ -21,6 +21,6 @@ package com.dtstack.taier.dao.mapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.dtstack.taier.dao.domain.DevelopTaskResourceShade;
 
-public interface DevelopTaskResourceShadeMapper  extends BaseMapper<DevelopTaskResourceShade>{
+public interface DevelopTaskResourceShadeMapper extends BaseMapper<DevelopTaskResourceShade> {
 
 }

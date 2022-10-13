@@ -1,4 +1,3 @@
-
 package com.dtstack.taier.flink.standalone.client;
 
 import com.dtstack.taier.flink.client.AbstractClientManager;

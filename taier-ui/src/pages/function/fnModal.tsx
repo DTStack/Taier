@@ -16,19 +16,12 @@
  * limitations under the License.
  */
 
-import { useContext, useEffect, useMemo } from 'react';
-import { Radio } from 'antd';
-import { Modal, Input, message, Select, Form } from 'antd';
-import { ExclamationCircleOutlined } from '@ant-design/icons';
+import {useContext, useEffect, useMemo} from 'react';
+import {Form, Input, message, Modal, Radio, Select} from 'antd';
+import {ExclamationCircleOutlined} from '@ant-design/icons';
 import FolderPicker from '../../components/folderPicker';
-import {
-	CATALOGUE_TYPE,
-	formItemLayout,
-	TASK_TYPE_ENUM,
-	UDF_TYPE_NAMES,
-	UDF_TYPE_VALUES,
-} from '@/constant';
-import type { IFunctionProps } from '@/interface';
+import {CATALOGUE_TYPE, formItemLayout, TASK_TYPE_ENUM, UDF_TYPE_NAMES, UDF_TYPE_VALUES,} from '@/constant';
+import type {IFunctionProps} from '@/interface';
 import resourceManagerTree from '@/services/resourceManagerService';
 import context from '@/context';
 
@@ -57,26 +50,26 @@ interface IFormFieldProps {
 const TASK_TYPE_OPTIONS = [TASK_TYPE_ENUM.SPARK_SQL, TASK_TYPE_ENUM.SQL, TASK_TYPE_ENUM.HIVE_SQL];
 
 export default function FnModal({
-	data,
-	visible,
-	onClose,
-	onAddFunction,
-	onEditFunction,
-}: IFnModalProps) {
-	const { supportJobTypes } = useContext(context);
+									data,
+									visible,
+									onClose,
+									onAddFunction,
+									onEditFunction,
+								}: IFnModalProps) {
+	const {supportJobTypes} = useContext(context);
 	const [form] = Form.useForm<IFormFieldProps>();
 
 	const handleSubmit = () => {
 		form.validateFields().then((values) => {
 			if (data?.id !== undefined) {
-				onEditFunction?.({ ...data, ...values }).then((res) => {
+				onEditFunction?.({...data, ...values}).then((res) => {
 					if (res) {
 						message.success('编辑成功');
 						onClose?.();
 					}
 				});
 			} else {
-				onAddFunction?.({ ...values }).then((res) => {
+				onAddFunction?.({...values}).then((res) => {
 					if (res) {
 						message.success('创建成功');
 						onClose?.();
@@ -148,7 +141,7 @@ export default function FnModal({
 		>
 			{isEdit && (
 				<div className="task_offline_message">
-					<ExclamationCircleOutlined style={{ marginRight: 7 }} />
+					<ExclamationCircleOutlined style={{marginRight: 7}}/>
 					替换资源时，如果资源的新文件与现有文件名称保持一致，那么替换后关联函数对应任务可立即生效，否则关联函数对应任务需重新提交才可生效。
 				</div>
 			)}
@@ -179,7 +172,7 @@ export default function FnModal({
 					/>
 				</FormItem>
 				<FormItem noStyle dependencies={['taskType']}>
-					{({ getFieldValue }) =>
+					{({getFieldValue}) =>
 						getFieldValue('taskType') === TASK_TYPE_ENUM.SQL && (
 							<FormItem
 								name="udfType"
@@ -221,7 +214,7 @@ export default function FnModal({
 						},
 					]}
 				>
-					<Input placeholder="请输入函数名称" disabled={isEdit} />
+					<Input placeholder="请输入函数名称" disabled={isEdit}/>
 				</FormItem>
 				<FormItem
 					label="类名"
@@ -237,7 +230,7 @@ export default function FnModal({
 						},
 					]}
 				>
-					<Input placeholder="请输入类名" />
+					<Input placeholder="请输入类名"/>
 				</FormItem>
 				<FormItem {...formItemLayout} label="资源" required>
 					<FormItem
@@ -253,11 +246,11 @@ export default function FnModal({
 							},
 						]}
 					>
-						<FolderPicker dataType={CATALOGUE_TYPE.RESOURCE} showFile />
+						<FolderPicker dataType={CATALOGUE_TYPE.RESOURCE} showFile/>
 					</FormItem>
 				</FormItem>
 				<FormItem label="用途" name="purpose">
-					<Input placeholder="用途" />
+					<Input placeholder="用途"/>
 				</FormItem>
 				<FormItem
 					label="命令格式"
@@ -273,7 +266,7 @@ export default function FnModal({
 						},
 					]}
 				>
-					<Input placeholder="命令格式" />
+					<Input placeholder="命令格式"/>
 				</FormItem>
 				<FormItem
 					label="参数说明"
@@ -285,7 +278,7 @@ export default function FnModal({
 						},
 					]}
 				>
-					<Input.TextArea rows={4} placeholder="请输入函数的参数说明" />
+					<Input.TextArea rows={4} placeholder="请输入函数的参数说明"/>
 				</FormItem>
 				<FormItem
 					name="nodePid"
@@ -297,7 +290,7 @@ export default function FnModal({
 						},
 					]}
 				>
-					<FolderPicker showFile={false} dataType={CATALOGUE_TYPE.FUNCTION} />
+					<FolderPicker showFile={false} dataType={CATALOGUE_TYPE.FUNCTION}/>
 				</FormItem>
 			</Form>
 		</Modal>

@@ -28,10 +28,10 @@ public class DevelopCatalogueAddVO {
     @ApiModelProperty(value = "父目录")
     private DevelopCatalogueAddVO parentCatalogue;
 
-    @ApiModelProperty(value = "用户id",example = "1")
+    @ApiModelProperty(value = "用户id", example = "1")
     private Long userId;
 
-    @ApiModelProperty(value = "租户id",example = "1")
+    @ApiModelProperty(value = "租户id", example = "1")
     private Long tenantId;
 
     @ApiModelProperty(value = "节点名称", example = "a", required = true)

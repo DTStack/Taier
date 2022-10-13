@@ -16,13 +16,13 @@
  * limitations under the License.
  */
 
-import { useEffect, useState } from 'react';
-import { Select, message } from 'antd';
+import {useEffect, useState} from 'react';
+import {message, Select} from 'antd';
 import API from '@/api';
-import type { IDataSourceType } from './add';
+import type {IDataSourceType} from './add';
 import './version.scss';
 
-const { Option } = Select;
+const {Option} = Select;
 
 interface IVersionListProps {
 	dataType: string;
@@ -37,14 +37,14 @@ interface IVersionProps {
 
 const DISABLED_SOURCE = ['Kafka@0.9'];
 
-function Version({ dataSource, onSelectVersion }: IVersionProps) {
+function Version({dataSource, onSelectVersion}: IVersionProps) {
 	const [version, setVersion] = useState<IVersionListProps[]>([]);
 	const [selectedVersion, setSelectedVersion] = useState<string>('');
 
 	// 根据数据源类型获取版本列表
 	const queryDsVersionByType = async () => {
-		const { dataType } = dataSource;
-		const { data, success } = await API.queryDsVersionByType({
+		const {dataType} = dataSource;
+		const {data, success} = await API.queryDsVersionByType({
 			dataType,
 		});
 		if (success) {
@@ -88,7 +88,7 @@ function Version({ dataSource, onSelectVersion }: IVersionProps) {
 						</span>
 						<Select
 							showSearch
-							style={{ width: '80%' }}
+							style={{width: '80%'}}
 							placeholder="请选择对应版本"
 							optionFilterProp="children"
 							onChange={handleSelectVersion}
@@ -114,4 +114,5 @@ function Version({ dataSource, onSelectVersion }: IVersionProps) {
 		</div>
 	);
 }
+
 export default Version;

@@ -16,31 +16,30 @@
  * limitations under the License.
  */
 
-import { useState, useMemo, useRef, useContext } from 'react';
-import { Checkbox, Tabs, Divider, Button, message } from 'antd';
-import { history } from 'umi';
-import type { FormInstance } from 'antd';
-import type { ColumnsType } from 'antd/lib/table/interface';
+import {useContext, useMemo, useRef, useState} from 'react';
+import type {FormInstance} from 'antd';
+import {Button, Checkbox, Divider, message, Tabs} from 'antd';
+import {history} from 'umi';
+import type {ColumnsType} from 'antd/lib/table/interface';
 import moment from 'moment';
 import context from '@/context';
 import SlidePane from '@/components/slidePane';
 import api from '@/api';
-import type { IActionRef } from '@/components/sketch';
-import molecule from '@dtinsight/molecule';
+import type {IActionRef} from '@/components/sketch';
 import Sketch from '@/components/sketch';
-import type { ITaskProps } from '@/interface';
-import { IComputeType } from '@/interface';
-import type { TASK_PERIOD_ENUM } from '@/constant';
-import { TASK_TYPE_ENUM } from '@/constant';
-import { offlineTaskPeriodFilter, SCHEDULE_STATUS } from '@/constant';
-import { formatDateTime, getCookie, goToTaskDev, removePopUpMenu } from '@/utils';
-import { TaskTimeType } from '@/utils/enums';
-import type { ITaskBasicProps } from './patch/patchModal';
+import molecule from '@dtinsight/molecule';
+import type {ITaskProps} from '@/interface';
+import {IComputeType} from '@/interface';
+import type {TASK_PERIOD_ENUM} from '@/constant';
+import {offlineTaskPeriodFilter, SCHEDULE_STATUS, TASK_TYPE_ENUM} from '@/constant';
+import {formatDateTime, getCookie, goToTaskDev, removePopUpMenu} from '@/utils';
+import {TaskTimeType} from '@/utils/enums';
+import type {ITaskBasicProps} from './patch/patchModal';
 import PatchModal from './patch/patchModal';
 import TaskFlowView from './taskFlowView';
 import './task.scss';
 
-const { TabPane } = Tabs;
+const {TabPane} = Tabs;
 
 interface IFormFieldProps {
 	name?: string;
@@ -61,7 +60,7 @@ interface IRequestParams {
 }
 
 export default () => {
-	const { supportJobTypes } = useContext(context);
+	const {supportJobTypes} = useContext(context);
 	const [selectedTask, setSelectedTasks] = useState<ITaskProps | null>(null);
 	const [visibleSlidePane, setVisible] = useState(false);
 	const [patchDataVisible, setPatchVisible] = useState(false);
@@ -73,7 +72,7 @@ export default () => {
 		record: ITaskProps,
 	): Promise<ITaskProps[]> => {
 		if (expanded) {
-			const res = await api.getOfflineSubTaskById<ITaskProps[]>({ taskId: record.taskId });
+			const res = await api.getOfflineSubTaskById<ITaskProps[]>({taskId: record.taskId});
 			if (res.code === 1) {
 				return res.data.map((data) => ({
 					taskId: data.taskId,
@@ -128,7 +127,7 @@ export default () => {
 
 	const getTableResult = async (
 		params: IFormFieldProps,
-		{ current, pageSize }: { current: number; pageSize: number },
+		{current, pageSize}: { current: number; pageSize: number },
 		filters: Record<string, any> = {},
 	) => {
 		const requestParams = convertToParams(params);
@@ -156,8 +155,8 @@ export default () => {
 		removePopUpMenu();
 	};
 
-	const handleTaskFlowPatchClick = ({ taskId, name }: ITaskBasicProps) => {
-		setPatchTask({ taskId, name });
+	const handleTaskFlowPatchClick = ({taskId, name}: ITaskBasicProps) => {
+		setPatchTask({taskId, name});
 		setPatchVisible(true);
 	};
 
@@ -168,7 +167,7 @@ export default () => {
 
 	// 冻结或解冻
 	const forzenTasks = (mode: SCHEDULE_STATUS) => {
-		const { selectedRowKeys, setSelectedKeys, submit } = actionRef.current!;
+		const {selectedRowKeys, setSelectedKeys, submit} = actionRef.current!;
 		if (!selectedRowKeys.length) {
 			message.error('您没有选择任何任务！');
 			return false;
@@ -185,7 +184,7 @@ export default () => {
 						const tab = molecule.editor.getTabById<any>(key.toString(), groupId!);
 						molecule.editor.updateTab({
 							id: key.toString(),
-							data: { ...tab!.data!, scheduleStatus: mode },
+							data: {...tab!.data!, scheduleStatus: mode},
 						});
 					}
 				});
@@ -198,7 +197,7 @@ export default () => {
 
 	// 冻结或解冻指定任务
 	const handleForzonTask = (taskId: number, mode: SCHEDULE_STATUS) => {
-		const { submit } = actionRef.current!;
+		const {submit} = actionRef.current!;
 		api.forzenTask({
 			taskIds: [taskId],
 			scheduleStatus: mode,
@@ -208,7 +207,7 @@ export default () => {
 
 				// update the job view task
 				if (selectedTask) {
-					const nextSelectedTask = { ...selectedTask, scheduleStatus: mode };
+					const nextSelectedTask = {...selectedTask, scheduleStatus: mode};
 					setSelectedTasks(nextSelectedTask);
 				}
 			}
@@ -247,7 +246,7 @@ export default () => {
 
 		// 勾选我的任务，需要连带修改操作人
 		if (field === 'checkList') {
-			const { owner } = values;
+			const {owner} = values;
 			if (value.includes('person') && owner?.toString() !== getCookie('userId')) {
 				form.setFieldsValue({
 					owner: Number(getCookie('userId')),
@@ -297,14 +296,14 @@ export default () => {
 				},
 				filters: supportJobTypes
 					.filter((t) => t.computeType === IComputeType.BATCH)
-					.map((t) => ({ text: t.value, value: t.key })),
+					.map((t) => ({text: t.value, value: t.key})),
 			},
 			{
 				title: '调度周期',
 				dataIndex: 'periodType',
 				key: 'periodType',
 				render: (text) => {
-					return <TaskTimeType value={text} />;
+					return <TaskTimeType value={text}/>;
 				},
 				filters: offlineTaskPeriodFilter,
 			},
@@ -321,10 +320,10 @@ export default () => {
 					return (
 						<span>
 							<a onClick={() => handleTaskFlowPatchClick(record)}>补数据</a>
-							<Divider type="vertical" />
+							<Divider type="vertical"/>
 							<a
 								onClick={() => {
-									goToTaskDev({ id: record.taskId });
+									goToTaskDev({id: record.taskId});
 								}}
 							>
 								修改
@@ -379,7 +378,7 @@ export default () => {
 					</Button>,
 					<Button
 						key="unfreeze"
-						style={{ marginLeft: 15 }}
+						style={{marginLeft: 15}}
 						onClick={() => forzenTasks(SCHEDULE_STATUS.NORMAL)}
 					>
 						解冻
@@ -401,17 +400,17 @@ export default () => {
 				onClose={handleCloseSlidePane}
 				visible={visibleSlidePane}
 				className="dt-slide-pane"
-				style={{ top: '33px' }}
+				style={{top: '33px'}}
 			>
 				<Tabs
 					className="c-taskMana__slidePane__tabs"
 					animated={false}
-					tabBarStyle={{ zIndex: 3 }}
+					tabBarStyle={{zIndex: 3}}
 				>
 					<TabPane tab="依赖视图" key="taskFlow">
 						<TaskFlowView
 							onForzenTasks={handleForzonTask}
-							onPatchData={({ taskId, taskName }) =>
+							onPatchData={({taskId, taskName}) =>
 								handleTaskFlowPatchClick({
 									taskId,
 									name: taskName,

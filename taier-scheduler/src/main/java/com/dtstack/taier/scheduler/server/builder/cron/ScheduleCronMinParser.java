@@ -25,6 +25,7 @@ import com.dtstack.taier.scheduler.server.builder.ScheduleConf;
  * 分钟时间解析,默认开始分钟是0, 不允许修改
  * Date: 2017/5/4
  * Company: www.dtstack.com
+ *
  * @author xuchao
  */
 
@@ -35,23 +36,23 @@ public class ScheduleCronMinParser implements IScheduleConfParser {
     @Override
     public String parse(ScheduleConf scheduleConf) {
         if (scheduleConf.getBeginHour() == null) {
-            throw new RdosDefineException(String.format(ScheduleConfManager.CustomError.ERROR_INFO,scheduleConf.getPeriodType(),"beginHour"));
+            throw new RdosDefineException(String.format(ScheduleConfManager.CustomError.ERROR_INFO, scheduleConf.getPeriodType(), "beginHour"));
         }
 
         if (scheduleConf.getEndHour() == null) {
-            throw new RdosDefineException(String.format(ScheduleConfManager.CustomError.ERROR_INFO,scheduleConf.getPeriodType(),"endHour"));
+            throw new RdosDefineException(String.format(ScheduleConfManager.CustomError.ERROR_INFO, scheduleConf.getPeriodType(), "endHour"));
         }
 
         if (scheduleConf.getBeginMin() == null) {
-            throw new RdosDefineException(String.format(ScheduleConfManager.CustomError.ERROR_INFO,scheduleConf.getPeriodType(),"beginMin"));
+            throw new RdosDefineException(String.format(ScheduleConfManager.CustomError.ERROR_INFO, scheduleConf.getPeriodType(), "beginMin"));
         }
 
         if (scheduleConf.getEndMin() == null) {
-            throw new RdosDefineException(String.format(ScheduleConfManager.CustomError.ERROR_INFO,scheduleConf.getPeriodType(),"endMin"));
+            throw new RdosDefineException(String.format(ScheduleConfManager.CustomError.ERROR_INFO, scheduleConf.getPeriodType(), "endMin"));
         }
 
         if (scheduleConf.getGapMin() == null) {
-            throw new RdosDefineException(String.format(ScheduleConfManager.CustomError.ERROR_INFO,scheduleConf.getPeriodType(),"gapMin"));
+            throw new RdosDefineException(String.format(ScheduleConfManager.CustomError.ERROR_INFO, scheduleConf.getPeriodType(), "gapMin"));
         }
 
         int beginHour = scheduleConf.getBeginHour();

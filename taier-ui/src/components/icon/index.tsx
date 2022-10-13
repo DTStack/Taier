@@ -24,7 +24,7 @@ interface IConProps {
 
 export function Logo() {
 	return (
-		<span title="taier" style={{ fontSize: 20, display: 'flex' }}>
+		<span title="taier" style={{fontSize: 20, display: 'flex'}}>
 			<svg height="24" viewBox="0 0 500 500">
 				<g fill="none" fillRule="evenodd" stroke="none" strokeWidth="1">
 					<g transform="translate(33)">
@@ -61,9 +61,9 @@ export function Logo() {
 	);
 }
 
-export const SparkSQLIcon = ({ style }: IConProps) => {
+export const SparkSQLIcon = ({style}: IConProps) => {
 	return (
-		<span title="SparkSQL" style={{ fontSize: 0, ...style }}>
+		<span title="SparkSQL" style={{fontSize: 0, ...style}}>
 			<svg
 				xmlns="http://www.w3.org/2000/svg"
 				width="1em"
@@ -80,9 +80,9 @@ export const SparkSQLIcon = ({ style }: IConProps) => {
 	);
 };
 
-export const HiveSQLIcon = ({ style }: IConProps) => {
+export const HiveSQLIcon = ({style}: IConProps) => {
 	return (
-		<span title="SparkSQL" style={{ fontSize: 0, ...style }}>
+		<span title="SparkSQL" style={{fontSize: 0, ...style}}>
 			<svg
 				xmlns="http://www.w3.org/2000/svg"
 				width="1em"
@@ -103,9 +103,9 @@ export const HiveSQLIcon = ({ style }: IConProps) => {
 	);
 };
 
-export const FlinkSQLIcon = ({ style }: IConProps) => {
+export const FlinkSQLIcon = ({style}: IConProps) => {
 	return (
-		<span title="FlinkSQL" style={{ fontSize: 0, ...style }}>
+		<span title="FlinkSQL" style={{fontSize: 0, ...style}}>
 			<svg
 				xmlns="http://www.w3.org/2000/svg"
 				width="1em"
@@ -125,9 +125,9 @@ export const FlinkSQLIcon = ({ style }: IConProps) => {
 		</span>
 	);
 };
-export const DataCollectionIcon = ({ style }: IConProps) => {
+export const DataCollectionIcon = ({style}: IConProps) => {
 	return (
-		<span title="实时采集" style={{ fontSize: 0, ...style }}>
+		<span title="实时采集" style={{fontSize: 0, ...style}}>
 			<svg
 				xmlns="http://www.w3.org/2000/svg"
 				width="1em"
@@ -144,7 +144,7 @@ export const DataCollectionIcon = ({ style }: IConProps) => {
 	);
 };
 
-export const ComponentConfigIcon = ({ style }: IConProps) => {
+export const ComponentConfigIcon = ({style}: IConProps) => {
 	return (
 		<span title="组件配置" style={style}>
 			<svg
@@ -163,9 +163,9 @@ export const ComponentConfigIcon = ({ style }: IConProps) => {
 	);
 };
 
-export const ResourceIcon = ({ style }: IConProps) => {
+export const ResourceIcon = ({style}: IConProps) => {
 	return (
-		<span title="资源文件" style={{ ...style }}>
+		<span title="资源文件" style={{...style}}>
 			<svg
 				xmlns="http://www.w3.org/2000/svg"
 				width="1em"
@@ -194,7 +194,7 @@ export const ResourceIcon = ({ style }: IConProps) => {
 	);
 };
 
-export const CommonComponentIcon = ({ style }: IConProps) => {
+export const CommonComponentIcon = ({style}: IConProps) => {
 	return (
 		<span title="公共组件" style={style}>
 			<svg
@@ -213,7 +213,7 @@ export const CommonComponentIcon = ({ style }: IConProps) => {
 	);
 };
 
-export const SchedulingComponentIcon = ({ style }: IConProps) => {
+export const SchedulingComponentIcon = ({style}: IConProps) => {
 	return (
 		<span title="资源调度组件" style={style}>
 			<svg
@@ -240,7 +240,7 @@ export const SchedulingComponentIcon = ({ style }: IConProps) => {
 	);
 };
 
-export const StoreComponentIcon = ({ style }: IConProps) => {
+export const StoreComponentIcon = ({style}: IConProps) => {
 	return (
 		<span title="存储组件" style={style}>
 			<svg
@@ -259,7 +259,7 @@ export const StoreComponentIcon = ({ style }: IConProps) => {
 	);
 };
 
-export const ComputeComponentIcon = ({ style }: IConProps) => {
+export const ComputeComponentIcon = ({style}: IConProps) => {
 	return (
 		<span title="计算组件" style={style}>
 			<svg
@@ -278,7 +278,7 @@ export const ComputeComponentIcon = ({ style }: IConProps) => {
 	);
 };
 
-export const DataSourceLinkSuccess = ({ style }: IConProps) => {
+export const DataSourceLinkSuccess = ({style}: IConProps) => {
 	return (
 		<span title="连接成功" style={style}>
 			<svg
@@ -313,7 +313,7 @@ export const DataSourceLinkSuccess = ({ style }: IConProps) => {
 	);
 };
 
-export const DataSourceLinkFailed = ({ style }: IConProps) => {
+export const DataSourceLinkFailed = ({style}: IConProps) => {
 	return (
 		<span title="连接失败" style={style}>
 			<svg
@@ -352,9 +352,9 @@ export const DataSourceLinkFailed = ({ style }: IConProps) => {
 	);
 };
 
-export const SyntaxIcon = ({ style }: IConProps) => {
+export const SyntaxIcon = ({style}: IConProps) => {
 	return (
-		<span title="语法检查" style={{ fontSize: 0, ...style }}>
+		<span title="语法检查" style={{fontSize: 0, ...style}}>
 			<svg
 				xmlns="http://www.w3.org/2000/svg"
 				width="1em"
@@ -375,9 +375,9 @@ export const SyntaxIcon = ({ style }: IConProps) => {
 	);
 };
 
-export const FlinkIcon = ({ style }: IConProps) => {
+export const FlinkIcon = ({style}: IConProps) => {
 	return (
-		<span title="Flink" style={{ fontSize: 0, ...style }}>
+		<span title="Flink" style={{fontSize: 0, ...style}}>
 			<svg
 				xmlns="http://www.w3.org/2000/svg"
 				width="1em"
@@ -398,9 +398,9 @@ export const FlinkIcon = ({ style }: IConProps) => {
 	);
 };
 
-export const OceanBaseIcon = ({ style }: IConProps) => {
+export const OceanBaseIcon = ({style}: IConProps) => {
 	return (
-		<span title="OceanBase" style={{ fontSize: 0, ...style }}>
+		<span title="OceanBase" style={{fontSize: 0, ...style}}>
 			<svg
 				xmlns="http://www.w3.org/2000/svg"
 				width="1em"
@@ -417,9 +417,9 @@ export const OceanBaseIcon = ({ style }: IConProps) => {
 	);
 };
 
-export const VirtualIcon = ({ style }: IConProps) => {
+export const VirtualIcon = ({style}: IConProps) => {
 	return (
-		<span title="虚节点" style={{ fontSize: 0, ...style }}>
+		<span title="虚节点" style={{fontSize: 0, ...style}}>
 			<svg
 				xmlns="http://www.w3.org/2000/svg"
 				width="1em"
@@ -440,9 +440,9 @@ export const VirtualIcon = ({ style }: IConProps) => {
 	);
 };
 
-export const WorkflowIcon = ({ style }: IConProps) => {
+export const WorkflowIcon = ({style}: IConProps) => {
 	return (
-		<span title="虚节点" style={{ fontSize: 0, ...style }}>
+		<span title="虚节点" style={{fontSize: 0, ...style}}>
 			<svg
 				xmlns="http://www.w3.org/2000/svg"
 				width="1em"
@@ -467,9 +467,9 @@ export const WorkflowIcon = ({ style }: IConProps) => {
 	);
 };
 
-export const ShellIcon = ({ style }: IConProps) => {
+export const ShellIcon = ({style}: IConProps) => {
 	return (
-		<span title="Shell" style={{ fontSize: 0, ...style }}>
+		<span title="Shell" style={{fontSize: 0, ...style}}>
 			<svg
 				xmlns="http://www.w3.org/2000/svg"
 				viewBox="0 0 24 24"
@@ -487,9 +487,9 @@ export const ShellIcon = ({ style }: IConProps) => {
 	);
 };
 
-export const PythonIcon = ({ style }: IConProps) => {
+export const PythonIcon = ({style}: IConProps) => {
 	return (
-		<span title="Python" style={{ fontSize: 0, ...style }}>
+		<span title="Python" style={{fontSize: 0, ...style}}>
 			<svg
 				xmlns="http://www.w3.org/2000/svg"
 				viewBox="0 0 24 24"

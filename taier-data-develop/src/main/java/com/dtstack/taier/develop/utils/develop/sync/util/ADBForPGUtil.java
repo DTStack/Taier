@@ -94,7 +94,7 @@ public class ADBForPGUtil {
         tableAndColumnComments.add(String.format(ADD_TABLE_COMMENT, schema, tableName,
                 StringUtils.isBlank(tableComment) ? "" : tableComment));
         columns.forEach(writerColumn -> {
-            tableAndColumnComments.add(String.format(ADD_COLUMN_COMMENT, schema, tableName,writerColumn.get("key"),
+            tableAndColumnComments.add(String.format(ADD_COLUMN_COMMENT, schema, tableName, writerColumn.get("key"),
                     StringUtils.isBlank(writerColumn.getString("comment")) ? "" : writerColumn.getString("comment")));
         });
         return StringUtils.join(tableAndColumnComments, "\n");

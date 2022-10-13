@@ -1,4 +1,3 @@
-
 package com.dtstack.taier.flink.config;
 
 import com.dtstack.taier.base.BaseConfig;
@@ -14,7 +13,6 @@ import java.util.List;
 import java.util.Map;
 
 /**
- *
  * @author sishu.yss
  * parameter doc: https://dtstack.yuque.com/rd-center/sm6war/mqef0g
  * relevant class
@@ -23,18 +21,26 @@ import java.util.Map;
  */
 public class FlinkConfig extends BaseConfig {
 
-    private static List<String> ENGINE_FLINK_CONFIGS= initEngineFlinkConfigFields();
+    private static List<String> ENGINE_FLINK_CONFIGS = initEngineFlinkConfigFields();
 
-    /** chunjun dist jar directory*/
+    /**
+     * chunjun dist jar directory
+     */
     private String chunjunDistDir;
 
-    /** remote chunjun dist jar directory*/
+    /**
+     * remote chunjun dist jar directory
+     */
     private String remoteChunjunDistDir;
 
-    /** flink lib jar directory*/
+    /**
+     * flink lib jar directory
+     */
     private String flinkLibDir;
 
-    /** remote flink lib jar directory*/
+    /**
+     * remote flink lib jar directory
+     */
     private String remoteFlinkLibDir;
 
     private String typeName;
@@ -65,12 +71,16 @@ public class FlinkConfig extends BaseConfig {
 
     private int sessionRetryNum = 5;
 
-    /** session start by engine*/
+    /**
+     * session start by engine
+     */
     private boolean sessionStartAuto = false;
 
     private boolean flinkHighAvailability = false;
 
-    /** file load mode*/
+    /**
+     * file load mode
+     */
     private String pluginLoadMode = "shipfile";
 
 
@@ -111,7 +121,7 @@ public class FlinkConfig extends BaseConfig {
     private String sessionCheckJarPath;
 
     public String getSessionCheckJarPath() {
-        if(Strings.isNullOrEmpty(sessionCheckJarPath)){
+        if (Strings.isNullOrEmpty(sessionCheckJarPath)) {
             return ConfigConstant.DEFAULT_SESSION_CHECK_PATH;
         }
         return sessionCheckJarPath;
@@ -261,7 +271,7 @@ public class FlinkConfig extends BaseConfig {
     }
 
     public int getYarnAccepterTaskNumber() {
-        return StringUtils.isBlank(yarnAccepterTaskNumber) ? 1: NumberUtils.toInt(yarnAccepterTaskNumber,2);
+        return StringUtils.isBlank(yarnAccepterTaskNumber) ? 1 : NumberUtils.toInt(yarnAccepterTaskNumber, 2);
     }
 
     public static List<String> getEngineFlinkConfigs() {

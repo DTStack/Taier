@@ -1,14 +1,14 @@
 package com.dtstack.taier.datasource.plugin.phoenix4;
 
-import com.dtstack.taier.datasource.plugin.common.DtClassConsistent;
-import com.dtstack.taier.datasource.plugin.common.utils.DBUtil;
-import com.dtstack.taier.datasource.plugin.rdbms.AbsRdbmsClient;
-import com.dtstack.taier.datasource.plugin.rdbms.ConnFactory;
 import com.dtstack.taier.datasource.api.dto.SqlQueryDTO;
 import com.dtstack.taier.datasource.api.dto.source.ISourceDTO;
 import com.dtstack.taier.datasource.api.dto.source.PhoenixSourceDTO;
 import com.dtstack.taier.datasource.api.exception.SourceException;
 import com.dtstack.taier.datasource.api.source.DataSourceType;
+import com.dtstack.taier.datasource.plugin.common.DtClassConsistent;
+import com.dtstack.taier.datasource.plugin.common.utils.DBUtil;
+import com.dtstack.taier.datasource.plugin.rdbms.AbsRdbmsClient;
+import com.dtstack.taier.datasource.plugin.rdbms.ConnFactory;
 import org.apache.commons.lang3.StringUtils;
 
 import java.sql.Connection;
@@ -72,7 +72,7 @@ public class PhoenixClient extends AbsRdbmsClient {
         if (StringUtils.isBlank(schema)) {
             return tableName;
         }
-        if (!schema.startsWith("\"") || !schema.endsWith("\"")){
+        if (!schema.startsWith("\"") || !schema.endsWith("\"")) {
             schema = String.format("\"%s\"", schema);
         }
         return String.format("%s.%s", schema, tableName);
@@ -127,7 +127,7 @@ public class PhoenixClient extends AbsRdbmsClient {
                 if (StringUtils.isBlank(rdbmsSourceDTO.getSchema()) && StringUtils.isNotBlank(rs.getString(2))) {
                     // 返回 "schema"."tableName"形式
                     tableList.add(String.format("\"%s\".\"%s\"", rs.getString(2), rs.getString(3)));
-                }else {
+                } else {
                     tableList.add(rs.getString(3));
                 }
             }
@@ -150,7 +150,7 @@ public class PhoenixClient extends AbsRdbmsClient {
     @Override
     protected String getTableBySchemaSql(ISourceDTO sourceDTO, SqlQueryDTO queryDTO) {
         // 对默认schema特殊处理
-        if (DEFAULT_SCHEMA.equalsIgnoreCase(queryDTO.getSchema())){
+        if (DEFAULT_SCHEMA.equalsIgnoreCase(queryDTO.getSchema())) {
             return SHOW_TABLES_IN_DEFAULT;
         }
         return String.format(SHOW_TABLES_SCHEMA, queryDTO.getSchema());

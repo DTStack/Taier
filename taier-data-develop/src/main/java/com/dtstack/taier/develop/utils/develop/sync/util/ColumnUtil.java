@@ -35,17 +35,17 @@ import java.util.Map;
  */
 public class ColumnUtil {
 
-    public static List<JSONObject> getColumns(List<Object> columns,String pluginName){
+    public static List<JSONObject> getColumns(List<Object> columns, String pluginName) {
         List<JSONObject> cols = new ArrayList<>();
 
-        if(CollectionUtils.isEmpty(columns)){
+        if (CollectionUtils.isEmpty(columns)) {
             return cols;
         }
 
-        if(columns.get(0) instanceof String){
+        if (columns.get(0) instanceof String) {
             for (Object column : columns) {
                 JSONObject col = new JSONObject();
-                col.put("name",String.valueOf(column));
+                col.put("name", String.valueOf(column));
 
                 cols.add(col);
             }
@@ -55,44 +55,44 @@ public class ColumnUtil {
 
         for (Object colObj : columns) {
             JSONObject col = new JSONObject();
-            Map<String,Object> column = (Map<String,Object>)colObj;
-            if(column.containsKey("key")) {
+            Map<String, Object> column = (Map<String, Object>) colObj;
+            if (column.containsKey("key")) {
                 col.put("key", column.get("key"));
                 col.put("name", column.get("key"));
             }
 
-            if(column.containsKey("type")) {
+            if (column.containsKey("type")) {
                 col.put("type", column.get("type"));
             }
 
-            if(column.containsKey("index")){
+            if (column.containsKey("index")) {
                 col.put("index", column.get("index"));
             }
 
-            if(column.containsKey("isPart")){
+            if (column.containsKey("isPart")) {
                 col.put("isPart", column.get("isPart"));
             }
 
-            if(PluginName.FTP_R.equals(pluginName) || PluginName.HDFS_R.equals(pluginName) || PluginName.AWS_S3_R.equals(pluginName)){
+            if (PluginName.FTP_R.equals(pluginName) || PluginName.HDFS_R.equals(pluginName) || PluginName.AWS_S3_R.equals(pluginName)) {
                 Object keyObj = column.get("key");
-                if(keyObj != null){
-                    if(keyObj instanceof Integer){
+                if (keyObj != null) {
+                    if (keyObj instanceof Integer) {
                         col.put("index", keyObj);
                         col.remove("name");
-                    } else if(keyObj instanceof String && NumberUtils.isNumber(String.valueOf(keyObj))){
+                    } else if (keyObj instanceof String && NumberUtils.isNumber(String.valueOf(keyObj))) {
                         col.put("index", Integer.parseInt(String.valueOf(keyObj)));
                         col.remove("name");
                     }
-                } else if(!column.containsKey("index")){
+                } else if (!column.containsKey("index")) {
                     throw new RdosDefineException("column必须填写名称[key]或索引[index]");
                 }
             }
 
-            if(column.containsKey("value")){
+            if (column.containsKey("value")) {
                 col.put("value", column.get("value"));
             }
 
-            if(column.containsKey("format")){
+            if (column.containsKey("format")) {
                 col.put("format", column.get("format"));
             }
             cols.add(col);

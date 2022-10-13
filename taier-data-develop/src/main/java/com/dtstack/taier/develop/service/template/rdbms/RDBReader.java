@@ -66,7 +66,7 @@ public class RDBReader extends BaseReaderPlugin implements Reader {
     private DataBaseType type;
 
     /**
-     *增量标识字段
+     * 增量标识字段
      */
     private String increColumn;
 
@@ -74,7 +74,6 @@ public class RDBReader extends BaseReaderPlugin implements Reader {
      * 采集起点
      */
     private String startLocation;
-
 
 
     /**

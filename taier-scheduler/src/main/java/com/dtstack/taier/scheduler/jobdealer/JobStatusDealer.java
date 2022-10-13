@@ -68,7 +68,7 @@ import java.util.stream.Collectors;
  * company: www.dtstack.com
  *
  * @author toutian
- *         create: 2020/01/17
+ * create: 2020/01/17
  */
 public class JobStatusDealer implements Runnable {
 
@@ -117,7 +117,7 @@ public class JobStatusDealer implements Runnable {
             }
 
             List<Map.Entry<String, Integer>> jobs = new ArrayList<>(shardManager.getShard().entrySet());
-            if (jobs.isEmpty()){
+            if (jobs.isEmpty()) {
                 return;
             }
 
@@ -140,7 +140,7 @@ public class JobStatusDealer implements Runnable {
                         }
                     });
                 } catch (Throwable e) {
-                    LOGGER.error("jobId:{} [acquire pool error]:",job.getKey(), e);
+                    LOGGER.error("jobId:{} [acquire pool error]:", job.getKey(), e);
                     buildSemaphore.release();
                 }
             }
@@ -181,9 +181,9 @@ public class JobStatusDealer implements Runnable {
             ParamAction paramAction = PublicUtil.jsonStrToObject(engineJobCache.getJobInfo(), ParamAction.class);
             Integer taskType = paramAction.getTaskType();
             Map<String, Object> pluginInfo = paramAction.getPluginInfo();
-            JobIdentifier jobIdentifier = new JobIdentifier(engineTaskId, appId, jobId,scheduleJob.getTenantId(),taskType,
-                    TaskParamsUtils.parseDeployTypeByTaskParams(paramAction.getTaskParams(),scheduleJob.getComputeType()).getType(),
-                    null,  MapUtils.isEmpty(pluginInfo) ? null : JSONObject.toJSONString(pluginInfo),paramAction.getComponentVersion(), paramAction.getQueueName());
+            JobIdentifier jobIdentifier = new JobIdentifier(engineTaskId, appId, jobId, scheduleJob.getTenantId(), taskType,
+                    TaskParamsUtils.parseDeployTypeByTaskParams(paramAction.getTaskParams(), scheduleJob.getComputeType()).getType(),
+                    null, MapUtils.isEmpty(pluginInfo) ? null : JSONObject.toJSONString(pluginInfo), paramAction.getComponentVersion(), paramAction.getQueueName());
 
             TaskStatus taskStatus = workerOperator.getJobStatus(jobIdentifier);
 
@@ -210,10 +210,10 @@ public class JobStatusDealer implements Runnable {
 
                 //数据的更新顺序，先更新job_cache，再更新engine_batch_job
                 if (TaskStatus.getStoppedStatus().contains(status)) {
-                    jobLogDelayDealer(jobId, jobIdentifier, engineJobCache.getComputeType(),scheduleJob.getType());
+                    jobLogDelayDealer(jobId, jobIdentifier, engineJobCache.getComputeType(), scheduleJob.getType());
                     jobStatusFrequency.remove(jobId);
                     scheduleJobCacheService.deleteByJobId(jobId);
-                    updateHistoryEndTime(jobId,appId);
+                    updateHistoryEndTime(jobId, appId);
                     LOGGER.info("------ jobId:{} is stop status {} delete jobCache", jobId, status);
                 }
 
@@ -257,7 +257,7 @@ public class JobStatusDealer implements Runnable {
             }
         }
     }
-    
+
     private TaskStatus checkNotFoundStatus(TaskStatus taskStatus, String jobId) {
         JobStatusFrequency statusPair = updateJobStatusFrequency(jobId, taskStatus.getStatus());
         //如果状态为NotFound，则对频次进行判断

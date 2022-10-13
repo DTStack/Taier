@@ -34,7 +34,7 @@ public class VerifySSLContext {
             }
         };
 
-        sc.init(null, new TrustManager[] { trustManager }, null);
+        sc.init(null, new TrustManager[]{trustManager}, null);
         return sc;
     }
 }

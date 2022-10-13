@@ -13,7 +13,6 @@ import com.dtstack.taier.scheduler.enums.FillJobTypeEnum;
 import com.dtstack.taier.scheduler.server.ScheduleJobDetails;
 import com.dtstack.taier.scheduler.service.ScheduleJobOperatorRecordService;
 import com.google.common.collect.Lists;
-import org.apache.commons.collections.CollectionUtils;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -86,7 +85,7 @@ public class FillDataJobBuilder extends AbstractJobBuilder {
      */
     @Transactional(rollbackFor = Exception.class)
     public void buildFillDataJobGraph(String fillName, Long fillId, Set<Long> all, Set<Long> run, String triggerDay,
-                                       String beginTime, String endTime) throws Exception {
+                                      String beginTime, String endTime) throws Exception {
         List<Long> allList = Lists.newArrayList(all);
         List<List<Long>> partition = Lists.partition(allList, environmentContext.getJobGraphTaskLimitSize());
         AtomicJobSortWorker sortWorker = new AtomicJobSortWorker();

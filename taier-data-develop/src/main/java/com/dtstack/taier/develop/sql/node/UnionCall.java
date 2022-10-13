@@ -26,7 +26,7 @@ public class UnionCall extends BasicCall {
     private List<SelectNode> comboFromList;
 
     public UnionCall(String defaultDb, Map<String, List<Column>> tableColumnsMap) {
-        super(defaultDb,tableColumnsMap);
+        super(defaultDb, tableColumnsMap);
     }
 
     public List<SelectNode> getComboFromList() {
@@ -62,13 +62,13 @@ public class UnionCall extends BasicCall {
         }
 
         List<Node> operands = getOperands();
-        if (operands == null){
+        if (operands == null) {
             operands = Lists.newArrayList();
             setOperands(operands);
         }
         //union select
         if (handledNode instanceof SqlSelect) {
-            SelectNode selectNode = new SelectNode(getDefaultDb(),getTableColumnMap());
+            SelectNode selectNode = new SelectNode(getDefaultDb(), getTableColumnMap());
             selectNode.setAlias(alias);
             selectNode.setContext(Context.INSERT_FROM_UNION);
             selectNode.parseSql(handledNode);
@@ -77,7 +77,7 @@ public class UnionCall extends BasicCall {
         }
         //多union
         else if (handledNode instanceof SqlBasicCall && SqlKind.UNION == ((SqlBasicCall) handledNode).getOperator().getKind()) {
-            UnionCall unionCall = new UnionCall(getDefaultDb(),getTableColumnMap());
+            UnionCall unionCall = new UnionCall(getDefaultDb(), getTableColumnMap());
             unionCall.setAlias(alias);
             unionCall.parseSql(handledNode);
             operands.add(unionCall);
@@ -89,6 +89,6 @@ public class UnionCall extends BasicCall {
         if (!(node instanceof SqlBasicCall) && SqlKind.UNION != node.getKind()) {
             throw new IllegalArgumentException("不匹配的sqlNode类型");
         }
-        return  (SqlBasicCall)node;
+        return (SqlBasicCall) node;
     }
 }

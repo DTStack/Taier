@@ -49,11 +49,11 @@ public class TopicDelayMetric extends DataDelayMetric {
     @Override
     public List<JSONObject> formatData(MetricResult metricResult) {
         List<JSONObject> data = new ArrayList<>();
-        if (metricResult != null && CollectionUtils.isNotEmpty(metricResult.getMetricDataList())){
+        if (metricResult != null && CollectionUtils.isNotEmpty(metricResult.getMetricDataList())) {
             for (MetricData metricData : metricResult.getMetricDataList()) {
                 JSONObject item = new JSONObject();
-                item.put("topicName",metricData.getTagName());
-                item.put("totalDelayCount",((Tuple<Long, Long>)metricData.getDps().get(0)).getTwo());
+                item.put("topicName", metricData.getTagName());
+                item.put("totalDelayCount", ((Tuple<Long, Long>) metricData.getDps().get(0)).getTwo());
                 data.add(item);
             }
         }

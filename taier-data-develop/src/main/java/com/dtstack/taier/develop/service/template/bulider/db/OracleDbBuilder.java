@@ -25,7 +25,6 @@ public class OracleDbBuilder extends AbsRdbmsDbBuilder {
     }
 
 
-
     @Override
     public List<JSONObject> listPollTableColumn(ISourceDTO sourceDTO, String tableName) {
         List<JSONObject> columns = super.listPollTableColumn(sourceDTO, tableName);

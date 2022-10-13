@@ -25,6 +25,7 @@ import com.dtstack.taier.scheduler.server.builder.ScheduleConf;
  * 按天调度解析
  * Date: 2017/5/4
  * Company: www.dtstack.com
+ *
  * @author xuchao
  */
 
@@ -35,14 +36,14 @@ public class ScheduleCronDayParser implements IScheduleConfParser {
     @Override
     public String parse(ScheduleConf scheduleConf) {
         if (scheduleConf.getMin() == null) {
-            throw new RdosDefineException(String.format(ScheduleConfManager.CustomError.ERROR_INFO,scheduleConf.getPeriodType(),"min"));
+            throw new RdosDefineException(String.format(ScheduleConfManager.CustomError.ERROR_INFO, scheduleConf.getPeriodType(), "min"));
         }
 
         if (scheduleConf.getHour() == null) {
-            throw new RdosDefineException(String.format(ScheduleConfManager.CustomError.ERROR_INFO,scheduleConf.getPeriodType(),"hour"));
+            throw new RdosDefineException(String.format(ScheduleConfManager.CustomError.ERROR_INFO, scheduleConf.getPeriodType(), "hour"));
         }
 
-        Integer minute =scheduleConf.getMin();
+        Integer minute = scheduleConf.getMin();
         Integer hour = scheduleConf.getHour();
 
         return CRON_FORMAT.replace("${minute}", minute + "").replace("${hour}", hour + "");

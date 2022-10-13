@@ -1,11 +1,11 @@
 package com.dtstack.taier.datasource.plugin.doris;
 
-import com.dtstack.taier.datasource.plugin.mysql5.MysqlConnFactory;
 import com.dtstack.taier.datasource.api.dto.source.ISourceDTO;
 import com.dtstack.taier.datasource.api.dto.source.RdbmsSourceDTO;
 import com.dtstack.taier.datasource.api.exception.SourceException;
 import com.dtstack.taier.datasource.api.source.DataBaseType;
 import com.dtstack.taier.datasource.api.utils.AssertUtils;
+import com.dtstack.taier.datasource.plugin.mysql5.MysqlConnFactory;
 import com.google.common.collect.Lists;
 import lombok.extern.slf4j.Slf4j;
 

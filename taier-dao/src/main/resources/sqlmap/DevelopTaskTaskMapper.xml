@@ -3,7 +3,8 @@
 <mapper namespace="com.dtstack.taier.dao.mapper.DevelopTaskTaskMapper">
 
     <sql id="select_content_fragment">
-      id,task_id,parent_task_id,tenant_id,gmt_create,gmt_modified,is_deleted
+        id
+        ,task_id,parent_task_id,tenant_id,gmt_create,gmt_modified,is_deleted
     </sql>
 
     <sql id="update_fragment">
@@ -32,11 +33,11 @@
         </set>
     </sql>
 
-    <insert id="insert" parameterType="com.dtstack.taier.dao.domain.DevelopTaskTask" useGeneratedKeys="true" keyProperty="id">
+    <insert id="insert" parameterType="com.dtstack.taier.dao.domain.DevelopTaskTask" useGeneratedKeys="true"
+            keyProperty="id">
         INSERT INTO develop_task_task
-          (task_id,parent_task_id,tenant_id,gmt_create,gmt_modified,is_deleted)
-        VALUES
-          (#{taskId},#{parentTaskId},#{tenantId},now(),now(),0)
+        (task_id, parent_task_id, tenant_id, gmt_create, gmt_modified, is_deleted)
+        VALUES (#{taskId}, #{parentTaskId}, #{tenantId}, now(), now(), 0)
     </insert>
 
     <update id="update" parameterType="com.dtstack.taier.dao.domain.DevelopTaskTask">

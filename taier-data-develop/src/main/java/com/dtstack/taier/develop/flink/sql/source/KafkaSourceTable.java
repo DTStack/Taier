@@ -1,13 +1,13 @@
 package com.dtstack.taier.develop.flink.sql.source;
 
 import com.alibaba.fastjson.JSONObject;
+import com.dtstack.taier.common.enums.KafkaTimeFeature;
+import com.dtstack.taier.common.exception.DtCenterDefException;
+import com.dtstack.taier.common.util.MapUtil;
 import com.dtstack.taier.datasource.api.base.ClientCache;
 import com.dtstack.taier.datasource.api.dto.source.ISourceDTO;
 import com.dtstack.taier.datasource.api.dto.source.KafkaSourceDTO;
 import com.dtstack.taier.datasource.api.source.DataSourceType;
-import com.dtstack.taier.common.enums.KafkaTimeFeature;
-import com.dtstack.taier.common.exception.DtCenterDefException;
-import com.dtstack.taier.common.util.MapUtil;
 import com.dtstack.taier.develop.flink.sql.core.ISqlParamEnum;
 import com.dtstack.taier.develop.flink.sql.core.SqlConstant;
 import com.dtstack.taier.develop.flink.sql.core.SqlParamUtil;

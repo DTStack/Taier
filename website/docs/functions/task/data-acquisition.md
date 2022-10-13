@@ -4,7 +4,9 @@ sidebar_label: 实时采集
 ---
 
 ## 新建任务
+
 进入"开发目录"菜单，点击"新建任务"按钮，并填写新建任务弹出框中的配置项，配置项说明：
+
 1. 任务名称：需输入英文字母、数字、下划线组成，不超过64个字符
 2. 任务类型：选择实时采集
 3. 存储位置：在页面左侧的任务存储结构中的位置
@@ -12,18 +14,22 @@ sidebar_label: 实时采集
    点击"保存"，弹窗关闭，即完成了新建任务
 
 ## 任务配置
+
 实时采集任务的配置共分为4个步骤：
+
 1. 选择数据来源：选择已配置的数据源，系统会读取其中的数据
 2. 选择数据目标：选择已配置的数据源，系统会向其写入数据
 3. 通道控制：控制数据同步的执行速度、错误数据的处理方式等
 4. 预览保存：再次确认已配置的规则并保存
 
-![add-source](/img/readme/data-acquisition.png)  
+![add-source](/img/readme/data-acquisition.png)
 
 ## 运行任务
+
 在当前任务打开的状态下，单击编辑器右上角的「提交到调度」按钮，在实时运维中心提交任务
 
 ## 任务指标
+
 点击任务名称，可以通过数据曲线、运行信息、日志、属性参数，四个纬度了解任务当前状态
 1.数据曲线:  通过配置的prometheus获取相应的指标
 2.属性参数：显示当前任务的脚本和环境参数
@@ -33,16 +39,18 @@ sidebar_label: 实时采集
 ![add-source](/img/readme/data-acquisition-promethous.png)
 
 ## 支持的数据源
+
 `MySQL`的`Binlog`模式到`kafka`   
 `Oracle`的`LogMiner`模式到`kafka`
 
 ## 任务运维
+
 在实时运维中心，可以进行提交、停止、续跑等操作
 :::tip
 续跑：分为两种情况  
 1.通过指定文件恢复并续跑  
-2.选择 CheckPoint或SavePoint 续跑  
-  > 在任务运行时会根据环境参数中execution.checkpointing.interval保存CheckPoint
+2.选择 CheckPoint或SavePoint 续跑
+> 在任务运行时会根据环境参数中execution.checkpointing.interval保存CheckPoint
 :::
 
 :::caution

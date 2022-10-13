@@ -2,8 +2,8 @@ name: Test deployment
 
 on:
   pull_request:
-    branches: [master]
-    paths: [website/**]
+    branches: [ master ]
+    paths: [ website/** ]
 
 jobs:
   test-deploy:

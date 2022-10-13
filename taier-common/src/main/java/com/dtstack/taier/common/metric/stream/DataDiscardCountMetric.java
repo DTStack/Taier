@@ -3,13 +3,13 @@ package com.dtstack.taier.common.metric.stream;
 
 import com.dtstack.taier.common.metric.Filter;
 import com.dtstack.taier.common.metric.QueryInfo;
-import com.dtstack.taier.common.metric.batch.BaseMetric;
 
 import java.util.ArrayList;
 import java.util.List;
 
 /**
  * 数据迟到累计丢弃数
+ *
  * @author jiangbo
  */
 public class DataDiscardCountMetric extends StreamBaseMetric {

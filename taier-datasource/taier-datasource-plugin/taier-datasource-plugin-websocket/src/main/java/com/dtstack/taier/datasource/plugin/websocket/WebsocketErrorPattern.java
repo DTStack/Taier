@@ -13,6 +13,7 @@ import java.util.regex.Pattern;
 public class WebsocketErrorPattern extends AbsErrorPattern {
 
     private static final Pattern USERNAME_PASSWORD_ERROR = Pattern.compile("(?i)Exception\\s*authenticating");
+
     static {
         PATTERN_MAP.put(ConnErrorCode.USERNAME_PASSWORD_ERROR.getCode(), USERNAME_PASSWORD_ERROR);
     }

@@ -27,7 +27,7 @@ public class ScheduleJobJobService extends ServiceImpl<ScheduleJobJobMapper, Sch
      */
     public List<ScheduleJobJob> listByJobKeys(List<String> jobKeys) {
         if (CollectionUtils.isNotEmpty(jobKeys)) {
-            return this.lambdaQuery().in(ScheduleJobJob::getJobKey,jobKeys)
+            return this.lambdaQuery().in(ScheduleJobJob::getJobKey, jobKeys)
                     .eq(ScheduleJobJob::getIsDeleted, Deleted.NORMAL.getStatus())
                     .list();
         }

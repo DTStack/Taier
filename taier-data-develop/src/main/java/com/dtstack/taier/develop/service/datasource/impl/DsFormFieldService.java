@@ -18,7 +18,6 @@ import java.util.List;
 import java.util.Map;
 
 /**
- *
  * @description:
  * @author: liuxx
  * @date: 2021/3/12
@@ -31,6 +30,7 @@ public class DsFormFieldService extends ServiceImpl<DsFormFieldMapper, DsFormFie
 
     /**
      * 根据数据库类型和版本查找表单模版
+     *
      * @param param
      * @return
      */
@@ -45,8 +45,8 @@ public class DsFormFieldService extends ServiceImpl<DsFormFieldMapper, DsFormFie
         List<DsFormFieldVo> formFieldVos = new ArrayList<>();
         for (DsFormField dsFormField : formFieldList) {
             DsFormFieldVo dsFormFieldVo = new DsFormFieldVo();
-            BeanUtils.copyProperties(dsFormField,dsFormFieldVo);
-            if(StringUtils.isNotBlank(dsFormField.getOptions())){
+            BeanUtils.copyProperties(dsFormField, dsFormFieldVo);
+            if (StringUtils.isNotBlank(dsFormField.getOptions())) {
                 List<Map> optionList = JSON.parseArray(dsFormField.getOptions(), Map.class);
                 dsFormFieldVo.setOptions(optionList);
             }
@@ -60,6 +60,7 @@ public class DsFormFieldService extends ServiceImpl<DsFormFieldMapper, DsFormFie
 
     /**
      * 根据数据源类型和版本获取具有连接性质的属性列表
+     *
      * @param dataType
      * @param dataVersion
      * @return

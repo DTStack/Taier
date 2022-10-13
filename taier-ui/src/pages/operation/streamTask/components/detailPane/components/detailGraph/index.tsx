@@ -2,20 +2,20 @@ import moment from 'moment';
 import * as React from 'react';
 import HelpDoc from '@/components/helpDoc';
 import {
-	COLLECTION_BPS_UNIT_TYPE,
-	SOURCE_INPUT_BPS_UNIT_TYPE,
-	UNIT_TYPE,
-	METRIC_STATUS_TYPE,
-	DATA_SOURCE_TEXT,
 	CHARTS_COLOR,
-	TASK_TYPE_ENUM,
+	COLLECTION_BPS_UNIT_TYPE,
 	DATA_SOURCE_ENUM,
+	DATA_SOURCE_TEXT,
+	METRIC_STATUS_TYPE,
+	SOURCE_INPUT_BPS_UNIT_TYPE,
+	TASK_TYPE_ENUM,
+	UNIT_TYPE,
 } from '@/constant';
 import stream from '@/api';
-import { Utils } from '@dtinsight/dt-utils/lib';
-import { Alert, Radio, Tooltip, Row, Col } from 'antd';
-import { ReloadOutlined } from '@ant-design/icons';
-import { compact, cloneDeep, chunk } from 'lodash';
+import {Utils} from '@dtinsight/dt-utils/lib';
+import {Alert, Col, Radio, Row, Tooltip} from 'antd';
+import {ReloadOutlined} from '@ant-design/icons';
+import {chunk, cloneDeep, compact} from 'lodash';
 import GraphTimeRange from '@/components/graphTime/graphTimeRange';
 import GraphTimePicker from '@/components/graphTime/graphTimePicker';
 import AlarmBaseGraph from './baseGraph';
@@ -24,12 +24,12 @@ import MetricSelect from './metricSelect';
 import './index.scss';
 
 const Api = {
-	checkSourceStatus: (params: any) => Promise.resolve({ code: 1, data: null }),
+	checkSourceStatus: (params: any) => Promise.resolve({code: 1, data: null}),
 	getMetricStatus: (params: any) =>
 		Promise.resolve({
 			code: 1,
 			message: null,
-			data: { status: 1, msg: null },
+			data: {status: 1, msg: null},
 			space: 0,
 			version: null,
 			success: true,
@@ -91,7 +91,7 @@ function matchSourceInputUnit(metricsData: any = {}, type: string) {
 		}
 	}
 
-	const { y = [[]] } = metricsData;
+	const {y = [[]]} = metricsData;
 	let unit: string | undefined = '';
 	const depth = type == metricsType.SOURCE_INPUT_BPS ? 2 : 1;
 	const dataFlat = y.flat(depth) || [];
@@ -162,6 +162,7 @@ export default class StreamDetailGraph extends React.Component<IProps & any, ISt
 			tabKey: 'OverView',
 		};
 	}
+
 	componentDidMount() {
 		this.getMetricValues();
 		this.initGraph();
@@ -208,9 +209,9 @@ export default class StreamDetailGraph extends React.Component<IProps & any, ISt
 		Api.getMetricStatus({
 			taskId: data?.id,
 		}).then((res: any) => {
-			const { code, data } = res;
+			const {code, data} = res;
 			if (code === 1) {
-				this.setState({ metricStatus: data });
+				this.setState({metricStatus: data});
 			}
 		});
 	};
@@ -226,13 +227,13 @@ export default class StreamDetailGraph extends React.Component<IProps & any, ISt
 				taskId: data?.id,
 			})
 			.then((res: any) => {
-				const { code, data } = res;
+				const {code, data} = res;
 				if (code === 1) {
 					const metricLists = (data || []).map((item: string) => ({
 						text: item,
 						value: item,
 					}));
-					this.setState({ metricLists });
+					this.setState({metricLists});
 				}
 			});
 	};
@@ -245,14 +246,14 @@ export default class StreamDetailGraph extends React.Component<IProps & any, ISt
 		}
 		const metrics = this.props.graph?.taskMetrics?.[data.id];
 		Array.isArray(metrics) &&
-			metrics.forEach((chartName: string) => {
-				this.queryTaskMetrics(chartName, data.id);
-			});
+		metrics.forEach((chartName: string) => {
+			this.queryTaskMetrics(chartName, data.id);
+		});
 	};
 
 	// 查询指标数据
 	queryTaskMetrics = (chartName: string, id: number) => {
-		const { time, endTime } = this.state;
+		const {time, endTime} = this.state;
 		stream
 			.queryTaskMetrics({
 				taskId: id,
@@ -261,7 +262,7 @@ export default class StreamDetailGraph extends React.Component<IProps & any, ISt
 				end: endTime.valueOf(),
 			})
 			.then((res: any) => {
-				const { code, data } = res;
+				const {code, data} = res;
 				if (code === 1) {
 					this.setMetricData(chartName, data || []);
 				}
@@ -270,13 +271,13 @@ export default class StreamDetailGraph extends React.Component<IProps & any, ISt
 
 	// 格式化数据
 	setMetricData = (chartName: string, data: any[]) => {
-		const { metricDatas } = this.state;
+		const {metricDatas} = this.state;
 		let xAxis: Array<any> = [];
 		let yAxis: Array<any> = [];
 		let legend: string[] = [];
 		data.forEach((item: any) => {
-			const { metric, values } = item;
-			const { x, y } = this.setChartValue(values);
+			const {metric, values} = item;
+			const {x, y} = this.setChartValue(values);
 			const key = this.setMetricKey(metric);
 			if (xAxis.length === 0) {
 				xAxis = x;
@@ -318,11 +319,11 @@ export default class StreamDetailGraph extends React.Component<IProps & any, ISt
 		let x: Array<string | number> = [];
 		let y: Array<string | number> = [];
 		Array.isArray(values) &&
-			values.forEach((value: any) => {
-				x.push(value.time);
-				y.push(value.value);
-			});
-		return { x, y };
+		values.forEach((value: any) => {
+			x.push(value.time);
+			y.push(value.value);
+		});
+		return {x, y};
 	};
 
 	// 设置自定义metric的Option
@@ -340,7 +341,7 @@ export default class StreamDetailGraph extends React.Component<IProps & any, ISt
 			tooltip: {
 				show: true,
 				formatter: function (params: any) {
-					const { __name__, content } = breakUpParams(params.name);
+					const {__name__, content} = breakUpParams(params.name);
 					return `<div><span>${__name__}</span><br/>${content}</div>`;
 				},
 			},
@@ -355,14 +356,14 @@ export default class StreamDetailGraph extends React.Component<IProps & any, ISt
 				span: true,
 			},
 			formatter: function (params: any) {
-				const { seriesName, marker, name, value } = params;
-				const { __name__, content } = breakUpParams(seriesName);
+				const {seriesName, marker, name, value} = params;
+				const {__name__, content} = breakUpParams(seriesName);
 				return `<div><span>${moment(Number(name)).format(
 					'YYYY-MM-DD HH:mm:ss',
 				)}</span><br/><span>${marker}${__name__}: <span style="font-weight: 'bold'">${value}</span></span><br/>${content}</div>`;
 			},
 		};
-		return { legendOption, gridOption, tooltipOption };
+		return {legendOption, gridOption, tooltipOption};
 
 		// 参数拆分
 		function breakUpParams(seriesName: string) {
@@ -375,7 +376,7 @@ export default class StreamDetailGraph extends React.Component<IProps & any, ISt
 			keys.forEach(([key, value]) => {
 				content += `<span style="font-weight: bold">${key}</span>: <span>${value}</span><br/>`;
 			});
-			return { __name__, content };
+			return {__name__, content};
 		}
 	};
 
@@ -397,8 +398,8 @@ export default class StreamDetailGraph extends React.Component<IProps & any, ISt
 	}
 
 	setLineData(data = []) {
-		const { lineDatas } = this.state;
-		let stateLineData: any = { ...lineDatas };
+		const {lineDatas} = this.state;
+		let stateLineData: any = {...lineDatas};
 		for (let i = 0; i < data.length; i++) {
 			let item: any = data[i];
 			let lineData = item.data;
@@ -520,9 +521,9 @@ export default class StreamDetailGraph extends React.Component<IProps & any, ISt
 		if (!data.id) {
 			return;
 		}
-		const { taskType } = data;
+		const {taskType} = data;
 		const isDataCollection = taskType == TASK_TYPE_ENUM.DATA_ACQUISITION;
-		const { time, endTime } = this.state;
+		const {time, endTime} = this.state;
 		let metricsList = [];
 
 		if (isDataCollection) {
@@ -567,8 +568,8 @@ export default class StreamDetailGraph extends React.Component<IProps & any, ISt
 	}
 
 	renderAlertMsg() {
-		const { sourceStatusList = [], metricStatus } = this.state;
-		const { status, msg } = metricStatus;
+		const {sourceStatusList = [], metricStatus} = this.state;
+		const {status, msg} = metricStatus;
 
 		const sourceMsg = Utils.textOverflowExchange(
 			sourceStatusList
@@ -587,30 +588,30 @@ export default class StreamDetailGraph extends React.Component<IProps & any, ISt
 
 		return (
 			errorMsg && (
-				<Alert style={{ marginBottom: 8 }} message={errorMsg} type="warning" showIcon />
+				<Alert style={{marginBottom: 8}} message={errorMsg} type="warning" showIcon/>
 			)
 		);
 	}
 
 	// 时间区间变更
 	graphTimeRangeChange = (time: string) => {
-		this.setState({ time }, this.initGraph);
+		this.setState({time}, this.initGraph);
 	};
 
 	// 自定义时间区间
 	graphTimeRangeInput = (value: string) => {
-		this.setState({ time: value }, this.initGraph);
+		this.setState({time: value}, this.initGraph);
 	};
 
 	// 结束时间变更
 	endTimeChange = (endTime: moment.Moment) => {
-		this.setState({ endTime }, this.initGraph);
+		this.setState({endTime}, this.initGraph);
 	};
 
 	// 选择metric
 	handleMetricSelect = (value: string) => {
 		if (value) {
-			const { data } = this.props;
+			const {data} = this.props;
 			// dispatch(GraphAction.saveTaskMetrics(data.id, value));
 			this.queryTaskMetrics(value, data.id);
 			this.setState({
@@ -636,7 +637,7 @@ export default class StreamDetailGraph extends React.Component<IProps & any, ISt
 			time: defaultTimeValue,
 			endTime: moment(),
 		};
-		this.setState({ ...initTime }, this.initGraph);
+		this.setState({...initTime}, this.initGraph);
 	};
 
 	render() {
@@ -649,19 +650,19 @@ export default class StreamDetailGraph extends React.Component<IProps & any, ISt
 			tabKey,
 			endTime,
 		} = this.state;
-		const { data = {} } = this.props;
-		const { taskType } = data;
+		const {data = {}} = this.props;
+		const {taskType} = data;
 		const isDataCollection = taskType == TASK_TYPE_ENUM.DATA_ACQUISITION;
 		const sourceIptUnit = matchSourceInputUnit(
-			{ ...lineDatas[metricsType.SOURCE_INPUT_BPS] },
+			{...lineDatas[metricsType.SOURCE_INPUT_BPS]},
 			metricsType.SOURCE_INPUT_BPS,
 		);
 		const colBpsUnit = matchSourceInputUnit(
-			{ ...lineDatas[metricsType.DATA_COLLECTION_BPS] },
+			{...lineDatas[metricsType.DATA_COLLECTION_BPS]},
 			metricsType.DATA_COLLECTION_BPS,
 		);
 		const colTotalBpsUnit = matchSourceInputUnit(
-			{ ...lineDatas[metricsType.DATA_COLLECTION_TOTAL_BPS] },
+			{...lineDatas[metricsType.DATA_COLLECTION_TOTAL_BPS]},
 			metricsType.DATA_COLLECTION_TOTAL_BPS,
 		);
 
@@ -671,10 +672,10 @@ export default class StreamDetailGraph extends React.Component<IProps & any, ISt
 					<div>{this.renderAlertMsg()}</div>
 					<div className="c-graph__time-picker">
 						<Radio.Group
-							style={{ marginRight: 'auto' }}
+							style={{marginRight: 'auto'}}
 							value={tabKey}
 							onChange={(e) => {
-								this.setState({ tabKey: e.target.value });
+								this.setState({tabKey: e.target.value});
 							}}
 						>
 							<Radio.Button value="OverView">OverView</Radio.Button>
@@ -704,7 +705,7 @@ export default class StreamDetailGraph extends React.Component<IProps & any, ISt
 									onInputChange={this.graphTimeRangeInput}
 								/>
 								<GraphTimePicker
-									style={{ marginLeft: 20 }}
+									style={{marginLeft: 20}}
 									value={endTime}
 									timeRange={time}
 									onChange={this.endTimeChange}
@@ -712,7 +713,7 @@ export default class StreamDetailGraph extends React.Component<IProps & any, ISt
 								<Tooltip title="刷新">
 									<ReloadOutlined
 										onClick={this.refreshGraph.bind(this, null)}
-										style={{ color: '#666', marginLeft: 20, cursor: 'pointer' }}
+										style={{color: '#666', marginLeft: 20, cursor: 'pointer'}}
 									/>
 								</Tooltip>
 							</>
@@ -763,7 +764,7 @@ export default class StreamDetailGraph extends React.Component<IProps & any, ISt
 												lineData={{
 													...lineDatas[
 														metricsType.DATA_COLLECTION_TOTAL_RPS
-													],
+														],
 													color: CHARTS_COLOR,
 													unit: '条',
 													legend: ['累计输入记录数', '累计输出记录数'],
@@ -778,12 +779,12 @@ export default class StreamDetailGraph extends React.Component<IProps & any, ISt
 												lineData={{
 													...lineDatas[
 														metricsType.DATA_COLLECTION_TOTAL_BPS
-													],
+														],
 													color: CHARTS_COLOR,
 													unit: colTotalBpsUnit,
 													legend: ['累计输入数据量', '累计输出数据量'],
 													metricsType:
-														metricsType.DATA_COLLECTION_TOTAL_BPS,
+													metricsType.DATA_COLLECTION_TOTAL_BPS,
 												}}
 												desc="累计输入/输出数据量，单位是Bytes或其他存储单位"
 												title="累计输入/输出数据量"
@@ -928,16 +929,16 @@ export default class StreamDetailGraph extends React.Component<IProps & any, ISt
 							</section>
 						</div>
 					)}
-					{tabKey === 'dataDelay' && <DataDelay data={data} tabKey={tabKey} />}
+					{tabKey === 'dataDelay' && <DataDelay data={data} tabKey={tabKey}/>}
 					{tabKey === 'Metric' && (
 						<>
 							<MetricSelect
-								style={{ padding: '0 0 2px 2px' }}
+								style={{padding: '0 0 2px 2px'}}
 								placeholder="请选择Metric"
 								enterButton="Add Metric"
 								value={metricValue}
 								options={metricLists}
-								onChange={(value: string) => this.setState({ metricValue: value })}
+								onChange={(value: string) => this.setState({metricValue: value})}
 								onOk={this.handleMetricSelect}
 							/>
 							{chunk(Object.keys(metricDatas), 2).map(
@@ -945,7 +946,7 @@ export default class StreamDetailGraph extends React.Component<IProps & any, ISt
 									<Row
 										key={index}
 										gutter={10}
-										style={{ marginTop: 10, paddingLeft: 2 }}
+										style={{marginTop: 10, paddingLeft: 2}}
 										className="alarm-graph-row"
 									>
 										{row.map((name: string) => (

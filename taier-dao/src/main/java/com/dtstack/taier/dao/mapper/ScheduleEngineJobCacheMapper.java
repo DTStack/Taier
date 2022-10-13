@@ -28,7 +28,7 @@ import java.util.Map;
 
 public interface ScheduleEngineJobCacheMapper extends BaseMapper<ScheduleEngineJobCache> {
 
-    ScheduleEngineJobCache getOne(@Param("jobId")String jobId);
+    ScheduleEngineJobCache getOne(@Param("jobId") String jobId);
 
     List<String> listNames(@Param("jobName") String jobName);
 
@@ -36,11 +36,11 @@ public interface ScheduleEngineJobCacheMapper extends BaseMapper<ScheduleEngineJ
 
     List<ScheduleEngineJobCache> listByJobResource(@Param("jobResource") String jobResource, @Param("stage") Integer stage, @Param("nodeAddress") String nodeAddress, @Param("start") Integer start, @Param("pageSize") Integer pageSize);
 
-    List<Map<String,Object>> groupByJobResourceFilterByCluster(@Param("nodeAddress") String nodeAddress, @Param("clusterName") String clusterName);
+    List<Map<String, Object>> groupByJobResourceFilterByCluster(@Param("nodeAddress") String nodeAddress, @Param("clusterName") String clusterName);
 
     Long countByJobResource(@Param("jobResource") String jobResource, @Param("stage") Integer stage, @Param("nodeAddress") String nodeAddress);
 
-    List<ScheduleEngineJobCache> listByStage(@Param("startId") Long id, @Param("nodeAddress") String nodeAddress, @Param("stage") Integer stage, @Param("jobResource") String jobResource,@Param("selectJobInfo") Boolean selectJobInfo);
+    List<ScheduleEngineJobCache> listByStage(@Param("startId") Long id, @Param("nodeAddress") String nodeAddress, @Param("stage") Integer stage, @Param("jobResource") String jobResource, @Param("selectJobInfo") Boolean selectJobInfo);
 
     Long minPriorityByStage(@Param("jobResource") String jobResource, @Param("stages") List<Integer> stages, @Param("nodeAddress") String nodeAddress);
 

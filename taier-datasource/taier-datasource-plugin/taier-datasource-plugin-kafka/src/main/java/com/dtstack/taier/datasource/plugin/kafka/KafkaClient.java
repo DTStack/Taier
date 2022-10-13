@@ -1,11 +1,13 @@
 package com.dtstack.taier.datasource.plugin.kafka;
 
-import com.dtstack.taier.datasource.plugin.common.nosql.AbsNoSqlClient;
-import com.dtstack.taier.datasource.plugin.kafka.util.KafkaUtil;
 import com.dtstack.taier.datasource.api.dto.source.ISourceDTO;
 import com.dtstack.taier.datasource.api.dto.source.KafkaSourceDTO;
+import com.dtstack.taier.datasource.plugin.common.nosql.AbsNoSqlClient;
+import com.dtstack.taier.datasource.plugin.kafka.util.KafkaUtil;
 
-/**t
+/**
+ * t
+ *
  * @company: www.dtstack.com
  * @Author ：wangchuan
  * @Date ：Created in 下午4:35 2020/6/2

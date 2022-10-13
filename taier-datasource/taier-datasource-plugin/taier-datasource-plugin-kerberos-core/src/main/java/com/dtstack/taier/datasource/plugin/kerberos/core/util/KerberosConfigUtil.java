@@ -1,9 +1,9 @@
 package com.dtstack.taier.datasource.plugin.kerberos.core.util;
 
-import com.dtstack.taier.datasource.plugin.common.DtClassConsistent;
-import com.dtstack.taier.datasource.plugin.common.utils.PathUtils;
 import com.dtstack.taier.datasource.api.exception.SourceException;
+import com.dtstack.taier.datasource.plugin.common.DtClassConsistent;
 import com.dtstack.taier.datasource.plugin.common.constant.KerberosConstant;
+import com.dtstack.taier.datasource.plugin.common.utils.PathUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;

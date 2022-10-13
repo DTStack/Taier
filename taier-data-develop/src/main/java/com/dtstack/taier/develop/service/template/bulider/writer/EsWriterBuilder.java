@@ -1,8 +1,8 @@
 package com.dtstack.taier.develop.service.template.bulider.writer;
 
 import com.alibaba.fastjson.JSON;
-import com.dtstack.taier.datasource.api.source.DataSourceType;
 import com.dtstack.taier.dao.domain.DsInfo;
+import com.dtstack.taier.datasource.api.source.DataSourceType;
 import com.dtstack.taier.develop.common.template.Writer;
 import com.dtstack.taier.develop.dto.devlop.TaskResourceParam;
 import com.dtstack.taier.develop.service.datasource.impl.DatasourceService;
@@ -33,6 +33,7 @@ public class EsWriterBuilder implements DaWriterBuilder {
 
     @Autowired
     DatasourceService datasourceService;
+
     @Override
     public void setWriterJson(TaskResourceParam param) {
         Long sourceId = Long.parseLong(param.getTargetMap().get("sourceId").toString());
@@ -47,7 +48,7 @@ public class EsWriterBuilder implements DaWriterBuilder {
         // ssl配置
         if (StringUtils.isNotEmpty((String) param.getTargetMap().get("keyPath"))) {
             Map<String, String> sftpMap = datasourceService.getSftpMap(param.getTenantId());
-            SslConfig sslConfig = SslConfig.setSslConfig(param.getTargetMap(),sftpMap);
+            SslConfig sslConfig = SslConfig.setSslConfig(param.getTargetMap(), sftpMap);
             param.getTargetMap().put("sslConfig", sslConfig);
         }
     }

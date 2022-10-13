@@ -1,13 +1,13 @@
 package com.dtstack.taier.datasource.plugin.hdfs.downloader.tableDownload;
 
+import com.dtstack.taier.datasource.api.downloader.IDownloader;
+import com.dtstack.taier.datasource.api.dto.ColumnMetaDTO;
+import com.dtstack.taier.datasource.api.exception.SourceException;
 import com.dtstack.taier.datasource.plugin.common.enums.ColumnType;
 import com.dtstack.taier.datasource.plugin.common.utils.ListUtil;
 import com.dtstack.taier.datasource.plugin.common.utils.StringUtil;
 import com.dtstack.taier.datasource.plugin.kerberos.core.hdfs.HdfsOperator;
 import com.dtstack.taier.datasource.plugin.kerberos.core.util.KerberosLoginUtil;
-import com.dtstack.taier.datasource.api.downloader.IDownloader;
-import com.dtstack.taier.datasource.api.dto.ColumnMetaDTO;
-import com.dtstack.taier.datasource.api.exception.SourceException;
 import com.google.common.collect.Lists;
 import com.google.common.primitives.Ints;
 import com.google.common.primitives.Longs;
@@ -44,6 +44,7 @@ import java.util.stream.Collectors;
  * 下载hive表:存储结构为PARQUET
  * Date: 2020/6/3
  * Company: www.dtstack.com
+ *
  * @author wangchuan
  */
 @Slf4j
@@ -96,7 +97,7 @@ public class HiveParquetDownload implements IDownloader {
 
     public HiveParquetDownload(Configuration conf, String tableLocation, List<ColumnMetaDTO> columns,
                                List<String> partitionColumns, List<Integer> needIndex, Map<String, String> filterPartition,
-                               List<String> partitions, Map<String, Object> kerberosConfig){
+                               List<String> partitions, Map<String, Object> kerberosConfig) {
         this.conf = conf;
         this.tableLocation = tableLocation;
         this.columns = columns;
@@ -110,13 +111,13 @@ public class HiveParquetDownload implements IDownloader {
     @Override
     public boolean configure() throws Exception {
         paths = Lists.newArrayList();
-        FileSystem fs =  FileSystem.get(conf);
+        FileSystem fs = FileSystem.get(conf);
         // 递归获取表路径下所有文件
         getAllPartitionPath(tableLocation, paths, fs);
         return true;
     }
 
-    private void nextSplitRecordReader() throws Exception{
+    private void nextSplitRecordReader() throws Exception {
         if (currFileIndex > paths.size() - 1) {
             return;
         }
@@ -124,7 +125,7 @@ public class HiveParquetDownload implements IDownloader {
         currFile = paths.get(currFileIndex);
 
         // 如果分区不存在或者不需要该分区则进行跳过
-        if (!isPartitionExists() || !isRequiredPartition()){
+        if (!isPartitionExists() || !isRequiredPartition()) {
             currFileIndex++;
             nextSplitRecordReader();
             return;
@@ -133,25 +134,25 @@ public class HiveParquetDownload implements IDownloader {
         ParquetReader.Builder<Group> reader = ParquetReader.builder(readSupport, new Path(currFile)).withConf(conf);
         build = reader.build();
 
-        if(CollectionUtils.isNotEmpty(partitionColumns)){
+        if (CollectionUtils.isNotEmpty(partitionColumns)) {
             currentPartData = HdfsOperator.parsePartitionDataFromUrl(currFile, partitionColumns);
         }
 
         currFileIndex++;
     }
 
-    private boolean nextRecord() throws Exception{
-        if(build == null && currFileIndex <= paths.size() - 1){
+    private boolean nextRecord() throws Exception {
+        if (build == null && currFileIndex <= paths.size() - 1) {
             nextSplitRecordReader();
         }
 
-        if (build == null){
+        if (build == null) {
             return false;
         }
 
         currentLine = build.read();
 
-        if (currentLine == null){
+        if (currentLine == null) {
             build = null;
             nextRecord();
         }
@@ -162,7 +163,7 @@ public class HiveParquetDownload implements IDownloader {
     @Override
     public List<String> getMetaInfo() {
         List<String> metaInfo = columns.stream().map(ColumnMetaDTO::getKey).collect(Collectors.toList());
-        if(CollectionUtils.isNotEmpty(partitionColumns)){
+        if (CollectionUtils.isNotEmpty(partitionColumns)) {
             metaInfo.addAll(partitionColumns);
         }
         return metaInfo;
@@ -171,10 +172,10 @@ public class HiveParquetDownload implements IDownloader {
     @Override
     public List<String> readNext() {
         return KerberosLoginUtil.loginWithUGI(kerberosConfig).doAs(
-                (PrivilegedAction<List<String>>) ()->{
+                (PrivilegedAction<List<String>>) () -> {
                     try {
                         return readNextWithKerberos();
-                    } catch (Exception e){
+                    } catch (Exception e) {
                         throw new SourceException(String.format("Abnormal reading file,%s", e.getMessage()), e);
                     }
                 });
@@ -182,7 +183,7 @@ public class HiveParquetDownload implements IDownloader {
 
     private List<String> readNextWithKerberos() {
         List<String> line = null;
-        if (currentLine != null){
+        if (currentLine != null) {
             line = new ArrayList<>();
             // needIndex不为空表示获取指定字段
             if (CollectionUtils.isNotEmpty(needIndex)) {
@@ -200,7 +201,7 @@ public class HiveParquetDownload implements IDownloader {
                         Integer fieldIndex = isFieldExists(columns.get(index).getKey());
                         if (fieldIndex != -1) {
                             line.add(getFieldByIndex(columns.get(index).getType(), fieldIndex));
-                        }else {
+                        } else {
                             line.add(null);
                         }
                     } else {
@@ -213,11 +214,11 @@ public class HiveParquetDownload implements IDownloader {
                     Integer fieldIndex = isFieldExists(columns.get(index).getKey());
                     if (fieldIndex != -1) {
                         line.add(getFieldByIndex(columns.get(index).getType(), fieldIndex));
-                    }else {
+                    } else {
                         line.add(null);
                     }
                 }
-                if(CollectionUtils.isNotEmpty(partitionColumns)){
+                if (CollectionUtils.isNotEmpty(partitionColumns)) {
                     line.addAll(currentPartData);
                 }
             }
@@ -234,7 +235,7 @@ public class HiveParquetDownload implements IDownloader {
      * @param columnName 字段名
      * @return 字段索引
      */
-    private Integer isFieldExists (String columnName) {
+    private Integer isFieldExists(String columnName) {
         GroupTypeIgnoreCase groupType = new GroupTypeIgnoreCase(currentLine.getType());
         if (!groupType.containsField(columnName)) {
             return -1;
@@ -317,14 +318,14 @@ public class HiveParquetDownload implements IDownloader {
     }
 
 
-    private static String binaryToDecimalStr(Binary binary,int scale){
+    private static String binaryToDecimalStr(Binary binary, int scale) {
         BigInteger bi = new BigInteger(binary.getBytes());
-        BigDecimal bg = new BigDecimal(bi,scale);
+        BigDecimal bg = new BigDecimal(bi, scale);
 
         return bg.toString();
     }
 
-    private static String longToDecimalStr(long value,int scale){
+    private static String longToDecimalStr(long value, int scale) {
         BigInteger bi = BigInteger.valueOf(value);
         BigDecimal bg = new BigDecimal(bi, scale);
 
@@ -335,8 +336,7 @@ public class HiveParquetDownload implements IDownloader {
      * @param timestampBinary
      * @return
      */
-    private long getTimestampMillis(Binary timestampBinary)
-    {
+    private long getTimestampMillis(Binary timestampBinary) {
         if (timestampBinary.length() != 12) {
             return 0;
         }
@@ -348,18 +348,17 @@ public class HiveParquetDownload implements IDownloader {
         return julianDayToMillis(julianDay) + (timeOfDayNanos / NANOS_PER_MILLISECOND);
     }
 
-    private long julianDayToMillis(int julianDay)
-    {
+    private long julianDayToMillis(int julianDay) {
         return (julianDay - JULIAN_EPOCH_OFFSET_DAYS) * MILLIS_IN_DAY;
     }
 
     @Override
     public boolean reachedEnd() {
         return KerberosLoginUtil.loginWithUGI(kerberosConfig).doAs(
-                (PrivilegedAction<Boolean>) ()->{
+                (PrivilegedAction<Boolean>) () -> {
                     try {
                         return !nextRecord();
-                    } catch (Exception e){
+                    } catch (Exception e) {
                         throw new SourceException(String.format("Download file is abnormal,%s", e.getMessage()), e);
                     }
                 });
@@ -367,7 +366,7 @@ public class HiveParquetDownload implements IDownloader {
 
     @Override
     public boolean close() throws Exception {
-        if (build != null){
+        if (build != null) {
             build.close();
         }
         return true;
@@ -377,8 +376,8 @@ public class HiveParquetDownload implements IDownloader {
      * 递归获取文件夹下所有文件，排除隐藏文件和无关文件
      *
      * @param tableLocation hdfs文件路径
-     * @param pathList 所有文件集合
-     * @param fs HDFS 文件系统
+     * @param pathList      所有文件集合
+     * @param fs            HDFS 文件系统
      */
     public static void getAllPartitionPath(String tableLocation, List<String> pathList, FileSystem fs) throws IOException {
         Path inputPath = new Path(tableLocation);
@@ -388,13 +387,13 @@ public class HiveParquetDownload implements IDownloader {
         }
         //剔除隐藏系统文件和无关文件
         FileStatus[] fsStatus = fs.listStatus(inputPath, path -> !path.getName().startsWith(".") && !path.getName().startsWith("_SUCCESS") && !path.getName().startsWith(IMPALA_INSERT_STAGING) && !path.getName().startsWith("_common_metadata") && !path.getName().startsWith("_metadata"));
-        if(fsStatus == null || fsStatus.length == 0){
+        if (fsStatus == null || fsStatus.length == 0) {
             return;
         }
         for (FileStatus status : fsStatus) {
             if (status.isFile()) {
                 pathList.add(status.getPath().toString());
-            }else {
+            } else {
                 getAllPartitionPath(status.getPath().toString(), pathList, fs);
             }
         }
@@ -429,7 +428,7 @@ public class HiveParquetDownload implements IDownloader {
     private String getCurPathPartition() {
         StringBuilder curPart = new StringBuilder();
         for (String part : currFile.split("/")) {
-            if(part.contains("=")){
+            if (part.contains("=")) {
                 curPart.append(part).append("/");
             }
         }
@@ -445,14 +444,14 @@ public class HiveParquetDownload implements IDownloader {
      *
      * @return 是否需要该分区
      */
-    private boolean isRequiredPartition(){
+    private boolean isRequiredPartition() {
         if (filterPartition != null && !filterPartition.isEmpty()) {
             //获取当前路径下的分区信息
-            Map<String,String> partColDataMap = new HashMap<>();
+            Map<String, String> partColDataMap = new HashMap<>();
             for (String part : currFile.split("/")) {
-                if(part.contains("=")){
+                if (part.contains("=")) {
                     String[] parts = part.split("=");
-                    partColDataMap.put(parts[0],parts[1]);
+                    partColDataMap.put(parts[0], parts[1]);
                 }
             }
 
@@ -461,7 +460,7 @@ public class HiveParquetDownload implements IDownloader {
             for (String key : keySet) {
                 String partition = partColDataMap.get(key);
                 String needPartition = filterPartition.get(key);
-                if (!Objects.equals(partition, needPartition)){
+                if (!Objects.equals(partition, needPartition)) {
                     check = false;
                     break;
                 }

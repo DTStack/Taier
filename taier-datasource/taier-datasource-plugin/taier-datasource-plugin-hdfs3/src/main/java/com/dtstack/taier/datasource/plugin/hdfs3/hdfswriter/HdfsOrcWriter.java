@@ -1,17 +1,17 @@
 package com.dtstack.taier.datasource.plugin.hdfs3.hdfswriter;
 
 import com.csvreader.CsvReader;
-import com.dtstack.taier.datasource.plugin.common.utils.DateUtil;
-import com.dtstack.taier.datasource.plugin.common.utils.MathUtil;
-import com.dtstack.taier.datasource.plugin.common.utils.TableUtil;
-import com.dtstack.taier.datasource.plugin.kerberos.core.hdfs.HadoopConfUtil;
-import com.dtstack.taier.datasource.plugin.hdfs3.OrcColumnTypeConverter;
 import com.dtstack.taier.datasource.api.dto.ColumnMetaDTO;
 import com.dtstack.taier.datasource.api.dto.HDFSImportColumn;
 import com.dtstack.taier.datasource.api.dto.HdfsWriterDTO;
 import com.dtstack.taier.datasource.api.dto.source.Hdfs3SourceDTO;
 import com.dtstack.taier.datasource.api.dto.source.ISourceDTO;
 import com.dtstack.taier.datasource.api.exception.SourceException;
+import com.dtstack.taier.datasource.plugin.common.utils.DateUtil;
+import com.dtstack.taier.datasource.plugin.common.utils.MathUtil;
+import com.dtstack.taier.datasource.plugin.common.utils.TableUtil;
+import com.dtstack.taier.datasource.plugin.hdfs3.OrcColumnTypeConverter;
+import com.dtstack.taier.datasource.plugin.kerberos.core.hdfs.HadoopConfUtil;
 import com.google.common.collect.Lists;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -233,7 +233,7 @@ public class HdfsOrcWriter {
                     try {
                         Object record = HdfsWriter.convertToTargetType(struct.getTypeName(), val, hdfsWriterDTO.getKeyList().get(i).getDateFormat(), hdfsWriterDTO);
                         recordArr[i] = record;
-                    }catch (Exception e){
+                    } catch (Exception e) {
                         throw new SourceException(String.format("convert error, dataType : %s , dataValue : %s",
                                 struct.getTypeName(), val));
                     }

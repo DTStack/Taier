@@ -71,14 +71,14 @@ public class LogAspect {
                     .findFirst();
             if (jobClientOpt.isPresent()) {
                 if (logPluginInfoMethod.contains(methodName)) {
-                    argsString = JSONObject.toJSONString(jobClientOpt.get(),submitPropertyFilter);
+                    argsString = JSONObject.toJSONString(jobClientOpt.get(), submitPropertyFilter);
                 } else {
                     //忽略pluginInfo打印
                     argsString = JSONObject.toJSONString(jobClientOpt.get(), propertyFilter);
                 }
             } else {
                 if (skipChangeMethod.contains(methodName)) {
-                    if (ret instanceof TaskStatus && (TaskStatus.RUNNING.equals(ret)|| TaskStatus.SCHEDULED.equals(ret))) {
+                    if (ret instanceof TaskStatus && (TaskStatus.RUNNING.equals(ret) || TaskStatus.SCHEDULED.equals(ret))) {
                         //状态获取 多以running 为主 过滤频繁打印
                         return;
                     }

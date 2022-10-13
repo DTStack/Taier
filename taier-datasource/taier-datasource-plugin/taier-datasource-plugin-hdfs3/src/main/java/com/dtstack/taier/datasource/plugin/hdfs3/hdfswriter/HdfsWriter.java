@@ -1,8 +1,8 @@
 package com.dtstack.taier.datasource.plugin.hdfs3.hdfswriter;
 
-import com.dtstack.taier.datasource.plugin.common.utils.ReflectUtil;
 import com.dtstack.taier.datasource.api.dto.HdfsWriterDTO;
 import com.dtstack.taier.datasource.api.exception.SourceException;
+import com.dtstack.taier.datasource.plugin.common.utils.ReflectUtil;
 import org.apache.commons.io.input.BOMInputStream;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hadoop.hive.common.type.HiveDecimal;

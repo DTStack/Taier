@@ -377,7 +377,7 @@ public class DateUtil {
      * @return 时间戳
      */
     public static Long stringToLong(String dateStr) {
-        if (StringUtils.isBlank(dateStr) || dateStr.contains("UNKNOWN")){
+        if (StringUtils.isBlank(dateStr) || dateStr.contains("UNKNOWN")) {
             return null;
         }
         SimpleDateFormat sdf = new SimpleDateFormat(STRING_FORMAT, Locale.ENGLISH);

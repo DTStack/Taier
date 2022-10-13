@@ -19,7 +19,6 @@
 package com.dtstack.taier.scheduler.jobdealer.resource;
 
 import com.dtstack.taier.common.enums.EComponentType;
-import com.dtstack.taier.common.enums.EDeployType;
 import com.dtstack.taier.common.exception.RdosDefineException;
 import com.dtstack.taier.dao.domain.Component;
 import com.dtstack.taier.pluginapi.JobClient;

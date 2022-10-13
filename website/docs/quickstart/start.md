@@ -27,8 +27,8 @@ sidebar_label: 快速上手
 ## 新增集群
 
 1. 进入控制台 > 2. 多集群管理 > 3. 新增集群  
-配置集群参考 [集群配置](././functions/multi-cluster.md)  
-配置组件参考 [组件配置](././functions/component/sftp.md)
+   配置集群参考 [集群配置](././functions/multi-cluster.md)  
+   配置组件参考 [组件配置](././functions/component/sftp.md)
 
 ### 配置 kerberos
 

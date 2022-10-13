@@ -16,32 +16,32 @@
  * limitations under the License.
  */
 
-import { useEffect, useMemo, useContext, useRef, useState } from 'react';
-import type { FormInstance } from 'antd';
-import { Button, Collapse, Form, Popconfirm } from 'antd';
+import {useContext, useEffect, useMemo, useRef, useState} from 'react';
+import type {FormInstance} from 'antd';
+import {Button, Collapse, Form, Popconfirm} from 'antd';
 import classNames from 'classnames';
 import molecule from '@dtinsight/molecule';
-import { DeleteOutlined, PlusOutlined } from '@ant-design/icons';
-import { DATA_SOURCE_ENUM, formItemLayout, KAFKA_DATA_TYPE } from '@/constant';
+import {DeleteOutlined, PlusOutlined} from '@ant-design/icons';
+import {DATA_SOURCE_ENUM, formItemLayout, KAFKA_DATA_TYPE} from '@/constant';
 import stream from '@/api';
 import {
+	isAvro,
 	isHaveCollection,
 	isHavePartition,
 	isHaveSchema,
 	isHaveTableColumn,
 	isHaveTableList,
 	isHaveTopic,
-	isAvro,
 	isKafka,
-	isSqlServer,
 	isRDB,
+	isSqlServer,
 } from '@/utils/is';
 import ResultForm from './form';
-import type { IDataSourceUsedInSyncProps, IFlinkSinkProps } from '@/interface';
-import type { IRightBarComponentProps } from '@/services/rightBarService';
-import { FormContext } from '@/services/rightBarService';
+import type {IDataSourceUsedInSyncProps, IFlinkSinkProps} from '@/interface';
+import type {IRightBarComponentProps} from '@/services/rightBarService';
+import {FormContext} from '@/services/rightBarService';
 
-const { Panel } = Collapse;
+const {Panel} = Collapse;
 
 export const NAME_FIELD = 'panelColumn';
 
@@ -61,17 +61,15 @@ const DEFAULT_INPUT_VALUE: Partial<IFlinkSinkProps> = {
 	allReplace: 'false',
 };
 
-export default function FlinkResultPanel({ current }: IRightBarComponentProps) {
+export default function FlinkResultPanel({current}: IRightBarComponentProps) {
 	const currentPage = current?.tab?.data || {};
-	const { form } = useContext(FormContext) as { form: FormInstance<IFormFieldProps> };
+	const {form} = useContext(FormContext) as { form: FormInstance<IFormFieldProps> };
 
 	const [panelActiveKey, setActiveKey] = useState<string[]>([]);
 	/**
 	 * 数据源选择数据，以 type 作为键值
 	 */
-	const [dataSourceList, setDataSourceList] = useState<
-		Record<string, IDataSourceUsedInSyncProps[]>
-	>({});
+	const [dataSourceList, setDataSourceList] = useState<Record<string, IDataSourceUsedInSyncProps[]>>({});
 	/**
 	 * 表选择数据，第一层对象以 sourceId 和 schema 为键值，第二层以 searchKey 为键值
 	 * @example
@@ -90,9 +88,7 @@ export default function FlinkResultPanel({ current }: IRightBarComponentProps) {
 	/**
 	 * 表字段选择的类型，以 sourceId-table-schema 作为键值
 	 */
-	const [tableColumnsList, setTableColumnsList] = useState<
-		Record<string, { key: string; type: string }[]>
-	>({});
+	const [tableColumnsList, setTableColumnsList] = useState<Record<string, { key: string; type: string }[]>>({});
 	const [topicOptionList, setTopicOptionList] = useState<Record<string, any[]>>({});
 
 	// 添加或删除 panel 的标志位
@@ -103,10 +99,10 @@ export default function FlinkResultPanel({ current }: IRightBarComponentProps) {
 	 */
 	const getTypeOriginData = (type?: DATA_SOURCE_ENUM) => {
 		if (type !== undefined && !dataSourceList[type]) {
-			stream.getTypeOriginData({ type }).then((v) => {
+			stream.getTypeOriginData({type}).then((v) => {
 				if (v.code === 1) {
 					setDataSourceList((list) => {
-						const next = { ...list };
+						const next = {...list};
 						next[type] = v.data || [];
 						return next;
 					});
@@ -119,8 +115,9 @@ export default function FlinkResultPanel({ current }: IRightBarComponentProps) {
 	 * 获取Schema列表
 	 * @deprecated 暂时不需要去请求 schema 数据
 	 */
-	// eslint-disable-next-line @typescript-eslint/no-unused-vars
-	const getSchemaData = (..._args: any[]) => {};
+		// eslint-disable-next-line @typescript-eslint/no-unused-vars
+	const getSchemaData = (..._args: any[]) => {
+		};
 
 	/**
 	 * 获取表列表
@@ -145,7 +142,7 @@ export default function FlinkResultPanel({ current }: IRightBarComponentProps) {
 			});
 
 			setTableOptionList((list) => {
-				const next = { ...list };
+				const next = {...list};
 				if (!next[`${params.sourceId}-${params.schema || ''}`]) {
 					next[`${params.sourceId}-${params.schema || ''}`] = {};
 				}
@@ -173,7 +170,7 @@ export default function FlinkResultPanel({ current }: IRightBarComponentProps) {
 				})
 				.then((v) => {
 					setTableColumnsList((list) => {
-						const next = { ...list };
+						const next = {...list};
 						next[`${sourceId}-${tableName}-${schema}`] = v.code === 1 ? v.data : [];
 						return next;
 					});
@@ -184,17 +181,18 @@ export default function FlinkResultPanel({ current }: IRightBarComponentProps) {
 	/**
 	 * @deprecated 暂时不需要请求分区
 	 */
-	// eslint-disable-next-line @typescript-eslint/no-unused-vars
-	const loadPartitions = async (...args: any[]) => {};
+		// eslint-disable-next-line @typescript-eslint/no-unused-vars
+	const loadPartitions = async (...args: any[]) => {
+		};
 
 	/**
 	 * 获取 topic 列表
 	 */
 	const getTopicType = (sourceId?: number) => {
 		if (sourceId !== undefined && !topicOptionList[sourceId]) {
-			stream.getTopicType({ sourceId }).then((v) => {
+			stream.getTopicType({sourceId}).then((v) => {
 				setTopicOptionList((list) => {
-					const next = { ...list };
+					const next = {...list};
 					next[sourceId] = v.code === 1 ? v.data : [];
 					return next;
 				});
@@ -252,7 +250,7 @@ export default function FlinkResultPanel({ current }: IRightBarComponentProps) {
 
 		if (changeKeys.includes('type')) {
 			const value = changedValues[NAME_FIELD][changeIndex].type;
-			const nextValue = { ...values };
+			const nextValue = {...values};
 
 			const kafkaType =
 				value === DATA_SOURCE_ENUM.KAFKA_CONFLUENT
@@ -273,7 +271,7 @@ export default function FlinkResultPanel({ current }: IRightBarComponentProps) {
 
 		if (changeKeys.includes('sourceId')) {
 			const value = changedValues[NAME_FIELD][changeIndex].sourceId;
-			const nextValue = { ...values };
+			const nextValue = {...values};
 
 			const kafkaType =
 				nextValue[NAME_FIELD][changeIndex].type === DATA_SOURCE_ENUM.KAFKA_CONFLUENT
@@ -293,10 +291,10 @@ export default function FlinkResultPanel({ current }: IRightBarComponentProps) {
 
 			const panel = nextValue[NAME_FIELD][changeIndex];
 			if (isHaveCollection(panel.type!)) {
-				getTableType({ sourceId: value, type: panel.type!, schema: panel.schema });
+				getTableType({sourceId: value, type: panel.type!, schema: panel.schema});
 			}
 			if (isHaveTableList(panel.type)) {
-				getTableType({ sourceId: value, type: panel.type!, schema: panel.schema });
+				getTableType({sourceId: value, type: panel.type!, schema: panel.schema});
 				if (isHaveSchema(panel.type!)) {
 					getSchemaData();
 				}
@@ -308,7 +306,7 @@ export default function FlinkResultPanel({ current }: IRightBarComponentProps) {
 
 		if (changeKeys.includes('schema')) {
 			const value = changedValues[NAME_FIELD][changeIndex].schema;
-			const nextValue = { ...values };
+			const nextValue = {...values};
 
 			// reset fields
 			nextValue[NAME_FIELD][changeIndex] = {
@@ -324,13 +322,13 @@ export default function FlinkResultPanel({ current }: IRightBarComponentProps) {
 
 			const panel = nextValue[NAME_FIELD][changeIndex];
 			if (isHaveTableList(panel.type)) {
-				getTableType({ sourceId: panel.sourceId, type: panel.type!, schema: value });
+				getTableType({sourceId: panel.sourceId, type: panel.type!, schema: value});
 			}
 		}
 
 		if (changeKeys.includes('table')) {
 			const value = changedValues[NAME_FIELD][changeIndex].table;
-			const nextValue = { ...values };
+			const nextValue = {...values};
 
 			// reset fields
 			nextValue[NAME_FIELD][changeIndex] = {
@@ -356,7 +354,7 @@ export default function FlinkResultPanel({ current }: IRightBarComponentProps) {
 
 		if (changeKeys.includes('collection')) {
 			const value = changedValues[NAME_FIELD][changeIndex].collection;
-			const nextValue = { ...values };
+			const nextValue = {...values};
 
 			// reset fields
 			nextValue[NAME_FIELD][changeIndex] = {
@@ -384,7 +382,7 @@ export default function FlinkResultPanel({ current }: IRightBarComponentProps) {
 		if (changeKeys.includes('sinkDataType')) {
 			const value = changedValues[NAME_FIELD][changeIndex].sinkDataType;
 			if (!isAvro(value)) {
-				const nextValue = { ...values };
+				const nextValue = {...values};
 				nextValue[NAME_FIELD][changeIndex].schemaInfo = undefined;
 
 				form.setFieldsValue(nextValue);
@@ -392,7 +390,7 @@ export default function FlinkResultPanel({ current }: IRightBarComponentProps) {
 		}
 
 		if (changeKeys.includes('columnsText')) {
-			const nextValue = { ...values };
+			const nextValue = {...values};
 			nextValue[NAME_FIELD][changeIndex].partitionKeys = undefined;
 			form.setFieldsValue(nextValue);
 		}
@@ -404,10 +402,10 @@ export default function FlinkResultPanel({ current }: IRightBarComponentProps) {
 		sink.forEach((v, index) => {
 			getTypeOriginData(v.type);
 			if (isHaveCollection(v.type)) {
-				getTableType({ sourceId: v.sourceId, type: v.type, schema: v.schema });
+				getTableType({sourceId: v.sourceId, type: v.type, schema: v.schema});
 			}
 			if (isHaveTableList(v.type)) {
-				getTableType({ sourceId: v.sourceId, type: v.type, schema: v.schema });
+				getTableType({sourceId: v.sourceId, type: v.type, schema: v.schema});
 
 				if (isHaveSchema(v.type)) {
 					getSchemaData(index, v.sourceId);
@@ -429,14 +427,14 @@ export default function FlinkResultPanel({ current }: IRightBarComponentProps) {
 	};
 
 	useEffect(() => {
-		const { sink } = currentPage;
+		const {sink} = currentPage;
 		if (sink && sink.length > 0) {
 			currentInitData(sink);
 		}
 	}, [current]);
 
 	const initialValues = useMemo(() => {
-		return { [NAME_FIELD]: current?.tab?.data.sink || [] };
+		return {[NAME_FIELD]: current?.tab?.data.sink || []};
 	}, []);
 
 	return (
@@ -449,7 +447,7 @@ export default function FlinkResultPanel({ current }: IRightBarComponentProps) {
 					initialValues={initialValues}
 				>
 					<Form.List name={NAME_FIELD}>
-						{(fields, { add, remove }) => (
+						{(fields, {add, remove}) => (
 							<>
 								<Collapse
 									activeKey={panelActiveKey}
@@ -458,8 +456,8 @@ export default function FlinkResultPanel({ current }: IRightBarComponentProps) {
 									destroyInactivePanel
 								>
 									{fields.map((field, index) => {
-										const { sourceId, type, schema, table, tableName } =
-											form?.getFieldValue(NAME_FIELD)[index] || {};
+										const {sourceId, type, schema, table, tableName} =
+										form?.getFieldValue(NAME_FIELD)[index] || {};
 										return (
 											<Panel
 												header={
@@ -493,7 +491,7 @@ export default function FlinkResultPanel({ current }: IRightBarComponentProps) {
 														/>
 													</Popconfirm>
 												}
-												style={{ position: 'relative' }}
+												style={{position: 'relative'}}
 												className="input-panel"
 											>
 												<ResultForm
@@ -503,12 +501,12 @@ export default function FlinkResultPanel({ current }: IRightBarComponentProps) {
 													tableOptionType={
 														tableOptionList[
 															`${sourceId}-${schema || ''}`
-														]
+															]
 													}
 													tableColumnOptionType={
 														tableColumnsList[
 															`${sourceId}-${table}-${schema || ''}`
-														]
+															]
 													}
 													topicOptionType={topicOptionList[sourceId]}
 													componentVersion={currentPage.componentVersion}
@@ -523,10 +521,10 @@ export default function FlinkResultPanel({ current }: IRightBarComponentProps) {
 									block
 									onClick={() =>
 										handlePanelChanged('add').then(() =>
-											add({ ...DEFAULT_INPUT_VALUE }),
+											add({...DEFAULT_INPUT_VALUE}),
 										)
 									}
-									icon={<PlusOutlined />}
+									icon={<PlusOutlined/>}
 								>
 									<span>添加结果表</span>
 								</Button>

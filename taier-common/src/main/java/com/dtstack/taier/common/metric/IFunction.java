@@ -24,6 +24,7 @@ import java.io.UnsupportedEncodingException;
  * Reason:
  * Date: 2018/10/20
  * Company: www.dtstack.com
+ *
  * @author xuchao
  */
 

@@ -47,7 +47,7 @@ public abstract class AbstractFillDataTask implements FillDataTask {
     public Set<Long> getAllList(Set<Long> run) {
         Set<Long> all = Sets.newHashSet(run);
 
-        if (run.size() ==1) {
+        if (run.size() == 1) {
             // R集合只有一个元素，其实也不用遍历计算有效路径
             LOGGER.info("run size 1,end fillList method");
             return all;
@@ -56,9 +56,9 @@ public abstract class AbstractFillDataTask implements FillDataTask {
         // 获得R集合所在的dag图的所有边
         Map<Long, List<Long>> nodeSide = getNodeSideByRun(run);
 
-        LOGGER.info("run:{} nodeSide:{} ",run,nodeSide);
+        LOGGER.info("run:{} nodeSide:{} ", run, nodeSide);
         // 开始查询有效路径
-        Collection<DAGNode> nodes = getDAGNodeByRun(run,nodeSide);
+        Collection<DAGNode> nodes = getDAGNodeByRun(run, nodeSide);
 
         // 封装节点信息
         for (DAGNode node : nodes) {
@@ -85,7 +85,7 @@ public abstract class AbstractFillDataTask implements FillDataTask {
             List<Long> childTaskKeys = Lists.newArrayList();
             // 切割,防止runList太大
             List<List<Long>> needFindChildTaskKeyListPartitions = Lists.partition(needFindChildTaskKeyList, fillDataLimitSize);
-            needFindChildTaskKeyListPartitions.forEach(needFindChildTaskKeyListPartition->childTaskKeys.addAll(getListChildTaskKeyAndFillNodeSide(needFindChildTaskKeyListPartition,nodeSide)));
+            needFindChildTaskKeyListPartitions.forEach(needFindChildTaskKeyListPartition -> childTaskKeys.addAll(getListChildTaskKeyAndFillNodeSide(needFindChildTaskKeyListPartition, nodeSide)));
             needFindChildTaskKeyList = childTaskKeys;
         }
 
@@ -96,10 +96,10 @@ public abstract class AbstractFillDataTask implements FillDataTask {
      * 获得RunList的下游taskKey和填充nodeSide
      *
      * @param needFindChildTaskKeyList 需要查询下游的节点的集合列表
-     * @param nodeSide 边的关系映射
+     * @param nodeSide                 边的关系映射
      * @return
      */
-    private List<Long> getListChildTaskKeyAndFillNodeSide(List<Long> needFindChildTaskKeyList,Map<Long, List<Long>> nodeSide) {
+    private List<Long> getListChildTaskKeyAndFillNodeSide(List<Long> needFindChildTaskKeyList, Map<Long, List<Long>> nodeSide) {
         List<Long> childTaskKeys = Lists.newArrayList();
         List<ScheduleTaskTaskShade> scheduleTaskTaskShades = getScheduleTaskTaskShades(needFindChildTaskKeyList);
 
@@ -133,6 +133,7 @@ public abstract class AbstractFillDataTask implements FillDataTask {
 
     /**
      * 初始化路径
+     *
      * @param aimNode
      * @return
      */
@@ -147,21 +148,21 @@ public abstract class AbstractFillDataTask implements FillDataTask {
     /**
      * 查询有效路径
      *
-     * @param run 运行集合
+     * @param run      运行集合
      * @param nodeSide 边集合
      * @return
      */
     protected Collection<DAGNode> getDAGNodeByRun(Set<Long> run, Map<Long, List<Long>> nodeSide) {
         Set<Long> validPathTaskKey = Sets.newHashSet();
-        Map<Long,DAGNode> dagNodes = Maps.newHashMap();
+        Map<Long, DAGNode> dagNodes = Maps.newHashMap();
         for (Long aimNode : run) {
             if (!validPathTaskKey.contains(aimNode)) {
                 DAGNode dagNode = new DAGNode();
                 dagNode.setAimNode(aimNode);
                 DAGPath dagPath = initPath(aimNode);
-                dagNode.setPaths(fillDAGPaths(aimNode,dagPath,validPathTaskKey,dagNodes,run,nodeSide));
+                dagNode.setPaths(fillDAGPaths(aimNode, dagPath, validPathTaskKey, dagNodes, run, nodeSide));
                 validPathTaskKey.add(aimNode);
-                dagNodes.put(aimNode,dagNode);
+                dagNodes.put(aimNode, dagNode);
             }
         }
 
@@ -171,12 +172,12 @@ public abstract class AbstractFillDataTask implements FillDataTask {
     /**
      * 查询有效路径
      *
-     * @param aimNode   目标节点
-     * @param dagPath   当前路径
+     * @param aimNode          目标节点
+     * @param dagPath          当前路径
      * @param validPathTaskKey 完成的节点
-     * @param dagNodes  节点映射
-     * @param run       R集合
-     * @param nodeSide  边
+     * @param dagNodes         节点映射
+     * @param run              R集合
+     * @param nodeSide         边
      * @return 有效路径
      */
     protected abstract List<DAGPath> fillDAGPaths(Long aimNode,

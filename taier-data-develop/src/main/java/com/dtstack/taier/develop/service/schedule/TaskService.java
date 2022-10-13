@@ -65,7 +65,7 @@ public class TaskService extends ServiceImpl<ScheduleTaskShadeMapper, ScheduleTa
      * @param taskId 任务id
      * @return 任务
      */
-    public ScheduleTaskShade findTaskByTaskId(Long taskId){
+    public ScheduleTaskShade findTaskByTaskId(Long taskId) {
         return taskId != null ? this.lambdaQuery()
                 .eq(ScheduleTaskShade::getTaskId, taskId)
                 .eq(ScheduleTaskShade::getIsDeleted, Deleted.NORMAL.getStatus())
@@ -73,7 +73,7 @@ public class TaskService extends ServiceImpl<ScheduleTaskShadeMapper, ScheduleTa
     }
 
     public List<ScheduleTaskShade> findTaskByTaskIds(List<Long> taskIds) {
-        if(CollectionUtils.isEmpty(taskIds)){
+        if (CollectionUtils.isEmpty(taskIds)) {
             return new ArrayList<>();
         }
         return this.lambdaQuery()
@@ -89,7 +89,7 @@ public class TaskService extends ServiceImpl<ScheduleTaskShadeMapper, ScheduleTa
      * @return 是否修改成功
      */
     public Boolean updateTaskName(Long taskId, String name) {
-        if (taskId==null || StringUtils.isBlank(name)) {
+        if (taskId == null || StringUtils.isBlank(name)) {
             return Boolean.FALSE;
         }
 
@@ -136,11 +136,12 @@ public class TaskService extends ServiceImpl<ScheduleTaskShadeMapper, ScheduleTa
         }
 
         List<Long> childTaskIdList = scheduleTaskTaskShadeList.stream().map(ScheduleTaskTaskShade::getTaskId).collect(Collectors.toList());
-        return this.lambdaQuery().in(ScheduleTaskShade::getTaskId,childTaskIdList).eq(ScheduleTaskShade::getIsDeleted, Deleted.NORMAL.getStatus()).list();
+        return this.lambdaQuery().in(ScheduleTaskShade::getTaskId, childTaskIdList).eq(ScheduleTaskShade::getIsDeleted, Deleted.NORMAL.getStatus()).list();
     }
 
     /**
      * 提交单个任务 (不包括工作流)
+     *
      * @param savaTaskDTO 任务
      * @return 是否提交成功
      */
@@ -159,7 +160,7 @@ public class TaskService extends ServiceImpl<ScheduleTaskShadeMapper, ScheduleTa
         if (dbTaskShade != null) {
             scheduleTaskShade.setId(dbTaskShade.getId());
             this.updateById(scheduleTaskShade);
-            scheduleTaskShadeInfoService.update(scheduleTaskShadeInfo,scheduleTaskShade.getTaskId());
+            scheduleTaskShadeInfoService.update(scheduleTaskShadeInfo, scheduleTaskShade.getTaskId());
         } else {
             this.save(scheduleTaskShade);
             scheduleTaskShadeInfoService.insert(scheduleTaskShadeInfo);
@@ -220,7 +221,7 @@ public class TaskService extends ServiceImpl<ScheduleTaskShadeMapper, ScheduleTa
         Page<ScheduleTaskShade> page = new Page<>(dto.getCurrentPage(), dto.getPageSize());
         // 分页查询
         Page<ScheduleTaskShade> resultPage = this.lambdaQuery()
-                .eq(ScheduleTaskShade::getFlowId,0L)
+                .eq(ScheduleTaskShade::getFlowId, 0L)
                 .eq(ScheduleTaskShade::getIsDeleted, Deleted.NORMAL.getStatus())
                 .like(StringUtils.isNotBlank(dto.getName()), ScheduleTaskShade::getName, dto.getName())
                 .eq(dto.getOperatorId() != null, ScheduleTaskShade::getCreateUserId, dto.getOperatorId())
@@ -244,7 +245,7 @@ public class TaskService extends ServiceImpl<ScheduleTaskShadeMapper, ScheduleTa
     /**
      * 修改任务运行状态
      *
-     * @param taskIdList 任务id
+     * @param taskIdList     任务id
      * @param scheduleStatus 调度状态
      * @return 是否更新成功
      */
@@ -262,7 +263,7 @@ public class TaskService extends ServiceImpl<ScheduleTaskShadeMapper, ScheduleTa
         ScheduleTaskShade scheduleTask = new ScheduleTaskShade();
         scheduleTask.setScheduleStatus(scheduleStatus);
         return this.lambdaUpdate()
-                .in(ScheduleTaskShade::getTaskId,taskIdList)
+                .in(ScheduleTaskShade::getTaskId, taskIdList)
                 .eq(ScheduleTaskShade::getIsDeleted, Deleted.NORMAL.getStatus())
                 .update(scheduleTask);
     }
@@ -271,7 +272,7 @@ public class TaskService extends ServiceImpl<ScheduleTaskShadeMapper, ScheduleTa
      * 通过任务名称和所属idc哈希任务
      *
      * @param taskName 任务名称
-     * @param ownerId 所属用户id
+     * @param ownerId  所属用户id
      * @return taskIds
      */
     public List<ScheduleTaskShade> findTaskByTaskName(String taskName, Long tenantId, Long ownerId) {
@@ -296,8 +297,8 @@ public class TaskService extends ServiceImpl<ScheduleTaskShadeMapper, ScheduleTa
             return Lists.newArrayList();
         }
         return this.lambdaQuery()
-                .eq(ScheduleTaskShade::getIsDeleted,Deleted.NORMAL.getStatus())
-                .eq(ScheduleTaskShade::getFlowId,taskId)
+                .eq(ScheduleTaskShade::getIsDeleted, Deleted.NORMAL.getStatus())
+                .eq(ScheduleTaskShade::getFlowId, taskId)
                 .list();
     }
 

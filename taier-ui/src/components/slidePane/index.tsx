@@ -16,8 +16,8 @@
  * limitations under the License.
  */
 
-import React, { useEffect, useRef } from 'react';
-import { DoubleRightOutlined } from '@ant-design/icons';
+import React, {useEffect, useRef} from 'react';
+import {DoubleRightOutlined} from '@ant-design/icons';
 import classNames from 'classnames';
 import './index.scss';
 
@@ -29,18 +29,19 @@ interface SlidePaneProps {
 	className?: string;
 	style?: React.CSSProperties;
 	onClose?: React.MouseEventHandler<HTMLSpanElement>;
+
 	[propName: string]: any;
 }
 
 const slidePrefixCls = 'dtc-slide-pane';
 
 export default function SlidePane({
-	className,
-	visible,
-	children,
-	onClose,
-	style = {},
-}: SlidePaneProps) {
+									  className,
+									  visible,
+									  children,
+									  onClose,
+									  style = {},
+								  }: SlidePaneProps) {
 	const slide = useRef<HTMLDivElement>(null);
 	const myStyle: React.CSSProperties = {
 		top: 0,
@@ -71,7 +72,7 @@ export default function SlidePane({
 			ref={slide}
 			className={classNames(slidePrefixCls, className)}
 			tabIndex={-1}
-			style={{ ...myStyle, ...style }}
+			style={{...myStyle, ...style}}
 			onKeyDown={handleKeyDown}
 		>
 			<div
@@ -89,7 +90,7 @@ export default function SlidePane({
 				data-testid="slidepane_action"
 				onClick={onClose}
 			>
-				<DoubleRightOutlined />
+				<DoubleRightOutlined/>
 			</span>
 		</div>
 	);

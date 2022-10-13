@@ -101,7 +101,7 @@ public class JobSchedulerListener implements DisposableBean, ApplicationListener
                 Map<Integer, QueueInfo> nodeJobInfo = Maps.newHashMap();
                 for (EScheduleType scheduleType : EScheduleType.values()) {
                     executors.forEach(executor -> nodeJobInfo.computeIfAbsent(scheduleType.getType(), k -> {
-                        int queueSize = scheduleJobMapper.countTasksByCycTimeTypeAndAddress(nodeAddress,scheduleType.getType(), cycTime.getLeft(), cycTime.getRight());
+                        int queueSize = scheduleJobMapper.countTasksByCycTimeTypeAndAddress(nodeAddress, scheduleType.getType(), cycTime.getLeft(), cycTime.getRight());
                         QueueInfo queueInfo = new QueueInfo();
                         queueInfo.setSize(queueSize);
                         return queueInfo;
@@ -116,10 +116,10 @@ public class JobSchedulerListener implements DisposableBean, ApplicationListener
     public Pair<String, String> getCycTimeLimit() {
         Integer dayGap = environmentContext.getJobCycTimeGap();
         Calendar calendar = Calendar.getInstance();
-        calendar.add(Calendar.DATE, dayGap-1);
+        calendar.add(Calendar.DATE, dayGap - 1);
         SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmss");
         String startTime = sdf.format(calendar.getTime());
-        calendar.add(Calendar.DATE, dayGap+1);
+        calendar.add(Calendar.DATE, dayGap + 1);
         String endTime = sdf.format(calendar.getTime());
         return new ImmutablePair<>(startTime, endTime);
     }

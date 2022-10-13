@@ -3,8 +3,8 @@ package com.dtstack.taier.develop.service.template.bulider.reader;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
-import com.dtstack.taier.datasource.api.source.DataSourceType;
 import com.dtstack.taier.dao.domain.DsInfo;
+import com.dtstack.taier.datasource.api.source.DataSourceType;
 import com.dtstack.taier.develop.common.template.Reader;
 import com.dtstack.taier.develop.dto.devlop.TaskResourceParam;
 import com.dtstack.taier.develop.service.datasource.impl.DatasourceService;
@@ -49,7 +49,7 @@ public class EsReaderBuilder implements DaReaderBuilder {
         // ssl配置
         if (StringUtils.isNotEmpty((String) param.getSourceMap().get("keyPath"))) {
             Map<String, String> sftpMap = datasourceService.getSftpMap(param.getTenantId());
-            SslConfig sslConfig = SslConfig.setSslConfig(param.getSourceMap(),sftpMap);
+            SslConfig sslConfig = SslConfig.setSslConfig(param.getSourceMap(), sftpMap);
             param.getSourceMap().put("sslConfig", sslConfig);
         }
     }

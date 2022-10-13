@@ -1,4 +1,3 @@
-
 ####################################################################
 ################# k8s 部署脚本, 包含:                #################
 #################    1. namespace 创建              #################
@@ -243,7 +242,7 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name:  taier-web
+  name: taier-web
   namespace: dt-taier
 spec:
   selector:
@@ -288,8 +287,8 @@ spec:
             failureThreshold: 3
             periodSeconds: 10
           ports:
-            - containerPort:  80
-              name:  taier-web
+            - containerPort: 80
+              name: taier-web
       restartPolicy: Always
 
 ---

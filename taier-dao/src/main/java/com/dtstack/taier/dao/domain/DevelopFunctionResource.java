@@ -36,7 +36,7 @@ public class DevelopFunctionResource {
     @TableField("resource_id")
     private Long resourceId;
 
-    @TableId(value="id", type= IdType.AUTO)
+    @TableId(value = "id", type = IdType.AUTO)
     private Long id = 0L;
 
     @TableField("is_deleted")

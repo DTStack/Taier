@@ -1,8 +1,5 @@
 package com.dtstack.taier.datasource.plugin.kingbase;
 
-import com.dtstack.taier.datasource.plugin.common.utils.DBUtil;
-import com.dtstack.taier.datasource.plugin.rdbms.AbsRdbmsClient;
-import com.dtstack.taier.datasource.plugin.rdbms.ConnFactory;
 import com.dtstack.taier.datasource.api.downloader.IDownloader;
 import com.dtstack.taier.datasource.api.dto.ColumnMetaDTO;
 import com.dtstack.taier.datasource.api.dto.SqlQueryDTO;
@@ -11,6 +8,9 @@ import com.dtstack.taier.datasource.api.dto.source.KingbaseSourceDTO;
 import com.dtstack.taier.datasource.api.dto.source.RdbmsSourceDTO;
 import com.dtstack.taier.datasource.api.exception.SourceException;
 import com.dtstack.taier.datasource.api.source.DataSourceType;
+import com.dtstack.taier.datasource.plugin.common.utils.DBUtil;
+import com.dtstack.taier.datasource.plugin.rdbms.AbsRdbmsClient;
+import com.dtstack.taier.datasource.plugin.rdbms.ConnFactory;
 import org.apache.commons.lang3.StringUtils;
 
 import java.sql.Connection;
@@ -26,6 +26,7 @@ import java.util.Objects;
 
 /**
  * company: www.dtstack.com
+ *
  * @author ：忘川
  * Date ：Created in 17:18 2020/09/01
  * Description：kingbase 客户端
@@ -86,11 +87,12 @@ public class KingbaseClient extends AbsRdbmsClient {
 
     @Override
     public List<String> getTableList(ISourceDTO source, SqlQueryDTO queryDTO) {
-       return getTableListBySchema(source, queryDTO);
+        return getTableListBySchema(source, queryDTO);
     }
 
     /**
      * 获取表注释信息
+     *
      * @param sourceDTO
      * @param queryDTO
      * @return
@@ -119,6 +121,7 @@ public class KingbaseClient extends AbsRdbmsClient {
 
     /**
      * 处理kingbase schema和tableName，适配schema和tableName中有.的情况
+     *
      * @param schema
      * @param tableName
      * @return
@@ -131,7 +134,7 @@ public class KingbaseClient extends AbsRdbmsClient {
         if (StringUtils.isBlank(schema)) {
             return tableName;
         }
-        if (!schema.startsWith("\"") || !schema.endsWith("\"")){
+        if (!schema.startsWith("\"") || !schema.endsWith("\"")) {
             schema = String.format("\"%s\"", schema);
         }
         return String.format("%s.%s", schema, tableName);
@@ -139,15 +142,17 @@ public class KingbaseClient extends AbsRdbmsClient {
 
     /**
      * 获取所有 数据库/schema sql语句
+     *
      * @return
      */
     @Override
-    protected String getShowDbSql(){
+    protected String getShowDbSql() {
         return SCHEMA_SQL;
     }
 
     /**
      * 获取字段注释
+     *
      * @param sourceDTO
      * @param queryDTO
      * @return
@@ -171,7 +176,7 @@ public class KingbaseClient extends AbsRdbmsClient {
         } catch (Exception e) {
             throw new SourceException(String.format("Failed to get the comment information of the field of the table: %s. Please contact the DBA to check the database and table information.",
                     queryDTO.getTableName()), e);
-        }finally {
+        } finally {
             DBUtil.closeDBResources(rs, statement, connection);
         }
         return columnComments;
@@ -219,7 +224,7 @@ public class KingbaseClient extends AbsRdbmsClient {
             if (e.getMessage().contains(DONT_EXIST)) {
                 throw new SourceException(String.format(queryDTO.getTableName() + "table not exist,%s", e.getMessage()), e);
             } else {
-                throw new SourceException(String.format("Failed to get meta information for the fields of table :%s. Please contact the DBA to check the database table information.", queryDTO.getTableName()) , e);
+                throw new SourceException(String.format("Failed to get meta information for the fields of table :%s. Please contact the DBA to check the database table information.", queryDTO.getTableName()), e);
             }
         } finally {
             DBUtil.closeDBResources(rs, statement, connection);
@@ -260,7 +265,7 @@ public class KingbaseClient extends AbsRdbmsClient {
         }
         // 如果不传scheme，默认使用当前连接使用的schema
         if (StringUtils.isBlank(schema)) {
-           return String.format(ALL_TABLE_SQL, constr.toString());
+            return String.format(ALL_TABLE_SQL, constr.toString());
         }
         return String.format(SCHEMA_TABLE_SQL, schema, constr.toString());
     }

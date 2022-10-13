@@ -16,15 +16,15 @@
  * limitations under the License.
  */
 
-import { useEffect, useState } from 'react';
+import {useEffect, useState} from 'react';
 import moment from 'moment';
-import { Modal, Radio, Select, Alert, Input, Form, Space, Table, Tooltip, message } from 'antd';
-import { CHECK_TYPE_VALUE, formItemLayout } from '@/constant';
+import {Alert, Form, Input, message, Modal, Radio, Select, Space, Table, Tooltip} from 'antd';
+import {CHECK_TYPE_VALUE, formItemLayout} from '@/constant';
 import stream from '@/api';
-import { SearchOutlined } from '@ant-design/icons';
-import { IStreamJobProps } from '@/interface';
+import {SearchOutlined} from '@ant-design/icons';
+import {IStreamJobProps} from '@/interface';
 
-const { Option } = Select;
+const {Option} = Select;
 
 interface IProps {
 	data?: Pick<IStreamJobProps, 'jobId' | 'id'>;
@@ -61,14 +61,14 @@ enum POINT_TYPE {
 	SAVE_POINT,
 }
 
-export default function GoOnTask({ visible, data, onOk, onCancel }: IProps) {
+export default function GoOnTask({visible, data, onOk, onCancel}: IProps) {
 	const [form] = Form.useForm<IFormFieldProps>();
 	const [checkPointList, setPointList] = useState<ICheckPointList[]>([]);
 	const [checkPointPathList, setPathList] = useState<ICheckPointPathProps[]>([]);
 	const [loading, setLoading] = useState(false);
 
 	const getCheckPointList = () => {
-		stream.getListHistory({ jobId: data?.jobId }).then((res) => {
+		stream.getListHistory({jobId: data?.jobId}).then((res) => {
 			if (res.code === 1) {
 				setPointList(res.data || []);
 			}
@@ -101,7 +101,7 @@ export default function GoOnTask({ visible, data, onOk, onCancel }: IProps) {
 							},
 						]}
 					>
-						<Input placeholder="请输入HDFS中CheckPoin文件完整路径" />
+						<Input placeholder="请输入HDFS中CheckPoin文件完整路径"/>
 					</Form.Item>
 				);
 
@@ -113,7 +113,7 @@ export default function GoOnTask({ visible, data, onOk, onCancel }: IProps) {
 							label="选择类型"
 							initialValue={POINT_TYPE.CHECK_POINT}
 						>
-							<Radio.Group style={{ marginTop: 6 }}>
+							<Radio.Group style={{marginTop: 6}}>
 								<Space direction="vertical">
 									<Radio value={POINT_TYPE.CHECK_POINT}>CheckPoint</Radio>
 									<Radio value={POINT_TYPE.SAVE_POINT}>SavePoint</Radio>
@@ -160,7 +160,7 @@ export default function GoOnTask({ visible, data, onOk, onCancel }: IProps) {
 								},
 							]}
 						>
-							<PathTable loading={loading} data={checkPointPathList} />
+							<PathTable loading={loading} data={checkPointPathList}/>
 						</Form.Item>
 					</>
 				);
@@ -245,7 +245,7 @@ export default function GoOnTask({ visible, data, onOk, onCancel }: IProps) {
 			maskClosable={false}
 			destroyOnClose
 		>
-			<Alert message="续跑，任务将恢复至停止前的状态继续运行!" type="warning" showIcon />
+			<Alert message="续跑，任务将恢复至停止前的状态继续运行!" type="warning" showIcon/>
 			<Form<IFormFieldProps>
 				{...formItemLayout}
 				form={form}
@@ -256,7 +256,7 @@ export default function GoOnTask({ visible, data, onOk, onCancel }: IProps) {
 				preserve={false}
 			>
 				<Form.Item name="type" label="续跑方式">
-					<Radio.Group style={{ marginTop: 6 }}>
+					<Radio.Group style={{marginTop: 6}}>
 						<Space direction="vertical">
 							<Radio value={CHECK_TYPE_VALUE.CHECK_POINT_FILE}>
 								通过指定文件恢复并续跑
@@ -266,7 +266,7 @@ export default function GoOnTask({ visible, data, onOk, onCancel }: IProps) {
 					</Radio.Group>
 				</Form.Item>
 				<Form.Item noStyle dependencies={['type']}>
-					{({ getFieldValue }) => renderContent(getFieldValue('type'))}
+					{({getFieldValue}) => renderContent(getFieldValue('type'))}
 				</Form.Item>
 			</Form>
 		</Modal>
@@ -279,7 +279,8 @@ interface IPathTable {
 	loading?: boolean;
 	onChange?: (data: ICheckPointPathProps['path']) => void;
 }
-function PathTable({ value, data, loading, onChange }: IPathTable) {
+
+function PathTable({value, data, loading, onChange}: IPathTable) {
 	const [search, setSearch] = useState<string>('');
 	const [filterData, setFilterData] = useState<ICheckPointPathProps[]>(data);
 
@@ -303,13 +304,13 @@ function PathTable({ value, data, loading, onChange }: IPathTable) {
 			size="small"
 			loading={loading}
 			pagination={false}
-			scroll={{ y: 300 }}
+			scroll={{y: 300}}
 			columns={[
 				{
 					title: 'Path',
 					dataIndex: 'path',
 					key: 'path',
-					filterDropdown: ({ setSelectedKeys, selectedKeys, confirm }) => (
+					filterDropdown: ({setSelectedKeys, selectedKeys, confirm}) => (
 						<Input
 							onPressEnter={() => {
 								handleSearch();
@@ -317,11 +318,11 @@ function PathTable({ value, data, loading, onChange }: IPathTable) {
 							}}
 							value={search}
 							onChange={(e) => setSearch(e.target.value)}
-							style={{ margin: 8, width: 'auto' }}
+							style={{margin: 8, width: 'auto'}}
 						/>
 					),
 					filterIcon: () => (
-						<SearchOutlined style={{ color: search ? '#1890ff' : undefined }} />
+						<SearchOutlined style={{color: search ? '#1890ff' : undefined}}/>
 					),
 					render: (text: string) => (
 						<Tooltip title={text}>
@@ -337,7 +338,7 @@ function PathTable({ value, data, loading, onChange }: IPathTable) {
 					render: (text) => moment(text).format('YYYY-MM-DD HH:mm:ss'),
 				},
 			]}
-			onRow={(record) => ({ onClick: () => handleChanged([record.path]) })}
+			onRow={(record) => ({onClick: () => handleChanged([record.path])})}
 			rowSelection={{
 				type: 'radio',
 				onChange: handleChanged,

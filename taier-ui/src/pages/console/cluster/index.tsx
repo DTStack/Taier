@@ -16,16 +16,16 @@
  * limitations under the License.
  */
 
-import { useRef, useState } from 'react';
-import { history } from 'umi';
-import { Button, message, Space, Divider, Modal } from 'antd';
+import {useRef, useState} from 'react';
+import {history} from 'umi';
+import {Button, Divider, message, Modal, Space} from 'antd';
 import moment from 'moment';
 import AddEngineModal from '@/components/addEngineModal';
 import Api from '@/api';
-import type { IActionRef } from '@/components/sketch';
+import type {IActionRef} from '@/components/sketch';
 import Sketch from '@/components/sketch';
-import type { ColumnsType } from 'antd/lib/table';
-import { DRAWER_MENU_ENUM } from '@/constant';
+import type {ColumnsType} from 'antd/lib/table';
+import {DRAWER_MENU_ENUM} from '@/constant';
 import './index.scss';
 
 interface IClusterProps {
@@ -43,7 +43,7 @@ export default function ClusterManage() {
 
 	const getResourceList = (
 		_: any,
-		{ current, pageSize }: { current: number; pageSize: number },
+		{current, pageSize}: { current: number; pageSize: number },
 	) => {
 		return Api.getClusterList({
 			currentPage: current,
@@ -84,7 +84,7 @@ export default function ClusterManage() {
 	};
 
 	const onSubmit = (params: { clusterName: string }) => {
-		Api.addCluster({ ...params }).then((res) => {
+		Api.addCluster({...params}).then((res) => {
 			if (res.code === 1) {
 				onCancel();
 				history.push({
@@ -127,7 +127,7 @@ export default function ClusterManage() {
 			width: '170px',
 			render: (_, record) => {
 				return (
-					<Space split={<Divider type="vertical" />}>
+					<Space split={<Divider type="vertical"/>}>
 						<a onClick={() => viewCluster(record)}>查看</a>
 						<a onClick={() => handleDelete(record)}>删除</a>
 					</Space>

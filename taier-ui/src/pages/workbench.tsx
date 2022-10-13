@@ -18,34 +18,34 @@
 // 这是一个自动生成的文件，减少不必要的修改除了格式化以外
 import 'reflect-metadata';
 import React from 'react';
-import { container } from 'tsyringe';
+import {container} from 'tsyringe';
 
 import {
 	classNames,
+	getBEMElement,
+	getBEMModifier,
 	getFontInMac,
 	prefixClaName,
-	getBEMModifier,
-	getBEMElement,
 } from '@dtinsight/molecule/esm/common/className';
 
-import { EditorView } from '@dtinsight/molecule/esm/workbench/editor';
-import { SidebarView } from '@dtinsight/molecule/esm/workbench/sidebar';
-import { MenuBarView } from '@dtinsight/molecule/esm/workbench/menuBar';
-import { ActivityBarView } from '@dtinsight/molecule/esm/workbench/activityBar';
-import { StatusBarView } from '@dtinsight/molecule/esm/workbench/statusBar';
-import { PanelView } from '@dtinsight/molecule/esm/workbench/panel';
-import { ID_APP } from '@dtinsight/molecule/esm/common/id';
-import { APP_PREFIX } from '@dtinsight/molecule/esm/common/const';
+import {EditorView} from '@dtinsight/molecule/esm/workbench/editor';
+import {SidebarView} from '@dtinsight/molecule/esm/workbench/sidebar';
+import {MenuBarView} from '@dtinsight/molecule/esm/workbench/menuBar';
+import {ActivityBarView} from '@dtinsight/molecule/esm/workbench/activityBar';
+import {StatusBarView} from '@dtinsight/molecule/esm/workbench/statusBar';
+import {PanelView} from '@dtinsight/molecule/esm/workbench/panel';
+import {ID_APP} from '@dtinsight/molecule/esm/common/id';
+import {APP_PREFIX} from '@dtinsight/molecule/esm/common/const';
 
-import { connect } from '@dtinsight/molecule/esm/react';
+import {connect} from '@dtinsight/molecule/esm/react';
 
-import { ILayoutController, LayoutController } from '@dtinsight/molecule/esm/controller/layout';
-import { ILayout, MenuBarMode } from '@dtinsight/molecule/esm/model/workbench/layout';
+import {ILayoutController, LayoutController} from '@dtinsight/molecule/esm/controller/layout';
+import {ILayout, MenuBarMode} from '@dtinsight/molecule/esm/model/workbench/layout';
 
-import { IWorkbench } from '@dtinsight/molecule/esm/model';
+import {IWorkbench} from '@dtinsight/molecule/esm/model';
 import SplitPane from '@dtinsight/molecule/esm/components/split/SplitPane';
-import { Pane } from '@dtinsight/molecule/esm/components/split';
-import { Display } from '@dtinsight/molecule/esm/components';
+import {Pane} from '@dtinsight/molecule/esm/components/split';
+import {Display} from '@dtinsight/molecule/esm/components';
 import molecule from '@dtinsight/molecule';
 import RightBar from './rightBar';
 
@@ -99,18 +99,18 @@ export function WorkbenchView(props: IWorkbench & ILayout & ILayoutController) {
 		<div id={ID_APP} className={appClassName} tabIndex={0}>
 			<div className={workbenchFinalClassName}>
 				<Display visible={isMenuBarHorizontal}>
-					<MenuBarView mode={MenuBarMode.horizontal} />
+					<MenuBarView mode={MenuBarMode.horizontal}/>
 				</Display>
 				<div className={mainBenchClassName}>
 					<div className={compositeBarClassName}>
 						<Display visible={isMenuBarVertical}>
-							<MenuBarView mode={MenuBarMode.vertical} />
+							<MenuBarView mode={MenuBarMode.vertical}/>
 						</Display>
 						<Display
 							visible={!activityBar.hidden}
 							className={displayActivityBarClassName}
 						>
-							<ActivityBarView />
+							<ActivityBarView/>
 						</Display>
 					</div>
 					<SplitPane
@@ -121,7 +121,7 @@ export function WorkbenchView(props: IWorkbench & ILayout & ILayoutController) {
 						onChange={onPaneSizeChange!}
 					>
 						<Pane minSize={170} maxSize="80%">
-							<SidebarView />
+							<SidebarView/>
 						</Pane>
 						<SplitPane
 							sizes={getSizes()}
@@ -131,16 +131,16 @@ export function WorkbenchView(props: IWorkbench & ILayout & ILayoutController) {
 							onChange={onHorizontalPaneSizeChange!}
 						>
 							<Pane minSize="10%" maxSize="80%">
-								<EditorView />
+								<EditorView/>
 							</Pane>
-							<PanelView />
+							<PanelView/>
 						</SplitPane>
 					</SplitPane>
-					<RightBar />
+					<RightBar/>
 				</div>
 			</div>
 			<Display visible={!statusBar.hidden}>
-				<StatusBarView />
+				<StatusBarView/>
 			</Display>
 		</div>
 	);

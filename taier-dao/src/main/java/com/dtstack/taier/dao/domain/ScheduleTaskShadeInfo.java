@@ -11,7 +11,7 @@ public class ScheduleTaskShadeInfo {
     /**
      * 唯一标识
      */
-    @TableId(value="id", type= IdType.AUTO)
+    @TableId(value = "id", type = IdType.AUTO)
     private Long id;
 
 
@@ -41,7 +41,6 @@ public class ScheduleTaskShadeInfo {
      * 是否逻辑删除
      */
     private Integer isDeleted;
-
 
 
     public String getInfo() {

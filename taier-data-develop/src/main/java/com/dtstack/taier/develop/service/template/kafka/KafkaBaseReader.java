@@ -12,7 +12,8 @@ import java.util.Objects;
 /**
  * Date: 2020/7/7
  * Company: www.dtstack.com
- *参考：https://dtstack.yuque.com/rd-center/sm6war/an7m9c
+ * 参考：https://dtstack.yuque.com/rd-center/sm6war/an7m9c
+ *
  * @author zhichen
  */
 public abstract class KafkaBaseReader extends BaseReaderPlugin {
@@ -21,7 +22,7 @@ public abstract class KafkaBaseReader extends BaseReaderPlugin {
     private String topic;
 
     /**
-     *仅支持kafka0.9，因Kafka0.9平台不再支持，因此取消
+     * 仅支持kafka0.9，因Kafka0.9平台不再支持，因此取消
      */
     private String encoding;
     private String groupId;
@@ -125,9 +126,9 @@ public abstract class KafkaBaseReader extends BaseReaderPlugin {
         if (!isKafka9 && StringUtils.isEmpty(consumerSettings.getString("bootstrap.servers"))) {
             throw new RdosDefineException("Kafka数据源 bootstrap.servers 不能为空");
         }
-        if (isKafkaORKafka2X){
+        if (isKafkaORKafka2X) {
             String mode = data.getString("mode");
-            if(!StringUtils.isBlank(mode)){
+            if (!StringUtils.isBlank(mode)) {
                 switch (mode) {
                     case TIMESTAMP:
                         if (StringUtils.isBlank(data.getString("timestamp"))) {

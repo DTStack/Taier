@@ -24,6 +24,7 @@ import com.google.common.base.Preconditions;
  * Reason:
  * Date: 2018/5/4
  * Company: www.dtstack.com
+ *
  * @author xuchao
  */
 
@@ -39,9 +40,10 @@ public class JobParam {
 
     /**
      * 用于mr类型的参数构造---只允许添加一个附件
+     *
      * @param jobClient
      */
-    public JobParam(JobClient jobClient){
+    public JobParam(JobClient jobClient) {
 
         JarFileInfo jarFileInfo = jobClient.getCoreJarInfo();
         Preconditions.checkNotNull(jarFileInfo, "submit need to add jar operator.");

@@ -9,6 +9,7 @@ import com.dtstack.taier.common.exception.RdosDefineException;
  * 关系型数据库实时采集类型
  * 1. binlog(数据库支持的同步方案，mysql为binlog oracle为logminer，sqlServer为cdc)
  * 2. 间隔轮询
+ *
  * @author xiaochen
  */
 public enum RdbmsDaType {

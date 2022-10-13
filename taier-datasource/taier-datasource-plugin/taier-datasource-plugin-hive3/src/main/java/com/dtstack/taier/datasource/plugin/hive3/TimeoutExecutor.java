@@ -1,7 +1,7 @@
 package com.dtstack.taier.datasource.plugin.hive3;
 
-import com.dtstack.taier.datasource.plugin.common.DtClassThreadFactory;
 import com.dtstack.taier.datasource.api.exception.SourceException;
+import com.dtstack.taier.datasource.plugin.common.DtClassThreadFactory;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.Objects;

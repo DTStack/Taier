@@ -15,10 +15,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { useEffect, useMemo, useState } from 'react';
-import { Table, Progress } from 'antd';
+import {useEffect, useMemo, useState} from 'react';
+import {Progress, Table} from 'antd';
 import Api from '../../../api';
-import { findKey } from 'lodash';
+import {findKey} from 'lodash';
 import type {
 	ICapacityProps,
 	IClusterResourceProps,
@@ -28,15 +28,15 @@ import type {
 	IQueueProps,
 	IResourceMetrics,
 } from './helper';
-import { NODE_COLUMNS, ResourceCard, RESOURCE_DETAIL_COLUMNS } from './helper';
-import type { ColumnsType, TableProps } from 'antd/lib/table';
-import { SCHEDULE_TYPE } from '@/constant';
+import {NODE_COLUMNS, RESOURCE_DETAIL_COLUMNS, ResourceCard} from './helper';
+import type {ColumnsType, TableProps} from 'antd/lib/table';
+import {SCHEDULE_TYPE} from '@/constant';
 import './index.scss';
 
 export default ({
-	clusterId,
-	onGetQueueList,
-}: {
+					clusterId,
+					onGetQueueList,
+				}: {
 	clusterId?: number;
 	onGetQueueList?: (queueList: IQueueProps[]) => void;
 }) => {
@@ -79,7 +79,7 @@ export default ({
 						break;
 					}
 					case SCHEDULE_TYPE.FIFO: {
-						queuesListSource = [{ ...data?.scheduleInfo }];
+						queuesListSource = [{...data?.scheduleInfo}];
 						break;
 					}
 					default:
@@ -122,7 +122,7 @@ export default ({
 						render(text: number) {
 							return (
 								<Progress
-									style={{ paddingRight: 20 }}
+									style={{paddingRight: 20}}
 									percent={text}
 									strokeColor="rgb(57, 227, 169)"
 									size="small"
@@ -158,9 +158,9 @@ export default ({
 							return (
 								<span>
 									memory:
-									<span style={{ margin: 5 }}>{text?.memory},&nbsp;</span>
+									<span style={{margin: 5}}>{text?.memory},&nbsp;</span>
 									vCores:
-									<span style={{ margin: 5 }}>{text?.vCores}</span>
+									<span style={{margin: 5}}>{text?.vCores}</span>
 								</span>
 							);
 						},
@@ -172,9 +172,9 @@ export default ({
 							return (
 								<span>
 									memory:
-									<span style={{ margin: 5 }}>{text?.memory},&nbsp;</span>
+									<span style={{margin: 5}}>{text?.memory},&nbsp;</span>
 									vCores:
-									<span style={{ margin: 5 }}>{text?.vCores}</span>
+									<span style={{margin: 5}}>{text?.vCores}</span>
 								</span>
 							);
 						},
@@ -186,9 +186,9 @@ export default ({
 							return (
 								<span>
 									memory:
-									<span style={{ margin: 5 }}>{text?.memory},&nbsp;</span>
+									<span style={{margin: 5}}>{text?.memory},&nbsp;</span>
 									vCores:
-									<span style={{ margin: 5 }}>{text?.vCores}</span>
+									<span style={{margin: 5}}>{text?.vCores}</span>
 								</span>
 							);
 						},
@@ -217,7 +217,7 @@ export default ({
 	return (
 		<>
 			<div className="c-resourceView__container">
-				<div style={{ height: 110, width: '50%', marginRight: 10 }}>
+				<div style={{height: 110, width: '50%', marginRight: 10}}>
 					<ResourceCard
 						type="cpu"
 						title="CPU（core）"
@@ -226,7 +226,7 @@ export default ({
 						value={resourceMetrics.coresRate}
 					/>
 				</div>
-				<div style={{ height: 110, width: '50%', marginLeft: 10 }}>
+				<div style={{height: 110, width: '50%', marginLeft: 10}}>
 					<ResourceCard
 						type="memory"
 						title="内存（GB）"
@@ -260,10 +260,10 @@ export default ({
  * Table with title
  */
 export const RenderTable = ({
-	title,
-	desc = '',
-	...tableProps
-}: { title: React.ReactNode; desc?: string } & Omit<TableProps<any>, 'title'>) => (
+								title,
+								desc = '',
+								...tableProps
+							}: { title: React.ReactNode; desc?: string } & Omit<TableProps<any>, 'title'>) => (
 	<div className="c-resourceView__table__container">
 		<p>
 			<span className="resourceView__table__title">{title}</span>

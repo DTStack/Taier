@@ -16,74 +16,80 @@
  * limitations under the License.
  */
 
-import { IDataSourceUsedInSyncProps } from "@/interface";
+import {IDataSourceUsedInSyncProps} from "@/interface";
 import molecule from "@dtinsight/molecule";
-import { connect as moleculeConnect } from '@dtinsight/molecule/esm/react';
-import { Button, Card, FormProps } from "antd";
+import {connect as moleculeConnect} from '@dtinsight/molecule/esm/react';
+import {Button, Card, FormProps} from "antd";
 import React from "react";
 import Channel from "../channel";
 import Source from "../source";
 import TargetSource from "../targetSource";
-import { streamTaskActions } from "../taskFunc";
+import {streamTaskActions} from "../taskFunc";
 
 function Mask() {
-    return <div className="mask-lock-layer" />;
+	return <div className="mask-lock-layer"/>;
 }
+
 interface IProps extends FormProps {
-    collectionData?: any;
-    saveJob?: any;
-    sourceList: IDataSourceUsedInSyncProps[];
+	collectionData?: any;
+	saveJob?: any;
+	sourceList: IDataSourceUsedInSyncProps[];
 }
+
 class CollectionComplete extends React.Component<IProps, any> {
-    navtoStep (step: any) {
-        streamTaskActions.navtoStep(step)
-    }
-    prev () {
-        streamTaskActions.navtoStep(2)
-    }
-    save () {
-        this.props.saveJob();
-    }
-    render (): React.ReactNode {
-        const { collectionData, sourceList } = this.props;
-        return (
-            <div>
-                <div className="m-preview" style={{ padding: '0px 20px' }}>
-                    <Card
-                        bordered={false}
-                        title={<div>选择来源</div>}
-                        style={{ marginBottom: 10 }}
-                        extra={<a onClick={() => this.navtoStep(0)}>修改</a>}
-                    >
-                        <Source collectionData={collectionData} sourceList={sourceList} readonly />
-                        <Mask />
-                    </Card>
-                    <Card
-                        bordered={false}
-                        title={<div>选择目标</div>}
-                        style={{ marginBottom: 10 }}
-                        extra={<a onClick={() => this.navtoStep(1)}>修改</a>}
-                    >
-                        <TargetSource collectionData={collectionData} sourceList={sourceList} readonly />
-                        <Mask />
-                    </Card>
-                    <Card
-                        bordered={false}
-                        title={<div>通道控制</div>}
-                        style={{ marginBottom: 10 }}
-                        extra={<a onClick={() => this.navtoStep(2)}>修改</a>}
-                    >
-                        <Channel collectionData={collectionData} sourceList={sourceList} readonly />
-                        <Mask />
-                    </Card>
-                </div>
-                <div className="steps-action">
-                    <Button style={{ marginRight: 8 }} onClick={() => this.prev()}>上一步</Button>
-                    <Button type="primary" disabled={!collectionData.notSynced} onClick={() => this.save()}>保存</Button>
-                </div>
-            </div>
-        )
-    }
+	navtoStep(step: any) {
+		streamTaskActions.navtoStep(step)
+	}
+
+	prev() {
+		streamTaskActions.navtoStep(2)
+	}
+
+	save() {
+		this.props.saveJob();
+	}
+
+	render(): React.ReactNode {
+		const {collectionData, sourceList} = this.props;
+		return (
+			<div>
+				<div className="m-preview" style={{padding: '0px 20px'}}>
+					<Card
+						bordered={false}
+						title={<div>选择来源</div>}
+						style={{marginBottom: 10}}
+						extra={<a onClick={() => this.navtoStep(0)}>修改</a>}
+					>
+						<Source collectionData={collectionData} sourceList={sourceList} readonly/>
+						<Mask/>
+					</Card>
+					<Card
+						bordered={false}
+						title={<div>选择目标</div>}
+						style={{marginBottom: 10}}
+						extra={<a onClick={() => this.navtoStep(1)}>修改</a>}
+					>
+						<TargetSource collectionData={collectionData} sourceList={sourceList} readonly/>
+						<Mask/>
+					</Card>
+					<Card
+						bordered={false}
+						title={<div>通道控制</div>}
+						style={{marginBottom: 10}}
+						extra={<a onClick={() => this.navtoStep(2)}>修改</a>}
+					>
+						<Channel collectionData={collectionData} sourceList={sourceList} readonly/>
+						<Mask/>
+					</Card>
+				</div>
+				<div className="steps-action">
+					<Button style={{marginRight: 8}} onClick={() => this.prev()}>上一步</Button>
+					<Button type="primary" disabled={!collectionData.notSynced}
+							onClick={() => this.save()}>保存</Button>
+				</div>
+			</div>
+		)
+	}
 }
 
 export default moleculeConnect(molecule.editor, CollectionComplete);

@@ -20,7 +20,7 @@ public class CatalogueLocationVO extends DtInsightAuthParam {
     @ApiModelProperty(value = "目录类型", example = "ResourceManager", required = true)
     private String catalogueType;
 
-    @ApiModelProperty(value = "租户ID", example = "1",  required = true)
+    @ApiModelProperty(value = "租户ID", example = "1", required = true)
     private Long tenantId;
 
     public Long getId() {

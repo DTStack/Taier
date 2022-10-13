@@ -16,11 +16,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import type { CSSProperties } from 'react';
-import { useEffect, useRef } from 'react';
+import type {CSSProperties} from 'react';
+import {useEffect, useRef} from 'react';
 import * as monaco from '@dtinsight/molecule/esm/monaco';
 import classNames from 'classnames';
-import { defaultOptions } from './config';
+import {defaultOptions} from './config';
 import './language/jsonlog';
 import './style.scss';
 
@@ -40,19 +40,19 @@ interface IEditorProps {
 }
 
 export default function Editor({
-	className,
-	style,
-	options,
-	value,
-	sync,
-	language,
-	cursorPosition,
-	placeholder,
-	onChange,
-	onBlur,
-	onFocus,
-	onCursorSelection,
-}: IEditorProps) {
+								   className,
+								   style,
+								   options,
+								   value,
+								   sync,
+								   language,
+								   cursorPosition,
+								   placeholder,
+								   onChange,
+								   onBlur,
+								   onFocus,
+								   onCursorSelection,
+							   }: IEditorProps) {
 	const container = useRef<HTMLDivElement>(null);
 	const monacoEditor = useRef<monaco.editor.IStandaloneCodeEditor>();
 	const placeholderDOM = useRef<HTMLPreElement>(null);
@@ -105,12 +105,16 @@ export default function Editor({
 			);
 
 			// disabled these global commands in editor
-			monacoEditor.current.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyF, () => {});
-			monacoEditor.current.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyK, () => {});
-			monacoEditor.current.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.Comma, () => {});
+			monacoEditor.current.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyF, () => {
+			});
+			monacoEditor.current.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyK, () => {
+			});
+			monacoEditor.current.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.Comma, () => {
+			});
 			monacoEditor.current.addCommand(
 				monaco.KeyMod.CtrlCmd | monaco.KeyMod.Shift | monaco.KeyCode.KeyP,
-				() => {},
+				() => {
+				},
 			);
 		}
 	};
@@ -257,7 +261,7 @@ export default function Editor({
 			<pre
 				ref={placeholderDOM}
 				className="dt-placeholder"
-				style={{ fontSize: options?.fontSize || 12 }}
+				style={{fontSize: options?.fontSize || 12}}
 			>
 				{placeholder}
 			</pre>

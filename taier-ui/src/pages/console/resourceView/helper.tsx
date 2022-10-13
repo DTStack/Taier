@@ -16,12 +16,12 @@
  * limitations under the License.
  */
 
-import { useMemo } from 'react';
-import { cloneDeep } from 'lodash';
+import {useMemo} from 'react';
+import {cloneDeep} from 'lodash';
 import Chart from '@/components/chart';
-import type { SCHEDULE_TYPE } from '@/constant';
-import type { ColumnsType } from 'antd/lib/table';
-import { useCurrentTheme } from '@/components/customHooks';
+import type {SCHEDULE_TYPE} from '@/constant';
+import type {ColumnsType} from 'antd/lib/table';
+import {useCurrentTheme} from '@/components/customHooks';
 
 export interface ResouceProps {
 	type: string;
@@ -255,9 +255,9 @@ export const RESOURCE_DETAIL_COLUMNS: ColumnsType<ICapacityProps['users'][number
 			return (
 				<span>
 					memory:
-					<span style={{ margin: 5 }}>{text.memory},&nbsp;</span>
+					<span style={{margin: 5}}>{text.memory},&nbsp;</span>
 					vCores:
-					<span style={{ margin: 5 }}>{text.vCores}</span>
+					<span style={{margin: 5}}>{text.vCores}</span>
 				</span>
 			);
 		},
@@ -269,9 +269,9 @@ export const RESOURCE_DETAIL_COLUMNS: ColumnsType<ICapacityProps['users'][number
 			return (
 				<span>
 					memory:
-					<span style={{ margin: 5 }}>{text.memory},&nbsp;</span>
+					<span style={{margin: 5}}>{text.memory},&nbsp;</span>
 					vCores:
-					<span style={{ margin: 5 }}>{text.vCores}</span>
+					<span style={{margin: 5}}>{text.vCores}</span>
 				</span>
 			);
 		},
@@ -283,9 +283,9 @@ export const RESOURCE_DETAIL_COLUMNS: ColumnsType<ICapacityProps['users'][number
 			return (
 				<span>
 					memory:
-					<span style={{ margin: 5 }}>{text.memory},&nbsp;</span>
+					<span style={{margin: 5}}>{text.memory},&nbsp;</span>
 					vCores:
-					<span style={{ margin: 5 }}>{text.vCores}</span>
+					<span style={{margin: 5}}>{text.vCores}</span>
 				</span>
 			);
 		},
@@ -297,9 +297,9 @@ export const RESOURCE_DETAIL_COLUMNS: ColumnsType<ICapacityProps['users'][number
 			return (
 				<span>
 					memory:
-					<span style={{ margin: 5 }}>{text.memory},&nbsp;</span>
+					<span style={{margin: 5}}>{text.memory},&nbsp;</span>
 					vCores:
-					<span style={{ margin: 5 }}>{text.vCores}</span>
+					<span style={{margin: 5}}>{text.vCores}</span>
 				</span>
 			);
 		},
@@ -309,7 +309,7 @@ export const RESOURCE_DETAIL_COLUMNS: ColumnsType<ICapacityProps['users'][number
 /**
  * The Resource Card
  */
-export const ResourceCard = ({ title, useNum, total, value = 0 }: ResouceProps) => {
+export const ResourceCard = ({title, useNum, total, value = 0}: ResouceProps) => {
 	const [currentTheme] = useCurrentTheme();
 
 	const getColor = (rawValue: number) => {
@@ -347,11 +347,11 @@ export const ResourceCard = ({ title, useNum, total, value = 0 }: ResouceProps) 
 
 	return (
 		<div className="c-resourceCard__container">
-			<Chart option={option} width={110} height={110} />
+			<Chart option={option} width={110} height={110}/>
 			<div className="c-resourceCard__container__title">
 				<p>{title}</p>
 				<p>
-					<span style={{ fontSize: 18 }}>{useNum || '-'}</span> / {total || '-'}
+					<span style={{fontSize: 18}}>{useNum || '-'}</span> / {total || '-'}
 				</p>
 			</div>
 		</div>

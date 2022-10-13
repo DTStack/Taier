@@ -2,6 +2,11 @@ package com.dtstack.taier.datasource.plugin.es;
 
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.parser.Feature;
+import com.dtstack.taier.datasource.api.dto.ColumnMetaDTO;
+import com.dtstack.taier.datasource.api.dto.SqlQueryDTO;
+import com.dtstack.taier.datasource.api.dto.source.ESSourceDTO;
+import com.dtstack.taier.datasource.api.dto.source.ISourceDTO;
+import com.dtstack.taier.datasource.api.exception.SourceException;
 import com.dtstack.taier.datasource.plugin.common.exception.IErrorPattern;
 import com.dtstack.taier.datasource.plugin.common.nosql.AbsNoSqlClient;
 import com.dtstack.taier.datasource.plugin.common.service.ErrorAdapterImpl;
@@ -9,11 +14,6 @@ import com.dtstack.taier.datasource.plugin.common.service.IErrorAdapter;
 import com.dtstack.taier.datasource.plugin.common.utils.SearchUtil;
 import com.dtstack.taier.datasource.plugin.es.pool.ElasticSearchManager;
 import com.dtstack.taier.datasource.plugin.es.pool.ElasticSearchPool;
-import com.dtstack.taier.datasource.api.dto.ColumnMetaDTO;
-import com.dtstack.taier.datasource.api.dto.SqlQueryDTO;
-import com.dtstack.taier.datasource.api.dto.source.ESSourceDTO;
-import com.dtstack.taier.datasource.api.dto.source.ISourceDTO;
-import com.dtstack.taier.datasource.api.exception.SourceException;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import lombok.extern.slf4j.Slf4j;
@@ -436,6 +436,7 @@ public class EsClient extends AbsNoSqlClient {
      *     <li>UPDATE_BY_QUERY(5) _update_by_query 根据条件更新,需要在endpoint中指定_index和_type</li>
      *     <li>DELETE_BY_QUERY(6) _delete_by_query 根据条件删除,需要在endpoint中指定_index和_type</li>
      * <ul/>
+     *
      * @param iSource
      * @param queryDTO
      * @return
@@ -496,7 +497,7 @@ public class EsClient extends AbsNoSqlClient {
             }
             Response response = execute(lowLevelClient, entity, httpMethod, endpoint);
             if (response != null && (response.getStatusLine().getStatusCode() == HttpStatus.SC_OK
-                    || response.getStatusLine().getStatusCode() == HttpStatus.SC_CREATED) ) {
+                    || response.getStatusLine().getStatusCode() == HttpStatus.SC_CREATED)) {
                 result = true;
             }
         } catch (IOException e) {

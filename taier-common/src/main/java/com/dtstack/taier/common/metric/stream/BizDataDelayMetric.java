@@ -10,9 +10,10 @@ import java.util.List;
 
 /**
  * 数据业务延迟
+ *
  * @author jiangbo
  */
-public class BizDataDelayMetric extends StreamBaseMetric{
+public class BizDataDelayMetric extends StreamBaseMetric {
 
     @Override
     public String getTagName() {
@@ -20,7 +21,7 @@ public class BizDataDelayMetric extends StreamBaseMetric{
     }
 
     @Override
-    public String getChartName(){
+    public String getChartName() {
         return "data_delay";
     }
 

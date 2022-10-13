@@ -4,23 +4,29 @@
 	position: relative;
 	margin-bottom: 20px;
 	display: flex;
+
 	&:first-child {
 		margin-top: -18px;
 	}
+
 	&__ant-card {
 		border-radius: 4px;
 		flex: 1;
+
 		.ant-form-item {
 			margin-bottom: 12px;
+
 			&:last-child {
 				margin-bottom: 0;
 			}
 		}
+
 		.card-select {
 			border: 1px solid #dddddd;
 			border-radius: 4px;
 			padding: 12px;
 			line-height: 0;
+
 			&__ant-tag {
 				margin: 0 8px 8px 0;
 				height: 24px;
@@ -30,6 +36,7 @@
 				max-width: 100%;
 				display: flex;
 				align-items: center;
+
 				& > span {
 					overflow: hidden;
 					text-overflow: ellipsis;
@@ -38,6 +45,7 @@
 					flex: 1;
 				}
 			}
+
 			&_btn-edit {
 				display: block;
 				line-height: 12px;
@@ -45,6 +53,7 @@
 			}
 		}
 	}
+
 	&__icon-delete {
 		margin-left: 20px;
 		margin-top: 24px;
@@ -135,14 +144,17 @@
 					width: 30%;
 					font-weight: bold;
 				}
+
 				&:nth-child(2) {
 					width: 30%;
 					text-align: left;
 				}
+
 				&:nth-child(3) {
 					width: 20%;
 					text-align: right;
 				}
+
 				&:nth-child(4) {
 					width: 20%;
 					text-align: right;

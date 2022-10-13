@@ -18,8 +18,8 @@
 
 package com.dtstack.taier.common.enums;
 
-import com.dtstack.taier.datasource.api.source.DataSourceType;
 import com.dtstack.taier.common.exception.DtCenterDefException;
+import com.dtstack.taier.datasource.api.source.DataSourceType;
 import com.google.common.collect.Sets;
 
 import java.util.Set;
@@ -103,7 +103,7 @@ public enum ETableType {
      * @return
      */
     public static ETableType getDatasourceType(Integer datasourceType) {
-        if (dataSourceTypeToHiveSet.contains(datasourceType)){
+        if (dataSourceTypeToHiveSet.contains(datasourceType)) {
             return ETableType.HIVE;
         }
         for (ETableType etype : ETableType.values()) {

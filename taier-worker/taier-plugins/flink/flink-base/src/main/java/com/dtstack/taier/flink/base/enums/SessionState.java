@@ -15,11 +15,11 @@ public enum SessionState {
 
     private final boolean state;
 
-    SessionState(boolean state){
+    SessionState(boolean state) {
         this.state = state;
     }
 
-    public boolean getState(){
+    public boolean getState() {
         return this.state;
     }
 }

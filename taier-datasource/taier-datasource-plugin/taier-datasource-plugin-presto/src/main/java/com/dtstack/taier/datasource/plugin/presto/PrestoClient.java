@@ -1,11 +1,5 @@
 package com.dtstack.taier.datasource.plugin.presto;
 
-import com.dtstack.taier.datasource.plugin.common.exception.ErrorCode;
-import com.dtstack.taier.datasource.plugin.common.utils.DBUtil;
-import com.dtstack.taier.datasource.plugin.common.utils.ReflectUtil;
-import com.dtstack.taier.datasource.plugin.common.utils.SearchUtil;
-import com.dtstack.taier.datasource.plugin.rdbms.AbsRdbmsClient;
-import com.dtstack.taier.datasource.plugin.rdbms.ConnFactory;
 import com.dtstack.taier.datasource.api.dto.ColumnMetaDTO;
 import com.dtstack.taier.datasource.api.dto.SqlQueryDTO;
 import com.dtstack.taier.datasource.api.dto.source.ISourceDTO;
@@ -13,6 +7,12 @@ import com.dtstack.taier.datasource.api.dto.source.PrestoSourceDTO;
 import com.dtstack.taier.datasource.api.dto.source.RdbmsSourceDTO;
 import com.dtstack.taier.datasource.api.exception.SourceException;
 import com.dtstack.taier.datasource.api.source.DataSourceType;
+import com.dtstack.taier.datasource.plugin.common.exception.ErrorCode;
+import com.dtstack.taier.datasource.plugin.common.utils.DBUtil;
+import com.dtstack.taier.datasource.plugin.common.utils.ReflectUtil;
+import com.dtstack.taier.datasource.plugin.common.utils.SearchUtil;
+import com.dtstack.taier.datasource.plugin.rdbms.AbsRdbmsClient;
+import com.dtstack.taier.datasource.plugin.rdbms.ConnFactory;
 import com.google.common.collect.Maps;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
@@ -97,7 +97,7 @@ public class PrestoClient extends AbsRdbmsClient {
     public List<String> getTableList(ISourceDTO sourceDTO, SqlQueryDTO queryDTO) {
         try {
             Integer fetchSize = ReflectUtil.fieldExists(SqlQueryDTO.class, "fetchSize") ? queryDTO.getFetchSize() : null;
-            return SearchUtil.handleSearchAndLimit(queryWithSingleColumn(sourceDTO, queryDTO, SHOW_TABLE_SQL, 1,"get table exception according to schema..."), queryDTO);
+            return SearchUtil.handleSearchAndLimit(queryWithSingleColumn(sourceDTO, queryDTO, SHOW_TABLE_SQL, 1, "get table exception according to schema..."), queryDTO);
         } catch (Exception e) {
             // 如果url 中没有指定到 schema，则获取当前catalog下的所有表，并拼接形式如 "schema"."table"
             if (e.getMessage().contains(SCHEMA_MUST_BE_SET)) {

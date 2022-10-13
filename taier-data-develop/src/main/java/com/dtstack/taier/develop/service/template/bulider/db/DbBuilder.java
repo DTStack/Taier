@@ -4,7 +4,6 @@ import com.alibaba.fastjson.JSONObject;
 import com.dtstack.taier.datasource.api.client.IClient;
 import com.dtstack.taier.datasource.api.dto.source.ISourceDTO;
 import com.dtstack.taier.datasource.api.source.DataSourceType;
-import com.dtstack.taier.develop.vo.datasource.DsPreviewResultVO;
 
 import java.util.List;
 
@@ -18,18 +17,21 @@ public interface DbBuilder {
 
     /**
      * 获取对应的client客户端 - 插件化支持
+     *
      * @return
      */
     IClient getClient();
 
     /**
      * 获取数据源类型
+     *
      * @return
      */
     DataSourceType getDataSourceType();
 
     /**
      * 间接轮询数据预览
+     *
      * @param tableName
      * @param sourceDTO
      * @return
@@ -38,6 +40,7 @@ public interface DbBuilder {
 
     /**
      * 间接轮询表字段
+     *
      * @param sourceDTO
      * @param tableName
      * @return
@@ -46,6 +49,7 @@ public interface DbBuilder {
 
     /**
      * 获取schema信息
+     *
      * @param sourceDTO
      * @param db
      * @return
@@ -60,7 +64,7 @@ public interface DbBuilder {
      * @param db               数据库
      * @return table 集合
      */
-    List<String> listTablesBySchema(String schema,  String tableNamePattern, ISourceDTO sourceDTO, String db);
+    List<String> listTablesBySchema(String schema, String tableNamePattern, ISourceDTO sourceDTO, String db);
 
     /**
      * 生成数据源连接信息，数据预览安全审计使用

@@ -190,9 +190,10 @@
                                 <copy todir="${basedir}/target/../../../../../../worker-plugins/${plugin.dir.name}/"
                                       file="${basedir}/target/${plugin.dir.name}.jar"/>
                                 <delete>
-                                    <fileset dir="${basedir}/target/../../../../../../worker-plugins/${plugin.dir.name}/"
-                                             includes="${plugin.dir.name}-*.jar"
-                                             excludes="${plugin.dir.name}.jar"/>
+                                    <fileset
+                                            dir="${basedir}/target/../../../../../../worker-plugins/${plugin.dir.name}/"
+                                            includes="${plugin.dir.name}-*.jar"
+                                            excludes="${plugin.dir.name}.jar"/>
                                 </delete>
                             </tasks>
                         </configuration>

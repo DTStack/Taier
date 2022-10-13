@@ -20,7 +20,7 @@ public class JobGraphTrigger {
     /**
      * 唯一标识
      */
-    @TableId(value="id", type= IdType.AUTO)
+    @TableId(value = "id", type = IdType.AUTO)
     private Long id;
 
     /**

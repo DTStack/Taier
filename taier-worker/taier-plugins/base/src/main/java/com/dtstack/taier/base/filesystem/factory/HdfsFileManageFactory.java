@@ -24,9 +24,10 @@ import com.dtstack.taier.pluginapi.IFileManage;
 import org.apache.hadoop.conf.Configuration;
 
 /**
- *  Hdfs文件管理
+ * Hdfs文件管理
  * Date: 2020/7/20
  * Company: www.dtstack.com
+ *
  * @author maqi
  */
 public class HdfsFileManageFactory implements IFileManageFactory<FileConfig> {

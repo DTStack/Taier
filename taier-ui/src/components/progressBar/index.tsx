@@ -58,4 +58,5 @@ class ProgressBar {
 		return document.getElementsByClassName(this.className).length > 0;
 	}
 }
+
 export default new ProgressBar();

@@ -16,37 +16,36 @@
  * limitations under the License.
  */
 
-import { createRoot } from 'react-dom/client';
-import { message, Modal } from 'antd';
+import {createRoot} from 'react-dom/client';
+import {message, Modal} from 'antd';
 import molecule from '@dtinsight/molecule';
-import type { IExtension } from '@dtinsight/molecule/esm/model';
-import { runTask, syntaxValidate } from '@/utils/extensions';
-import { DRAWER_MENU_ENUM, TASK_LANGUAGE, ID_COLLECTIONS } from '@/constant';
-import { history } from 'umi';
-import { debounce } from 'lodash';
-import Publish, { CONTAINER_ID } from '@/components/task/publish';
-import type { UniqueId } from '@dtinsight/molecule/esm/common/types';
-import { createSQLProposals, prettierJSONstring } from '@/utils';
+import type {IExtension} from '@dtinsight/molecule/esm/model';
+import {runTask, syntaxValidate} from '@/utils/extensions';
+import {DRAWER_MENU_ENUM, ID_COLLECTIONS, TASK_LANGUAGE, TASK_TYPE_ENUM} from '@/constant';
+import {history} from 'umi';
+import {debounce} from 'lodash';
+import Publish, {CONTAINER_ID} from '@/components/task/publish';
+import type {UniqueId} from '@dtinsight/molecule/esm/common/types';
+import {createSQLProposals, prettierJSONstring} from '@/utils';
 import api from '@/api';
-import { TASK_TYPE_ENUM } from '@/constant';
-import type { CatalogueDataProps, IOfflineTaskProps } from '@/interface';
-import { IComputeType } from '@/interface';
-import type { IParamsProps } from '@/services/taskParamsService';
+import type {CatalogueDataProps, IOfflineTaskProps} from '@/interface';
+import {IComputeType} from '@/interface';
+import type {IParamsProps} from '@/services/taskParamsService';
 import taskParamsService from '@/services/taskParamsService';
 import ImportTemplate from '@/components/task/importTemplate';
-import { languages } from '@dtinsight/molecule/esm/monaco';
-import { editorActionBarService, taskRenderService, executeService } from '@/services';
+import {languages} from '@dtinsight/molecule/esm/monaco';
+import {editorActionBarService, executeService, taskRenderService} from '@/services';
 import notification from '@/components/notification';
-import { mappingTaskTypeToLanguage } from '@/utils/enums';
+import {mappingTaskTypeToLanguage} from '@/utils/enums';
 import taskSaveService from '@/services/taskSaveService';
 import viewStoreService from '@/services/viewStoreService';
-import type { mxCell } from 'mxgraph';
-import type { IGeometryPosition } from '@/components/mxGraph/container';
-import { isEditing } from '@/pages/editor/workflow';
+import type {mxCell} from 'mxgraph';
+import type {IGeometryPosition} from '@/components/mxGraph/container';
+import {isEditing} from '@/pages/editor/workflow';
 
 function emitEvent() {
 	molecule.editor.onActionsClick(async (menuId, current) => {
-		const actionDisabled = current?.actions?.find(({ id }) => id === menuId)?.disabled;
+		const actionDisabled = current?.actions?.find(({id}) => id === menuId)?.disabled;
 		// TODO molecule发布新版就不用这一层根据action的状态控制是否可以点击的逻辑了
 		if (actionDisabled) return;
 		switch (menuId) {
@@ -89,7 +88,7 @@ function emitEvent() {
 				const root = createRoot(node);
 
 				if (currentTab) {
-					root.render(<Publish taskId={currentTab.data.id} />);
+					root.render(<Publish taskId={currentTab.data.id}/>);
 				}
 				break;
 			}
@@ -135,7 +134,7 @@ function emitEvent() {
 						title: '转换为脚本',
 						content: (
 							<div>
-								<p style={{ color: '#f04134' }}>此操作不可逆，是否继续？</p>
+								<p style={{color: '#f04134'}}>此操作不可逆，是否继续？</p>
 								<p>
 									当前为向导模式，配置简单快捷，脚本模式可灵活配置更多参数，定制化程度高
 								</p>
@@ -253,7 +252,7 @@ function emitEvent() {
 					};
 
 					root.render(
-						<ImportTemplate taskId={currentTab.data.id} onSuccess={handleSuccess} />,
+						<ImportTemplate taskId={currentTab.data.id} onSuccess={handleSuccess}/>,
 					);
 				}
 				break;
@@ -265,7 +264,7 @@ function emitEvent() {
 			}
 			// FlinkSQL 格式化
 			case ID_COLLECTIONS.TASK_FORMAT_ID: {
-				api.sqlFormat({ sql: current.tab?.data.value }).then((res) => {
+				api.sqlFormat({sql: current.tab?.data.value}).then((res) => {
 					if (res.code === 1) {
 						molecule.editor.editorInstance.getModel()?.setValue(res.data);
 					}
@@ -294,8 +293,8 @@ const updateTaskVariables = debounce((tab: molecule.model.IEditorTab<any>) => {
 				${currentData.sourceMap.where}
 				${currentData.sourceMap.partition}
 				${currentData.sourceMap.column
-					?.map((col) => `${col.key || col.index}\n${col.value || ''}`)
-					.join('\n')}
+				?.map((col) => `${col.key || col.index}\n${col.value || ''}`)
+				.join('\n')}
 				${currentData.sourceMap.path}
 				${currentData.targetMap?.preSql || ''}
 				${currentData.targetMap?.postSql || ''}
@@ -357,9 +356,11 @@ function registerCompletion() {
 export default class EditorExtension implements IExtension {
 	id: UniqueId = 'editor';
 	name: string = 'editor';
+
 	dispose(): void {
 		throw new Error('Method not implemented.');
 	}
+
 	activate() {
 		emitEvent();
 		registerCompletion();
@@ -384,7 +385,7 @@ export default class EditorExtension implements IExtension {
 		molecule.editor.onUpdateTab((tab) => {
 			updateTaskVariables(tab);
 			// update edited status
-			molecule.editor.updateTab({ id: tab.id, status: 'edited' });
+			molecule.editor.updateTab({id: tab.id, status: 'edited'});
 		});
 
 		executeService.onEndRun((currentTabId) => {
@@ -401,8 +402,8 @@ export default class EditorExtension implements IExtension {
 		});
 
 		// 当前任务保存回调
-		taskSaveService.onSaveTask(({ id }) => {
-			api.getOfflineTaskByID<IOfflineTaskProps>({ id }).then((res) => {
+		taskSaveService.onSaveTask(({id}) => {
+			api.getOfflineTaskByID<IOfflineTaskProps>({id}).then((res) => {
 				if (res.code === 1) {
 					const task = res.data;
 					const currentTab: molecule.model.IEditorTab<IOfflineTaskProps> =
@@ -442,7 +443,7 @@ export default class EditorExtension implements IExtension {
 						// 2. 更新 editor.tab 中的数据
 						molecule.editor.updateTab({
 							id: currentTab.id,
-							data: { ...currentTab.data!, ...task },
+							data: {...currentTab.data!, ...task},
 						});
 
 						// 3. 更新工作流的 tab 的状态
@@ -464,7 +465,7 @@ export default class EditorExtension implements IExtension {
 
 					// 如果是工作流任务，还需要更新工作流的子节点
 					if (task.taskType === TASK_TYPE_ENUM.WORK_FLOW) {
-						const { groups = [] } = molecule.editor.getState();
+						const {groups = []} = molecule.editor.getState();
 						groups.forEach((group) => {
 							group.data?.forEach((tab) => {
 								if (tab.data?.flowId === id) {

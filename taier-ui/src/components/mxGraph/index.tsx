@@ -1,14 +1,14 @@
-import Mx from 'mxgraph';
 import type {
+	mxCell,
+	mxGraph,
 	mxGraphExportObject,
 	mxGraphOptions,
-	mxGraph,
-	StyleMap,
-	mxCell,
-	mxRectangle,
 	mxGraphView,
 	mxPoint,
+	mxRectangle,
+	StyleMap,
 } from 'mxgraph';
+import Mx from 'mxgraph';
 import './index.scss';
 
 interface IMxGraph extends mxGraph {
@@ -35,7 +35,8 @@ class MxFactory {
 		height: 50,
 	};
 
-	public layoutEventHandler: () => void = () => {};
+	public layoutEventHandler: () => void = () => {
+	};
 
 	public mxInstance: mxGraphExportObject;
 
@@ -49,7 +50,7 @@ class MxFactory {
 	 * 边框的默认样式
 	 */
 	private getDefaultVertexStyle = () => {
-		const { mxConstants, mxPerimeter } = this.mxInstance;
+		const {mxConstants, mxPerimeter} = this.mxInstance;
 		const style: StyleMap = [];
 		style[mxConstants.STYLE_SHAPE] = mxConstants.SHAPE_RECTANGLE;
 		style[mxConstants.STYLE_PERIMETER] = mxPerimeter.RectanglePerimeter;
@@ -67,7 +68,7 @@ class MxFactory {
 	 * 边线的默认样式
 	 */
 	private getDefaultEdgeStyle = () => {
-		const { mxConstants, mxEdgeStyle } = this.mxInstance;
+		const {mxConstants, mxEdgeStyle} = this.mxInstance;
 		const style: StyleMap = [];
 		style[mxConstants.STYLE_SHAPE] = mxConstants.SHAPE_CONNECTOR;
 		style[mxConstants.STYLE_STROKECOLOR] = '#3F87FFFF';
@@ -235,7 +236,7 @@ class MxFactory {
 	 * Event handler that selects rectangular regions.
 	 */
 	createRubberBand() {
-		const { mxRubberband: MxRubberband } = this.mxInstance;
+		const {mxRubberband: MxRubberband} = this.mxInstance;
 		if (!this.mxGraph) {
 			throw new Error('Please call create before createRubberBand');
 		}
@@ -262,7 +263,7 @@ class MxFactory {
 	 * 初始化 graph 相关配置
 	 */
 	public initContainerScroll = () => {
-		const { mxRectangle: MxRectangle, mxPoint: MxPoint, mxUtils } = this.mxInstance;
+		const {mxRectangle: MxRectangle, mxPoint: MxPoint, mxUtils} = this.mxInstance;
 		if (this.mxGraph) {
 			const graph = this.mxGraph;
 			/**
@@ -290,11 +291,11 @@ class MxFactory {
 			graph.getPageSize = function () {
 				return this.pageVisible
 					? new MxRectangle(
-							0,
-							0,
-							this.pageFormat.width * this.pageScale,
-							this.pageFormat.height * this.pageScale,
-					  )
+						0,
+						0,
+						this.pageFormat.width * this.pageScale,
+						this.pageFormat.height * this.pageScale,
+					)
 					: this.scrollTileSize!;
 			};
 
@@ -436,7 +437,7 @@ class MxFactory {
 		}
 	};
 
-	setView({ scale, dx, dy }: { scale: number; dx: number; dy: number }) {
+	setView({scale, dx, dy}: { scale: number; dx: number; dy: number }) {
 		if (this.mxGraph) {
 			this.mxGraph.view.setScale(scale);
 			this.mxGraph.view.setTranslate(dx, dy);

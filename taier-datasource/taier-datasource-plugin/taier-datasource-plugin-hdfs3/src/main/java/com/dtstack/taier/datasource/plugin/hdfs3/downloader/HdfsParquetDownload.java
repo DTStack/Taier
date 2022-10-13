@@ -1,14 +1,14 @@
 package com.dtstack.taier.datasource.plugin.hdfs3.downloader;
 
-import com.dtstack.taier.datasource.plugin.common.enums.ColumnType;
-import com.dtstack.taier.datasource.plugin.common.utils.ListUtil;
-import com.dtstack.taier.datasource.plugin.common.utils.StringUtil;
-import com.dtstack.taier.datasource.plugin.kerberos.core.hdfs.HdfsOperator;
-import com.dtstack.taier.datasource.plugin.kerberos.core.util.KerberosLoginUtil;
-import com.dtstack.taier.datasource.plugin.hdfs3.GroupTypeIgnoreCase;
 import com.dtstack.taier.datasource.api.downloader.IDownloader;
 import com.dtstack.taier.datasource.api.dto.ColumnMetaDTO;
 import com.dtstack.taier.datasource.api.exception.SourceException;
+import com.dtstack.taier.datasource.plugin.common.enums.ColumnType;
+import com.dtstack.taier.datasource.plugin.common.utils.ListUtil;
+import com.dtstack.taier.datasource.plugin.common.utils.StringUtil;
+import com.dtstack.taier.datasource.plugin.hdfs3.GroupTypeIgnoreCase;
+import com.dtstack.taier.datasource.plugin.kerberos.core.hdfs.HdfsOperator;
+import com.dtstack.taier.datasource.plugin.kerberos.core.util.KerberosLoginUtil;
 import com.google.common.collect.Lists;
 import com.google.common.primitives.Ints;
 import com.google.common.primitives.Longs;

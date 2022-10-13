@@ -37,9 +37,9 @@ public abstract class BaseAstNodeSqlParser implements ASTNodeParserImpl {
 
     protected Table mainTable;
 
-    protected void setTableAndDb(ParseResult parseResult, ASTNode root){
-        Map<String,String> tableDb = ASTNodeUtil.getTableNameAndDbName(root);
-        if(tableDb != null && !tableDb.isEmpty()){
+    protected void setTableAndDb(ParseResult parseResult, ASTNode root) {
+        Map<String, String> tableDb = ASTNodeUtil.getTableNameAndDbName(root);
+        if (tableDb != null && !tableDb.isEmpty()) {
             Table table = parseResult.getMainTable();
             table.setDb(tableDb.get(ASTNodeUtil.DB_NAME_KEY) == null ? parseResult.getCurrentDb() : tableDb.get(ASTNodeUtil.DB_NAME_KEY));
             table.setName(tableDb.get(ASTNodeUtil.TABLE_NAME_KEY));

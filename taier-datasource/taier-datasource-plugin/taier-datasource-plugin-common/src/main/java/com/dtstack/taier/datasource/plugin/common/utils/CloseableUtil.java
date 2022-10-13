@@ -1,7 +1,7 @@
 package com.dtstack.taier.datasource.plugin.common.utils;
 
-import com.dtstack.taier.datasource.plugin.common.function.SingleParamFunc;
 import com.dtstack.taier.datasource.api.exception.SourceException;
+import com.dtstack.taier.datasource.plugin.common.function.SingleParamFunc;
 
 import java.util.function.Supplier;
 

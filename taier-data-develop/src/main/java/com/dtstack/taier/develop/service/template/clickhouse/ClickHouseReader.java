@@ -42,7 +42,8 @@ public class ClickHouseReader extends BaseReaderPlugin {
     }
 
     @Override
-    public void checkFormat(JSONObject data) {}
+    public void checkFormat(JSONObject data) {
+    }
 
     public List<ColumnDTO> getColumn() {
         return column;

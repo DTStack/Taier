@@ -289,8 +289,8 @@ public class ComponentConfigUtils {
         return buildCustomConfig(key, value, EFrontType.OTHER.name(), null, componentId, clusterId, componentCode);
     }
 
-    public static ComponentConfig buildCustomConfig(String key, String value, String type,String dependencyKey,
-                                                   Long componentId,Long clusterId,Integer componentCode) {
+    public static ComponentConfig buildCustomConfig(String key, String value, String type, String dependencyKey,
+                                                    Long componentId, Long clusterId, Integer componentCode) {
         ComponentConfig componentConfig = new ComponentConfig();
         componentConfig.setType(type);
         componentConfig.setKey(key);
@@ -357,7 +357,7 @@ public class ComponentConfigUtils {
                     //多余自定义参数
                     List<ComponentConfig> customKey = deployConfig.keySet().stream().map(key ->
                             buildCustomConfig(key, deployConfig.getString(key), EFrontType.CUSTOM_CONTROL.name(),
-                                    deployKey, componentId,clusterId, componentCode)).collect(Collectors.toList());
+                                    deployKey, componentId, clusterId, componentCode)).collect(Collectors.toList());
                     //设置自定义参数值
                     saveConfig.addAll(customKey);
 

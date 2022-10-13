@@ -2,15 +2,15 @@ package com.dtstack.taier.datasource.plugin.rdbms;
 
 import com.dtstack.taier.datasource.api.base.ClientCache;
 import com.dtstack.taier.datasource.api.client.IClient;
-import com.dtstack.taier.datasource.plugin.common.exception.ErrorCode;
-import com.dtstack.taier.datasource.plugin.common.utils.DBUtil;
-import com.dtstack.taier.datasource.plugin.common.utils.MathUtil;
 import com.dtstack.taier.datasource.api.client.ITable;
 import com.dtstack.taier.datasource.api.dto.UpsertColumnMetaDTO;
 import com.dtstack.taier.datasource.api.dto.source.ISourceDTO;
 import com.dtstack.taier.datasource.api.dto.source.RdbmsSourceDTO;
 import com.dtstack.taier.datasource.api.exception.SourceException;
 import com.dtstack.taier.datasource.api.source.DataSourceType;
+import com.dtstack.taier.datasource.plugin.common.exception.ErrorCode;
+import com.dtstack.taier.datasource.plugin.common.utils.DBUtil;
+import com.dtstack.taier.datasource.plugin.common.utils.MathUtil;
 import com.google.common.collect.Lists;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
@@ -100,12 +100,15 @@ public abstract class AbsTableClient implements ITable {
 
     /**
      * 获取删除表的sql
+     *
      * @param tableName 表名
      * @return sql
      */
-    protected String getDropTableSql(String tableName){
+    protected String getDropTableSql(String tableName) {
         return String.format("drop table if exists `%s`", tableName);
-    };
+    }
+
+    ;
 
     @Override
     public Boolean renameTable(ISourceDTO source, String oldTableName, String newTableName) {
@@ -183,7 +186,7 @@ public abstract class AbsTableClient implements ITable {
      * @return
      */
     protected Boolean deleteTableColumn(ISourceDTO source, UpsertColumnMetaDTO columnMetaDTO) {
-      throw new SourceException(ErrorCode.NOT_SUPPORT.getDesc());
+        throw new SourceException(ErrorCode.NOT_SUPPORT.getDesc());
     }
 
     /**
@@ -207,11 +210,12 @@ public abstract class AbsTableClient implements ITable {
 
     /**
      * 检查参数并设置schema
-     * @param source 数据源信息
-     * @param schema  schema名称
+     *
+     * @param source    数据源信息
+     * @param schema    schema名称
      * @param tableName 表名
      */
-    protected void checkParamAndSetSchema (ISourceDTO source, String schema, String tableName) {
+    protected void checkParamAndSetSchema(ISourceDTO source, String schema, String tableName) {
         if (StringUtils.isBlank(tableName)) {
             throw new SourceException("Table name cannot be empty");
         }
@@ -223,11 +227,12 @@ public abstract class AbsTableClient implements ITable {
 
     /**
      * 获取表占用存储的sql
-     * @param schema schema信息
+     *
+     * @param schema    schema信息
      * @param tableName 表名
      * @return 占用存储sql
      */
     protected String getTableSizeSql(String schema, String tableName) {
-       throw new SourceException("This data source does not support obtaining tables occupying storage");
+        throw new SourceException("This data source does not support obtaining tables occupying storage");
     }
 }

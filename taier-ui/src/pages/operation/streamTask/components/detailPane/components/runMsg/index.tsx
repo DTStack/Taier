@@ -1,8 +1,8 @@
-import { useState, useEffect, useRef } from 'react';
-import { Radio } from 'antd';
+import {useEffect, useRef, useState} from 'react';
+import {Radio} from 'antd';
 import stream from '@/api';
-import type { IStreamJobProps } from '@/interface';
-import { TASK_STATUS } from '@/constant';
+import type {IStreamJobProps} from '@/interface';
+import {TASK_STATUS} from '@/constant';
 import Common from './common';
 import DetailTable from './detailTable';
 import './index.scss';
@@ -47,14 +47,14 @@ const TABS = [
 	},
 ];
 
-export default function RunMsg({ data }: IProps) {
+export default function RunMsg({data}: IProps) {
 	const [tabKey, setTabKey] = useState(TABS_ENUM.VERTEX);
 	const [flinkJson, setFlinkJson] = useState<IFlinkJsonProps[]>([]);
 	const [loading, setLoading] = useState(false);
 	const timeClock = useRef<number | undefined>(undefined);
 
 	const getFlinkJsonData = async (isSlient?: boolean) => {
-		const { id, status } = data || {};
+		const {id, status} = data || {};
 		if (!id || status !== TASK_STATUS.RUNNING) return;
 		if (!isSlient) {
 			setLoading(true);
@@ -65,11 +65,11 @@ export default function RunMsg({ data }: IProps) {
 		}
 
 		stream
-			.getTaskJson({ taskId: id })
+			.getTaskJson({taskId: id})
 			.then((res) => {
 				if (res.code === 1) {
 					rollData(status);
-					const { taskVertices } = res.data || {};
+					const {taskVertices} = res.data || {};
 					setFlinkJson(taskVertices || []);
 				}
 			})
@@ -101,10 +101,10 @@ export default function RunMsg({ data }: IProps) {
 		switch (key) {
 			case TABS_ENUM.VERTEX:
 				return (
-					<Common flinkJson={flinkJson} loading={loading} refresh={getFlinkJsonData} />
+					<Common flinkJson={flinkJson} loading={loading} refresh={getFlinkJsonData}/>
 				);
 			case TABS_ENUM.DETAIL:
-				return <DetailTable tableData={flinkJson} loading={loading} />;
+				return <DetailTable tableData={flinkJson} loading={loading}/>;
 
 			default:
 				return null;
@@ -115,7 +115,7 @@ export default function RunMsg({ data }: IProps) {
 		<div className="c-collapse-wrapper">
 			<div className="graph-content-box">
 				<Radio.Group
-					style={{ padding: '0 20px 12px' }}
+					style={{padding: '0 20px 12px'}}
 					value={tabKey}
 					onChange={(e) => setTabKey(e.target.value)}
 				>

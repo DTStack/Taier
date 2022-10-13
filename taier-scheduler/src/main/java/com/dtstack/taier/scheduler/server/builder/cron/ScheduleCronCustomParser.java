@@ -30,9 +30,9 @@ public class ScheduleCronCustomParser implements IScheduleConfParser {
 
     @Override
     public String parse(ScheduleConf scheduleConf) {
-        String cron =scheduleConf.getCorn();
+        String cron = scheduleConf.getCorn();
         if (StringUtils.isBlank(cron)) {
-            throw new RdosDefineException(String.format(ScheduleConfManager.CustomError.ERROR_INFO,scheduleConf.getPeriodType(),"cron"));
+            throw new RdosDefineException(String.format(ScheduleConfManager.CustomError.ERROR_INFO, scheduleConf.getPeriodType(), "cron"));
         }
         return cron;
     }

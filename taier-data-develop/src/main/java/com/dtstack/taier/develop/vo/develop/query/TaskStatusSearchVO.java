@@ -32,6 +32,7 @@ public class TaskStatusSearchVO extends DtInsightAuthParam {
     public void setTaskName(String taskName) {
         this.taskName = taskName;
     }
+
     public List<Integer> getType() {
         return type;
     }

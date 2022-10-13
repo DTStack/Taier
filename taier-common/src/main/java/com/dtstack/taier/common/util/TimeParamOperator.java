@@ -69,11 +69,11 @@ public class TimeParamOperator {
         String realCommand = null;
         String realOperator = null;
         String realOperatorNum = null;
-        if (split.length == 2){
+        if (split.length == 2) {
             realCommand = split[0];
             realOperator = split[1].substring(0, 1);
             realOperatorNum = split[1].substring(1, split[1].length());
-        }else {
+        } else {
             Matcher matcher = pattern.matcher(command);
             if (!(matcher.find() && matcher.groupCount() == 3)) {
                 throw new DtCenterDefException("illegal command " + command);
@@ -89,7 +89,7 @@ public class TimeParamOperator {
         int operatorNum = MathUtil.getIntegerVal(realOperatorNum);
 
         if ("-".equals(realOperator)) {
-            if (realCommand.length() == 10){
+            if (realCommand.length() == 10) {
                 return minusDay(operatorNum, cycTime, realCommand);
             } else if (realCommand.length() == 8) {
                 return minusDay(operatorNum, cycTime, realCommand);
@@ -101,9 +101,9 @@ public class TimeParamOperator {
                 throw new DtCenterDefException("illegal command " + command);
             }
         } else if ("+".equals(realOperator)) {
-            if (realCommand.length() == 10){
+            if (realCommand.length() == 10) {
                 return minusDay(operatorNum, cycTime, realCommand);
-            }else if (realCommand.length() == 8) {
+            } else if (realCommand.length() == 8) {
                 return plusDay(operatorNum, cycTime, realCommand);
             } else if (realCommand.length() == 6) {
                 return plusMonth(operatorNum, cycTime, realCommand);
@@ -132,7 +132,7 @@ public class TimeParamOperator {
                 timeFmtStr = paramsArrays[0].trim();
                 if (paramsArrays.length > 2) {
                     //第三个参数为连接符
-                    split = paramsArrays[2].replaceAll("'","");
+                    split = paramsArrays[2].replaceAll("'", "");
                 }
                 if (YEAR_FMT.equals(timeFmtStr)) {
                     String year = StringUtils.deleteWhitespace(paramsArrays[1]);
@@ -220,11 +220,11 @@ public class TimeParamOperator {
             if (StringUtils.isBlank(result)) {
                 throw new DtCenterDefException("illegal command " + command);
             }
-            if(StringUtils.isNotEmpty(split)&& StringUtils.isNotEmpty(result)){
-                if(StringUtils.isBlank(timeFmtStr)){
+            if (StringUtils.isNotEmpty(split) && StringUtils.isNotEmpty(result)) {
+                if (StringUtils.isBlank(timeFmtStr)) {
                     timeFmtStr = line;
                 }
-                return convertResultWithSplit(result,timeFmtStr,split.trim());
+                return convertResultWithSplit(result, timeFmtStr, split.trim());
             }
             return result;
         } else if (command.startsWith("${") && command.endsWith("}")) {
@@ -250,11 +250,12 @@ public class TimeParamOperator {
 
     /**
      * 处理 format 函数
+     *
      * @param line
      * @param cycTime
      * @return
      */
-    private static String doFormatFunction (String line, String cycTime) {
+    private static String doFormatFunction(String line, String cycTime) {
         Matcher formattedMatch = FORMAT_PATTERN.matcher(line);
         if (!formattedMatch.find()) {
             throw new DtCenterDefException("illegal command " + line);
@@ -272,35 +273,36 @@ public class TimeParamOperator {
     /**
      * 处理时间 3y，3M，3d，3H，3m，3s
      * 基础单位 yyyyMMddHHmmss
+     *
      * @param cycTime
-     * @param operate 操作 + / -
-     * @param number 数量
-     * @param unit 单位
+     * @param operate      操作 + / -
+     * @param number       数量
+     * @param unit         单位
      * @param formatResult 返回值结构
      * @return
      */
     private static String doFormatFunctionCyctime(String cycTime, Boolean operate, Integer number, String unit, String formatResult) {
         switch (unit) {
-            case "y" :
+            case "y":
                 return operate ? plusYear(number, cycTime, formatResult) : minusYear(number, cycTime, formatResult);
 
-            case "M" :
+            case "M":
                 return operate ? plusMonth(number, cycTime, formatResult) : minusMonth(number, cycTime, formatResult);
 
 
-            case "d" :
+            case "d":
                 return operate ? plusDay(number, cycTime, formatResult) : minusDay(number, cycTime, formatResult);
 
 
-            case "H" :
+            case "H":
                 return operate ? plusHour(number, cycTime, formatResult) : minusHour(number, cycTime, formatResult);
 
 
-            case "m" :
+            case "m":
                 return operate ? plusMinute(number, cycTime, formatResult) : minusMinute(number, cycTime, formatResult);
 
 
-            case "w" :
+            case "w":
                 return operate ? plusDay(number * 7, cycTime, formatResult) : minusDay(number * 7, cycTime, formatResult);
 
 
@@ -328,7 +330,7 @@ public class TimeParamOperator {
         return convertResult.toString();
     }
 
-    private static String dealDateTimeFormat (DateTime dateTime, String format) {
+    private static String dealDateTimeFormat(DateTime dateTime, String format) {
         // 如果为 Unix 时间戳
         if ("UnixTimestamp10".equalsIgnoreCase(format.trim())) {
             return String.valueOf(dateTime.getMillis() / 1000);

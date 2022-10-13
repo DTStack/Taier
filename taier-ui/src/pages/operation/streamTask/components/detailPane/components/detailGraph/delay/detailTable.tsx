@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react';
-import { Breadcrumb, Table } from 'antd';
-import { ReloadOutlined } from '@ant-design/icons';
+import {useEffect, useState} from 'react';
+import {Breadcrumb, Table} from 'antd';
+import {ReloadOutlined} from '@ant-design/icons';
 import Chart from './detailGraph';
 import moment from 'moment';
 import GraphTimePicker from '@/components/graphTime/graphTimePicker';
@@ -20,7 +20,7 @@ interface TableData {
 }
 
 export default function DetailTable(props: Props) {
-	const { taskId, topicName, closeDetail } = props;
+	const {taskId, topicName, closeDetail} = props;
 
 	const [tableData, setTableData] = useState<TableData[]>([]);
 	const [timespan, setTimespan] = useState('10m');
@@ -58,10 +58,10 @@ export default function DetailTable(props: Props) {
 	}
 
 	const columns = [
-		{ title: '分区 ID', dataIndex: 'partitionId' },
-		{ title: '延迟消息数（条）', dataIndex: 'delayCount' },
-		{ title: '总消息数', dataIndex: 'totalDelayCount' },
-		{ title: '当前消费位置', dataIndex: 'currentLocation' },
+		{title: '分区 ID', dataIndex: 'partitionId'},
+		{title: '延迟消息数（条）', dataIndex: 'delayCount'},
+		{title: '总消息数', dataIndex: 'totalDelayCount'},
+		{title: '当前消费位置', dataIndex: 'currentLocation'},
 	];
 
 	function expandedRowRender(record: TableData) {
@@ -78,8 +78,8 @@ export default function DetailTable(props: Props) {
 
 	return (
 		<>
-			<div style={{ display: 'flex', alignItems: 'center', marginBottom: '16px' }}>
-				<Breadcrumb style={{ marginRight: 'auto' }}>
+			<div style={{display: 'flex', alignItems: 'center', marginBottom: '16px'}}>
+				<Breadcrumb style={{marginRight: 'auto'}}>
 					<Breadcrumb.Item onClick={closeDetail}>
 						<a>数据延迟</a>
 					</Breadcrumb.Item>
@@ -91,13 +91,13 @@ export default function DetailTable(props: Props) {
 					onInputChange={(s) => setTimespan(s)}
 				/>
 				<GraphTimePicker
-					style={{ marginLeft: 12 }}
+					style={{marginLeft: 12}}
 					value={endTime}
 					timeRange={timespan}
 					onChange={(e) => setEndTime(e)}
 				/>
 				<ReloadOutlined
-					style={{ color: '#666', marginLeft: 12, cursor: 'pointer' }}
+					style={{color: '#666', marginLeft: 12, cursor: 'pointer'}}
 					onClick={refresh}
 				/>
 			</div>
@@ -107,7 +107,7 @@ export default function DetailTable(props: Props) {
 					rowKey="partitionId"
 					loading={loading}
 					className="dt-table-border"
-					style={{ height: 'calc(100vh - 335px)', boxShadow: 'none' }}
+					style={{height: 'calc(100vh - 335px)', boxShadow: 'none'}}
 					size="middle"
 					columns={columns}
 					pagination={{
@@ -115,7 +115,7 @@ export default function DetailTable(props: Props) {
 						pageSize: 20,
 						showTotal: (total) => (
 							<>
-								共<span style={{ color: '#3F87FF' }}>{total}</span>条数据
+								共<span style={{color: '#3F87FF'}}>{total}</span>条数据
 							</>
 						),
 					}}

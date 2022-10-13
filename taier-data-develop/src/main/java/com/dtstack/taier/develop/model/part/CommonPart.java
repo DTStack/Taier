@@ -14,7 +14,7 @@ public class CommonPart extends PartImpl {
 
     public CommonPart(EComponentType componentType, String versionName, EComponentType storeType, Map<EComponentScheduleType, List<Component>> componentScheduleGroup,
                       Context context, DataSource dataSource) {
-        super(componentType, versionName, storeType, componentScheduleGroup, context, dataSource,null);
+        super(componentType, versionName, storeType, componentScheduleGroup, context, dataSource, null);
     }
 
     @Override

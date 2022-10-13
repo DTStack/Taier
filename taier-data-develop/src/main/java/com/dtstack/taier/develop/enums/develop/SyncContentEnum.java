@@ -9,17 +9,17 @@ public enum SyncContentEnum {
     /**
      * 数据同步
      */
-    DATA_SYNC(1,"数据同步"),
+    DATA_SYNC(1, "数据同步"),
 
     /**
      * 数据&结构同步
      */
-    DATA_STRUCTURE_SYNC(2,"数据&结构同步");
+    DATA_STRUCTURE_SYNC(2, "数据&结构同步");
 
     private Integer type;
     private String name;
 
-    SyncContentEnum(Integer type, String name){
+    SyncContentEnum(Integer type, String name) {
         this.type = type;
         this.name = name;
     }

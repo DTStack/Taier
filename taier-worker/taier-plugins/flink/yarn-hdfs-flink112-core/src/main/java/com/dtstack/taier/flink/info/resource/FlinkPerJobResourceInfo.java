@@ -1,11 +1,11 @@
 package com.dtstack.taier.flink.info.resource;
 
-import com.dtstack.taier.pluginapi.pojo.JudgeResult;
-import com.dtstack.taier.pluginapi.util.MathUtil;
-import com.dtstack.taier.pluginapi.JobClient;
+import com.dtstack.taier.base.resource.AbstractYarnResourceInfo;
 import com.dtstack.taier.flink.constant.ConfigConstant;
 import com.dtstack.taier.flink.util.FlinkUtil;
-import com.dtstack.taier.base.resource.AbstractYarnResourceInfo;
+import com.dtstack.taier.pluginapi.JobClient;
+import com.dtstack.taier.pluginapi.pojo.JudgeResult;
+import com.dtstack.taier.pluginapi.util.MathUtil;
 import com.google.common.collect.Lists;
 import org.apache.flink.configuration.JobManagerOptions;
 import org.apache.flink.configuration.MemorySize;
@@ -70,7 +70,7 @@ public class FlinkPerJobResourceInfo extends AbstractYarnResourceInfo {
      */
     private void setTaskResourceInfo(JobClient jobClient) {
         Properties properties = jobClient.getConfProperties();
-        if(properties != null){
+        if (properties != null) {
             int parallelism = Math.max(FlinkUtil.getEnvParallelism(properties), FlinkUtil.getJobParallelism(properties));
             numberTaskManagers = parallelism % slotsPerTaskManager == 0 ?
                     parallelism / slotsPerTaskManager :
@@ -78,20 +78,20 @@ public class FlinkPerJobResourceInfo extends AbstractYarnResourceInfo {
 
             if (properties.containsKey(TaskManagerOptions.NUM_TASK_SLOTS.key())) {
                 slotsPerTaskManager = MathUtil.getIntegerVal(properties.get(TaskManagerOptions.NUM_TASK_SLOTS.key()));
-            }else{
+            } else {
                 slotsPerTaskManager = MathUtil.getIntegerVal(envProperties.get(TaskManagerOptions.NUM_TASK_SLOTS.key()));
             }
 
             if (properties.containsKey(JobManagerOptions.TOTAL_PROCESS_MEMORY.key())) {
                 jobManagerMemoryMb = MemorySize.parse(properties.getProperty(JobManagerOptions.TOTAL_PROCESS_MEMORY.key())).getMebiBytes();
-            }else{
+            } else {
                 jobManagerMemoryMb = MemorySize.parse(envProperties.getProperty(JobManagerOptions.TOTAL_PROCESS_MEMORY.key())).getMebiBytes();
             }
             jobManagerMemoryMb = Math.max(jobManagerMemoryMb, ConfigConstant.MIN_JM_MEMORY);
 
             if (properties.containsKey(TaskManagerOptions.TOTAL_PROCESS_MEMORY.key())) {
                 taskManagerMemoryMb = MemorySize.parse(properties.getProperty(TaskManagerOptions.TOTAL_PROCESS_MEMORY.key())).getMebiBytes();
-            }else{
+            } else {
                 taskManagerMemoryMb = MemorySize.parse(envProperties.getProperty(TaskManagerOptions.TOTAL_PROCESS_MEMORY.key())).getMebiBytes();
             }
             taskManagerMemoryMb = Math.max(taskManagerMemoryMb, ConfigConstant.MIN_TM_MEMORY);

@@ -48,10 +48,10 @@ import com.dtstack.taier.develop.vo.develop.result.DevelopAllProductGlobalReturn
 import com.dtstack.taier.develop.vo.develop.result.DevelopGetChildTasksResultVO;
 import com.dtstack.taier.develop.vo.develop.result.DevelopSysParameterResultVO;
 import com.dtstack.taier.develop.vo.develop.result.DevelopTaskGetComponentVersionResultVO;
-import com.dtstack.taier.develop.vo.develop.result.DevelopTaskTypeVO;
 import com.dtstack.taier.develop.vo.develop.result.DevelopTaskGetTaskByIdResultVO;
 import com.dtstack.taier.develop.vo.develop.result.DevelopTaskPublishTaskResultVO;
 import com.dtstack.taier.develop.vo.develop.result.DevelopTaskResultVO;
+import com.dtstack.taier.develop.vo.develop.result.DevelopTaskTypeVO;
 import com.dtstack.taier.develop.vo.develop.result.TaskCatalogueResultVO;
 import com.dtstack.taier.scheduler.service.ScheduleTaskShadeService;
 import com.google.common.base.Preconditions;
@@ -245,7 +245,7 @@ public class DevelopTaskController {
     public R<List<DevelopTaskTypeVO>> getSupportJobTypes(@RequestBody(required = false) DevelopTaskGetSupportJobTypesVO detailVO) {
         return new APITemplate<List<DevelopTaskTypeVO>>() {
             @Override
-            protected List<DevelopTaskTypeVO>  process() {
+            protected List<DevelopTaskTypeVO> process() {
                 return developTaskService.getSupportJobTypes(detailVO.getTenantId());
             }
         }.execute();
@@ -310,7 +310,6 @@ public class DevelopTaskController {
     public R<JSONObject> getSyncProperties() {
         return R.ok(developTaskService.getSyncProperties());
     }
-
 
 
 }

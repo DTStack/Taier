@@ -1,11 +1,11 @@
 package com.dtstack.taier.datasource.plugin.restful.core;
 
-import com.dtstack.taier.datasource.plugin.restful.core.http.HttpClient;
-import com.dtstack.taier.datasource.plugin.restful.core.http.HttpClientFactory;
 import com.dtstack.taier.datasource.api.client.IRestful;
 import com.dtstack.taier.datasource.api.dto.restful.Response;
 import com.dtstack.taier.datasource.api.dto.source.ISourceDTO;
 import com.dtstack.taier.datasource.api.exception.SourceException;
+import com.dtstack.taier.datasource.plugin.restful.core.http.HttpClient;
+import com.dtstack.taier.datasource.plugin.restful.core.http.HttpClientFactory;
 
 import java.io.File;
 import java.io.IOException;

@@ -38,7 +38,6 @@ public enum TableLocationType {
     ;
 
 
-
     private String value;
 
     TableLocationType(String value) {
@@ -55,7 +54,7 @@ public enum TableLocationType {
 
 
     public static TableLocationType getTableLocationType(String value) {
-        for (TableLocationType tableLocationType: TableLocationType.values()) {
+        for (TableLocationType tableLocationType : TableLocationType.values()) {
             if (tableLocationType.getValue().equals(value)) {
                 return tableLocationType;
             }

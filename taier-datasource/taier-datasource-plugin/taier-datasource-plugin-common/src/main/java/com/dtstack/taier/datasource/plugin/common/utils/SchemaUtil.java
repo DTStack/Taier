@@ -1,11 +1,11 @@
 package com.dtstack.taier.datasource.plugin.common.utils;
 
-import com.dtstack.taier.datasource.plugin.common.base.InsideTable;
 import com.dtstack.taier.datasource.api.dto.SqlQueryDTO;
 import com.dtstack.taier.datasource.api.dto.source.ISourceDTO;
 import com.dtstack.taier.datasource.api.dto.source.RdbmsSourceDTO;
 import com.dtstack.taier.datasource.api.exception.SourceException;
 import com.dtstack.taier.datasource.api.utils.AssertUtils;
+import com.dtstack.taier.datasource.plugin.common.base.InsideTable;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 
@@ -67,7 +67,7 @@ public class SchemaUtil {
      * @return table info
      */
     public static InsideTable getTableInfo(String schema, String tableName, Pair<Character, Character> specialSign,
-                                          BiFunction<String, String, String> transferFunc) {
+                                           BiFunction<String, String, String> transferFunc) {
         AssertUtils.notNull(specialSign, "special sign can't be null.");
         AssertUtils.notNull(transferFunc, "transferFunc can't be null.");
 

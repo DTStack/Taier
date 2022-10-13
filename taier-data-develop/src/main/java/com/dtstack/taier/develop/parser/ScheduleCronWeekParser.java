@@ -33,6 +33,7 @@ import java.util.Map;
  * 1-7 ==> sun-sat
  * Date: 2017/5/4
  * Company: www.dtstack.com
+ *
  * @author xuchao
  */
 
@@ -71,7 +72,7 @@ public class ScheduleCronWeekParser extends ScheduleCron {
     @Override
     public List<String> getTriggerTime(String specifyDate) throws ParseException {
 
-        if(!checkSpecifyDayCanExe(specifyDate)){
+        if (!checkSpecifyDayCanExe(specifyDate)) {
             return Lists.newArrayList();
         }
 
@@ -87,20 +88,20 @@ public class ScheduleCronWeekParser extends ScheduleCron {
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(date);
         int targetDayOfWeek = calendar.get(Calendar.DAY_OF_WEEK);
-        if(targetDayOfWeek == 1){
+        if (targetDayOfWeek == 1) {
             targetDayOfWeek = 7;
-        }else{
+        } else {
             targetDayOfWeek = targetDayOfWeek - 1;
         }
 
         String canExeDay = CronStrUtil.getDayOfWeekStr(getCronStr());
         boolean canExe = false;
-        for(String tmpDay : canExeDay.split(",")){
+        for (String tmpDay : canExeDay.split(",")) {
             tmpDay = tmpDay.trim();
-            if(tmpDay.startsWith("0")){
+            if (tmpDay.startsWith("0")) {
                 tmpDay = tmpDay.substring(1);
             }
-            if(tmpDay.trim().equals(targetDayOfWeek + "")){
+            if (tmpDay.trim().equals(targetDayOfWeek + "")) {
                 return true;
             }
         }

@@ -25,11 +25,11 @@ export default class KeyCombiner extends React.Component<KeyCombinerProps, KeyCo
 	componentWillUnmount() {
 		window.removeEventListener('keydown', this.bindEvent, false);
 		window.removeEventListener('keyup', this.bindEvent, false);
-		this.setState({ currentKeys: {} });
+		this.setState({currentKeys: {}});
 	}
 
 	bindEvent = (target: KeyboardEvent) => {
-		const { onTrigger, keyMap } = this.props;
+		const {onTrigger, keyMap} = this.props;
 
 		const keyCode = target.keyCode;
 		const isKeyDown = target.type === 'keydown';

@@ -16,7 +16,7 @@ public interface DsTypeTransfer {
     DsTypeTransfer INSTANCE = Mappers.getMapper(DsTypeTransfer.class);
 
 
-    @Mapping(source = "id",target = "typeId")
+    @Mapping(source = "id", target = "typeId")
     DsTypeVO toInfoVO(DsType dsType);
 
     List<DsTypeVO> toInfoVOs(List<DsType> dsTypeList);

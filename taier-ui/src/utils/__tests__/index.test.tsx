@@ -1,7 +1,7 @@
-import { TASK_STATUS } from '@/constant';
-import { taskRenderService } from '@/services';
+import {TASK_STATUS} from '@/constant';
+import {taskRenderService} from '@/services';
 import moment from 'moment';
-import { history } from 'umi';
+import {history} from 'umi';
 import {
 	checkExist,
 	convertObjToNamePath,
@@ -47,7 +47,7 @@ jest.mock('@/components/customDrawer', () => {
 
 jest.mock('umi', () => {
 	return {
-		history: { push: jest.fn() },
+		history: {push: jest.fn()},
 	};
 });
 
@@ -125,7 +125,7 @@ describe('utils/index', () => {
 	});
 
 	it('Should Replace String By Index Array', () => {
-		expect(replaceStrFormIndexArr('test', 'abc', [{ begin: 0, end: 2 }])).toBe('abct');
+		expect(replaceStrFormIndexArr('test', 'abc', [{begin: 0, end: 2}])).toBe('abct');
 		expect(replaceStrFormIndexArr('test', 'abc', [])).toBe('test');
 	});
 
@@ -146,7 +146,7 @@ describe('utils/index', () => {
 
 	it('Should Query Hash in URL', () => {
 		const url = 'http://test.com/?test=task&test2=abc';
-		expect(queryParse(url)).toEqual({ test: 'task', test2: 'abc' });
+		expect(queryParse(url)).toEqual({test: 'task', test2: 'abc'});
 
 		expect(queryParse('')).toEqual({});
 	});
@@ -164,7 +164,7 @@ describe('utils/index', () => {
 	});
 
 	it('Should Convert to Object', () => {
-		const rawObj = { 'a.b.c': 1, 'a.b.a': 2 };
+		const rawObj = {'a.b.c': 1, 'a.b.a': 2};
 		expect(convertToObj(rawObj)).toEqual({
 			a: {
 				b: {
@@ -184,7 +184,7 @@ describe('utils/index', () => {
 				},
 			},
 		};
-		expect(convertToStr(rawObj)).toEqual({ 'a.b.c': 1, 'a.b.a': 2 });
+		expect(convertToStr(rawObj)).toEqual({'a.b.c': 1, 'a.b.a': 2});
 	});
 
 	it('Should Remove Tooltips from Document', () => {
@@ -246,7 +246,7 @@ describe('utils/index', () => {
 
 	it('Should prettier JSON string', () => {
 		expect(
-			prettierJSONstring(JSON.stringify({ a: { b: 1 }, c: JSON.stringify({ a: 1 }) })),
+			prettierJSONstring(JSON.stringify({a: {b: 1}, c: JSON.stringify({a: 1})})),
 		).toBe('{\n  "a": {\n    "b": 1\n  },\n  "c": {\n    "a": 1\n  }\n}');
 
 		expect(prettierJSONstring(';;')).toBe(';;');
@@ -261,7 +261,7 @@ describe('utils/index', () => {
 		const mockFn = jest.fn();
 		Object.defineProperty(navigator, 'clipboard', {
 			configurable: true,
-			value: { writeText: mockFn },
+			value: {writeText: mockFn},
 		});
 
 		copyText('test');
@@ -285,10 +285,10 @@ describe('utils/index', () => {
 	});
 
 	it('Should parse columns', () => {
-		expect(getColumnsByColumnsText('id int')).toEqual([{ field: 'id', type: 'int' }]);
+		expect(getColumnsByColumnsText('id int')).toEqual([{field: 'id', type: 'int'}]);
 		expect(getColumnsByColumnsText('id int\nage int\n\n\n\n')).toEqual([
-			{ field: 'id', type: 'int' },
-			{ field: 'age', type: 'int' },
+			{field: 'id', type: 'int'},
+			{field: 'age', type: 'int'},
 		]);
 	});
 
@@ -297,19 +297,19 @@ describe('utils/index', () => {
 	});
 
 	it('Should convert params into values', () => {
-		expect(convertParams({ sourceId: '{{ form#a.b }}' }, { a: { b: 1 } })).toEqual({
+		expect(convertParams({sourceId: '{{ form#a.b }}'}, {a: {b: 1}})).toEqual({
 			sourceId: 1,
 		});
 	});
 
 	it('Should get an calculated value', () => {
-		expect(getPlus({ a: { b: [{ c: 1, value: 100 }] } }, '{{a.b#find.c}}', 100)).toBe(1);
+		expect(getPlus({a: {b: [{c: 1, value: 100}]}}, '{{a.b#find.c}}', 100)).toBe(1);
 
-		expect(getPlus({ a: { b: 2 } }, '{{a.b}}')).toBe(2);
+		expect(getPlus({a: {b: 2}}, '{{a.b}}')).toBe(2);
 	});
 
 	it("Should convert to form's name path", () => {
-		expect(convertObjToNamePath({ a: { b: 1 } })).toEqual([['a', 'b'], 1]);
+		expect(convertObjToNamePath({a: {b: 1}})).toEqual([['a', 'b'], 1]);
 	});
 
 	it('Should support to visit tree nodes by condition', () => {
@@ -397,11 +397,11 @@ describe('utils/index', () => {
 	});
 
 	it('Should filter the falsy value in object', () => {
-		expect(pickByTruly({ a: 0, b: '', c: undefined, d: null })).toEqual({ a: 0, b: '' });
+		expect(pickByTruly({a: 0, b: '', c: undefined, d: null})).toEqual({a: 0, b: ''});
 	});
 
 	it('Should pick up object by keys', () => {
-		expect(splitByKey({ a: 1, b: 2, c: 3 }, ['a', 'b'])).toEqual({
+		expect(splitByKey({a: 1, b: 2, c: 3}, ['a', 'b'])).toEqual({
 			obj1: {
 				a: 1,
 				b: 2,
@@ -497,9 +497,9 @@ describe('utils/index', () => {
 	});
 
 	it('Should support to goToTaskDev', () => {
-		goToTaskDev({ id: 1 });
+		goToTaskDev({id: 1});
 
-		expect(taskRenderService.openTask).toBeCalledWith({ id: '1' });
-		expect(history.push).toBeCalledWith({ query: {} });
+		expect(taskRenderService.openTask).toBeCalledWith({id: '1'});
+		expect(history.push).toBeCalledWith({query: {}});
 	});
 });

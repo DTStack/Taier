@@ -25,13 +25,13 @@ import io.swagger.annotations.ApiModelProperty;
 @ApiModel("根据appId获取日志信息")
 public class DevelopServerGetLogByAppIdVO extends DtInsightAuthParam {
 
-    @ApiModelProperty(value = "任务实例ID",example = "1", required = true)
+    @ApiModelProperty(value = "任务实例ID", example = "1", required = true)
     private String jobId;
 
     @ApiModelProperty(hidden = true)
     private Long tenantId;
 
-    @ApiModelProperty(value = "任务类型",example = "1", required = true)
+    @ApiModelProperty(value = "任务类型", example = "1", required = true)
     private Integer taskType;
 
     public String getJobId() {

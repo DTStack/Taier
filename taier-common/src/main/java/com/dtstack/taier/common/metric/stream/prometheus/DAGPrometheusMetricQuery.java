@@ -36,23 +36,23 @@ public class DAGPrometheusMetricQuery {
         } catch (UnsupportedEncodingException e) {
             throw new RuntimeException("", e);
         }
-        if(StringUtils.isEmpty(dagQuery)){
+        if (StringUtils.isEmpty(dagQuery)) {
             Class clazz = prometheusMetricQuery.getClass();
             Field[] fields = clazz.getDeclaredFields();
-            for(Field field:fields){
-                if("query".equals(field.getName())){
+            for (Field field : fields) {
+                if ("query".equals(field.getName())) {
                     field.setAccessible(true);
                     try {
                         dagQuery = String.valueOf(field.get(this.prometheusMetricQuery));
                         field.setAccessible(false);
                     } catch (IllegalAccessException e) {
-                        logger.error(e.getMessage(),"获取url失败");
+                        logger.error(e.getMessage(), "获取url失败");
                     }
                     break;
                 }
             }
         }
-        String reqUrl = dagQuery+ urlParam;
+        String reqUrl = dagQuery + urlParam;
         String result = PoolHttpClient.get(reqUrl, null);
         if (result == null) {
             return null;

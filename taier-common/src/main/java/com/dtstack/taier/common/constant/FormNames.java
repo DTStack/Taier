@@ -2,6 +2,7 @@ package com.dtstack.taier.common.constant;
 
 /**
  * 表单name属性常量定义
+ *
  * @description:
  * @author: liuxx
  * @date: 2021/3/16
@@ -214,41 +215,65 @@ public interface FormNames {
      */
     String ZK_HOSt = "zkHost";
 
-    /**AWS S3 regine**/
+    /**
+     * AWS S3 regine
+     **/
     String REGINE = "regine";
 
-    /**kafka 认证**/
+    /**
+     * kafka 认证
+     **/
     String AUTHENTICATION = "authentication";
 
-    /**kafka SASL_PLAINTEXT认证**/
+    /**
+     * kafka SASL_PLAINTEXT认证
+     **/
     String SASL_PLAINTEXT = "SASL_PLAINTEXT";
 
-    /**kafka 无认证**/
+    /**
+     * kafka 无认证
+     **/
     String NONE = "无";
 
-    /**kafka 开启kerberos认证**/
+    /**
+     * kafka 开启kerberos认证
+     **/
     String KERBROS = "kerberos";
 
-    /**ssl文件目录路径**/
+    /**
+     * ssl文件目录路径
+     **/
     String KEYPATH = "keyPath";
 
 
-    /**ssl文件名称**/
+    /**
+     * ssl文件名称
+     **/
     String SSLFILENAME = "sslFileName";
 
-    /**TBDS ID**/
+    /**
+     * TBDS ID
+     **/
     String ID = "tbds_id";
 
-    /**TBDS KEY**/
+    /**
+     * TBDS KEY
+     **/
     String KEY = "tbds_key";
 
-    /**TBDS username**/
+    /**
+     * TBDS username
+     **/
     String TBDS_USERNAME = "tbds_username";
 
-    /**控制台配置的自定义参数**/
+    /**
+     * 控制台配置的自定义参数
+     **/
     String CUSTOM_CONFIG = "customConfig";
 
-    /**控制台配置的自定义参数**/
+    /**
+     * 控制台配置的自定义参数
+     **/
     String METASTORE_URIS = "hive.metastore.uris";
 
 

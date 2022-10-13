@@ -25,7 +25,7 @@ package com.dtstack.taier.common.util;
  */
 public class GenerateErrorMsgUtil {
 
-    public static String generateErrorMsg(String msgInfo){
+    public static String generateErrorMsg(String msgInfo) {
         return String.format("{\"msg_info\":\"%s\"}", msgInfo);
     }
 

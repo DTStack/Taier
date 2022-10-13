@@ -42,12 +42,12 @@ public class AlterResult {
     /**
      * 表属性
      */
-    private List<Pair<String,String>> tableProperties;
+    private List<Pair<String, String>> tableProperties;
 
     /**
      * 序列化属性
      */
-    private List<Pair<String,String>> serdeProperties;
+    private List<Pair<String, String>> serdeProperties;
 
     /**
      * 新增加的分区
@@ -62,12 +62,12 @@ public class AlterResult {
     /**
      * 老分区
      */
-    private Pair<String,String> oldPart;
+    private Pair<String, String> oldPart;
 
     /**
      * 新分区
      */
-    private Pair<String,String> newPart;
+    private Pair<String, String> newPart;
 
     /**
      * 新的表路径
@@ -77,7 +77,7 @@ public class AlterResult {
     /**
      * 分区路径
      */
-    private Pair<String,String> newLocationPart;
+    private Pair<String, String> newLocationPart;
 
     /**
      * 新增字段
@@ -92,13 +92,13 @@ public class AlterResult {
     /**
      * 修改的分区
      */
-    private List<Pair<String,String>> renamePart;
+    private List<Pair<String, String>> renamePart;
 
-    public List<Pair<String,String>> getRenamePart() {
+    public List<Pair<String, String>> getRenamePart() {
         return renamePart;
     }
 
-    public void setRenamePart(List<Pair<String,String>> renamePart) {
+    public void setRenamePart(List<Pair<String, String>> renamePart) {
         this.renamePart = renamePart;
     }
 

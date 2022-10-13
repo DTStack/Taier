@@ -42,7 +42,7 @@ public class LocalCacheUtil {
 
     /**
      * 一天
-     * */
+     */
     public static long ONE_DAY_IN_MS = 24 * 3600 * 1000L;
 
     /**
@@ -52,6 +52,7 @@ public class LocalCacheUtil {
 
     /**
      * 用 ":" 拼接参数
+     *
      * @param params
      * @return
      */
@@ -82,9 +83,9 @@ public class LocalCacheUtil {
     /**
      * 写缓存
      *
-     * @param group  分组
-     * @param key    key
-     * @param val    值
+     * @param group               分组
+     * @param key                 key
+     * @param val                 值
      * @param expireInMillisecond 过期时间
      */
     public void put(String group, String key, Object val, Long expireInMillisecond) {

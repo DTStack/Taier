@@ -3,7 +3,8 @@
 <mapper namespace="com.dtstack.taier.dao.mapper.ComponentMapper">
 
     <sql id="select_content_fragment">
-        id,cluster_id,component_name,component_type_code,gmt_create,gmt_modified,is_deleted,version_value,upload_file_name,
+        id
+        ,cluster_id,component_name,component_type_code,gmt_create,gmt_modified,is_deleted,version_value,upload_file_name,
         kerberos_file_name,store_type,is_default,deploy_type,version_name
     </sql>
 
@@ -87,7 +88,7 @@
             </otherwise>
         </choose>
         <if test="deployType!= null">
-            and  c.deploy_type = #{deployType}
+            and c.deploy_type = #{deployType}
         </if>
         and c.is_deleted = 0 LIMIT 1
     </select>
@@ -132,12 +133,13 @@
     </update>
 
     <select id="listByTenantId" resultType="com.dtstack.taier.dao.domain.Component">
-        select
-        cc.id,cc.component_name,cc.component_type_code
+        select cc.id,
+               cc.component_name,
+               cc.component_type_code
         from console_component cc
-        INNER JOIN console_cluster_tenant cct
-        on cc.cluster_id = cct.cluster_id
-        and cct.tenant_id =  #{tenantId}
+                 INNER JOIN console_cluster_tenant cct
+                            on cc.cluster_id = cct.cluster_id
+                                and cct.tenant_id = #{tenantId}
         where cc.is_deleted = 0
     </select>
 

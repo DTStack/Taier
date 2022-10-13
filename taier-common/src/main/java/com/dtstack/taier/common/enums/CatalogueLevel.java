@@ -21,7 +21,7 @@ public enum CatalogueLevel {
 
     private int level;
 
-    CatalogueLevel(int level){
+    CatalogueLevel(int level) {
         this.level = level;
     }
 

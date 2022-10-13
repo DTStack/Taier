@@ -1,10 +1,7 @@
-import api from '@/api';
 import {
 	CAT_TYPE,
 	COLLECT_TYPE,
-	CREATE_MODEL_TYPE,
 	DATA_SOURCE_ENUM,
-	ID_COLLECTIONS,
 	KAFKA_DATA_TYPE,
 	QOS_TYPE,
 	READ_MODE_TYPE,
@@ -14,11 +11,10 @@ import {
 	SLOAR_CONFIG_TYPE,
 	SOURCE_TIME_TYPE,
 	SYNC_TYPE,
-	TASK_TYPE_ENUM,
 } from '@/constant';
-import { isKafka, isHaveTableColumn } from '@/utils/is';
+import {isHaveTableColumn, isKafka} from '@/utils/is';
 import molecule from '@dtinsight/molecule';
-import { cloneDeep, isEmpty } from 'lodash';
+import {cloneDeep, isEmpty} from 'lodash';
 
 export const UnlimitedSpeed = '不限制上传速率';
 
@@ -51,6 +47,7 @@ export interface SettingMap {
 	tableName?: string;
 	lifeDay?: number;
 }
+
 export const streamTaskActions = {
 	initState: {
 		// 实时任务初始化数据
@@ -150,7 +147,7 @@ export const streamTaskActions = {
 	},
 	initCurrentPage() {
 		const page = cloneDeep(this.getCurrentPage());
-		this.setCurrentPage({ ...page, ...this.initState });
+		this.setCurrentPage({...page, ...this.initState});
 	},
 	/**
 	 * 获取实时采集task初始化信息
@@ -167,7 +164,7 @@ export const streamTaskActions = {
 		if (page.submitted) {
 			this.setCurrentPageValue('isEdit', true);
 		}
-		const { sourceMap, targetMap } = page;
+		const {sourceMap, targetMap} = page;
 		if (!isEmpty(sourceMap) || !isEmpty(targetMap)) {
 			sourceMap.pavingData = !!sourceMap.pavingData;
 			sourceMap.multipleTable = sourceMap.multipleTable || false;

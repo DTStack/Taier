@@ -19,9 +19,9 @@
 package com.dtstack.taier.common.enums;
 
 public enum MultiEngineType {
-    COMMON(-1,"Common"),
-    HADOOP(1,"Hadoop"),
-    FLINK_ON_STANDALONE(8,"FlinkOnStandalone");
+    COMMON(-1, "Common"),
+    HADOOP(1, "Hadoop"),
+    FLINK_ON_STANDALONE(8, "FlinkOnStandalone");
 
 
     private int type;
@@ -32,18 +32,18 @@ public enum MultiEngineType {
         return name;
     }
 
-    MultiEngineType(int type, String name){
+    MultiEngineType(int type, String name) {
         this.type = type;
         this.name = name;
     }
 
-    public int getType(){
+    public int getType() {
         return this.type;
     }
 
-    public static MultiEngineType getByName(String name){
+    public static MultiEngineType getByName(String name) {
         for (MultiEngineType value : MultiEngineType.values()) {
-            if(value.getName().equalsIgnoreCase(name)){
+            if (value.getName().equalsIgnoreCase(name)) {
                 return value;
             }
         }

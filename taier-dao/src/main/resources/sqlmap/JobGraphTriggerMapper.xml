@@ -3,7 +3,8 @@
 <mapper namespace="com.dtstack.taier.dao.mapper.JobGraphTriggerMapper">
 
     <sql id="select_content_fragment">
-        id,trigger_type,trigger_time,gmt_create,gmt_modified,is_deleted
+        id
+        ,trigger_type,trigger_time,gmt_create,gmt_modified,is_deleted
     </sql>
 
     <select id="getByTriggerTimeAndTriggerType" resultType="com.dtstack.taier.dao.domain.JobGraphTrigger">

@@ -1,15 +1,14 @@
 package com.dtstack.taier.datasource.plugin.redis;
 
+import com.dtstack.taier.datasource.api.dto.SqlQueryDTO;
+import com.dtstack.taier.datasource.api.dto.source.ISourceDTO;
+import com.dtstack.taier.datasource.api.dto.source.RedisSourceDTO;
 import com.dtstack.taier.datasource.api.enums.RedisMode;
+import com.dtstack.taier.datasource.api.exception.SourceException;
 import com.dtstack.taier.datasource.plugin.common.exception.IErrorPattern;
 import com.dtstack.taier.datasource.plugin.common.service.ErrorAdapterImpl;
 import com.dtstack.taier.datasource.plugin.common.service.IErrorAdapter;
 import com.dtstack.taier.datasource.plugin.common.utils.AddressUtil;
-import com.dtstack.taier.datasource.api.dto.SqlQueryDTO;
-import com.dtstack.taier.datasource.api.dto.source.ISourceDTO;
-import com.dtstack.taier.datasource.api.dto.source.RedisSourceDTO;
-import com.dtstack.taier.datasource.api.exception.SourceException;
-import com.dtstack.taier.datasource.api.utils.AssertUtils;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -31,7 +30,6 @@ import redis.clients.util.Pool;
 
 import java.io.Closeable;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
@@ -39,7 +37,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
-import java.util.function.BiFunction;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -101,7 +98,7 @@ public class RedisUtils {
         Map<String, Object> resultMap = Maps.newHashMap();
 
         List<String> fieldKey;
-        List<String> values ;
+        List<String> values;
         if (RedisMode.Standalone.equals(redisMode) || RedisMode.Sentinel.equals(redisMode)) {
             Pool<Jedis> redisPool = null;
             Jedis jedis = null;
@@ -124,7 +121,7 @@ public class RedisUtils {
                 // 关闭资源
                 close(jedis, redisPool);
             }
-        }  else {
+        } else {
             JedisCluster redisCluster = null;
             try {
                 redisCluster = getRedisCluster(source);
@@ -153,6 +150,7 @@ public class RedisUtils {
 
     /**
      * 查询 string 类型
+     *
      * @param jedis
      * @param keys
      * @return
@@ -171,6 +169,7 @@ public class RedisUtils {
 
     /**
      * 查询list类型
+     *
      * @param jedis
      * @param keys
      * @return
@@ -190,6 +189,7 @@ public class RedisUtils {
 
     /**
      * 查询set 类型， smembers
+     *
      * @param jedis
      * @param keys
      * @return
@@ -216,6 +216,7 @@ public class RedisUtils {
 
     /**
      * 查询zset 类型，zrange
+     *
      * @param jedis
      * @param keys
      * @return
@@ -236,6 +237,7 @@ public class RedisUtils {
 
     /**
      * 查询hash 类型的表
+     *
      * @param jedis
      * @param keys
      * @return
@@ -314,10 +316,11 @@ public class RedisUtils {
 
     /**
      * 获取redis 哨兵模式连接池
+     *
      * @param source 数据源信息
      * @return redis 连接池
      */
-    private static JedisSentinelPool getSentinelPool (ISourceDTO source) {
+    private static JedisSentinelPool getSentinelPool(ISourceDTO source) {
         RedisSourceDTO redisSourceDTO = (RedisSourceDTO) source;
         String masterName = redisSourceDTO.getMaster();
         String hostPorts = redisSourceDTO.getHostPort();
@@ -340,10 +343,11 @@ public class RedisUtils {
 
     /**
      * 获取redis 单机模式连接池
+     *
      * @param source 数据源信息
      * @return redis 连接池
      */
-    private static JedisPool getRedisPool (ISourceDTO source) {
+    private static JedisPool getRedisPool(ISourceDTO source) {
         RedisSourceDTO redisSourceDTO = (RedisSourceDTO) source;
         String password = redisSourceDTO.getPassword();
         String hostPort = redisSourceDTO.getHostPort();
@@ -366,10 +370,11 @@ public class RedisUtils {
 
     /**
      * 获取redis 集群模式 客户端
+     *
      * @param source 数据源信息
      * @return redis客户端
      */
-    private static JedisCluster getRedisCluster (ISourceDTO source) {
+    private static JedisCluster getRedisCluster(ISourceDTO source) {
         RedisSourceDTO redisSourceDTO = (RedisSourceDTO) source;
         String hostPorts = redisSourceDTO.getHostPort();
         String password = redisSourceDTO.getPassword();

@@ -32,7 +32,7 @@ public class DbBuilderFactory {
             throw new RuntimeException("no rdbmsDbBuilders in spring context!!");
         }
         for (DbBuilder dbBuilder : dbBuilders) {
-            dbBuilderMap.put(dbBuilder.getDataSourceType().getVal(),dbBuilder);
+            dbBuilderMap.put(dbBuilder.getDataSourceType().getVal(), dbBuilder);
         }
         dbBuilderMap.put(DataSourceType.ES6.getVal(), dbBuilderMap.get(DataSourceType.ES.getVal()));
         dbBuilderMap.put(DataSourceType.ES7.getVal(), dbBuilderMap.get(DataSourceType.ES7.getVal()));

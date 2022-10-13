@@ -1,7 +1,6 @@
 package com.dtstack.taier.develop.service.template.mysql;
 
 
-
 import com.dtstack.taier.develop.service.template.DaPluginParam;
 
 import java.util.List;
@@ -63,36 +62,36 @@ public class MysqlBinLogReaderParam extends DaPluginParam {
     /**
      * doris配置规则
      * "mapper": {
-     *               "databaseMapper": {
-     *                 "prefix": "ods",
-     *                 "suffix": "",
-     *                 "connectStr": "_",
-     *                 "customize": {
-     *                   "test": "ods_tiezhu"
-     *                 }
-     *               },
-     *               "tableMapper": {
-     *                 "prefix": "ods",
-     *                 "suffix": "test",
-     *                 "connectStr": "_",
-     *                 "customize": {
-     *                   "doris_1": "ods_testOne",
-     *                   "doris_2": "ods_testOne",
-     *                   "doris_3": "ods_testOne",
-     *                   "doris_4": "ods_testOne"
-     *                 }
-     *               },
-     *               "fieldMapper": {
-     *                 "prefix": "ods",
-     *                 "suffix": "test",
-     *                 "connectStr": "_",
-     *                 "customize": {
-     *                   "id": "ods_id_test"
-     *                 }
-     *               }
-     *             }
+     * "databaseMapper": {
+     * "prefix": "ods",
+     * "suffix": "",
+     * "connectStr": "_",
+     * "customize": {
+     * "test": "ods_tiezhu"
+     * }
+     * },
+     * "tableMapper": {
+     * "prefix": "ods",
+     * "suffix": "test",
+     * "connectStr": "_",
+     * "customize": {
+     * "doris_1": "ods_testOne",
+     * "doris_2": "ods_testOne",
+     * "doris_3": "ods_testOne",
+     * "doris_4": "ods_testOne"
+     * }
+     * },
+     * "fieldMapper": {
+     * "prefix": "ods",
+     * "suffix": "test",
+     * "connectStr": "_",
+     * "customize": {
+     * "id": "ods_id_test"
+     * }
+     * }
+     * }
      */
-    private Map<String,Object> mapper;
+    private Map<String, Object> mapper;
     private Integer syncContent;
 
     public Integer getSyncContent() {
@@ -110,6 +109,7 @@ public class MysqlBinLogReaderParam extends DaPluginParam {
     public void setMapper(Map<String, Object> mapper) {
         this.mapper = mapper;
     }
+
     public List<String> getTable() {
         return table;
     }

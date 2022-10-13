@@ -147,35 +147,35 @@ public class ImpalaUglySqlHandler implements IUglySqlHandler {
     private void initSql() {
         formattedSql = SqlFormatUtil.getStandardSql(SqlFormatUtil.formatSql(sql));
         formattedSql = formattedSql.trim();
-        formattedSql = formattedSql.replaceAll("%","/");
+        formattedSql = formattedSql.replaceAll("%", "/");
         formattedSql = formattedSql.replaceAll("\\s+", " ");
         formattedSql = formattedSql.replaceAll("(?i)(sort\\s+by\\s*\\(.*\\)\\s*)", " ");
-        formattedSql = formattedSql.replaceAll("(?i)(\\s+varchar\\s*,)"," STRING ,");
-        formattedSql = formattedSql.replaceAll("(?i)(left\\()","nvl(");
+        formattedSql = formattedSql.replaceAll("(?i)(\\s+varchar\\s*,)", " STRING ,");
+        formattedSql = formattedSql.replaceAll("(?i)(left\\()", "nvl(");
 //        formattedSql = formattedSql.replaceAll("(?i)(\\s+exchange\\s*,)"," exchange_Ranm ");
         formattedSql = SqlFormatUtil.removeComment(formattedSql);
-        if(SqlFormatUtil.isCreateSql(formattedSql)){
+        if (SqlFormatUtil.isCreateSql(formattedSql)) {
             formattedSql = SqlFormatUtil.removeDoubleQuotesComment(formattedSql);
             //去除 external
-            formattedSql = formattedSql.replaceAll(SqlRegexUtil.EXTERNAL_REGEX," ");
+            formattedSql = formattedSql.replaceAll(SqlRegexUtil.EXTERNAL_REGEX, " ");
             //去除KUDU 建表分区语句
-            formattedSql = formattedSql.replaceAll(SqlRegexUtil.PARTITION_REGEX," STORED ");
+            formattedSql = formattedSql.replaceAll(SqlRegexUtil.PARTITION_REGEX, " STORED ");
             try {
                 Matcher matcher = SqlRegexUtil.row_pattern.matcher(formattedSql);
-                if(matcher.find()){
-                    formattedSql = formattedSql.replace(matcher.group(1)," ");
+                if (matcher.find()) {
+                    formattedSql = formattedSql.replace(matcher.group(1), " ");
                 }
-            } catch (Exception e){
+            } catch (Exception e) {
 
             }
             //array struct map 特殊结构 映射为 string 处理
             formattedSql = SqlFormatUtil.formatType(formattedSql);
-            formattedSql = formattedSql.replaceAll(SqlRegexUtil.WITH_SERDEPROPERTIES_REGEX," ");
+            formattedSql = formattedSql.replaceAll(SqlRegexUtil.WITH_SERDEPROPERTIES_REGEX, " ");
             //去除存储
-            formattedSql = formattedSql.replaceAll(SqlRegexUtil.STORED_REGEX,"");
-            formattedSql = formattedSql.replaceAll(SqlRegexUtil.TBLPROPERTIES_REGEX,"");
-            formattedSql = formattedSql.replaceAll(SqlRegexUtil.LOCATION_REGEX,"");
-            formattedSql = formattedSql.replaceAll(ENCODING_REGEX,"");
+            formattedSql = formattedSql.replaceAll(SqlRegexUtil.STORED_REGEX, "");
+            formattedSql = formattedSql.replaceAll(SqlRegexUtil.TBLPROPERTIES_REGEX, "");
+            formattedSql = formattedSql.replaceAll(SqlRegexUtil.LOCATION_REGEX, "");
+            formattedSql = formattedSql.replaceAll(ENCODING_REGEX, "");
         }
         if (formattedSql.endsWith(";")) {
             formattedSql = formattedSql.substring(0, formattedSql.length() - 1);
@@ -404,7 +404,7 @@ public class ImpalaUglySqlHandler implements IUglySqlHandler {
                 break;
             case INSERT_INTO_TABLE:
                 matcher = INSERT_INTO_TABLE_PATTERN.matcher(formattedSql);
-                while (matcher.find()){
+                while (matcher.find()) {
                     group = matcher.group(SqlRegexUtil.KEY_TABLE);
                     formattedSql = formattedSql.replace(group, " ");
                 }
@@ -412,7 +412,7 @@ public class ImpalaUglySqlHandler implements IUglySqlHandler {
 
             case PRIMARY:
                 matcher = PRIMARY_REGEX_PATTERN.matcher(formattedSql);
-                while (matcher.find()){
+                while (matcher.find()) {
                     group = matcher.group(0);
                     formattedSql = formattedSql.replace(group, " ");
                 }
@@ -421,8 +421,8 @@ public class ImpalaUglySqlHandler implements IUglySqlHandler {
 
             case LEFT_RIGHT:
                 matcher = LEFT_RIGHT_PATTERN.matcher(formattedSql);
-                while (matcher.find()){
-                    if(matcher.groupCount()>1){
+                while (matcher.find()) {
+                    if (matcher.groupCount() > 1) {
                         group = matcher.group(2);
                         formattedSql = formattedSql.replace(matcher.group(0), group);
                     }
@@ -436,7 +436,7 @@ public class ImpalaUglySqlHandler implements IUglySqlHandler {
 
     @Override
     public boolean isTemp() {
-       return (this.getSqlMode() & IUglySqlHandler.CREATE_TEMP) == IUglySqlHandler.CREATE_TEMP;
+        return (this.getSqlMode() & IUglySqlHandler.CREATE_TEMP) == IUglySqlHandler.CREATE_TEMP;
     }
 
     @Override

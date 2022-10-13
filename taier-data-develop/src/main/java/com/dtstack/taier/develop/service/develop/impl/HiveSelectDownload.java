@@ -18,6 +18,7 @@
 
 package com.dtstack.taier.develop.service.develop.impl;
 
+import com.dtstack.taier.common.exception.DtCenterDefException;
 import com.dtstack.taier.datasource.api.base.ClientCache;
 import com.dtstack.taier.datasource.api.client.IClient;
 import com.dtstack.taier.datasource.api.downloader.IDownloader;
@@ -25,7 +26,6 @@ import com.dtstack.taier.datasource.api.dto.ColumnMetaDTO;
 import com.dtstack.taier.datasource.api.dto.SqlQueryDTO;
 import com.dtstack.taier.datasource.api.dto.Table;
 import com.dtstack.taier.datasource.api.dto.source.ISourceDTO;
-import com.dtstack.taier.common.exception.DtCenterDefException;
 import com.dtstack.taier.develop.utils.develop.common.IDownload;
 
 import java.util.ArrayList;
@@ -64,7 +64,7 @@ public class HiveSelectDownload implements IDownload {
      */
     private static final String TEXT_STORE_NULL = "\\N";
 
-    public HiveSelectDownload(ISourceDTO iSourceDTO, String tableName) throws Exception{
+    public HiveSelectDownload(ISourceDTO iSourceDTO, String tableName) throws Exception {
         this.iSourceDTO = iSourceDTO;
         this.tableName = tableName;
         IClient client = ClientCache.getClient(iSourceDTO.getSourceType());
@@ -122,7 +122,7 @@ public class HiveSelectDownload implements IDownload {
 
     /**
      * @param source 单独字段值
-     * 处理hive存储为null字段
+     *               处理hive存储为null字段
      */
     private String dealHiveTextNull(String source) {
         return TEXT_STORE_NULL.equals(source) ? null : source;

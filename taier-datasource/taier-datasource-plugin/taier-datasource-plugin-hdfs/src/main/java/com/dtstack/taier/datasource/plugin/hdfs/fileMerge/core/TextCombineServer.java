@@ -1,10 +1,10 @@
 package com.dtstack.taier.datasource.plugin.hdfs.fileMerge.core;
 
+import com.dtstack.taier.datasource.api.enums.FileFormat;
+import com.dtstack.taier.datasource.api.exception.SourceException;
 import com.dtstack.taier.datasource.plugin.hdfs.fileMerge.ECompressType;
 import com.dtstack.taier.datasource.plugin.hdfs.fileMerge.meta.FileMetaData;
 import com.dtstack.taier.datasource.plugin.hdfs.util.FileSystemUtils;
-import com.dtstack.taier.datasource.api.enums.FileFormat;
-import com.dtstack.taier.datasource.api.exception.SourceException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.compress.compressors.bzip2.BZip2CompressorInputStream;
 import org.apache.commons.compress.compressors.bzip2.BZip2CompressorOutputStream;
@@ -93,7 +93,7 @@ public class TextCombineServer extends CombineServer {
      * 初始化
      * 合并文件名字前缀
      */
-    private void init(List<FileStatus> combineFiles) throws IOException{
+    private void init(List<FileStatus> combineFiles) throws IOException {
         this.index = 0;
         this.mergedFileName = System.currentTimeMillis() + "";
         FileStatus fileStatus = combineFiles.stream()
@@ -128,6 +128,7 @@ public class TextCombineServer extends CombineServer {
             return fs.open(path);
         }
     }
+
     private OutputStream getOutStream(int index, String mergedFileName) throws IOException {
         String combineFileName = mergedTempPath.toString() + File.separator
                 + mergedFileName + index + "." + getFileSuffix();

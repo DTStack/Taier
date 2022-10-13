@@ -4,7 +4,7 @@ package com.dtstack.taier.dao.domain;
 import com.baomidou.mybatisplus.annotation.TableName;
 
 @TableName("console_kerberos")
-public class KerberosConfig extends BaseEntity{
+public class KerberosConfig extends BaseEntity {
 
     private Long clusterId;
 

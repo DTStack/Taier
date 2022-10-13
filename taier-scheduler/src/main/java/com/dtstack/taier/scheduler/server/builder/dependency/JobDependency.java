@@ -17,10 +17,10 @@ public interface JobDependency {
     /**
      * 生成jobJob
      *
-     * @param corn 生成周期
-     * @param currentDate 当期执行时间
+     * @param corn          生成周期
+     * @param currentDate   当期执行时间
      * @param currentJobKey 当期实例key
      * @return currentJobKey的父实例
      */
-    List<ScheduleJobJob> generationJobJobForTask(ScheduleCorn corn, Date currentDate,String currentJobKey);
+    List<ScheduleJobJob> generationJobJobForTask(ScheduleCorn corn, Date currentDate, String currentJobKey);
 }

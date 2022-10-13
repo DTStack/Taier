@@ -3,8 +3,6 @@ package com.dtstack.taier.common;
 import com.dtstack.taier.common.util.TimeParamOperator;
 import org.junit.Test;
 
-import java.text.ParseException;
-
 public class TimeParamOperatorTest {
 
     @Test

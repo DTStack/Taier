@@ -4,10 +4,12 @@ sidebar_label: 部署依赖
 ---
 
 # 部署依赖
+
 ## Datasoucex依赖
+
 Taier需要依赖[DatasourceX](https://github.com/DTStack/DatasourceX/releases/tag) 去获取数据源表、字段信息  
 下载DatasourceX源码 解压之后在配置文件中配置`datasource.plugin.path`即可   
-Datasoucex解压后目录结构为  
+Datasoucex解压后目录结构为
 
 ```shell
 /data/datasourcex

@@ -3,7 +3,8 @@
 <mapper namespace="com.dtstack.taier.dao.mapper.ClusterMapper">
 
     <sql id="select_content_fragment">
-      id,cluster_name,gmt_create,gmt_modified,is_deleted
+        id
+        ,cluster_name,gmt_create,gmt_modified,is_deleted
     </sql>
 
     <sql id="select_where_fragment">
@@ -37,7 +38,7 @@
 
     <update id="updateGmtModified">
         UPDATE console_cluster
-        set gmt_modified  = CURRENT_TIMESTAMP
+        set gmt_modified = CURRENT_TIMESTAMP
         where id = #{id}
     </update>
 </mapper>

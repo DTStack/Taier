@@ -115,7 +115,7 @@ public class CreateTableAstNodeParser extends SelectAstNodeParser {
 
         if (null != mainTable.getDb() && !mainTable.getDb().equals(result.getCurrentDb())) {
             //处理 主表有
-            root.setName(String.format("%s.%s",mainTable.getDb(),mainTable.getName()));
+            root.setName(String.format("%s.%s", mainTable.getDb(), mainTable.getName()));
         }
 
         result.setRoot(root);

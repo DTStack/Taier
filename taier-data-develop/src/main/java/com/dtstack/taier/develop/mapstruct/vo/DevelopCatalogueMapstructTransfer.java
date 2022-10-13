@@ -19,8 +19,8 @@
 package com.dtstack.taier.develop.mapstruct.vo;
 
 import com.dtstack.taier.dao.domain.DevelopCatalogue;
-import com.dtstack.taier.develop.dto.devlop.DevelopCatalogueVO;
 import com.dtstack.taier.develop.dto.devlop.CatalogueVO;
+import com.dtstack.taier.develop.dto.devlop.DevelopCatalogueVO;
 import com.dtstack.taier.develop.vo.develop.query.DevelopCatalogueAddVO;
 import com.dtstack.taier.develop.vo.develop.query.DevelopCatalogueUpdateVO;
 import com.dtstack.taier.develop.vo.develop.result.DevelopCatalogueResultVO;

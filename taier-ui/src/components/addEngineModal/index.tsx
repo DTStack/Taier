@@ -16,9 +16,9 @@
  * limitations under the License.
  */
 
-import type { ModalProps } from 'antd';
-import { Form, Modal, Input } from 'antd';
-import { formItemLayout } from '@/constant';
+import type {ModalProps} from 'antd';
+import {Form, Input, Modal} from 'antd';
+import {formItemLayout} from '@/constant';
 import './index.scss';
 
 const FormItem = Form.Item;
@@ -31,12 +31,12 @@ interface IEngineModalProps extends Omit<ModalProps, 'onOk'> {
  * 集群名称表单域组件
  * 新增集群、增加组件、增加引擎共用组件
  */
-export default ({ onOk, ...restModalProps }: IEngineModalProps) => {
+export default ({onOk, ...restModalProps}: IEngineModalProps) => {
 	const [form] = Form.useForm();
 
 	const handleSubmit = () => {
 		form.validateFields().then((values) => {
-			onOk?.({ clusterName: values.clusterName });
+			onOk?.({clusterName: values.clusterName});
 		});
 	};
 
@@ -58,7 +58,7 @@ export default ({ onOk, ...restModalProps }: IEngineModalProps) => {
 						},
 					]}
 				>
-					<Input placeholder="请输入集群标识" />
+					<Input placeholder="请输入集群标识"/>
 				</FormItem>
 			</Form>
 		</Modal>

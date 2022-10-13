@@ -1,15 +1,15 @@
-import { container, singleton } from 'tsyringe';
-import { cloneDeep } from 'lodash';
-import { ID_COLLECTIONS } from '@/constant';
+import {container, singleton} from 'tsyringe';
+import {cloneDeep} from 'lodash';
+import {ID_COLLECTIONS} from '@/constant';
 import molecule from '@dtinsight/molecule';
 import editorActions from '@/components/scaffolds/editorActions';
-import { Component } from '@dtinsight/molecule/esm/react';
+import {Component} from '@dtinsight/molecule/esm/react';
+import type {IExecuteService} from './executeService';
 import ExecuteService from './executeService';
-import { taskRenderService } from '.';
-import type { IExecuteService } from './executeService';
-import type { CatalogueDataProps, IOfflineTaskProps } from '@/interface';
+import {taskRenderService} from '.';
+import type {CatalogueDataProps, IOfflineTaskProps} from '@/interface';
 
-const { RUNNING_TASK, RUN_TASK, STOP_TASK } = editorActions;
+const {RUNNING_TASK, RUN_TASK, STOP_TASK} = editorActions;
 
 interface IEditorActionBarState {
 	runningTab: Set<number>;
@@ -26,10 +26,10 @@ interface IEditorActionBarService {
 @singleton()
 export default class EditorActionBarService
 	extends Component<IEditorActionBarState>
-	implements IEditorActionBarService
-{
+	implements IEditorActionBarService {
 	protected state: IEditorActionBarState;
 	private executeService: IExecuteService;
+
 	constructor() {
 		super();
 		this.state = {
@@ -39,7 +39,7 @@ export default class EditorActionBarService
 		this.executeService = container.resolve(ExecuteService);
 
 		this.executeService.onStartRun((currentTabId) => {
-			const { current } = molecule.editor.getState();
+			const {current} = molecule.editor.getState();
 			this.setState({
 				runningTab: this.state.runningTab.add(currentTabId),
 			});
@@ -55,7 +55,7 @@ export default class EditorActionBarService
 		});
 
 		this.executeService.onEndRun((currentTabId) => {
-			const { current } = molecule.editor.getState();
+			const {current} = molecule.editor.getState();
 			this.state.runningTab.delete(currentTabId);
 			this.setState({
 				runningTab: this.state.runningTab,
@@ -66,7 +66,7 @@ export default class EditorActionBarService
 		});
 
 		this.executeService.onStopTab((currentTabId) => {
-			const { current } = molecule.editor.getState();
+			const {current} = molecule.editor.getState();
 			this.state.runningTab.delete(currentTabId);
 			this.setState({
 				runningTab: this.state.runningTab,
@@ -78,7 +78,7 @@ export default class EditorActionBarService
 	}
 
 	public performSyncTaskActions = () => {
-		const { current } = molecule.editor.getState();
+		const {current} = molecule.editor.getState();
 		if (current?.tab?.data) {
 			const currentTabData: CatalogueDataProps & IOfflineTaskProps = current?.tab?.data;
 			const taskToolbar = cloneDeep(

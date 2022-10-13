@@ -16,22 +16,22 @@
  * limitations under the License.
  */
 
-import { useEffect, useState, useMemo, useRef } from 'react';
-import { Form, Select, Button, Tabs, Spin, message } from 'antd';
+import {useEffect, useMemo, useRef, useState} from 'react';
+import {Button, Form, message, Select, Spin, Tabs} from 'antd';
+import type {IClusterProps} from '@/components/bindCommModal';
 import BindCommModal from '@/components/bindCommModal';
 import ResourceManageModal from '@/components/resourceManageModal';
 import Api from '@/api';
-import { formItemLayout } from '@/constant';
-import { isSparkEngine } from '@/utils/is';
+import {formItemLayout} from '@/constant';
+import {isSparkEngine} from '@/utils/is';
 import Resource from './resourceView';
+import type {ITableProps} from './bindTenant';
 import BindTenant from './bindTenant';
-import type { IClusterProps } from '@/components/bindCommModal';
-import type { ITableProps } from './bindTenant';
-import { catalogueService } from '@/services';
+import {catalogueService} from '@/services';
 import './resource.scss';
 
 const FormItem = Form.Item;
-const { TabPane } = Tabs;
+const {TabPane} = Tabs;
 
 interface IEnginesProps {
 	clusterId: number;
@@ -82,7 +82,7 @@ export default () => {
 	};
 
 	const getEnginesByCluster = async (clusterId: number) => {
-		const res = await Api.getEnginesByCluster({ clusterId });
+		const res = await Api.getEnginesByCluster({clusterId});
 		if (res.code) {
 			const engines = res.data.engines || [];
 			const nextEngineId = engines[0]?.engineType;
@@ -117,7 +117,7 @@ export default () => {
 	};
 
 	const bindTenant = async (params: Record<string, any>) => {
-		const res = await Api.bindTenant({ ...params });
+		const res = await Api.bindTenant({...params});
 		if (res.code === 1) {
 			setTenantVisible(false);
 			message.success('租户绑定成功');
@@ -169,14 +169,14 @@ export default () => {
 			>
 				<FormItem label="集群" name="clusterId">
 					<Select
-						style={{ width: 200 }}
+						style={{width: 200}}
 						placeholder="请选择集群"
 						options={clusterOptions}
 					/>
 				</FormItem>
 				<FormItem label="引擎" name="engineId">
 					<Select
-						style={{ width: 200 }}
+						style={{width: 200}}
 						placeholder="请选择引擎"
 						options={engineOptions}
 					/>
@@ -201,7 +201,7 @@ export default () => {
 				>
 					{isSparkEngine(form.getFieldValue('engineId')) ? (
 						<TabPane tab="资源全景" key="showResource">
-							<Resource clusterId={form.getFieldValue('clusterId')} />
+							<Resource clusterId={form.getFieldValue('clusterId')}/>
 						</TabPane>
 					) : null}
 					<TabPane tab="租户绑定" key="bindTenant">

@@ -43,7 +43,7 @@ public class JsonUtils {
     }
 
     public static List<Object> objectToList(String str) throws IOException {
-        return (List)JSONObject.parseObject(str, List.class);
+        return (List) JSONObject.parseObject(str, List.class);
     }
 
     public static String formatJSON(String json) {

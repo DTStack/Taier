@@ -16,16 +16,16 @@
  * limitations under the License.
  */
 
-import type { IExtension } from '@dtinsight/molecule/esm/model';
+import type {IExtension} from '@dtinsight/molecule/esm/model';
 import InitializeExtension from './init';
 import CatalogueExtension from './catalogue';
 import PanelExtension from './panel';
 import EditorExtension from './editor';
 import FolderTreeExtension from './folderTree';
-import { ExtendsSparkSQL } from './languages';
+import {ExtendsSparkSQL} from './languages';
 import MenuExtension from './menu';
 import DTStackTheme from './dtstackTheme';
-import { LocaleExtension } from './i18n';
+import {LocaleExtension} from './i18n';
 import ActionExtension from './action';
 import ColorThemeExtensions from './themes';
 

@@ -58,7 +58,7 @@ public class JaasUtil {
      * @param kerberosConfig kerberos 配置文件
      * @return jaas文件绝对路径
      */
-    public synchronized static String writeJaasConf(Map<String, Object> kerberosConfig,String jaasContent) {
+    public synchronized static String writeJaasConf(Map<String, Object> kerberosConfig, String jaasContent) {
         KerberosUtil.downloadAndReplace(kerberosConfig);
         log.info("初始化 jaas.conf 文件, kerberosConfig : {}", kerberosConfig);
         if (MapUtils.isEmpty(kerberosConfig)) {

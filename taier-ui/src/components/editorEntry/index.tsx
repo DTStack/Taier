@@ -16,17 +16,17 @@
  * limitations under the License.
  */
 
-import { useEffect, useState } from 'react';
-import { KeybindingHelper } from '@dtinsight/molecule/esm/services/keybinding';
-import { Utils } from '@dtinsight/dt-utils/lib';
+import {useEffect, useState} from 'react';
+import {KeybindingHelper} from '@dtinsight/molecule/esm/services/keybinding';
+import {Utils} from '@dtinsight/dt-utils/lib';
 import './index.scss';
 
 
 const commands = [
-	{ id: 'sidebar', label: '切换侧边栏' },
-	{ id: 'workbench.action.showPanel', label: '切换面板' },
-	{ id: 'RunSQL', label: '运行 SQL' },
-	{ id: 'workbench.action.selectTheme', label: '切换主题颜色' },
+	{id: 'sidebar', label: '切换侧边栏'},
+	{id: 'workbench.action.showPanel', label: '切换面板'},
+	{id: 'RunSQL', label: '运行 SQL'},
+	{id: 'workbench.action.selectTheme', label: '切换主题颜色'},
 ];
 
 export default function EditorEntry() {
@@ -40,7 +40,7 @@ export default function EditorEntry() {
 					if (simpleKeybindings?.length) {
 						const keybindings =
 							KeybindingHelper.convertSimpleKeybindingToString(simpleKeybindings);
-						return { ...command, keybindings };
+						return {...command, keybindings};
 					}
 					return null;
 				})
@@ -50,7 +50,7 @@ export default function EditorEntry() {
 
 	return (
 		<div className="entry">
-			<img className="logo" width={200} src="images/taier.png" />
+			<img className="logo" width={200} src="images/taier.png"/>
 			<div className="commands">
 				{keys.map((key) => (
 					<div className="command" key={key.id}>

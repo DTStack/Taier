@@ -1,16 +1,16 @@
 package com.dtstack.taier.datasource.plugin.clickhouse;
 
-import com.dtstack.taier.datasource.plugin.common.utils.DBUtil;
-import com.dtstack.taier.datasource.plugin.common.utils.SearchUtil;
-import com.dtstack.taier.datasource.plugin.rdbms.AbsRdbmsClient;
-import com.dtstack.taier.datasource.plugin.rdbms.ConnFactory;
+import com.dtstack.taier.datasource.api.downloader.IDownloader;
 import com.dtstack.taier.datasource.api.dto.ColumnMetaDTO;
 import com.dtstack.taier.datasource.api.dto.SqlQueryDTO;
 import com.dtstack.taier.datasource.api.dto.source.ClickHouseSourceDTO;
 import com.dtstack.taier.datasource.api.dto.source.ISourceDTO;
 import com.dtstack.taier.datasource.api.exception.SourceException;
 import com.dtstack.taier.datasource.api.source.DataSourceType;
-import com.dtstack.taier.datasource.api.downloader.IDownloader;
+import com.dtstack.taier.datasource.plugin.common.utils.DBUtil;
+import com.dtstack.taier.datasource.plugin.common.utils.SearchUtil;
+import com.dtstack.taier.datasource.plugin.rdbms.AbsRdbmsClient;
+import com.dtstack.taier.datasource.plugin.rdbms.ConnFactory;
 import org.apache.commons.lang3.StringUtils;
 
 import java.sql.Connection;
@@ -96,7 +96,7 @@ public class ClickhouseClient extends AbsRdbmsClient {
     public List<ColumnMetaDTO> getPartitionColumn(ISourceDTO source, SqlQueryDTO queryDTO) {
         Connection connection = getCon(source);
         ClickHouseSourceDTO clickHouseSourceDTO = (ClickHouseSourceDTO) source;
-        String sql = String.format(PARTITION_COLUMN_SQL,clickHouseSourceDTO.getSchema(),queryDTO.getTableName());
+        String sql = String.format(PARTITION_COLUMN_SQL, clickHouseSourceDTO.getSchema(), queryDTO.getTableName());
         Statement statement = null;
         ResultSet rs = null;
         List<ColumnMetaDTO> columnList = new ArrayList<>();

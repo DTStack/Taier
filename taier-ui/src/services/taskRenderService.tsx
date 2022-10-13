@@ -1,10 +1,10 @@
 import 'reflect-metadata';
-import { singleton } from 'tsyringe';
-import { lazy, Suspense } from 'react';
-import { Modal } from 'antd';
+import {singleton} from 'tsyringe';
+import {lazy, Suspense} from 'react';
+import type {FormInstance} from 'antd';
+import {Modal} from 'antd';
 import api from '@/api';
-import { DATA_SOURCE_ENUM, TASK_TYPE_ENUM } from '@/constant';
-import type { FormInstance } from 'antd';
+import {DATA_SOURCE_ENUM, TASK_TYPE_ENUM} from '@/constant';
 import {
 	DataCollectionIcon,
 	FlinkIcon,
@@ -19,16 +19,16 @@ import {
 } from '@/components/icon';
 import scaffolds from '@/components/scaffolds/create';
 import editorActionsScaffolds from '@/components/scaffolds/editorActions';
-import { IComputeType, RightBarKind } from '@/interface';
-import { mappingTaskTypeToLanguage } from '@/utils/enums';
-import { prettierJSONstring } from '@/utils';
+import type {IOfflineTaskProps} from '@/interface';
+import {IComputeType, RightBarKind} from '@/interface';
+import {mappingTaskTypeToLanguage} from '@/utils/enums';
+import {prettierJSONstring} from '@/utils';
 import notification from '@/components/notification';
-import type { ISupportJobTypes } from '@/context';
+import type {ISupportJobTypes} from '@/context';
 import molecule from '@dtinsight/molecule';
-import { breadcrumbService, editorActionBarService } from '.';
-import type { IOfflineTaskProps } from '@/interface';
-import { isTaskTab } from '@/utils/is';
-import { Component } from '@dtinsight/molecule/esm/react';
+import {breadcrumbService, editorActionBarService} from '.';
+import {isTaskTab} from '@/utils/is';
+import {Component} from '@dtinsight/molecule/esm/react';
 
 export interface ITaskRenderState {
 	supportTaskList: ISupportJobTypes[];
@@ -164,7 +164,7 @@ export default class TaskRenderService extends Component<ITaskRenderState> {
 									title: '正在切换引擎版本',
 									content: (
 										<>
-											<span style={{ color: 'red' }}>
+											<span style={{color: 'red'}}>
 												切换引擎版本后将重置环境参数
 											</span>
 											，请确认是否继续？
@@ -188,27 +188,27 @@ export default class TaskRenderService extends Component<ITaskRenderState> {
 	public renderTaskIcon = (key: TASK_TYPE_ENUM) => {
 		switch (key) {
 			case TASK_TYPE_ENUM.SPARK_SQL:
-				return <SparkSQLIcon style={{ color: '#519aba' }} />;
+				return <SparkSQLIcon style={{color: '#519aba'}}/>;
 			case TASK_TYPE_ENUM.SYNC:
 				return 'sync';
 			case TASK_TYPE_ENUM.HIVE_SQL:
-				return <HiveSQLIcon style={{ color: '#4291f0' }} />;
+				return <HiveSQLIcon style={{color: '#4291f0'}}/>;
 			case TASK_TYPE_ENUM.SQL:
-				return <FlinkSQLIcon style={{ color: '#5655d8' }} />;
+				return <FlinkSQLIcon style={{color: '#5655d8'}}/>;
 			case TASK_TYPE_ENUM.DATA_ACQUISITION:
-				return <DataCollectionIcon style={{ color: '#3F87FF' }} />;
+				return <DataCollectionIcon style={{color: '#3F87FF'}}/>;
 			case TASK_TYPE_ENUM.FLINK:
-				return <FlinkIcon />;
+				return <FlinkIcon/>;
 			case TASK_TYPE_ENUM.OCEANBASE:
-				return <OceanBaseIcon />;
+				return <OceanBaseIcon/>;
 			case TASK_TYPE_ENUM.VIRTUAL:
-				return <VirtualIcon />;
+				return <VirtualIcon/>;
 			case TASK_TYPE_ENUM.WORK_FLOW:
-				return <WorkflowIcon style={{ color: '#2491F7' }} />;
+				return <WorkflowIcon style={{color: '#2491F7'}}/>;
 			case TASK_TYPE_ENUM.PYTHON:
-				return <PythonIcon />;
+				return <PythonIcon/>;
 			case TASK_TYPE_ENUM.SHELL:
-				return <ShellIcon />;
+				return <ShellIcon/>;
 			default:
 				return 'file';
 		}
@@ -233,7 +233,7 @@ export default class TaskRenderService extends Component<ITaskRenderState> {
 				// 针对不同任务，data 中的值不一样
 				switch (key) {
 					case TASK_TYPE_ENUM.FLINK: {
-						return { ...record };
+						return {...record};
 					}
 					case TASK_TYPE_ENUM.DATA_ACQUISITION:
 					case TASK_TYPE_ENUM.SYNC:
@@ -266,7 +266,7 @@ export default class TaskRenderService extends Component<ITaskRenderState> {
 				const PageComponent = lazy(() => import(`@/pages/editor/${renderKind}`));
 				tabData.renderPane = (data) => (
 					<Suspense key={data.id} fallback={<div>loading...</div>}>
-						<PageComponent />
+						<PageComponent/>
 					</Suspense>
 				);
 			} catch (err) {
@@ -284,7 +284,7 @@ export default class TaskRenderService extends Component<ITaskRenderState> {
 	 * 根据任务类型定义侧边栏
 	 */
 	public renderRightBar = (): string[] => {
-		const { current } = molecule.editor.getState();
+		const {current} = molecule.editor.getState();
 		/**
 		 * 当前的 tab 是否不合法，如不合法则展示 Empty
 		 */
@@ -319,7 +319,7 @@ export default class TaskRenderService extends Component<ITaskRenderState> {
 		if (rightBarField) {
 			const isConditionTrue = rightBarField.barItemCondition
 				? record[rightBarField.barItemCondition.key] ===
-				  rightBarField.barItemCondition.value
+				rightBarField.barItemCondition.value
 				: false;
 
 			if (isConditionTrue) {
@@ -404,7 +404,7 @@ export default class TaskRenderService extends Component<ITaskRenderState> {
 		}
 
 		if (!config.create) {
-			const res = await api.getOfflineTaskByID<IOfflineTaskProps>({ id: record.id });
+			const res = await api.getOfflineTaskByID<IOfflineTaskProps>({id: record.id});
 			if (res.code === 1) {
 				const tabData = this.renderTabOnEditor(res.data.taskType, res.data);
 

@@ -32,6 +32,7 @@ import java.util.Map;
  * 分钟时间解析,默认开始分钟是0, 不允许修改
  * Date: 2017/5/4
  * Company: www.dtstack.com
+ *
  * @author xuchao
  */
 
@@ -84,16 +85,16 @@ public class ScheduleCronMinParser extends ScheduleCron {
 
     @Override
     public List<String> getTriggerTime(String specifyDate) throws ParseException {
-        if(!checkSpecifyDayCanExe(specifyDate)){
+        if (!checkSpecifyDayCanExe(specifyDate)) {
             return Lists.newArrayList();
         }
 
         List<String> resultList = Lists.newArrayList();
         int bMin = beginHour * 60 + beginMin;
         int eMin = endHour * 60 + endMin;
-        for(int i=bMin; i<=eMin;){
-            int currHour = i/60;
-            int currMin = i%60;
+        for (int i = bMin; i <= eMin; ) {
+            int currHour = i / 60;
+            int currMin = i % 60;
             String triggerTime = specifyDate + " " + getTimeStr(currHour) + ":" + getTimeStr(currMin) + ":00";
             resultList.add(triggerTime);
             i += gapNum;

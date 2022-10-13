@@ -27,7 +27,7 @@ public interface ScheduleTaskMapstructTransfer {
      */
     QueryTaskListDTO queryTasksVoToDto(QueryTaskListVO vo);
 
-    @Mapping(source = "createUserId",target = "operatorId")
+    @Mapping(source = "createUserId", target = "operatorId")
     ReturnScheduleTaskVO beanToTaskVO(ScheduleTaskShade records);
 
     /**

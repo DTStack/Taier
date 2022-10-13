@@ -1,9 +1,9 @@
 package com.dtstack.taier.datasource.plugin.presto;
 
-import com.dtstack.taier.datasource.plugin.common.exception.ErrorCode;
-import com.dtstack.taier.datasource.plugin.rdbms.ConnFactory;
 import com.dtstack.taier.datasource.api.exception.SourceException;
 import com.dtstack.taier.datasource.api.source.DataBaseType;
+import com.dtstack.taier.datasource.plugin.common.exception.ErrorCode;
+import com.dtstack.taier.datasource.plugin.rdbms.ConnFactory;
 
 /**
  * presto 数据源连接工厂类

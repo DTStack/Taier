@@ -13,6 +13,7 @@ public interface IErrorPattern {
 
     /**
      * 获取连接时错误匹配
+     *
      * @param errorCode 错误代码
      * @return 对应匹配正则规则
      */

@@ -6,6 +6,7 @@ import com.dtstack.taier.develop.service.template.PluginName;
  * Date: 2020/3/5
  * Company: www.dtstack.com
  * for kafka 1.0 and latter
+ *
  * @author xiaochen
  */
 public class KafkaReader extends KafkaBaseReader {

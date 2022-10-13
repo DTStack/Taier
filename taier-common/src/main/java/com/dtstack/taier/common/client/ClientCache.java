@@ -65,7 +65,6 @@ public class ClientCache {
     }
 
     /**
-     *
      * @param pluginInfo 集群配置信息
      * @return
      */

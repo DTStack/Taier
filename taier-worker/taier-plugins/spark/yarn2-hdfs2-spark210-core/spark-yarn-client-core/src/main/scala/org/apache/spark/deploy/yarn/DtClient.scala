@@ -18,13 +18,6 @@
 package org.apache.spark.deploy.yarn
 
 import com.dtstack.taier.sparkyarn.sparkyarn.SparkYarnClient
-
-import java.io.{File, FileOutputStream, IOException, OutputStreamWriter}
-import java.net.{InetAddress, URI, UnknownHostException}
-import java.nio.ByteBuffer
-import java.nio.charset.StandardCharsets
-import java.util.zip.{ZipEntry, ZipOutputStream}
-import java.util.{Properties, UUID}
 import com.google.common.base.Objects
 import com.google.common.io.Files
 import org.apache.hadoop.conf.Configuration
@@ -52,6 +45,12 @@ import org.apache.spark.launcher.{LauncherBackend, SparkAppHandle, YarnCommandBu
 import org.apache.spark.util.{CallerContext, Utils}
 import org.apache.spark.{SecurityManager, SparkConf, SparkException}
 
+import java.io.{File, FileOutputStream, IOException, OutputStreamWriter}
+import java.net.{InetAddress, URI, UnknownHostException}
+import java.nio.ByteBuffer
+import java.nio.charset.StandardCharsets
+import java.util.zip.{ZipEntry, ZipOutputStream}
+import java.util.{Properties, UUID}
 import scala.collection.JavaConverters._
 import scala.collection.mutable.{ArrayBuffer, HashMap, HashSet, ListBuffer, Map}
 import scala.util.control.NonFatal
@@ -122,7 +121,9 @@ private[spark] class DtClient(
 
   // The app staging dir based on the STAGING_DIR configuration if configured
   // otherwise based on the users home directory.
-  private val appStagingBaseDir = sparkConf.get(STAGING_DIR).map { new Path(_) }
+  private val appStagingBaseDir = sparkConf.get(STAGING_DIR).map {
+    new Path(_)
+  }
     .getOrElse(FileSystem.get(hadoopConf).getHomeDirectory())
 
   private val credentialManager = new ConfigurableCredentialManager(sparkConf, hadoopConf)
@@ -139,13 +140,13 @@ private[spark] class DtClient(
   }
 
   /**
-    * Submit an application running our ApplicationMaster to the ResourceManager.
-    *
-    * The stable Yarn API provides a convenience method (YarnClient#createApplication) for
-    * creating applications and setting up the application submission context. This was not
-    * available in the alpha API.
-    */
-  def submitApplication(priority : Int = 0): ApplicationId = {
+   * Submit an application running our ApplicationMaster to the ResourceManager.
+   *
+   * The stable Yarn API provides a convenience method (YarnClient#createApplication) for
+   * creating applications and setting up the application submission context. This was not
+   * available in the alpha API.
+   */
+  def submitApplication(priority: Int = 0): ApplicationId = {
     var appId: ApplicationId = null
     try {
       launcherBackend.connect()
@@ -192,8 +193,8 @@ private[spark] class DtClient(
   }
 
   /**
-    * Cleanup application staging directory.
-    */
+   * Cleanup application staging directory.
+   */
   private def cleanupStagingDir(appId: ApplicationId): Unit = {
     val stagingDirPath = new Path(appStagingBaseDir, getAppStagingDir(appId))
     try {
@@ -209,9 +210,9 @@ private[spark] class DtClient(
   }
 
   /**
-    * Set up the context for submitting our ApplicationMaster.
-    * This uses the YarnClientApplication not available in the Yarn alpha API.
-    */
+   * Set up the context for submitting our ApplicationMaster.
+   * This uses the YarnClientApplication not available in the Yarn alpha API.
+   */
   def createApplicationSubmissionContext(
                                           newApp: YarnClientApplication,
                                           containerContext: ContainerLaunchContext): ApplicationSubmissionContext = {
@@ -324,15 +325,15 @@ private[spark] class DtClient(
     yarnClient.getApplicationReport(appId)
 
   /**
-    * Return the security token used by this client to communicate with the ApplicationMaster.
-    * If no security is enabled, the token returned by the report is null.
-    */
+   * Return the security token used by this client to communicate with the ApplicationMaster.
+   * If no security is enabled, the token returned by the report is null.
+   */
   private def getClientToken(report: ApplicationReport): String =
     Option(report.getClientToAMToken).map(_.toString).getOrElse("")
 
   /**
-    * Fail fast if we have requested more resources per container than is available in the cluster.
-    */
+   * Fail fast if we have requested more resources per container than is available in the cluster.
+   */
   private def verifyClusterResources(newAppResponse: GetNewApplicationResponse): Unit = {
     val maxMem = newAppResponse.getMaximumResourceCapability().getMemory()
     logInfo("Verifying our application has not requested more than the maximum " +
@@ -359,10 +360,10 @@ private[spark] class DtClient(
   }
 
   /**
-    * Copy the given file to a remote file system (e.g. HDFS) if needed.
-    * The file is only copied if the source and destination file systems are different. This is used
-    * for preparing resources for launching the ApplicationMaster container. Exposed for testing.
-    */
+   * Copy the given file to a remote file system (e.g. HDFS) if needed.
+   * The file is only copied if the source and destination file systems are different. This is used
+   * for preparing resources for launching the ApplicationMaster container. Exposed for testing.
+   */
   private[yarn] def copyFileToRemote(
                                       destDir: Path,
                                       srcPath: Path,
@@ -393,7 +394,7 @@ private[spark] class DtClient(
     new Path(resolvedDestDir, qualifiedDestPath.getName())
   }
 
-  def initSecurity():Unit = {
+  def initSecurity(): Unit = {
     val userPrincipal = sparkConf.get("spark.yarn.principal")
     val userKeytabPath = sparkConf.get("spark.yarn.keytab")
     UserGroupInformation.setConfiguration(yarnConf)
@@ -401,11 +402,11 @@ private[spark] class DtClient(
   }
 
   /**
-    * Upload any resources to the distributed cache if needed. If a resource is intended to be
-    * consumed locally, set up the appropriate config for downstream code to handle it properly.
-    * This is used for setting up a container launch context for our ApplicationMaster.
-    * Exposed for testing.
-    */
+   * Upload any resources to the distributed cache if needed. If a resource is intended to be
+   * consumed locally, set up the appropriate config for downstream code to handle it properly.
+   * This is used for setting up a container launch context for our ApplicationMaster.
+   * Exposed for testing.
+   */
   def prepareLocalResources(
                              destDir: Path,
                              pySparkArchives: Seq[String]): HashMap[String, LocalResource] = {
@@ -415,7 +416,7 @@ private[spark] class DtClient(
     val fs = destDir.getFileSystem(hadoopConf)
 
     var nearestTimeOfNextRenewal = Long.MaxValue
-    if (sparkConf.get("security").equalsIgnoreCase("true")){
+    if (sparkConf.get("security").equalsIgnoreCase("true")) {
       initSecurity()
       // Merge credentials obtained from registered providers
       nearestTimeOfNextRenewal = credentialManager.obtainCredentials(hadoopConf, credentials)
@@ -479,20 +480,20 @@ private[spark] class DtClient(
     }
 
     /**
-      * Distribute a file to the cluster.
-      *
-      * If the file's path is a "local:" URI, it's actually not distributed. Other files are copied
-      * to HDFS (if not already there) and added to the application's distributed cache.
-      *
-      * @param path URI of the file to distribute.
-      * @param resType Type of resource being distributed.
-      * @param destName Name of the file in the distributed cache.
-      * @param targetDir Subdirectory where to place the file.
-      * @param appMasterOnly Whether to distribute only to the AM.
-      * @return A 2-tuple. First item is whether the file is a "local:" URI. Second item is the
-      *         localized path for non-local paths, or the input `path` for local paths.
-      *         The localized path will be null if the URI has already been added to the cache.
-      */
+     * Distribute a file to the cluster.
+     *
+     * If the file's path is a "local:" URI, it's actually not distributed. Other files are copied
+     * to HDFS (if not already there) and added to the application's distributed cache.
+     *
+     * @param path          URI of the file to distribute.
+     * @param resType       Type of resource being distributed.
+     * @param destName      Name of the file in the distributed cache.
+     * @param targetDir     Subdirectory where to place the file.
+     * @param appMasterOnly Whether to distribute only to the AM.
+     * @return A 2-tuple. First item is whether the file is a "local:" URI. Second item is the
+     *         localized path for non-local paths, or the input `path` for local paths.
+     *         The localized path will be null if the URI has already been added to the cache.
+     */
     def distribute(
                     path: String,
                     resType: LocalResourceType = LocalResourceType.FILE,
@@ -522,7 +523,7 @@ private[spark] class DtClient(
 
     val log4jLocalPath = sparkConf.get(SparkYarnClient.SPARK_LOCAL_LOG4J_KEY, "")
     if (!"".equals(log4jLocalPath)) {
-        distribute(log4jLocalPath, destName = Some(SparkYarnClient.SPARK_LOG4J_FILE_NAME))
+      distribute(log4jLocalPath, destName = Some(SparkYarnClient.SPARK_LOG4J_FILE_NAME))
     }
 
     // If we passed in a keytab, make sure we copy the keytab to the staging directory on
@@ -537,15 +538,15 @@ private[spark] class DtClient(
     }
 
     /**
-      * Add Spark to the cache. There are two settings that control what files to add to the cache:
-      * - if a Spark archive is defined, use the archive. The archive is expected to contain
-      *   jar files at its root directory.
-      * - if a list of jars is provided, filter the non-local ones, resolve globs, and
-      *   add the found files to the cache.
-      *
-      * Note that the archive cannot be a "local" URI. If none of the above settings are found,
-      * then upload all files found in $SPARK_HOME/jars.
-      */
+     * Add Spark to the cache. There are two settings that control what files to add to the cache:
+     * - if a Spark archive is defined, use the archive. The archive is expected to contain
+     * jar files at its root directory.
+     * - if a list of jars is provided, filter the non-local ones, resolve globs, and
+     * add the found files to the cache.
+     *
+     * Note that the archive cannot be a "local" URI. If none of the above settings are found,
+     * then upload all files found in $SPARK_HOME/jars.
+     */
     val sparkArchive = sparkConf.get(SPARK_ARCHIVE)
     if (sparkArchive.isDefined) {
       val archive = sparkArchive.get
@@ -605,9 +606,9 @@ private[spark] class DtClient(
     }
 
     /**
-      * Copy user jar to the distributed cache if their scheme is not "local".
-      * Otherwise, set the corresponding key in our SparkConf to handle it downstream.
-      */
+     * Copy user jar to the distributed cache if their scheme is not "local".
+     * Otherwise, set the corresponding key in our SparkConf to handle it downstream.
+     */
     Option(args.userJar).filter(_.trim.nonEmpty).foreach { jar =>
       val (isLocal, localizedPath) = distribute(jar, destName = Some(APP_JAR_NAME))
       if (isLocal) {
@@ -619,12 +620,12 @@ private[spark] class DtClient(
     }
 
     /**
-      * Do the same for any additional resources passed in through ClientArguments.
-      * Each resource category is represented by a 3-tuple of:
-      *   (1) comma separated list of resources in this category,
-      *   (2) resource type, and
-      *   (3) whether to add these resources to the classpath
-      */
+     * Do the same for any additional resources passed in through ClientArguments.
+     * Each resource category is represented by a 3-tuple of:
+     * (1) comma separated list of resources in this category,
+     * (2) resource type, and
+     * (3) whether to add these resources to the classpath
+     */
     val cachedSecondaryJarLinks = ListBuffer.empty[String]
     List(
       (sparkConf.get(JARS_TO_DISTRIBUTE), LocalResourceType.FILE, true),
@@ -698,7 +699,7 @@ private[spark] class DtClient(
     localResources
   }
 
-  def loadConfFromLocal(hadoopConfFiles: HashMap[String, File]): Unit ={
+  def loadConfFromLocal(hadoopConfFiles: HashMap[String, File]): Unit = {
     Seq("HADOOP_CONF_DIR", "YARN_CONF_DIR").foreach { envKey =>
       sys.env.get(envKey).foreach { path =>
         val dir = new File(path)
@@ -718,27 +719,27 @@ private[spark] class DtClient(
     }
   }
 
-  def loadHadoopConf(hadoopConfFiles: HashMap[String, File]): Unit ={
+  def loadHadoopConf(hadoopConfFiles: HashMap[String, File]): Unit = {
     loadConfFromLocal(hadoopConfFiles)
   }
 
   /**
-    * Create an archive with the config files for distribution.
-    *
-    * These will be used by AM and executors. The files are zipped and added to the job as an
-    * archive, so that YARN will explode it when distributing to AM and executors. This directory
-    * is then added to the classpath of AM and executor process, just to make sure that everybody
-    * is using the same default config.
-    *
-    * This follows the order of precedence set by the startup scripts, in which HADOOP_CONF_DIR
-    * shows up in the classpath before YARN_CONF_DIR.
-    *
-    * Currently this makes a shallow copy of the conf directory. If there are cases where a
-    * Hadoop config directory contains subdirectories, this code will have to be fixed.
-    *
-    * The archive also contains some Spark configuration. Namely, it saves the contents of
-    * SparkConf in a file to be loaded by the AM process.
-    */
+   * Create an archive with the config files for distribution.
+   *
+   * These will be used by AM and executors. The files are zipped and added to the job as an
+   * archive, so that YARN will explode it when distributing to AM and executors. This directory
+   * is then added to the classpath of AM and executor process, just to make sure that everybody
+   * is using the same default config.
+   *
+   * This follows the order of precedence set by the startup scripts, in which HADOOP_CONF_DIR
+   * shows up in the classpath before YARN_CONF_DIR.
+   *
+   * Currently this makes a shallow copy of the conf directory. If there are cases where a
+   * Hadoop config directory contains subdirectories, this code will have to be fixed.
+   *
+   * The archive also contains some Spark configuration. Namely, it saves the contents of
+   * SparkConf in a file to be loaded by the AM process.
+   */
   def createConfArchive(): File = {
     val hadoopConfFiles = new HashMap[String, File]()
 
@@ -751,9 +752,9 @@ private[spark] class DtClient(
     // Also uploading metrics.properties to distributed cache if exists in classpath.
     // If user specify this file using --files then executors will use the one
     // from --files instead.
-    for { prop <- Seq("log4j.properties", "metrics.properties")
-          url <- Option(Utils.getContextOrSparkClassLoader.getResource(prop))
-          if url.getProtocol == "file" } {
+    for {prop <- Seq("log4j.properties", "metrics.properties")
+         url <- Option(Utils.getContextOrSparkClassLoader.getResource(prop))
+         if url.getProtocol == "file"} {
       hadoopConfFiles(prop) = new File(url.getPath)
     }
 
@@ -791,8 +792,8 @@ private[spark] class DtClient(
   }
 
   /**
-    * Set up the environment for launching our ApplicationMaster container.
-    */
+   * Set up the environment for launching our ApplicationMaster container.
+   */
   private def setupLaunchEnv(
                               stagingDirPath: Path,
                               pySparkArchives: Seq[String]): HashMap[String, String] = {
@@ -869,7 +870,7 @@ private[spark] class DtClient(
              |SPARK_JAVA_OPTS was detected (set to '$value').
              |This is deprecated in Spark 1.0+.
              |
-            |Please instead use:
+             |Please instead use:
              | - ./spark-submit with conf/spark-defaults.conf to set defaults for an application
              | - ./spark-submit with --driver-java-options to set -X options for a driver
              | - spark.executor.extraJavaOptions to set -X options for executors
@@ -884,9 +885,9 @@ private[spark] class DtClient(
         env("SPARK_JAVA_OPTS") = value
       }
 
-//      if (!sparkConf.get("SPARK_JAVA_OPTS").isEmpty) {
-//        env("SPARK_JAVA_OPTS") = sparkConf.get("SPARK_JAVA_OPTS")
-//      }
+      //      if (!sparkConf.get("SPARK_JAVA_OPTS").isEmpty) {
+      //        env("SPARK_JAVA_OPTS") = sparkConf.get("SPARK_JAVA_OPTS")
+      //      }
 
 
       // propagate PYSPARK_DRIVER_PYTHON and PYSPARK_PYTHON to driver in cluster mode
@@ -905,9 +906,9 @@ private[spark] class DtClient(
   }
 
   /**
-    * Set up a ContainerLaunchContext to launch our ApplicationMaster container.
-    * This sets up the launch environment, java options, and the command for launching the AM.
-    */
+   * Set up a ContainerLaunchContext to launch our ApplicationMaster container.
+   * This sets up the launch environment, java options, and the command for launching the AM.
+   */
   private def createContainerLaunchContext(newAppResponse: GetNewApplicationResponse)
   : ContainerLaunchContext = {
     logInfo("Setting up container launch context for our AM")
@@ -1059,7 +1060,7 @@ private[spark] class DtClient(
     logDebug("    env:")
     launchEnv.foreach { case (k, v) => logDebug(s"        $k -> $v") }
     logDebug("    resources:")
-    localResources.foreach { case (k, v) => logDebug(s"        $k -> $v")}
+    localResources.foreach { case (k, v) => logDebug(s"        $k -> $v") }
     logDebug("    command:")
     logDebug(s"        ${printableCommands.mkString(" ")}")
     logDebug("===============================================================================")
@@ -1093,16 +1094,16 @@ private[spark] class DtClient(
   }
 
   /**
-    * Report the state of an application until it has exited, either successfully or
-    * due to some failure, then return a pair of the yarn application state (FINISHED, FAILED,
-    * KILLED, or RUNNING) and the final application state (UNDEFINED, SUCCEEDED, FAILED,
-    * or KILLED).
-    *
-    * @param appId ID of the application to monitor.
-    * @param returnOnRunning Whether to also return the application state when it is RUNNING.
-    * @param logApplicationReport Whether to log details of the application report every iteration.
-    * @return A pair of the yarn application state and the final application state.
-    */
+   * Report the state of an application until it has exited, either successfully or
+   * due to some failure, then return a pair of the yarn application state (FINISHED, FAILED,
+   * KILLED, or RUNNING) and the final application state (UNDEFINED, SUCCEEDED, FAILED,
+   * or KILLED).
+   *
+   * @param appId                ID of the application to monitor.
+   * @param returnOnRunning      Whether to also return the application state when it is RUNNING.
+   * @param logApplicationReport Whether to log details of the application report every iteration.
+   * @return A pair of the yarn application state and the final application state.
+   */
   def monitorApplication(
                           appId: ApplicationId,
                           returnOnRunning: Boolean = false,
@@ -1198,13 +1199,13 @@ private[spark] class DtClient(
   }
 
   /**
-    * Submit an application to the ResourceManager.
-    * If set spark.yarn.submit.waitAppCompletion to true, it will stay alive
-    * reporting the application's status until the application has exited for any reason.
-    * Otherwise, the client process will exit after submission.
-    * If the application finishes with a failed, killed, or undefined status,
-    * throw an appropriate SparkException.
-    */
+   * Submit an application to the ResourceManager.
+   * If set spark.yarn.submit.waitAppCompletion to true, it will stay alive
+   * reporting the application's status until the application has exited for any reason.
+   * Otherwise, the client process will exit after submission.
+   * If the application finishes with a failed, killed, or undefined status,
+   * throw an appropriate SparkException.
+   */
   def run(): Unit = {
     this.appId = submitApplication()
     if (!launcherBackend.isConnected() && fireAndForget) {
@@ -1305,16 +1306,16 @@ private object DtClient extends Logging {
   val LOCALIZED_LIB_DIR = "__spark_libs__"
 
   /**
-    * Return the path to the given application's staging directory.
-    */
+   * Return the path to the given application's staging directory.
+   */
   private def getAppStagingDir(appId: ApplicationId): String = {
     buildPath(SPARK_STAGING, appId.toString())
   }
 
   /**
-    * Populate the classpath entry in the given environment map with any application
-    * classpath specified through the Hadoop and Yarn configurations.
-    */
+   * Populate the classpath entry in the given environment map with any application
+   * classpath specified through the Hadoop and Yarn configurations.
+   */
   private[yarn] def populateHadoopClasspath(conf: Configuration, env: HashMap[String, String])
   : Unit = {
     val classPathElementsToAdd = getYarnAppClasspath(conf) ++ getMRAppClasspath(conf)
@@ -1373,15 +1374,15 @@ private object DtClient extends Logging {
   }
 
   /**
-    * Populate the classpath entry in the given environment map.
-    *
-    * User jars are generally not added to the JVM's system classpath; those are handled by the AM
-    * and executor backend. When the deprecated `spark.yarn.user.classpath.first` is used, user jars
-    * are included in the system classpath, though. The extra class path and other uploaded files are
-    * always made available through the system class path.
-    *
-    * @param args Client arguments (when starting the AM) or null (when starting executors).
-    */
+   * Populate the classpath entry in the given environment map.
+   *
+   * User jars are generally not added to the JVM's system classpath; those are handled by the AM
+   * and executor backend. When the deprecated `spark.yarn.user.classpath.first` is used, user jars
+   * are included in the system classpath, though. The extra class path and other uploaded files are
+   * always made available through the system class path.
+   *
+   * @param args Client arguments (when starting the AM) or null (when starting executors).
+   */
   private[yarn] def populateClasspath(
                                        args: ClientArguments,
                                        conf: Configuration,
@@ -1439,10 +1440,10 @@ private object DtClient extends Logging {
   }
 
   /**
-    * Returns a list of URIs representing the user classpath.
-    *
-    * @param conf Spark configuration.
-    */
+   * Returns a list of URIs representing the user classpath.
+   *
+   * @param conf Spark configuration.
+   */
   def getUserClasspath(conf: SparkConf): Array[URI] = {
     val mainUri = getMainJarUri(conf.get(APP_JAR))
     val secondaryUris = getSecondaryJarUris(conf.get(SECONDARY_JARS))
@@ -1461,19 +1462,19 @@ private object DtClient extends Logging {
   }
 
   /**
-    * Adds the given path to the classpath, handling "local:" URIs correctly.
-    *
-    * If an alternate name for the file is given, and it's not a "local:" file, the alternate
-    * name will be added to the classpath (relative to the job's work directory).
-    *
-    * If not a "local:" file and no alternate name, the linkName will be added to the classpath.
-    *
-    * @param conf        Spark configuration.
-    * @param hadoopConf  Hadoop configuration.
-    * @param uri         URI to add to classpath (optional).
-    * @param fileName    Alternate name for the file (optional).
-    * @param env         Map holding the environment variables.
-    */
+   * Adds the given path to the classpath, handling "local:" URIs correctly.
+   *
+   * If an alternate name for the file is given, and it's not a "local:" file, the alternate
+   * name will be added to the classpath (relative to the job's work directory).
+   *
+   * If not a "local:" file and no alternate name, the linkName will be added to the classpath.
+   *
+   * @param conf       Spark configuration.
+   * @param hadoopConf Hadoop configuration.
+   * @param uri        URI to add to classpath (optional).
+   * @param fileName   Alternate name for the file (optional).
+   * @param env        Map holding the environment variables.
+   */
   private def addFileToClasspath(
                                   conf: SparkConf,
                                   hadoopConf: Configuration,
@@ -1494,25 +1495,25 @@ private object DtClient extends Logging {
   }
 
   /**
-    * Add the given path to the classpath entry of the given environment map.
-    * If the classpath is already set, this appends the new path to the existing classpath.
-    */
+   * Add the given path to the classpath entry of the given environment map.
+   * If the classpath is already set, this appends the new path to the existing classpath.
+   */
   private def addClasspathEntry(path: String, env: HashMap[String, String]): Unit =
     YarnSparkHadoopUtil.addPathToEnvironment(env, Environment.CLASSPATH.name, path)
 
   /**
-    * Returns the path to be sent to the NM for a path that is valid on the gateway.
-    *
-    * This method uses two configuration values:
-    *
-    *  - spark.yarn.config.gatewayPath: a string that identifies a portion of the input path that may
-    *    only be valid in the gateway node.
-    *  - spark.yarn.config.replacementPath: a string with which to replace the gateway path. This may
-    *    contain, for example, env variable references, which will be expanded by the NMs when
-    *    starting containers.
-    *
-    * If either config is not available, the input path is returned.
-    */
+   * Returns the path to be sent to the NM for a path that is valid on the gateway.
+   *
+   * This method uses two configuration values:
+   *
+   *  - spark.yarn.config.gatewayPath: a string that identifies a portion of the input path that may
+   *    only be valid in the gateway node.
+   *  - spark.yarn.config.replacementPath: a string with which to replace the gateway path. This may
+   *    contain, for example, env variable references, which will be expanded by the NMs when
+   *    starting containers.
+   *
+   * If either config is not available, the input path is returned.
+   */
   def getClusterPath(conf: SparkConf, path: String): String = {
     val localPath = conf.get(GATEWAY_ROOT_PATH)
     val clusterPath = conf.get(REPLACEMENT_ROOT_PATH)
@@ -1524,8 +1525,8 @@ private object DtClient extends Logging {
   }
 
   /**
-    * Return whether the two file systems are the same.
-    */
+   * Return whether the two file systems are the same.
+   */
   private def compareFs(srcFs: FileSystem, destFs: FileSystem): Boolean = {
     val srcUri = srcFs.getUri()
     val dstUri = destFs.getUri()
@@ -1553,9 +1554,9 @@ private object DtClient extends Logging {
   }
 
   /**
-    * Given a local URI, resolve it and return a qualified local path that corresponds to the URI.
-    * This is used for preparing local resources to be included in the container launch context.
-    */
+   * Given a local URI, resolve it and return a qualified local path that corresponds to the URI.
+   * This is used for preparing local resources to be included in the container launch context.
+   */
   private def getQualifiedLocalPath(localURI: URI, hadoopConf: Configuration): Path = {
     val qualifiedURI =
       if (localURI.getScheme == null) {
@@ -1569,9 +1570,9 @@ private object DtClient extends Logging {
   }
 
   /**
-    * Whether to consider jars provided by the user to have precedence over the Spark jars when
-    * loading user classes.
-    */
+   * Whether to consider jars provided by the user to have precedence over the Spark jars when
+   * loading user classes.
+   */
   def isUserClassPathFirst(conf: SparkConf, isDriver: Boolean): Boolean = {
     if (isDriver) {
       conf.get(DRIVER_USER_CLASS_PATH_FIRST)
@@ -1581,8 +1582,8 @@ private object DtClient extends Logging {
   }
 
   /**
-    * Joins all the path components using Path.SEPARATOR.
-    */
+   * Joins all the path components using Path.SEPARATOR.
+   */
   def buildPath(components: String*): String = {
     components.mkString(Path.SEPARATOR)
   }

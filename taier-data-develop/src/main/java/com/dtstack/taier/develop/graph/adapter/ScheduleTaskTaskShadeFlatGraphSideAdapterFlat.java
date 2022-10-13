@@ -1,7 +1,7 @@
 package com.dtstack.taier.develop.graph.adapter;
 
-import com.dtstack.taier.datasource.api.utils.AssertUtils;
 import com.dtstack.taier.dao.domain.ScheduleTaskTaskShade;
+import com.dtstack.taier.datasource.api.utils.AssertUtils;
 import com.dtstack.taier.develop.graph.AbstractFlatDirectGraphSide;
 
 import java.util.ArrayList;
@@ -52,7 +52,7 @@ public class ScheduleTaskTaskShadeFlatGraphSideAdapterFlat extends AbstractFlatD
 
     @Override
     public int hashCode() {
-        return Objects.hash(val(),parent());
+        return Objects.hash(val(), parent());
     }
 
 

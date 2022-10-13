@@ -53,7 +53,7 @@ public class AddressUtil {
         try {
             ns = NetworkInterface.getNetworkInterfaces();
         } catch (SocketException e) {
-            LOGGER.error("",e);
+            LOGGER.error("", e);
         }
         while (ns != null && ns.hasMoreElements()) {
             NetworkInterface n = ns.nextElement();
@@ -61,56 +61,68 @@ public class AddressUtil {
             while (is.hasMoreElements()) {
                 InetAddress i = is.nextElement();
                 if (!i.isLoopbackAddress() && !i.isLinkLocalAddress() && !i.isMulticastAddress()
-                        && !isSpecialIp(i.getHostAddress())) {addrs.add(i);}
+                        && !isSpecialIp(i.getHostAddress())) {
+                    addrs.add(i);
+                }
             }
         }
         return addrs;
     }
 
     private static boolean isSpecialIp(String ip) {
-        if (ip.contains(":")) {return true;}
-        if (ip.startsWith("127.")) {return true;}
-        if (ip.startsWith("169.254.")) {return true;}
-        if (ip.startsWith("172.17.")) {return true;}
-        if ("255.255.255.255".equals(ip)) {return true;}
+        if (ip.contains(":")) {
+            return true;
+        }
+        if (ip.startsWith("127.")) {
+            return true;
+        }
+        if (ip.startsWith("169.254.")) {
+            return true;
+        }
+        if (ip.startsWith("172.17.")) {
+            return true;
+        }
+        if ("255.255.255.255".equals(ip)) {
+            return true;
+        }
         return false;
     }
 
     public static List<String> resolveLocalIps() {
         Set<InetAddress> addrs = resolveLocalAddresses();
         List<String> ret = Lists.newArrayList();
-        for (InetAddress addr : addrs){
+        for (InetAddress addr : addrs) {
             String ar = addr.getHostAddress();
-            if(!ret.contains(ar)){
+            if (!ret.contains(ar)) {
                 ret.add(ar);
             }
         }
         return ret;
     }
 
-    public static String getOneIp(){
-        List<String> ips =   resolveLocalIps();
-        return ips.size()>0?ips.get(0):"0.0.0.0";
+    public static String getOneIp() {
+        List<String> ips = resolveLocalIps();
+        return ips.size() > 0 ? ips.get(0) : "0.0.0.0";
     }
 
 
-
-    public static boolean ping(String ip){
-        try{
+    public static boolean ping(String ip) {
+        try {
             return InetAddress.getByName(ip).isReachable(3000);
-        }catch(Exception e){
+        } catch (Exception e) {
             return false;
         }
     }
 
     /**
      * 校验ip是否是'0.0.0.0', '127.0.0.1'
+     *
      * @param ip
      * @return
      */
-    public static boolean checkAddrIsLocal(String ip){
-        for(String localIp : localAddrList){
-            if(localIp.equalsIgnoreCase(ip)){
+    public static boolean checkAddrIsLocal(String ip) {
+        for (String localIp : localAddrList) {
+            if (localIp.equalsIgnoreCase(ip)) {
                 return true;
             }
         }
@@ -121,29 +133,29 @@ public class AddressUtil {
     /**
      * 检查服务是否相同：ip相同，端口相同
      */
-    public static boolean checkServiceIsSame(String host1,int port1,String host2,int port2) throws Exception{
+    public static boolean checkServiceIsSame(String host1, int port1, String host2, int port2) throws Exception {
         InetAddress address1 = InetAddress.getByName(host1);
         InetAddress address2 = InetAddress.getByName(host2);
 
         return address1.getHostAddress().equals(address2.getHostAddress()) && port1 == port2;
     }
 
-    public static boolean telnet(String ip,int port){
+    public static boolean telnet(String ip, int port) {
         TelnetClient client = null;
-        try{
+        try {
             client = new TelnetClient();
             client.setConnectTimeout(3000);
-            client.connect(ip,port);
+            client.connect(ip, port);
             return true;
-        }catch(Exception e){
+        } catch (Exception e) {
             return false;
         } finally {
             try {
-                if (client != null){
+                if (client != null) {
                     client.disconnect();
                 }
-            } catch (Exception e){
-                LOGGER.error("",e);
+            } catch (Exception e) {
+                LOGGER.error("", e);
             }
         }
     }

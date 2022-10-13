@@ -20,7 +20,7 @@ public class SavaTaskDTO {
     /**
      * 父节点taskId
      */
-    private List<Long>  parentTaskIdList;
+    private List<Long> parentTaskIdList;
 
     public ScheduleTaskShade getScheduleTaskShade() {
         return scheduleTaskShade;

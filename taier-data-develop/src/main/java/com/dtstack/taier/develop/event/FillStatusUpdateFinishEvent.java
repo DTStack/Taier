@@ -17,14 +17,14 @@ public class FillStatusUpdateFinishEvent implements FillDataRunnable.FillFinishE
 
     @Autowired
     private FillDataService fillDataJobService;
-    
+
     @Override
     public void finishFill(Long fillId, Integer originalStatus, Integer currentStatus) {
         ScheduleFillDataJob updateFillDataJob = new ScheduleFillDataJob();
         updateFillDataJob.setFillGenerateStatus(currentStatus);
         fillDataJobService.lambdaUpdate()
-                .eq(ScheduleFillDataJob::getId,fillId)
-                .eq(ScheduleFillDataJob::getFillGenerateStatus,originalStatus)
+                .eq(ScheduleFillDataJob::getId, fillId)
+                .eq(ScheduleFillDataJob::getFillGenerateStatus, originalStatus)
                 .update(updateFillDataJob);
     }
 }

@@ -30,15 +30,15 @@ import java.util.List;
  */
 public interface ComponentConfigMapper extends BaseMapper<ComponentConfig> {
 
-    List<ComponentConfig> listByComponentId(@Param("componentId")Long componentId,@Param("isFilter") boolean isFilter);
+    List<ComponentConfig> listByComponentId(@Param("componentId") Long componentId, @Param("isFilter") boolean isFilter);
 
-    List<ComponentConfig> listByClusterId(@Param("clusterId")Long clusterId,@Param("isFilter") boolean isFilter);
+    List<ComponentConfig> listByClusterId(@Param("clusterId") Long clusterId, @Param("isFilter") boolean isFilter);
 
-    ComponentConfig listByKey(@Param("componentId") Long componentId,@Param("key")String key);
+    ComponentConfig listByKey(@Param("componentId") Long componentId, @Param("key") String key);
 
     Integer insertBatch(@Param("componentConfigs") List<ComponentConfig> componentConfigs);
 
-    Integer deleteByComponentId(@Param("componentId")Long componentId);
+    Integer deleteByComponentId(@Param("componentId") Long componentId);
 
     void updateValueById(ComponentConfig componentConfig);
 }

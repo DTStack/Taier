@@ -35,7 +35,7 @@ public enum TableOperateEnum {
     ALTERTABLE_ADDCOLS("altertable_addcols", "Add Column", 51),
     ALTERTABLE_REPLACECOLS("altertable_replacecols", "Replace Column", 52),
     OTHER("other", "other", 53),
-    INVALIDATE_TABLE("invalidate_table","invalidate_table",54);
+    INVALIDATE_TABLE("invalidate_table", "invalidate_table", 54);
 
     private String operate;
 

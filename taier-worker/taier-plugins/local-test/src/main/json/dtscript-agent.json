@@ -1,13 +1,13 @@
 {
-  "name":"dtscript_agent_test_2a14f6c8",
-  "exeArgs":"",
-  "sqlText":"ls /",
-  "taskId":"taskId",
-  "taskParams":"",
-  "taskType":0,
-  "computeType":1,
-  "pluginInfo":{
-    "agentAddress" : "em:8889",
+  "name": "dtscript_agent_test_2a14f6c8",
+  "exeArgs": "",
+  "sqlText": "ls /",
+  "taskId": "taskId",
+  "taskParams": "",
+  "taskType": 0,
+  "computeType": 1,
+  "pluginInfo": {
+    "agentAddress": "em:8889",
     "typeName": "dtscript-agent"
   }
 }

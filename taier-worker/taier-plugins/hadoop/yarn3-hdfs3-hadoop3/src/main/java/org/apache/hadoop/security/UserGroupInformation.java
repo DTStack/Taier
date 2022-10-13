@@ -6,9 +6,9 @@
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -80,7 +80,7 @@ import static org.apache.hadoop.util.PlatformName.IBM_JAVA;
 @InterfaceAudience.LimitedPrivate({"HDFS", "MapReduce", "HBase", "Hive", "Oozie"})
 @InterfaceStability.Evolving
 public class UserGroupInformation {
-    private static final Log LOG =  LogFactory.getLog(UserGroupInformation.class);
+    private static final Log LOG = LogFactory.getLog(UserGroupInformation.class);
     /**
      * Percentage of the ticket window to use before we renew ticket.
      */
@@ -102,9 +102,9 @@ public class UserGroupInformation {
         shouldRenewImmediatelyForTests = immediate;
     }
 
-    public static void setThreadLocalData(String key, String val){
+    public static void setThreadLocalData(String key, String val) {
         Map<String, String> dataMap = threadLocal.get();
-        if(dataMap == null){
+        if (dataMap == null) {
             dataMap = new HashMap<>();
         }
 
@@ -116,7 +116,7 @@ public class UserGroupInformation {
      * UgiMetrics maintains UGI activity statistics
      * and publishes them through the metrics interfaces.
      */
-    @Metrics(about="User and group related metrics", context="ugi")
+    @Metrics(about = "User and group related metrics", context = "ugi")
     static class UgiMetrics {
         final MetricsRegistry registry = new MetricsRegistry("UgiMetrics");
 
@@ -124,7 +124,8 @@ public class UserGroupInformation {
         MutableRate loginSuccess;
         @Metric("Rate of failed kerberos logins and latency (milliseconds)")
         MutableRate loginFailure;
-        @Metric("GetGroups") MutableRate getGroups;
+        @Metric("GetGroups")
+        MutableRate getGroups;
         MutableQuantiles[] getGroupsQuantiles;
 
         static UgiMetrics create() {
@@ -155,7 +156,7 @@ public class UserGroupInformation {
         }
 
         private <T extends Principal> T getCanonicalUser(Class<T> cls) {
-            for(T user: subject.getPrincipals(cls)) {
+            for (T user : subject.getPrincipals(cls)) {
                 return user;
             }
             return null;
@@ -169,7 +170,7 @@ public class UserGroupInformation {
             // if we already have a user, we are done.
             if (!subject.getPrincipals(User.class).isEmpty()) {
                 if (LOG.isDebugEnabled()) {
-                    LOG.debug("using existing subject:"+subject.getPrincipals());
+                    LOG.debug("using existing subject:" + subject.getPrincipals());
                 }
                 return true;
             }
@@ -178,7 +179,7 @@ public class UserGroupInformation {
             if (isAuthenticationMethodEnabled(AuthenticationMethod.KERBEROS)) {
                 user = getCanonicalUser(KerberosPrincipal.class);
                 if (LOG.isDebugEnabled()) {
-                    LOG.debug("using kerberos user:"+user);
+                    LOG.debug("using kerberos user:" + user);
                 }
             }
             //If we don't have a kerberos user and security is disabled, check
@@ -187,9 +188,9 @@ public class UserGroupInformation {
 
                 String envUser = null;
                 Map<String, String> data = threadLocal.get();
-                if(data != null){
+                if (data != null) {
                     envUser = data.get(HADOOP_USER_NAME);
-                }else{
+                } else {
                     envUser = System.getenv(HADOOP_USER_NAME);
 
                 }
@@ -203,7 +204,7 @@ public class UserGroupInformation {
             if (user == null) {
                 user = getCanonicalUser(OS_PRINCIPAL_CLASS);
                 if (LOG.isDebugEnabled()) {
-                    LOG.debug("using local user:"+user);
+                    LOG.debug("using local user:" + user);
                 }
             }
             // if we found the user, add our principal
@@ -216,10 +217,10 @@ public class UserGroupInformation {
                 try {
                     userEntry = new User(user.getName());
                 } catch (Exception e) {
-                    throw (LoginException)(new LoginException(e.toString()).initCause(e));
+                    throw (LoginException) (new LoginException(e.toString()).initCause(e));
                 }
                 if (LOG.isDebugEnabled()) {
-                    LOG.debug("User entry: \"" + userEntry.toString() + "\"" );
+                    LOG.debug("User entry: \"" + userEntry.toString() + "\"");
                 }
 
                 subject.getPrincipals().add(userEntry);
@@ -275,7 +276,7 @@ public class UserGroupInformation {
      */
     private static void ensureInitialized() {
         if (conf == null) {
-            synchronized(UserGroupInformation.class) {
+            synchronized (UserGroupInformation.class) {
                 if (conf == null) { // someone might have beat us
                     initialize(new Configuration(), false);
                 }
@@ -426,6 +427,7 @@ public class UserGroupInformation {
         }
         return null;
     }
+
     static {
         OS_LOGIN_MODULE_NAME = getOSLoginModuleName();
         OS_PRINCIPAL_CLASS = getOsPrincipalClass();
@@ -482,7 +484,8 @@ public class UserGroupInformation {
                 "hadoop-keytab-kerberos";
 
         private static final Map<String, String> BASIC_JAAS_OPTIONS =
-                new HashMap<String,String>();
+                new HashMap<String, String>();
+
         static {
             String jaasEnvVar = System.getenv("HADOOP_JAAS_DEBUG");
             if (jaasEnvVar != null && "true".equalsIgnoreCase(jaasEnvVar)) {
@@ -498,8 +501,9 @@ public class UserGroupInformation {
                 new AppConfigurationEntry(HadoopLoginModule.class.getName(),
                         LoginModuleControlFlag.REQUIRED,
                         BASIC_JAAS_OPTIONS);
-        private static final Map<String,String> USER_KERBEROS_OPTIONS =
-                new HashMap<String,String>();
+        private static final Map<String, String> USER_KERBEROS_OPTIONS =
+                new HashMap<String, String>();
+
         static {
             if (IBM_JAVA) {
                 USER_KERBEROS_OPTIONS.put("useDefaultCcache", "true");
@@ -519,12 +523,14 @@ public class UserGroupInformation {
             USER_KERBEROS_OPTIONS.put("renewTGT", "true");
             USER_KERBEROS_OPTIONS.putAll(BASIC_JAAS_OPTIONS);
         }
+
         private static final AppConfigurationEntry USER_KERBEROS_LOGIN =
                 new AppConfigurationEntry(KerberosUtil.getKrb5LoginModuleName(),
                         LoginModuleControlFlag.OPTIONAL,
                         USER_KERBEROS_OPTIONS);
-        private static final Map<String,String> KEYTAB_KERBEROS_OPTIONS =
-                new HashMap<String,String>();
+        private static final Map<String, String> KEYTAB_KERBEROS_OPTIONS =
+                new HashMap<String, String>();
+
         static {
             if (IBM_JAVA) {
                 KEYTAB_KERBEROS_OPTIONS.put("credsType", "both");
@@ -536,6 +542,7 @@ public class UserGroupInformation {
             KEYTAB_KERBEROS_OPTIONS.put("refreshKrb5Config", "true");
             KEYTAB_KERBEROS_OPTIONS.putAll(BASIC_JAAS_OPTIONS);
         }
+
         private static final AppConfigurationEntry KEYTAB_KERBEROS_LOGIN =
                 new AppConfigurationEntry(KerberosUtil.getKrb5LoginModuleName(),
                         LoginModuleControlFlag.REQUIRED,
@@ -663,7 +670,7 @@ public class UserGroupInformation {
      *                           if none is specfied
      * @param user               The user name, or NULL if none is specified.
      *
-     * @return                   The most appropriate UserGroupInformation
+     * @return The most appropriate UserGroupInformation
      */
     public static UserGroupInformation getBestUGI(
             String ticketCachePath, String user) throws IOException {
@@ -692,7 +699,7 @@ public class UserGroupInformation {
             return getBestUGI(null, user);
         }
         try {
-            Map<String,String> krbOptions = new HashMap<String,String>();
+            Map<String, String> krbOptions = new HashMap<String, String>();
             if (IBM_JAVA) {
                 krbOptions.put("useDefaultCcache", "true");
                 // The first value searched when "useDefaultCcache" is used.
@@ -710,7 +717,7 @@ public class UserGroupInformation {
                     LoginModuleControlFlag.REQUIRED,
                     krbOptions);
             DynamicConfiguration dynConf =
-                    new DynamicConfiguration(new AppConfigurationEntry[]{ ace });
+                    new DynamicConfiguration(new AppConfigurationEntry[]{ace});
             LoginContext login = newLoginContext(
                     HadoopConfiguration.USER_KERBEROS_CONFIG_NAME, null, dynConf);
             login.login();
@@ -844,7 +851,7 @@ public class UserGroupInformation {
             throw new IOException("failure to login", le);
         }
         if (LOG.isDebugEnabled()) {
-            LOG.debug("UGI loginUser:"+loginUser);
+            LOG.debug("UGI loginUser:" + loginUser);
         }
     }
 
@@ -910,7 +917,7 @@ public class UserGroupInformation {
                         while (true) {
                             try {
                                 long now = Time.now();
-                                if(LOG.isDebugEnabled()) {
+                                if (LOG.isDebugEnabled()) {
                                     LOG.debug("Current time is " + now);
                                     LOG.debug("Next refresh is " + nextRefresh);
                                 }
@@ -918,7 +925,7 @@ public class UserGroupInformation {
                                     Thread.sleep(nextRefresh - now);
                                 }
                                 Shell.execCommand(cmd, "-R");
-                                if(LOG.isDebugEnabled()) {
+                                if (LOG.isDebugEnabled()) {
                                     LOG.debug("renewed ticket");
                                 }
                                 reloginFromTicketCache();
@@ -947,6 +954,7 @@ public class UserGroupInformation {
             }
         }
     }
+
     /**
      * Log a user in from a keytab file. Loads a user identity from a keytab
      * file and logs them in. They become the currently logged-in user.
@@ -984,7 +992,7 @@ public class UserGroupInformation {
                 metrics.loginFailure.add(Time.now() - start);
             }
             throw new IOException("Login failure for " + user + " from keytab " +
-                    path+ ": " + le, le);
+                    path + ": " + le, le);
         }
         LOG.info("Login successful for user " + keytabPrincipal
                 + " using keytab file " + keytabFile);
@@ -1210,19 +1218,19 @@ public class UserGroupInformation {
             throw new IOException("Login failure for " + user + " from keytab " +
                     path, le);
         } finally {
-            if(oldKeytabFile != null) {
+            if (oldKeytabFile != null) {
                 keytabFile = oldKeytabFile;
             }
-            if(oldKeytabPrincipal != null) {
+            if (oldKeytabPrincipal != null) {
                 keytabPrincipal = oldKeytabPrincipal;
             }
         }
     }
 
     private boolean hasSufficientTimeElapsed(long now) {
-        if (now - user.getLastLogin() < MIN_TIME_BEFORE_RELOGIN ) {
+        if (now - user.getLastLogin() < MIN_TIME_BEFORE_RELOGIN) {
             LOG.warn("Not attempting to re-login since the last re-login was " +
-                    "attempted less than " + (MIN_TIME_BEFORE_RELOGIN/1000) + " seconds"+
+                    "attempted less than " + (MIN_TIME_BEFORE_RELOGIN / 1000) + " seconds" +
                     " before.");
             return false;
         }
@@ -1243,7 +1251,7 @@ public class UserGroupInformation {
      * Did the login happen via ticket cache
      * @return true or false
      */
-    public static boolean isLoginTicketBased()  throws IOException {
+    public static boolean isLoginTicketBased() throws IOException {
         return getLoginUser().isKrbTkt;
     }
 
@@ -1305,6 +1313,7 @@ public class UserGroupInformation {
         private AuthenticationMethod(AuthMethod authMethod) {
             this(authMethod, null);
         }
+
         private AuthenticationMethod(AuthMethod authMethod, String loginAppName) {
             this.authMethod = authMethod;
             this.loginAppName = loginAppName;
@@ -1331,7 +1340,9 @@ public class UserGroupInformation {
             throw new IllegalArgumentException(
                     "no authentication method for " + authMethod);
         }
-    };
+    }
+
+    ;
 
     /**
      * Create a proxy user using username of the effective user and the ugi of the
@@ -1354,7 +1365,7 @@ public class UserGroupInformation {
         Set<Principal> principals = subject.getPrincipals();
         principals.add(new User(user));
         principals.add(new RealUser(realUser));
-        UserGroupInformation result =new UserGroupInformation(subject);
+        UserGroupInformation result = new UserGroupInformation(subject);
         result.setAuthenticationMethod(AuthenticationMethod.PROXY);
         return result;
     }
@@ -1366,12 +1377,11 @@ public class UserGroupInformation {
     @InterfaceAudience.Public
     @InterfaceStability.Evolving
     public UserGroupInformation getRealUser() {
-        for (RealUser p: subject.getPrincipals(RealUser.class)) {
+        for (RealUser p : subject.getPrincipals(RealUser.class)) {
             return p.getRealUser();
         }
         return null;
     }
-
 
 
     /**
@@ -1380,7 +1390,7 @@ public class UserGroupInformation {
      */
     private static class TestingGroups extends Groups {
         private final Map<String, List<String>> userToGroupsMapping =
-                new HashMap<String,List<String>>();
+                new HashMap<String, List<String>>();
         private Groups underlyingImplementation;
 
         private TestingGroups(Groups underlyingImplementation) {
@@ -1455,7 +1465,7 @@ public class UserGroupInformation {
      * @return the user's name up to the first '/' or '@'.
      */
     public String getShortUserName() {
-        for (User p: subject.getPrincipals(User.class)) {
+        for (User p : subject.getPrincipals(User.class)) {
             return p.getShortName();
         }
         return null;
@@ -1544,11 +1554,11 @@ public class UserGroupInformation {
      */
     public Credentials getCredentials() {
         Subject var1 = this.subject;
-        synchronized(this.subject) {
+        synchronized (this.subject) {
             Credentials creds = new Credentials(this.getCredentialsInternal());
             Iterator iter = creds.getAllTokens().iterator();
-            while(iter.hasNext()) {
-                if (((Token)iter.next()).isPrivate()) {
+            while (iter.hasNext()) {
+                if (((Token) iter.next()).isPrivate()) {
                     iter.remove();
                 }
             }
@@ -1570,7 +1580,7 @@ public class UserGroupInformation {
         final Credentials credentials;
         final Set<Credentials> credentialsSet =
                 subject.getPrivateCredentials(Credentials.class);
-        if (!credentialsSet.isEmpty()){
+        if (!credentialsSet.isEmpty()) {
             credentials = credentialsSet.iterator().next();
         } else {
             credentials = new Credentials();
@@ -1606,7 +1616,7 @@ public class UserGroupInformation {
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder(getUserName());
-        sb.append(" (auth:"+getAuthenticationMethod()+")");
+        sb.append(" (auth:" + getAuthenticationMethod() + ")");
         if (getRealUser() != null) {
             sb.append(" via ").append(getRealUser().toString());
         }
@@ -1618,8 +1628,7 @@ public class UserGroupInformation {
      *
      * @param authMethod
      */
-    public synchronized
-    void setAuthenticationMethod(AuthenticationMethod authMethod) {
+    public synchronized void setAuthenticationMethod(AuthenticationMethod authMethod) {
         user.setAuthenticationMethod(authMethod);
     }
 
@@ -1755,7 +1764,7 @@ public class UserGroupInformation {
         if (LOG.isDebugEnabled()) {
             // would be nice if action included a descriptive toString()
             String where = new Throwable().getStackTrace()[2].toString();
-            LOG.debug("PrivilegedAction as:"+this+" from:"+where);
+            LOG.debug("PrivilegedAction as:" + this + " from:" + where);
         }
     }
 
@@ -1765,7 +1774,7 @@ public class UserGroupInformation {
         System.out.println();
         String[] groups = getGroupNames();
         System.out.print("Groups: ");
-        for(int i=0; i < groups.length; i++) {
+        for (int i = 0; i < groups.length; i++) {
             System.out.print(groups[i] + " ");
         }
         System.out.println();
@@ -1777,7 +1786,7 @@ public class UserGroupInformation {
      * and print it out.
      * @throws Exception
      */
-    public static void main(String [] args) throws Exception {
+    public static void main(String[] args) throws Exception {
         System.out.println("Getting UGI for current user");
         UserGroupInformation ugi = getCurrentUser();
         ugi.print();

@@ -28,6 +28,7 @@ import org.slf4j.LoggerFactory;
  * 小时解析器
  * Date: 2017/5/4
  * Company: www.dtstack.com
+ *
  * @author xuchao
  */
 
@@ -40,28 +41,28 @@ public class ScheduleCronHourParser implements IScheduleConfParser {
     @Override
     public String parse(ScheduleConf scheduleConf) {
         if (scheduleConf.getBeginHour() == null) {
-            throw new RdosDefineException(String.format(ScheduleConfManager.CustomError.ERROR_INFO,scheduleConf.getPeriodType(),"beginHour"));
+            throw new RdosDefineException(String.format(ScheduleConfManager.CustomError.ERROR_INFO, scheduleConf.getPeriodType(), "beginHour"));
         }
 
         if (scheduleConf.getBeginMin() == null) {
-            throw new RdosDefineException(String.format(ScheduleConfManager.CustomError.ERROR_INFO,scheduleConf.getPeriodType(),"beginMin"));
+            throw new RdosDefineException(String.format(ScheduleConfManager.CustomError.ERROR_INFO, scheduleConf.getPeriodType(), "beginMin"));
         }
 
         if (scheduleConf.getEndHour() == null) {
-            throw new RdosDefineException(String.format(ScheduleConfManager.CustomError.ERROR_INFO,scheduleConf.getPeriodType(),"endHour"));
+            throw new RdosDefineException(String.format(ScheduleConfManager.CustomError.ERROR_INFO, scheduleConf.getPeriodType(), "endHour"));
         }
 
         if (scheduleConf.getGapHour() == null) {
-            throw new RdosDefineException(String.format(ScheduleConfManager.CustomError.ERROR_INFO,scheduleConf.getPeriodType(),"gapHour"));
+            throw new RdosDefineException(String.format(ScheduleConfManager.CustomError.ERROR_INFO, scheduleConf.getPeriodType(), "gapHour"));
         }
 
         int beginHour = scheduleConf.getBeginHour();
         int endHour = scheduleConf.getEndHour();
         //间隔数最小为1
-        int gapNum = scheduleConf.getGapHour() ;
+        int gapNum = scheduleConf.getGapHour();
         int beginMinute = scheduleConf.getBeginMin();
 
-        if(beginHour < 0 || endHour > 23){
+        if (beginHour < 0 || endHour > 23) {
             LOGGER.error("illegal schedule cron for period hour :{}", JSON.toJSONString(scheduleConf));
             return null;
         }

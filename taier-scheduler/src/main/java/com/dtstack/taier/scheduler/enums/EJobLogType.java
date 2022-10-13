@@ -14,7 +14,6 @@ public enum EJobLogType {
     }
 
 
-
     EJobLogType(Integer type) {
         this.type = type;
     }

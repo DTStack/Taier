@@ -7,7 +7,7 @@ package com.dtstack.taier.scheduler.enums;
  * @Description:
  */
 public enum RelyType {
-    SELF_RELIANCE(1,"自依赖"),UPSTREAM(2,"上游实例"),UPSTREAM_NEXT_JOB(3,"上游任务的下一个周期key");
+    SELF_RELIANCE(1, "自依赖"), UPSTREAM(2, "上游实例"), UPSTREAM_NEXT_JOB(3, "上游任务的下一个周期key");
 
     private final Integer type;
 

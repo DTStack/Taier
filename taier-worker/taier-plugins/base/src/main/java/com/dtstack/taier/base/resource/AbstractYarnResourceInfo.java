@@ -75,18 +75,18 @@ public abstract class AbstractYarnResourceInfo implements EngineResourceInfo {
     protected JudgeResult judgeYarnResource(List<InstanceInfo> instanceInfos) {
         if (totalFreeCore == 0 || totalFreeMem == 0) {
             logger.info("judgeYarnResource, totalFreeCore={}, totalFreeMem={}", totalFreeCore, totalFreeMem);
-            return JudgeResult.notOk( "totalFreeCore or totalFreeMem is 0");
+            return JudgeResult.notOk("totalFreeCore or totalFreeMem is 0");
         }
         int needTotalCore = 0;
         int needTotalMem = 0;
         for (InstanceInfo instanceInfo : instanceInfos) {
             if (instanceInfo.coresPerInstance > containerCoreMax) {
                 logger.info("judgeYarnResource, containerCoreMax={}, coresPerInstance={}", containerCoreMax, instanceInfo.coresPerInstance);
-                return JudgeResult.notOk( "the instance's per core larger than then maximum containerCore");
+                return JudgeResult.notOk("the instance's per core larger than then maximum containerCore");
             }
             if (instanceInfo.memPerInstance > containerMemoryMax) {
                 logger.info("judgeYarnResource, containerMemoryMax={}, memPerInstance={}", containerMemoryMax, instanceInfo.memPerInstance);
-                return JudgeResult.notOk( "the instance's per memory larger than then maximum containerMemory");
+                return JudgeResult.notOk("the instance's per memory larger than then maximum containerMemory");
             }
             needTotalCore += instanceInfo.instances * instanceInfo.coresPerInstance;
             needTotalMem += instanceInfo.instances * instanceInfo.memPerInstance;
@@ -102,11 +102,11 @@ public abstract class AbstractYarnResourceInfo implements EngineResourceInfo {
         }
         if (needTotalCore > (totalCore * capacity)) {
             logger.info("judgeYarnResource, needTotalCore={}, totalCore={}, capacity={}", needTotalCore, totalCore, capacity);
-            return JudgeResult.notOk( "The task required core resources are greater than the total queue resources");
+            return JudgeResult.notOk("The task required core resources are greater than the total queue resources");
         }
         if (needTotalMem > (totalMem * capacity)) {
             logger.info("judgeYarnResource, needTotalMem={}, totalMem={}, capacity={}", needTotalMem, totalMem, capacity);
-            return JudgeResult.notOk( "The task required memory resources are greater than the total queue resources");
+            return JudgeResult.notOk("The task required memory resources are greater than the total queue resources");
         }
         for (InstanceInfo instanceInfo : instanceInfos) {
             JudgeResult judgeInstanceResource = judgeInstanceResource(instanceInfo.instances, instanceInfo.coresPerInstance, instanceInfo.memPerInstance);
@@ -123,10 +123,10 @@ public abstract class AbstractYarnResourceInfo implements EngineResourceInfo {
             return JudgeResult.limitError("Yarn task resource configuration error，instance：" + instances + ", coresPerInstance：" + coresPerInstance + ", memPerInstance：" + memPerInstance);
         }
         if (!judgeCores(instances, coresPerInstance)) {
-            return JudgeResult.notOk( "Insufficient cpu resources of yarn cluster");
+            return JudgeResult.notOk("Insufficient cpu resources of yarn cluster");
         }
         if (!judgeMem(instances, memPerInstance)) {
-            return JudgeResult.notOk( "Insufficient memory resources of yarn cluster");
+            return JudgeResult.notOk("Insufficient memory resources of yarn cluster");
         }
         return JudgeResult.ok();
     }
@@ -167,7 +167,7 @@ public abstract class AbstractYarnResourceInfo implements EngineResourceInfo {
                     filter(report -> report.getQueue().endsWith(queueName)).collect(Collectors.toList());
             if (acceptedApps.size() > yarnAccepterTaskNumber) {
                 logger.info("queueName:{} acceptedApps:{} >= yarnAccepterTaskNumber:{}", queueName, acceptedApps.size(), yarnAccepterTaskNumber);
-                return JudgeResult.notOk( "queueName:" + queueName + " acceptedApps:" + acceptedApps.size() + " >= yarnAccepterTaskNumber:" + yarnAccepterTaskNumber);
+                return JudgeResult.notOk("queueName:" + queueName + " acceptedApps:" + acceptedApps.size() + " >= yarnAccepterTaskNumber:" + yarnAccepterTaskNumber);
             }
 
             List<NodeReport> nodeReports = yarnClient.getNodeReports(NodeState.RUNNING);

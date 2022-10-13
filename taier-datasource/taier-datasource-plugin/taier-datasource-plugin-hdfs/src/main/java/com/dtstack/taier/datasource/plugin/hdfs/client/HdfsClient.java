@@ -1,8 +1,8 @@
 package com.dtstack.taier.datasource.plugin.hdfs.client;
 
+import com.dtstack.taier.datasource.api.dto.source.ISourceDTO;
 import com.dtstack.taier.datasource.plugin.common.nosql.AbsNoSqlClient;
 import com.dtstack.taier.datasource.plugin.hdfs.HdfsConnFactory;
-import com.dtstack.taier.datasource.api.dto.source.ISourceDTO;
 
 /**
  * @company: www.dtstack.com

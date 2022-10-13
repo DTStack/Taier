@@ -1,9 +1,9 @@
 package com.dtstack.taier.datasource.plugin.hdfs.downloader;
 
 import com.dtstack.taier.datasource.api.downloader.IDownloader;
+import com.dtstack.taier.datasource.api.exception.SourceException;
 import com.dtstack.taier.datasource.plugin.kerberos.core.hdfs.HdfsOperator;
 import com.dtstack.taier.datasource.plugin.kerberos.core.util.KerberosLoginUtil;
-import com.dtstack.taier.datasource.api.exception.SourceException;
 import com.google.common.collect.Lists;
 import org.apache.hadoop.fs.FSDataInputStream;
 import org.apache.hadoop.fs.FileStatus;

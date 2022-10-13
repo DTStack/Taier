@@ -16,19 +16,19 @@
  * limitations under the License.
  */
 
-import { Button, Col, Form, Input, Row } from 'antd';
-import { CloseOutlined } from '@ant-design/icons';
+import {Button, Col, Form, Input, Row} from 'antd';
+import {CloseOutlined} from '@ant-design/icons';
 import './customParams.scss';
 
 interface ICustomParamsProps {
 	index: number;
 }
 
-export const CustomParams = ({ index }: ICustomParamsProps) => {
+export const CustomParams = ({index}: ICustomParamsProps) => {
 	return (
 		<Form.Item label="自定义参数" className="custom-params">
 			<Form.List name={[index, 'customParams']}>
-				{(fields, { add, remove }) => (
+				{(fields, {add, remove}) => (
 					<>
 						{fields.map((field, i) => (
 							<Row key={field.key} justify="center" className="ant-form-item">
@@ -36,13 +36,13 @@ export const CustomParams = ({ index }: ICustomParamsProps) => {
 									<Form.Item
 										noStyle
 										name={[i, 'key']}
-										rules={[{ required: true, message: '请输入参数名' }]}
+										rules={[{required: true, message: '请输入参数名'}]}
 									>
-										<Input className="w-full" />
+										<Input className="w-full"/>
 									</Form.Item>
 								</Col>
 								<Col span={2}>
-									<div className="text-center" style={{ lineHeight: '32px' }}>
+									<div className="text-center" style={{lineHeight: '32px'}}>
 										:
 									</div>
 								</Col>
@@ -50,9 +50,9 @@ export const CustomParams = ({ index }: ICustomParamsProps) => {
 									<Form.Item
 										noStyle
 										name={[i, 'value']}
-										rules={[{ required: true, message: '请输入参数值' }]}
+										rules={[{required: true, message: '请输入参数值'}]}
 									>
-										<Input className="w-full" />
+										<Input className="w-full"/>
 									</Form.Item>
 								</Col>
 								<Col span={2}>

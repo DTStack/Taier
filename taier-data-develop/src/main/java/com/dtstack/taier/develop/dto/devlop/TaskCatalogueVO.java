@@ -34,7 +34,7 @@ public class TaskCatalogueVO extends CatalogueVO {
     private List<Task> tasks;
     private Integer taskType;
     private List<Task> dependencyTasks;
-    private List<List<Object>>  lists;
+    private List<List<Object>> lists;
 
 
     @Override

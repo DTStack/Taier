@@ -16,33 +16,29 @@
  * limitations under the License.
  */
 
-import { useState } from 'react';
-import { message, Modal } from 'antd';
-import { Content, Header } from '@dtinsight/molecule/esm/workbench/sidebar';
-import { FolderTree } from '@dtinsight/molecule/esm/workbench/sidebar/explore/index';
-import { debounce } from 'lodash';
-import type {
-	IActionBarItemProps,
-	IMenuItemProps,
-	ITreeNodeItemProps,
-} from '@dtinsight/molecule/esm/components';
-import { ActionBar } from '@dtinsight/molecule/esm/components';
-import type { IFolderTree } from '@dtinsight/molecule/esm/model';
-import { FileTypes } from '@dtinsight/molecule/esm/model';
-import { connect } from '@dtinsight/molecule/esm/react';
-import { catalogueService } from '@/services';
-import { CATALOGUE_TYPE, ID_COLLECTIONS, RESOURCE_ACTIONS } from '@/constant';
+import {useState} from 'react';
+import {message, Modal} from 'antd';
+import {Content, Header} from '@dtinsight/molecule/esm/workbench/sidebar';
+import {FolderTree} from '@dtinsight/molecule/esm/workbench/sidebar/explore/index';
+import {debounce} from 'lodash';
+import type {IActionBarItemProps, IMenuItemProps, ITreeNodeItemProps,} from '@dtinsight/molecule/esm/components';
+import {ActionBar} from '@dtinsight/molecule/esm/components';
+import type {IFolderTree} from '@dtinsight/molecule/esm/model';
+import {FileTypes} from '@dtinsight/molecule/esm/model';
+import {connect} from '@dtinsight/molecule/esm/react';
+import {catalogueService} from '@/services';
+import {CATALOGUE_TYPE, ID_COLLECTIONS, RESOURCE_ACTIONS} from '@/constant';
 import resourceManagerTree from '../../services/resourceManagerService';
-import type { IFormFieldProps } from './resModal';
+import type {IFormFieldProps} from './resModal';
 import ResModal from './resModal';
 import ajax from '../../api';
 import FolderModal from '../function/folderModal';
 import type molecule from '@dtinsight/molecule';
-import type { CatalogueDataProps, IResourceProps } from '@/interface';
-import { DetailInfoModal } from '@/components/detailInfo';
+import type {CatalogueDataProps, IResourceProps} from '@/interface';
+import {DetailInfoModal} from '@/components/detailInfo';
 import './index.scss';
 
-const { confirm } = Modal;
+const {confirm} = Modal;
 
 const FolderTreeView = connect(resourceManagerTree, FolderTree);
 
@@ -58,7 +54,7 @@ enum DELETE_SOURCE {
 
 type IRightClickDataProps = IFormFieldProps | undefined;
 
-export default ({ panel, headerToolBar, entry }: IResourceViewProps & IFolderTree) => {
+export default ({panel, headerToolBar, entry}: IResourceViewProps & IFolderTree) => {
 	const [isModalShow, setModalShow] = useState(false);
 	const [isViewModalShow, setViewModalShow] = useState(false);
 	const [detailLoading, setDetailLoading] = useState(false);
@@ -67,9 +63,7 @@ export default ({ panel, headerToolBar, entry }: IResourceViewProps & IFolderTre
 	const [rightClickData, setData] = useState<IRightClickDataProps>(undefined);
 	const [folderVisible, setFolderVisible] = useState(false);
 	const [expandKeys, setExpandKeys] = useState<string[]>([]);
-	const [folderData, setFolderData] = useState<
-		Partial<Pick<CatalogueDataProps, 'id' | 'parentId' | 'name'>> | undefined
-	>(undefined);
+	const [folderData, setFolderData] = useState<Partial<Pick<CatalogueDataProps, 'id' | 'parentId' | 'name'>> | undefined>(undefined);
 
 	const updateNodePid = async (node: ITreeNodeItemProps) => {
 		catalogueService.loadTreeNode(node.data, CATALOGUE_TYPE.RESOURCE);
@@ -96,7 +90,7 @@ export default ({ panel, headerToolBar, entry }: IResourceViewProps & IFolderTre
 	};
 
 	const debounceRefreshNode = debounce(() => {
-		const { folderTree } = resourceManagerTree.getState();
+		const {folderTree} = resourceManagerTree.getState();
 		if (folderTree?.current) {
 			if (folderTree?.current.fileType === FileTypes.File) {
 				const parentNode = resourceManagerTree.get(
@@ -193,7 +187,8 @@ export default ({ panel, headerToolBar, entry }: IResourceViewProps & IFolderTre
 						}
 					});
 				},
-				onCancel() {},
+				onCancel() {
+				},
 			});
 		} else {
 			confirm({
@@ -214,7 +209,8 @@ export default ({ panel, headerToolBar, entry }: IResourceViewProps & IFolderTre
 						}
 					});
 				},
-				onCancel() {},
+				onCancel() {
+				},
 			});
 		}
 	};
@@ -243,7 +239,7 @@ export default ({ panel, headerToolBar, entry }: IResourceViewProps & IFolderTre
 					resourceId: treeNode?.data.id,
 				}).then((res) => {
 					if (res.code === 1) {
-						const { originFileName, resourceType, computeType, resourceDesc } =
+						const {originFileName, resourceType, computeType, resourceDesc} =
 							res.data as IResourceProps;
 						setData({
 							id: treeNode?.data.id,
@@ -258,7 +254,7 @@ export default ({ panel, headerToolBar, entry }: IResourceViewProps & IFolderTre
 				break;
 			}
 			case ID_COLLECTIONS.RESOURCE_CREATE: {
-				setFolderData({ parentId: treeNode!.data.id });
+				setFolderData({parentId: treeNode!.data.id});
 				setFolderVisible(true);
 				break;
 			}
@@ -320,7 +316,7 @@ export default ({ panel, headerToolBar, entry }: IResourceViewProps & IFolderTre
 		type: string;
 	}) => {
 		return ajax
-			.editOfflineCatalogue({ ...params, type: 'folder' }) // 文件夹编辑，新增参数固定为folder
+			.editOfflineCatalogue({...params, type: 'folder'}) // 文件夹编辑，新增参数固定为folder
 			.then((res) => {
 				if (res.code === 1) {
 					const currentNode = resourceManagerTree.get(`${params.id}-folder`);

@@ -21,7 +21,7 @@ import java.util.Objects;
  */
 @Slf4j
 @NoArgsConstructor
-public class ElasticSearchManager{
+public class ElasticSearchManager {
     private volatile static ElasticSearchManager manager;
 
     private volatile Map<String, ElasticSearchPool> sourcePool = Maps.newConcurrentMap();
@@ -57,6 +57,7 @@ public class ElasticSearchManager{
 
     /**
      * 初始化es pool
+     *
      * @param source
      * @return
      */

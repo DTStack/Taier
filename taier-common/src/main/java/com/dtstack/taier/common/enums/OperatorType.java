@@ -25,8 +25,7 @@ package com.dtstack.taier.common.enums;
 public enum OperatorType {
     STOP(0),
     RESTART(1),
-    FILL_DATA(2)
-    ;
+    FILL_DATA(2);
 
 
     OperatorType(Integer type) {

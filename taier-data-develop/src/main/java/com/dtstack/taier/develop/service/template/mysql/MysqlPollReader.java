@@ -21,9 +21,9 @@ public class MysqlPollReader extends RdbmsPollReader {
         if (isMultiTable) {
             return PluginName.MySQLD_R;
         } else {
-            if(getConnection().size() == 1){
+            if (getConnection().size() == 1) {
                 ConnectionDTO connectionDTO = getConnection().get(0);
-                if (connectionDTO.getTable().size()>1) {
+                if (connectionDTO.getTable().size() > 1) {
                     return PluginName.MySQLD_R;
                 }
             }

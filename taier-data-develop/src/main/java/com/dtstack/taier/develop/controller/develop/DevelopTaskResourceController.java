@@ -45,7 +45,7 @@ public class DevelopTaskResourceController {
     @PostMapping(value = "getResources")
     @ApiOperation("获得 资源-任务 列表")
     public R<List<DevelopResourceResultVO>> getResources(@RequestBody DevelopTaskResourceGetResourcesVO vo) {
-        return new APITemplate<List<DevelopResourceResultVO> >() {
+        return new APITemplate<List<DevelopResourceResultVO>>() {
             @Override
             protected List<DevelopResourceResultVO> process() {
                 return TaskMapstructTransfer.INSTANCE.DevelopResourceListToDevelopResourceResultVOList(resourceService.getResources(vo.getTaskId(), vo.getType()));

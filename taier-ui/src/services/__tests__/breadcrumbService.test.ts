@@ -1,9 +1,10 @@
 import BreadcrumbService from '../breadcrumbService';
-import { catalogueService } from '../';
-import { TreeViewUtil } from '@dtinsight/molecule/esm/common/treeUtil';
+import {catalogueService} from '../';
+import {TreeViewUtil} from '@dtinsight/molecule/esm/common/treeUtil';
 
 class MockService {
-	private cb = () => {};
+	private cb = () => {
+	};
 	onUpdate = (cb: any) => (this.cb = cb);
 	emitUpdate = () => this.cb();
 	getRootFolder = jest.fn();
@@ -12,7 +13,8 @@ class MockService {
 jest.mock('@/services', () => {
 	return {
 		catalogueService: new (class {
-			private cb = () => {};
+			private cb = () => {
+			};
 			onUpdate = (cb: any) => (this.cb = cb);
 			emitUpdate = () => this.cb();
 			getRootFolder = jest.fn();
@@ -75,8 +77,8 @@ describe('Test breadcrumb service', () => {
 		(catalogueService as unknown as MockService).emitUpdate();
 
 		expect(service.getBreadcrumb('1')).toEqual([
-			{ id: '2', name: 'test2' },
-			{ id: '1', name: 'test' },
+			{id: '2', name: 'test2'},
+			{id: '1', name: 'test'},
 		]);
 	});
 });

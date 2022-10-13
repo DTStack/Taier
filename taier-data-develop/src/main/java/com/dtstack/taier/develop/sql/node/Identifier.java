@@ -16,16 +16,15 @@ import java.util.Objects;
  * @Description: 对应于: {@link SqlIdentifier}
  * 通常是一个复合标志符。identifier是一个叶子结点
  * names列表中依次为db,table,column
- *
  */
 public class Identifier extends Node {
 
     private static final String DOT = ".";
     private static final String STAR = "*";
-    private static final Integer ZORE =0;
-    private static final Integer ONE =1;
-    private static final Integer TWO =2;
-    private static final Integer THREE =3;
+    private static final Integer ZORE = 0;
+    private static final Integer ONE = 1;
+    private static final Integer TWO = 2;
+    private static final Integer THREE = 3;
 
 
     private List<String> names;
@@ -40,7 +39,7 @@ public class Identifier extends Node {
         return db;
     }
 
-    public void setDb(String db){
+    public void setDb(String db) {
         this.db = db;
     }
 
@@ -61,7 +60,7 @@ public class Identifier extends Node {
     }
 
     public Identifier(String defaultDb, Map<String, List<Column>> tableColumnsMap) {
-        super(defaultDb,tableColumnsMap);
+        super(defaultDb, tableColumnsMap);
     }
 
     @Override
@@ -74,48 +73,48 @@ public class Identifier extends Node {
     private void handleNames(SqlIdentifier sqlIdentifier) {
         this.names = sqlIdentifier.names;
         int size = names.size();
-        if (size == THREE){
+        if (size == THREE) {
             this.db = names.get(ZORE);
             this.table = names.get(ONE);
             this.column = KeywordsHelper.removeKeywordsSuffix(names.get(2));
-        }else if (size == TWO){
-            if (Context.IDENTIFIER_COLUMN == getContext()){
+        } else if (size == TWO) {
+            if (Context.IDENTIFIER_COLUMN == getContext()) {
                 this.table = names.get(ZORE);
                 this.column = KeywordsHelper.removeKeywordsSuffix(names.get(1));
-            }else if (Context.IDENTIFIER_TABLE == getContext()){
+            } else if (Context.IDENTIFIER_TABLE == getContext()) {
                 this.db = names.get(ZORE);
                 this.table = names.get(ONE);
             }
-        }else if (size == ONE){
-            if (Context.IDENTIFIER_COLUMN == getContext()){
+        } else if (size == ONE) {
+            if (Context.IDENTIFIER_COLUMN == getContext()) {
                 this.column = KeywordsHelper.removeKeywordsSuffix(names.get(0));
-            }else if (Context.IDENTIFIER_TABLE == getContext()){
+            } else if (Context.IDENTIFIER_TABLE == getContext()) {
                 this.table = names.get(ZORE);
             }
         }
-        if (db == null){
+        if (db == null) {
             db = getDefaultDb();
         }
     }
 
     private SqlIdentifier checkNode(SqlNode node) {
-        if (!(node instanceof SqlIdentifier)){
+        if (!(node instanceof SqlIdentifier)) {
             throw new IllegalStateException("sqlNode类型不匹配");
         }
         return (SqlIdentifier) node;
     }
 
-    public boolean isSelectStarFromTable(){
-        if (Context.IDENTIFIER_COLUMN != this.getContext()){
+    public boolean isSelectStarFromTable() {
+        if (Context.IDENTIFIER_COLUMN != this.getContext()) {
             throw new IllegalStateException("只有字段类型的identifier才有该属性");
         }
-        if (STAR.equals(this.table)){
+        if (STAR.equals(this.table)) {
             return true;
         }
         return StringUtils.isEmpty(column);
     }
 
-    public Column map(){
+    public Column map() {
         Column column = new Column();
         column.setTable(this.table);
         column.setName(this.column);
@@ -142,18 +141,18 @@ public class Identifier extends Node {
         return Objects.hash(db, table, column);
     }
 
-    public String getFullColumn(){
-        if (Context.IDENTIFIER_COLUMN != getContext()){
+    public String getFullColumn() {
+        if (Context.IDENTIFIER_COLUMN != getContext()) {
             throw new IllegalArgumentException("该方法仅用于代表column的identifier");
         }
-        return db+DOT+table+DOT+column;
+        return db + DOT + table + DOT + column;
     }
 
-    public String getFullTable(){
-        if (Context.IDENTIFIER_COLUMN != getContext() && Context.IDENTIFIER_TABLE != getContext()){
+    public String getFullTable() {
+        if (Context.IDENTIFIER_COLUMN != getContext() && Context.IDENTIFIER_TABLE != getContext()) {
             throw new IllegalArgumentException("该方法只能用于代表column和table的identifier");
         }
-        return db+DOT+table;
+        return db + DOT + table;
     }
 
     @Override

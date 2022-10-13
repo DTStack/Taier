@@ -1,9 +1,9 @@
-import { CATALOGUE_TYPE } from '@/constant';
-import { TreeViewUtil } from '@dtinsight/molecule/esm/common/treeUtil';
+import {CATALOGUE_TYPE} from '@/constant';
+import {TreeViewUtil} from '@dtinsight/molecule/esm/common/treeUtil';
 import type molecule from '@dtinsight/molecule';
-import type { UniqueId } from '@dtinsight/molecule/esm/common/types';
-import type { IBreadcrumbItemProps } from '@dtinsight/molecule/esm/components';
-import { catalogueService } from '.';
+import type {UniqueId} from '@dtinsight/molecule/esm/common/types';
+import type {IBreadcrumbItemProps} from '@dtinsight/molecule/esm/components';
+import {catalogueService} from '.';
 
 interface IBreadcrumbService {
 	/**
@@ -14,6 +14,7 @@ interface IBreadcrumbService {
 
 export default class BreadcrumbService implements IBreadcrumbService {
 	private hashTree: TreeViewUtil<molecule.model.IFolderTreeNodeProps> | null = null;
+
 	constructor() {
 		catalogueService.onUpdate(() => {
 			this.updateTree();

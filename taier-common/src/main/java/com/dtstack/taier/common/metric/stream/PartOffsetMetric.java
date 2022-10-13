@@ -45,11 +45,11 @@ public class PartOffsetMetric extends DataDelayMetric {
     @Override
     public Object formatData(MetricResult metricResult) {
         List<JSONObject> data = new ArrayList<>();
-        if (metricResult != null && CollectionUtils.isNotEmpty(metricResult.getMetricDataList())){
+        if (metricResult != null && CollectionUtils.isNotEmpty(metricResult.getMetricDataList())) {
             for (MetricData metricData : metricResult.getMetricDataList()) {
                 JSONObject item = new JSONObject();
-                item.put("partitionId",metricData.getTagName());
-                item.put("currentLocation",((Tuple<Long, Long>)metricData.getDps().get(0)).getTwo());
+                item.put("partitionId", metricData.getTagName());
+                item.put("currentLocation", ((Tuple<Long, Long>) metricData.getDps().get(0)).getTwo());
                 data.add(item);
             }
         }
@@ -66,7 +66,7 @@ public class PartOffsetMetric extends DataDelayMetric {
     }
 
     @Override
-    public String getTagName(){
+    public String getTagName() {
         return "partition";
     }
 }

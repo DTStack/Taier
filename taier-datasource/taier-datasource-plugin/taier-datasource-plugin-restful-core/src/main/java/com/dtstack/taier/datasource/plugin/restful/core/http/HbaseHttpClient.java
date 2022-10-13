@@ -1,10 +1,10 @@
 package com.dtstack.taier.datasource.plugin.restful.core.http;
 
 import com.alibaba.fastjson.JSON;
-import com.dtstack.taier.datasource.plugin.restful.core.http.request.HttpPutWithEntity;
 import com.dtstack.taier.datasource.api.dto.restful.Response;
 import com.dtstack.taier.datasource.api.dto.source.RestfulSourceDTO;
 import com.dtstack.taier.datasource.api.exception.SourceException;
+import com.dtstack.taier.datasource.plugin.restful.core.http.request.HttpPutWithEntity;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
@@ -97,7 +97,7 @@ public class HbaseHttpClient extends HttpClient {
         Response response = Response.builder()
                 .statusCode(statusLine.getStatusCode())
                 .build();
-        if (response.getStatusCode() != null && response.getStatusCode() == 204){
+        if (response.getStatusCode() != null && response.getStatusCode() == 204) {
             return response;
         }
         HttpEntity entity = httpResponse.getEntity();

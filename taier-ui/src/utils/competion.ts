@@ -1,6 +1,6 @@
 /* eslint-disable no-template-curly-in-string */
 // competion for monaco-editor
-import { languages } from '@dtinsight/molecule/esm/monaco';
+import {languages} from '@dtinsight/molecule/esm/monaco';
 
 export const Keywords = (range: languages.CompletionItem['range']): languages.CompletionItem[] => [
 	{

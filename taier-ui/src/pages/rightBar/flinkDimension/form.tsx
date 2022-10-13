@@ -16,45 +16,34 @@
  * limitations under the License.
  */
 
-import React, { useContext, useRef, useState } from 'react';
-import { debounce } from 'lodash';
-import { DATA_SOURCE_ENUM, DATA_SOURCE_TEXT, formItemLayout, HELP_DOC_URL } from '@/constant';
+import React, {useContext, useRef, useState} from 'react';
+import {debounce} from 'lodash';
+import {DATA_SOURCE_ENUM, DATA_SOURCE_TEXT, formItemLayout, HELP_DOC_URL} from '@/constant';
 import {
-	isHaveTableColumn,
-	isShowSchema,
-	isES,
-	isCacheOnlyAll,
 	isCacheExceptLRU,
+	isCacheOnlyAll,
+	isES,
 	isHaveAsyncPoolSize,
 	isHaveCustomParams,
+	isHaveTableColumn,
 	isSchemaRequired,
+	isShowSchema,
 } from '@/utils/is';
-import type { FormInstance } from 'antd';
-import {
-	Button,
-	Form,
-	Input,
-	InputNumber,
-	message,
-	Popconfirm,
-	Select,
-	Switch,
-	Table,
-	Tooltip,
-} from 'antd';
-import { QuestionCircleOutlined, CloseOutlined } from '@ant-design/icons';
+import type {FormInstance} from 'antd';
+import {Button, Form, Input, InputNumber, message, Popconfirm, Select, Switch, Table, Tooltip,} from 'antd';
+import {CloseOutlined, QuestionCircleOutlined} from '@ant-design/icons';
 import Editor from '@/components/editor';
-import { asyncTimeoutNumDoc, queryFault, targetColText } from '@/components/helpDoc/docs';
-import { CustomParams } from '../customParams';
+import {asyncTimeoutNumDoc, queryFault, targetColText} from '@/components/helpDoc/docs';
+import {CustomParams} from '../customParams';
 import DataPreviewModal from '../../editor/streamCollection/source/dataPreviewModal';
-import type { IDataColumnsProps, IDataSourceUsedInSyncProps, IFlinkSideProps } from '@/interface';
-import { createSeries } from '@/utils';
-import { NAME_FIELD } from '.';
-import { FormContext } from '@/services/rightBarService';
-import { taskRenderService } from '@/services';
+import type {IDataColumnsProps, IDataSourceUsedInSyncProps, IFlinkSideProps} from '@/interface';
+import {createSeries} from '@/utils';
+import {NAME_FIELD} from '.';
+import {FormContext} from '@/services/rightBarService';
+import {taskRenderService} from '@/services';
 
 const FormItem = Form.Item;
-const { Option } = Select;
+const {Option} = Select;
 
 type IFormFieldProps = IFlinkSideProps;
 
@@ -97,16 +86,16 @@ enum ColOperatorKind {
 }
 
 export default function DimensionForm({
-	index,
-	sourceOptions = [],
-	schemaOptions = [],
-	tableOptions = {},
-	columnsOptions = [],
-	isFlink112 = true,
-	onTableSearch,
-	onColumnsChange,
-}: IDimensionFormProps) {
-	const { form } = useContext(FormContext) as {
+										  index,
+										  sourceOptions = [],
+										  schemaOptions = [],
+										  tableOptions = {},
+										  columnsOptions = [],
+										  isFlink112 = true,
+										  onTableSearch,
+										  onColumnsChange,
+									  }: IDimensionFormProps) {
+	const {form} = useContext(FormContext) as {
 		form?: FormInstance<{ [NAME_FIELD]: IFormFieldProps[] }>;
 	};
 	const [visible, setVisible] = useState(false);
@@ -115,7 +104,7 @@ export default function DimensionForm({
 
 	const handleSearchTable = debounce((key: string) => {
 		currentSearchKey.current = key;
-		const { sourceId, schema, type } = form!.getFieldsValue()[NAME_FIELD][index];
+		const {sourceId, schema, type} = form!.getFieldsValue()[NAME_FIELD][index];
 		onTableSearch?.(type, sourceId, schema, key);
 	}, 300);
 
@@ -127,14 +116,14 @@ export default function DimensionForm({
 
 				const nextValue = form!.getFieldsValue();
 				nextValue[NAME_FIELD][index].columns = nextCols;
-				form?.setFieldsValue({ ...nextValue });
+				form?.setFieldsValue({...nextValue});
 
 				// 由于 setFieldsValue 不会触发表单的 onValuesChange 所以需要额外触发将 columns 保存到 tab 中
 				const changedValue: any[] = [];
 				changedValue[index] = {
 					columns: nextValue[NAME_FIELD][index].columns,
 				};
-				onColumnsChange?.({ [NAME_FIELD]: changedValue }, form!.getFieldsValue());
+				onColumnsChange?.({[NAME_FIELD]: changedValue}, form!.getFieldsValue());
 				break;
 			}
 
@@ -153,7 +142,7 @@ export default function DimensionForm({
 				changedValue[index] = {
 					columns: nextValue[NAME_FIELD][index].columns,
 				};
-				onColumnsChange?.({ [NAME_FIELD]: changedValue }, form!.getFieldsValue());
+				onColumnsChange?.({[NAME_FIELD]: changedValue}, form!.getFieldsValue());
 				break;
 			}
 
@@ -167,7 +156,7 @@ export default function DimensionForm({
 				changedValue[index] = {
 					columns: nextValue[NAME_FIELD][index].columns,
 				};
-				onColumnsChange?.({ [NAME_FIELD]: changedValue }, form!.getFieldsValue());
+				onColumnsChange?.({[NAME_FIELD]: changedValue}, form!.getFieldsValue());
 				break;
 			}
 
@@ -186,7 +175,7 @@ export default function DimensionForm({
 					changedValue[index] = {
 						columns: nextValue[NAME_FIELD][index].columns,
 					};
-					onColumnsChange?.({ [NAME_FIELD]: changedValue }, form!.getFieldsValue());
+					onColumnsChange?.({[NAME_FIELD]: changedValue}, form!.getFieldsValue());
 				}
 				break;
 			}
@@ -205,7 +194,7 @@ export default function DimensionForm({
 					changedValue[index] = {
 						columns: nextValue[NAME_FIELD][index].columns,
 					};
-					onColumnsChange?.({ [NAME_FIELD]: changedValue }, form!.getFieldsValue());
+					onColumnsChange?.({[NAME_FIELD]: changedValue}, form!.getFieldsValue());
 				}
 				break;
 			}
@@ -224,7 +213,7 @@ export default function DimensionForm({
 					changedValue[index] = {
 						columns: nextValue[NAME_FIELD][index].columns,
 					};
-					onColumnsChange?.({ [NAME_FIELD]: changedValue }, form!.getFieldsValue());
+					onColumnsChange?.({[NAME_FIELD]: changedValue}, form!.getFieldsValue());
 				}
 				break;
 			}
@@ -243,7 +232,7 @@ export default function DimensionForm({
 					changedValue[index] = {
 						columns: nextValue[NAME_FIELD][index].columns,
 					};
-					onColumnsChange?.({ [NAME_FIELD]: changedValue }, form!.getFieldsValue());
+					onColumnsChange?.({[NAME_FIELD]: changedValue}, form!.getFieldsValue());
 				}
 				break;
 			}
@@ -268,7 +257,7 @@ export default function DimensionForm({
 					message.error('数据预览需要选择数据源和索引！');
 					return;
 				}
-				nextParams = { sourceId, tableName: tableIndex };
+				nextParams = {sourceId, tableName: tableIndex};
 				break;
 			}
 			case DATA_SOURCE_ENUM.REDIS:
@@ -283,7 +272,7 @@ export default function DimensionForm({
 					message.error('数据预览需要选择数据源和表！');
 					return;
 				}
-				nextParams = { sourceId, tableName: table };
+				nextParams = {sourceId, tableName: table};
 				break;
 			}
 			case DATA_SOURCE_ENUM.ORACLE: {
@@ -291,7 +280,7 @@ export default function DimensionForm({
 					message.error('数据预览需要选择数据源、表和schema！');
 					return;
 				}
-				nextParams = { sourceId, tableName: table, schema };
+				nextParams = {sourceId, tableName: table, schema};
 				break;
 			}
 			case DATA_SOURCE_ENUM.SQLSERVER:
@@ -300,7 +289,7 @@ export default function DimensionForm({
 					message.error('数据预览需要选择数据源和表！');
 					return;
 				}
-				nextParams = { sourceId, tableName: table, schema };
+				nextParams = {sourceId, tableName: table, schema};
 				break;
 			}
 			default:
@@ -316,7 +305,7 @@ export default function DimensionForm({
 			<FormItem
 				label="存储类型"
 				name={[index, 'type']}
-				rules={[{ required: true, message: '请选择存储类型' }]}
+				rules={[{required: true, message: '请选择存储类型'}]}
 			>
 				<Select
 					showSearch
@@ -334,7 +323,7 @@ export default function DimensionForm({
 			<FormItem
 				label="数据源"
 				name={[index, 'sourceId']}
-				rules={[{ required: true, message: '请选择数据源' }]}
+				rules={[{required: true, message: '请选择数据源'}]}
 			>
 				<Select
 					placeholder="请选择数据源"
@@ -351,7 +340,7 @@ export default function DimensionForm({
 				</Select>
 			</FormItem>
 			<FormItem noStyle dependencies={[[index, 'type']]}>
-				{({ getFieldValue }) =>
+				{({getFieldValue}) =>
 					isShowSchema(getFieldValue(NAME_FIELD)[index].type) && (
 						<FormItem
 							label="Schema"
@@ -384,8 +373,8 @@ export default function DimensionForm({
 				}
 			</FormItem>
 			<FormItem noStyle dependencies={[[index, 'type']]}>
-				{({ getFieldValue }) => {
-					const { type } = getFieldValue(NAME_FIELD)[index] as IFormFieldProps;
+				{({getFieldValue}) => {
+					const {type} = getFieldValue(NAME_FIELD)[index] as IFormFieldProps;
 					switch (type) {
 						case DATA_SOURCE_ENUM.REDIS:
 						case DATA_SOURCE_ENUM.UPRedis: {
@@ -393,9 +382,9 @@ export default function DimensionForm({
 								<FormItem
 									label="表"
 									name={[index, 'table']}
-									rules={[{ required: true, message: '请输入表名' }]}
+									rules={[{required: true, message: '请输入表名'}]}
 								>
-									<Input placeholder="请输入表名" />
+									<Input placeholder="请输入表名"/>
 								</FormItem>
 							);
 						}
@@ -408,7 +397,7 @@ export default function DimensionForm({
 								<FormItem
 									label="表"
 									name={[index, 'table']}
-									rules={[{ required: true, message: '请选择表' }]}
+									rules={[{required: true, message: '请选择表'}]}
 								>
 									<Select
 										onSearch={handleSearchTable}
@@ -429,14 +418,14 @@ export default function DimensionForm({
 				}}
 			</FormItem>
 			<FormItem noStyle dependencies={[[index, 'type']]}>
-				{({ getFieldValue }) =>
+				{({getFieldValue}) =>
 					isES(getFieldValue(NAME_FIELD)[index].type) && (
 						<FormItem
 							label="索引"
 							name={[index, 'index']}
-							rules={[{ required: true, message: '请输入索引' }]}
+							rules={[{required: true, message: '请输入索引'}]}
 						>
-							<Input placeholder="请输入索引" />
+							<Input placeholder="请输入索引"/>
 						</FormItem>
 					)
 				}
@@ -452,15 +441,15 @@ export default function DimensionForm({
 				</Button>
 			</FormItem>
 			<FormItem noStyle dependencies={[[index, 'type']]}>
-				{({ getFieldValue }) =>
+				{({getFieldValue}) =>
 					isES(getFieldValue(NAME_FIELD)[index].type) &&
 					getFieldValue(NAME_FIELD)[index].type !== DATA_SOURCE_ENUM.ES7 && (
 						<FormItem
 							label="索引类型"
 							name={[index, 'esType']}
-							rules={[{ required: true, message: '请输入索引类型' }]}
+							rules={[{required: true, message: '请输入索引类型'}]}
 						>
-							<Input placeholder="请输入索引类型" />
+							<Input placeholder="请输入索引类型"/>
 						</FormItem>
 					)
 				}
@@ -468,9 +457,9 @@ export default function DimensionForm({
 			<FormItem
 				label="映射表"
 				name={[index, 'tableName']}
-				rules={[{ required: true, message: '请输入映射表名' }]}
+				rules={[{required: true, message: '请输入映射表名'}]}
 			>
-				<Input placeholder="请输入映射表名" />
+				<Input placeholder="请输入映射表名"/>
 			</FormItem>
 			<FormItem
 				required
@@ -480,7 +469,7 @@ export default function DimensionForm({
 					[index, 'columns'],
 				]}
 			>
-				{({ getFieldValue }) =>
+				{({getFieldValue}) =>
 					isHaveTableColumn(getFieldValue(NAME_FIELD)[index].type) ? (
 						<div className="column-container">
 							<Table
@@ -498,7 +487,7 @@ export default function DimensionForm({
 										return (
 											<Select
 												value={text}
-												style={{ maxWidth: 74 }}
+												style={{maxWidth: 74}}
 												onChange={(value) =>
 													handleColsChanged(
 														ColOperatorKind.SET_COL,
@@ -564,7 +553,7 @@ export default function DimensionForm({
 											>
 												<span>
 													别名 &nbsp;
-													<QuestionCircleOutlined />
+													<QuestionCircleOutlined/>
 												</span>
 											</Tooltip>
 										</div>
@@ -604,7 +593,7 @@ export default function DimensionForm({
 									}}
 								/>
 							</Table>
-							<div style={{ padding: '0 20 20' }}>
+							<div style={{padding: '0 20 20'}}>
 								<div className="column-btn">
 									<span>
 										<a onClick={() => handleColsChanged(ColOperatorKind.ADD)}>
@@ -616,7 +605,7 @@ export default function DimensionForm({
 											onClick={() =>
 												handleColsChanged(ColOperatorKind.ADD_ALL)
 											}
-											style={{ marginRight: 12 }}
+											style={{marginRight: 12}}
 										>
 											导入全部字段
 										</a>
@@ -644,7 +633,7 @@ export default function DimensionForm({
 					)
 				}
 			</FormItem>
-			<FormItem hidden name={[index, 'columns']} />
+			<FormItem hidden name={[index, 'columns']}/>
 			<FormItem
 				noStyle
 				dependencies={[
@@ -652,10 +641,10 @@ export default function DimensionForm({
 					[index, 'columns'],
 				]}
 			>
-				{({ getFieldValue }) => {
-					const { type, columns = [] } = getFieldValue(NAME_FIELD)[
+				{({getFieldValue}) => {
+					const {type, columns = []} = getFieldValue(NAME_FIELD)[
 						index
-					] as IFormFieldProps;
+						] as IFormFieldProps;
 					switch (type) {
 						case DATA_SOURCE_ENUM.KUDU:
 						case DATA_SOURCE_ENUM.POSTGRESQL:
@@ -695,7 +684,7 @@ export default function DimensionForm({
 						case DATA_SOURCE_ENUM.ES7: {
 							return (
 								<FormItem name={[index, 'primaryKey']} label="主键">
-									<Input placeholder="请输入主键" />
+									<Input placeholder="请输入主键"/>
 								</FormItem>
 							);
 						}
@@ -706,7 +695,7 @@ export default function DimensionForm({
 								<FormItem
 									label="主键"
 									name={[index, 'primaryKey']}
-									rules={[{ required: true, message: '请选择主键' }]}
+									rules={[{required: true, message: '请选择主键'}]}
 								>
 									<Input
 										placeholder={
@@ -739,28 +728,28 @@ export default function DimensionForm({
 										)
 									}
 								>
-									<div style={{ display: 'flex' }}>
+									<div style={{display: 'flex'}}>
 										<FormItem
-											style={{ flex: 1 }}
+											style={{flex: 1}}
 											name={[index, 'hbasePrimaryKey']}
 											rules={[
-												{ required: true, message: '请输入主键' },
+												{required: true, message: '请输入主键'},
 												isFlink112
 													? {
-															pattern: /^\w{1,64}$/,
-															message:
-																'只能由字母，数字和下划线组成，且不超过64个字符',
-													  }
+														pattern: /^\w{1,64}$/,
+														message:
+															'只能由字母，数字和下划线组成，且不超过64个字符',
+													}
 													: {},
 											]}
 										>
-											<Input placeholder="请输入主键" />
+											<Input placeholder="请输入主键"/>
 										</FormItem>
 										{isFlink112 && (
 											<>
 												<span>&nbsp; 类型：</span>
 												<FormItem
-													style={{ flex: 1 }}
+													style={{flex: 1}}
 													name={[index, 'hbasePrimaryKeyType']}
 													rules={[
 														{
@@ -769,7 +758,7 @@ export default function DimensionForm({
 														},
 													]}
 												>
-													<Input placeholder="请输入类型" />
+													<Input placeholder="请输入类型"/>
 												</FormItem>
 											</>
 										)}
@@ -783,14 +772,14 @@ export default function DimensionForm({
 				}}
 			</FormItem>
 			<FormItem name={[index, 'parallelism']} label="并行度">
-				<InputNumber style={{ width: '100%' }} min={1} />
+				<InputNumber style={{width: '100%'}} min={1}/>
 			</FormItem>
 			<FormItem noStyle dependencies={[[index, 'type']]}>
-				{({ getFieldValue }) => (
+				{({getFieldValue}) => (
 					<FormItem
 						label="缓存策略"
 						name={[index, 'cache']}
-						rules={[{ required: true, message: '请选择缓存策略' }]}
+						rules={[{required: true, message: '请选择缓存策略'}]}
 					>
 						<Select
 							placeholder="请选择"
@@ -822,7 +811,7 @@ export default function DimensionForm({
 				)}
 			</FormItem>
 			<FormItem noStyle dependencies={[[index, 'cache']]}>
-				{({ getFieldValue }) => {
+				{({getFieldValue}) => {
 					switch (getFieldValue(NAME_FIELD)[index].cache) {
 						case 'LRU':
 							return (
@@ -830,17 +819,17 @@ export default function DimensionForm({
 									<FormItem
 										label="缓存大小(行)"
 										name={[index, 'cacheSize']}
-										rules={[{ required: true, message: '请输入缓存大小' }]}
+										rules={[{required: true, message: '请输入缓存大小'}]}
 									>
-										<InputNumber style={{ width: '100%' }} min={0} />
+										<InputNumber style={{width: '100%'}} min={0}/>
 									</FormItem>
 									<FormItem
 										label="缓存超时时间"
 										name={[index, 'cacheTTLMs']}
-										rules={[{ required: true, message: '请输入缓存超时时间' }]}
+										rules={[{required: true, message: '请输入缓存超时时间'}]}
 									>
 										<InputNumber
-											style={{ width: '100%' }}
+											style={{width: '100%'}}
 											min={0}
 											addonAfter="ms"
 										/>
@@ -853,10 +842,10 @@ export default function DimensionForm({
 								<FormItem
 									label="缓存超时时间"
 									name={[index, 'cacheTTLMs']}
-									rules={[{ required: true, message: '请输入缓存超时时间' }]}
+									rules={[{required: true, message: '请输入缓存超时时间'}]}
 								>
 									<InputNumber
-										style={{ width: '100%' }}
+										style={{width: '100%'}}
 										min={0}
 										addonAfter="ms"
 									/>
@@ -872,23 +861,23 @@ export default function DimensionForm({
 				tooltip={asyncTimeoutNumDoc}
 				name={[index, 'errorLimit']}
 			>
-				<InputNumber style={{ width: '100%' }} placeholder="默认为无限制" min={0} />
+				<InputNumber style={{width: '100%'}} placeholder="默认为无限制" min={0}/>
 			</FormItem>
 			<FormItem noStyle dependencies={[[index, 'type']]}>
-				{({ getFieldValue }) =>
+				{({getFieldValue}) =>
 					getFieldValue(NAME_FIELD)[index].type === DATA_SOURCE_ENUM.KUDU && (
 						<FormItem
 							label="查询容错"
 							tooltip={queryFault}
 							name={[index, 'isFaultTolerant']}
 						>
-							<Switch />
+							<Switch/>
 						</FormItem>
 					)
 				}
 			</FormItem>
 			<FormItem noStyle dependencies={[[index, 'type']]}>
-				{({ getFieldValue }) =>
+				{({getFieldValue}) =>
 					isHaveAsyncPoolSize(getFieldValue(NAME_FIELD)[index].type) && (
 						<FormItem name={[index, 'asyncPoolSize']} label="异步线程池">
 							<Select>
@@ -905,14 +894,14 @@ export default function DimensionForm({
 				}
 			</FormItem>
 			<FormItem noStyle dependencies={[[index, 'type']]}>
-				{({ getFieldValue }) =>
+				{({getFieldValue}) =>
 					isHaveCustomParams(getFieldValue(NAME_FIELD)[index].type) && (
-						<CustomParams index={index} />
+						<CustomParams index={index}/>
 					)
 				}
 			</FormItem>
 			<FormItem noStyle dependencies={[[index, 'type']]}>
-				{({ getFieldValue }) => (
+				{({getFieldValue}) => (
 					<DataPreviewModal
 						visible={visible}
 						type={getFieldValue(NAME_FIELD)[index].type}

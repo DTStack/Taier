@@ -19,7 +19,9 @@ import java.util.Objects;
  */
 public abstract class FlinkxJobTemplate extends BaseJobTemplate {
     public abstract Setting newSetting();
+
     public abstract JSONObject nameMapping();
+
     public abstract Restoration restoration();
 
     @Override
@@ -65,7 +67,7 @@ public abstract class FlinkxJobTemplate extends BaseJobTemplate {
 
         StringBuilder job = new StringBuilder();
         job.append("{ \"job\":");
-        job.append(JSONObject.toJSONString(jobJson).replace("\"lineDelimiter\":\"\\\\","\"lineDelimiter\":\"\\").replace("\"fieldDelimiter\":\"\\\\","\"fieldDelimiter\":\"\\"));
+        job.append(JSONObject.toJSONString(jobJson).replace("\"lineDelimiter\":\"\\\\", "\"lineDelimiter\":\"\\").replace("\"fieldDelimiter\":\"\\\\", "\"fieldDelimiter\":\"\\"));
         job.append(" }");
         return job.toString();
     }

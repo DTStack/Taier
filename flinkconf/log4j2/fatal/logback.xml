@@ -32,7 +32,7 @@
 
     <!-- Uncomment this if you want to only change Flink's logging -->
     <!--<logger name="org.apache.flink" level="INFO">-->
-        <!--<appender-ref ref="file"/>-->
+    <!--<appender-ref ref="file"/>-->
     <!--</logger>-->
 
     <!-- The following lines keep the log level of common libraries/connectors on

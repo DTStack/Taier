@@ -4,23 +4,27 @@
 
 
     <sql id="engine_simple">
-        `id`,`job_id`,`job_name`,`compute_type`,`stage`,`node_address`,`gmt_create`,`gmt_modified`,`is_deleted`,`job_priority`,`job_resource`,`job_info`
+        `id`
+        ,`job_id`,`job_name`,`compute_type`,`stage`,`node_address`,`gmt_create`,`gmt_modified`,`is_deleted`,`job_priority`,`job_resource`,`job_info`
     </sql>
 
     <sql id="engine_cache_filed">
-        `id`,`job_id`,`job_name`,`compute_type`,`stage`,`job_info`,`node_address`,`gmt_create`,`gmt_modified`,`is_deleted`,`job_priority`,`job_resource`,`is_failover`,`wait_reason`
+        `id`
+        ,`job_id`,`job_name`,`compute_type`,`stage`,`job_info`,`node_address`,`gmt_create`,`gmt_modified`,`is_deleted`,`job_priority`,`job_resource`,`is_failover`,`wait_reason`
     </sql>
 
     <select id="getOne" resultType="com.dtstack.taier.dao.domain.ScheduleEngineJobCache">
         select
-        <include refid="engine_cache_filed" />
+        <include refid="engine_cache_filed"/>
         from schedule_engine_job_cache
         where job_id=#{jobId} and is_deleted=0 order by gmt_create desc limit 1;
     </select>
 
     <select id="listNames" resultType="java.lang.String">
-        select job_name from schedule_engine_job_cache
-        where job_name like '%${jobName}%' and is_deleted=0;
+        select job_name
+        from schedule_engine_job_cache
+        where job_name like '%${jobName}%'
+          and is_deleted = 0;
     </select>
 
     <select id="getJobResources" resultType="java.lang.String">
@@ -56,9 +60,9 @@
             and tenant_id in (
             <!--cluster 》 tenant -->
             SELECT ct.tenant_id FROM console_cluster_tenant ct, console_cluster r
-             WHERE ct.cluster_id = r.id
-              AND r.cluster_name = #{clusterName,jdbcType=VARCHAR}
-              AND ct.is_deleted = 0 AND r.is_deleted = 0
+            WHERE ct.cluster_id = r.id
+            AND r.cluster_name = #{clusterName,jdbcType=VARCHAR}
+            AND ct.is_deleted = 0 AND r.is_deleted = 0
             )
         </if>
         group by job_resource, stage

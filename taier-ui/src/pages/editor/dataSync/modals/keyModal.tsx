@@ -1,12 +1,12 @@
-import { Modal, Form, Input, InputNumber, Select } from 'antd';
-import type { ModalProps } from 'antd';
-import { stringColumnFormat } from '@/components/helpDoc/docs';
-import { DATA_SOURCE_ENUM, formItemLayout, HBASE_FIELD_TYPES, HDFS_FIELD_TYPES } from '@/constant';
-import type { IDataColumnsProps } from '@/interface';
-import { isValidFormatType } from '@/utils';
+import type {ModalProps} from 'antd';
+import {Form, Input, InputNumber, Modal, Select} from 'antd';
+import {stringColumnFormat} from '@/components/helpDoc/docs';
+import {DATA_SOURCE_ENUM, formItemLayout, HBASE_FIELD_TYPES, HDFS_FIELD_TYPES} from '@/constant';
+import type {IDataColumnsProps} from '@/interface';
+import {isValidFormatType} from '@/utils';
 
 const FormItem = Form.Item;
-const { Option } = Select;
+const {Option} = Select;
 
 interface IKeyModalProps extends Pick<ModalProps, 'title' | 'visible'> {
 	onOk?: (values: any) => void;
@@ -21,15 +21,15 @@ interface IKeyModalProps extends Pick<ModalProps, 'title' | 'visible'> {
 }
 
 export default function KeyModal({
-	dataType,
-	title,
-	visible,
-	keyModal = {},
-	sourceColumnFamily,
-	targetColumnFamily,
-	onOk,
-	onCancel,
-}: IKeyModalProps) {
+									 dataType,
+									 title,
+									 visible,
+									 keyModal = {},
+									 sourceColumnFamily,
+									 targetColumnFamily,
+									 onOk,
+									 onCancel,
+								 }: IKeyModalProps) {
 	const [form] = Form.useForm();
 
 	const handleSubmit = () => {
@@ -67,14 +67,14 @@ export default function KeyModal({
 			>
 				<Select
 					placeholder="请选择类型"
-					options={HBASE_FIELD_TYPES.map((t) => ({ label: t, value: t }))}
+					options={HBASE_FIELD_TYPES.map((t) => ({label: t, value: t}))}
 				/>
 			</FormItem>
 		);
 	};
 
 	const renderFormItems = () => {
-		const { isReader, editField } = keyModal;
+		const {isReader, editField} = keyModal;
 
 		if (editField?.value) {
 			// 常量额外处理
@@ -91,7 +91,7 @@ export default function KeyModal({
 					]}
 					initialValue={editField.key}
 				>
-					<Input style={{ width: '100%' }} disabled />
+					<Input style={{width: '100%'}} disabled/>
 				</FormItem>,
 				<FormItem
 					name="value"
@@ -104,7 +104,7 @@ export default function KeyModal({
 					]}
 					initialValue={editField.value}
 				>
-					<Input style={{ width: '100%' }} disabled />
+					<Input style={{width: '100%'}} disabled/>
 				</FormItem>,
 				<FormItem
 					name="type"
@@ -117,7 +117,7 @@ export default function KeyModal({
 					]}
 					initialValue={editField.type}
 				>
-					<Input style={{ width: '100%' }} disabled />
+					<Input style={{width: '100%'}} disabled/>
 				</FormItem>,
 			];
 		}
@@ -146,7 +146,7 @@ export default function KeyModal({
 						>
 							<InputNumber
 								placeholder="请输入索引值"
-								style={{ width: '100%' }}
+								style={{width: '100%'}}
 								min={0}
 							/>
 						</FormItem>,
@@ -163,7 +163,7 @@ export default function KeyModal({
 						>
 							<Select
 								placeholder="请选择类型"
-								options={HDFS_FIELD_TYPES.map((t) => ({ label: t, value: t }))}
+								options={HDFS_FIELD_TYPES.map((t) => ({label: t, value: t}))}
 							/>
 						</FormItem>,
 					];
@@ -185,7 +185,7 @@ export default function KeyModal({
 						>
 							<Input
 								placeholder="请输入列名"
-								style={{ width: '100%' }}
+								style={{width: '100%'}}
 								disabled={disabledEdit}
 							/>
 						</FormItem>,
@@ -224,7 +224,7 @@ export default function KeyModal({
 							<Input
 								disabled={true}
 								placeholder="请输入字段名"
-								style={{ width: '100%' }}
+								style={{width: '100%'}}
 							/>
 						</FormItem>,
 						<FormItem
@@ -238,7 +238,7 @@ export default function KeyModal({
 							]}
 							initialValue={editField?.type || 'STRING'}
 						>
-							<Input disabled={true} />
+							<Input disabled={true}/>
 						</FormItem>,
 					];
 				}
@@ -261,7 +261,7 @@ export default function KeyModal({
 							]}
 							initialValue={initialKeyValue}
 						>
-							<Input placeholder="请输入字段名" />
+							<Input placeholder="请输入字段名"/>
 						</FormItem>,
 						<FormItem
 							name="type"
@@ -276,7 +276,7 @@ export default function KeyModal({
 						>
 							<Select
 								placeholder="请选择类型"
-								options={HDFS_FIELD_TYPES.map((t) => ({ label: t, value: t }))}
+								options={HDFS_FIELD_TYPES.map((t) => ({label: t, value: t}))}
 							/>
 						</FormItem>,
 					];
@@ -295,7 +295,7 @@ export default function KeyModal({
 							]}
 							initialValue={editField?.key}
 						>
-							<Input placeholder="请输入列名" style={{ width: '100%' }} />
+							<Input placeholder="请输入列名" style={{width: '100%'}}/>
 						</FormItem>,
 						<FormItem
 							name="cf"
@@ -322,7 +322,7 @@ export default function KeyModal({
 		return [];
 	};
 
-	const { editField, isReader } = keyModal;
+	const {editField, isReader} = keyModal;
 	// 如果源数据类型为字符串，则支持字符串格式化
 	const canFormat = editField && (isValidFormatType(editField.type) || editField.value);
 	const text = editField?.value ? '格式' : '格式化';
@@ -339,7 +339,7 @@ export default function KeyModal({
 						initialValue={editField.format}
 						tooltip={stringColumnFormat}
 					>
-						<Input placeholder="格式化, 例如：yyyy-MM-dd" />
+						<Input placeholder="格式化, 例如：yyyy-MM-dd"/>
 					</FormItem>
 				)}
 			</Form>

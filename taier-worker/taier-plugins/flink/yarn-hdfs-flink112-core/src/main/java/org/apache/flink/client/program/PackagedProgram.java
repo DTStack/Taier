@@ -92,23 +92,25 @@ public class PackagedProgram implements AutoCloseable {
 
     private final SavepointRestoreSettings savepointSettings;
 
-    /** Flag indicating whether the job is a Python job. */
+    /**
+     * Flag indicating whether the job is a Python job.
+     */
     private final boolean isPython;
 
     /**
      * Creates an instance that wraps the plan defined in the jar file using the given arguments.
      * For generating the plan the class defined in the className parameter is used.
      *
-     * @param jarFile The jar file which contains the plan.
-     * @param classpaths Additional classpath URLs needed by the Program.
+     * @param jarFile             The jar file which contains the plan.
+     * @param classpaths          Additional classpath URLs needed by the Program.
      * @param entryPointClassName Name of the class which generates the plan. Overrides the class
-     *     defined in the jar file manifest.
-     * @param configuration Flink configuration which affects the classloading policy of the Program
-     *     execution.
-     * @param args Optional. The arguments used to create the pact plan, depend on implementation of
-     *     the pact plan. See getDescription().
+     *                            defined in the jar file manifest.
+     * @param configuration       Flink configuration which affects the classloading policy of the Program
+     *                            execution.
+     * @param args                Optional. The arguments used to create the pact plan, depend on implementation of
+     *                            the pact plan. See getDescription().
      * @throws ProgramInvocationException This invocation is thrown if the Program can't be properly
-     *     loaded. Causes may be a missing / wrong class or manifest files.
+     *                                    loaded. Causes may be a missing / wrong class or manifest files.
      */
     private PackagedProgram(
             @Nullable File jarFile,
@@ -142,7 +144,7 @@ public class PackagedProgram implements AutoCloseable {
 
         boolean cache = true;
         String dtstackCache = configuration.getString(ClassLoaderType.CLASSLOADER_DTSTACK_CACHE, ClassLoaderType.CLASSLOADER_DTSTACK_CACHE_TRUE);
-        if (dtstackCache.equalsIgnoreCase(ClassLoaderType.CLASSLOADER_DTSTACK_CACHE_FALSE)){
+        if (dtstackCache.equalsIgnoreCase(ClassLoaderType.CLASSLOADER_DTSTACK_CACHE_FALSE)) {
             cache = false;
         }
 
@@ -186,7 +188,7 @@ public class PackagedProgram implements AutoCloseable {
      *
      * @return The description of the PactProgram's input parameters.
      * @throws ProgramInvocationException This invocation is thrown if the Program can't be properly
-     *     loaded. Causes may be a missing / wrong class or manifest files.
+     *                                    loaded. Causes may be a missing / wrong class or manifest files.
      */
     @Nullable
     public String getDescription() throws ProgramInvocationException {
@@ -242,7 +244,9 @@ public class PackagedProgram implements AutoCloseable {
         return this.userCodeClassLoader;
     }
 
-    /** Returns all provided libraries needed to run the program. */
+    /**
+     * Returns all provided libraries needed to run the program.
+     */
     public List<URL> getJobJarAndDependencies() {
         List<URL> libs = new ArrayList<URL>(extractedTempLibraries.size() + 1);
 
@@ -264,7 +268,9 @@ public class PackagedProgram implements AutoCloseable {
         return libs;
     }
 
-    /** Returns all provided libraries needed to run the program. */
+    /**
+     * Returns all provided libraries needed to run the program.
+     */
     public static List<URL> getJobJarAndDependencies(
             File jarFile, @Nullable String entryPointClassName) throws ProgramInvocationException {
         URL jarFileUrl = loadJarFile(jarFile);
@@ -294,7 +300,9 @@ public class PackagedProgram implements AutoCloseable {
         return libs;
     }
 
-    /** Deletes all temporary files created for contained packaged libraries. */
+    /**
+     * Deletes all temporary files created for contained packaged libraries.
+     */
     public void deleteExtractedLibraries() {
         deleteExtractedLibraries(this.extractedTempLibraries);
         this.extractedTempLibraries.clear();
@@ -560,7 +568,7 @@ public class PackagedProgram implements AutoCloseable {
             throws ProgramInvocationException {
         final File output = createTempFile(rnd, input, name);
         try (final OutputStream out = new FileOutputStream(output);
-                final InputStream in = new BufferedInputStream(jar.getInputStream(input))) {
+             final InputStream in = new BufferedInputStream(jar.getInputStream(input))) {
             int numRead = 0;
             while ((numRead = in.read(buffer)) != -1) {
                 out.write(buffer, 0, numRead);
@@ -636,12 +644,16 @@ public class PackagedProgram implements AutoCloseable {
         }
     }
 
-    /** A Builder For {@link PackagedProgram}. */
+    /**
+     * A Builder For {@link PackagedProgram}.
+     */
     public static class Builder {
 
-        @Nullable private File jarFile;
+        @Nullable
+        private File jarFile;
 
-        @Nullable private String entryPointClassName;
+        @Nullable
+        private String entryPointClassName;
 
         private String[] args = new String[0];
 
@@ -696,7 +708,8 @@ public class PackagedProgram implements AutoCloseable {
                     args);
         }
 
-        private Builder() {}
+        private Builder() {
+        }
     }
 
     public static Builder newBuilder() {

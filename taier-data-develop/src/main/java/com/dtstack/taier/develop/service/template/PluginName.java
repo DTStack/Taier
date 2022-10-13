@@ -29,24 +29,24 @@ public class PluginName {
     public static final String MONGODB_R = "mongodbreader";
     public static final String ODPS_R = "odpsreader";
     public static final String Stream_R = "streamreader";
-    public static final  String DB2_R = "db2reader";
+    public static final String DB2_R = "db2reader";
     public static final String CarbonData_R = "carbondatareader";
     public static final String GBase_R = "gbasereader";
     public static final String Kudu_R = "kudureader";
     public static final String Phoenix_R = "phoenixreader";
-    public static final  String Phoenix5_R = "phoenix5reader";
-    public static final  String DM_R = "dmreader";
-    public static final  String GREENPLUM_R = "greenplumreader";
-    public static final  String KINGBASE_R = "kingbasereader";
+    public static final String Phoenix5_R = "phoenix5reader";
+    public static final String DM_R = "dmreader";
+    public static final String GREENPLUM_R = "greenplumreader";
+    public static final String KINGBASE_R = "kingbasereader";
     public static final String AWS_S3_R = "s3reader";
     public static final String InfluxDB_R = "influxdbreader";
-    public static final  String ADB_FOR_PG_R = "adbpostgresqlreader";
+    public static final String ADB_FOR_PG_R = "adbpostgresqlreader";
     public static final String OpenTSDB_R = "opentsdbreader";
     public static final String SOLR_R = "solrreader";
 
-    public static final  String MySQL_W = "mysqlwriter";
-    public static final  String Clichhouse_W = "clickhousewriter";
-    public static final  String Polardb_for_MySQL_W = "polardbwriter";
+    public static final String MySQL_W = "mysqlwriter";
+    public static final String Clichhouse_W = "clickhousewriter";
+    public static final String Polardb_for_MySQL_W = "polardbwriter";
     public static final String Oracle_W = "oraclewriter";
     public static final String SQLSERVER_W = "sqlserverwriter";
     public static final String POSTGRESQL_W = "postgresqlwriter";
@@ -58,23 +58,23 @@ public class PluginName {
     public static final String MONGODB_W = "mongodbwriter";
     public static final String ODPS_W = "odpswriter";
     public static final String REDIS_W = "rediswriter";
-    public static final  String STREAM_W = "streamwriter";
+    public static final String STREAM_W = "streamwriter";
     public static final String DB2_W = "db2writer";
     public static final String CarbonData_W = "carbondatawriter";
     public static final String GBase_W = "gbasewriter";
     public static final String Kudu_W = "kuduwriter";
     public static final String Phoenix_W = "phoenixwriter";
     public static final String Phoenix5_W = "phoenix5writer";
-    public static final  String DM_W = "dmwriter";
+    public static final String DM_W = "dmwriter";
     public static final String GREENPLUM_W = "greenplumwriter";
     public static final String KINGBASE_W = "kingbasewriter";
-    public static final  String AWS_S3_W = "s3writer";
+    public static final String AWS_S3_W = "s3writer";
     public static final String INCEPTOR_W = "inceptorwriter";
     public static final String ADB_FOR_PG_W = "adbpostgresqlwriter";
     public static final String SOLR_W = "solrwriter";
 
     List<String> RDB_READER = Arrays.asList(
-            MySQL_R,MySQLD_R,Oracle_R,SQLServer_R,PostgreSQL_R,DB2_R,GBase_R,Clickhouse_R,Polardb_for_MySQL_R,DM_R,GREENPLUM_R,KINGBASE_R,
+            MySQL_R, MySQLD_R, Oracle_R, SQLServer_R, PostgreSQL_R, DB2_R, GBase_R, Clickhouse_R, Polardb_for_MySQL_R, DM_R, GREENPLUM_R, KINGBASE_R,
             ADB_FOR_PG_R
     );
 

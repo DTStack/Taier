@@ -1,10 +1,10 @@
 package com.dtstack.taier.datasource.plugin.common.utils;
 
-import com.dtstack.taier.datasource.plugin.common.base.CallBack;
 import com.dtstack.taier.datasource.api.dto.SqlMultiDTO;
 import com.dtstack.taier.datasource.api.dto.SqlQueryDTO;
 import com.dtstack.taier.datasource.api.exception.SourceException;
 import com.dtstack.taier.datasource.api.utils.AssertUtils;
+import com.dtstack.taier.datasource.plugin.common.base.CallBack;
 import com.dtstack.taier.datasource.plugin.common.service.ConnectionDealer;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;

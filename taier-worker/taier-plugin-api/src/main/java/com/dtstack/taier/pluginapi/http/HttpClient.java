@@ -38,36 +38,34 @@ import java.util.Map;
 
 
 /**
- * 
- *
  * Date: 2016年12月30日 下午1:16:37
  * Company: www.dtstack.com
- * @author sishu.yss
  *
+ * @author sishu.yss
  */
 public class HttpClient {
-	
+
     private static final Logger LOGGER = LoggerFactory.getLogger(HttpClient.class);
-    
+
     private static int SocketTimeout = 10000;//10秒  
-    
+
     private static int ConnectTimeout = 10000;//10秒 
-    
+
     private static Boolean SetTimeOut = true;
 
     private static ObjectMapper objectMapper = new ObjectMapper();
-    
-	private static Charset charset = Charset.forName("UTF-8");
 
-    private static CloseableHttpClient getHttpClient(){
-        return HttpClientBuilder.create().build();  
+    private static Charset charset = Charset.forName("UTF-8");
+
+    private static CloseableHttpClient getHttpClient() {
+        return HttpClientBuilder.create().build();
     }
-    
-    public static String post(String url,Map<String,Object> bodyData){
+
+    public static String post(String url, Map<String, Object> bodyData) {
         String responseBody = null;
         CloseableHttpClient httpClient = null;
         try {
-            httpClient  = getHttpClient();
+            httpClient = getHttpClient();
             HttpPost httPost = new HttpPost(url);
             if (SetTimeOut) {
                 RequestConfig requestConfig = RequestConfig.custom()
@@ -75,47 +73,51 @@ public class HttpClient {
                         .setConnectTimeout(ConnectTimeout).build();//设置请求和传输超时时间
                 httPost.setConfig(requestConfig);
             }
-            if(bodyData!=null&&bodyData.size()>0){
+            if (bodyData != null && bodyData.size() > 0) {
                 httPost.setEntity(new StringEntity(objectMapper.writeValueAsString(bodyData)));
             }
             //请求数据
-            CloseableHttpResponse response = httpClient.execute(httPost);  
-            int status = response.getStatusLine().getStatusCode();  
-            if (status == HttpStatus.SC_OK) {  
-                HttpEntity entity = response.getEntity(); 
+            CloseableHttpResponse response = httpClient.execute(httPost);
+            int status = response.getStatusLine().getStatusCode();
+            if (status == HttpStatus.SC_OK) {
+                HttpEntity entity = response.getEntity();
                 //FIXME 暂时不从header读取
-                responseBody = EntityUtils.toString(entity,charset); 
+                responseBody = EntityUtils.toString(entity, charset);
             } else {
-            	LOGGER.error("url:"+url+"--->http return status error:" + status);
-            }  
+                LOGGER.error("url:" + url + "--->http return status error:" + status);
+            }
         } catch (Exception e) {
-        	LOGGER.error("url:"+url+"--->http request error",e);
-        } finally {  
+            LOGGER.error("url:" + url + "--->http request error", e);
+        } finally {
             try {
-            	if(httpClient!=null){httpClient.close();}
-			} catch (Exception e) {
-				LOGGER.error("", e);
-			}  
-        }  
-        return responseBody;  
+                if (httpClient != null) {
+                    httpClient.close();
+                }
+            } catch (Exception e) {
+                LOGGER.error("", e);
+            }
+        }
+        return responseBody;
     }
 
-    public static String get(String url){
+    public static String get(String url) {
 
         String respBody = null;
         CloseableHttpClient httpClient = getHttpClient();
         HttpGet httpGet = new HttpGet(url);
         try {
             CloseableHttpResponse response = httpClient.execute(httpGet);
-            if(response.getStatusLine().getStatusCode() == HttpStatus.SC_OK){
+            if (response.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
                 HttpEntity entity = response.getEntity();
-                respBody = EntityUtils.toString(entity,charset);
+                respBody = EntityUtils.toString(entity, charset);
             }
         } catch (IOException e) {
-            LOGGER.error("url:"+url+"--->http request error",e);
+            LOGGER.error("url:" + url + "--->http request error", e);
         } finally {
             try {
-                if(httpClient!=null){httpClient.close();}
+                if (httpClient != null) {
+                    httpClient.close();
+                }
             } catch (Exception e) {
                 LOGGER.error("", e);
             }

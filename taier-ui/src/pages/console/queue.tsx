@@ -16,15 +16,15 @@
  * limitations under the License.
  */
 
-import { useLayoutEffect, useMemo, useRef, useState } from 'react';
-import { history } from 'umi';
-import { Button, Modal, message, Tooltip } from 'antd';
+import {useLayoutEffect, useMemo, useRef, useState} from 'react';
+import {history} from 'umi';
+import {Button, message, Modal, Tooltip} from 'antd';
 import Api from '@/api';
-import type { IActionRef } from '@/components/sketch';
+import type {IActionRef} from '@/components/sketch';
 import Sketch from '@/components/sketch';
-import type { ColumnsType } from 'antd/lib/table';
-import { SyncOutlined, CloseCircleOutlined } from '@ant-design/icons';
-import { DRAWER_MENU_ENUM, JOB_STAGE_ENUM } from '@/constant';
+import type {ColumnsType} from 'antd/lib/table';
+import {CloseCircleOutlined, SyncOutlined} from '@ant-design/icons';
+import {DRAWER_MENU_ENUM, JOB_STAGE_ENUM} from '@/constant';
 
 interface IQueueListProps {
 	db: number;
@@ -82,7 +82,7 @@ export default () => {
 		});
 	};
 
-	const handleRequestSearch = ({ clusterId, clusterNode }: IFormFieldProps) => {
+	const handleRequestSearch = ({clusterId, clusterNode}: IFormFieldProps) => {
 		if (clusterId) {
 			return Api.getClusterDetail({
 				clusterName: clusterId,
@@ -121,22 +121,22 @@ export default () => {
 			},
 			cancelText: '取消',
 			width: '460px',
-			icon: <CloseCircleOutlined />,
+			icon: <CloseCircleOutlined/>,
 			content: (
 				<div>
 					<p>
 						杀死所有
-						<span style={{ color: '#ff5f5c' }}>队列中、已存储、等待重试、等待资源</span>
+						<span style={{color: '#ff5f5c'}}>队列中、已存储、等待重试、等待资源</span>
 						的任务
 					</p>
 					<p>
-						<span style={{ color: '#ff5f5c' }}>运行中的任务不会被杀死</span>
+						<span style={{color: '#ff5f5c'}}>运行中的任务不会被杀死</span>
 						，可点击运行中的任务，并执行批量杀死操作
 					</p>
 				</div>
 			),
 			async onOk() {
-				const { form, submit } = sketchRef.current!;
+				const {form, submit} = sketchRef.current!;
 				const nodeAddress = form.getFieldValue('clusterNode');
 
 				const res = await Api.killAllTask({
@@ -279,7 +279,7 @@ export default () => {
 			extra={
 				<Tooltip title="刷新数据">
 					<Button className="dt-refresh">
-						<SyncOutlined onClick={() => handleRefresh()} />
+						<SyncOutlined onClick={() => handleRefresh()}/>
 					</Button>
 				</Tooltip>
 			}

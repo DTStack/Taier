@@ -74,12 +74,12 @@ public enum EScheduleJobType {
     /**
      * Python
      */
-    PYTHON(12,"Python", EJobType.PYTHON.getType(),12, EComponentType.SCRIPT, EComputeType.BATCH, EJobClientType.ENGINE_PLUGIN),
+    PYTHON(12, "Python", EJobType.PYTHON.getType(), 12, EComponentType.SCRIPT, EComputeType.BATCH, EJobClientType.ENGINE_PLUGIN),
 
     /**
      * Shell
      */
-    SHELL(13,"Shell", EJobType.PYTHON.getType(),13, EComponentType.SCRIPT, EComputeType.BATCH, EJobClientType.ENGINE_PLUGIN),
+    SHELL(13, "Shell", EJobType.PYTHON.getType(), 13, EComponentType.SCRIPT, EComputeType.BATCH, EJobClientType.ENGINE_PLUGIN),
 
     /**
      * TiDBSQL
@@ -139,14 +139,12 @@ public enum EScheduleJobType {
     /**
      * ClickHouseSQL
      */
-    CLICK_HOUSE_SQL(26, "ClickHouseSQL",  EJobType.SQL.getType(),14, EComponentType.CLICK_HOUSE, EComputeType.BATCH, EJobClientType.DATASOURCE_PLUGIN),
+    CLICK_HOUSE_SQL(26, "ClickHouseSQL", EJobType.SQL.getType(), 14, EComponentType.CLICK_HOUSE, EComputeType.BATCH, EJobClientType.DATASOURCE_PLUGIN),
 
     /**
      * DorisSQL
      */
-    DORIS_SQL(27, "DorisSQL", EJobType.SQL.getType(), 15, EComponentType.DORIS, EComputeType.BATCH, EJobClientType.DATASOURCE_PLUGIN)
-
-    ;
+    DORIS_SQL(27, "DorisSQL", EJobType.SQL.getType(), 15, EComponentType.DORIS, EComputeType.BATCH, EJobClientType.DATASOURCE_PLUGIN);
 
     private final Integer type;
 
@@ -199,6 +197,7 @@ public enum EScheduleJobType {
         this.computeType = computeType;
         this.jobClientType = jobClientType;
     }
+
     public static EScheduleJobType getByTaskType(int type) {
         EScheduleJobType[] eJobTypes = EScheduleJobType.values();
         for (EScheduleJobType eJobType : eJobTypes) {

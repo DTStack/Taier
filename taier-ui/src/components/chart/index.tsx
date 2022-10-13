@@ -17,7 +17,7 @@
  */
 
 import * as React from 'react';
-import { isEqual } from 'lodash';
+import {isEqual} from 'lodash';
 import * as echarts from 'echarts/lib/echarts';
 import 'echarts/lib/component/title';
 import 'echarts/lib/component/tooltip';
@@ -50,10 +50,10 @@ export default class Chart extends React.PureComponent<IProps, IState> {
 	public chart: any = null;
 
 	componentDidMount() {
-		const { option } = this.props;
+		const {option} = this.props;
 		const myChart = echarts.init(this.chart);
 		myChart.setOption(option);
-		this.setState({ myChart });
+		this.setState({myChart});
 	}
 
 	componentWillUnmount() {
@@ -61,7 +61,7 @@ export default class Chart extends React.PureComponent<IProps, IState> {
 	}
 
 	componentDidUpdate(prevProps: IProps) {
-		const { option } = this.props;
+		const {option} = this.props;
 		if (!isEqual(prevProps.option, option)) {
 			this.state.myChart.setOption(option);
 		}
@@ -75,7 +75,7 @@ export default class Chart extends React.PureComponent<IProps, IState> {
 	};
 
 	render() {
-		const { width, height, style } = this.props;
+		const {width, height, style} = this.props;
 		const styleParams = {
 			...style,
 			width: width ? this.styleFormat(width) : '100%',

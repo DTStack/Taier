@@ -78,6 +78,7 @@ public class DevelopFunctionService {
     private StreamSqlFormatService streamSqlFormatService;
 
     public static final List<String> ADD_FUNCTION_NAME = new ArrayList<>();
+
     static {
         ADD_FUNCTION_NAME.add("TIMETOSECOND");
         ADD_FUNCTION_NAME.add("TIMETOMILLISECOND");
@@ -94,20 +95,21 @@ public class DevelopFunctionService {
 
     /**
      * 根据id获取函数
+     *
      * @param functionId
      * @return
      */
     public DevelopFunctionVO getFunction(Long functionId) {
         DevelopFunction developFunction = developFunctionMapper.selectOne(Wrappers.lambdaQuery(DevelopFunction.class)
-                .eq(DevelopFunction::getId,functionId)
-                .eq(DevelopFunction::getIsDeleted,Deleted.NORMAL.getStatus()));
+                .eq(DevelopFunction::getId, functionId)
+                .eq(DevelopFunction::getIsDeleted, Deleted.NORMAL.getStatus()));
         if (Objects.isNull(developFunction)) {
             return new DevelopFunctionVO();
         }
         DevelopFunctionVO vo = DevelopFunctionVO.toVO(developFunction);
         //如果函数有资源，则设置函数的资源
         DevelopFunctionResource resourceFunctionByFunctionId = developFunctionResourceService.getResourceFunctionByFunctionId(developFunction.getId());
-        if (Objects.nonNull(resourceFunctionByFunctionId)){
+        if (Objects.nonNull(resourceFunctionByFunctionId)) {
             vo.setResources(resourceFunctionByFunctionId.getResourceId());
         }
         vo.setCreateUser(userService.getById(developFunction.getCreateUserId()));
@@ -163,13 +165,14 @@ public class DevelopFunctionService {
         if (Objects.isNull(resourceFunctionByFunctionId)) {
             developFunctionResource.setGmtCreate(Timestamp.valueOf(LocalDateTime.now()));
             developFunctionResourceService.insert(developFunctionResource);
-        }else {
+        } else {
             developFunctionResourceService.updateByFunctionId(developFunctionResource);
         }
     }
 
     /**
      * 根据函数id获取资源函数关系
+     *
      * @param functionId
      * @return
      */
@@ -179,6 +182,7 @@ public class DevelopFunctionService {
 
     /**
      * 校验资源是否存在
+     *
      * @param resourceId
      */
     private void checkResourceType(Long resourceId, Integer taskType) {
@@ -199,7 +203,7 @@ public class DevelopFunctionService {
      * 新增、更新 函数信息
      *
      * @param developFunction 函数信息
-     * @param userId        用户ID
+     * @param userId          用户ID
      * @return
      */
     private DevelopFunction addOrUpdate(DevelopFunction developFunction, Long userId) {
@@ -226,8 +230,8 @@ public class DevelopFunctionService {
      */
     public void moveFunction(Long userId, Long functionId, Long nodePid) {
         DevelopFunction bf = developFunctionMapper.selectOne(Wrappers.lambdaQuery(DevelopFunction.class)
-                .eq(DevelopFunction::getId,functionId)
-                .eq(DevelopFunction::getIsDeleted,Deleted.NORMAL.getStatus()));
+                .eq(DevelopFunction::getId, functionId)
+                .eq(DevelopFunction::getIsDeleted, Deleted.NORMAL.getStatus()));
         if (Objects.isNull(bf)) {
             throw new RdosDefineException(ErrorCode.FUNCTION_CAN_NOT_FIND);
         }
@@ -246,8 +250,8 @@ public class DevelopFunctionService {
     @Transactional(rollbackFor = Exception.class)
     public void deleteFunction(Long userId, Long functionId) {
         DevelopFunction developFunction = developFunctionMapper.selectOne(Wrappers.lambdaQuery(DevelopFunction.class)
-                .eq(DevelopFunction::getId,functionId)
-                .eq(DevelopFunction::getIsDeleted,Deleted.NORMAL.getStatus()));
+                .eq(DevelopFunction::getId, functionId)
+                .eq(DevelopFunction::getIsDeleted, Deleted.NORMAL.getStatus()));
         if (Objects.isNull(developFunction)) {
             throw new RdosDefineException(ErrorCode.FUNCTION_CAN_NOT_FIND);
         }
@@ -260,6 +264,7 @@ public class DevelopFunctionService {
 
     /**
      * 获取任务类型的所有函数
+     *
      * @param tenantId
      * @param taskType
      * @return
@@ -339,11 +344,12 @@ public class DevelopFunctionService {
 
     /**
      * 根据 租户、父目录id 查询
+     *
      * @param tenantId
      * @param nodePid
      * @return
      */
-    public List<DevelopFunction> listByNodePidAndTenantId(Long tenantId, Long nodePid){
+    public List<DevelopFunction> listByNodePidAndTenantId(Long tenantId, Long nodePid) {
         return developFunctionMapper.listByNodePidAndTenantId(tenantId, nodePid);
     }
 
@@ -352,7 +358,7 @@ public class DevelopFunctionService {
             return Lists.newArrayList();
         }
         List<DevelopFunction> streamFunctionList = developFunctionMapper.listTenantByFunction(tenantId, EScheduleJobType.FLINK_SQL.getType());
-        return streamFunctionList.stream().filter(f-> funcNameSet.contains(f.getName().toUpperCase())).collect(Collectors.toList());
+        return streamFunctionList.stream().filter(f -> funcNameSet.contains(f.getName().toUpperCase())).collect(Collectors.toList());
     }
 
     public String createRegisterFlinkFuncSQL(DevelopFunction function) {
@@ -363,7 +369,7 @@ public class DevelopFunctionService {
     /**
      * 自定义函数区分大小写
      *
-     * @param funcNameSet      函数集合
+     * @param funcNameSet 函数集合
      * @return create xxx function sql
      */
     public List<String> generateFuncSql(Set<String> funcNameSet, Long tenantId) {
@@ -383,7 +389,6 @@ public class DevelopFunctionService {
     }
 
 
-
     public Set<String> getFuncSet(Task task, Boolean isFilterSys) {
         //sql 任务需要解析出关联的资源(eg:自定义function)
         Set<String> funcSet = streamSqlFormatService.getFuncName(task.getSqlText());
@@ -400,7 +405,7 @@ public class DevelopFunctionService {
         List<String> sysFuncNames = developFunctions.stream().map(DevelopFunction::getName).collect(Collectors.toList());
 
         //FIXME 区分大小写
-        for (String sysFuncName :  sysFuncNames) {
+        for (String sysFuncName : sysFuncNames) {
             if (funcSet.contains(sysFuncName) && !ADD_FUNCTION_NAME.contains(sysFuncName)) {
                 funcSet.remove(sysFuncName);
                 if (CollectionUtils.isEmpty(funcSet)) {

@@ -20,7 +20,7 @@ public class QueryJobStatusStatisticsVO {
      * 租户id
      */
     @NotNull(message = "tenantId is not null")
-    @ApiModelProperty(value = "租户id",hidden = true)
+    @ApiModelProperty(value = "租户id", hidden = true)
     private Long tenantId;
 
     /**

@@ -13,73 +13,73 @@ public class FillDataJobVO {
     /**
      * 实例id
      */
-    @ApiModelProperty(value = "实例id",example = "")
+    @ApiModelProperty(value = "实例id", example = "")
     private String jobId;
 
     /**
      * 实例状态
      */
-    @ApiModelProperty(value = "实例状态",example = "0")
+    @ApiModelProperty(value = "实例状态", example = "0")
     private Integer status;
 
     /**
      * 任务名称
      */
-    @ApiModelProperty(value = "任务名称",example = "0")
+    @ApiModelProperty(value = "任务名称", example = "0")
     private String taskName;
 
     /**
      * 任务类型
      */
-    @ApiModelProperty(value = "任务类型",example = "0")
+    @ApiModelProperty(value = "任务类型", example = "0")
     private Integer taskType;
 
     /**
      * 计划时间
      */
-    @ApiModelProperty(value = "计划时间",example = "2021-12-24 16:11:53")
+    @ApiModelProperty(value = "计划时间", example = "2021-12-24 16:11:53")
     private String cycTime;
 
     /**
      * 开始时间
      */
-    @ApiModelProperty(value = "开始时间",example = "2021-12-24 16:11:53")
+    @ApiModelProperty(value = "开始时间", example = "2021-12-24 16:11:53")
     private String startExecTime;
 
     /**
      * 结束时间
      */
-    @ApiModelProperty(value = "结束时间",example = "2021-12-24 16:11:53")
+    @ApiModelProperty(value = "结束时间", example = "2021-12-24 16:11:53")
     private String endExecTime;
 
     /**
      * 运行时长
      */
-    @ApiModelProperty(value = "运行时长",example = "0")
+    @ApiModelProperty(value = "运行时长", example = "0")
     private String execTime;
 
     /**
      * 重试次数
      */
-    @ApiModelProperty(value = "重试次数",example = "0")
+    @ApiModelProperty(value = "重试次数", example = "0")
     private Integer retryNum;
 
     /**
      * 操作名称
      */
-    @ApiModelProperty(value = "责任人",example = "\tadmin@dtstack.com")
+    @ApiModelProperty(value = "责任人", example = "\tadmin@dtstack.com")
     private String operatorName;
 
     /**
      * 操作人
      */
-    @ApiModelProperty(value = "责任人id",example = "1")
+    @ApiModelProperty(value = "责任人id", example = "1")
     private Long operatorId;
 
     /**
      * 工作流id
      */
-    @ApiModelProperty(value = "工作流id",example = "1")
+    @ApiModelProperty(value = "工作流id", example = "1")
     private String flowJobId;
 
     public String getJobId() {

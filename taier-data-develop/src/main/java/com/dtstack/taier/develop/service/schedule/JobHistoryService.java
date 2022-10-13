@@ -11,10 +11,10 @@ import java.util.List;
 @Service
 public class JobHistoryService extends ServiceImpl<ScheduleJobHistoryMapper, ScheduleJobHistory> {
 
-    public String getEngineIdByApplicationId(String applicationId){
+    public String getEngineIdByApplicationId(String applicationId) {
         ScheduleJobHistory scheduleJobHistory = getBaseMapper().selectOne(Wrappers.lambdaQuery(ScheduleJobHistory.class)
                 .eq(ScheduleJobHistory::getApplicationId, applicationId));
-        return scheduleJobHistory == null ? ""  : scheduleJobHistory.getEngineJobId();
+        return scheduleJobHistory == null ? "" : scheduleJobHistory.getEngineJobId();
 
     }
 

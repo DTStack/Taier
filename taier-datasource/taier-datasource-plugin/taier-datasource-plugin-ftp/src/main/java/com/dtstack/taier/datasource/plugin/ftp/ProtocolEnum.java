@@ -1,7 +1,5 @@
 package com.dtstack.taier.datasource.plugin.ftp;
 
-import org.apache.commons.net.ftp.FTP;
-
 /**
  * ftp/sftp 协议枚举类
  *

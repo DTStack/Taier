@@ -27,7 +27,7 @@ import io.swagger.annotations.ApiModelProperty;
 public class AllProductGlobalSearchVO extends DtInsightAuthParam {
 
     @ApiModelProperty(value = "当前需要添加依赖的任务")
-    private  Long taskId;
+    private Long taskId;
 
     @ApiModelProperty(value = "任务名称")
     private String taskName;

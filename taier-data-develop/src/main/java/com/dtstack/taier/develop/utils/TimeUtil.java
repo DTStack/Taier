@@ -43,6 +43,7 @@ public class TimeUtil {
 
     /**
      * 格式化 时间跨度
+     *
      * @param timespan 未格式化的时间跨度
      * @return 格式化后的时间跨度
      */

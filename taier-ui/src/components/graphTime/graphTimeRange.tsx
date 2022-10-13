@@ -1,7 +1,7 @@
-import React, { useEffect, useState } from 'react';
-import { Button, Input, Tooltip } from 'antd';
-import { MinusOutlined, PlusOutlined } from '@ant-design/icons';
-import { TIME_RANGE, UNIT_WEIGHT, COMPARE_ENUM } from './constants';
+import React, {useEffect, useState} from 'react';
+import {Button, Input, Tooltip} from 'antd';
+import {MinusOutlined, PlusOutlined} from '@ant-design/icons';
+import {COMPARE_ENUM, TIME_RANGE, UNIT_WEIGHT} from './constants';
 import API from '@/api';
 import './style.scss';
 
@@ -11,10 +11,11 @@ interface IProps {
 	onRangeChange?: (timeStr: string) => void;
 	onInputChange?: (timeStr: string) => void;
 }
+
 type RANGE_TYPE = 'sub' | 'add';
 
 const GraphTimeRange: React.FC<IProps> = (props) => {
-	const { value, defaultValue, onRangeChange, onInputChange } = props;
+	const {value, defaultValue, onRangeChange, onInputChange} = props;
 	const [time, setTime] = useState<string>(defaultValue || TIME_RANGE[0]);
 
 	useEffect(() => {
@@ -27,7 +28,7 @@ const GraphTimeRange: React.FC<IProps> = (props) => {
 	const breakUpTime = (timeStr: string) => {
 		const num = parseInt(timeStr, 10);
 		const unit = timeStr.replace(/\d/g, '').split('');
-		return { num, unit };
+		return {num, unit};
 	};
 
 	/**
@@ -36,8 +37,8 @@ const GraphTimeRange: React.FC<IProps> = (props) => {
 	 * @returns  -1: 当前时间小于比较时间, 0: 相等, 1: 大于
 	 */
 	const timeCompare = (fTimeStr: string, sTimeStr: string) => {
-		const { num: fNum, unit: fUnit } = breakUpTime(fTimeStr);
-		const { num: sNum, unit: sUnit } = breakUpTime(sTimeStr);
+		const {num: fNum, unit: fUnit} = breakUpTime(fTimeStr);
+		const {num: sNum, unit: sUnit} = breakUpTime(sTimeStr);
 
 		if (UNIT_WEIGHT[fUnit[0]] === UNIT_WEIGHT[sUnit[0]]) {
 			if (fNum === sNum) {
@@ -88,9 +89,9 @@ const GraphTimeRange: React.FC<IProps> = (props) => {
 			timespan: e.target.value,
 		})
 			.then((res: any) => {
-				const { data, code } = res;
+				const {data, code} = res;
 				if (code === 1) {
-					const { correct, formatResult } = data;
+					const {correct, formatResult} = data;
 					if (correct) {
 						if (onInputChange) {
 							if (value === undefined) {
@@ -129,13 +130,13 @@ const GraphTimeRange: React.FC<IProps> = (props) => {
 	return (
 		<div className="graph-time graph-time-range">
 			<Button className="btn-prev" onClick={() => timeRangeChange('sub')}>
-				<MinusOutlined />
+				<MinusOutlined/>
 			</Button>
 			<Tooltip title={time}>
-				<Input value={time} onChange={inputTimeChange} onBlur={onInputBlur} />
+				<Input value={time} onChange={inputTimeChange} onBlur={onInputBlur}/>
 			</Tooltip>
 			<Button className="btn-next" onClick={() => timeRangeChange('add')}>
-				<PlusOutlined />
+				<PlusOutlined/>
 			</Button>
 		</div>
 	);

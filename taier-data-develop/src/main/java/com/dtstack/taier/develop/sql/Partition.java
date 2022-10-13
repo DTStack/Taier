@@ -14,7 +14,7 @@ public class Partition {
     /**
      * 分区字段
      */
-    private List<Pair<String,String>> partKeyValues;
+    private List<Pair<String, String>> partKeyValues;
 
     /**
      * 分区路径

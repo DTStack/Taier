@@ -1,5 +1,5 @@
 import React from 'react';
-import { Button } from 'antd';
+import {Button} from 'antd';
 
 import MyIcon from './icon';
 import KeyCombiner from './listener';
@@ -11,15 +11,19 @@ export interface FullscreenProps {
 	iconStyle?: object;
 	fullIcon?: React.ReactNode;
 	exitFullIcon?: React.ReactNode;
+
 	[propName: string]: any;
 }
+
 export interface FullscreenState {
 	isFullScreen: boolean;
 }
+
 export default class Fullscreen extends React.Component<FullscreenProps, FullscreenState> {
 	state: FullscreenState = {
 		isFullScreen: false,
 	};
+
 	/**
 	 * 在一定情况下chrome不会触发resize事件，所以手动触发一下resize。
 	 */
@@ -27,8 +31,9 @@ export default class Fullscreen extends React.Component<FullscreenProps, Fullscr
 		const event = new Event('resize');
 		window.dispatchEvent(event);
 	}
+
 	componentDidMount() {
-		const { target } = this.props;
+		const {target} = this.props;
 		const propsDom = document.getElementById(target);
 		const domEle: any = propsDom || document.body;
 		let callBack = (event: any) => {
@@ -65,8 +70,9 @@ export default class Fullscreen extends React.Component<FullscreenProps, Fullscr
 			domEle.onwebkitfullscreenchange = callBack;
 		}
 	}
+
 	componentWillUnmount() {
-		const { target } = this.props;
+		const {target} = this.props;
 		const propsDom = document.getElementById(target);
 		const domEle: any = propsDom || document.body;
 		if (domEle.requestFullscreen) {
@@ -82,13 +88,14 @@ export default class Fullscreen extends React.Component<FullscreenProps, Fullscr
 			document.onwebkitfullscreenchange = null;
 		}
 	}
+
 	keyPressFullScreen = (evt: React.KeyboardEvent) => {
 		evt.preventDefault();
 		this.fullScreen();
 	};
 
 	fullScreen = () => {
-		const { target, onFullscreen } = this.props;
+		const {target, onFullscreen} = this.props;
 		if (onFullscreen) {
 			onFullscreen(this.state.isFullScreen);
 		}
@@ -121,7 +128,7 @@ export default class Fullscreen extends React.Component<FullscreenProps, Fullscr
 	};
 
 	render() {
-		const { themeDark, fullIcon, exitFullIcon, iconStyle, isShowTitle, ...other } = this.props;
+		const {themeDark, fullIcon, exitFullIcon, iconStyle, isShowTitle, ...other} = this.props;
 		const title = this.state.isFullScreen ? '退出全屏' : '全屏';
 		// const iconType = this.state.isFullScreen ? 'exit-fullscreen' : 'fullscreen';
 		const customIcon = this.state.isFullScreen ? exitFullIcon : fullIcon;

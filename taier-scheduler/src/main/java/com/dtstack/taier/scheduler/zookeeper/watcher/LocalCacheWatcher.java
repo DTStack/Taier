@@ -30,6 +30,7 @@ public class LocalCacheWatcher implements CuratorWatcher {
 
     /**
      * zk 发现 path 路径发生变化，会回调该方法
+     *
      * @param watchedEvent
      * @throws Exception
      */

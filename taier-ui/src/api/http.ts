@@ -17,16 +17,17 @@
  */
 
 import 'whatwg-fetch';
-import { message } from 'antd';
+import {message} from 'antd';
 import ProgressBar from '@/components/progressBar';
 import notification from '@/components/notification';
-import type { IResponseBodyProps } from '@/interface';
+import type {IResponseBodyProps} from '@/interface';
 
 class Http {
 	/**
 	 * 是否输出错误信息
 	 */
 	public verbose = true;
+
 	get<T = any>(url: any, params: any, config: Record<string, any> = {}) {
 		// GET请求
 		const newUrl = params ? this.build(url, params) : url;
@@ -38,7 +39,7 @@ class Http {
 
 	post<T = any>(url: any, body?: any, config: Record<string, any> = {}) {
 		// POST请求
-		const options: any = { method: 'POST', ...config };
+		const options: any = {method: 'POST', ...config};
 		if (body)
 			options.body = JSON.stringify({
 				...body,
@@ -47,13 +48,13 @@ class Http {
 	}
 
 	postAsFormData(url: any, params: any) {
-		const options: any = { method: 'POST' };
+		const options: any = {method: 'POST'};
 		if (params) options.body = this.buildFormData(params);
 		return this.request(url, options);
 	}
 
 	postForm(url: any, params: any) {
-		const options: any = { method: 'POST' };
+		const options: any = {method: 'POST'};
 		if (params) options.body = this.buildFormData(params);
 		return this.request(url, options);
 	}
@@ -61,7 +62,7 @@ class Http {
 	// account 相关接口需要设置默认请求头
 	postWithDefaultHeader(url: any, body: any) {
 		// POST请求
-		const options: any = { method: 'POST' };
+		const options: any = {method: 'POST'};
 		options.headers = this.defaultHeader();
 		if (body) options.body = JSON.stringify(body);
 		return this.request(url, options);
@@ -69,7 +70,7 @@ class Http {
 
 	request<T = any>(url: string, options: RequestInit) {
 		ProgressBar.show();
-		return fetch(url, { ...options, credentials: 'same-origin' })
+		return fetch(url, {...options, credentials: 'same-origin'})
 			.then((response) => {
 				setTimeout(() => {
 					ProgressBar.hide();
@@ -89,7 +90,7 @@ class Http {
 				if (res.code !== 1) {
 					if (this.verbose) {
 						// 相同的错误文案只提示一次
-						message.error({ content: res.message, key: res.message });
+						message.error({content: res.message, key: res.message});
 					}
 				}
 				return res;
@@ -140,4 +141,5 @@ class Http {
 		}
 	}
 }
+
 export default new Http();

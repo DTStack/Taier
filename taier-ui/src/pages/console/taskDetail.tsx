@@ -16,21 +16,21 @@
  * limitations under the License.
  */
 
-import { useRef, useState } from 'react';
-import { history } from 'umi';
-import { message, Dropdown, Menu, Tooltip, Button, Space, Modal } from 'antd';
+import {useRef, useState} from 'react';
+import {history} from 'umi';
+import {Button, Dropdown, Menu, message, Modal, Space, Tooltip} from 'antd';
 import CopyToClipboard from 'react-copy-to-clipboard';
-import { Utils } from '@dtinsight/dt-utils';
-import { formatDateTime } from '@/utils';
-import type { IActionRef } from '@/components/sketch';
+import {Utils} from '@dtinsight/dt-utils';
+import {formatDateTime} from '@/utils';
+import type {IActionRef} from '@/components/sketch';
 import Sketch from '@/components/sketch';
-import type { TASK_STATUS } from '@/constant';
-import { JOB_STAGE_ENUM } from '@/constant';
-import type { ColumnsType } from 'antd/lib/table';
-import { SyncOutlined, DownOutlined, CloseCircleOutlined } from '@ant-design/icons';
+import type {TASK_STATUS} from '@/constant';
+import {JOB_STAGE_ENUM} from '@/constant';
+import type {ColumnsType} from 'antd/lib/table';
+import {CloseCircleOutlined, DownOutlined, SyncOutlined} from '@ant-design/icons';
 import ViewDetail from '../../components/viewDetail';
 import Api from '../../api';
-import { TaskStatus } from '@/utils/enums';
+import {TaskStatus} from '@/utils/enums';
 
 const JOB_STAGE_OPTIONS = [
 	{
@@ -96,7 +96,7 @@ export default () => {
 			pageSize: number;
 		},
 	) => {
-		const { node, jobResource } = history.location.query || {};
+		const {node, jobResource} = history.location.query || {};
 		return Api.getViewDetail({
 			nodeAddress: node as string,
 			pageSize,
@@ -114,7 +114,7 @@ export default () => {
 	};
 
 	const requestKillJob = (jobIdList: string[]) => {
-		const { node = '', jobResource } = history.location.query || {};
+		const {node = '', jobResource} = history.location.query || {};
 		return new Promise<void>((resolve) => {
 			Api.killTasks({
 				stage: sketchRef.current?.form.getFieldValue('radioValue'),
@@ -150,9 +150,9 @@ export default () => {
 			},
 			cancelText: '取消',
 			width: '460px',
-			icon: <CloseCircleOutlined />,
+			icon: <CloseCircleOutlined/>,
 			content: (
-				<span style={{ color: '#ff5f5c' }}>本操作将杀死列表（非跨分页）中的选中任务</span>
+				<span style={{color: '#ff5f5c'}}>本操作将杀死列表（非跨分页）中的选中任务</span>
 			),
 			async onOk() {
 				return new Promise<void>((resolve) => {
@@ -175,11 +175,11 @@ export default () => {
 			},
 			cancelText: '取消',
 			width: '460px',
-			icon: <CloseCircleOutlined />,
+			icon: <CloseCircleOutlined/>,
 			content: (
-				<span style={{ color: '#ff5f5c' }}>
+				<span style={{color: '#ff5f5c'}}>
 					本操作将杀死列表（跨分页）中的全部任务，不仅是当前页
-					<br />
+					<br/>
 					杀死运行中的任务需要较长时间
 				</span>
 			),
@@ -211,7 +211,7 @@ export default () => {
 
 	// 置顶
 	const stickTask = (record: IQueueTaskProps, msg: string) => {
-		const { jobResource } = history.location.query || {};
+		const {jobResource} = history.location.query || {};
 		Api.stickJob({
 			jobId: record.jobId,
 			jobResource: jobResource as string,
@@ -227,7 +227,7 @@ export default () => {
 		Modal.confirm({
 			title: '杀任务',
 			cancelText: '取消',
-			icon: <CloseCircleOutlined />,
+			icon: <CloseCircleOutlined/>,
 			content: '是否要杀死此任务?',
 			async onOk() {
 				return new Promise<void>((resolve) => {
@@ -276,7 +276,7 @@ export default () => {
 			dataIndex: 'status',
 			width: 100,
 			render(text) {
-				return <TaskStatus value={text} />;
+				return <TaskStatus value={text}/>;
 			},
 		},
 		{
@@ -360,7 +360,7 @@ export default () => {
 				extra={
 					<Tooltip title="刷新数据">
 						<Button className="dt-refresh">
-							<SyncOutlined onClick={() => handleRefresh()} />
+							<SyncOutlined onClick={() => handleRefresh()}/>
 						</Button>
 					</Tooltip>
 				}
@@ -378,7 +378,7 @@ export default () => {
 							</Menu>
 						}
 						trigger={['click']}
-						icon={<DownOutlined />}
+						icon={<DownOutlined/>}
 					>
 						杀死选中任务
 					</Dropdown.Button>

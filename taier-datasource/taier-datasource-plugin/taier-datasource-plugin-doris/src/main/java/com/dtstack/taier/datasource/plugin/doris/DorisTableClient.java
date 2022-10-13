@@ -1,8 +1,8 @@
 package com.dtstack.taier.datasource.plugin.doris;
 
-import com.dtstack.taier.datasource.plugin.mysql5.MysqlTableClient;
 import com.dtstack.taier.datasource.api.dto.source.ISourceDTO;
 import com.dtstack.taier.datasource.api.exception.SourceException;
+import com.dtstack.taier.datasource.plugin.mysql5.MysqlTableClient;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.Map;

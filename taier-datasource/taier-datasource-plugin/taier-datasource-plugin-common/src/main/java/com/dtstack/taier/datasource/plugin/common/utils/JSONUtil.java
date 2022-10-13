@@ -91,10 +91,11 @@ public class JSONUtil {
 
     /**
      * 转化为 MAP
+     *
      * @param content
      * @return
      */
-    public static Map parseMap (String content) {
+    public static Map parseMap(String content) {
         if (StringUtils.isBlank(content)) {
             return Collections.emptyMap();
         }

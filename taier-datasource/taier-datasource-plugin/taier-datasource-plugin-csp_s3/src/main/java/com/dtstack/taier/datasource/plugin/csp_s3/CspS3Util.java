@@ -36,7 +36,7 @@ public class CspS3Util {
         String domain = StringUtils.isBlank(sourceDTO.getDomain()) ? DEFAULT_DOMAIN : sourceDTO.getDomain();
         COSCredentials credentials = new BasicCOSCredentials(sourceDTO.getAccessKey(), sourceDTO.getSecretKey());
         SelfDefinedEndpointBuilder selfDefinedEndpointBuilder = StringUtils.isNotBlank(sourceDTO.getEndPoint()) ?
-                new SelfDefinedEndpointBuilder(sourceDTO.getEndPoint()): new SelfDefinedEndpointBuilder(sourceDTO.getRegion(), domain);
+                new SelfDefinedEndpointBuilder(sourceDTO.getEndPoint()) : new SelfDefinedEndpointBuilder(sourceDTO.getRegion(), domain);
         Region region = StringUtils.isNotBlank(sourceDTO.getRegion()) ? new Region(sourceDTO.getRegion()) : null;
         ClientConfig configuration = new ClientConfig(region);
         configuration.setConnectionRequestTimeout(TIMEOUT);

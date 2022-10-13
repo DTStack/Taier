@@ -24,27 +24,27 @@ public class Es7Writer extends BaseWriterPlugin {
 
     @Override
     public String pluginName() {
-        return  PluginName.ES7_W;
+        return PluginName.ES7_W;
     }
 
     @Override
     public void checkFormat(JSONObject data) {
 
-        if (StringUtils.isBlank(data.getString("name"))){
+        if (StringUtils.isBlank(data.getString("name"))) {
             throw new RdosDefineException("name 不能为空");
         }
 
         JSONObject parameter = data.getJSONObject("parameter");
 
-        if (StringUtils.isBlank(parameter.getString("address"))){
+        if (StringUtils.isBlank(parameter.getString("address"))) {
             throw new RdosDefineException("address 不能为空");
         }
 
-        if (StringUtils.isBlank(parameter.getString("index"))){
+        if (StringUtils.isBlank(parameter.getString("index"))) {
             throw new RdosDefineException("index 不能为空");
         }
 
-        if (StringUtils.isBlank(parameter.getString("bulkAction"))){
+        if (StringUtils.isBlank(parameter.getString("bulkAction"))) {
             throw new RdosDefineException("bulkAction 不能为空");
         }
 

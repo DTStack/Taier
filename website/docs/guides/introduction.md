@@ -12,9 +12,11 @@ sidebar_position: 1
 
 > **Taier**  太阿，是中国古代十大名剑之一
 
-**Taier** 是一个分布式可视化的 DAG 任务调度系统。旨在降低 **ETL 开发**成本、提高大数据平台稳定性，大数据开发人员可以在 **Taier** 直接进行业务逻辑的开发，而不用关心任务错综复杂的依赖关系与底层的大数据平台的架构实现，将工作的重心更多地聚焦在业务之中
+**Taier** 是一个分布式可视化的 DAG 任务调度系统。旨在降低 **ETL 开发**成本、提高大数据平台稳定性，大数据开发人员可以在 **
+Taier** 直接进行业务逻辑的开发，而不用关心任务错综复杂的依赖关系与底层的大数据平台的架构实现，将工作的重心更多地聚焦在业务之中
 
-**Taier** 脱胎于 [袋鼠云](https://www.dtstack.com/) - [数栈](https://www.dtstack.com/dtinsight/) （一站式大数据开发平台），技术实现来源于数栈分布式调度引擎 **DAGScheduleX**
+**Taier** 脱胎于 [袋鼠云](https://www.dtstack.com/) - [数栈](https://www.dtstack.com/dtinsight/)
+（一站式大数据开发平台），技术实现来源于数栈分布式调度引擎 **DAGScheduleX**
 
 **DAGScheduleX** 是 [数栈](https://www.dtstack.com/dtinsight/) 产品的重要基础设施之一，负责大数据平台所有任务实例的调度运行
 
@@ -24,7 +26,8 @@ sidebar_position: 1
 
 - 单点故障：去中心化的分布式模式
 - 高可用方式：`Zookeeper`
-- 过载处理：`分布式节点` + `两级存储策略` + `队列机制`。每个节点都可以处理任务调度与提交；任务多时会优先缓存在内存队列，超出可配置的队列最大数量值后会全部落数据库；任务处理以队列方式消费，队列异步从数据库获取可执行实例
+- 过载处理：`分布式节点` + `两级存储策略` + `队列机制`
+  。每个节点都可以处理任务调度与提交；任务多时会优先缓存在内存队列，超出可配置的队列最大数量值后会全部落数据库；任务处理以队列方式消费，队列异步从数据库获取可执行实例
 - 实战检验：得到数百家企业客户生产环境实战检验
 
 #### 易用性
@@ -54,16 +57,20 @@ sidebar_position: 1
 - 调度能力随集群线性增长；
 
 ## 快速开始
+
 - [官方文档](https://dtstack.github.io/Taier/docs/guides/introduction)
 - [docker启动](https://dtstack.github.io/Taier/docs/quickstart/deploy/docker#2-%E4%BD%BF%E7%94%A8docker-compose)
+
 ```shell
 $ docker-compose up -d
 ```
+
 - [开发任务](https://dtstack.github.io/Taier/docs/quickstart/start)
 
 ## 未来规划
 
 - 任务类型：新增其他类型支持
+
 <details>
   <summary>后续将开源</summary>
   <div>
@@ -100,7 +107,6 @@ $ docker-compose up -d
 - 部署方式：同时支持 `Scheduler/Worker` 整合与分离部署
 - 功能支持：支持交易日历、事件驱动
 - 外部系统对接：支持 `Taier` 系统对接外部调度系统（`AZKBAN`、`Control-M`、`DS` 调度）
-
 
 ## 技术交流
 

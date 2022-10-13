@@ -42,11 +42,11 @@ public class ConsoleLoaderService {
     static {
         OBJECT_MAPPER.configure(DeserializationConfig.Feature.FAIL_ON_UNKNOWN_PROPERTIES, false);
     }
-    
+
 
     @Autowired
     private ClusterService clusterService;
-    
+
 
     /**
      * 获取HDFS数据源信息
@@ -61,7 +61,7 @@ public class ConsoleLoaderService {
                 .kerberosConfig(getKerberosConfig(hdfsConfig))
                 .config(JSONObject.toJSONString(hdfsConfig)).build();
     }
-    
+
 
     private <T> T buildKerberosConfig(Long tenantId, T data) {
         // 构建 kerberos 配置

@@ -16,10 +16,10 @@
  * limitations under the License.
  */
 
-import { useState } from 'react';
-import { Table, Modal, message } from 'antd';
+import {useState} from 'react';
+import {message, Modal, Table} from 'antd';
 import classNames from 'classnames';
-import type { ITaskVOProps } from '@/interface';
+import type {ITaskVOProps} from '@/interface';
 
 interface IRecommendTaskProps {
 	visible: boolean;
@@ -45,12 +45,12 @@ const COLUNMS = [
 ];
 
 export default function RecommendTaskModal({
-	visible,
-	taskList,
-	existTask = [],
-	onCancel,
-	onOk,
-}: IRecommendTaskProps) {
+											   visible,
+											   taskList,
+											   existTask = [],
+											   onCancel,
+											   onOk,
+										   }: IRecommendTaskProps) {
 	const [selectedRows, setSelectedRows] = useState<ITaskVOProps[]>([]);
 
 	const handleCancel = () => {
@@ -68,7 +68,7 @@ export default function RecommendTaskModal({
 	};
 
 	const getCheckboxProps = (record: ITaskVOProps) => {
-		const { id } = record;
+		const {id} = record;
 		let isExist = false;
 		if (existTask) {
 			existTask.forEach((item) => {
@@ -78,7 +78,7 @@ export default function RecommendTaskModal({
 			});
 		}
 		if (isExist) {
-			return { disabled: true };
+			return {disabled: true};
 		}
 		return {};
 	};
@@ -106,7 +106,7 @@ export default function RecommendTaskModal({
 					},
 					getCheckboxProps,
 				}}
-				scroll={{ y: 400 }}
+				scroll={{y: 400}}
 			/>
 		</Modal>
 	);

@@ -1,10 +1,10 @@
 package com.dtstack.taier.datasource.plugin.kylin;
 
-import com.dtstack.taier.datasource.plugin.common.utils.DBUtil;
-import com.dtstack.taier.datasource.plugin.common.utils.SqlFormatUtil;
 import com.dtstack.taier.datasource.api.downloader.IDownloader;
 import com.dtstack.taier.datasource.api.dto.Column;
 import com.dtstack.taier.datasource.api.exception.SourceException;
+import com.dtstack.taier.datasource.plugin.common.utils.DBUtil;
+import com.dtstack.taier.datasource.plugin.common.utils.SqlFormatUtil;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 

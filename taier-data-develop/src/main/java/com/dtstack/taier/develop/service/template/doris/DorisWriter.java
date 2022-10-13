@@ -7,6 +7,7 @@ import java.util.List;
 
 /**
  * <a href="https://github.com/DTStack/chunjun/blob/master/chunjun-examples/json/doris/mysql_doris.json">...</a>
+ *
  * @author leon
  * @date 2022-10-12 21:06
  **/

@@ -16,9 +16,9 @@
  * limitations under the License.
  */
 
-import { createContext } from 'react';
-import type { DATA_SOURCE_ENUM, TASK_TYPE_ENUM } from '@/constant';
-import type { IComputeType, IOfflineTaskProps } from '@/interface';
+import {createContext} from 'react';
+import type {DATA_SOURCE_ENUM, TASK_TYPE_ENUM} from '@/constant';
+import type {IComputeType, IOfflineTaskProps} from '@/interface';
 
 export enum SupportJobActionKind {
 	/**
@@ -98,7 +98,7 @@ export interface ISupportJobTypes {
 		/**
 		 * 当前任务类型支持的绑定数据源的任务类型
 		 */
-		 dataTypeCodes?: DATA_SOURCE_ENUM[];
+		dataTypeCodes?: DATA_SOURCE_ENUM[];
 	};
 }
 

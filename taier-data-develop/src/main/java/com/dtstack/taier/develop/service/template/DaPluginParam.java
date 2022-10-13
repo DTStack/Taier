@@ -7,6 +7,7 @@ import java.util.List;
  * Date: 2020/1/9
  * Company: www.dtstack.com
  * 前端传入的基本参数(sourceMap) 用于构建插件对象
+ *
  * @author xiaochen
  */
 public class DaPluginParam {

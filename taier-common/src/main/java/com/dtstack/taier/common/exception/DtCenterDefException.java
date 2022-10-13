@@ -27,12 +27,13 @@ import org.apache.commons.lang3.StringUtils;
 public class DtCenterDefException extends RuntimeException {
     private int code;
 
-    public DtCenterDefException(String message){
+    public DtCenterDefException(String message) {
         super(message);
         this.code = ErrorCode.UNKNOWN_ERROR.getCode();
     }
-    public DtCenterDefException(String message,Throwable throwable){
-        super(message,throwable);
+
+    public DtCenterDefException(String message, Throwable throwable) {
+        super(message, throwable);
         this.code = ErrorCode.UNKNOWN_ERROR.getCode();
     }
 

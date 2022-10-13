@@ -4,7 +4,6 @@ import com.dtstack.taier.common.param.DtInsightAuthParam;
 import io.swagger.annotations.ApiModelProperty;
 
 
-
 /**
  * @author qianyi
  * @version 1.0

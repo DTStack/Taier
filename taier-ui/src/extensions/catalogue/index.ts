@@ -16,9 +16,9 @@
  * limitations under the License.
  */
 
-import type { UniqueId } from '@dtinsight/molecule/esm/common/types';
-import type { IExtension } from '@dtinsight/molecule/esm/model';
-import { catalogueService } from '@/services';
+import type {UniqueId} from '@dtinsight/molecule/esm/common/types';
+import type {IExtension} from '@dtinsight/molecule/esm/model';
+import {catalogueService} from '@/services';
 
 /**
  * This is for getting the root catalogues including the resouces and tasks and functions
@@ -26,9 +26,11 @@ import { catalogueService } from '@/services';
 export default class CatalogueExtension implements IExtension {
 	id: UniqueId = 'Catalogue';
 	name: string = 'Catalogue';
+
 	activate(): void {
 		catalogueService.loadRootFolder();
 	}
+
 	dispose(): void {
 		throw new Error('Method not implemented.');
 	}

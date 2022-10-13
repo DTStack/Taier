@@ -10,6 +10,7 @@ import java.util.List;
 
 /**
  * 输入RPS
+ *
  * @author jiangbo
  */
 public class DataAcquisitionMetric extends StreamBaseMetric {

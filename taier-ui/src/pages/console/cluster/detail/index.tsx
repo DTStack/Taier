@@ -1,22 +1,22 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
-import { history } from 'umi';
-import { Layout, Empty, message, Form } from 'antd';
+import {useEffect, useMemo, useRef, useState} from 'react';
+import {history} from 'umi';
+import {Empty, Form, Layout, message} from 'antd';
 import api from '@/api';
 import req from '@/api/request';
+import type {ILayoutData, ITemplateData} from './detail';
 import Detail from './detail';
-import { FILE_TYPE } from '@/constant';
+import type {COMPONENT_TYPE_VALUE} from '@/constant';
+import {FILE_TYPE} from '@/constant';
 import context from '@/context/cluster';
 import Toolbar from './toolbar';
-import SideBar, { ComponentScheduleKind } from './sideBar';
+import type {ComponentKindType, ITreeNodeProps} from './sideBar';
+import SideBar, {ComponentScheduleKind} from './sideBar';
 import notification from '@/components/notification';
-import { taskRenderService } from '@/services';
-import type { RcFile } from 'antd/lib/upload';
-import type { ILayoutData, ITemplateData } from './detail';
-import type { COMPONENT_TYPE_VALUE } from '@/constant';
-import type { ITreeNodeProps, ComponentKindType } from './sideBar';
+import {taskRenderService} from '@/services';
+import type {RcFile} from 'antd/lib/upload';
 import './index.scss';
 
-const { Content, Footer } = Layout;
+const {Content, Footer} = Layout;
 
 export interface IComponentProps {
 	/**
@@ -140,7 +140,7 @@ export default function ClusterDetail() {
 	const getClusterDetail = () => {
 		const clusterId = history.location.query?.clusterId;
 		if (!clusterId) return;
-		api.getClusterInfo({ clusterId: clusterId as string }).then((res) => {
+		api.getClusterInfo({clusterId: clusterId as string}).then((res) => {
 			if (res.code === 1) {
 				setCurrent(res.data);
 			}
@@ -152,12 +152,12 @@ export default function ClusterDetail() {
 	 */
 	const getDetailValue = async (target: IClusterDetailProps['componentVOS'][number]) => {
 		if (!requestedList.current.has(target.id!)) {
-			const res = await api.getComponentInfo({ componentId: target.id });
+			const res = await api.getComponentInfo({componentId: target.id});
 			if (res.code === 1) {
 				setCurrent((current) => {
 					if (current) {
 						Object.assign(target, res.data);
-						return { ...current };
+						return {...current};
 					}
 					return null;
 				});
@@ -230,8 +230,8 @@ export default function ClusterDetail() {
 						required: template.required,
 						componentProps: options.length
 							? {
-									options,
-							  }
+								options,
+							}
 							: {},
 					});
 				} else {
@@ -256,8 +256,8 @@ export default function ClusterDetail() {
 						required: template.required,
 						componentProps: options.length
 							? {
-									options,
-							  }
+								options,
+							}
 							: {},
 					});
 				}
@@ -308,7 +308,7 @@ export default function ClusterDetail() {
 
 	const handleAddComponent = (keys: string[]) => {
 		if (!currentCluster) return;
-		const nextCurrent = { ...currentCluster };
+		const nextCurrent = {...currentCluster};
 		keys.forEach((key) => {
 			const [major, ...rest] = key.split('-');
 			const minor = rest.join('-');
@@ -364,13 +364,13 @@ export default function ClusterDetail() {
 		const isWaitSubmiting = typeof target?.id !== 'number';
 
 		if (!isWaitSubmiting) {
-			const res = await api.deleteComponent({ componentId: target.id! });
+			const res = await api.deleteComponent({componentId: target.id!});
 			if (res.code !== 1) return Promise.reject();
 		}
 
 		const idx = currentCluster!.componentVOS.indexOf(target);
 		currentCluster?.componentVOS.splice(idx, 1);
-		setCurrent({ ...currentCluster! });
+		setCurrent({...currentCluster!});
 
 		if (selectedKey === node.key) {
 			setSelectKey(undefined);
@@ -396,9 +396,9 @@ export default function ClusterDetail() {
 		});
 		if (res.code === 1) {
 			if (res.data.result) {
-				setConnectable((c) => ({ ...c, [selectedKey!]: true }));
+				setConnectable((c) => ({...c, [selectedKey!]: true}));
 			} else {
-				setConnectable((c) => ({ ...c, [selectedKey!]: res.data.errorMsg }));
+				setConnectable((c) => ({...c, [selectedKey!]: res.data.errorMsg}));
 			}
 		}
 	};
@@ -406,7 +406,7 @@ export default function ClusterDetail() {
 	const handleSaveComponent = async () => {
 		const currentComponent = findComponentVOS(selectedKey);
 		if (!currentComponent) return Promise.resolve();
-		const { kerberosFileName, principal, ...restValues } = await form.validateFields();
+		const {kerberosFileName, principal, ...restValues} = await form.validateFields();
 		const versionName = form.getFieldValue('versionName');
 
 		// 上传配置文件所解析出来的配置项会放在 config 字段中，不存在于 values 里
@@ -439,10 +439,10 @@ export default function ClusterDetail() {
 			if (res.code === 1) {
 				message.success('保存成功');
 
-				setEdited((p) => ({ ...p, [selectedKey!]: false }));
+				setEdited((p) => ({...p, [selectedKey!]: false}));
 
 				// 更新当前节点
-				getDetailValue({ ...res.data });
+				getDetailValue({...res.data});
 
 				// 当前更新的节点所属组件
 				const currentComponentOwner = componentsData.find(
@@ -460,8 +460,8 @@ export default function ClusterDetail() {
 	};
 
 	const handleUpdateConfig = (params: Record<string, string>, file: RcFile) => {
-		form.setFieldsValue({ config: params, uploadFileName: file });
-		setEdited((p) => ({ ...p, [selectedKey!]: true }));
+		form.setFieldsValue({config: params, uploadFileName: file});
+		setEdited((p) => ({...p, [selectedKey!]: true}));
 	};
 
 	const handleUpdateKerberos = (file: RcFile) => {
@@ -478,7 +478,7 @@ export default function ClusterDetail() {
 			}
 		});
 
-		api.parseKerberos({ fileName: file }).then((res) => {
+		api.parseKerberos({fileName: file}).then((res) => {
 			if (res.code === 1) {
 				// principal 默认选择第一个
 				const defaultPrincipal = res.data[0];
@@ -548,18 +548,18 @@ export default function ClusterDetail() {
 	};
 
 	const handleFormChanged = () => {
-		setEdited((e) => ({ ...e, [selectedKey!]: true }));
+		setEdited((e) => ({...e, [selectedKey!]: true}));
 
 		const target = findComponentVOS(selectedKey);
 		if (target) {
-			const { versionName, ...restComponentConfig } = form.getFieldsValue();
+			const {versionName, ...restComponentConfig} = form.getFieldsValue();
 			target.componentConfig = JSON.stringify(restComponentConfig);
 			if (versionName) {
 				target.versionName = Array.isArray(versionName)
 					? versionName[versionName.length - 1]
 					: versionName;
 			}
-			setCurrent({ ...currentCluster! });
+			setCurrent({...currentCluster!});
 		}
 	};
 
@@ -584,9 +584,9 @@ export default function ClusterDetail() {
 				form.setFieldsValue({
 					versionName: isCascader
 						? getTargetPath(
-								currentTreeNode?.versionDictionary || [],
-								target?.versionName,
-						  )
+							currentTreeNode?.versionDictionary || [],
+							target?.versionName,
+						)
 						: target?.versionName,
 				});
 			}
@@ -661,7 +661,7 @@ export default function ClusterDetail() {
 									onDownloadConfig={() => handleDownload(FILE_TYPE.CONFIGS)}
 								/>
 							) : (
-								<Empty image={Empty.PRESENTED_IMAGE_SIMPLE} />
+								<Empty image={Empty.PRESENTED_IMAGE_SIMPLE}/>
 							)}
 						</Content>
 						<Footer>

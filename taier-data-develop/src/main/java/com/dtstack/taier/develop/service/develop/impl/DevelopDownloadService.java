@@ -144,7 +144,7 @@ public class DevelopDownloadService {
             if (StringUtils.isNotBlank(log)) {
                 bos.write(log.getBytes());
             }
-        }catch (Exception e) {
+        } catch (Exception e) {
             LOGGER.error("下载engineLog异常，{}", e);
         }
     }
@@ -154,7 +154,7 @@ public class DevelopDownloadService {
      *
      * @param jobId
      */
-    private String getLog(String jobId){
+    private String getLog(String jobId) {
         StringBuilder log = new StringBuilder();
         //hdfs没有日志就下载engine里的日志
         if (StringUtils.isNotBlank(jobId)) {
@@ -177,13 +177,14 @@ public class DevelopDownloadService {
 
     /**
      * 输出数据同步任务日志
+     *
      * @param response
      * @param downloadInvoke
      */
     private void writeFileWithSyncLog(HttpServletResponse response, IDownload downloadInvoke) {
         try (OutputStream os = response.getOutputStream(); BufferedOutputStream bos = new BufferedOutputStream(os)) {
             String logInfo = ((SyncDownload) downloadInvoke).getLogInfo()
-                    .replace("\\n\"","\n").replace("\\n\\t","\n");
+                    .replace("\\n\"", "\n").replace("\\n\\t", "\n");
             bos.write(logInfo.getBytes());
         } catch (Exception e) {
             LOGGER.error("下载数据同步任务运行日志异常，{}", e);
@@ -192,6 +193,7 @@ public class DevelopDownloadService {
 
     /**
      * 根据类型生成下载的文件名
+     *
      * @param downloadType 文件下载类型
      * @return
      */

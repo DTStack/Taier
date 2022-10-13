@@ -1,10 +1,10 @@
-import { useEffect, useState } from 'react';
+import {useEffect, useState} from 'react';
 
 /**
  * 监听 dom 元素的尺寸变化
  */
 export default function useSize(dom: HTMLElement | string) {
-	const [size, setSize] = useState({ width: 0, height: 0 });
+	const [size, setSize] = useState({width: 0, height: 0});
 
 	useEffect(() => {
 		const resizeObserver = new ResizeObserver((entries) => {

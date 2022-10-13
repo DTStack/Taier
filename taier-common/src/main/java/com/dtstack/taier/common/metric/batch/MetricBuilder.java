@@ -30,35 +30,35 @@ public class MetricBuilder {
         BaseMetric metric = null;
         switch (metricName) {
             case "conversionErrors":
-            	metric = new SyncJobMetricWithSum();
-            	break;
+                metric = new SyncJobMetricWithSum();
+                break;
             case "duplicateErrors":
-            	metric = new SyncJobMetricWithSum();
-            	break;
+                metric = new SyncJobMetricWithSum();
+                break;
             case "nErrors":
-            	metric = new SyncJobMetricWithCountMaxSum();
-            	break;
+                metric = new SyncJobMetricWithCountMaxSum();
+                break;
             case "nullErrors":
-            	metric = new SyncJobMetricWithSum();
-            	break;
+                metric = new SyncJobMetricWithSum();
+                break;
             case "numRead":
-            	metric = new SyncJobMetricWithCountMaxSum();
-            	break;
+                metric = new SyncJobMetricWithCountMaxSum();
+                break;
             case "numWrite":
-            	metric = new SyncJobMetricWithCountMaxSum();
-            	break;
+                metric = new SyncJobMetricWithCountMaxSum();
+                break;
             case "otherErrors":
-            	metric = new SyncJobMetricWithSum();
-            	break;
+                metric = new SyncJobMetricWithSum();
+                break;
             case "byteRead":
-            	metric = new SyncJobMetricWithCountMaxSum();
-            	break;
+                metric = new SyncJobMetricWithCountMaxSum();
+                break;
             case "byteWrite":
-            	 metric = new SyncJobMetricWithCountMaxSum();
-            	 break;
+                metric = new SyncJobMetricWithCountMaxSum();
+                break;
             case "readDuration":
-            	metric = new SyncJobMetricWithCountMaxSum();
-            	break; 
+                metric = new SyncJobMetricWithCountMaxSum();
+                break;
             case "writeDuration":
                 metric = new SyncJobMetricWithCountMaxSum();
                 break;

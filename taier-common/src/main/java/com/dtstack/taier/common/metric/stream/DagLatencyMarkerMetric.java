@@ -17,7 +17,7 @@ import static com.dtstack.taier.common.metric.stream.DAGBackPressureMetrics.METR
  * @Description:
  */
 
-public class DagLatencyMarkerMetric extends DagMetric{
+public class DagLatencyMarkerMetric extends DagMetric {
 
     private String operatorId;
 
@@ -33,14 +33,14 @@ public class DagLatencyMarkerMetric extends DagMetric{
 
     @Override
     public Object formatData(String result) {
-        Map<String,Object> metricMap = new HashMap<>();
+        Map<String, Object> metricMap = new HashMap<>();
         if (result == null) {
             return metricMap;
         }
-        PromtheusMetrics promtheusMetrics = JSONObject.parseObject(result,PromtheusMetrics.class);
-        for(MetricResult metricResult:promtheusMetrics.getData().getResult()){
+        PromtheusMetrics promtheusMetrics = JSONObject.parseObject(result, PromtheusMetrics.class);
+        for (MetricResult metricResult : promtheusMetrics.getData().getResult()) {
             MetricPO metricPO = metricResult.getMetric();
-            metricMap.putIfAbsent(String.format(METRIC_QUERY_LATENCY,this.getMetricName(),metricPO.getOperatorSubtaskIndex(),metricPO.getQuantile(),metricPO.getOperatorId(),metricPO.getSourceId()),metricResult.getValue().get(1));
+            metricMap.putIfAbsent(String.format(METRIC_QUERY_LATENCY, this.getMetricName(), metricPO.getOperatorSubtaskIndex(), metricPO.getQuantile(), metricPO.getOperatorId(), metricPO.getSourceId()), metricResult.getValue().get(1));
         }
         return metricMap;
     }

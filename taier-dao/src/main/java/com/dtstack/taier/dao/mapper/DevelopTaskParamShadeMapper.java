@@ -22,7 +22,6 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.dtstack.taier.dao.domain.DevelopTaskParamShade;
 
 
-
 public interface DevelopTaskParamShadeMapper extends BaseMapper<DevelopTaskParamShade> {
 
 

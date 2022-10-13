@@ -3,7 +3,8 @@
 <mapper namespace="com.dtstack.taier.dao.mapper.ConsoleKerberosMapper">
 
     <sql id="select_content_fragment">
-      id,cluster_id,open_kerberos,name,remote_path,principal,gmt_create,gmt_modified,is_deleted,component_type,krb_name,principals,merge_krb_content,component_version
+        id
+        ,cluster_id,open_kerberos,name,remote_path,principal,gmt_create,gmt_modified,is_deleted,component_type,krb_name,principals,merge_krb_content,component_version
     </sql>
 
     <sql id="update_fragment">
@@ -66,7 +67,8 @@
 
 
     <update id="deleteByComponentId">
-        UPDATE console_kerberos SET is_deleted = 1
+        UPDATE console_kerberos
+        SET is_deleted = 1
         WHERE cluster_id = (SELECT cluster_id from console_component WHERE id = #{componentId})
     </update>
 

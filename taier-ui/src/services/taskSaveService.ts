@@ -1,9 +1,10 @@
 import 'reflect-metadata';
-import { GlobalEvent } from '@dtinsight/molecule/esm/common/event';
-import { singleton } from 'tsyringe';
+import {GlobalEvent} from '@dtinsight/molecule/esm/common/event';
+import {singleton} from 'tsyringe';
 import molecule from '@dtinsight/molecule';
-import { IComputeType } from '@/interface';
-import type { Rules, RuleType, ValidateError } from 'async-validator';
+import type {IOfflineTaskProps} from '@/interface';
+import {IComputeType} from '@/interface';
+import type {Rules, RuleType, ValidateError} from 'async-validator';
 import ValidSchema from 'async-validator';
 import {
 	CREATE_MODEL_TYPE,
@@ -14,10 +15,10 @@ import {
 	SUPPROT_SUB_LIBRARY_DB_ARRAY,
 	TASK_TYPE_ENUM,
 } from '@/constant';
-import { cloneDeep } from 'lodash';
+import {cloneDeep} from 'lodash';
 import api from '@/api';
-import { message } from 'antd';
-import { rightBarService } from '.';
+import {message} from 'antd';
+import {rightBarService} from '.';
 import {
 	isAvro,
 	isHavePartition,
@@ -32,12 +33,11 @@ import {
 	isRedis,
 	isS3,
 } from '@/utils/is';
-import { checkColumnsData } from '@/pages/editor/streamCollection/taskFunc';
+import {checkColumnsData} from '@/pages/editor/streamCollection/taskFunc';
 import viewStoreService from './viewStoreService';
-import type { IOfflineTaskProps } from '@/interface';
-import type { mxCell } from 'mxgraph';
-import type { IGeometryPosition } from '@/components/mxGraph/container';
-import { isEditing } from '@/pages/editor/workflow';
+import type {mxCell} from 'mxgraph';
+import type {IGeometryPosition} from '@/components/mxGraph/container';
+import {isEditing} from '@/pages/editor/workflow';
 
 interface IParamsProps extends IOfflineTaskProps {
 	// 接口要求的标记位
@@ -75,7 +75,7 @@ class TaskSaveService extends GlobalEvent {
 		) => Promise<ValidateError[] | null>,
 		text: string,
 	) => {
-		const { componentVersion } = currentPage;
+		const {componentVersion} = currentPage;
 		const errors = await Promise.all(data.map((item) => validator(item, componentVersion)));
 		errors.forEach((error, index) => {
 			if (error) {
@@ -108,29 +108,29 @@ class TaskSaveService extends GlobalEvent {
 		const isFlink112 = componentVersion === FLINK_VERSIONS.FLINK_1_12;
 
 		return {
-			type: [{ required: true, message: '请选择存储类型' }],
-			sourceId: [{ required: true, message: '请选择数据源' }],
-			topic: [{ required: isHaveTopic(data?.type), message: '请选择Topic' }],
+			type: [{required: true, message: '请选择存储类型'}],
+			sourceId: [{required: true, message: '请选择数据源'}],
+			topic: [{required: isHaveTopic(data?.type), message: '请选择Topic'}],
 			table: [
-				{ required: isHaveTableList(data?.type) && !isS3(data?.type), message: '请选择表' },
+				{required: isHaveTableList(data?.type) && !isS3(data?.type), message: '请选择表'},
 			],
-			tableName: [{ required: true, message: '请输入映射表名' }],
+			tableName: [{required: true, message: '请输入映射表名'}],
 			columns: [
 				{
 					required: isHaveTableColumn(data?.type),
 					message: '字段信息不能为空',
 					type: 'array' as RuleType,
 				},
-				{ validator: checkColumnsData },
+				{validator: checkColumnsData},
 			],
 			columnsText: [
-				{ required: !isHaveTableColumn(data?.type), message: '字段信息不能为空' },
+				{required: !isHaveTableColumn(data?.type), message: '字段信息不能为空'},
 			],
 			collection: [
-				{ required: data?.type === DATA_SOURCE_ENUM.SOLR, message: '请选择Collection' },
+				{required: data?.type === DATA_SOURCE_ENUM.SOLR, message: '请选择Collection'},
 			],
-			objectName: [{ required: isS3(data?.type), message: '请输入ObjectName' }],
-			schema: [{ required: schemaRequired, message: '请选择schema' }],
+			objectName: [{required: isS3(data?.type), message: '请输入ObjectName'}],
+			schema: [{required: schemaRequired, message: '请选择schema'}],
 			partitionfields: [
 				{
 					required:
@@ -142,25 +142,25 @@ class TaskSaveService extends GlobalEvent {
 					message: '请选择分区',
 				},
 			],
-			'table-input': [{ required: isRedis(data?.type), message: '请输入表名' }],
-			index: [{ required: isLowerES(data?.type), message: '请输入索引' }],
-			'primaryKey-input': [{ required: isRedis(data?.type), message: '请输入主键' }],
-			esType: [{ required: isLowerES(data?.type), message: '请输入索引类型' }],
-			rowKey: [{ required: isHbase(data?.type), message: '请输入rowKey' }],
+			'table-input': [{required: isRedis(data?.type), message: '请输入表名'}],
+			index: [{required: isLowerES(data?.type), message: '请输入索引'}],
+			'primaryKey-input': [{required: isRedis(data?.type), message: '请输入主键'}],
+			esType: [{required: isLowerES(data?.type), message: '请输入索引类型'}],
+			rowKey: [{required: isHbase(data?.type), message: '请输入rowKey'}],
 			rowKeyType: [
-				{ required: isHbase(data?.type) && isFlink112, message: '请输入rowKey类型' },
+				{required: isHbase(data?.type) && isFlink112, message: '请输入rowKey类型'},
 			],
-			sinkDataType: [{ required: isKafka(data?.type), message: '请选择输出类型！' }],
-			updateMode: [{ required: true, message: '请选择更新模式' }],
+			sinkDataType: [{required: isKafka(data?.type), message: '请选择输出类型！'}],
+			updateMode: [{required: true, message: '请选择更新模式'}],
 			primaryKey: [
 				{
 					required: data?.updateMode === 'upsert' && isHavePrimaryKey(data?.type),
 					message: '请输入主键',
 				},
 			],
-			partitionKeys: [{ required: data?.enableKeyPartitions, message: '请选择分区字段' }],
-			batchWaitInterval: [{ required: isRDB(data?.type), message: '请输入数据输出时间' }],
-			batchSize: [{ required: isRDB(data?.type), message: '请输入数据输出条数' }],
+			partitionKeys: [{required: data?.enableKeyPartitions, message: '请选择分区字段'}],
+			batchWaitInterval: [{required: isRDB(data?.type), message: '请输入数据输出时间'}],
+			batchSize: [{required: isRDB(data?.type), message: '请输入数据输出条数'}],
 		};
 	};
 
@@ -182,34 +182,34 @@ class TaskSaveService extends GlobalEvent {
 		const isFlink112 = componentVersion === FLINK_VERSIONS.FLINK_1_12;
 
 		return {
-			type: [{ required: true, message: '请选择存储类型' }],
-			sourceId: [{ required: true, message: '请选择数据源' }],
-			table: [{ required: isHaveTableList(data?.type), message: '请选择表' }],
-			tableName: [{ required: true, message: '请输入映射表名' }],
+			type: [{required: true, message: '请选择存储类型'}],
+			sourceId: [{required: true, message: '请选择数据源'}],
+			table: [{required: isHaveTableList(data?.type), message: '请选择表'}],
+			tableName: [{required: true, message: '请输入映射表名'}],
 			columns: [
 				{
 					required: isHaveTableColumn(data?.type),
 					message: '字段信息不能为空',
 					type: 'array',
 				},
-				{ validator: checkColumnsData },
+				{validator: checkColumnsData},
 			],
 			columnsText: [
-				{ required: !isHaveTableColumn(data?.type), message: '字段信息不能为空' },
+				{required: !isHaveTableColumn(data?.type), message: '字段信息不能为空'},
 			],
-			schema: [{ required: schemaRequired, message: '请选择Schema' }],
+			schema: [{required: schemaRequired, message: '请选择Schema'}],
 			// 'table-input': [{ required: isRedis, message: '请输入表名' }],
-			index: [{ required: isLowerES(data?.type), message: '请输入索引' }],
-			esType: [{ required: isLowerES(data?.type), message: '请输入索引类型' }],
-			primaryKey: [{ required: false, message: '请输入主键' }],
+			index: [{required: isLowerES(data?.type), message: '请输入索引'}],
+			esType: [{required: isLowerES(data?.type), message: '请输入索引类型'}],
+			primaryKey: [{required: false, message: '请输入主键'}],
 			// 'primaryKey-input': [{ required: isRedis || isMongoDB, message: '请输入主键' }],
-			hbasePrimaryKey: [{ required: isHbase(data?.type), message: '请输入主键' }],
+			hbasePrimaryKey: [{required: isHbase(data?.type), message: '请输入主键'}],
 			hbasePrimaryKeyType: [
-				{ required: isHbase(data?.type) && isFlink112, message: '请输入主键类型' },
+				{required: isHbase(data?.type) && isFlink112, message: '请输入主键类型'},
 			],
-			cache: [{ required: true, message: '请选择缓存策略' }],
-			cacheSize: [{ required: isCacheLRU, message: '请输入缓存大小' }],
-			cacheTTLMs: [{ required: isCacheTLLMSReqiured, message: '请输入缓存超时时间' }],
+			cache: [{required: true, message: '请选择缓存策略'}],
+			cacheSize: [{required: isCacheLRU, message: '请输入缓存大小'}],
+			cacheTTLMs: [{required: isCacheTLLMSReqiured, message: '请输入缓存超时时间'}],
 		};
 	};
 
@@ -266,7 +266,7 @@ class TaskSaveService extends GlobalEvent {
 
 	private validTableData = async (currentPage: IOfflineTaskProps) => {
 		const VALID_FIELDS = ['source', 'sink', 'side'] as const;
-		const FIELDS_MAPPING = { source: '源表', sink: '结果表', side: '维表' } as const;
+		const FIELDS_MAPPING = {source: '源表', sink: '结果表', side: '维表'} as const;
 		const FIELDS_VALID_FUNCTION_MAPPING = {
 			source: this.validDataSource,
 			sink: this.validDataOutput,
@@ -290,7 +290,7 @@ class TaskSaveService extends GlobalEvent {
 		if (sides) {
 			for (let i = 0; i < sides.length; i += 1) {
 				const side = sides[i];
-				const { type, primaryKey, hbasePrimaryKey, hbasePrimaryKeyType } = side;
+				const {type, primaryKey, hbasePrimaryKey, hbasePrimaryKeyType} = side;
 				switch (type) {
 					case DATA_SOURCE_ENUM.REDIS:
 					case DATA_SOURCE_ENUM.UPRedis: {
@@ -332,13 +332,13 @@ class TaskSaveService extends GlobalEvent {
 			componentVersion !== FLINK_VERSIONS.FLINK_1_12;
 
 		return {
-			type: [{ required: true, message: '请选择类型' }],
-			sourceId: [{ required: true, message: '请选择数据源' }],
-			topic: [{ required: true, message: '请选择Topic' }],
-			table: [{ required: true, message: '请输入映射表名' }],
-			columnsText: [{ required: true, message: '字段信息不能为空！' }],
-			sourceDataType: [{ required: isKafka(data?.type), message: '请选择读取类型' }],
-			schemaInfo: [{ required: !!haveSchema, message: '请输入Schema' }],
+			type: [{required: true, message: '请选择类型'}],
+			sourceId: [{required: true, message: '请选择数据源'}],
+			topic: [{required: true, message: '请选择Topic'}],
+			table: [{required: true, message: '请输入映射表名'}],
+			columnsText: [{required: true, message: '字段信息不能为空！'}],
+			sourceDataType: [{required: isKafka(data?.type), message: '请选择读取类型'}],
+			schemaInfo: [{required: !!haveSchema, message: '请输入Schema'}],
 			timeColumn: [
 				{
 					required:
@@ -359,7 +359,7 @@ class TaskSaveService extends GlobalEvent {
 	};
 
 	public transformTabDataToParams = (data: IOfflineTaskProps) => {
-		const params: IOfflineTaskProps & { value?: string } = { ...data };
+		const params: IOfflineTaskProps & { value?: string } = {...data};
 		params.sqlText = params.value || '';
 
 		if (params.componentVersion === FLINK_VERSIONS.FLINK_1_12 && Array.isArray(params.source)) {
@@ -382,12 +382,12 @@ class TaskSaveService extends GlobalEvent {
 		if (!currentTask) return Promise.reject();
 		const data = currentTask.data as IParamsProps;
 
-		const { taskType } = data;
+		const {taskType} = data;
 		switch (taskType) {
 			case TASK_TYPE_ENUM.SYNC: {
 				return new Promise((resolve, reject) => {
 					const doSaveFn = () => {
-						const params = { ...data };
+						const params = {...data};
 						// 工作流中的数据同步保存
 						if (params.flowId) {
 							// 如果是 workflow__ 开头的，表示还没有保存过的工作流节点
@@ -423,14 +423,14 @@ class TaskSaveService extends GlobalEvent {
 								...params.sourceMap,
 								sourceList: isSupportSub
 									? [
-											{
-												key: 'main',
-												tables: params.sourceMap.table,
-												type: params.sourceMap.type,
-												name: params.sourceMap.name,
-												sourceId: params.sourceMap.sourceId,
-											},
-									  ]
+										{
+											key: 'main',
+											tables: params.sourceMap.table,
+											type: params.sourceMap.type,
+											name: params.sourceMap.name,
+											sourceId: params.sourceMap.sourceId,
+										},
+									]
 									: [],
 								rdbmsDaType: rdbmsDaType.Poll,
 							},
@@ -461,7 +461,7 @@ class TaskSaveService extends GlobalEvent {
 			}
 			case TASK_TYPE_ENUM.SQL: {
 				const params: IParamsProps = cloneDeep(data);
-				const { componentVersion, createModel, side = [] } = params;
+				const {componentVersion, createModel, side = []} = params;
 				const isFlinkSQLGuide = createModel === CREATE_MODEL_TYPE.GUIDE || !createModel;
 
 				/**
@@ -503,7 +503,7 @@ class TaskSaveService extends GlobalEvent {
 					return Promise.reject();
 				}
 
-				const { value, ...restParams } = params;
+				const {value, ...restParams} = params;
 				const res = await api.saveTask({
 					...restParams,
 					sqlText: value,
@@ -521,7 +521,7 @@ class TaskSaveService extends GlobalEvent {
 			}
 			case TASK_TYPE_ENUM.DATA_ACQUISITION: {
 				const params: IParamsProps = cloneDeep(data);
-				const { sourceMap, targetMap = {}, createModel } = params;
+				const {sourceMap, targetMap = {}, createModel} = params;
 
 				const componentForm = rightBarService.getForm();
 
@@ -551,7 +551,7 @@ class TaskSaveService extends GlobalEvent {
 				params.sqlText = params.value || '';
 
 				if (createModel === CREATE_MODEL_TYPE.GUIDE) {
-					const { distributeTable } = sourceMap;
+					const {distributeTable} = sourceMap;
 					/**
 					 * [ {name:'table', table: []} ] => {'table':[]}
 					 */
@@ -581,7 +581,7 @@ class TaskSaveService extends GlobalEvent {
 				return Promise.reject();
 			}
 			case TASK_TYPE_ENUM.VIRTUAL: {
-				const { id, name, nodePid, taskDesc, flowId } = data;
+				const {id, name, nodePid, taskDesc, flowId} = data;
 
 				const params: Record<string, number | string> = {
 					id,
@@ -617,7 +617,7 @@ class TaskSaveService extends GlobalEvent {
 			}
 
 			case TASK_TYPE_ENUM.WORK_FLOW: {
-				let { cells } = viewStoreService.getViewStorage<{
+				let {cells} = viewStoreService.getViewStorage<{
 					cells: mxCell[];
 					geometry: IGeometryPosition;
 				}>(data.id.toString());
@@ -626,7 +626,7 @@ class TaskSaveService extends GlobalEvent {
 
 				if (unsavedCell.length) {
 					const results = await Promise.all([
-						...unsavedCell.map((cell) => this.saveTab(cell.value, { verbose: false })),
+						...unsavedCell.map((cell) => this.saveTab(cell.value, {verbose: false})),
 					]);
 
 					if (results.some((res) => res.code !== 1)) {
@@ -652,16 +652,16 @@ class TaskSaveService extends GlobalEvent {
 							(cell) => cell.edge && cell.target.value.id === cur.value.id,
 						);
 						if (edge) {
-							return { ...pre, [edge.target.value.id]: [edge.source.value.id] };
+							return {...pre, [edge.target.value.id]: [edge.source.value.id]};
 						}
 
-						return { ...pre, [cur.value.id]: [] };
+						return {...pre, [cur.value.id]: []};
 					}
 
 					return pre;
 				}, {} as Record<number, number[]>);
 
-				const res = await api.addOfflineTask({ ...data, nodeMap });
+				const res = await api.addOfflineTask({...data, nodeMap});
 
 				if (res.code === 1) {
 					message.success('保存成功！');
@@ -672,7 +672,7 @@ class TaskSaveService extends GlobalEvent {
 				return Promise.reject();
 			}
 			case TASK_TYPE_ENUM.FLINK: {
-				const { id, name, mainClass, componentVersion, exeArgs, nodePid, resourceIdList } =
+				const {id, name, mainClass, componentVersion, exeArgs, nodePid, resourceIdList} =
 					data;
 
 				const res = await api.addOfflineTask({
@@ -700,7 +700,7 @@ class TaskSaveService extends GlobalEvent {
 			case TASK_TYPE_ENUM.HIVE_SQL:
 			default: {
 				// 默认保存，通过把 editor 中的值给到 sqlText 进行保存
-				const { value, ...restData } = data;
+				const {value, ...restData} = data;
 
 				// 是工作流，需要额外传 flowId 和 nodePid
 				if (restData.flowId) {
@@ -736,8 +736,8 @@ class TaskSaveService extends GlobalEvent {
 	 * 保存指定 tab 的方法, 如果保存当前 tab，请使用 `taskSaveService.save()`
 	 * @params `verbose` 是否输出 message
 	 */
-	public saveTab = async (params: IOfflineTaskProps, config = { verbose: true }) => {
-		const { id, nodePid, ...restParams } = params;
+	public saveTab = async (params: IOfflineTaskProps, config = {verbose: true}) => {
+		const {id, nodePid, ...restParams} = params;
 		const res = await api.addOfflineTask({
 			...restParams,
 			id: id.toString().startsWith('workflow__') ? undefined : id,
@@ -751,7 +751,7 @@ class TaskSaveService extends GlobalEvent {
 				message.success('保存成功！');
 			}
 
-			const { data, code } = await api.getOfflineTaskByID<IOfflineTaskProps>({
+			const {data, code} = await api.getOfflineTaskByID<IOfflineTaskProps>({
 				id: res.data.id,
 			});
 
@@ -769,7 +769,7 @@ class TaskSaveService extends GlobalEvent {
 
 			// 2. 更新 cell 中的内容
 			if (data.flowId) {
-				const { cells } = viewStoreService.getViewStorage<{ cells: mxCell[] }>(
+				const {cells} = viewStoreService.getViewStorage<{ cells: mxCell[] }>(
 					data.flowId.toString(),
 				);
 

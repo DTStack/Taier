@@ -7,10 +7,10 @@ import com.amazonaws.client.builder.AwsClientBuilder;
 import com.amazonaws.regions.Regions;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
-import com.dtstack.taier.datasource.plugin.common.utils.ReflectUtil;
 import com.dtstack.taier.datasource.api.dto.source.AwsS3SourceDTO;
 import com.dtstack.taier.datasource.api.dto.source.ISourceDTO;
 import com.dtstack.taier.datasource.api.exception.SourceException;
+import com.dtstack.taier.datasource.plugin.common.utils.ReflectUtil;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.Objects;

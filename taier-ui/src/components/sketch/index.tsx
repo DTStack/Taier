@@ -16,22 +16,22 @@
  * limitations under the License.
  */
 
-import { useRef, useState, useImperativeHandle, useEffect } from 'react';
-import type { FormInstance, FormItemProps, PaginationProps } from 'antd';
-import { Form, Pagination, Table } from 'antd';
+import {useEffect, useImperativeHandle, useRef, useState} from 'react';
+import type {FormInstance, FormItemProps, PaginationProps} from 'antd';
+import {Form, Pagination, Table} from 'antd';
 import {
 	DatePickerItem,
-	InputWithConditionItem,
 	InputItem,
+	InputWithConditionItem,
 	OwnerItem,
+	RadioItem,
 	RangeItem,
 	SelectItem,
-	RadioItem,
 } from './headerForm';
-import { usePagination } from '@/hooks';
-import type { ColumnsType, TablePaginationConfig, TableProps } from 'antd/lib/table';
-import type { FilterValue, SorterResult } from 'antd/lib/table/interface';
-import { useCalcTableScroll } from '@/components/customHooks/index';
+import {usePagination} from '@/hooks';
+import type {ColumnsType, TablePaginationConfig, TableProps} from 'antd/lib/table';
+import type {FilterValue, SorterResult} from 'antd/lib/table/interface';
+import {useCalcTableScroll} from '@/components/customHooks/index';
 import classnames from 'classnames';
 import './index.scss';
 
@@ -154,34 +154,33 @@ export const useSketchRef = () => {
 	return ref;
 };
 
-export default function Sketch<
-	T extends Record<string, any> = Record<string, any>,
+export default function Sketch<T extends Record<string, any> = Record<string, any>,
 	P extends Record<string, any> = Record<string, any>,
->({
-	actionRef,
-	header = [],
-	extra,
-	className,
-	headerClassName,
-	columns,
-	tableProps = {},
-	tableFooter,
-	headerTitle,
-	headerTitleClassName,
-	request,
-	onFormFieldChange,
-	onTableSelect,
-	onExpand,
-}: ISketchProps<T, P>) {
+	>({
+		  actionRef,
+		  header = [],
+		  extra,
+		  className,
+		  headerClassName,
+		  columns,
+		  tableProps = {},
+		  tableFooter,
+		  headerTitle,
+		  headerTitleClassName,
+		  request,
+		  onFormFieldChange,
+		  onTableSelect,
+		  onExpand,
+	  }: ISketchProps<T, P>) {
 	const [form] = Form.useForm<P>();
 	const insenseKeys = useRef(new Set(['name', 'multipleName']));
-	const { current, pageSize, total, setPagination } = usePagination({});
+	const {current, pageSize, total, setPagination} = usePagination({});
 	const [dataSource, setDataSource] = useState<T[]>([]);
 	const [loading, setLoading] = useState(false);
 	const [selectedRowKeys, setSelectedKeys] = useState<React.Key[]>([]);
 	const [selectedRows, setSelectedRows] = useState<T[]>([]);
 	const timeout = useRef<number | undefined>(undefined);
-	const { scroll: calcTableScroll } = useCalcTableScroll({ className: 'dt-sketch-table' });
+	const {scroll: calcTableScroll} = useCalcTableScroll({className: 'dt-sketch-table'});
 
 	// we should save the filter and sorter from table
 	const tableInfo = useRef<{
@@ -193,13 +192,13 @@ export default function Sketch<
 		selectedRowKeys,
 		selectedRows,
 		setSelectedKeys,
-		submit: () => getDataSource({ current, pageSize }),
+		submit: () => getDataSource({current, pageSize}),
 		form,
 		getTableData: () => dataSource.concat(),
 	}));
 
 	const getDataSource = (
-		{ current: nextCurrent = 1, pageSize: nextPageSize = 20 }: TablePaginationConfig = {},
+		{current: nextCurrent = 1, pageSize: nextPageSize = 20}: TablePaginationConfig = {},
 		filters?: Record<string, FilterValue | null>,
 		sorter?: SorterResult<any>,
 		silent: boolean = false,
@@ -210,19 +209,19 @@ export default function Sketch<
 		window.clearTimeout(timeout.current);
 		request(
 			form.getFieldsValue(),
-			{ current: nextCurrent, pageSize: nextPageSize },
+			{current: nextCurrent, pageSize: nextPageSize},
 			filters || tableInfo.current.filters || {},
 			sorter || (tableInfo.current.sorter as SorterResult<any>),
 		)
 			.then((res) => {
 				if (res) {
-					const { total: nextTotal, data = [], polling } = res;
+					const {total: nextTotal, data = [], polling} = res;
 					if (polling) {
 						const delay = (typeof polling === 'object' && polling.delay) || 36000;
 						timeout.current = window.setTimeout(() => {
 							// 轮训需要静默请求
 							getDataSource(
-								{ current: nextCurrent, pageSize: nextPageSize },
+								{current: nextCurrent, pageSize: nextPageSize},
 								filters || tableInfo.current.filters || {},
 								sorter || (tableInfo.current.sorter as SorterResult<any>),
 								true,
@@ -259,7 +258,7 @@ export default function Sketch<
 	) => {
 		setSelectedKeys([]);
 		// save it into ref
-		tableInfo.current = { filters, sorter };
+		tableInfo.current = {filters, sorter};
 		getDataSource(pagination, filters, sorter as SorterResult<any>);
 	};
 
@@ -269,7 +268,7 @@ export default function Sketch<
 				const next = [...d];
 				const idx = next.indexOf(record);
 				if (idx > -1) {
-					next[idx] = { ...record, children };
+					next[idx] = {...record, children};
 				}
 				return next;
 			});
@@ -300,19 +299,19 @@ export default function Sketch<
 		pageSize,
 		onChange: (page, nextPageSize) =>
 			handleTableChange(
-				{ current: page, pageSize: nextPageSize },
+				{current: page, pageSize: nextPageSize},
 				tableInfo.current.filters,
 				tableInfo.current.sorter,
 			),
 		...tableProps.pagination,
 	};
 
-	const { className: tableClassName, expandable, ...restTableProps } = tableProps;
+	const {className: tableClassName, expandable, ...restTableProps} = tableProps;
 
 	const renderFormItemByName = (name: string, props: Partial<ISlotItemProps> = {}) => {
 		switch (name) {
 			case 'input': {
-				const { slotProps = {}, ...restProps } = props;
+				const {slotProps = {}, ...restProps} = props;
 				return (
 					<InputItem
 						key={name}
@@ -325,7 +324,7 @@ export default function Sketch<
 				);
 			}
 			case 'inputWithCondition': {
-				const { slotProps = {}, ...restProps } = props;
+				const {slotProps = {}, ...restProps} = props;
 				return (
 					<InputWithConditionItem
 						key={name}
@@ -375,7 +374,7 @@ export default function Sketch<
 							if (typeof headerForm === 'string') {
 								return renderFormItemByName(headerForm);
 							}
-							const { name, formItem, renderFormItem, props = {} } = headerForm;
+							const {name, formItem, renderFormItem, props = {}} = headerForm;
 
 							if (SLOT_ITEM.includes(name)) {
 								return renderFormItemByName(name, props);
@@ -406,14 +405,14 @@ export default function Sketch<
 					...expandable,
 				}}
 				className={classnames('dt-sketch-table', tableClassName)}
-				scroll={{ ...calcTableScroll }}
+				scroll={{...calcTableScroll}}
 				loading={loading}
 				columns={columns}
 				dataSource={dataSource}
 				onChange={handleTableChange}
 				footer={() => (
 					<div className="flex-between">
-						<div style={{ paddingLeft: '25px' }}>{tableFooter}</div>
+						<div style={{paddingLeft: '25px'}}>{tableFooter}</div>
 						<div>
 							<Pagination {...pagination} />
 						</div>

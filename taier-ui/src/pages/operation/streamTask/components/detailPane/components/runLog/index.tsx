@@ -1,10 +1,10 @@
-import React, { useState, useRef, useMemo } from 'react';
-import { Spin } from 'antd';
-import { TASK_STATUS } from '@/constant';
-import { IStreamJobProps } from '@/interface';
+import React, {useMemo, useRef, useState} from 'react';
+import {Spin} from 'antd';
+import {TASK_STATUS} from '@/constant';
+import {IStreamJobProps} from '@/interface';
 import stream from '@/api';
 import Editor from '@/components/editor';
-import { createLinkMark, createLog } from '@/services/taskResultService';
+import {createLinkMark, createLog} from '@/services/taskResultService';
 import './index.scss';
 
 interface IProps {
@@ -42,7 +42,7 @@ function getLogType(status: TASK_STATUS | undefined) {
 	}
 }
 
-export default function RunLog({ data }: IProps) {
+export default function RunLog({data}: IProps) {
 	const [logInfo, setLogInfo] = useState<ILogsProps>({
 		jobId: '',
 		logInfo: '',
@@ -58,7 +58,7 @@ export default function RunLog({ data }: IProps) {
 		if (!data?.id) return;
 		if (data.status == TASK_STATUS.RUNNING) {
 			setLoading(true);
-			const res = await stream.getJobManagerLog({ taskId: data.id, place: offset.current });
+			const res = await stream.getJobManagerLog({taskId: data.id, place: offset.current});
 			if (res?.code == 1 && res?.data?.place) {
 				setLogInfo((info) => ({
 					...res.data,
@@ -68,7 +68,7 @@ export default function RunLog({ data }: IProps) {
 			}
 			setLoading(false);
 		} else {
-			const res = await stream.getTaskLogs({ taskId: data.id });
+			const res = await stream.getTaskLogs({taskId: data.id});
 			if (res?.code == 1) {
 				setLogInfo(res.data || {});
 			}
@@ -97,7 +97,7 @@ export default function RunLog({ data }: IProps) {
 			engineLog = log.engineLog ? JSON.parse(log.engineLog) : {};
 		} catch (e) {
 			engineLog = {
-				'all-exceptions': [{ exception: log.engineLog }],
+				'all-exceptions': [{exception: log.engineLog}],
 			};
 		}
 
@@ -106,8 +106,8 @@ export default function RunLog({ data }: IProps) {
 		let engineLogs =
 			Array.isArray(errors) && errors.length > 0
 				? errors.map((item: any) => {
-						return `${item.exception} \n`;
-				  })
+					return `${item.exception} \n`;
+				})
 				: errors;
 
 		let logText = '';
@@ -136,7 +136,7 @@ export default function RunLog({ data }: IProps) {
 	return (
 		<Spin wrapperClassName="dt-loading" spinning={loading}>
 			<Editor
-				style={{ height: '100%' }}
+				style={{height: '100%'}}
 				sync
 				value={logText}
 				language="jsonlog"

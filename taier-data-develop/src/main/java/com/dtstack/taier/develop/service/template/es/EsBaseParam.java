@@ -18,22 +18,22 @@ public abstract class EsBaseParam {
     private List<Long> sourceIds;
     private String extralConfig;
 
-    public void checkArray(JSONObject parameter, String param){
-        if (StringUtils.isBlank(parameter.getString(param))){
+    public void checkArray(JSONObject parameter, String param) {
+        if (StringUtils.isBlank(parameter.getString(param))) {
             throw new RdosDefineException(param + "不能为空");
         }
 
-        if(!(parameter.get(param) instanceof JSONArray)){
+        if (!(parameter.get(param) instanceof JSONArray)) {
             throw new RdosDefineException(param + "必须为数组格式");
         }
 
         JSONArray column = parameter.getJSONArray(param);
-        if(column.isEmpty()){
+        if (column.isEmpty()) {
             throw new RdosDefineException(param + "不能为空");
         }
 
         for (Object o : column) {
-            if(!(o instanceof JSONObject)){
+            if (!(o instanceof JSONObject)) {
                 throw new RdosDefineException(param + "必须为对象数组格式");
             }
         }

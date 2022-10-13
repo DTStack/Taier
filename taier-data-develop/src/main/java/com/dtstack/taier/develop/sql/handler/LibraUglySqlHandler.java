@@ -110,12 +110,12 @@ public class LibraUglySqlHandler implements IUglySqlHandler {
         initSqlMode();
     }
 
-    public LibraUglySqlHandler(String originSql, int sqlMode){
+    public LibraUglySqlHandler(String originSql, int sqlMode) {
         initSql();
         this.uglySqlMode = sqlMode;
     }
 
-    private void initSql(){
+    private void initSql() {
         formattedSql = SqlFormatUtil.formatSql(sql);
         formattedSql = formattedSql.trim();
         if (formattedSql.endsWith(";")) {
@@ -135,40 +135,40 @@ public class LibraUglySqlHandler implements IUglySqlHandler {
         if (formattedSql.matches(SqlRegexUtil.COMMENT_ON_COLUMN)) {
             uglySqlMode = uglySqlMode + COMMENT_ON_COLUMN;
         }
-        if (formattedSql.matches(SqlRegexUtil.CREATE_DISTRIBUTE_BY)){
+        if (formattedSql.matches(SqlRegexUtil.CREATE_DISTRIBUTE_BY)) {
             uglySqlMode = uglySqlMode + DISTRIBUTE_BY;
         }
-        if (formattedSql.matches(SqlRegexUtil.PARTITION_BY)){
+        if (formattedSql.matches(SqlRegexUtil.PARTITION_BY)) {
             uglySqlMode = uglySqlMode + PARTITION_BY;
         }
-        if (formattedSql.matches(SqlRegexUtil.TRUNCATE_TABLE)){
+        if (formattedSql.matches(SqlRegexUtil.TRUNCATE_TABLE)) {
             uglySqlMode = uglySqlMode + TRUNCATE_TABLE;
         }
-        if (formattedSql.matches(SqlRegexUtil.TABLE_SPACE)){
+        if (formattedSql.matches(SqlRegexUtil.TABLE_SPACE)) {
             uglySqlMode = uglySqlMode + TABLE_SPACE;
         }
 //        if (formattedSql.matches(SqlRegexUtil.FORCE_CAST)){
 //            uglySqlMode = uglySqlMode + FORCE_CAST;
 //        }
         Matcher forceCastMatter = FORCE_CAST_PATTERN.matcher(formattedSql);
-        if (forceCastMatter.find()){
+        if (forceCastMatter.find()) {
             uglySqlMode = uglySqlMode + FORCE_CAST;
         }
-        if (formattedSql.matches(SqlRegexUtil.CREATE_TABLE_WITH)){
+        if (formattedSql.matches(SqlRegexUtil.CREATE_TABLE_WITH)) {
             uglySqlMode = uglySqlMode + CREATE_TABLE_WITH;
         }
-        if (formattedSql.matches(SqlRegexUtil.DICTIONARY)){
+        if (formattedSql.matches(SqlRegexUtil.DICTIONARY)) {
             uglySqlMode = uglySqlMode + DICTIONARY;
         }
-        if (formattedSql.matches(SqlRegexUtil.EXPLAIN)){
+        if (formattedSql.matches(SqlRegexUtil.EXPLAIN)) {
             uglySqlMode = uglySqlMode + EXPLAIN;
         }
         Matcher createCollateMatter = CREATE_COLLATE_PATTERN.matcher(formattedSql);
-        if (createCollateMatter.find()){
+        if (createCollateMatter.find()) {
             uglySqlMode = uglySqlMode + CREATE_COLLATE;
         }
         Matcher uglyIntervalMatter = UGLY_INTERVAL_PATTERN.matcher(formattedSql);
-        if (uglyIntervalMatter.find()){
+        if (uglyIntervalMatter.find()) {
             uglySqlMode = uglySqlMode + UGLY_INTERVAL;
         }
         sqlMode = uglySqlMode;
@@ -184,44 +184,44 @@ public class LibraUglySqlHandler implements IUglySqlHandler {
             }
             i <<= 1;
         }
-        if (formattedSql.endsWith(",")){
-            formattedSql = formattedSql.substring(0,formattedSql.length()-1);
+        if (formattedSql.endsWith(",")) {
+            formattedSql = formattedSql.substring(0, formattedSql.length() - 1);
         }
         return formattedSql;
     }
 
-    public ParseResult parserUglySql(){
+    public ParseResult parserUglySql() {
         ParseResult parseResult = new ParseResult();
         String parsedSql = parseUglySql();
         parseResult.setStandardSql(parsedSql);
         //针对comment_on特殊处理
-        if ((sqlMode & COMMENT_ON_TABLE) == COMMENT_ON_TABLE){
+        if ((sqlMode & COMMENT_ON_TABLE) == COMMENT_ON_TABLE) {
             parseResult.setSqlType(SqlType.COMMENT_ON);
             Matcher matcher = COMMENT_ON_TABLE_PATTERN.matcher(sql);
-            if (matcher.find()){
+            if (matcher.find()) {
                 String db = matcher.group("db");
-                if(StringUtils.isNotEmpty(db)){
+                if (StringUtils.isNotEmpty(db)) {
                     parseResult.setCurrentDb(db);
                 }
                 String table = matcher.group("table");
-                if (StringUtils.isNotEmpty(table)){
+                if (StringUtils.isNotEmpty(table)) {
                     Table table1 = new Table();
                     table1.setName(table);
                     parseResult.setMainTable(table1);
                 }
             }
-        }else if ( (sqlMode & COMMENT_ON_COLUMN) == COMMENT_ON_COLUMN){
+        } else if ((sqlMode & COMMENT_ON_COLUMN) == COMMENT_ON_COLUMN) {
             parseResult.setSqlType(SqlType.COMMENT_ON);
             Matcher matcher = COMMENT_ON_COLUMN_PATTERN.matcher(sql);
-            if (matcher.find()){
+            if (matcher.find()) {
                 String columnStr = matcher.group("column");
                 String[] split = columnStr.split("\\.");
-                if (split.length == 3){
+                if (split.length == 3) {
                     parseResult.setCurrentDb(split[0]);
                     Table table = new Table();
                     table.setName(split[1]);
                     parseResult.setMainTable(table);
-                }else if (split.length == 2){
+                } else if (split.length == 2) {
                     Table table = new Table();
                     table.setName(split[0]);
                     parseResult.setMainTable(table);
@@ -251,84 +251,84 @@ public class LibraUglySqlHandler implements IUglySqlHandler {
                 break;
             case COMMENT_ON_TABLE:
                 matcher = COMMENT_ON_TABLE_PATTERN.matcher(formattedSql);
-                if (matcher.find()){
+                if (matcher.find()) {
                     //如果处理后变为空字符串，即为不需要解析血缘
                     formattedSql = "";
                 }
                 break;
             case COMMENT_ON_COLUMN:
                 matcher = COMMENT_ON_COLUMN_PATTERN.matcher(formattedSql);
-                if (matcher.find()){
+                if (matcher.find()) {
                     formattedSql = "";
                 }
                 break;
             case DISTRIBUTE_BY:
                 matcher = CREATE_DISTRIBUTE_BY_PATTERN.matcher(formattedSql);
-                if(matcher.find()){
+                if (matcher.find()) {
                     group = matcher.group(2);
                     formattedSql = formattedSql.replaceFirst(SqlRegexUtil.str2RegexStr(group), "");
                 }
                 break;
             case PARTITION_BY:
                 matcher = PARTITION_BY_PATTERN.matcher(formattedSql);
-                if (matcher.find()){
+                if (matcher.find()) {
                     group = matcher.group(2);
                     //难以得知字段数据类型，暂时去掉 PARTITIONED BY
-                    formattedSql = formattedSql.replaceFirst(SqlRegexUtil.str2RegexStr(group),"");
+                    formattedSql = formattedSql.replaceFirst(SqlRegexUtil.str2RegexStr(group), "");
                 }
                 break;
             case TABLE_SPACE:
                 matcher = TABLE_SPACE_PATTERN.matcher(formattedSql);
-                if (matcher.find()){
+                if (matcher.find()) {
                     group = matcher.group(2);
-                    formattedSql = formattedSql.replaceFirst(group,"");
+                    formattedSql = formattedSql.replaceFirst(group, "");
                 }
                 break;
             case TRUNCATE_TABLE:
                 matcher = TRUNCATE_TABLE_PATTERN.matcher(formattedSql);
-                if (matcher.find()){
+                if (matcher.find()) {
                     formattedSql = "";
                 }
                 break;
             case FORCE_CAST:
                 matcher = FORCE_CAST_PATTERN.matcher(formattedSql);
-                while (matcher.find()){
+                while (matcher.find()) {
                     group = matcher.group(1);
-                    formattedSql = formattedSql.replaceAll(group,"");
+                    formattedSql = formattedSql.replaceAll(group, "");
                 }
                 break;
             case CREATE_TABLE_WITH:
                 matcher = CREATE_TABLE_WITH_PATTERN.matcher(formattedSql);
-                if (matcher.find()){
+                if (matcher.find()) {
                     group = matcher.group(2);
-                    formattedSql = formattedSql.replaceFirst(SqlRegexUtil.str2RegexStr(group),"");
+                    formattedSql = formattedSql.replaceFirst(SqlRegexUtil.str2RegexStr(group), "");
                 }
                 break;
             case DICTIONARY:
                 matcher = DICTIONARY_PATTERN.matcher(formattedSql);
-                if (matcher.find()){
+                if (matcher.find()) {
                     group = matcher.group(2);
-                    formattedSql = formattedSql.replaceFirst(group," ");
+                    formattedSql = formattedSql.replaceFirst(group, " ");
                 }
                 break;
             case EXPLAIN:
                 matcher = EXPLAIN_PATTERN.matcher(formattedSql);
-                if (matcher.find()){
+                if (matcher.find()) {
                     formattedSql = "";
                 }
                 break;
             case CREATE_COLLATE:
                 matcher = CREATE_COLLATE_PATTERN.matcher(formattedSql);
-                while (matcher.find()){
+                while (matcher.find()) {
                     group = matcher.group(1);
-                    formattedSql = formattedSql.replaceAll(group,"");
+                    formattedSql = formattedSql.replaceAll(group, "");
                 }
                 break;
             case UGLY_INTERVAL:
                 matcher = UGLY_INTERVAL_PATTERN.matcher(formattedSql);
-                while (matcher.find()){
+                while (matcher.find()) {
                     group = matcher.group(1);
-                    formattedSql = formattedSql.replaceAll(group,"iNTERVAL '1' day ");
+                    formattedSql = formattedSql.replaceAll(group, "iNTERVAL '1' day ");
                 }
                 break;
             default:

@@ -34,7 +34,7 @@ public class ScheduleJobBatchEvent {
     private ScheduleJobBatchEvent() {
     }
 
-    public ScheduleJobBatchEvent(String jobId,Integer status) {
+    public ScheduleJobBatchEvent(String jobId, Integer status) {
         this.status = status;
         this.jobIds = Lists.newArrayList(jobId);
     }

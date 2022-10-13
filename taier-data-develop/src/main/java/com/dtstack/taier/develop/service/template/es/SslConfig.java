@@ -22,20 +22,20 @@ public class SslConfig {
     private Map sftpConf;
 
 
-    public static SslConfig setSslConfig(Map<String, Object> sourceMap,Map sftpConf){
+    public static SslConfig setSslConfig(Map<String, Object> sourceMap, Map sftpConf) {
 
         // SftpConf 配置path
         final String path = (String) sftpConf.get("path");
         AssertUtils.notNull(path, "sftp路径参数未配置");
         final String finalPath = String.format("%s%s%s", StringUtils.removeEnd(path, File.separator), File.separator,
                 StringUtils.removeStart(sourceMap.get("keyPath").toString(), File.separator));
-        sftpConf.put("path",StringUtils.removeEnd(finalPath, File.separator));
+        sftpConf.put("path", StringUtils.removeEnd(finalPath, File.separator));
 
         // SslConfig 配置
         SslConfig sslConfig = new SslConfig();
         sslConfig.setSftpConf(sftpConf);
         final String fileName = (String) sourceMap.get("sslFileName");
-        sslConfig.setFileName( fileName);
+        sslConfig.setFileName(fileName);
         sslConfig.setType(StringUtils.endsWith(fileName, ".crt") ? "ca" : "pkcs12");
 
         return sslConfig;

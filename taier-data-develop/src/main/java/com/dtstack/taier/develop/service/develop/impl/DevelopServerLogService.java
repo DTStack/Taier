@@ -190,9 +190,9 @@ public class DevelopServerLogService {
                 List<ActionJobEntityVO> engineEntities = actionService.entitys(Collections.singletonList(logsBody.getString("jobId")));
                 String engineJobId = "";
                 if (CollectionUtils.isNotEmpty(engineEntities)) {
-                    engineJobId =  engineEntities.get(0).getEngineJobId();
+                    engineJobId = engineEntities.get(0).getEngineJobId();
                 }
-                this.parseIncreInfo(info, jobStr, tenantId, engineJobId, job.getExecStartTime().getTime(), job.getExecEndTime().getTime(),"");
+                this.parseIncreInfo(info, jobStr, tenantId, engineJobId, job.getExecStartTime().getTime(), job.getExecEndTime().getTime(), "");
             }
         }
 
@@ -215,8 +215,8 @@ public class DevelopServerLogService {
 
         // 增加重试日志
         final String retryLog = this.buildRetryLog(jobId, pageInfo, developServerLogVO);
-        this.formatForLogInfo(info, job.getType(),scheduleTaskShade.getTaskType(), retryLog, null,
-                null, null, developServerLogVO, tenantId,jobId);
+        this.formatForLogInfo(info, job.getType(), scheduleTaskShade.getTaskType(), retryLog, null,
+                null, null, developServerLogVO, tenantId, jobId);
 
         if (!scheduleTaskShade.getTaskType().equals(EScheduleJobType.SYNC.getVal())
                 && !scheduleTaskShade.getTaskType().equals(EScheduleJobType.VIRTUAL.getVal())
@@ -272,7 +272,7 @@ public class DevelopServerLogService {
      * 组装重试日志
      *
      * @param jobId
-     * @param pageInfo         第几次的重试日志 如果传入0  默认是最新的  -1 展示所有的（为了兼容内部调用）
+     * @param pageInfo           第几次的重试日志 如果传入0  默认是最新的  -1 展示所有的（为了兼容内部调用）
      * @param developServerLogVO
      * @return
      */
@@ -286,7 +286,7 @@ public class DevelopServerLogService {
             return "";
         }
         developServerLogVO.setPageSize(actionRetryLogVOs.size());
-        if(Objects.isNull(pageInfo)){
+        if (Objects.isNull(pageInfo)) {
             pageInfo = 0;
         }
         //engine 的 retryNum 从1 开始
@@ -305,7 +305,7 @@ public class DevelopServerLogService {
         }
         Integer retryNumVal = retryLogContent.getRetryNum();
         int retryNum = 0;
-        if(Objects.nonNull(retryNumVal)){
+        if (Objects.nonNull(retryNumVal)) {
             retryNum = retryNumVal + 1;
         }
         String logInfo = retryLogContent.getLogInfo();
@@ -345,7 +345,7 @@ public class DevelopServerLogService {
             return;
         }
         try {
-            final EDeployMode deployModeEnum = TaskParamsUtils.parseDeployTypeByTaskParams(taskParams,ComputeType.BATCH.getType());
+            final EDeployMode deployModeEnum = TaskParamsUtils.parseDeployTypeByTaskParams(taskParams, ComputeType.BATCH.getType());
             JSONObject flinkJsonObject = clusterService.getConfigByKey(tenantId, EComponentType.FLINK.getConfName(), null);
             final String prometheusHost = flinkJsonObject.getJSONObject(deployModeEnum.name()).getString("prometheusHost");
             final String prometheusPort = flinkJsonObject.getJSONObject(deployModeEnum.name()).getString("prometheusPort");
@@ -417,10 +417,10 @@ public class DevelopServerLogService {
             return "";
         }
 
-        if ("0".equalsIgnoreCase(longStr)){
+        if ("0".equalsIgnoreCase(longStr)) {
             return "";
         }
-        if(!NumberUtils.isNumber(longStr)){
+        if (!NumberUtils.isNumber(longStr)) {
             return longStr;
         }
 
@@ -531,7 +531,7 @@ public class DevelopServerLogService {
             return;
         }
 
-        this.formatForSyncLogInfo(jobInfo, jobType,retryLog, startTime, endTime, execTime, developServerLogVO, tenantId,jobId);
+        this.formatForSyncLogInfo(jobInfo, jobType, retryLog, startTime, endTime, execTime, developServerLogVO, tenantId, jobId);
     }
 
     private void formatForSyncLogInfo(final JSONObject jobInfo, final Integer jobType, final String retryLog, final Timestamp startTime,
@@ -559,12 +559,12 @@ public class DevelopServerLogService {
                     && jobInfoMap.get("jobid") != null;
 
             if (parsePerfLog) {
-                perfLogInfo = this.formatPerfLogInfo(jobInfoMap.get("jobid").toString(),jobId, startTime.getTime(), endTime.getTime(), tenantId);
+                perfLogInfo = this.formatPerfLogInfo(jobInfoMap.get("jobid").toString(), jobId, startTime.getTime(), endTime.getTime(), tenantId);
             }
 
             logInfoJson.put("perf", perfLogInfo);
             //补数据没有增量标志信息
-            if (EScheduleType.NORMAL_SCHEDULE.getType().equals(jobType)){
+            if (EScheduleType.NORMAL_SCHEDULE.getType().equals(jobType)) {
                 logInfoJson.put("increInfo", jobInfo.getString("increInfo"));
             }
             logInfoJson.put("sql", res);
@@ -610,20 +610,20 @@ public class DevelopServerLogService {
             LOGGER.info("can not find job by id:{}.", jobId);
             throw new RdosDefineException(ErrorCode.CAN_NOT_FIND_JOB);
         }
-        if (job.getTaskId() == null || job.getTaskId() == -1){
+        if (job.getTaskId() == null || job.getTaskId() == -1) {
             throw new RdosDefineException(ErrorCode.CAN_NOT_FIND_TASK);
         }
         Task developTaskById = developTaskService.getDevelopTaskById(job.getTaskId());
         //prometheus的配置信息 从控制台获取
-        final Pair<String, String> prometheusHostAndPort = this.getPrometheusHostAndPort(tenantId,developTaskById.getTaskParams(),ComputeType.BATCH);
-        if (prometheusHostAndPort == null){
+        final Pair<String, String> prometheusHostAndPort = this.getPrometheusHostAndPort(tenantId, developTaskById.getTaskParams(), ComputeType.BATCH);
+        if (prometheusHostAndPort == null) {
             return "";
         }
         final PrometheusMetricQuery prometheusMetricQuery = new PrometheusMetricQuery(String.format("%s:%s", prometheusHostAndPort.getKey(), prometheusHostAndPort.getValue()));
 
         //之后查询是可以直接获取最后一条记录的方法
         //防止数据同步执行时间太长 查询prometheus的时候返回exceeded maximum resolution of 11,000 points per timeseries
-        final long maxGapTime = 60 * 1000 * 60 * (long)8;
+        final long maxGapTime = 60 * 1000 * 60 * (long) 8;
         long gapStartTime = startTime;
         if (endTime - startTime >= maxGapTime) {
             //超过11,000 points 查询1小时间隔内
@@ -641,19 +641,19 @@ public class DevelopServerLogService {
         return formatPerfLogInfo.buildReadableLog();
     }
 
-    public Pair<String,String> getPrometheusHostAndPort(final Long tenantId, final String taskParams,ComputeType computeType){
+    public Pair<String, String> getPrometheusHostAndPort(final Long tenantId, final String taskParams, ComputeType computeType) {
         Boolean hasStandAlone = clusterService.hasStandalone(tenantId, EComponentType.FLINK.getTypeCode());
-        JSONObject flinkJsonObject ;
+        JSONObject flinkJsonObject;
         if (hasStandAlone) {
             flinkJsonObject = clusterService.getConfigByKey(tenantId, EComponentType.FLINK.getConfName(), null);
-        }else {
+        } else {
 
             JSONObject jsonObject = clusterService.getConfigByKey(tenantId, EComponentType.FLINK.getConfName(), null);
             if (null == jsonObject) {
                 LOGGER.info("console tenantId {} pluginInfo is null", tenantId);
                 return null;
             }
-            EDeployMode deployModeEnum = TaskParamsUtils.parseDeployTypeByTaskParams(taskParams,computeType.getType());
+            EDeployMode deployModeEnum = TaskParamsUtils.parseDeployTypeByTaskParams(taskParams, computeType.getType());
             flinkJsonObject = jsonObject.getJSONObject(deployModeEnum.name().toLowerCase(Locale.ROOT));
         }
         String prometheusHost = flinkJsonObject.getString("prometheusHost");
@@ -662,33 +662,33 @@ public class DevelopServerLogService {
             LOGGER.info("prometheus http info is blank prometheusHost：{} prometheusPort：{}", prometheusHost, prometheusPort);
             return null;
         }
-        return new Pair<>(prometheusHost,prometheusPort);
+        return new Pair<>(prometheusHost, prometheusPort);
     }
 
 
     private SyncStatusLogInfoVO getFormatPerfLogInfo(final IMetric numReadMetric, final IMetric byteReadMetric, final IMetric readDurationMetric,
                                                      final IMetric numWriteMetric, final IMetric byteWriteMetric, final IMetric writeDurationMetric,
-                                                     final IMetric numErrorMetric){
+                                                     final IMetric numErrorMetric) {
         final SyncStatusLogInfoVO logInfoVO = new SyncStatusLogInfoVO();
-        if (numReadMetric != null){
+        if (numReadMetric != null) {
             logInfoVO.setNumRead(this.getLongValue(numReadMetric.getMetric()));
         }
-        if (byteReadMetric != null){
+        if (byteReadMetric != null) {
             logInfoVO.setByteRead(this.getLongValue(byteReadMetric.getMetric()));
         }
-        if (readDurationMetric != null){
+        if (readDurationMetric != null) {
             logInfoVO.setReadDuration(this.getLongValue(readDurationMetric.getMetric()));
         }
-        if (numWriteMetric != null){
+        if (numWriteMetric != null) {
             logInfoVO.setNumWrite(this.getLongValue(numWriteMetric.getMetric()));
         }
-        if (byteWriteMetric != null){
+        if (byteWriteMetric != null) {
             logInfoVO.setByteWrite(this.getLongValue(byteWriteMetric.getMetric()));
         }
-        if (writeDurationMetric != null){
+        if (writeDurationMetric != null) {
             logInfoVO.setWriteDuration(this.getLongValue(writeDurationMetric.getMetric()));
         }
-        if (numErrorMetric != null){
+        if (numErrorMetric != null) {
             logInfoVO.setnErrors(getLongValue(numErrorMetric.getMetric()));
         }
         return logInfoVO;

@@ -3,7 +3,6 @@ package com.dtstack.taier.scheduler.service;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.dtstack.taier.common.enums.Deleted;
-import com.dtstack.taier.dao.domain.DevelopTaskTask;
 import com.dtstack.taier.dao.domain.ScheduleTaskTaskShade;
 import com.dtstack.taier.dao.mapper.ScheduleTaskTaskShadeMapper;
 import org.slf4j.Logger;
@@ -21,7 +20,6 @@ import java.util.List;
 @Service
 public class ScheduleTaskTaskService extends ServiceImpl<ScheduleTaskTaskShadeMapper, ScheduleTaskTaskShade> {
     private static final Logger LOGGER = LoggerFactory.getLogger(ScheduleTaskTaskService.class);
-
 
 
     /**
@@ -43,14 +41,14 @@ public class ScheduleTaskTaskService extends ServiceImpl<ScheduleTaskTaskShadeMa
      * @param taskId
      * @return
      */
-    public void deleteByTaskId( Long taskId) {
+    public void deleteByTaskId(Long taskId) {
         baseMapper.delete(Wrappers.lambdaQuery(ScheduleTaskTaskShade.class)
                 .eq(ScheduleTaskTaskShade::getTaskId, taskId)
         );
     }
 
-    public Integer insert(ScheduleTaskTaskShade scheduleTaskTaskShade){
-       return baseMapper.insert(scheduleTaskTaskShade);
+    public Integer insert(ScheduleTaskTaskShade scheduleTaskTaskShade) {
+        return baseMapper.insert(scheduleTaskTaskShade);
     }
 
 }

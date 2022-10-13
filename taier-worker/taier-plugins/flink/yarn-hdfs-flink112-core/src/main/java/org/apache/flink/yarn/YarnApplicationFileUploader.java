@@ -27,7 +27,6 @@ import org.apache.flink.configuration.Configuration;
 import org.apache.flink.util.IOUtils;
 import org.apache.flink.util.function.FunctionUtils;
 import org.apache.flink.yarn.configuration.YarnConfigOptions;
-
 import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.LocatedFileStatus;
@@ -64,7 +63,9 @@ import java.util.stream.Collectors;
 import static org.apache.flink.util.Preconditions.checkArgument;
 import static org.apache.flink.util.Preconditions.checkNotNull;
 
-/** A class with utilities for uploading files related to the deployment of a single application. */
+/**
+ * A class with utilities for uploading files related to the deployment of a single application.
+ */
 class YarnApplicationFileUploader implements AutoCloseable {
 
     private static final Logger LOG = LoggerFactory.getLogger(YarnApplicationFileUploader.class);
@@ -117,7 +118,9 @@ class YarnApplicationFileUploader implements AutoCloseable {
         this.fileReplication = fileReplication;
     }
 
-    /** overload this method to add flinkConfiguration */
+    /**
+     * overload this method to add flinkConfiguration
+     */
     private YarnApplicationFileUploader(
             final FileSystem fileSystem,
             final Path homeDir,
@@ -170,15 +173,15 @@ class YarnApplicationFileUploader implements AutoCloseable {
     /**
      * Register a single local/remote resource and adds it to <tt>localResources</tt>.
      *
-     * @param key the key to add the resource under
-     * @param resourcePath path of the resource to be registered
-     * @param relativeDstPath the relative path at the target location (this will be prefixed by the
-     *     application-specific directory)
-     * @param resourceType type of the resource, which can be one of FILE, PATTERN, or ARCHIVE
-     * @param whetherToAddToRemotePaths whether to add the path of local resource to
-     *     <tt>remotePaths</tt>
+     * @param key                               the key to add the resource under
+     * @param resourcePath                      path of the resource to be registered
+     * @param relativeDstPath                   the relative path at the target location (this will be prefixed by the
+     *                                          application-specific directory)
+     * @param resourceType                      type of the resource, which can be one of FILE, PATTERN, or ARCHIVE
+     * @param whetherToAddToRemotePaths         whether to add the path of local resource to
+     *                                          <tt>remotePaths</tt>
      * @param whetherToAddToEnvShipResourceList whether to add the local resource to
-     *     <tt>envShipResourceList</tt>
+     *                                          <tt>envShipResourceList</tt>
      * @return the uploaded resource descriptor
      */
     YarnLocalResourceDescriptor registerSingleLocalResource(
@@ -253,9 +256,9 @@ class YarnApplicationFileUploader implements AutoCloseable {
      * for files matching "<tt>flink-dist*.jar</tt>" which should be uploaded separately. If it is
      * already a remote file, the uploading will be skipped.
      *
-     * @param shipFiles local or remote files to register as Yarn local resources
+     * @param shipFiles               local or remote files to register as Yarn local resources
      * @param localResourcesDirectory the directory the localResources are uploaded to
-     * @param resourceType type of the resource, which can be one of FILE, PATTERN, or ARCHIVE
+     * @param resourceType            type of the resource, which can be one of FILE, PATTERN, or ARCHIVE
      * @return list of class paths with the the proper resource keys from the registration
      */
     List<String> registerMultipleLocalResources(
@@ -413,7 +416,9 @@ class YarnApplicationFileUploader implements AutoCloseable {
                 fileSystem, homeDirectory, providedLibDirs, applicationId, fileReplication);
     }
 
-    /** overload this method to add flinkConfiguration */
+    /**
+     * overload this method to add flinkConfiguration
+     */
     static YarnApplicationFileUploader from(
             final FileSystem fileSystem,
             final Path homeDirectory,
@@ -433,7 +438,7 @@ class YarnApplicationFileUploader implements AutoCloseable {
 
         // replace with remote directory
         String remoteFlinkJarPath = flinkConfiguration.getString(ConfigConstant.REMOTE_FLINK_LIB_DIR, null);
-        if(remoteFlinkJarPath != null && remoteFlinkJarPath.startsWith(ConfigConstant.PREFIX_HDFS)) {
+        if (remoteFlinkJarPath != null && remoteFlinkJarPath.startsWith(ConfigConstant.PREFIX_HDFS)) {
             String remotePluginRootDir = flinkConfiguration.getString(ConfigConstant.REMOTE_CHUNJUN_DIST_DIR, null);
             String flinkJarPath = flinkConfiguration.getString(ConfigConstant.FLINK_LIB_DIR, null);
             String flinkPluginRoot = flinkConfiguration.getString(ConfigConstant.CHUNJUN_DIST_DIR, null);

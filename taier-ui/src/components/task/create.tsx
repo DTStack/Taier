@@ -16,23 +16,23 @@
  * limitations under the License.
  */
 
-import { useContext, useEffect, useMemo, useState } from 'react';
+import {useContext, useEffect, useMemo, useState} from 'react';
 import Context from '@/context';
-import { Button, Input, Select, Form, Spin, Empty } from 'antd';
+import {Button, Empty, Form, Input, Select, Spin} from 'antd';
 import molecule from '@dtinsight/molecule/esm';
 import FolderPicker from '../folderPicker';
 import {
-	DATA_SYNC_MODE,
+	CATALOGUE_TYPE,
 	CREATE_MODEL_TYPE,
-	TASK_TYPE_ENUM,
+	DATA_SYNC_MODE,
 	FLINK_VERSIONS,
 	PythonVersionKind,
+	TASK_TYPE_ENUM,
 } from '@/constant';
-import { CATALOGUE_TYPE } from '@/constant';
-import type { CatalogueDataProps, IOfflineTaskProps } from '@/interface';
-import { connect } from '@dtinsight/molecule/esm/react';
+import type {CatalogueDataProps, IOfflineTaskProps} from '@/interface';
+import {connect} from '@dtinsight/molecule/esm/react';
 import api from '@/api';
-import { taskRenderService } from '@/services';
+import {taskRenderService} from '@/services';
 import './create.scss';
 
 const FormItem = Form.Item;
@@ -72,8 +72,8 @@ export interface IFormFieldProps {
 
 const Create = connect(
 	molecule.editor,
-	({ onSubmit, record, current, isRequest = true, isRenderPosition = true }: ICreateProps) => {
-		const { supportJobTypes } = useContext(Context);
+	({onSubmit, record, current, isRequest = true, isRenderPosition = true}: ICreateProps) => {
+		const {supportJobTypes} = useContext(Context);
 		const [form] = Form.useForm<IFormFieldProps>();
 		const [loading, setLoading] = useState(false);
 		const [pageLoading, setPageLoading] = useState(false);
@@ -82,7 +82,7 @@ const Create = connect(
 			if (record) {
 				if (isRequest) {
 					setPageLoading(true);
-					api.getOfflineTaskByID({ id: record.id })
+					api.getOfflineTaskByID({id: record.id})
 						.then((res) => {
 							if (res.code === 1) {
 								// 如果发现 syncModel 字段放到旧版本字段的位置上了，则给一个提示
@@ -136,7 +136,8 @@ const Create = connect(
 												form.setFieldsValue({
 													pythonVersion: version,
 												});
-											} catch {}
+											} catch {
+											}
 										} else {
 											form.setFieldsValue({
 												[field]: res.data[field],
@@ -159,18 +160,18 @@ const Create = connect(
 
 		const handleSubmit = (values: IFormFieldProps) => {
 			setLoading(true);
-			onSubmit?.({ ...values }).then((success) => {
+			onSubmit?.({...values}).then((success) => {
 				setLoading(success);
 			});
 		};
 
 		const handleValuesChanged = (_: Partial<IFormFieldProps>, values: IFormFieldProps) => {
 			if (current?.tab) {
-				const { id } = current.tab;
+				const {id} = current.tab;
 				// Insert form values into tab for preventing losing the values when switch tabs
 				molecule.editor.updateTab({
 					id,
-					data: { ...current.tab.data, ...values },
+					data: {...current.tab.data, ...values},
 					status: 'edited',
 				});
 			}
@@ -182,8 +183,8 @@ const Create = connect(
 
 		const initialValues = useMemo(() => {
 			if (current?.tab) {
-				const { data } = current.tab;
-				const { nodePid, ...restData } = data;
+				const {data} = current.tab;
+				const {nodePid, ...restData} = data;
 				return {
 					nodePid: data.nodePid?.toString().split('-')[0],
 					...restData,
@@ -223,7 +224,7 @@ const Create = connect(
 									},
 								]}
 							>
-								<Input placeholder="请输入任务名称" />
+								<Input placeholder="请输入任务名称"/>
 							</FormItem>
 							<FormItem
 								label="任务类型"
@@ -240,7 +241,7 @@ const Create = connect(
 									disabled={!!record}
 									showSearch
 									optionFilterProp="label"
-									notFoundContent={<Empty image={Empty.PRESENTED_IMAGE_SIMPLE} />}
+									notFoundContent={<Empty image={Empty.PRESENTED_IMAGE_SIMPLE}/>}
 									options={supportJobTypes.map((t) => ({
 										label: t.value,
 										value: t.key,
@@ -270,7 +271,7 @@ const Create = connect(
 										molecule.folderTree.getState().folderTree?.data?.[0].id
 									}
 								>
-									<FolderPicker showFile={false} dataType={CATALOGUE_TYPE.TASK} />
+									<FolderPicker showFile={false} dataType={CATALOGUE_TYPE.TASK}/>
 								</FormItem>
 							)}
 							<FormItem
@@ -289,7 +290,7 @@ const Create = connect(
 									rows={4}
 								/>
 							</FormItem>
-							<FormItem name="sqlText" hidden />
+							<FormItem name="sqlText" hidden/>
 							<FormItem>
 								<Button type="primary" htmlType="submit" loading={loading}>
 									确认

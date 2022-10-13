@@ -55,7 +55,9 @@ public class SparkYarnConfig extends BaseConfig {
 
     private String md5sum;
 
-    /**如果不是使用默认的配置---需要设置配置文件所在的hdfs路径*/
+    /**
+     * 如果不是使用默认的配置---需要设置配置文件所在的hdfs路径
+     */
     private String confHdfsPath;
 
     private Map<String, Object> hadoopConf;
@@ -119,11 +121,11 @@ public class SparkYarnConfig extends BaseConfig {
     }
 
     public String getSparkYarnArchive() {
-        if(Strings.isNullOrEmpty(sparkYarnArchive)){
+        if (Strings.isNullOrEmpty(sparkYarnArchive)) {
             return String.format(DEFAULT_SPARK_YARN_ARCHIVE, defaultFs);
         }
 
-        if(!sparkYarnArchive.trim().startsWith(HDFS_FLAG)){
+        if (!sparkYarnArchive.trim().startsWith(HDFS_FLAG)) {
             sparkYarnArchive = sparkYarnArchive.trim();
             sparkYarnArchive = defaultFs + sparkYarnArchive;
         }
@@ -136,11 +138,11 @@ public class SparkYarnConfig extends BaseConfig {
     }
 
     public String getSparkSqlProxyPath() {
-        if(Strings.isNullOrEmpty(sparkSqlProxyPath)){
+        if (Strings.isNullOrEmpty(sparkSqlProxyPath)) {
             return String.format(DEFAULT_SPARK_SQL_PROXY_JAR_PATH, defaultFs);
         }
 
-        if(!sparkSqlProxyPath.trim().startsWith(HDFS_FLAG)){
+        if (!sparkSqlProxyPath.trim().startsWith(HDFS_FLAG)) {
             sparkSqlProxyPath = sparkSqlProxyPath.trim();
             sparkSqlProxyPath = defaultFs + sparkSqlProxyPath;
         }
@@ -154,7 +156,7 @@ public class SparkYarnConfig extends BaseConfig {
 
     public String getSparkSqlProxyMainClass() {
 
-        if(Strings.isNullOrEmpty(sparkSqlProxyMainClass)){
+        if (Strings.isNullOrEmpty(sparkSqlProxyMainClass)) {
             return DEFAULT_SPARK_SQL_PROXY_MAINCLASS;
         }
 
@@ -166,11 +168,11 @@ public class SparkYarnConfig extends BaseConfig {
     }
 
     public String getSparkPythonExtLibPath() {
-        if(Strings.isNullOrEmpty(sparkPythonExtLibPath)){
+        if (Strings.isNullOrEmpty(sparkPythonExtLibPath)) {
             return String.format(DEFAULT_SPARK_PYTHON_EXTLIBPATH, defaultFs);
         }
 
-        if(!sparkPythonExtLibPath.startsWith(HDFS_FLAG)){
+        if (!sparkPythonExtLibPath.startsWith(HDFS_FLAG)) {
             sparkPythonExtLibPath = sparkPythonExtLibPath.trim();
             sparkPythonExtLibPath = defaultFs + sparkPythonExtLibPath;
         }
@@ -231,7 +233,7 @@ public class SparkYarnConfig extends BaseConfig {
     }
 
     public String getQueue() {
-        return StringUtils.isBlank(queue)? "default" : queue;
+        return StringUtils.isBlank(queue) ? "default" : queue;
     }
 
     public void setQueue(String queue) {
@@ -239,7 +241,7 @@ public class SparkYarnConfig extends BaseConfig {
     }
 
     public boolean getElasticCapacity() {
-        return  StringUtils.isBlank(elasticCapacity) ? true: Boolean.valueOf(elasticCapacity);
+        return StringUtils.isBlank(elasticCapacity) ? true : Boolean.valueOf(elasticCapacity);
     }
 
     public void setElasticCapacity(String elasticCapacity) {
@@ -247,7 +249,7 @@ public class SparkYarnConfig extends BaseConfig {
     }
 
     public int getYarnAccepterTaskNumber() {
-        return StringUtils.isBlank(yarnAccepterTaskNumber) ? 1: NumberUtils.toInt(yarnAccepterTaskNumber,2);
+        return StringUtils.isBlank(yarnAccepterTaskNumber) ? 1 : NumberUtils.toInt(yarnAccepterTaskNumber, 2);
     }
 
     public void setYarnAccepterTaskNumber(String yarnAccepterTaskNumber) {

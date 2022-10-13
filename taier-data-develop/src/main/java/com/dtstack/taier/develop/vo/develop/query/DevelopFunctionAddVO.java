@@ -232,6 +232,7 @@ public class DevelopFunctionAddVO extends DtInsightAuthParam {
     public void setResourceId(Long resourceId) {
         this.resourceId = resourceId;
     }
+
     public Integer getUdfType() {
         return udfType;
     }

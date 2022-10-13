@@ -16,24 +16,24 @@
  * limitations under the License.
  */
 
-import { useState, useRef } from 'react';
-import type { FormInstance } from 'antd';
-import { Steps, Button, Spin, message } from 'antd';
+import {useRef, useState} from 'react';
+import type {FormInstance} from 'antd';
+import {Button, message, Spin, Steps} from 'antd';
 import Base64 from 'base-64';
-import { Scrollable } from '@dtinsight/molecule/esm/components';
+import {Scrollable} from '@dtinsight/molecule/esm/components';
 import molecule from '@dtinsight/molecule';
-import { ID_COLLECTIONS } from '@/constant';
-import { SyncOutlined } from '@ant-design/icons';
-import { utf16to8 } from '@/utils';
+import type {DATA_SOURCE_ENUM} from '@/constant';
+import {ID_COLLECTIONS} from '@/constant';
+import {SyncOutlined} from '@ant-design/icons';
+import {utf16to8} from '@/utils';
 import API from '@/api';
 import Version from './version';
 import SelectSource from './selectSource';
 import InfoConfig from './InfoConfig';
-import type { IDataSourceProps } from '@/interface';
-import type { DATA_SOURCE_ENUM} from '@/constant';
+import type {IDataSourceProps} from '@/interface';
 import './add.scss';
 
-const { Step } = Steps;
+const {Step} = Steps;
 
 const STEPS = ['选择数据源', '版本选择', '信息配置'];
 
@@ -56,7 +56,7 @@ interface IAddProps {
 	onSubmit?: () => void;
 }
 
-export default function Add({ record, onSubmit }: IAddProps) {
+export default function Add({record, onSubmit}: IAddProps) {
 	const isEdit = !!record;
 	const [current, setCurrent] = useState<number>(isEdit ? STEPS.length - 1 : 0);
 	const [submitBtnStatus, setSubmitBtnStatus] = useState(false);
@@ -82,7 +82,7 @@ export default function Add({ record, onSubmit }: IAddProps) {
 	};
 
 	const handleVersion = (version: string) => {
-		setDataSource((d) => ({ ...d, dataVersion: version }));
+		setDataSource((d) => ({...d, dataVersion: version}));
 	};
 
 	const request = (handelParams: any, name: 'testCon' | 'testConWithKerberos') => {
@@ -141,7 +141,7 @@ export default function Add({ record, onSubmit }: IAddProps) {
 						message.error(`${msg}` || '保存失败');
 					}
 				} else {
-					const { success, message: msg, data } = await API.addDatasource(handelParams);
+					const {success, message: msg, data} = await API.addDatasource(handelParams);
 
 					if (success && data) {
 						message.success(`${infoMsg}`);
@@ -285,7 +285,7 @@ export default function Add({ record, onSubmit }: IAddProps) {
 				defaultDataSource={dataSource.currentDataSource?.dataType}
 				onSelectDataSource={handleSelected}
 			/>,
-			<Version dataSource={dataSource.currentDataSource!} onSelectVersion={handleVersion} />,
+			<Version dataSource={dataSource.currentDataSource!} onSelectVersion={handleVersion}/>,
 			<Spin spinning={loading}>
 				<InfoConfig
 					ref={form}
@@ -299,7 +299,7 @@ export default function Add({ record, onSubmit }: IAddProps) {
 
 	const PrevStepBtn = (
 		<Button
-			style={{ marginRight: 8, width: 80 }}
+			style={{marginRight: 8, width: 80}}
 			disabled={isEdit}
 			onClick={() => {
 				setCurrent((c) => {
@@ -316,7 +316,7 @@ export default function Add({ record, onSubmit }: IAddProps) {
 
 	const NextStepBtn = (
 		<Button
-			style={{ width: 80 }}
+			style={{width: 80}}
 			type="primary"
 			disabled={isEdit}
 			onClick={() => {
@@ -329,7 +329,7 @@ export default function Add({ record, onSubmit }: IAddProps) {
 
 	const switchFooter = (step: number) => {
 		const FOOTER_STEPS = [
-			<Button style={{ width: 80 }} onClick={handleCancel}>
+			<Button style={{width: 80}} onClick={handleCancel}>
 				取消
 			</Button>,
 			<>
@@ -339,8 +339,8 @@ export default function Add({ record, onSubmit }: IAddProps) {
 			<>
 				<Button
 					type="primary"
-					icon={<SyncOutlined />}
-					style={{ marginRight: 60 }}
+					icon={<SyncOutlined/>}
+					style={{marginRight: 60}}
 					onClick={() => handleTestConnection(false)}
 				>
 					<span>测试连通性</span>

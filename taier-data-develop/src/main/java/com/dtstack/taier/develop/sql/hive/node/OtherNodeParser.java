@@ -15,13 +15,13 @@ import java.util.Set;
 /**
  * 用来解析 一些表结构操作 数据库操作
  */
-public class OtherNodeParser extends NodeParser{
+public class OtherNodeParser extends NodeParser {
 
 
     /**
      * 一些特殊操作 不解析操作类型的 只获取到sql类型
      */
-    public void getSqlType(ASTNode node, ParseResult parseResult){
+    public void getSqlType(ASTNode node, ParseResult parseResult) {
         switch (node.getToken().getType()) {
             // 数据库操作
             case HiveParser.TOK_CREATEDATABASE:
@@ -95,6 +95,7 @@ public class OtherNodeParser extends NodeParser{
                 break;
         }
     }
+
     @Override
     public Node parseSql(ASTNode node, String defultDb, Map<String, List<Column>> tableColumnsMap, Map<String, String> aliasToTable) {
         return null;

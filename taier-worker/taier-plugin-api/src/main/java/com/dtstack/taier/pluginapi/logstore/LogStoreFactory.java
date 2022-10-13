@@ -33,6 +33,7 @@ public class LogStoreFactory {
     public static AbstractLogStore getLogStore() {
         return getLogStore(null);
     }
+
     public static synchronized AbstractLogStore getLogStore(Map<String, String> dbConfig) {
         if (logStore == null) {
             if (dbConfig == null) {

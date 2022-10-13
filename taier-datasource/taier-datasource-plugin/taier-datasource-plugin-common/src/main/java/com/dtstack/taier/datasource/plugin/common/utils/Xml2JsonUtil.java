@@ -46,7 +46,7 @@ public class Xml2JsonUtil {
                 jsonArray = (JSONArray) propertyObject;
             }
             jsonArray.forEach(o -> {
-                JSONObject single = (JSONObject) o ;
+                JSONObject single = (JSONObject) o;
                 map.put(single.getString("name"), single.getString("value"));
             });
             return map;
@@ -81,7 +81,7 @@ public class Xml2JsonUtil {
     private static String readFile(File file) {
         try (FileInputStream fis = new FileInputStream(file);) {
             try (FileChannel fc = fis.getChannel()) {
-                ByteBuffer bb = ByteBuffer.allocate((int)file.length());
+                ByteBuffer bb = ByteBuffer.allocate((int) file.length());
                 fc.read(bb);
                 // 翻转子节流
                 bb.flip();

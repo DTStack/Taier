@@ -1,15 +1,15 @@
 package com.dtstack.taier.datasource.plugin.mongo;
 
+import com.dtstack.taier.datasource.api.dto.SqlQueryDTO;
+import com.dtstack.taier.datasource.api.dto.source.ISourceDTO;
+import com.dtstack.taier.datasource.api.dto.source.MongoSourceDTO;
+import com.dtstack.taier.datasource.api.exception.SourceException;
 import com.dtstack.taier.datasource.plugin.common.exception.IErrorPattern;
 import com.dtstack.taier.datasource.plugin.common.service.ErrorAdapterImpl;
 import com.dtstack.taier.datasource.plugin.common.service.IErrorAdapter;
 import com.dtstack.taier.datasource.plugin.common.utils.AddressUtil;
 import com.dtstack.taier.datasource.plugin.common.utils.SearchUtil;
 import com.dtstack.taier.datasource.plugin.mongo.pool.MongoManager;
-import com.dtstack.taier.datasource.api.dto.SqlQueryDTO;
-import com.dtstack.taier.datasource.api.dto.source.ISourceDTO;
-import com.dtstack.taier.datasource.api.dto.source.MongoSourceDTO;
-import com.dtstack.taier.datasource.api.exception.SourceException;
 import com.google.common.collect.Lists;
 import com.mongodb.MongoClient;
 import com.mongodb.MongoClientOptions;
@@ -93,17 +93,17 @@ public class MongoDBUtils {
      * @param iSource
      * @return
      */
-    public static List<String> getDatabaseList(ISourceDTO iSource){
+    public static List<String> getDatabaseList(ISourceDTO iSource) {
         MongoSourceDTO mongoSourceDTO = (MongoSourceDTO) iSource;
         MongoClient mongoClient = null;
         ArrayList<String> databases = new ArrayList<>();
         try {
             mongoClient = getClient(mongoSourceDTO);
             MongoIterable<String> dbNames = mongoClient.listDatabaseNames();
-            for (String dbName:dbNames){
+            for (String dbName : dbNames) {
                 databases.add(dbName);
             }
-        }catch (Exception e) {
+        } catch (Exception e) {
             log.error(e.getMessage(), e);
         } finally {
             if (!BooleanUtils.isTrue(IS_OPEN_POOL.get()) && mongoClient != null) {
@@ -117,7 +117,7 @@ public class MongoDBUtils {
     /**
      * 预览数据
      */
-    public static List<List<Object>> getPreview(ISourceDTO iSource, SqlQueryDTO queryDTO){
+    public static List<List<Object>> getPreview(ISourceDTO iSource, SqlQueryDTO queryDTO) {
         MongoSourceDTO mongoSourceDTO = (MongoSourceDTO) iSource;
         List<List<Object>> dataList = new ArrayList<>();
         String schema = StringUtils.isBlank(mongoSourceDTO.getSchema()) ? dealSchema(mongoSourceDTO.getHostPort()) : mongoSourceDTO.getSchema();
@@ -132,9 +132,9 @@ public class MongoDBUtils {
             //获取指定表
             MongoCollection<Document> collection = mongoDatabase.getCollection(queryDTO.getTableName());
             FindIterable<Document> documents = collection.find().limit(queryDTO.getPreviewNum());
-            for (Document document:documents){
+            for (Document document : documents) {
                 ArrayList<Object> list = new ArrayList<>();
-                document.keySet().forEach(key->list.add(new Pair<String, Object>(key, document.get(key))));
+                document.keySet().forEach(key -> list.add(new Pair<String, Object>(key, document.get(key))));
                 dataList.add(list);
             }
         } catch (Exception e) {
@@ -261,7 +261,7 @@ public class MongoDBUtils {
             if (StringUtils.isEmpty(username) || StringUtils.isEmpty(password)) {
                 mongoClient = new MongoClient(serverAddress, options);
             } else {
-                if (StringUtils.isBlank(db)){
+                if (StringUtils.isBlank(db)) {
                     db = dealSchema(hostPorts);
                 }
                 MongoCredential credential = MongoCredential.createScramSha1Credential(username, db,
@@ -276,6 +276,7 @@ public class MongoDBUtils {
 
     /**
      * 如果没有指定schema，判断hostPort中有没有
+     *
      * @param hostPorts
      * @return
      */

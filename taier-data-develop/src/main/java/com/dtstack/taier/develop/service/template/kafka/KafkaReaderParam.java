@@ -1,7 +1,6 @@
 package com.dtstack.taier.develop.service.template.kafka;
 
 
-
 import com.dtstack.taier.develop.service.template.DaPluginParam;
 
 import java.util.Map;
@@ -17,7 +16,7 @@ public class KafkaReaderParam extends DaPluginParam {
 
     /**
      * json、text
-      */
+     */
     private String codec;
     /**
      * 可选值：
@@ -50,36 +49,36 @@ public class KafkaReaderParam extends DaPluginParam {
     /**
      * doris配置规则
      * "mapper": {
-     *               "databaseMapper": {
-     *                 "prefix": "ods",
-     *                 "suffix": "",
-     *                 "connectStr": "_",
-     *                 "customize": {
-     *                   "test": "ods_tiezhu"
-     *                 }
-     *               },
-     *               "tableMapper": {
-     *                 "prefix": "ods",
-     *                 "suffix": "test",
-     *                 "connectStr": "_",
-     *                 "customize": {
-     *                   "doris_1": "ods_testOne",
-     *                   "doris_2": "ods_testOne",
-     *                   "doris_3": "ods_testOne",
-     *                   "doris_4": "ods_testOne"
-     *                 }
-     *               },
-     *               "fieldMapper": {
-     *                 "prefix": "ods",
-     *                 "suffix": "test",
-     *                 "connectStr": "_",
-     *                 "customize": {
-     *                   "id": "ods_id_test"
-     *                 }
-     *               }
-     *             }
+     * "databaseMapper": {
+     * "prefix": "ods",
+     * "suffix": "",
+     * "connectStr": "_",
+     * "customize": {
+     * "test": "ods_tiezhu"
+     * }
+     * },
+     * "tableMapper": {
+     * "prefix": "ods",
+     * "suffix": "test",
+     * "connectStr": "_",
+     * "customize": {
+     * "doris_1": "ods_testOne",
+     * "doris_2": "ods_testOne",
+     * "doris_3": "ods_testOne",
+     * "doris_4": "ods_testOne"
+     * }
+     * },
+     * "fieldMapper": {
+     * "prefix": "ods",
+     * "suffix": "test",
+     * "connectStr": "_",
+     * "customize": {
+     * "id": "ods_id_test"
+     * }
+     * }
+     * }
      */
-    private Map<String,Object> mapper;
+    private Map<String, Object> mapper;
 
     public Map<String, Object> getMapper() {
         return mapper;
@@ -112,6 +111,7 @@ public class KafkaReaderParam extends DaPluginParam {
     public void setOffset(String offset) {
         this.offset = offset;
     }
+
     public String getCodec() {
         return codec;
     }

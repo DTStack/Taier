@@ -128,7 +128,6 @@ public enum DataSourceType {
     }
 
 
-
     public static List<Integer> hadoopDirtyDataSource = Lists.newArrayList(
             DataSourceType.HIVE1X.getVal(),
             DataSourceType.HIVE.getVal(),

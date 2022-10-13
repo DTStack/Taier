@@ -41,7 +41,7 @@ public class DevelopServerLogVO {
     //当前页
     private Integer pageIndex;
 
-    public static class SyncJobInfo{
+    public static class SyncJobInfo {
 
         private Integer readNum = 0;
 

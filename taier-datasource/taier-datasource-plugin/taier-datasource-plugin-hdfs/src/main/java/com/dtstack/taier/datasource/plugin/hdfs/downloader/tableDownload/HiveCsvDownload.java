@@ -2,10 +2,10 @@ package com.dtstack.taier.datasource.plugin.hdfs.downloader.tableDownload;
 
 
 import com.dtstack.taier.datasource.api.downloader.IDownloader;
+import com.dtstack.taier.datasource.api.exception.SourceException;
 import com.dtstack.taier.datasource.plugin.common.utils.ListUtil;
 import com.dtstack.taier.datasource.plugin.kerberos.core.hdfs.HdfsOperator;
 import com.dtstack.taier.datasource.plugin.kerberos.core.util.KerberosLoginUtil;
-import com.dtstack.taier.datasource.api.exception.SourceException;
 import com.google.common.collect.Lists;
 import com.univocity.parsers.csv.CsvFormat;
 import com.univocity.parsers.csv.CsvParser;
@@ -72,8 +72,8 @@ public class HiveCsvDownload implements IDownloader {
     private List<String> currentPartData;
 
     public HiveCsvDownload(Configuration configuration, String tableLocation, List<String> columnNames, String fieldDelimiter,
-                               List<String> partitionColumns, Map<String, String> filterPartition, List<Integer> needIndex,
-                               List<String> partitions, Map<String, Object> kerberosConfig){
+                           List<String> partitionColumns, Map<String, String> filterPartition, List<Integer> needIndex,
+                           List<String> partitions, Map<String, Object> kerberosConfig) {
         this.tableLocation = tableLocation;
         this.columnNames = columnNames;
         this.fieldDelimiter = fieldDelimiter;
@@ -89,14 +89,14 @@ public class HiveCsvDownload implements IDownloader {
     public boolean configure() throws IOException {
         parser = createCsvParser(fieldDelimiter);
         paths = Lists.newArrayList();
-        fs =  FileSystem.get(configuration);
+        fs = FileSystem.get(configuration);
         value = Lists.newArrayList();
         // 递归获取表路径下所有文件
         getAllPartitionPath(tableLocation, paths, fs);
         // 初始化 columnNames, 适配数栈写入的 schema 信息
         readFromFileIfEmpty(columnNames, fs);
         // 有可能表结构还存在metaStore中，但是表路径被删除，但是此时不应该报错
-        if(paths.size() == 0){
+        if (paths.size() == 0) {
             return true;
         }
         nextRecordReader();
@@ -119,7 +119,7 @@ public class HiveCsvDownload implements IDownloader {
 
     private boolean nextRecordReader() throws IOException {
 
-        if(!nextFile()){
+        if (!nextFile()) {
             return false;
         }
 
@@ -129,19 +129,19 @@ public class HiveCsvDownload implements IDownloader {
     }
 
 
-    private boolean nextFile(){
-        if(currFileIndex > (paths.size() - 1)){
+    private boolean nextFile() {
+        if (currFileIndex > (paths.size() - 1)) {
             return false;
         }
 
         currFile = paths.get(currFileIndex);
 
-        if(CollectionUtils.isNotEmpty(partitionColumns)){
-            currentPartData = HdfsOperator.parsePartitionDataFromUrl(currFile,partitionColumns);
+        if (CollectionUtils.isNotEmpty(partitionColumns)) {
+            currentPartData = HdfsOperator.parsePartitionDataFromUrl(currFile, partitionColumns);
         }
 
         // 如果分区不存在或者不需要该分区则进行跳过
-        if (!isPartitionExists() || !isRequiredPartition()){
+        if (!isPartitionExists() || !isRequiredPartition()) {
             currFileIndex++;
             return nextFile();
         }
@@ -160,15 +160,15 @@ public class HiveCsvDownload implements IDownloader {
             value = Lists.newArrayList(parserNextResult);
         }
 
-        if(CollectionUtils.isNotEmpty(value)){
+        if (CollectionUtils.isNotEmpty(value)) {
             return true;
         }
 
         parser.stopParsing();
 
         //查找下一个可读的文件夹
-        while (nextRecordReader()){
-            if(nextRecord()){
+        while (nextRecordReader()) {
+            if (nextRecord()) {
                 return true;
             }
         }
@@ -179,34 +179,34 @@ public class HiveCsvDownload implements IDownloader {
     @Override
     public List<String> getMetaInfo() {
         List<String> metaInfo = new ArrayList<>(columnNames);
-        if(CollectionUtils.isNotEmpty(partitionColumns)){
+        if (CollectionUtils.isNotEmpty(partitionColumns)) {
             metaInfo.addAll(partitionColumns);
         }
         return metaInfo;
     }
 
     @Override
-    public List<String> readNext(){
+    public List<String> readNext() {
         return KerberosLoginUtil.loginWithUGI(kerberosConfig).doAs(
-                (PrivilegedAction<List<String>>) ()->{
+                (PrivilegedAction<List<String>>) () -> {
                     try {
                         return readNextWithKerberos();
-                    } catch (Exception e){
+                    } catch (Exception e) {
                         throw new SourceException(String.format("Abnormal reading file,%s", e.getMessage()), e);
                     }
                 });
     }
 
-    public List<String> readNextWithKerberos(){
+    public List<String> readNextWithKerberos() {
         List<String> row = Lists.newArrayList(removeQuotes(value));
         value.clear();
-        if(CollectionUtils.isNotEmpty(partitionColumns)){
+        if (CollectionUtils.isNotEmpty(partitionColumns)) {
             row.addAll(currentPartData);
         }
         if (CollectionUtils.isNotEmpty(needIndex)) {
             List<String> rowNew = Lists.newArrayList();
             for (Integer index : needIndex) {
-                if (index > row.size() -1) {
+                if (index > row.size() - 1) {
                     rowNew.add(null);
                 } else {
                     rowNew.add(row.get(index));
@@ -221,13 +221,13 @@ public class HiveCsvDownload implements IDownloader {
     @Override
     public boolean reachedEnd() {
         return KerberosLoginUtil.loginWithUGI(kerberosConfig).doAs(
-                (PrivilegedAction<Boolean>) ()->{
+                (PrivilegedAction<Boolean>) () -> {
                     try {
                         if (parser == null || !nextRecord()) {
                             reachEnd = true;
                         }
                         return reachEnd;
-                    } catch (Exception e){
+                    } catch (Exception e) {
                         throw new SourceException(String.format("Download file is abnormal,%s", e.getMessage()), e);
                     }
                 });
@@ -249,8 +249,8 @@ public class HiveCsvDownload implements IDownloader {
      * 递归获取文件夹下所有文件，排除隐藏文件和无关文件
      *
      * @param tableLocation hdfs文件路径
-     * @param pathList 所有文件集合
-     * @param fs HDFS 文件系统
+     * @param pathList      所有文件集合
+     * @param fs            HDFS 文件系统
      */
     public static void getAllPartitionPath(String tableLocation, List<String> pathList, FileSystem fs) throws IOException {
         Path inputPath = new Path(tableLocation);
@@ -260,13 +260,13 @@ public class HiveCsvDownload implements IDownloader {
         }
         //剔除隐藏系统文件和无关文件
         FileStatus[] fsStatus = fs.listStatus(inputPath, path -> !path.getName().startsWith(".") && !path.getName().startsWith("_SUCCESS") && !path.getName().startsWith(IMPALA_INSERT_STAGING) && !path.getName().startsWith("_common_metadata") && !path.getName().startsWith("_metadata"));
-        if(fsStatus == null || fsStatus.length == 0){
+        if (fsStatus == null || fsStatus.length == 0) {
             return;
         }
         for (FileStatus status : fsStatus) {
             if (status.isFile()) {
                 pathList.add(status.getPath().toString());
-            }else {
+            } else {
                 getAllPartitionPath(status.getPath().toString(), pathList, fs);
             }
         }
@@ -335,7 +335,7 @@ public class HiveCsvDownload implements IDownloader {
     private String getCurPathPartition() {
         StringBuilder curPart = new StringBuilder();
         for (String part : currFile.split("/")) {
-            if(part.contains("=")){
+            if (part.contains("=")) {
                 curPart.append(part).append("/");
             }
         }
@@ -351,14 +351,14 @@ public class HiveCsvDownload implements IDownloader {
      *
      * @return 是否需要该分区
      */
-    private boolean isRequiredPartition(){
+    private boolean isRequiredPartition() {
         if (filterPartition != null && !filterPartition.isEmpty()) {
             //获取当前路径下的分区信息
-            Map<String,String> partColDataMap = new HashMap<>();
+            Map<String, String> partColDataMap = new HashMap<>();
             for (String part : currFile.split("/")) {
-                if(part.contains("=")){
+                if (part.contains("=")) {
                     String[] parts = part.split("=");
-                    partColDataMap.put(parts[0],parts[1]);
+                    partColDataMap.put(parts[0], parts[1]);
                 }
             }
 
@@ -367,7 +367,7 @@ public class HiveCsvDownload implements IDownloader {
             for (String key : keySet) {
                 String partition = partColDataMap.get(key);
                 String needPartition = filterPartition.get(key);
-                if (!Objects.equals(partition, needPartition)){
+                if (!Objects.equals(partition, needPartition)) {
                     check = false;
                     break;
                 }

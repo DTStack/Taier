@@ -1,4 +1,5 @@
 package com.dtstack.taier.develop.dto.devlop;
+
 import java.util.HashMap;
 
 public class SubJobVerticeDTO {
@@ -30,13 +31,13 @@ public class SubJobVerticeDTO {
      */
     private Double delay;
 
-    private HashMap<Integer,Long> recordsReceivedMap = new HashMap<>();
+    private HashMap<Integer, Long> recordsReceivedMap = new HashMap<>();
 
-    private HashMap<Integer,Long> recordsSentMap = new HashMap<>();
+    private HashMap<Integer, Long> recordsSentMap = new HashMap<>();
 
-    private HashMap<Integer, HashMap<String,Double>> delayMap = new HashMap<>();
+    private HashMap<Integer, HashMap<String, Double>> delayMap = new HashMap<>();
 
-    private HashMap<String,Double> delayMapList = new HashMap<>();
+    private HashMap<String, Double> delayMapList = new HashMap<>();
 
 
     public Integer getParallelism() {

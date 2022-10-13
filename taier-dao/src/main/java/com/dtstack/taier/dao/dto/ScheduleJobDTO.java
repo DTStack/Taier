@@ -17,7 +17,9 @@ public class ScheduleJobDTO {
     private String taskNameLike;
     private String businessDateLike;
 
-    /**执行耗费时间**/
+    /**
+     * 执行耗费时间
+     **/
     private Long execTime;
     private String jobNameRightLike;
     private List<Long> taskIds;
@@ -27,10 +29,14 @@ public class ScheduleJobDTO {
     private List<Integer> taskTypes;
     private String execTimeSort;
 
-    /**执行开始时间**/
+    /**
+     * 执行开始时间
+     **/
     private String execStartSort;
 
-    /**执行结束时间**/
+    /**
+     * 执行结束时间
+     **/
     private String execEndSort;
     private String cycSort;
     private String retryNumSort;
@@ -38,18 +44,24 @@ public class ScheduleJobDTO {
     private List<Integer> taskPeriodId;//任务周期列表
     private String bizStartDay;
     private String bizEndDay;
-    /**调度开始日期**/
+    /**
+     * 调度开始日期
+     **/
     private String cycStartDay;
 
-    /**调度结束日期**/
+    /**
+     * 调度结束日期
+     **/
     private String cycEndDay;
     private Long ownerUserId;
     private boolean pageQuery;
 
-    /**查询工作流模式，  1.排除工作流子节点 2.只查询工作流子节点 3.父子节点都有查 4.排除工作流父节点 **/
+    /**
+     * 查询工作流模式，  1.排除工作流子节点 2.只查询工作流子节点 3.父子节点都有查 4.排除工作流父节点
+     **/
     private Integer queryWorkFlowModel;
     private String fillDataJobName;
-    private Integer  searchType;
+    private Integer searchType;
     /**
      * fixme 算法实验任务实例Id
      */
@@ -71,6 +83,7 @@ public class ScheduleJobDTO {
     private Date execEndDay;
 
     private List<Integer> types;
+
     public List<Integer> getTypes() {
         return types;
     }

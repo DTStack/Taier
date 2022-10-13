@@ -16,20 +16,20 @@
  * limitations under the License.
  */
 
-import { useContext, useEffect, useState } from 'react';
-import { history } from 'umi';
+import {useContext, useEffect, useState} from 'react';
+import {history} from 'umi';
 import Api from '@/api';
-import { DRAWER_MENU_ENUM, SCHEDULE_STATUS, TASK_TYPE_ENUM } from '@/constant';
-import type { IUpstreamJobProps, ITaskProps } from '@/interface';
-import { DIRECT_TYPE_ENUM } from '@/interface';
-import type { IContextMenuConfig } from '@/components/mxGraph/container';
+import {DRAWER_MENU_ENUM, SCHEDULE_STATUS, TASK_TYPE_ENUM} from '@/constant';
+import type {ITaskProps, IUpstreamJobProps} from '@/interface';
+import {DIRECT_TYPE_ENUM} from '@/interface';
+import type {IContextMenuConfig} from '@/components/mxGraph/container';
 import MxGraphContainer from '@/components/mxGraph/container';
-import { formatDateTime, goToTaskDev } from '@/utils';
-import type { mxCell } from 'mxgraph';
+import {formatDateTime, goToTaskDev} from '@/utils';
+import type {mxCell} from 'mxgraph';
 import context from '@/context';
 import ReactDOMServer from 'react-dom/server';
-import { PlusSquareOutlined } from '@ant-design/icons';
-import { Modal } from 'antd';
+import {PlusSquareOutlined} from '@ant-design/icons';
+import {Modal} from 'antd';
 
 interface ITaskFlowViewProps {
 	tabData: ITaskProps | null;
@@ -46,8 +46,8 @@ interface IGetTaskChildrenParams {
 	level?: number;
 }
 
-const TaskFlowView = ({ tabData, onPatchData, onForzenTasks }: ITaskFlowViewProps) => {
-	const { supportJobTypes } = useContext(context);
+const TaskFlowView = ({tabData, onPatchData, onForzenTasks}: ITaskFlowViewProps) => {
+	const {supportJobTypes} = useContext(context);
 	const [graphData, setGraphData] = useState<IUpstreamJobProps[] | null>(null);
 	const [loading, setLoading] = useState(false);
 	const [visible, setVisible] = useState(false);
@@ -159,10 +159,10 @@ const TaskFlowView = ({ tabData, onPatchData, onForzenTasks }: ITaskFlowViewProp
 					<span className="vertex-title">
 						{task.taskName}
 						<span className="vertex-extra">
-							{task.taskType === TASK_TYPE_ENUM.WORK_FLOW && <PlusSquareOutlined />}
+							{task.taskType === TASK_TYPE_ENUM.WORK_FLOW && <PlusSquareOutlined/>}
 						</span>
 					</span>
-					<br />
+					<br/>
 					<span className="vertex-desc">{taskType}</span>
 				</div>,
 			);
@@ -180,7 +180,7 @@ const TaskFlowView = ({ tabData, onPatchData, onForzenTasks }: ITaskFlowViewProp
 			const data: IUpstreamJobProps = cell.value;
 
 			setLoading(true);
-			Api.getRootWorkflowTask<number[]>({ taskId: data.taskId })
+			Api.getRootWorkflowTask<number[]>({taskId: data.taskId})
 				.then((res) => {
 					if (res.code === 1) {
 						return res.data;
@@ -247,7 +247,7 @@ const TaskFlowView = ({ tabData, onPatchData, onForzenTasks }: ITaskFlowViewProp
 									<a
 										className="mx-2"
 										onClick={() => {
-											goToTaskDev({ id: data.taskId });
+											goToTaskDev({id: data.taskId});
 										}}
 									>
 										查看代码
@@ -263,7 +263,7 @@ const TaskFlowView = ({ tabData, onPatchData, onForzenTasks }: ITaskFlowViewProp
 				visible={visible}
 				width={800}
 				footer={null}
-				bodyStyle={{ height: 400 }}
+				bodyStyle={{height: 400}}
 				destroyOnClose
 				onCancel={() => setVisible(false)}
 			>

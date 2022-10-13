@@ -16,15 +16,15 @@
  * limitations under the License.
  */
 
-import { useEffect, useMemo, useState } from 'react';
-import { Pagination, Select } from 'antd';
+import {useEffect, useMemo, useState} from 'react';
+import {Pagination, Select} from 'antd';
 import SpreadSheet from '@/components/spreadSheet';
 import molecule from '@dtinsight/molecule/esm';
 import './result.scss';
 
 const defaultOutTable = 1;
 
-const { Option } = Select;
+const {Option} = Select;
 
 interface IResultTabProps {
 	id?: string;
@@ -42,12 +42,12 @@ interface IResultProps {
 }
 
 export default function Result({
-	tab,
-	extraView,
-	data,
-	getTableData,
-	updateTableData,
-}: IResultProps) {
+								   tab,
+								   extraView,
+								   data,
+								   getTableData,
+								   updateTableData,
+							   }: IResultProps) {
 	const [pagination, setPagination] = useState({
 		current: 1,
 		pageSize: 10,
@@ -56,9 +56,9 @@ export default function Result({
 
 	const onPageChange = (tableName?: string, nextPagination?: typeof pagination) => {
 		if (tab?.tableType) {
-			const newTab = { ...tab, tableName: tableName ?? tab.tableName };
+			const newTab = {...tab, tableName: tableName ?? tab.tableName};
 			getTableData?.(nextPagination || pagination, newTab, (total) => {
-				setPagination((p) => ({ ...p, total }));
+				setPagination((p) => ({...p, total}));
 			});
 		}
 	};
@@ -66,14 +66,14 @@ export default function Result({
 	const tableNameChange = (tableName: string) => {
 		updateTableData?.('tableName', tableName, tab!.id);
 		setPagination((p) => {
-			const nextPagination = { ...p, current: 1 };
+			const nextPagination = {...p, current: 1};
 			onPageChange(tableName, nextPagination);
 			return nextPagination;
 		});
 	};
 
 	const renderOptions = () => {
-		const { tableNameArr } = tab!;
+		const {tableNameArr} = tab!;
 		return tableNameArr!.map((name) => {
 			return (
 				<Option key={name} value={name}>
@@ -88,7 +88,7 @@ export default function Result({
 		if (!pageData) {
 			return result;
 		}
-		const { current, pageSize } = pagination;
+		const {current, pageSize} = pagination;
 		const begin = (current - 1) * pageSize;
 		const end = begin + pageSize;
 		result = pageData.slice(begin, end);
@@ -114,7 +114,7 @@ export default function Result({
 						<span>{tab?.tableType === defaultOutTable ? '数据表：' : '结果表：'}</span>
 						<Select
 							defaultValue={tab.tableName}
-							style={{ width: 340 }}
+							style={{width: 340}}
 							onChange={tableNameChange}
 						>
 							{renderOptions()}
@@ -122,7 +122,7 @@ export default function Result({
 					</div>
 				)}
 				<div className="c-ide-result__table">
-					<SpreadSheet columns={data[0]} data={resultData} />
+					<SpreadSheet columns={data[0]} data={resultData}/>
 				</div>
 				<div className="c-ide-result__tools">
 					{extraView}
@@ -135,14 +135,14 @@ export default function Result({
 							pageSizeOptions={pageSizeOptions}
 							onChange={(page) => {
 								setPagination((p) => {
-									const nextPagination = { ...p, current: page };
+									const nextPagination = {...p, current: page};
 									onPageChange(undefined, nextPagination);
 									return nextPagination;
 								});
 							}}
 							onShowSizeChange={(_, size) => {
 								setPagination((p) => {
-									const nextPagination = { ...p, current: 1, pageSize: size };
+									const nextPagination = {...p, current: 1, pageSize: size};
 									onPageChange(undefined, nextPagination);
 									return nextPagination;
 								});

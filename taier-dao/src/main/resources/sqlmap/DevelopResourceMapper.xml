@@ -3,7 +3,8 @@
 <mapper namespace="com.dtstack.taier.dao.mapper.DevelopResourceMapper">
 
     <sql id="select_content_fragment">
-      id,tenant_id,node_pid,url,resource_type,resource_name,origin_file_name,resource_desc,gmt_create,gmt_modified,create_user_id,modify_user_id,is_deleted,node_id,compute_type
+        id
+        ,tenant_id,node_pid,url,resource_type,resource_name,origin_file_name,resource_desc,gmt_create,gmt_modified,create_user_id,modify_user_id,is_deleted,node_id,compute_type
     </sql>
 
     <sql id="update_fragment">
@@ -55,9 +56,9 @@
     <select id="getResourceURLByFunctionId" resultType="java.lang.String">
         SELECT br.url
         FROM develop_function_resource bfr
-        INNER JOIN develop_resource br ON bfr.resource_id = br.id
-        WHERE bfr.function_id = #{functionId} AND br.is_deleted = 0
-        limit 1
+                 INNER JOIN develop_resource br ON bfr.resource_id = br.id
+        WHERE bfr.function_id = #{functionId}
+          AND br.is_deleted = 0 limit 1
     </select>
 
 
@@ -87,7 +88,8 @@
 
     <update id="deleteById">
         UPDATE develop_resource
-        SET is_deleted = 1,gmt_modified = NOW()
+        SET is_deleted   = 1,
+            gmt_modified = NOW()
         WHERE id = #{id}
     </update>
 
@@ -98,11 +100,13 @@
         WHERE tenant_id = #{tenantId} and resource_name = #{resourceName} AND is_deleted = 0
     </select>
 
-    <insert id="insert" parameterType="com.dtstack.taier.dao.domain.DevelopResource" useGeneratedKeys="true" keyProperty="id">
+    <insert id="insert" parameterType="com.dtstack.taier.dao.domain.DevelopResource" useGeneratedKeys="true"
+            keyProperty="id">
         INSERT INTO develop_resource
-          (tenant_id,node_pid,url,resource_type,resource_name,origin_file_name,resource_desc,gmt_create,gmt_modified,create_user_id,modify_user_id,is_deleted,compute_type)
-        VALUES
-          (#{tenantId},#{nodePid},#{url},#{resourceType},#{resourceName},#{originFileName},#{resourceDesc}, now(), now(),#{createUserId},#{modifyUserId}, 0, #{computeType})
+        (tenant_id, node_pid, url, resource_type, resource_name, origin_file_name, resource_desc, gmt_create,
+         gmt_modified, create_user_id, modify_user_id, is_deleted, compute_type)
+        VALUES (#{tenantId}, #{nodePid}, #{url}, #{resourceType}, #{resourceName}, #{originFileName}, #{resourceDesc},
+                now(), now(), #{createUserId}, #{modifyUserId}, 0, #{computeType})
     </insert>
 
     <update id="update" parameterType="com.dtstack.taier.dao.domain.DevelopResource">
@@ -113,7 +117,8 @@
         id = #{id} AND is_deleted = 0
     </update>
 
-    <select id="generalQuery" parameterType="com.dtstack.taier.dao.pager.PageQuery" resultType="com.dtstack.taier.dao.domain.DevelopResource">
+    <select id="generalQuery" parameterType="com.dtstack.taier.dao.pager.PageQuery"
+            resultType="com.dtstack.taier.dao.domain.DevelopResource">
         SELECT
         <include refid="select_content_fragment"/>
         FROM develop_resource

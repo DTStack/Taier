@@ -31,7 +31,7 @@ import java.util.Map;
  * author: toutian
  * create: 2017/5/10
  */
-public class DataSourceVO{
+public class DataSourceVO {
 
     /**
      * 数据源 ID
@@ -76,7 +76,9 @@ public class DataSourceVO{
      */
     private String dataType;
 
-    /**数据源类型编码**/
+    /**
+     * 数据源类型编码
+     **/
     private Integer dataTypeCode;
 
     /**
@@ -139,7 +141,9 @@ public class DataSourceVO{
      */
     private Integer isMeta;
 
-    /**数据库名称**/
+    /**
+     * 数据库名称
+     **/
     private String schemaName;
 
 

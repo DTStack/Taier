@@ -28,7 +28,7 @@ public class SqlTypeRegexUtil {
      * @return
      */
     public static ParseResult getParseResultByRegexSql(ParseResult parseResult) {
-        String sql = parseResult.getStandardSql().trim().toLowerCase().replaceAll("\n"," ").replaceAll("\t",  " ");
+        String sql = parseResult.getStandardSql().trim().toLowerCase().replaceAll("\n", " ").replaceAll("\t", " ");
         Map<String, String> tableAndDb = new HashMap<>();
         if (sql.matches(createSql)) {
             tableAndDb = SqlRegexUtil.parseDbTableFromCreateSql(parseResult.getOriginSql());
@@ -44,17 +44,17 @@ public class SqlTypeRegexUtil {
             parseResult.setSqlType(SqlType.DROP);
         } else if (sql.matches(selectSql)) {
             parseResult.setSqlType(SqlType.QUERY);
-        } else if (sql.matches(showSql)){
+        } else if (sql.matches(showSql)) {
             parseResult.setSqlType(SqlType.SHOW);
-        } else if (sql.matches(withSql)){
-            if (sql.indexOf("create")>-1){
+        } else if (sql.matches(withSql)) {
+            if (sql.indexOf("create") > -1) {
                 parseResult.setSqlType(SqlType.CREATE);
-            }else if (sql.indexOf("insert")>-1){
+            } else if (sql.indexOf("insert") > -1) {
                 parseResult.setSqlType(SqlType.INSERT);
-            }else {
+            } else {
                 parseResult.setSqlType(SqlType.SHOW);
             }
-        }  else {
+        } else {
             parseResult.setSqlType(SqlType.OTHER);
         }
         if (!tableAndDb.isEmpty()) {

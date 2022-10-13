@@ -13,7 +13,7 @@ public class SingleComputePart extends PartImpl {
 
     public SingleComputePart(EComponentType componentType, String versionName, EComponentType storeType,
                              Map<EComponentScheduleType, List<Component>> componentScheduleGroup, Context context, DataSource dataSource) {
-        super(componentType, versionName, storeType, componentScheduleGroup, context, dataSource,null);
+        super(componentType, versionName, storeType, componentScheduleGroup, context, dataSource, null);
     }
 
     @Override

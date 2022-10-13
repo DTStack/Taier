@@ -74,7 +74,7 @@ public class FillDataRunnable implements Runnable {
             }
 
             // 所有要运行的节点集合 R集合
-            LOGGER.info("fillId:{} start getRunList",fillId);
+            LOGGER.info("fillId:{} start getRunList", fillId);
             Set<Long> run = fillDataTask.getRunList();
 
             // 所有要生成的节点集合 A集合
@@ -88,10 +88,10 @@ public class FillDataRunnable implements Runnable {
             }
 
             // 生成补数据实例
-            fillDataJobBuilder.createFillJob(all, run,fillId,fillName,beginTime,endTime,startDay,endDay);
+            fillDataJobBuilder.createFillJob(all, run, fillId, fillName, beginTime, endTime, startDay, endDay);
 
         } catch (Throwable e) {
-            LOGGER.error("fillId:{} create exception:",fillId,e);
+            LOGGER.error("fillId:{} create exception:", fillId, e);
             isSuccess = Boolean.FALSE;
         }
 
@@ -101,19 +101,18 @@ public class FillDataRunnable implements Runnable {
             status = FillGeneratStatusEnum.FILL_FAIL.getType();
         }
 
-        fillFinishEvent.finishFill(fillId,FillGeneratStatusEnum.REALLY_GENERATED.getType(),status);
+        fillFinishEvent.finishFill(fillId, FillGeneratStatusEnum.REALLY_GENERATED.getType(), status);
     }
-
 
 
     private FillDataTask getFillDataTask() {
         if (FillDataTypeEnum.BATCH.getType().equals(fillDataType)) {
-            return new BatchFillDataTask(applicationContext, new FillDataInfoDTO(taskIds,rootTaskId));
+            return new BatchFillDataTask(applicationContext, new FillDataInfoDTO(taskIds, rootTaskId));
         }
         return null;
     }
 
     public interface FillFinishEvent {
-        void finishFill(Long fillId,Integer originalStatus,Integer currentStatus);
+        void finishFill(Long fillId, Integer originalStatus, Integer currentStatus);
     }
 }

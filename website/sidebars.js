@@ -30,18 +30,18 @@ const sidebars = {
             collapsed: false,
             items: [
                 'quickstart/rely',
-                 {
-                        type: 'category',
-                        collapsed: false,
-                        label: '快速部署',
-                        items: [
-                            'quickstart/deploy/pre-operation',
-                            'quickstart/deploy/docker',
-                            'quickstart/deploy/deployment-quick',
-                            'quickstart/deploy/build',
-                        ],
-                 },
-                  'quickstart/start',
+                {
+                    type: 'category',
+                    collapsed: false,
+                    label: '快速部署',
+                    items: [
+                        'quickstart/deploy/pre-operation',
+                        'quickstart/deploy/docker',
+                        'quickstart/deploy/deployment-quick',
+                        'quickstart/deploy/build',
+                    ],
+                },
+                'quickstart/start',
             ],
         },
         {
@@ -63,7 +63,7 @@ const sidebars = {
                         'functions/component/spark',
                         'functions/component/hive',
                     ],
-                 },
+                },
                 'functions/datasource',
                 {
                     type: 'category',
@@ -77,7 +77,7 @@ const sidebars = {
                         'functions/task/hive-sql',
                         'functions/task/oceanbase-sql',
                     ],
-                 },
+                },
                 'functions/maintenance',
                 'functions/depend',
                 'functions/task-param',

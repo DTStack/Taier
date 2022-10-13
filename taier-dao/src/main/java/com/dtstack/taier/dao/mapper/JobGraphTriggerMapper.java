@@ -17,7 +17,7 @@ public interface JobGraphTriggerMapper extends BaseMapper<JobGraphTrigger> {
     /**
      * 按照时间查询JobGraphTrigger
      *
-     * @param timestamp JobGraphTrigger的生成具体时间
+     * @param timestamp   JobGraphTrigger的生成具体时间
      * @param triggerType JobGraph类型： 周期，立即，补数据
      * @return JobGraphTrigger
      */

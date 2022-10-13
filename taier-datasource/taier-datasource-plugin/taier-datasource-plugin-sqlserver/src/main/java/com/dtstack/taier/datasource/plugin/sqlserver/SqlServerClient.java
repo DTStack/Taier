@@ -1,9 +1,5 @@
 package com.dtstack.taier.datasource.plugin.sqlserver;
 
-import com.dtstack.taier.datasource.plugin.common.DtClassConsistent;
-import com.dtstack.taier.datasource.plugin.common.utils.DBUtil;
-import com.dtstack.taier.datasource.plugin.rdbms.AbsRdbmsClient;
-import com.dtstack.taier.datasource.plugin.rdbms.ConnFactory;
 import com.dtstack.taier.datasource.api.downloader.IDownloader;
 import com.dtstack.taier.datasource.api.dto.ColumnMetaDTO;
 import com.dtstack.taier.datasource.api.dto.SqlQueryDTO;
@@ -12,6 +8,10 @@ import com.dtstack.taier.datasource.api.dto.source.RdbmsSourceDTO;
 import com.dtstack.taier.datasource.api.dto.source.SqlserverSourceDTO;
 import com.dtstack.taier.datasource.api.exception.SourceException;
 import com.dtstack.taier.datasource.api.source.DataSourceType;
+import com.dtstack.taier.datasource.plugin.common.DtClassConsistent;
+import com.dtstack.taier.datasource.plugin.common.utils.DBUtil;
+import com.dtstack.taier.datasource.plugin.rdbms.AbsRdbmsClient;
+import com.dtstack.taier.datasource.plugin.rdbms.ConnFactory;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 
@@ -149,7 +149,7 @@ public class SqlServerClient extends AbsRdbmsClient {
     @Override
     protected String transferSchemaAndTableName(String schema, String tableName) {
         //如果传过来是[tableName]格式直接当成表名
-        if (tableName.startsWith("[") && tableName.endsWith("]")){
+        if (tableName.startsWith("[") && tableName.endsWith("]")) {
             if (StringUtils.isNotBlank(schema)) {
                 return String.format("%s.%s", schema, tableName);
             }
@@ -173,17 +173,17 @@ public class SqlServerClient extends AbsRdbmsClient {
     @Override
     protected String getTableBySchemaSql(ISourceDTO sourceDTO, SqlQueryDTO queryDTO) {
         StringBuilder constr = new StringBuilder();
-        if(queryDTO.getLimit() != null) {
+        if (queryDTO.getLimit() != null) {
             constr.append(String.format(SEARCH_LIMIT_SQL, queryDTO.getLimit()));
-        }else {
+        } else {
             constr.append(SEARCH_SQL);
         }
         //判断是否需要schema
-        if(StringUtils.isNotBlank(queryDTO.getSchema())){
+        if (StringUtils.isNotBlank(queryDTO.getSchema())) {
             constr.append(String.format(SCHEMA_SQL, queryDTO.getSchema()));
         }
         // 根据name 模糊查询
-        if(StringUtils.isNotBlank(queryDTO.getTableNamePattern())){
+        if (StringUtils.isNotBlank(queryDTO.getTableNamePattern())) {
             constr.append(String.format(TABLE_NAME_SQL, queryDTO.getTableNamePattern()));
         }
         return constr.toString();
@@ -217,7 +217,7 @@ public class SqlServerClient extends AbsRdbmsClient {
 
         } catch (Exception e) {
             //获取表字段注释失败
-        }finally {
+        } finally {
             DBUtil.closeDBResources(rs, statement, connection);
         }
         return columnComments;
@@ -225,6 +225,7 @@ public class SqlServerClient extends AbsRdbmsClient {
 
     /**
      * 查询表字段注释
+     *
      * @param tableName
      * @return
      */
@@ -244,6 +245,7 @@ public class SqlServerClient extends AbsRdbmsClient {
 
     /**
      * 查询表注释sql
+     *
      * @param tableName
      * @return
      */

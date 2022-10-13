@@ -7,6 +7,7 @@ import java.io.Serializable;
 
 /**
  * 数据源类型视图类
+ *
  * @description:
  * @author: liuxx
  * @date: 2021/3/9

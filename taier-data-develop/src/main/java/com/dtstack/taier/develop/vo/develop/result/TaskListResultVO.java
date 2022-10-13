@@ -38,9 +38,9 @@ public class TaskListResultVO {
 
     @ApiModelProperty(value = "最近修改时间", example = "2020-12-29T11:39:13.000+00:00")
     private Timestamp gmtModified;
-    
+
     @ApiModelProperty(value = "描述", example = "描述")
-    private String  taskDesc;
+    private String taskDesc;
 
     @ApiModelProperty(value = "最近提交时间", example = "2020-12-29T11:39:13.000+00:00")
     private Timestamp submitModified;

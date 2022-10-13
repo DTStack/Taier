@@ -1,11 +1,11 @@
 import molecule from '@dtinsight/molecule';
 import Create from '@/components/task/create';
-import { connect } from '@dtinsight/molecule/esm/react';
+import {connect} from '@dtinsight/molecule/esm/react';
 import taskSaveService from '@/services/taskSaveService';
-import type { IOfflineTaskProps } from '@/interface';
+import type {IOfflineTaskProps} from '@/interface';
 
 // 虚节点
-const Virtual = connect(molecule.editor, ({ current }: molecule.model.IEditor) => {
+const Virtual = connect(molecule.editor, ({current}: molecule.model.IEditor) => {
 	const handleSubmit = () => {
 		return new Promise<boolean>((resolve) => {
 			taskSaveService.save().finally(() => {

@@ -34,7 +34,7 @@ public class SetSuccessAndResumeSchedulingRestartJob extends AbstractRestartJob 
             }
             if (!"0".equalsIgnoreCase(job.getFlowJobId())) {
                 ScheduleJob workFlowJob = scheduleJobService.lambdaQuery()
-                        .eq(ScheduleJob::getJobId,job.getFlowJobId())
+                        .eq(ScheduleJob::getJobId, job.getFlowJobId())
                         .eq(ScheduleJob::getIsDeleted, Deleted.NORMAL.getStatus())
                         .one();
                 if (null != workFlowJob) {

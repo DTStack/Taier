@@ -13,79 +13,79 @@ public class ReturnJobListVO {
     /**
      * 实例id
      */
-    @ApiModelProperty(value = "实例id",example = "123123")
+    @ApiModelProperty(value = "实例id", example = "123123")
     private String jobId;
 
     /**
      * 实例状态
      */
-    @ApiModelProperty(value = "实例状态",example = "0")
+    @ApiModelProperty(value = "实例状态", example = "0")
     private Integer status;
 
     /**
      * 任务id
      */
-    @ApiModelProperty(value = "任务id",example = "0")
+    @ApiModelProperty(value = "任务id", example = "0")
     private Long taskId;
 
     /**
      * 任务名称
      */
-    @ApiModelProperty(value = "任务名称",example = "任务名称")
+    @ApiModelProperty(value = "任务名称", example = "任务名称")
     private String taskName;
 
     /**
      * 任务类型
      */
-    @ApiModelProperty(value = "任务类型",example = "0")
+    @ApiModelProperty(value = "任务类型", example = "0")
     private Integer taskType;
 
     /**
      * 调度类型
      */
-    @ApiModelProperty(value = "调度类型",example = "0")
+    @ApiModelProperty(value = "调度类型", example = "0")
     private Integer periodType;
 
     /**
      * 计划时间
      */
-    @ApiModelProperty(value = "计划时间",example = "2021-12-21 21:00:00")
+    @ApiModelProperty(value = "计划时间", example = "2021-12-21 21:00:00")
     private String cycTime;
 
     /**
      * 开始时间
      */
-    @ApiModelProperty(value = "开始时间",example = "2021-12-21 21:00:00")
+    @ApiModelProperty(value = "开始时间", example = "2021-12-21 21:00:00")
     private String startExecTime;
 
     /**
      * 结束时间
      */
-    @ApiModelProperty(value = "结束时间",example = "2021-12-21 21:00:00")
+    @ApiModelProperty(value = "结束时间", example = "2021-12-21 21:00:00")
     private String endExecTime;
 
     /**
      * 运行时长
      */
-    @ApiModelProperty(value = "运行时长",example = "38秒")
+    @ApiModelProperty(value = "运行时长", example = "38秒")
     private String execTime;
 
     /**
      * 当前重试次数
      */
-    @ApiModelProperty(value = "当前重试次数",example = "3")
+    @ApiModelProperty(value = "当前重试次数", example = "3")
     private Integer retryNum;
 
     /**
      * 责任人id
      */
-    @ApiModelProperty(value = "责任人id",example = "1")
+    @ApiModelProperty(value = "责任人id", example = "1")
     private Long operatorId;
 
     /**
      * 责任人名称
      */
-    @ApiModelProperty(value = "责任人名称",example = "1")
+    @ApiModelProperty(value = "责任人名称", example = "1")
     private String operatorName;
 
     public String getJobId() {

@@ -15,21 +15,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { useEffect, useState } from 'react';
-import { Radio, Space } from 'antd';
-import { Form, Modal, Button, Input, Select, Upload } from 'antd';
+import {useEffect, useState} from 'react';
+import {Button, Form, Input, Modal, Radio, Select, Space, Upload} from 'antd';
 import FolderPicker from '../../components/folderPicker';
-import { CATALOGUE_TYPE, formItemLayout, RESOURCE_TYPE } from '@/constant';
-import { IComputeType } from '@/interface';
-import type { RcFile } from 'antd/lib/upload';
-import { resourceNameMapping } from '@/utils/enums';
-import { catalogueService } from '@/services';
+import {CATALOGUE_TYPE, formItemLayout, RESOURCE_TYPE} from '@/constant';
+import {IComputeType} from '@/interface';
+import type {RcFile} from 'antd/lib/upload';
+import {resourceNameMapping} from '@/utils/enums';
+import {catalogueService} from '@/services';
 import resourceManagerTree from '@/services/resourceManagerService';
-import { FileTypes } from '@dtinsight/molecule/esm/model';
+import {FileTypes} from '@dtinsight/molecule/esm/model';
 import api from '@/api';
 
 const FormItem = Form.Item;
-const { Option } = Select;
+const {Option} = Select;
 
 export interface IFormFieldProps {
 	/**
@@ -67,19 +66,19 @@ interface IResModalProps {
 }
 
 export default function ResModal({
-	visible,
-	isCoverUpload,
-	defaultValue,
-	onClose,
-	onReplaceResource,
-	onAddResource,
-}: IResModalProps) {
+									 visible,
+									 isCoverUpload,
+									 defaultValue,
+									 onClose,
+									 onReplaceResource,
+									 onAddResource,
+								 }: IResModalProps) {
 	const [form] = Form.useForm<IFormFieldProps>();
 	const [confirmLoading, setLoading] = useState(false);
 
 	const handleSubmit = () => {
 		form.validateFields().then((values) => {
-			const params = { ...values };
+			const params = {...values};
 			params.resourceDesc = values.resourceDesc || '';
 			setLoading(true);
 			if (isCoverUpload) {
@@ -144,7 +143,7 @@ export default function ResModal({
 		if (!value) {
 			return Promise.resolve();
 		}
-		const { resourceType: fileType } = form.getFieldsValue();
+		const {resourceType: fileType} = form.getFieldsValue();
 		const fileSuffix = resourceNameMapping(fileType);
 		if (fileType === RESOURCE_TYPE.OTHER) {
 			return Promise.resolve();
@@ -178,7 +177,7 @@ export default function ResModal({
 							},
 						]}
 					>
-						<Input placeholder="请输入资源名称" />
+						<Input placeholder="请输入资源名称"/>
 					</FormItem>
 					<FormItem
 						label="资源类型"
@@ -216,7 +215,7 @@ export default function ResModal({
 							pre.resourceType !== cur.resourceType || pre.file !== cur.file
 						}
 					>
-						{({ getFieldValue }) => (
+						{({getFieldValue}) => (
 							<>
 								<FormItem
 									noStyle
@@ -237,8 +236,8 @@ export default function ResModal({
 										accept={
 											getFieldValue('resourceType') !== RESOURCE_TYPE.OTHER
 												? `.${resourceNameMapping(
-														getFieldValue('resourceType'),
-												  )}`
+													getFieldValue('resourceType'),
+												)}`
 												: undefined
 										}
 										beforeUpload={() => false}
@@ -278,7 +277,7 @@ export default function ResModal({
 							catalogueService.getRootFolder(CATALOGUE_TYPE.RESOURCE)?.data?.id
 						}
 					>
-						<FolderPicker dataType={CATALOGUE_TYPE.RESOURCE} showFile={false} />
+						<FolderPicker dataType={CATALOGUE_TYPE.RESOURCE} showFile={false}/>
 					</FormItem>
 					<FormItem
 						label="描述"
@@ -290,7 +289,7 @@ export default function ResModal({
 							},
 						]}
 					>
-						<Input.TextArea rows={4} />
+						<Input.TextArea rows={4}/>
 					</FormItem>
 				</>
 			);
@@ -312,10 +311,10 @@ export default function ResModal({
 					]}
 					initialValue={catalogueService.getRootFolder(CATALOGUE_TYPE.RESOURCE)?.data?.id}
 				>
-					<FolderPicker dataType={CATALOGUE_TYPE.RESOURCE} showFile />
+					<FolderPicker dataType={CATALOGUE_TYPE.RESOURCE} showFile/>
 				</FormItem>
 				<FormItem label="文件名" name="originFileName">
-					<Input disabled readOnly />
+					<Input disabled readOnly/>
 				</FormItem>
 				<FormItem
 					label="资源类型"
@@ -366,7 +365,7 @@ export default function ResModal({
 						pre.resourceType !== cur.resourceType || pre.file !== cur.file
 					}
 				>
-					{({ getFieldValue }) => (
+					{({getFieldValue}) => (
 						<>
 							<FormItem
 								noStyle
@@ -387,8 +386,8 @@ export default function ResModal({
 									accept={
 										getFieldValue('resourceType') !== RESOURCE_TYPE.OTHER
 											? `.${resourceNameMapping(
-													getFieldValue('resourceType'),
-											  )}`
+												getFieldValue('resourceType'),
+											)}`
 											: undefined
 									}
 									beforeUpload={() => false}
@@ -411,7 +410,7 @@ export default function ResModal({
 						},
 					]}
 				>
-					<Input.TextArea rows={4} />
+					<Input.TextArea rows={4}/>
 				</FormItem>
 			</>
 		);

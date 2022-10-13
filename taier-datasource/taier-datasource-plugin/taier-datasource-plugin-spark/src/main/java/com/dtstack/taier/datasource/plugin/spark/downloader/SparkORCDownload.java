@@ -1,11 +1,11 @@
 package com.dtstack.taier.datasource.plugin.spark.downloader;
 
 import com.alibaba.fastjson.JSON;
+import com.dtstack.taier.datasource.api.downloader.IDownloader;
+import com.dtstack.taier.datasource.api.exception.SourceException;
 import com.dtstack.taier.datasource.plugin.common.utils.ListUtil;
 import com.dtstack.taier.datasource.plugin.kerberos.core.hdfs.HdfsOperator;
 import com.dtstack.taier.datasource.plugin.kerberos.core.util.KerberosLoginUtil;
-import com.dtstack.taier.datasource.api.downloader.IDownloader;
-import com.dtstack.taier.datasource.api.exception.SourceException;
 import com.google.common.collect.Lists;
 import jodd.util.StringUtil;
 import lombok.extern.slf4j.Slf4j;
@@ -81,8 +81,8 @@ public class SparkORCDownload implements IDownloader {
     private final List<String> partitions;
 
     public SparkORCDownload(Configuration configuration, String tableLocation, List<String> columnNames,
-                           List<String> partitionColumns, List<Integer> needIndex,
-                           List<String> partitions, Map<String, Object> kerberosConfig){
+                            List<String> partitionColumns, List<Integer> needIndex,
+                            List<String> partitions, Map<String, Object> kerberosConfig) {
         this.configuration = configuration;
         this.tableLocation = tableLocation;
         this.columnNames = columnNames;
@@ -108,13 +108,13 @@ public class SparkORCDownload implements IDownloader {
         }
         FileInputFormat.setInputPaths(conf, targetFilePath);
         splits = inputFormat.getSplits(conf, SPLIT_NUM);
-        if(ArrayUtils.isNotEmpty(splits)){
+        if (ArrayUtils.isNotEmpty(splits)) {
             boolean isInit = initRecordReader();
             if (isInit) {
                 key = recordReader.createKey();
                 value = recordReader.createValue();
                 Properties p = new Properties();
-                p.setProperty("columns", StringUtil.join(columnNames,","));
+                p.setProperty("columns", StringUtil.join(columnNames, ","));
                 orcSerde.initialize(conf, p);
                 this.inspector = (StructObjectInspector) orcSerde.getObjectInspector();
                 fields = inspector.getAllStructFieldRefs();
@@ -124,9 +124,9 @@ public class SparkORCDownload implements IDownloader {
     }
 
     @Override
-    public List<String> getMetaInfo(){
+    public List<String> getMetaInfo() {
         List<String> metaInfo = new ArrayList<>(columnNames);
-        if(CollectionUtils.isNotEmpty(partitionColumns)){
+        if (CollectionUtils.isNotEmpty(partitionColumns)) {
             metaInfo.addAll(partitionColumns);
         }
         return metaInfo;
@@ -135,10 +135,10 @@ public class SparkORCDownload implements IDownloader {
     @Override
     public List<String> readNext() {
         return KerberosLoginUtil.loginWithUGI(kerberosConfig).doAs(
-                (PrivilegedAction<List<String>>) ()->{
+                (PrivilegedAction<List<String>>) () -> {
                     try {
                         return readNextWithKerberos();
-                    } catch (Exception e){
+                    } catch (Exception e) {
                         throw new SourceException(String.format("Abnormal reading file,%s", e.getMessage()), e);
                     }
                 });
@@ -149,9 +149,9 @@ public class SparkORCDownload implements IDownloader {
 
         // 分区字段的值
         List<String> partitions = Lists.newArrayList();
-        if(CollectionUtils.isNotEmpty(partitionColumns)){
-            String path = ((OrcSplit)currentSplit).getPath().toString();
-            List<String> partData = HdfsOperator.parsePartitionDataFromUrl(path,partitionColumns);
+        if (CollectionUtils.isNotEmpty(partitionColumns)) {
+            String path = ((OrcSplit) currentSplit).getPath().toString();
+            List<String> partData = HdfsOperator.parsePartitionDataFromUrl(path, partitionColumns);
             partitions.addAll(partData);
         }
 
@@ -178,7 +178,7 @@ public class SparkORCDownload implements IDownloader {
             for (int index = 0; index < columnNames.size(); index++) {
                 row.add(getFieldByIndex(index));
             }
-            if(CollectionUtils.isNotEmpty(partitionColumns)){
+            if (CollectionUtils.isNotEmpty(partitionColumns)) {
                 row.addAll(partitions);
             }
         }
@@ -188,7 +188,7 @@ public class SparkORCDownload implements IDownloader {
 
     // 根据index获取字段值
     private String getFieldByIndex(Integer index) {
-        if (index > fields.size() -1) {
+        if (index > fields.size() - 1) {
             return null;
         }
         StructField field = fields.get(index);
@@ -216,14 +216,14 @@ public class SparkORCDownload implements IDownloader {
     }
 
     private boolean initRecordReader() throws IOException {
-        if(splitIndex > splits.length - 1){
+        if (splitIndex > splits.length - 1) {
             return false;
         }
-        OrcSplit orcSplit = (OrcSplit)splits[splitIndex];
+        OrcSplit orcSplit = (OrcSplit) splits[splitIndex];
         currentSplit = splits[splitIndex];
         splitIndex++;
 
-        if(recordReader != null){
+        if (recordReader != null) {
             close();
         }
 
@@ -237,7 +237,7 @@ public class SparkORCDownload implements IDownloader {
     }
 
     public boolean nextRecord() throws IOException {
-        if(recordReader.next(key, value)){
+        if (recordReader.next(key, value)) {
             return true;
         }
         for (int i = splitIndex; i < splits.length; i++) {
@@ -251,10 +251,10 @@ public class SparkORCDownload implements IDownloader {
     @Override
     public boolean reachedEnd() {
         return KerberosLoginUtil.loginWithUGI(kerberosConfig).doAs(
-                (PrivilegedAction<Boolean>) ()->{
+                (PrivilegedAction<Boolean>) () -> {
                     try {
                         return recordReader == null || !nextRecord();
-                    } catch (Exception e){
+                    } catch (Exception e) {
                         throw new SourceException(String.format("Download file is abnormal,%s", e.getMessage()), e);
                     }
                 });
@@ -262,7 +262,7 @@ public class SparkORCDownload implements IDownloader {
 
     @Override
     public boolean close() throws IOException {
-        if(recordReader != null){
+        if (recordReader != null) {
             recordReader.close();
         }
         return true;
@@ -298,7 +298,7 @@ public class SparkORCDownload implements IDownloader {
     private String getCurPathPartition(String path) {
         StringBuilder curPart = new StringBuilder();
         for (String part : path.split("/")) {
-            if(part.contains("=")){
+            if (part.contains("=")) {
                 curPart.append(part).append("/");
             }
         }

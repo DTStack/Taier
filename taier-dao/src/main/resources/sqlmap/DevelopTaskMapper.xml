@@ -4,12 +4,32 @@
 
     <!--适用于任务列表的目录信息list查询,不查询sql_text等无用的大字段 -->
     <select id="catalogueListBatchTaskByNodePid" resultType="com.dtstack.taier.dao.domain.Task">
-        SELECT
-        t.id,t.tenant_id,t.node_pid,t.name,t.task_type,t.compute_type,t.period_type,t.schedule_status,t.submit_status,
-        t.gmt_create,t.gmt_modified,t.modify_user_id,t.create_user_id,t.version,t.is_deleted,t.task_desc,t.main_class,t.exe_args,t.flow_id,
-        if(t.version != ifnull(tv.version,-1),0,1) as status
-        FROM develop_task t left join (select task_id,max(version) as version from develop_task_version group by task_id)tv on t.id = tv.task_id
-        WHERE t.node_pid = #{nodePid} and t.tenant_id = #{tenantId} and t.is_deleted = 0
+        SELECT t.id,
+               t.tenant_id,
+               t.node_pid,
+               t.name,
+               t.task_type,
+               t.compute_type,
+               t.period_type,
+               t.schedule_status,
+               t.submit_status,
+               t.gmt_create,
+               t.gmt_modified,
+               t.modify_user_id,
+               t.create_user_id,
+               t.version,
+               t.is_deleted,
+               t.task_desc,
+               t.main_class,
+               t.exe_args,
+               t.flow_id,
+               if(t.version != ifnull(tv.version,-1), 0, 1) as status
+        FROM develop_task t
+                 left join (select task_id, max(version) as version from develop_task_version group by task_id) tv
+                           on t.id = tv.task_id
+        WHERE t.node_pid = #{nodePid}
+          and t.tenant_id = #{tenantId}
+          and t.is_deleted = 0
     </select>
 
 </mapper>

@@ -1,6 +1,6 @@
-import { useContext, useMemo, useRef, useState } from 'react';
-import { Spin, Layout, Tree, Button, Space, Tooltip, Badge, Popover, Modal } from 'antd';
-import { history } from 'umi';
+import {useContext, useMemo, useRef, useState} from 'react';
+import {Badge, Button, Layout, Modal, Popover, Space, Spin, Tooltip, Tree} from 'antd';
+import {history} from 'umi';
 import {
 	CloseCircleOutlined,
 	DownOutlined,
@@ -12,15 +12,15 @@ import {
 } from '@ant-design/icons';
 import {
 	CommonComponentIcon,
+	ComputeComponentIcon,
 	SchedulingComponentIcon,
 	StoreComponentIcon,
-	ComputeComponentIcon,
 } from '@/components/icon';
 import context from '@/context/cluster';
 import api from '@/api';
 import Editor from '@/components/editor';
-import type { IComponentProps } from '.';
-import type { COMPONENT_TYPE_VALUE } from '@/constant';
+import type {IComponentProps} from '.';
+import type {COMPONENT_TYPE_VALUE} from '@/constant';
 import './sideBar.scss';
 
 interface ISideBarProps {
@@ -103,15 +103,15 @@ const joinVersions = (component: COMPONENT_TYPE_VALUE, value?: string) => {
 };
 
 export default function SideBar({
-	loading,
-	selectedNode,
-	componentsData = [],
-	currentComponents = [],
-	onSelect,
-	onRemove,
-	onAddComponent,
-}: ISideBarProps) {
-	const { editedComponents, connectable, setConnectable, setEdited } = useContext(context);
+									loading,
+									selectedNode,
+									componentsData = [],
+									currentComponents = [],
+									onSelect,
+									onRemove,
+									onAddComponent,
+								}: ISideBarProps) {
+	const {editedComponents, connectable, setConnectable, setEdited} = useContext(context);
 	const container = useRef<HTMLDivElement>(null);
 	const [popoverVisibles, setPopoverVisibles] = useState<Record<string, boolean>>({});
 	const [collapsed, setCollapsed] = useState(false);
@@ -141,7 +141,7 @@ export default function SideBar({
 		Modal.confirm({
 			title: '确认要删除组件？',
 			content: '此操作执行后不可逆，是否确认将当前组件删除？',
-			icon: <CloseCircleOutlined color="#FF5F5C" />,
+			icon: <CloseCircleOutlined color="#FF5F5C"/>,
 			okText: '删除',
 			okType: 'danger',
 			cancelText: '取消',
@@ -150,7 +150,7 @@ export default function SideBar({
 					if (selectedNode) {
 						setConnectable((c) => {
 							Reflect.deleteProperty(c, selectedNode);
-							return { ...c };
+							return {...c};
 						});
 					}
 				});
@@ -159,7 +159,7 @@ export default function SideBar({
 	};
 
 	const handlePopoverVisibleChange = (visible: boolean, key: string) => {
-		setPopoverVisibles((p) => ({ ...p, [key]: visible }));
+		setPopoverVisibles((p) => ({...p, [key]: visible}));
 		if (visible) {
 			// 获取当前分类下的组件信息
 			const currentLayoutComponent = componentsData.filter(
@@ -197,7 +197,7 @@ export default function SideBar({
 
 			setEdited((e) => ({
 				...e,
-				...nextValues.reduce((pre, cur) => ({ ...pre, [cur]: true }), {}),
+				...nextValues.reduce((pre, cur) => ({...pre, [cur]: true}), {}),
 			}));
 		}
 		setPopoverVisibles({});
@@ -205,14 +205,12 @@ export default function SideBar({
 
 	const handleConnectionsAll = () => {
 		setConnectionLoading(true);
-		api.testConnects<
-			{
-				componentTypeCode: COMPONENT_TYPE_VALUE;
-				result: boolean;
-				errorMsg?: string;
-				versionName?: string;
-			}[]
-		>({
+		api.testConnects<{
+			componentTypeCode: COMPONENT_TYPE_VALUE;
+			result: boolean;
+			errorMsg?: string;
+			versionName?: string;
+		}[]>({
 			clusterId: Number(history.location.query?.clusterId),
 		})
 			.then((res) => {
@@ -221,12 +219,12 @@ export default function SideBar({
 						const target = componentsData.find(
 							(c) => c.componentCode === cur.componentTypeCode,
 						);
-						if (!target) return { ...pre };
+						if (!target) return {...pre};
 						if (target.allowCoexistence) {
 							return {
 								...pre,
 								[joinVersions(cur.componentTypeCode, cur.versionName)]:
-									cur.result || cur.errorMsg!,
+								cur.result || cur.errorMsg!,
 							};
 						}
 
@@ -236,7 +234,7 @@ export default function SideBar({
 						};
 					}, {} as Record<string, true | string>);
 
-					setConnectable((c) => ({ ...c, ...status }));
+					setConnectable((c) => ({...c, ...status}));
 				}
 			})
 			.finally(() => {
@@ -271,21 +269,21 @@ export default function SideBar({
 				tooltip: !i.allowCoexistence && tooltipContent,
 				children: i.allowCoexistence
 					? i.versionDictionary?.map((v) => {
-							const subVersionKey = joinVersions(i.componentCode, v.key);
-							const subVersionDisabled = !!findTreeNode(subVersionKey);
+						const subVersionKey = joinVersions(i.componentCode, v.key);
+						const subVersionDisabled = !!findTreeNode(subVersionKey);
 
-							return {
-								title: `${i.name}${v.key}`,
-								key: subVersionKey,
-								selectable: true,
-								tooltip: tooltipContent,
-								disabled: subVersionDisabled,
-								disableCheckbox: subVersionDisabled,
-								isLeaf: true,
-								checkable: true,
-								children: [],
-							};
-					  })
+						return {
+							title: `${i.name}${v.key}`,
+							key: subVersionKey,
+							selectable: true,
+							tooltip: tooltipContent,
+							disabled: subVersionDisabled,
+							disableCheckbox: subVersionDisabled,
+							isLeaf: true,
+							checkable: true,
+							children: [],
+						};
+					})
 					: [],
 			};
 		});
@@ -297,8 +295,8 @@ export default function SideBar({
 					className="component-config"
 					checkable
 					treeData={popoverTreeData}
-					showLine={{ showLeafIcon: false }}
-					switcherIcon={<DownOutlined />}
+					showLine={{showLeafIcon: false}}
+					switcherIcon={<DownOutlined/>}
 					titleRender={(node) =>
 						node.tooltip ? (
 							<Tooltip
@@ -306,7 +304,7 @@ export default function SideBar({
 								title={
 									<>
 										<WarningOutlined
-											style={{ color: 'var(--editorWarning-foreground)' }}
+											style={{color: 'var(--editorWarning-foreground)'}}
 										/>
 										{node.tooltip}
 									</>
@@ -321,7 +319,7 @@ export default function SideBar({
 					defaultExpandAll
 					blockNode
 					onCheck={(checked) => setPopoverValues(checked as string[])}
-					onSelect={(_, { node }) =>
+					onSelect={(_, {node}) =>
 						setPopoverValues((values) =>
 							values.includes(node.key.toString())
 								? values.filter((val) => val !== node.key.toString())
@@ -353,21 +351,21 @@ export default function SideBar({
 							className="cursor-pointer"
 							onClick={(e) => {
 								e.stopPropagation();
-								setErrorMessage({ visible: true, message: status });
+								setErrorMessage({visible: true, message: status});
 							}}
 						>
 							{status.substring(0, 200)}...
 						</div>
 					}
 				>
-					<Badge status="error" />
+					<Badge status="error"/>
 				</Tooltip>
 			);
 		}
 
 		return (
 			<Tooltip title="组件连通性测试通过">
-				<Badge status="success" />
+				<Badge status="success"/>
 			</Tooltip>
 		);
 	};
@@ -380,7 +378,7 @@ export default function SideBar({
 						{renderConnectionStatus(node.key)}
 						{editedComponents[node.key] && (
 							<Tooltip title="当前组件未保存">
-								<Badge status="processing" />
+								<Badge status="processing"/>
 							</Tooltip>
 						)}
 						<span className="component-name">{node.title}</span>
@@ -419,7 +417,7 @@ export default function SideBar({
 									handlePopoverVisibleChange(visible, node.key)
 								}
 							>
-								<PlusSquareOutlined />
+								<PlusSquareOutlined/>
 							</Popover>
 						</Tooltip>
 					)}
@@ -433,10 +431,10 @@ export default function SideBar({
 	 */
 	const treeData = useMemo<ITreeNodeProps[]>(() => {
 		const componentIcon = [
-			<CommonComponentIcon />,
-			<SchedulingComponentIcon />,
-			<StoreComponentIcon />,
-			<ComputeComponentIcon />,
+			<CommonComponentIcon/>,
+			<SchedulingComponentIcon/>,
+			<StoreComponentIcon/>,
+			<ComputeComponentIcon/>,
 		];
 
 		// 需要去重，因为 currentComponents 是当前配置的组件
@@ -470,20 +468,20 @@ export default function SideBar({
 					selectable: !child.allowCoexistence,
 					children: child.allowCoexistence
 						? child.versionDictionary
-								?.filter((version) =>
-									currentComponents.some(
-										(c) =>
-											`${c.componentTypeCode}-${c.versionName}` ===
-											`${child.componentCode}-${version.key}`,
-									),
-								)
-								?.map((versions) => ({
-									title: `${child.name}${versions.key}`,
-									// 多版本的组件 id 用当前的 versionName 和 componentCode 拼接字符串
-									key: joinVersions(child.componentCode, versions.key),
-									isLeaf: true,
-									data: versions,
-								}))
+							?.filter((version) =>
+								currentComponents.some(
+									(c) =>
+										`${c.componentTypeCode}-${c.versionName}` ===
+										`${child.componentCode}-${version.key}`,
+								),
+							)
+							?.map((versions) => ({
+								title: `${child.name}${versions.key}`,
+								// 多版本的组件 id 用当前的 versionName 和 componentCode 拼接字符串
+								key: joinVersions(child.componentCode, versions.key),
+								isLeaf: true,
+								data: versions,
+							}))
 						: [],
 					data: child,
 				})),
@@ -506,11 +504,11 @@ export default function SideBar({
 								treeData={treeData}
 								selectedKeys={selectedKeys}
 								titleRender={renderTreeNode}
-								showLine={{ showLeafIcon: false }}
-								switcherIcon={<DownOutlined />}
+								showLine={{showLeafIcon: false}}
+								switcherIcon={<DownOutlined/>}
 								defaultExpandAll
 								blockNode
-								onSelect={(_, { node }) =>
+								onSelect={(_, {node}) =>
 									selectedNode !== node.key && onSelect?.(node.key as string)
 								}
 							/>
@@ -520,7 +518,7 @@ export default function SideBar({
 						className="cluster-component-collapse"
 						onClick={() => setCollapsed((c) => !c)}
 					>
-						{collapsed ? <RightOutlined /> : <LeftOutlined />}
+						{collapsed ? <RightOutlined/> : <LeftOutlined/>}
 					</Button>
 				</Layout.Content>
 				<Layout.Footer>
@@ -539,13 +537,13 @@ export default function SideBar({
 				width={800}
 				title="错误信息"
 				visible={errorMessage.visible}
-				onCancel={() => setErrorMessage({ visible: false, message: '' })}
+				onCancel={() => setErrorMessage({visible: false, message: ''})}
 				footer={null}
 				maskClosable={true}
 				destroyOnClose
 			>
 				<Editor
-					style={{ height: 500 }}
+					style={{height: 500}}
 					sync
 					value={errorMessage.message}
 					language="jsonlog"

@@ -15,7 +15,7 @@ public abstract class RdbmsPollReader extends BaseReaderPlugin {
     private List<ColumnDTO> column;
 
     /**
-     *增量标识字段
+     * 增量标识字段
      */
     private String increColumn;
 

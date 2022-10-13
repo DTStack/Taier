@@ -1,13 +1,13 @@
 package com.dtstack.taier.datasource.plugin.hbase;
 
-import com.dtstack.taier.datasource.plugin.common.exception.IErrorPattern;
-import com.dtstack.taier.datasource.plugin.common.service.ErrorAdapterImpl;
-import com.dtstack.taier.datasource.plugin.common.service.IErrorAdapter;
-import com.dtstack.taier.datasource.plugin.hbase.pool.HbasePoolManager;
 import com.dtstack.taier.datasource.api.dto.SqlQueryDTO;
 import com.dtstack.taier.datasource.api.dto.source.HbaseSourceDTO;
 import com.dtstack.taier.datasource.api.dto.source.ISourceDTO;
 import com.dtstack.taier.datasource.api.exception.SourceException;
+import com.dtstack.taier.datasource.plugin.common.exception.IErrorPattern;
+import com.dtstack.taier.datasource.plugin.common.service.ErrorAdapterImpl;
+import com.dtstack.taier.datasource.plugin.common.service.IErrorAdapter;
+import com.dtstack.taier.datasource.plugin.hbase.pool.HbasePoolManager;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.MapUtils;
 import org.apache.hadoop.hbase.client.Connection;

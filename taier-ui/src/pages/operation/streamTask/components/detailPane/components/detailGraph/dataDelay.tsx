@@ -1,14 +1,14 @@
-import { useEffect, useState } from 'react';
-import { Table } from 'antd';
+import {useEffect, useState} from 'react';
+import {Table} from 'antd';
 import DetailTable from './delay/detailTable';
-import type { ColumnType } from 'antd/lib/table';
+import type {ColumnType} from 'antd/lib/table';
 
 interface IDataDelay {
 	data: any;
 	tabKey: string;
 }
 
-export default function DataDelay({ data }: IDataDelay) {
+export default function DataDelay({data}: IDataDelay) {
 	const [detailVisible, setDetailVisible] = useState(false);
 	const [detailRecord, setDetailRecord] = useState<any | undefined>(undefined);
 	const [delayList, setDelayList] = useState<any[]>([]);
@@ -53,8 +53,8 @@ export default function DataDelay({ data }: IDataDelay) {
 				);
 			},
 		},
-		{ title: '总延迟消息数', dataIndex: 'totalDelayCount' },
-		{ title: '分区总数', dataIndex: 'partCount' },
+		{title: '总延迟消息数', dataIndex: 'totalDelayCount'},
+		{title: '分区总数', dataIndex: 'partCount'},
 	];
 
 	return !detailVisible ? (
@@ -69,7 +69,7 @@ export default function DataDelay({ data }: IDataDelay) {
 				total: delayList.length,
 				showTotal: (total) => (
 					<span>
-						共<span style={{ color: '#3F87FF' }}>{total}</span>条数据，每页显示10条
+						共<span style={{color: '#3F87FF'}}>{total}</span>条数据，每页显示10条
 					</span>
 				),
 			}}

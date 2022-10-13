@@ -25,7 +25,7 @@ import java.sql.Timestamp;
 
 
 @ApiModel("资源信息")
-public class DevelopResourceResultVO  {
+public class DevelopResourceResultVO {
 
     @ApiModelProperty(value = "资源路径", example = "/usr/tmp")
     private String url;

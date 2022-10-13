@@ -1,5 +1,3 @@
-
-
 package com.dtstack.taier.datasource.plugin.kudu;
 
 

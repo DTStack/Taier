@@ -4,18 +4,18 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.parser.Feature;
-import com.dtstack.taier.datasource.api.base.ClientCache;
-import com.dtstack.taier.datasource.api.client.IClient;
-import com.dtstack.taier.datasource.api.dto.ColumnMetaDTO;
-import com.dtstack.taier.datasource.api.dto.SqlQueryDTO;
-import com.dtstack.taier.datasource.api.dto.source.Mysql5SourceDTO;
-import com.dtstack.taier.datasource.api.source.DataSourceType;
 import com.dtstack.taier.common.enums.EScheduleJobType;
 import com.dtstack.taier.common.exception.ErrorCode;
 import com.dtstack.taier.common.exception.RdosDefineException;
 import com.dtstack.taier.common.util.DataSourceUtils;
 import com.dtstack.taier.common.util.PublicUtil;
 import com.dtstack.taier.dao.domain.DsInfo;
+import com.dtstack.taier.datasource.api.base.ClientCache;
+import com.dtstack.taier.datasource.api.client.IClient;
+import com.dtstack.taier.datasource.api.dto.ColumnMetaDTO;
+import com.dtstack.taier.datasource.api.dto.SqlQueryDTO;
+import com.dtstack.taier.datasource.api.dto.source.Mysql5SourceDTO;
+import com.dtstack.taier.datasource.api.source.DataSourceType;
 import com.dtstack.taier.develop.common.template.Reader;
 import com.dtstack.taier.develop.dto.devlop.ColumnDTO;
 import com.dtstack.taier.develop.dto.devlop.ConnectionDTO;
@@ -170,7 +170,7 @@ public class MysqlReaderBuilder implements DaReaderBuilder {
             Matcher ipv6Matcher = PatternType.JDBC_IPV6_PATTERN.getVal().matcher(jdbc);
             String host = "";
             String port = "3306";
-            String database ="";
+            String database = "";
             if (matcher.find()) {
                 host = matcher.group("host");
                 if (null != matcher.group("port")) {
@@ -194,12 +194,12 @@ public class MysqlReaderBuilder implements DaReaderBuilder {
             if (Objects.equals(readerParam.getSyncContent(), SyncContentEnum.DATA_STRUCTURE_SYNC.getType())) {
                 String finalDatabase = database;
                 List<String> finalTableList = new ArrayList<>();
-                readerParam.getTable().forEach(table->{
+                readerParam.getTable().forEach(table -> {
                     finalTableList.add(finalDatabase + "." + table);
                 });
                 mysqlBinLogReader.setTable(finalTableList);
                 mysqlBinLogReader.setCat("insert,update,delete,alter,truncate,drop,rename,create,erase,cindex,dindex,gtid,xacommit,xarollback,mheartbeat"); //todo 下期优化可能要去掉
-            }else {
+            } else {
                 //解析操作参数
                 StringJoiner catJoiner = new StringJoiner(",");
                 List<Integer> intCats = (List<Integer>) map.get("cat");
@@ -299,6 +299,7 @@ public class MysqlReaderBuilder implements DaReaderBuilder {
 
         /**
          * 抽取设置相同参数方法
+         *
          * @param sourceId
          * @param connectionDTO
          * @param dsServiceInfoDTO
@@ -312,7 +313,7 @@ public class MysqlReaderBuilder implements DaReaderBuilder {
             connectionDTO.setJdbcUrl(Collections.singletonList(JsonUtils.getStringDefaultEmpty(json, JDBC_URL)));
             connectionDTO.setPassword(JsonUtils.getStringDefaultEmpty(json, JDBC_PASSWORD));
             connectionDTO.setUsername(JsonUtils.getStringDefaultEmpty(json, JDBC_USERNAME));
-            if(map.get("schema")!=null){
+            if (map.get("schema") != null) {
                 connectionDTO.setSchema(map.get("schema").toString());
             }
             connectionDTO.setType(dsServiceInfoDTO.getDataTypeCode());
@@ -432,7 +433,7 @@ public class MysqlReaderBuilder implements DaReaderBuilder {
                 mysqlPollReader.setIncreColumn(Optional.ofNullable(readerParam.getIncreColumn()).orElse(""));
                 mysqlPollReader.setStartLocation("");
                 List<ConnectionDTO> connections = readerParam.getConnection();
-                if(connections != null && connections.size() > 0){
+                if (connections != null && connections.size() > 0) {
                     ConnectionDTO conn = connections.get(0);
 //                    this.setJdbcUrl(((List<String>)conn.getJdbcUrl("jdbcUrl")).get(0));
 //                    String pass = Objects.isNull(conn.get("password"))?"":conn.get("password").toString();

@@ -178,15 +178,25 @@ public class Splitter {
     }
 
     private enum State {
-        /** current char in single quote */
+        /**
+         * current char in single quote
+         */
         SINGLE_QUOTED,
-        /** current char in single quote，and after '\' */
+        /**
+         * current char in single quote，and after '\'
+         */
         AFTER_BACKSLASH_SINGLE_QUOTED,
-        /** current char in double quote */
+        /**
+         * current char in double quote
+         */
         DOUBLE_QUOTED,
-        /** current char in double quote，and after '\' */
+        /**
+         * current char in double quote，and after '\'
+         */
         AFTER_BACKSLASH_DOUBLE_QUOTED,
-        /** out of quote */
+        /**
+         * out of quote
+         */
         UNQUOTED
     }
 
@@ -209,11 +219,17 @@ public class Splitter {
         }
     }
 
-    /** There are only two kinds */
+    /**
+     * There are only two kinds
+     */
     private enum TokenKind {
-        /** SQL string */
+        /**
+         * SQL string
+         */
         STRING,
-        /** SQL delimiter */
+        /**
+         * SQL delimiter
+         */
         DELIMITER
     }
 }

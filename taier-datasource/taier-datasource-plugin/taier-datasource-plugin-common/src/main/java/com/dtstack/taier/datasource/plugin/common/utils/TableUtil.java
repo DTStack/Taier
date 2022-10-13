@@ -1,7 +1,7 @@
 package com.dtstack.taier.datasource.plugin.common.utils;
 
-import com.dtstack.taier.datasource.plugin.common.convert.ColumnTypeConverter;
 import com.dtstack.taier.datasource.api.dto.ColumnMetaDTO;
+import com.dtstack.taier.datasource.plugin.common.convert.ColumnTypeConverter;
 import com.google.common.collect.Lists;
 import org.apache.commons.collections.CollectionUtils;
 

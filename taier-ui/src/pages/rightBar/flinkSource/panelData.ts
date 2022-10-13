@@ -1,5 +1,5 @@
 import stream from '@/api';
-import type { DefaultOptionType } from 'antd/lib/cascader';
+import type {DefaultOptionType} from 'antd/lib/cascader';
 
 const mapToArray = (data: Partial<DefaultOptionType>, dataMap: Record<string, any>) => {
 	const names = Object.getOwnPropertyNames(dataMap);
@@ -24,7 +24,7 @@ const mapToArray = (data: Partial<DefaultOptionType>, dataMap: Record<string, an
 // 将接口数据处理成 Cascader 组件所需的数据类型
 const handTimeZoneData = (data: string[]) => {
 	if (data && data.length === 0) return [];
-	const result: { children: DefaultOptionType[] } = { children: [] };
+	const result: { children: DefaultOptionType[] } = {children: []};
 	const map: Record<string, any> = {};
 	for (let i = 0; i < data.length; i += 1) {
 		const keys = data[i].split('/');
@@ -44,6 +44,7 @@ const handTimeZoneData = (data: string[]) => {
 	mapToArray(result, map);
 	return result.children || [];
 };
+
 export function getTimeZoneList() {
 	return new Promise<DefaultOptionType[]>((resolve) => {
 		stream.getTimeZoneList().then((res) => {

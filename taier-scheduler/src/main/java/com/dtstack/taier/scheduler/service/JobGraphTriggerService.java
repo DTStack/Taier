@@ -19,6 +19,7 @@ public class JobGraphTriggerService extends ServiceImpl<JobGraphTriggerMapper, J
 
     /**
      * 判断在triggerTime时间里是否存在JobGraphTrigger
+     *
      * @param triggerTime JobGraphTrigger生成时间
      * @return ture 存在，false 不存在
      */
@@ -29,6 +30,7 @@ public class JobGraphTriggerService extends ServiceImpl<JobGraphTriggerMapper, J
 
     /**
      * 新增jobTrigger
+     *
      * @param timestamp 生成的时间搓
      */
     public void addJobTrigger(Timestamp timestamp) {

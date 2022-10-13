@@ -37,7 +37,7 @@ public class ExecuteSqlParseVO {
     /**
      * 发送到引擎生成的jobid
      */
-    private String  jobId;
+    private String jobId;
 
     private Integer engineType;
 

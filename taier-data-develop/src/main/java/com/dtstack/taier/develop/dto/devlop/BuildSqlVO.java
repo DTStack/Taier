@@ -20,8 +20,8 @@ package com.dtstack.taier.develop.dto.devlop;
 
 
 /**
- * @company：dtstack.com
  * @author yunliu
+ * @company：dtstack.com
  * @date 2020-04-28 15:43
  * @description 解析sql返回的参数
  */

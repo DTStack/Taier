@@ -34,6 +34,7 @@ import java.util.Map;
  * 按月周期调度
  * Date: 2017/5/4
  * Company: www.dtstack.com
+ *
  * @author xuchao
  */
 
@@ -64,7 +65,7 @@ public class ScheduleCronMonthParser extends ScheduleCron {
         String days = MapUtils.getString(param, DAY_KEY);
 
         String cronStr = cronFormat.replace("${min}", minute + "").replace("${hour}", hour + "")
-                .replace("${days}", days+"");
+                .replace("${days}", days + "");
 
         setCronStr(cronStr);
         return cronStr;
@@ -73,7 +74,7 @@ public class ScheduleCronMonthParser extends ScheduleCron {
     @Override
     public List<String> getTriggerTime(String specifyDate) throws ParseException {
 
-        if(!checkSpecifyDayCanExe(specifyDate)){
+        if (!checkSpecifyDayCanExe(specifyDate)) {
             return Lists.newArrayList();
         }
 
@@ -86,21 +87,21 @@ public class ScheduleCronMonthParser extends ScheduleCron {
 
     @Override
     public boolean checkSpecifyDayCanExe(String specifyDate) {
-        int day = MathUtil.getIntegerVal(specifyDate.substring(8,10));
+        int day = MathUtil.getIntegerVal(specifyDate.substring(8, 10));
         String canExeDay = CronStrUtil.getDayStr(getCronStr());
-        if(canExeDay == null){
+        if (canExeDay == null) {
             logger.error("error cronStr:{}", getCronStr());
             return false;
         }
 
         boolean canExe = false;
-        for(String tmpDay : canExeDay.split(",")){
+        for (String tmpDay : canExeDay.split(",")) {
             tmpDay = tmpDay.trim();
-            if(tmpDay.startsWith("0")){
+            if (tmpDay.startsWith("0")) {
                 tmpDay = tmpDay.substring(1);
             }
 
-            if(tmpDay.equals(day + "")){
+            if (tmpDay.equals(day + "")) {
                 return true;
             }
         }

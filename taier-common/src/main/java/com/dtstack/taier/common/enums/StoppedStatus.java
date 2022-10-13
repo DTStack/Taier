@@ -28,11 +28,12 @@ public enum StoppedStatus {
     NO_OPERATE(4);
 
     Integer type;
-    StoppedStatus(int type){
+
+    StoppedStatus(int type) {
         this.type = type;
     }
 
-    public Integer getType(){
+    public Integer getType() {
         return type;
     }
 }

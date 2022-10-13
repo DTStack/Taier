@@ -16,37 +16,24 @@
  * limitations under the License.
  */
 
-import { useEffect, useState, useRef, useContext } from 'react';
-import {
-	Modal,
-	Row,
-	Form,
-	Col,
-	Checkbox,
-	Tooltip,
-	Input,
-	DatePicker,
-	TimePicker,
-	message,
-	Space,
-	Table,
-} from 'antd';
-import { history } from 'umi';
+import {useContext, useEffect, useRef, useState} from 'react';
+import {Checkbox, Col, DatePicker, Form, Input, message, Modal, Row, Space, Table, TimePicker, Tooltip,} from 'antd';
+import {history} from 'umi';
 import moment from 'moment';
-import { range } from 'lodash';
-import { QuestionCircleOutlined } from '@ant-design/icons';
-import type { SCHEDULE_STATUS, TASK_TYPE_ENUM } from '@/constant';
-import { DRAWER_MENU_ENUM, formItemLayout } from '@/constant';
+import {range} from 'lodash';
+import {QuestionCircleOutlined} from '@ant-design/icons';
+import type {SCHEDULE_STATUS, TASK_TYPE_ENUM} from '@/constant';
+import {DRAWER_MENU_ENUM, formItemLayout} from '@/constant';
 import Api from '@/api';
-import type { ITaskProps } from '@/interface';
-import { DIRECT_TYPE_ENUM } from '@/interface';
-import type { ColumnsType } from 'antd/lib/table';
-import type { TableRowSelection } from 'antd/lib/table/interface';
+import type {ITaskProps} from '@/interface';
+import {DIRECT_TYPE_ENUM} from '@/interface';
+import type {ColumnsType} from 'antd/lib/table';
+import type {TableRowSelection} from 'antd/lib/table/interface';
 import context from '@/context';
 
 const FormItem = Form.Item;
-const { RangePicker } = DatePicker;
-const { confirm } = Modal;
+const {RangePicker} = DatePicker;
+const {confirm} = Modal;
 
 export type ITaskBasicProps = Pick<ITaskProps, 'taskId' | 'name'>;
 
@@ -126,8 +113,8 @@ const updateTreeNode = (treeNode: ITaskNodeProps[], needUpdateNode: ITaskNodePro
 	}
 };
 
-export default ({ visible, task, handCancel }: IPatchDataProps) => {
-	const { supportJobTypes } = useContext(context);
+export default ({visible, task, handCancel}: IPatchDataProps) => {
+	const {supportJobTypes} = useContext(context);
 	const [form] = Form.useForm<IFormFieldProps>();
 	const [loading, setLoading] = useState(false);
 	const [confirmLoading, setConfirmLoading] = useState(false);
@@ -137,9 +124,9 @@ export default ({ visible, task, handCancel }: IPatchDataProps) => {
 	const [treeData, setTreeData] = useState<ITaskNodeProps[]>([]);
 	const requestedRow = useRef(new Set());
 
-	const getChildTask = ({ taskId }: { taskId: number }) => {
+	const getChildTask = ({taskId}: { taskId: number }) => {
 		setLoading(true);
-		getTreeDataSync({ taskId })
+		getTreeDataSync({taskId})
 			.then((rootNode) => {
 				const arr = rootNode ? [rootNode] : [];
 				setTreeData(arr);
@@ -150,8 +137,8 @@ export default ({ visible, task, handCancel }: IPatchDataProps) => {
 	};
 
 	const getTreeDataSync = async ({
-		taskId,
-	}: {
+									   taskId,
+								   }: {
 		taskId: number;
 	}): Promise<ITaskNodeProps | null> => {
 		const res = await Api.getTaskChildren({
@@ -180,7 +167,7 @@ export default ({ visible, task, handCancel }: IPatchDataProps) => {
 					}),
 				);
 				history.push({
-					query: { drawer: DRAWER_MENU_ENUM.PATCH_DETAIL },
+					query: {drawer: DRAWER_MENU_ENUM.PATCH_DETAIL},
 				});
 			},
 		});
@@ -191,7 +178,7 @@ export default ({ visible, task, handCancel }: IPatchDataProps) => {
 			fillDataType: 0,
 		};
 		if (selectedAll) {
-			info.rootTaskId = { taskId: task!.taskId };
+			info.rootTaskId = {taskId: task!.taskId};
 		} else {
 			info.taskIds = selectedRowKeys.map((item) => ({
 				taskId: item,
@@ -318,14 +305,14 @@ export default ({ visible, task, handCancel }: IPatchDataProps) => {
 	const handleExpand = (expanded: boolean, record: ITaskNodeProps) => {
 		if (expanded && !requestedRow.current.has(record.taskId)) {
 			requestedRow.current.add(record.taskId);
-			getTreeDataSync({ taskId: record.taskId }).then((rootNode) => {
+			getTreeDataSync({taskId: record.taskId}).then((rootNode) => {
 				if (rootNode) {
 					const nextTreeData = treeData.concat();
 					updateTreeNode(nextTreeData, rootNode);
 					setTreeData(nextTreeData);
 					if (selectedAll) {
 						const nextSelectedKeys = selectedRowKeys.concat();
-						const { childNode = [] } = rootNode;
+						const {childNode = []} = rootNode;
 						nextSelectedKeys.push(...childNode.map((n) => n.taskId));
 						setSelectedKeys(nextSelectedKeys);
 					}
@@ -343,7 +330,7 @@ export default ({ visible, task, handCancel }: IPatchDataProps) => {
 			setSelectedKeys([task.taskId]);
 			setExpanedKeys([]);
 			setTreeData([]);
-			getChildTask({ taskId: task.taskId });
+			getChildTask({taskId: task.taskId});
 			form.setFieldsValue({
 				fillName: `P_${task.name}_${moment().format('YYYY_MM_DD_mm_ss')}`,
 				rangeDate: [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
@@ -417,7 +404,7 @@ export default ({ visible, task, handCancel }: IPatchDataProps) => {
 						},
 					]}
 				>
-					<Input placeholder="请输入补数据名" />
+					<Input placeholder="请输入补数据名"/>
 				</FormItem>
 				<FormItem
 					name="rangeDate"
@@ -433,7 +420,7 @@ export default ({ visible, task, handCancel }: IPatchDataProps) => {
 					<RangePicker
 						disabledDate={disabledDate}
 						format="YYYY-MM-DD"
-						style={{ width: '100%' }}
+						style={{width: '100%'}}
 					/>
 				</FormItem>
 				<FormItem
@@ -454,7 +441,7 @@ export default ({ visible, task, handCancel }: IPatchDataProps) => {
                             表示：2019-01-01~2019-01-03期间内，每天的01:30~03:00开始运行的实例，时间范围为闭区间，时间范围选择了23:59后，计划23:59开始运行的实例也会产生 支持将数值类型、Timestamp类型作为增量标识字段
                             选择分钟粒度后，补数据时，跨周期依赖配置无效"
 						>
-							<QuestionCircleOutlined />
+							<QuestionCircleOutlined/>
 						</Tooltip>
 					</Space>
 				</FormItem>
@@ -464,7 +451,7 @@ export default ({ visible, task, handCancel }: IPatchDataProps) => {
 						prevValues.hasMinute !== currentValues.hasMinute
 					}
 				>
-					{({ getFieldValue }) =>
+					{({getFieldValue}) =>
 						getFieldValue('hasMinute') ? (
 							<FormItem label="具体时间" required>
 								<Row>
@@ -481,7 +468,7 @@ export default ({ visible, task, handCancel }: IPatchDataProps) => {
 										>
 											<TimePicker
 												format={format}
-												style={{ width: '100%' }}
+												style={{width: '100%'}}
 												allowClear={false}
 												disabledHours={() => disabledHours('start')}
 												disabledMinutes={() => disabledMinutes('start')}
@@ -512,7 +499,7 @@ export default ({ visible, task, handCancel }: IPatchDataProps) => {
 										>
 											<TimePicker
 												format="HH:mm"
-												style={{ width: '100%' }}
+												style={{width: '100%'}}
 												allowClear={false}
 												disabledHours={() => disabledHours('end')}
 												disabledMinutes={() => disabledMinutes('end')}

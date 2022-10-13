@@ -61,8 +61,8 @@ public class QueryTableTree {
     public QueryTableTree() {
     }
 
-    public void addChild(QueryTableTree child){
-        if(StringUtils.isNotEmpty(child.name) && StringUtils.isEmpty(child.getAlias())){
+    public void addChild(QueryTableTree child) {
+        if (StringUtils.isNotEmpty(child.name) && StringUtils.isEmpty(child.getAlias())) {
             child.setAlias(child.name);
         }
 
@@ -122,18 +122,18 @@ public class QueryTableTree {
         return getJsonObject().toJSONString();
     }
 
-    private JSONObject getJsonObject(){
+    private JSONObject getJsonObject() {
         JSONObject object = new JSONObject(true);
-        object.put("name",String.valueOf(name));
-        object.put("alias",String.valueOf(alias));
-        object.put("cetQuery",cetQuery);
-        object.put("columns",columns);
+        object.put("name", String.valueOf(name));
+        object.put("alias", String.valueOf(alias));
+        object.put("cetQuery", cetQuery);
+        object.put("columns", columns);
 
         JSONArray childrenJson = new JSONArray();
         for (QueryTableTree child : children) {
             childrenJson.add(child.getJsonObject());
         }
-        object.put("children",childrenJson);
+        object.put("children", childrenJson);
 
         return object;
     }

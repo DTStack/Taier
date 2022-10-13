@@ -33,12 +33,12 @@ public abstract class AbstractRecursionFillDataTask extends AbstractFillDataTask
                                       Map<Long, DAGNode> dagNodes,
                                       Set<Long> run,
                                       Map<Long, List<Long>> nodeSide) {
-        LOGGER.info("{} start fillDAGPath ",aimPath);
+        LOGGER.info("{} start fillDAGPath ", aimPath);
         List<Long> childTaskKeys = nodeSide.get(aimPath);
         List<DAGPath> paths = Lists.newArrayList();
         if (CollectionUtils.isEmpty(childTaskKeys)) {
             // 遍历到子节点，说明该路径已经遍历结束，判断这条路径是否有效
-            LOGGER.info("{} end dagPath:{}",aimPath, JSON.toJSONString(dagPath));
+            LOGGER.info("{} end dagPath:{}", aimPath, JSON.toJSONString(dagPath));
             if (dagPath.getREnd() != null) {
                 paths.add(dagPath);
             }

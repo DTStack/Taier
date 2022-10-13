@@ -3,7 +3,8 @@
 <mapper namespace="com.dtstack.taier.dao.mapper.DevelopFunctionResourceMapper">
 
     <sql id="select_content_fragment">
-      id,function_id,resource_id, gmt_create,gmt_modified,is_deleted, tenant_id
+        id
+        ,function_id,resource_id, gmt_create,gmt_modified,is_deleted, tenant_id
     </sql>
 
     <sql id="update_fragment">
@@ -43,7 +44,8 @@
     </select>
 
     <update id="deleteByFunctionId">
-        update develop_function_resource set is_deleted = 1
+        update develop_function_resource
+        set is_deleted = 1
         WHERE function_id = #{functionId}
     </update>
 

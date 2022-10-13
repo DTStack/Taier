@@ -26,41 +26,41 @@ import java.util.regex.Pattern;
 
 
 public class AddJarOperator {
-	
-	private static Pattern pattern = Pattern.compile("^(?!--)(?i)\\s*add\\s+jar\\s+with\\s+(\\S+)(\\s+AS\\s+(\\S+))?");
 
-	public static JarFileInfo parseSql(String sql) {
+    private static Pattern pattern = Pattern.compile("^(?!--)(?i)\\s*add\\s+jar\\s+with\\s+(\\S+)(\\s+AS\\s+(\\S+))?");
 
-		Matcher matcher = pattern.matcher(sql);
-		if(!matcher.find()){
-			throw new PluginDefineException("not a addJar operator:" + sql);
-		}
+    public static JarFileInfo parseSql(String sql) {
 
-		JarFileInfo jarFileInfo = new JarFileInfo();
-		jarFileInfo.setJarPath(matcher.group(1));
+        Matcher matcher = pattern.matcher(sql);
+        if (!matcher.find()) {
+            throw new PluginDefineException("not a addJar operator:" + sql);
+        }
 
-		if(matcher.groupCount() == 3){
-			jarFileInfo.setMainClass(matcher.group(3));
-		}
+        JarFileInfo jarFileInfo = new JarFileInfo();
+        jarFileInfo.setJarPath(matcher.group(1));
 
-		return jarFileInfo;
-	}
+        if (matcher.groupCount() == 3) {
+            jarFileInfo.setMainClass(matcher.group(3));
+        }
 
-	public static boolean verific(String sql){
-		return pattern.matcher(sql).find();
-	}
+        return jarFileInfo;
+    }
 
-	/*
-	 * handle add jar statements and comment statements on the same line
-	 * " --desc \n\n ADD JAR WITH xxxx"
-	 */
-	public static String handleSql(String sql) {
-		String[] sqls = sql.split("\\n");
-		for (String s: sqls) {
-			if (verific(s)) {
-				return s;
-			}
-		}
-		return sql;
-	}
+    public static boolean verific(String sql) {
+        return pattern.matcher(sql).find();
+    }
+
+    /*
+     * handle add jar statements and comment statements on the same line
+     * " --desc \n\n ADD JAR WITH xxxx"
+     */
+    public static String handleSql(String sql) {
+        String[] sqls = sql.split("\\n");
+        for (String s : sqls) {
+            if (verific(s)) {
+                return s;
+            }
+        }
+        return sql;
+    }
 }

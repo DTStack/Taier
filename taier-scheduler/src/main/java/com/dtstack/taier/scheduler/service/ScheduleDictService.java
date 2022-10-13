@@ -111,7 +111,7 @@ public class ScheduleDictService {
         return groupPairs;
     }
 
-    public String convertVersionNameToValue(String componentVersion, Integer taskType,  Integer deployMode) {
+    public String convertVersionNameToValue(String componentVersion, Integer taskType, Integer deployMode) {
         if (StringUtils.isBlank(componentVersion)) {
             return "";
         }
@@ -121,7 +121,7 @@ public class ScheduleDictService {
         if (null != dictType) {
             Dict versionDict = getByNameAndValue(dictType, componentVersion.trim(), null, null);
             if (null != versionDict) {
-                if(EDeployMode.STANDALONE.getType().equals(deployMode)) {
+                if (EDeployMode.STANDALONE.getType().equals(deployMode)) {
                     return versionDict.getDictValue() + "_standalone";
                 }
                 return versionDict.getDictValue();

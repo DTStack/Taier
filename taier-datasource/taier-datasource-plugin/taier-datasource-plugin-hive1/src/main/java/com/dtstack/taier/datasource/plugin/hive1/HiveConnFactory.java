@@ -1,5 +1,10 @@
 package com.dtstack.taier.datasource.plugin.hive1;
 
+import com.dtstack.taier.datasource.api.dto.SqlQueryDTO;
+import com.dtstack.taier.datasource.api.dto.source.Hive1SourceDTO;
+import com.dtstack.taier.datasource.api.dto.source.ISourceDTO;
+import com.dtstack.taier.datasource.api.exception.SourceException;
+import com.dtstack.taier.datasource.api.source.DataBaseType;
 import com.dtstack.taier.datasource.plugin.common.DtClassConsistent;
 import com.dtstack.taier.datasource.plugin.common.constant.CommonConstant;
 import com.dtstack.taier.datasource.plugin.common.exception.ErrorCode;
@@ -9,11 +14,6 @@ import com.dtstack.taier.datasource.plugin.common.utils.SSLUtil;
 import com.dtstack.taier.datasource.plugin.common.utils.SqlFormatUtil;
 import com.dtstack.taier.datasource.plugin.kerberos.core.util.KerberosLoginUtil;
 import com.dtstack.taier.datasource.plugin.rdbms.ConnFactory;
-import com.dtstack.taier.datasource.api.dto.SqlQueryDTO;
-import com.dtstack.taier.datasource.api.dto.source.Hive1SourceDTO;
-import com.dtstack.taier.datasource.api.dto.source.ISourceDTO;
-import com.dtstack.taier.datasource.api.exception.SourceException;
-import com.dtstack.taier.datasource.api.source.DataBaseType;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;

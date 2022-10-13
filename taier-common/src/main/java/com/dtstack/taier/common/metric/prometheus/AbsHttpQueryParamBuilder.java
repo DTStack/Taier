@@ -50,24 +50,24 @@ public class AbsHttpQueryParamBuilder {
         //generator filter
         List<Filter> filters = queryInfo.getFilters();
         List<String> filterStrList = Lists.newArrayList();
-        if(!CollectionUtils.isEmpty(filters)){
-            for(Filter filter : filters){
+        if (!CollectionUtils.isEmpty(filters)) {
+            for (Filter filter : filters) {
                 filterStrList.add(buildFilterStr(filter));
             }
         }
 
-        if(CollectionUtils.isNotEmpty(filterStrList)){
+        if (CollectionUtils.isNotEmpty(filterStrList)) {
             filterInfo = String.join(",", filterStrList);
             filterInfo = "{" + filterInfo + "}";
             filterInfo = URLEncoder.encode(filterInfo, Charsets.UTF_8.name());
             queryStr = queryStr.replace("${filter}", filterInfo);
-        }else{
+        } else {
             queryStr = queryStr.replace("${filter}", "");
         }
 
         List<IFunction> functionList = queryInfo.getAggregator();
 
-        for(IFunction func : functionList){
+        for (IFunction func : functionList) {
             queryStr = func.build(queryStr);
         }
 

@@ -18,8 +18,8 @@
 
 package com.dtstack.taier.hadoop;
 
-import com.dtstack.taier.pluginapi.JobClient;
 import com.dtstack.taier.base.resource.EngineResourceInfo;
+import com.dtstack.taier.pluginapi.JobClient;
 import com.dtstack.taier.pluginapi.pojo.JudgeResult;
 
 

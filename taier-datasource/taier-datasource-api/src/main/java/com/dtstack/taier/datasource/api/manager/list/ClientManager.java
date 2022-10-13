@@ -127,7 +127,7 @@ public class ClientManager extends AbstractManager {
      * @param connectorName connector name
      * @return proxy client
      */
-    private  <T extends Client> T getClient(Class<T> clientType, String pluginName, String connectorName) {
+    private <T extends Client> T getClient(Class<T> clientType, String pluginName, String connectorName) {
         Map<String, Map<String, Client>> pluginNameMap = clientCache.get(pluginName);
         if (MapUtils.isEmpty(pluginNameMap)) {
             return null;

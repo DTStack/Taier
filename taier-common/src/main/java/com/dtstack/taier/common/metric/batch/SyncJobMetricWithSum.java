@@ -19,7 +19,6 @@
 package com.dtstack.taier.common.metric.batch;
 
 
-
 import com.dtstack.taier.common.metric.Filter;
 import com.dtstack.taier.common.metric.QueryInfo;
 import com.dtstack.taier.common.metric.prometheus.func.CommonFunc;
@@ -31,6 +30,7 @@ import java.util.List;
  * Reason:
  * Date: 2019/4/29
  * Company: www.dtstack.com
+ *
  * @author xuchao
  */
 

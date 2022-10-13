@@ -22,6 +22,7 @@ package com.dtstack.taier.common.enums;
  * Reason:
  * Date: 2017/11/10
  * Company: www.dtstack.com
+ *
  * @author xuchao
  */
 public enum EDeployType {
@@ -36,7 +37,7 @@ public enum EDeployType {
 
     String name;
 
-    EDeployType(Integer type, String name){
+    EDeployType(Integer type, String name) {
         this.type = type;
         this.name = name;
     }
@@ -57,9 +58,9 @@ public enum EDeployType {
         this.name = name;
     }
 
-    public static EDeployType getDeployType(String name){
-        for(EDeployType eDeployType : EDeployType.values()){
-            if(eDeployType.getName().equals(name.toLowerCase())){
+    public static EDeployType getDeployType(String name) {
+        for (EDeployType eDeployType : EDeployType.values()) {
+            if (eDeployType.getName().equals(name.toLowerCase())) {
                 return eDeployType;
             }
         }

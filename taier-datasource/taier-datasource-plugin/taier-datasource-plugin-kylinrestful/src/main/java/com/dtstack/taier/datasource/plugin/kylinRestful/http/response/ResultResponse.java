@@ -1,7 +1,7 @@
 package com.dtstack.taier.datasource.plugin.kylinRestful.http.response;
 
-import com.dtstack.taier.datasource.plugin.kylinRestful.http.HttpClient;
 import com.dtstack.taier.datasource.api.exception.SourceException;
+import com.dtstack.taier.datasource.plugin.kylinRestful.http.HttpClient;
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -19,7 +19,7 @@ public class ResultResponse {
         super();
         this.statusCode = statusCode;
         if (statusCode >= 200 && statusCode < 300) {
-            if(statusCode == 204){
+            if (statusCode == 204) {
                 this.httpStatus = HttpStatus.ServerSuccessNoContent;
             } else {
                 this.httpStatus = HttpStatus.ServerSuccess;

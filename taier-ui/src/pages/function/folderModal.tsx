@@ -16,14 +16,14 @@
  * limitations under the License.
  */
 
-import React, { useMemo, useRef, useState } from 'react';
+import React, {useMemo, useRef, useState} from 'react';
 import assign from 'object-assign';
-import type { FormInstance } from 'antd';
-import { Modal, Button, Input, Form } from 'antd';
-import type { CATALOGUE_TYPE } from '@/constant';
-import { formItemLayout } from '@/constant';
+import type {FormInstance} from 'antd';
+import {Button, Form, Input, Modal} from 'antd';
+import type {CATALOGUE_TYPE} from '@/constant';
+import {formItemLayout} from '@/constant';
 import FolderPicker from '../../components/folderPicker';
-import type { CatalogueDataProps } from '@/interface';
+import type {CatalogueDataProps} from '@/interface';
 
 const FormItem = Form.Item;
 
@@ -62,9 +62,9 @@ interface IFolderModalProps {
 	}) => Promise<boolean>;
 }
 
-function FolderForm({ form, defaultData, dataType, treeData }: IFolderFormProps) {
+function FolderForm({form, defaultData, dataType, treeData}: IFolderFormProps) {
 	const handleSelectTreeChange = (value: number) => {
-		form.setFieldsValue({ nodePid: value });
+		form.setFieldsValue({nodePid: value});
 	};
 
 	// 没有默认数据
@@ -90,7 +90,7 @@ function FolderForm({ form, defaultData, dataType, treeData }: IFolderFormProps)
 				]}
 				initialValue={isCreateNormal ? undefined : defaultData.name}
 			>
-				<Input type="text" placeholder="文件夹名称" />
+				<Input type="text" placeholder="文件夹名称"/>
 			</FormItem>
 			<FormItem key="nodePid" label="选择目录位置" {...formItemLayout}>
 				<FormItem
@@ -104,7 +104,7 @@ function FolderForm({ form, defaultData, dataType, treeData }: IFolderFormProps)
 					]}
 					initialValue={isCreateNormal ? treeData.id : defaultData.parentId}
 				>
-					<Input type="hidden" />
+					<Input type="hidden"/>
 				</FormItem>
 				<FolderPicker
 					showFile={false}
@@ -119,14 +119,14 @@ function FolderForm({ form, defaultData, dataType, treeData }: IFolderFormProps)
 
 let dtcount = 0;
 export default function FolderModal({
-	isModalShow,
-	defaultData,
-	treeData,
-	dataType,
-	toggleCreateFolder,
-	addOfflineCatalogue,
-	editOfflineCatalogue,
-}: IFolderModalProps) {
+										isModalShow,
+										defaultData,
+										treeData,
+										dataType,
+										toggleCreateFolder,
+										addOfflineCatalogue,
+										editOfflineCatalogue,
+									}: IFolderModalProps) {
 	const [form] = Form.useForm<IFormFieldProps>();
 	const [loading, setLoading] = useState(false);
 	const wrapper = useRef<HTMLDivElement>(null);

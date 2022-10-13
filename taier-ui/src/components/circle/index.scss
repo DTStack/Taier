@@ -29,10 +29,10 @@ $fail_color: #ff5f5c;
 }
 
 .#{$card_prefix}-stopped,
-
 .#{$card_prefix}-frozen {
 	background: $stopped_color;
 }
+
 .#{$card_prefix}-fail {
 	background: $fail_color;
 }

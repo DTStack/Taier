@@ -1,9 +1,9 @@
 package com.dtstack.taier.datasource.plugin.solr;
 
-import com.dtstack.taier.datasource.plugin.kerberos.core.util.KerberosConfigUtil;
-import com.dtstack.taier.datasource.plugin.kerberos.core.util.KerberosUtil;
 import com.dtstack.taier.datasource.api.exception.SourceException;
 import com.dtstack.taier.datasource.plugin.common.constant.KerberosConstant;
+import com.dtstack.taier.datasource.plugin.kerberos.core.util.KerberosConfigUtil;
+import com.dtstack.taier.datasource.plugin.kerberos.core.util.KerberosUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.io.FileUtils;
@@ -69,7 +69,7 @@ public class SolrUtils {
             }
 
             //如果没有设置principal,默认读keytab取第一个
-            String principal = kerberosConfig.containsKey(KerberosConstant.PRINCIPAL) ? MapUtils.getString(kerberosConfig, KerberosConstant.PRINCIPAL) :  KerberosConfigUtil.getPrincipals(keytabPath).get(0);
+            String principal = kerberosConfig.containsKey(KerberosConstant.PRINCIPAL) ? MapUtils.getString(kerberosConfig, KerberosConstant.PRINCIPAL) : KerberosConfigUtil.getPrincipals(keytabPath).get(0);
             FileUtils.write(jaas, String.format(SolrConsistent.SOLR_JAAS_CONTENT, keytabPath, principal));
             String solrLoginConf = jaas.getAbsolutePath();
             log.info("Init solr Kerberos:login-conf:{}\n --principal:{}", keytabPath, principal);

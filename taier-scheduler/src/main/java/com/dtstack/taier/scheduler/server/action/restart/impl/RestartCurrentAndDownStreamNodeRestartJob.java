@@ -21,7 +21,7 @@ public class RestartCurrentAndDownStreamNodeRestartJob extends AbstractRestartJo
 
 
     public RestartCurrentAndDownStreamNodeRestartJob(EnvironmentContext environmentContext, ApplicationContext applicationContext) {
-        super( environmentContext,applicationContext);
+        super(environmentContext, applicationContext);
     }
 
     @Override

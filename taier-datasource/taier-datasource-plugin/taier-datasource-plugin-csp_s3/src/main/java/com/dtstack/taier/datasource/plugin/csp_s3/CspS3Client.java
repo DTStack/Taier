@@ -1,10 +1,10 @@
 package com.dtstack.taier.datasource.plugin.csp_s3;
 
-import com.dtstack.taier.datasource.plugin.common.nosql.AbsNoSqlClient;
 import com.dtstack.taier.datasource.api.dto.SqlQueryDTO;
 import com.dtstack.taier.datasource.api.dto.source.CspS3SourceDTO;
 import com.dtstack.taier.datasource.api.dto.source.ISourceDTO;
 import com.dtstack.taier.datasource.api.exception.SourceException;
+import com.dtstack.taier.datasource.plugin.common.nosql.AbsNoSqlClient;
 import com.google.common.collect.Lists;
 import com.qcloud.cos.COSClient;
 import com.qcloud.cos.model.Bucket;

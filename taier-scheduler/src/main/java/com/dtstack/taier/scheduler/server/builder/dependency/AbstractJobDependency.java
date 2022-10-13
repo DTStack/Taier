@@ -26,7 +26,6 @@ public abstract class AbstractJobDependency implements JobDependency {
     protected String keyPreStr;
 
 
-
     /**
      * 当前任务
      */
@@ -60,7 +59,7 @@ public abstract class AbstractJobDependency implements JobDependency {
         Integer selfReliance = scheduleConf.getSelfReliance();
 
         if (DependencyType.SELF_DEPENDENCY_SUCCESS.getType().equals(selfReliance)
-                ||DependencyType.PRE_PERIOD_CHILD_DEPENDENCY_SUCCESS.getType().equals(selfReliance) ) {
+                || DependencyType.PRE_PERIOD_CHILD_DEPENDENCY_SUCCESS.getType().equals(selfReliance)) {
             return RelyRule.RUN_SUCCESS.getType();
         } else if (DependencyType.SELF_DEPENDENCY_END.getType().equals(selfReliance)
                 || DependencyType.PRE_PERIOD_CHILD_DEPENDENCY_END.getType().equals(selfReliance)) {
@@ -72,13 +71,13 @@ public abstract class AbstractJobDependency implements JobDependency {
     /**
      * 判断是否是同一天
      *
-     * @param lastDate 下一个周期
+     * @param lastDate    下一个周期
      * @param currentDate 当期周期
-     * @param lastJobKey 下一个周期key
+     * @param lastJobKey  下一个周期key
      * @return lastJobKey
      */
-    protected String needCreateKey(Date lastDate,Date currentDate,String lastJobKey) {
-        if (!DateUtil.isSameDay(lastDate,currentDate)) {
+    protected String needCreateKey(Date lastDate, Date currentDate, String lastJobKey) {
+        if (!DateUtil.isSameDay(lastDate, currentDate)) {
             // 不是同一天
             ScheduleJob scheduleJob = scheduleJobService.lambdaQuery()
                     .select(ScheduleJob::getJobId)

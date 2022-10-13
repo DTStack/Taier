@@ -16,20 +16,20 @@
  * limitations under the License.
  */
 
-import { message, Modal } from 'antd';
-import type { IExtension } from '@dtinsight/molecule/esm/model';
-import { FileTypes, TreeNodeModel } from '@dtinsight/molecule/esm/model';
-import { localize } from '@dtinsight/molecule/esm/i18n/localize';
+import {message, Modal} from 'antd';
+import type {IExtension} from '@dtinsight/molecule/esm/model';
+import {FileTypes, TreeNodeModel} from '@dtinsight/molecule/esm/model';
+import {localize} from '@dtinsight/molecule/esm/i18n/localize';
 import molecule from '@dtinsight/molecule/esm';
-import type { IFormFieldProps } from '@/components/task/create';
+import type {IFormFieldProps} from '@/components/task/create';
 import Create from '@/components/task/create';
 import EditFolder from '@/components/task/editFolder';
-import { getParentNode } from '@/utils/extensions';
+import {getParentNode} from '@/utils/extensions';
 import api from '@/api';
-import type { UniqueId } from '@dtinsight/molecule/esm/common/types';
-import { CATALOGUE_TYPE, TASK_TYPE_ENUM, ID_COLLECTIONS } from '@/constant';
-import { IComputeType } from '@/interface';
-import { taskRenderService, breadcrumbService, catalogueService } from '@/services';
+import type {UniqueId} from '@dtinsight/molecule/esm/common/types';
+import {CATALOGUE_TYPE, ID_COLLECTIONS, TASK_TYPE_ENUM} from '@/constant';
+import {IComputeType} from '@/interface';
+import {breadcrumbService, catalogueService, taskRenderService} from '@/services';
 import notification from '@/components/notification';
 
 /**
@@ -49,7 +49,7 @@ function getComputeType(type: TASK_TYPE_ENUM): number {
  */
 function openCreateTab(id?: string) {
 	const onSubmit = (values: IFormFieldProps) => {
-		const { resourceIdList, ...restValues } = values;
+		const {resourceIdList, ...restValues} = values;
 		return new Promise<boolean>((resolve) => {
 			const params: Record<string, any> = {
 				...restValues,
@@ -61,7 +61,7 @@ function openCreateTab(id?: string) {
 			api.addOfflineTask(params)
 				.then((res) => {
 					if (res.code === 1) {
-						const { data } = res;
+						const {data} = res;
 						const groupId = molecule.editor.getGroupIdByTab(tabId);
 						if (!groupId) return;
 						molecule.editor.closeTab(tabId, groupId);
@@ -73,7 +73,7 @@ function openCreateTab(id?: string) {
 								.loadTreeNode(parentNode.data, CATALOGUE_TYPE.TASK)
 								.then(() => {
 									// open this brand-new task
-									taskRenderService.openTask({ id: data.id });
+									taskRenderService.openTask({id: data.id});
 								});
 						}
 					}
@@ -85,7 +85,7 @@ function openCreateTab(id?: string) {
 	};
 
 	const tabId = `${ID_COLLECTIONS.CREATE_TASK_PREFIX}_${new Date().getTime()}`;
-	const { folderTree } = molecule.folderTree.getState();
+	const {folderTree} = molecule.folderTree.getState();
 	if (!folderTree?.current && !folderTree?.data?.length) return;
 	const tabData = {
 		id: tabId,
@@ -107,7 +107,7 @@ function openCreateTab(id?: string) {
 			nodePid: id || folderTree.data?.[0].id,
 		},
 		renderPane: () => {
-			return <Create key={tabId} onSubmit={onSubmit} />;
+			return <Create key={tabId} onSubmit={onSubmit}/>;
 		},
 	};
 
@@ -117,11 +117,11 @@ function openCreateTab(id?: string) {
 
 function init() {
 	molecule.explorer.onPanelToolbarClick((panel, toolbarId: string) => {
-		const { SAMPLE_FOLDER_PANEL_ID } = molecule.builtin.getConstants();
+		const {SAMPLE_FOLDER_PANEL_ID} = molecule.builtin.getConstants();
 		// 如果是任务刷新，执行重新加载
 		if (panel.id === SAMPLE_FOLDER_PANEL_ID && toolbarId === 'refresh') {
-			const { current } = molecule.editor.getState();
-			const { folderTree } = molecule.folderTree.getState();
+			const {current} = molecule.editor.getState();
+			const {folderTree} = molecule.folderTree.getState();
 			if (!folderTree?.data?.length) return;
 			if (current) {
 				// keep the folderTree's current consistent with the editor's current
@@ -166,7 +166,7 @@ function initContextMenu() {
 			);
 			menu.splice(idx, 1);
 			// insert these menus into folder context
-			menu.splice(0, 1, { id: ID_COLLECTIONS.TASK_CREATE_ID, name: '新建任务' });
+			menu.splice(0, 1, {id: ID_COLLECTIONS.TASK_CREATE_ID, name: '新建任务'});
 			menu.splice(2, 0, {
 				id: ID_COLLECTIONS.FOLDERTREE_CONTEXT_EDIT,
 				name: '编辑',
@@ -216,11 +216,11 @@ function editTreeNodeName() {
 	molecule.folderTree.onUpdateFileName((file) => {
 		const {
 			name,
-			data: { parentId },
+			data: {parentId},
 			id,
 		} = file;
 		if (!name || name.length > 64) {
-			notification.error({ key: 'create', message: '目录名称不得超过64个字符且不为空！' });
+			notification.error({key: 'create', message: '目录名称不得超过64个字符且不为空！'});
 			if (molecule.folderTree.get(id)) {
 				molecule.folderTree.remove(id);
 			}
@@ -255,7 +255,7 @@ const onAfterSubmit = (props: {
 	nextName: string;
 	editTabId: string;
 }) => {
-	const { beforeParentId, afterParentId, taskId, nextName, editTabId } = props;
+	const {beforeParentId, afterParentId, taskId, nextName, editTabId} = props;
 	// 等待更新的文件夹目录
 	const pendingUpdateFolderId = new Set([
 		// 当前节点变更之前所在的文件夹
@@ -299,7 +299,7 @@ const onAfterSubmit = (props: {
 function onSelectFile() {
 	molecule.folderTree.onSelectFile((file) => {
 		molecule.folderTree.setActive(file.id);
-		taskRenderService.openTask({ id: file.id }, { create: false });
+		taskRenderService.openTask({id: file.id}, {create: false});
 	});
 }
 
@@ -314,7 +314,7 @@ function onRemove() {
 			}！`,
 			onOk() {
 				if (type === 'Folder') {
-					api.delOfflineFolder({ id: treeNode?.data.id }).then((res) => {
+					api.delOfflineFolder({id: treeNode?.data.id}).then((res) => {
 						if (res.code === 1) {
 							message.success('删除成功');
 							molecule.folderTree.remove(id);
@@ -323,7 +323,7 @@ function onRemove() {
 					});
 					return;
 				}
-				api.delOfflineTask({ taskId: id }).then((res) => {
+				api.delOfflineTask({taskId: id}).then((res) => {
 					if (res.code === 1) {
 						message.success('删除成功');
 						molecule.folderTree.remove(id);
@@ -339,7 +339,8 @@ function onRemove() {
 					return res;
 				});
 			},
-			onCancel() {},
+			onCancel() {
+			},
 		});
 	});
 }
@@ -428,17 +429,17 @@ function contextMenu() {
 					id: tabId,
 					data: isFile
 						? {
-								id: treeNode?.data.id,
-								name: treeNode?.name,
-								taskType: treeNode?.data.taskType,
-								nodePid: treeNode?.data.parentId,
-								taskDesc: treeNode?.data.taskDesc,
-						  }
+							id: treeNode?.data.id,
+							name: treeNode?.name,
+							taskType: treeNode?.data.taskType,
+							nodePid: treeNode?.data.parentId,
+							taskDesc: treeNode?.data.taskDesc,
+						}
 						: {
-								id: treeNode?.id,
-								nodePid: treeNode?.data.parentId,
-								dt_nodeName: treeNode?.name,
-						  },
+							id: treeNode?.id,
+							nodePid: treeNode?.data.parentId,
+							dt_nodeName: treeNode?.name,
+						},
 					icon: 'edit',
 					breadcrumb,
 					name: isFile
@@ -466,7 +467,7 @@ function contextMenu() {
 					},
 				};
 
-				const { groups = [] } = molecule.editor.getState();
+				const {groups = []} = molecule.editor.getState();
 				const isExist = groups.some((group) => group.data?.some((tab) => tab.id === tabId));
 				if (!isExist) {
 					molecule.editor.open(tabData);
@@ -496,9 +497,11 @@ function onLoadTree() {
 export default class FolderTreeExtension implements IExtension {
 	id: UniqueId = 'folderTree';
 	name: string = 'folderTree';
+
 	dispose(): void {
 		throw new Error('Method not implemented.');
 	}
+
 	activate() {
 		// 初始化 entry 样式和刷新
 		init();

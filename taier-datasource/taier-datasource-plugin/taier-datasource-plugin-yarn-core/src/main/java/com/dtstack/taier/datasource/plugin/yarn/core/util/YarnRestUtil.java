@@ -1,12 +1,12 @@
 package com.dtstack.taier.datasource.plugin.yarn.core.util;
 
 import com.alibaba.fastjson.JSONObject;
-import com.dtstack.taier.datasource.plugin.restful.core.RestfulSpecialClient;
 import com.dtstack.taier.datasource.api.client.IRestful;
 import com.dtstack.taier.datasource.api.dto.SSLConfig;
 import com.dtstack.taier.datasource.api.dto.source.ISourceDTO;
 import com.dtstack.taier.datasource.api.dto.source.RestfulSourceDTO;
 import com.dtstack.taier.datasource.api.dto.source.YarnSourceDTO;
+import com.dtstack.taier.datasource.plugin.restful.core.RestfulSpecialClient;
 import com.google.common.collect.Maps;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang3.StringUtils;
@@ -55,7 +55,7 @@ public class YarnRestUtil {
                 byte[] encodedAuth = Base64.encodeBase64(auth.getBytes(StandardCharsets.UTF_8));
                 String authHeader = "Basic " + new String(encodedAuth);
                 // 将验证信息放入到 Header
-                 headers.put(HttpHeaders.AUTHORIZATION, authHeader);
+                headers.put(HttpHeaders.AUTHORIZATION, authHeader);
             }
         }
 

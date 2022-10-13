@@ -18,11 +18,11 @@
 
 package com.dtstack.taier.sparkyarn.sparkyarn;
 
+import com.dtstack.taier.base.resource.AbstractYarnResourceInfo;
+import com.dtstack.taier.pluginapi.JobClient;
 import com.dtstack.taier.pluginapi.pojo.JudgeResult;
 import com.dtstack.taier.pluginapi.util.MathUtil;
 import com.dtstack.taier.pluginapi.util.UnitConvertUtil;
-import com.dtstack.taier.pluginapi.JobClient;
-import com.dtstack.taier.base.resource.AbstractYarnResourceInfo;
 import com.google.common.collect.Lists;
 import org.apache.hadoop.yarn.client.api.YarnClient;
 
@@ -33,6 +33,7 @@ import java.util.Properties;
  * spark yarn 资源相关
  * Date: 2017/11/30
  * Company: www.dtstack.com
+ *
  * @author xuchao
  */
 
@@ -80,37 +81,37 @@ public class SparkYarnResourceInfo extends AbstractYarnResourceInfo {
 
         Properties properties = jobClient.getConfProperties();
         int driverCores = DEFAULT_CORES;
-        if(properties != null && properties.containsKey(DRIVER_CORE_KEY)){
+        if (properties != null && properties.containsKey(DRIVER_CORE_KEY)) {
             driverCores = MathUtil.getIntegerVal(properties.get(DRIVER_CORE_KEY));
         }
         int driverMem = DEFAULT_MEM;
-        if(properties != null && properties.containsKey(DRIVER_MEM_KEY)){
+        if (properties != null && properties.containsKey(DRIVER_MEM_KEY)) {
             String setMemStr = properties.getProperty(DRIVER_MEM_KEY);
             driverMem = UnitConvertUtil.convert2Mb(setMemStr);
         }
         int driverMemOverhead = DEFAULT_MEM_OVERHEAD;
-        if(properties != null && properties.containsKey(DRIVER_MEM_OVERHEAD_KEY)){
+        if (properties != null && properties.containsKey(DRIVER_MEM_OVERHEAD_KEY)) {
             String setMemStr = properties.getProperty(DRIVER_MEM_OVERHEAD_KEY);
             driverMemOverhead = UnitConvertUtil.convert2Mb(setMemStr);
         }
         driverMem += driverMemOverhead;
 
         int executorNum = DEFAULT_INSTANCES;
-        if(properties != null && properties.containsKey(EXECUTOR_INSTANCES_KEY)){
+        if (properties != null && properties.containsKey(EXECUTOR_INSTANCES_KEY)) {
             executorNum = MathUtil.getIntegerVal(properties.get(EXECUTOR_INSTANCES_KEY));
         }
         int executorCores = DEFAULT_CORES;
-        if(properties != null && properties.containsKey(EXECUTOR_CORES_KEY)){
+        if (properties != null && properties.containsKey(EXECUTOR_CORES_KEY)) {
             executorCores = MathUtil.getIntegerVal(properties.get(EXECUTOR_CORES_KEY));
         }
 
         int executorMem = DEFAULT_MEM;
-        if(properties != null && properties.containsKey(EXECUTOR_MEM_KEY)){
+        if (properties != null && properties.containsKey(EXECUTOR_MEM_KEY)) {
             String setMemStr = properties.getProperty(EXECUTOR_MEM_KEY);
             executorMem = UnitConvertUtil.convert2Mb(setMemStr);
         }
         int executorMemOverhead = DEFAULT_MEM_OVERHEAD;
-        if(properties != null && properties.containsKey(EXECUTOR_MEM_OVERHEAD_KEY)){
+        if (properties != null && properties.containsKey(EXECUTOR_MEM_OVERHEAD_KEY)) {
             String setMemStr = properties.getProperty(EXECUTOR_MEM_OVERHEAD_KEY);
             executorMemOverhead = UnitConvertUtil.convert2Mb(setMemStr);
         }

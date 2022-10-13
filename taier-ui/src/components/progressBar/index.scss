@@ -2,19 +2,19 @@
 
 $prefix: 'dtc-progress';
 .#{$prefix}-progress-bar {
-    position: fixed;
-    top: 0;
-    left: -100%;
-    z-index: 10000;
-    width: 100%;
-    height: 2px;
-    background: $main-color;
-    box-shadow: 0 1px 3px $main-color;
-    animation: dtc-progress-loading-anim 1s ease-in-out infinite;
+	position: fixed;
+	top: 0;
+	left: -100%;
+	z-index: 10000;
+	width: 100%;
+	height: 2px;
+	background: $main-color;
+	box-shadow: 0 1px 3px $main-color;
+	animation: dtc-progress-loading-anim 1s ease-in-out infinite;
 }
 
 @keyframes dtc-progress-loading-anim {
-    to {
-        transform: translateX(200%)
-    }
+	to {
+		transform: translateX(200%)
+	}
 }

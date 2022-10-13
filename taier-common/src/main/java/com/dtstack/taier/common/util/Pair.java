@@ -1,9 +1,13 @@
 package com.dtstack.taier.common.util;
 
 public class Pair<K, V> {
-    /** Key. */
+    /**
+     * Key.
+     */
     private final K key;
-    /** Value. */
+    /**
+     * Value.
+     */
     private final V value;
 
     /**
@@ -44,7 +48,6 @@ public class Pair<K, V> {
     public V getValue() {
         return value;
     }
-
 
 
     /**

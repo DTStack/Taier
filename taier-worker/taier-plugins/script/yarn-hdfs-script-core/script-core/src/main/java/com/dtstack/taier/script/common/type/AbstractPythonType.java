@@ -22,7 +22,7 @@ public abstract class AbstractPythonType extends AbstractAppType {
         if (StringUtils.isNotBlank(dtconf.get(ScriptConfiguration.SCRIPT_CMD_OPTS))) {
             try {
                 cmdOpts = dtconf.get(ScriptConfiguration.SCRIPT_CMD_OPTS);
-                if (dtconf.getBoolean(ScriptConfiguration.SCRIPT_LOCALFILE,false)){
+                if (dtconf.getBoolean(ScriptConfiguration.SCRIPT_LOCALFILE, false)) {
                     cmdOpts += " " + dtconf.get(ScriptConfiguration.SCRIPT_RUNNING_APPLICATIONID);
                 }
             } catch (Exception e) {

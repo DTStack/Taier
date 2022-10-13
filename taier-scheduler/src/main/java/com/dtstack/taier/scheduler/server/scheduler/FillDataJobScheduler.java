@@ -4,7 +4,6 @@ import com.dtstack.taier.common.enums.Deleted;
 import com.dtstack.taier.common.enums.EScheduleType;
 import com.dtstack.taier.common.enums.OperatorType;
 import com.dtstack.taier.dao.domain.ScheduleJob;
-import com.dtstack.taier.pluginapi.enums.TaskStatus;
 import com.dtstack.taier.scheduler.enums.JobPhaseStatus;
 import com.dtstack.taier.scheduler.server.scheduler.interceptor.SubmitInterceptor;
 import org.slf4j.Logger;

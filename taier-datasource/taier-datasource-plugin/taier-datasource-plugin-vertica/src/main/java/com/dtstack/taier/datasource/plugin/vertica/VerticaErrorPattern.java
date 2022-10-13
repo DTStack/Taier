@@ -13,6 +13,7 @@ import java.util.regex.Pattern;
 public class VerticaErrorPattern extends AbsErrorPattern {
 
     private static final Pattern USERNAME_PASSWORD_ERROR = Pattern.compile("(?i)Required\\s+Connection\\s+Key\\(s\\):\\s+database,\\s+host");
+
     static {
         PATTERN_MAP.clear();
         PATTERN_MAP.put(ConnErrorCode.URL_MISSING_DATABASE.getCode(), USERNAME_PASSWORD_ERROR);

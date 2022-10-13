@@ -19,7 +19,6 @@
 package com.dtstack.taier.scheduler.impl.pojo;
 
 import com.dtstack.taier.dao.domain.ScheduleTaskShade;
-import com.dtstack.taier.scheduler.dto.schedule.ScheduleTaskShadeDTO;
 import io.swagger.annotations.ApiModelProperty;
 
 /**

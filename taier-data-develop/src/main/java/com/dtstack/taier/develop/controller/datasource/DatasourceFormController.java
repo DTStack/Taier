@@ -17,7 +17,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
- *
  * @description:
  * @author: liuxx
  * @date: 2021/3/9
@@ -38,6 +37,7 @@ public class DatasourceFormController {
             protected void checkParams() throws IllegalArgumentException {
                 Asserts.hasText(param.getDataType(), "数据源类型不能为空!");
             }
+
             @Override
             protected DsFormTemplateVo process() throws RdosDefineException {
                 return dsFormFieldService.findTemplateByTypeVersion(param);

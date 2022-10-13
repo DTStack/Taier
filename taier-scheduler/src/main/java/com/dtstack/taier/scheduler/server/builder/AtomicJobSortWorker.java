@@ -12,7 +12,7 @@ public class AtomicJobSortWorker implements JobSortWorker {
 
     private final AtomicInteger atomicInteger;
 
-    public AtomicJobSortWorker () {
+    public AtomicJobSortWorker() {
         atomicInteger = new AtomicInteger();
     }
 

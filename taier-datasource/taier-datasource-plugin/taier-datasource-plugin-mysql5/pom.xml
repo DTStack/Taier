@@ -47,7 +47,6 @@
         </dependency>
 
 
-
         <dependency>
             <groupId>mysql</groupId>
             <artifactId>mysql-connector-java</artifactId>
@@ -120,12 +119,12 @@
                         <configuration>
                             <tasks>
                                 <copy file="${basedir}/target/${project.name}-${datasource.version}.jar"
-                                      tofile="${basedir}/../../../datasource-plugins/${jar.package.name}/${jar.name}--${datasource.version}.jar" />
+                                      tofile="${basedir}/../../../datasource-plugins/${jar.package.name}/${jar.name}--${datasource.version}.jar"/>
                                 <delete>
                                     <fileset dir="${basedir}/../../../datasource-plugins/${jar.package.name}/"
-                                         includes="${jar.name}-*.jar"
-                                         excludes="${jar.name}--${datasource.version}.jar"/>
-                              </delete>
+                                             includes="${jar.name}-*.jar"
+                                             excludes="${jar.name}--${datasource.version}.jar"/>
+                                </delete>
                             </tasks>
                         </configuration>
                     </execution>

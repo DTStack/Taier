@@ -82,7 +82,7 @@ public class SqlRegexUtil {
 
     /**
      * 必须保证select之后有空白字符如\n\s\t\r来进行分割之后才视作为有效query
-     *  并且select 之后可以是任意数据以及任意行文字及内容
+     * 并且select 之后可以是任意数据以及任意行文字及内容
      */
     private static final String SELECT = "(?i)^(select\\s)([\\s\\S]*)";
 
@@ -199,7 +199,7 @@ public class SqlRegexUtil {
     public static final Pattern SCHEMA_FORBID = Pattern.compile("(?i)(create|drop)\\s+(schema)+");
     //////////////// 不能执行的 SQL 语法 ///////////////
 
-    public static boolean isCacheTable(String originSql){
+    public static boolean isCacheTable(String originSql) {
         String sql = originSql.trim().replace("\r", "")
                 .replace("\n", "")
                 .replace("\t", "");
@@ -259,14 +259,14 @@ public class SqlRegexUtil {
     }
 
     public static boolean isDataBaseOperate(String sql) {
-        return sql.matches(DROP_DATABASE)||sql.matches(CREATE_DATABASE);
+        return sql.matches(DROP_DATABASE) || sql.matches(CREATE_DATABASE);
     }
 
     public static boolean isDropSql(String sql) {
         return sql.matches(DROP_REGEX);
     }
 
-    public static boolean isRefreshSql(String sql){
+    public static boolean isRefreshSql(String sql) {
         return sql.matches(REFRESH_REGEX);
     }
 
@@ -439,12 +439,12 @@ public class SqlRegexUtil {
     }
 
 
-    public static boolean notCheckSql(String sql){
-        if(StringUtils.isBlank(sql)){
+    public static boolean notCheckSql(String sql) {
+        if (StringUtils.isBlank(sql)) {
             return true;
         }
         Matcher matcher = notCheckPattern.matcher(sql);
-        if(matcher.find()){
+        if (matcher.find()) {
             return true;
         }
         return false;
@@ -452,22 +452,23 @@ public class SqlRegexUtil {
 
     /**
      * 是否是desc
+     *
      * @param sql
      * @return
      */
-    public static boolean isDescSql(String sql){
-        if(StringUtils.isBlank(sql)){
+    public static boolean isDescSql(String sql) {
+        if (StringUtils.isBlank(sql)) {
             return true;
         }
         Matcher matcher = descSqlPattern.matcher(sql);
-        if(matcher.find()){
+        if (matcher.find()) {
             return true;
         }
         return false;
     }
 
     public static String removeComment(String sql) {
-        if(StringUtils.isBlank(sql)){
+        if (StringUtils.isBlank(sql)) {
             return sql;
         }
         Pattern pattern = Pattern.compile(REMOVE_COMMENT_REGEX);

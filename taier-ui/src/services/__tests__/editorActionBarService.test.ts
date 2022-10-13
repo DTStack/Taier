@@ -1,7 +1,6 @@
 import molecule from '@dtinsight/molecule';
 import EditorActionBarService from '../editorActionBarService';
-import ExecuteService from '../executeService';
-import { taskRenderService } from '..';
+import {taskRenderService} from '..';
 
 jest.mock(
 	'@/services/executeService',
@@ -24,7 +23,7 @@ jest.mock(
 );
 
 jest.mock('@/services', () => ({
-	taskRenderService: { renderEditorActions: jest.fn() },
+	taskRenderService: {renderEditorActions: jest.fn()},
 }));
 
 describe('The editor actionBar service', () => {
@@ -63,10 +62,10 @@ describe('The editor actionBar service', () => {
 		const service = new EditorActionBarService();
 		service.performSyncTaskActions();
 
-		expect(molecule.editor.updateGroup).toBeCalledWith('1', { actions: ['test', 'actions'] });
+		expect(molecule.editor.updateGroup).toBeCalledWith('1', {actions: ['test', 'actions']});
 
 		service.performSyncTaskActions();
-		expect(molecule.editor.updateGroup).toBeCalledWith('1', { actions: ['actions'] });
+		expect(molecule.editor.updateGroup).toBeCalledWith('1', {actions: ['actions']});
 
 		expect(molecule.editor.updateActions).not.toBeCalled();
 	});

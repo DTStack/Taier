@@ -22,14 +22,14 @@ public class QueryFillDataJobListVO extends PageVO {
      * 补数据id
      */
     @NotNull(message = "fillId is not null")
-    @ApiModelProperty(value = "补数据id",required = true)
+    @ApiModelProperty(value = "补数据id", required = true)
     private Long fillId;
 
     /**
      * 租户id
      */
     @NotNull(message = "tenantId is not null")
-    @ApiModelProperty(value = "租户id",hidden = true)
+    @ApiModelProperty(value = "租户id", hidden = true)
     private Long tenantId;
 
     /**
@@ -161,6 +161,7 @@ public class QueryFillDataJobListVO extends PageVO {
     public void setJobStatusList(List<Integer> jobStatusList) {
         this.jobStatusList = jobStatusList;
     }
+
     public String getCycSort() {
         return cycSort;
     }

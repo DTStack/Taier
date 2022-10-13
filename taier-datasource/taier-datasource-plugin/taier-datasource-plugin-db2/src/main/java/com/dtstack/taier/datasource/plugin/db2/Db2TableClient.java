@@ -1,12 +1,11 @@
 package com.dtstack.taier.datasource.plugin.db2;
 
-import com.dtstack.taier.datasource.plugin.rdbms.AbsTableClient;
-import com.dtstack.taier.datasource.plugin.rdbms.ConnFactory;
 import com.dtstack.taier.datasource.api.dto.UpsertColumnMetaDTO;
 import com.dtstack.taier.datasource.api.dto.source.ISourceDTO;
 import com.dtstack.taier.datasource.api.dto.source.RdbmsSourceDTO;
 import com.dtstack.taier.datasource.api.exception.SourceException;
 import com.dtstack.taier.datasource.api.source.DataSourceType;
+import com.dtstack.taier.datasource.plugin.rdbms.AbsTableClient;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.List;

@@ -1,9 +1,9 @@
 package org.apache.hadoop.yarn.logaggergation.filecontroller.iflie;
 
-import com.dtstack.taier.datasource.plugin.common.downloader.IYarnDownloader;
-import com.dtstack.taier.datasource.plugin.kerberos.core.util.KerberosLoginUtil;
-import com.dtstack.taier.datasource.plugin.hdfs3.YarnConfUtil;
 import com.dtstack.taier.datasource.api.exception.SourceException;
+import com.dtstack.taier.datasource.plugin.common.downloader.IYarnDownloader;
+import com.dtstack.taier.datasource.plugin.hdfs3.YarnConfUtil;
+import com.dtstack.taier.datasource.plugin.kerberos.core.util.KerberosLoginUtil;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Sets;
 import lombok.Data;
@@ -226,7 +226,7 @@ public class LogAggregationIndexedFileController implements IYarnDownloader {
     @Override
     public boolean reachedEnd() {
         return KerberosLoginUtil.loginWithUGI(kerberosConfig).doAs(
-                (PrivilegedAction<Boolean>) ()->{
+                (PrivilegedAction<Boolean>) () -> {
                     try {
                         return isReachedEnd || totalReadByte >= readLimit || !nextRecord();
                     } catch (Exception e) {
@@ -360,7 +360,7 @@ public class LogAggregationIndexedFileController implements IYarnDownloader {
                     remoteLogPath).getLen() : end;
 
             int UUID_LENGTH = 32;
-            fsDataIStream.seek(fileLength - Integer.SIZE/ Byte.SIZE - UUID_LENGTH);
+            fsDataIStream.seek(fileLength - Integer.SIZE / Byte.SIZE - UUID_LENGTH);
             int offset = fsDataIStream.readInt();
             // If the offset/log meta size is larger than 64M,
             // output a warn message for better debug.
@@ -391,7 +391,7 @@ public class LogAggregationIndexedFileController implements IYarnDownloader {
             // Load Log Meta
             byte[] array = new byte[offset];
             fsDataIStream.seek(
-                    fileLength - offset - Integer.SIZE/ Byte.SIZE - UUID_LENGTH);
+                    fileLength - offset - Integer.SIZE / Byte.SIZE - UUID_LENGTH);
             fsDataIStream.readFully(array);
             return (IndexedLogsMeta) SerializationUtils
                     .deserialize(array);
@@ -531,11 +531,11 @@ public class LogAggregationIndexedFileController implements IYarnDownloader {
     @Override
     public List<String> getTaskManagerList() {
         return KerberosLoginUtil.loginWithUGI(kerberosConfig).doAs(
-                (PrivilegedAction<List<String>>) ()->{
+                (PrivilegedAction<List<String>>) () -> {
                     try {
                         return getContainersWithKerberos();
-                    } catch (Exception e){
-                        throw new SourceException(String.format("get taskManager container exception,%s",e.getMessage()), e);
+                    } catch (Exception e) {
+                        throw new SourceException(String.format("get taskManager container exception,%s", e.getMessage()), e);
                     }
                 });
     }
@@ -629,7 +629,7 @@ public class LogAggregationIndexedFileController implements IYarnDownloader {
         return listOfFiles;
     }
 
-    public Map<String, Long> parseCheckSumFiles(List<FileStatus> fileList){
+    public Map<String, Long> parseCheckSumFiles(List<FileStatus> fileList) {
         Map<String, Long> checkSumFiles = new HashMap<>();
         Set<FileStatus> status = new HashSet<>(fileList);
         status = status.stream().filter(next -> next.getPath().getName().endsWith(

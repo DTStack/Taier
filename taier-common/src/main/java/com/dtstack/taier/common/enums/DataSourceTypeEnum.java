@@ -13,6 +13,7 @@ import java.util.Objects;
 
 /**
  * 数据源类型枚举类
+ *
  * @description:
  * @author: liuxx
  * @date: 2021/3/11
@@ -51,11 +52,11 @@ public enum DataSourceTypeEnum {
     ClickHouse(25, "ClickHouse", null),
     TiDB(31, "TiDB", null),
     CarbonData(20, "CarbonData", null),
-    Kudu(24,"Kudu", null),
+    Kudu(24, "Kudu", null),
     Kylin(58, "Kylin URL", "3.x"),
     HBASE(8, "HBase", "1.x"),
     HBASE2(39, "HBase", "2.x"),
-    HBASE_TBDS(61,"HBase","TBDS"),
+    HBASE_TBDS(61, "HBase", "TBDS"),
     Phoenix4(30, "Phoenix", "4.x"),
     Phoenix5(38, "Phoenix", "5.x"),
     ES(11, "Elasticsearch", "5.x"),
@@ -64,7 +65,7 @@ public enum DataSourceTypeEnum {
     MONGODB(13, "MongoDB", null),
     REDIS(12, "Redis", null),
     S3(41, "S3", null),
-    KAFKA_TBDS(62,"Kafka","TBDS"),
+    KAFKA_TBDS(62, "Kafka", "TBDS"),
     KAFKA(26, "Kafka", "1.x"),
     KAFKA_2X(37, "Kafka", "2.x"),
     KAFKA_09(18, "Kafka", "0.9"),
@@ -76,24 +77,24 @@ public enum DataSourceTypeEnum {
     SOCKET(44, "Socket", null),
     ADS(15, "AnalyticDB MySQL", null),
     Presto(48, "Presto", null),
-    SOLR(53,"Solr","7.x"),
-    INFLUXDB(55,"InfluxDB","1.x"),
+    SOLR(53, "Solr", "7.x"),
+    INFLUXDB(55, "InfluxDB", "1.x"),
     INCEPTOR(52, "Inceptor", null),
     AWS_S3(51, "AWS S3", null),
-    OPENTSDB(56,"OpenTSDB","2.x"),
-    Doris_JDBC(57,"Doris","0.14.x(jdbc)"),
+    OPENTSDB(56, "OpenTSDB", "2.x"),
+    Doris_JDBC(57, "Doris", "0.14.x(jdbc)"),
     Kylin_Jdbc(23, "Kylin JDBC", "3.x"),
-    OceanBase(49,"OceanBase",null),
-    RESTFUL(47,"Restful",null),
-    TRINO(59,"Trino",null),
-    DORIS_HTTP(64,"Doris","0.14.x"),
-    DMDB_FOR_ORACLE(67, "DMDB", "For Oracle")
-    ;
+    OceanBase(49, "OceanBase", null),
+    RESTFUL(47, "Restful", null),
+    TRINO(59, "Trino", null),
+    DORIS_HTTP(64, "Doris", "0.14.x"),
+    DMDB_FOR_ORACLE(67, "DMDB", "For Oracle");
 
-    private static final Table<String ,String ,DataSourceTypeEnum> CACHE = HashBasedTable.create();
+    private static final Table<String, String, DataSourceTypeEnum> CACHE = HashBasedTable.create();
+
     static {
         for (DataSourceTypeEnum value : DataSourceTypeEnum.values()) {
-            CACHE.put(value.getDataType(),Objects.isNull(value.getDataVersion())? StringUtils.EMPTY:value.getDataVersion(),value);
+            CACHE.put(value.getDataType(), Objects.isNull(value.getDataVersion()) ? StringUtils.EMPTY : value.getDataVersion(), value);
         }
     }
 
@@ -107,6 +108,7 @@ public enum DataSourceTypeEnum {
 
     /**
      * 根据数据源类型和版本获取数据源枚举信息
+     *
      * @param dataType
      * @param dataVersion
      * @return
@@ -116,8 +118,8 @@ public enum DataSourceTypeEnum {
             dataVersion = StringUtils.EMPTY;
         }
         DataSourceTypeEnum value;
-        if ((value=CACHE.get(dataType,dataVersion))==null){
-            LOGGER.error("this dataType cannot find,dataType:{},dataVersion:{}",dataType,dataVersion);
+        if ((value = CACHE.get(dataType, dataVersion)) == null) {
+            LOGGER.error("this dataType cannot find,dataType:{},dataVersion:{}", dataType, dataVersion);
             throw new PubSvcDefineException(ErrorCode.CAN_NOT_FITABLE_SOURCE_TYPE);
         }
         return value;
@@ -125,6 +127,7 @@ public enum DataSourceTypeEnum {
 
     /**
      * 根据数据源val获取数据源枚举信息
+     *
      * @param val
      * @return
      */
@@ -135,7 +138,7 @@ public enum DataSourceTypeEnum {
                 return value;
             }
         }
-        LOGGER.error("can not find this dataTypeCode:{}",val);
+        LOGGER.error("can not find this dataTypeCode:{}", val);
         throw new PubSvcDefineException(ErrorCode.CAN_NOT_FITABLE_SOURCE_TYPE);
     }
 

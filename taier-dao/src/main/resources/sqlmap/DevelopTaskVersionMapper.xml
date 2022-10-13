@@ -3,38 +3,70 @@
 <mapper namespace="com.dtstack.taier.dao.mapper.DevelopTaskVersionMapper">
 
     <sql id="select_content_fragment">
-      id,tenant_id,task_id,origin_sql,sql_text,publish_desc,create_user_id,version,task_params,schedule_conf,schedule_status,dependency_task_ids,gmt_create,gmt_modified,is_deleted
+        id
+        ,tenant_id,task_id,origin_sql,sql_text,publish_desc,create_user_id,version,task_params,schedule_conf,schedule_status,dependency_task_ids,gmt_create,gmt_modified,is_deleted
     </sql>
 
     <sql id="simple_select_content_fragment">
-        id,tenant_id,task_id,publish_desc,create_user_id,version,schedule_conf,schedule_status,dependency_task_ids,gmt_create,gmt_modified,is_deleted
+        id
+        ,tenant_id,task_id,publish_desc,create_user_id,version,schedule_conf,schedule_status,dependency_task_ids,gmt_create,gmt_modified,is_deleted
     </sql>
 
     <select id="listByTaskId" resultType="com.dtstack.taier.dao.dto.DevelopTaskVersionDetailDTO">
-       select
-       rb.id as id, rb.task_id as taskId,rb.origin_sql as originSql,rb.sql_text as sqlText,rb.publish_desc as publishDesc,rb.create_user_id as createUserId,rb.version,rb.gmt_create as gmtCreate,rb.gmt_modified as gmtModified,
-       rb.task_params as taskParams
-       from develop_task_version rb
-        where rb.task_id=#{taskId} and rb.is_deleted=0
-        order by rb.${pageQuery.orderBy} ${pageQuery.sort} limit #{pageQuery.start} , #{pageQuery.pageSize}
+        select rb.id             as id,
+               rb.task_id        as taskId,
+               rb.origin_sql     as originSql,
+               rb.sql_text       as sqlText,
+               rb.publish_desc   as publishDesc,
+               rb.create_user_id as createUserId,
+               rb.version,
+               rb.gmt_create     as gmtCreate,
+               rb.gmt_modified   as gmtModified,
+               rb.task_params    as taskParams
+        from develop_task_version rb
+        where rb.task_id = #{taskId}
+          and rb.is_deleted = 0
+        order by rb.${pageQuery.orderBy} ${pageQuery.sort} limit #{pageQuery.start}, #{pageQuery.pageSize}
     </select>
-
 
 
     <select id="getByVersionId" resultType="com.dtstack.taier.dao.dto.DevelopTaskVersionDetailDTO">
-        select
-        rb.id as id, rb.task_id as taskId, rb.origin_sql as originSql, rb.sql_text as sqlText,rb.publish_desc as publishDesc,rb.create_user_id as createUserId,rb.version,rb.gmt_create as gmtCreate,rb.gmt_modified as gmtModified,
-        rb.task_params as taskParams, rb.schedule_conf as scheduleConf, rb.schedule_status as scheduleStatus, rb.dependency_task_ids as dependencyTaskIds
+        select rb.id                  as id,
+               rb.task_id             as taskId,
+               rb.origin_sql          as originSql,
+               rb.sql_text            as sqlText,
+               rb.publish_desc        as publishDesc,
+               rb.create_user_id      as createUserId,
+               rb.version,
+               rb.gmt_create          as gmtCreate,
+               rb.gmt_modified        as gmtModified,
+               rb.task_params         as taskParams,
+               rb.schedule_conf       as scheduleConf,
+               rb.schedule_status     as scheduleStatus,
+               rb.dependency_task_ids as dependencyTaskIds
         from develop_task_version rb
-        where rb.id=#{versionId} and rb.is_deleted=0
+        where rb.id = #{versionId}
+          and rb.is_deleted = 0
     </select>
 
     <select id="getBytaskIdAndVersionId" resultType="com.dtstack.taier.dao.dto.DevelopTaskVersionDetailDTO">
-        select
-        rb.id as id, rb.task_id as taskId, rb.origin_sql as originSql, rb.sql_text as sqlText,rb.publish_desc as publishDesc,rb.create_user_id as createUserId,rb.version,rb.gmt_create as gmtCreate,rb.gmt_modified as gmtModified,
-        rb.task_params as taskParams, rb.schedule_conf as scheduleConf, rb.schedule_status as scheduleStatus, rb.dependency_task_ids as dependencyTaskIds
+        select rb.id                  as id,
+               rb.task_id             as taskId,
+               rb.origin_sql          as originSql,
+               rb.sql_text            as sqlText,
+               rb.publish_desc        as publishDesc,
+               rb.create_user_id      as createUserId,
+               rb.version,
+               rb.gmt_create          as gmtCreate,
+               rb.gmt_modified        as gmtModified,
+               rb.task_params         as taskParams,
+               rb.schedule_conf       as scheduleConf,
+               rb.schedule_status     as scheduleStatus,
+               rb.dependency_task_ids as dependencyTaskIds
         from develop_task_version rb
-        where rb.version = #{versionId} and rb.task_id = #{taskId}  and rb.is_deleted=0
+        where rb.version = #{versionId}
+          and rb.task_id = #{taskId}
+          and rb.is_deleted = 0
         order by rb.id desc limit 1
     </select>
 
@@ -81,9 +113,10 @@
     </select>
 
     <select id="getMaxVersionId" resultType="java.lang.Integer">
-        SELECT max( id ) AS id
+        SELECT max(id) AS id
         FROM develop_task_version
-        WHERE task_id = #{taskId} and is_deleted = 0
+        WHERE task_id = #{taskId}
+          and is_deleted = 0
     </select>
 
     <select id="getByTaskIdAndVersion" resultType="com.dtstack.taier.dao.domain.TaskVersion">

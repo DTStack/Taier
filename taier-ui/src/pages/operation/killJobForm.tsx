@@ -16,19 +16,19 @@
  * limitations under the License.
  */
 
-import { useEffect, useState } from 'react';
-import { Alert, Form, Modal, Radio, DatePicker, Row, Col, Checkbox, Select, message } from 'antd';
+import {useEffect, useState} from 'react';
+import {Alert, Checkbox, Col, DatePicker, Form, message, Modal, Radio, Row, Select} from 'antd';
 import moment from 'moment';
 import Api from '@/api';
-import type { CheckboxChangeEvent } from 'antd/lib/checkbox';
-import type { CheckboxValueType } from 'antd/lib/checkbox/Group';
-import { formItemLayout } from '@/constant';
+import type {CheckboxChangeEvent} from 'antd/lib/checkbox';
+import type {CheckboxValueType} from 'antd/lib/checkbox/Group';
+import {formItemLayout} from '@/constant';
 
 const FormItem = Form.Item;
 const RadioGroup = Radio.Group;
-const { RangePicker } = DatePicker;
+const {RangePicker} = DatePicker;
 const CheckboxGroup = Checkbox.Group;
-const { Option } = Select;
+const {Option} = Select;
 
 interface IKillJobFormProps {
 	visible: boolean;
@@ -67,7 +67,7 @@ const SCHEDULING_OPTIONS = [
 	},
 ];
 
-export default ({ visible, onCancel, autoFresh }: IKillJobFormProps) => {
+export default ({visible, onCancel, autoFresh}: IKillJobFormProps) => {
 	const [form] = Form.useForm();
 	const [submitLoading, setLoading] = useState(false);
 	const [taskList, setTaskList] = useState<ITaskProps[]>([]);
@@ -77,9 +77,9 @@ export default ({ visible, onCancel, autoFresh }: IKillJobFormProps) => {
 	const searchTask = async (value?: string) => {
 		if (!value) return;
 		const reg = new RegExp(/^[\u4E00-\u9FA5A-Za-z0-9_]+$/);
-		const reqParam = { ...PARAMS };
+		const reqParam = {...PARAMS};
 		if (reg.exec(value) === null) return;
-		const params = value ? { name: value, ...reqParam } : reqParam;
+		const params = value ? {name: value, ...reqParam} : reqParam;
 		const res = await Api.queryOfflineTasks(params);
 		if (!res) {
 			setTaskList([]);
@@ -89,7 +89,7 @@ export default ({ visible, onCancel, autoFresh }: IKillJobFormProps) => {
 
 	// 调度周期全选触发函数
 	const handleSelectAll = (e: CheckboxChangeEvent) => {
-		const { checked } = e.target;
+		const {checked} = e.target;
 		form.setFieldsValue({
 			schedulingCycle: checked ? SCHEDULING_OPTIONS.map((o) => o.value) : [],
 		});
@@ -109,7 +109,7 @@ export default ({ visible, onCancel, autoFresh }: IKillJobFormProps) => {
 	const handleSubmit = () => {
 		form.validateFields().then((values) => {
 			const type = values.select;
-			const { taskIds } = values;
+			const {taskIds} = values;
 			if (type === 2 && (!taskIds || (Array.isArray(taskIds) && taskIds.length === 0))) {
 				return message.error('请选择任务');
 			}
@@ -157,7 +157,7 @@ export default ({ visible, onCancel, autoFresh }: IKillJobFormProps) => {
 		>
 			<Alert
 				description={
-					<span style={{ fontSize: 12 }}>
+					<span style={{fontSize: 12}}>
 						根据业务日期和调度周期来快速筛选大量实例，例如选择业务日期在2018-01-01~2018-01-20的分钟任务实例
 					</span>
 				}
@@ -196,7 +196,7 @@ export default ({ visible, onCancel, autoFresh }: IKillJobFormProps) => {
 						prevValues.select !== currentValues.select
 					}
 				>
-					{({ getFieldValue }) =>
+					{({getFieldValue}) =>
 						getFieldValue('select') === 1 ? (
 							<>
 								<FormItem
@@ -267,7 +267,7 @@ export default ({ visible, onCancel, autoFresh }: IKillJobFormProps) => {
 									<Select
 										filterOption={false}
 										onSearch={searchTask}
-										style={{ width: 286 }}
+										style={{width: 286}}
 										mode="multiple"
 										placeholder="输入任务名称搜索，可添加多个任务"
 									>

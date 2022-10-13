@@ -32,6 +32,7 @@ import java.util.Map;
  * 小时解析器
  * Date: 2017/5/4
  * Company: www.dtstack.com
+ *
  * @author xuchao
  */
 
@@ -68,7 +69,7 @@ public class ScheduleCronHourParser extends ScheduleCron {
         gapNum = MathUtil.getIntegerVal(param.get(GAP_HOUR_KEY));
         beginMinute = MathUtil.getIntegerVal(param.get(BEGIN_MIN_KEY));
 
-        if(beginHour < 0 || endHour > 23){
+        if (beginHour < 0 || endHour > 23) {
             logger.error("illegal schedule cron for period hour :{}", param);
             return null;
         }
@@ -81,12 +82,12 @@ public class ScheduleCronHourParser extends ScheduleCron {
 
     @Override
     public List<String> getTriggerTime(String specifyDate) throws ParseException {
-        if(!checkSpecifyDayCanExe(specifyDate)){
+        if (!checkSpecifyDayCanExe(specifyDate)) {
             return Lists.newArrayList();
         }
 
         List<String> resultList = Lists.newArrayList();
-        for(int i = beginHour;i <= endHour;){
+        for (int i = beginHour; i <= endHour; ) {
             String triggerTime = specifyDate + " " + getTimeStr(i) + ":" + getTimeStr(beginMinute) + ":00";
             resultList.add(triggerTime);
             i += gapNum;
@@ -100,21 +101,21 @@ public class ScheduleCronHourParser extends ScheduleCron {
         return true;
     }
 
-    public int getFirstHour(){
+    public int getFirstHour() {
         return beginHour;
     }
 
-    public int getLastHour(){
+    public int getLastHour() {
 
-        if(gapNum < 1){
+        if (gapNum < 1) {
             logger.error("err schedule parser of hour, gapNum:{} less then 1, cronStr:{}", gapNum, getCronStr());
             return beginHour;
         }
 
         int result = beginHour;
-        for( ; ; ){
+        for (; ; ) {
 
-            if((result + gapNum) > endHour){
+            if ((result + gapNum) > endHour) {
                 break;
             }
 

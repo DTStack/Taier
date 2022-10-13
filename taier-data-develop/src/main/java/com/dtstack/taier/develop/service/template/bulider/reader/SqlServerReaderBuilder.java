@@ -3,15 +3,15 @@ package com.dtstack.taier.develop.service.template.bulider.reader;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.dtstack.taier.common.enums.EScheduleJobType;
+import com.dtstack.taier.common.exception.RdosDefineException;
+import com.dtstack.taier.common.util.DataSourceUtils;
+import com.dtstack.taier.dao.domain.DsInfo;
 import com.dtstack.taier.datasource.api.base.ClientCache;
 import com.dtstack.taier.datasource.api.client.IClient;
 import com.dtstack.taier.datasource.api.dto.source.ISourceDTO;
 import com.dtstack.taier.datasource.api.dto.source.RdbmsSourceDTO;
 import com.dtstack.taier.datasource.api.source.DataSourceType;
-import com.dtstack.taier.common.enums.EScheduleJobType;
-import com.dtstack.taier.common.exception.RdosDefineException;
-import com.dtstack.taier.common.util.DataSourceUtils;
-import com.dtstack.taier.dao.domain.DsInfo;
 import com.dtstack.taier.develop.common.template.Reader;
 import com.dtstack.taier.develop.dto.devlop.ColumnDTO;
 import com.dtstack.taier.develop.dto.devlop.ConnectionDTO;
@@ -32,7 +32,6 @@ import com.google.common.collect.Lists;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang.BooleanUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -255,7 +254,7 @@ public class SqlServerReaderBuilder implements DaReaderBuilder {
                 IClient client = ClientCache.getClient(DataSourceType.SQLServer.getVal());
                 DsInfo dataSource = (DsInfo) sourceMap.get("source");
                 RdbmsSourceDTO sourceDTO = (RdbmsSourceDTO) dataSourceCenterService.getSourceDTO(dataSource.getId());
-                return daReaderBuild(param,sqlServerPollReader , client, sourceDTO);
+                return daReaderBuild(param, sqlServerPollReader, client, sourceDTO);
             } else if (Objects.equals(param.getTaskType(), EScheduleJobType.SYNC.getVal())) {
 
                 DsInfo dataSource = (DsInfo) sourceMap.get("source");
@@ -268,12 +267,12 @@ public class SqlServerReaderBuilder implements DaReaderBuilder {
                 List<String> tables = JSON.parseArray(JSON.toJSONString(readerParam.getTable()), String.class);
                 List<String> newTables = new ArrayList<>();
 
-                tables.forEach(table->{
+                tables.forEach(table -> {
                     String[] split = table.split("\\.");
-                    newTables.add(split[1].replace("[","").replace("]",""));
+                    newTables.add(split[1].replace("[", "").replace("]", ""));
                 });
                 String[] first = tables.get(0).split("\\.");
-                String schema =first[0].replace("[","").replace("]","");
+                String schema = first[0].replace("[", "").replace("]", "");
 
                 //设置链接信息
                 ConnectionDTO connectionDTO = new ConnectionDTO();

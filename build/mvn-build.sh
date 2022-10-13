@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 echo 'taier Building...'
 
-mvn clean package -DskipTests -T 1C -pl \
+mvn clean package -U -DskipTests -T 1C -pl \
 taier-data-develop,\
 taier-common,\
 taier-worker/taier-plugins,\

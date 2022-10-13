@@ -18,7 +18,9 @@ public class GetSavePointResultVO {
     @ApiModelProperty(value = "时间", example = "213")
     private Long time;
 
-    /**其实应该服务器重新查询,太麻烦了暂时直接让客户端回传*/
+    /**
+     * 其实应该服务器重新查询,太麻烦了暂时直接让客户端回传
+     */
     @ApiModelProperty(value = "外部路径", example = "213")
     private String externalPath;
 

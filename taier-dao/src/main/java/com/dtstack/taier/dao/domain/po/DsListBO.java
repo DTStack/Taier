@@ -4,7 +4,6 @@ package com.dtstack.taier.dao.domain.po;
 import java.util.Date;
 
 /**
- *
  * @description:
  * @author: liuxx
  * @date: 2021/3/26
@@ -44,8 +43,6 @@ public class DsListBO {
     public void setDataTypeCode(Integer dataTypeCode) {
         this.dataTypeCode = dataTypeCode;
     }
-
-
 
 
     public Long getDataInfoId() {

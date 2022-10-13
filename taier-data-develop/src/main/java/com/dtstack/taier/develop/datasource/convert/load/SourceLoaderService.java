@@ -7,7 +7,6 @@ import com.dtstack.taier.common.source.SourceDTOLoader;
 import com.dtstack.taier.dao.domain.DevelopDataSource;
 import com.dtstack.taier.datasource.api.dto.SSLConfig;
 import com.dtstack.taier.datasource.api.dto.source.AbstractSourceDTO;
-import com.dtstack.taier.datasource.api.dto.source.HdfsSourceDTO;
 import com.dtstack.taier.datasource.api.dto.source.ISourceDTO;
 import com.dtstack.taier.datasource.api.source.DataSourceType;
 import com.dtstack.taier.develop.datasource.convert.dto.ConfigDTO;

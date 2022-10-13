@@ -3,15 +3,15 @@ package com.dtstack.taier.develop.service.template.bulider.reader;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.dtstack.taier.common.enums.EScheduleJobType;
+import com.dtstack.taier.common.exception.RdosDefineException;
+import com.dtstack.taier.common.util.DataSourceUtils;
+import com.dtstack.taier.dao.domain.DsInfo;
 import com.dtstack.taier.datasource.api.base.ClientCache;
 import com.dtstack.taier.datasource.api.client.IClient;
 import com.dtstack.taier.datasource.api.dto.source.ISourceDTO;
 import com.dtstack.taier.datasource.api.dto.source.PostgresqlSourceDTO;
 import com.dtstack.taier.datasource.api.source.DataSourceType;
-import com.dtstack.taier.common.enums.EScheduleJobType;
-import com.dtstack.taier.common.exception.RdosDefineException;
-import com.dtstack.taier.common.util.DataSourceUtils;
-import com.dtstack.taier.dao.domain.DsInfo;
 import com.dtstack.taier.develop.common.template.Reader;
 import com.dtstack.taier.develop.dto.devlop.ColumnDTO;
 import com.dtstack.taier.develop.dto.devlop.ConnectionDTO;
@@ -219,7 +219,7 @@ public class PostGreSqlDaBuilder implements DaReaderBuilder {
             Map<String, Object> sourceMap = param.getSourceMap();
             Long sourceId = Long.parseLong(sourceMap.get("sourceId").toString());
             DsInfo source = dataSourceCenterService.getOneById(sourceId);
-            sourceMap.put("source",source);
+            sourceMap.put("source", source);
             //全部表
             Boolean allTable = MapUtils.getBoolean(sourceMap, "allTable");
             if (BooleanUtils.isTrue(allTable)) {
@@ -234,6 +234,7 @@ public class PostGreSqlDaBuilder implements DaReaderBuilder {
 
         /**
          * 获取当前的database
+         *
          * @param info
          * @return
          */

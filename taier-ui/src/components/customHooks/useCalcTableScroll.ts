@@ -16,8 +16,8 @@
  * limitations under the License.
  */
 
-import { useEffect, useState, useCallback } from 'react';
-import type { TableProps } from 'antd';
+import {useCallback, useEffect, useState} from 'react';
+import type {TableProps} from 'antd';
 
 interface IProps {
 	className: string;
@@ -26,7 +26,7 @@ interface IProps {
 type IScroll<T> = Pick<Partial<TableProps<T>>, 'scroll'>['scroll'];
 
 function useCalcTableScroll<T>(props: IProps) {
-	const { className } = props;
+	const {className} = props;
 	const [scroll, setScroll] = useState<IScroll<T>>({});
 
 	const calcTableScroll = useCallback((targetTableEle: HTMLElement) => {
@@ -56,7 +56,7 @@ function useCalcTableScroll<T>(props: IProps) {
 		};
 	}, []);
 
-	return { scroll };
+	return {scroll};
 }
 
 export default useCalcTableScroll;

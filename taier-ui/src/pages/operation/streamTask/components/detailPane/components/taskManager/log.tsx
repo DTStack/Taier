@@ -1,12 +1,12 @@
-import { useState, useEffect } from 'react';
-import { Pagination, Tooltip, Breadcrumb } from 'antd';
+import {useEffect, useState} from 'react';
+import {Breadcrumb, Pagination, Tooltip} from 'antd';
 import Editor from '@/components/editor';
-import { TASK_STATUS } from '@/constant';
-import { SyncOutlined } from '@ant-design/icons';
-import { isEmpty } from 'lodash';
-import { IStreamJobProps } from '@/interface';
+import {TASK_STATUS} from '@/constant';
+import {SyncOutlined} from '@ant-design/icons';
+import {isEmpty} from 'lodash';
+import {IStreamJobProps} from '@/interface';
 import stream from '@/api';
-import { ITaskList } from './list';
+import {ITaskList} from './list';
 import './log.scss';
 
 interface IProps {
@@ -25,7 +25,7 @@ interface ILogInfoProps {
 const FIRST_CURRENT = 1;
 const MAX_ENGINE_LOG = 1024 * 1024;
 
-export default function TaskManagerLog({ data, taskDetail, toTaskDetail }: IProps) {
+export default function TaskManagerLog({data, taskDetail, toTaskDetail}: IProps) {
 	const [spin, setSpin] = useState(false);
 	const [logInfo, setLogInfo] = useState<ILogInfoProps>({
 		place: -1,
@@ -35,7 +35,7 @@ export default function TaskManagerLog({ data, taskDetail, toTaskDetail }: IProp
 
 	const prepareLogInfo = (logInfo: ILogInfoProps): ILogInfoProps | null => {
 		if (isEmpty(logInfo)) return null;
-		let { engineLog } = logInfo || {};
+		let {engineLog} = logInfo || {};
 		if (engineLog!.length > MAX_ENGINE_LOG) {
 			engineLog = engineLog?.substr(0, MAX_ENGINE_LOG);
 		}
@@ -93,7 +93,7 @@ export default function TaskManagerLog({ data, taskDetail, toTaskDetail }: IProp
 	const isFail = data?.status == TASK_STATUS.RUN_FAILED || data?.status == TASK_STATUS.STOPED;
 
 	return (
-		<div style={{ height: '100%' }}>
+		<div style={{height: '100%'}}>
 			<div className="c-taskManage__log__header">
 				<Breadcrumb>
 					<Breadcrumb.Item
@@ -130,7 +130,7 @@ export default function TaskManagerLog({ data, taskDetail, toTaskDetail }: IProp
 			<div className="c-taskManage__log__editor">
 				<Editor
 					sync
-					style={{ height: '100%' }}
+					style={{height: '100%'}}
 					value={logInfo?.engineLog ?? ''}
 					language="jsonlog"
 					options={{

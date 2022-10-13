@@ -27,6 +27,7 @@ public interface DevelopHiveSelectSqlMapper {
 
     /**
      * 根据 jobId 查询SQL记录
+     *
      * @param jobId
      * @param tenantId
      * @param isDeleted
@@ -36,6 +37,7 @@ public interface DevelopHiveSelectSqlMapper {
 
     /**
      * 插入 sql执行记录
+     *
      * @param selectSql
      * @return
      */
@@ -45,7 +47,7 @@ public interface DevelopHiveSelectSqlMapper {
 
     Integer deleteByJobId(@Param("jobId") String jobId, @Param("tenantId") Long tenantId);
 
-    List<DevelopSelectSql> listSelectTypeByGmtModified(@Param("timeDiff")Integer timeDiff);
+    List<DevelopSelectSql> listSelectTypeByGmtModified(@Param("timeDiff") Integer timeDiff);
 
     Integer deleteByIds(@Param("list") List<Long> list);
 

@@ -89,7 +89,7 @@ public class DtJobIdWorker {
             if (sequence > 99999) {
                 //out of sequence
                 timestamp = tilNextMillis(lastTimestamp);
-                sequence  = 0;
+                sequence = 0;
             }
         } else {
             sequence = 0;

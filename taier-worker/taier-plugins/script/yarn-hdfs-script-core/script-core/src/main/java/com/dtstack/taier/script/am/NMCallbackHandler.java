@@ -12,7 +12,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
-public class NMCallbackHandler implements  NMClientAsync.CallbackHandler {
+public class NMCallbackHandler implements NMClientAsync.CallbackHandler {
 
     private static final Log LOG = LogFactory.getLog(NMCallbackHandler.class);
 
@@ -28,44 +28,44 @@ public class NMCallbackHandler implements  NMClientAsync.CallbackHandler {
         containers.putIfAbsent(containerId, container);
     }
 
-  @Override
-  public void onContainerStarted(ContainerId containerId,
-                                 Map<String, ByteBuffer> allServiceResponse) {
-      LOG.info("Succeeded to start Container " + containerId);
-      Container container = containers.get(containerId);
-      if (container != null) {
-          appMaster.nmAsync.getContainerStatusAsync(containerId, container.getNodeId());
-      }
-  }
+    @Override
+    public void onContainerStarted(ContainerId containerId,
+                                   Map<String, ByteBuffer> allServiceResponse) {
+        LOG.info("Succeeded to start Container " + containerId);
+        Container container = containers.get(containerId);
+        if (container != null) {
+            appMaster.nmAsync.getContainerStatusAsync(containerId, container.getNodeId());
+        }
+    }
 
-  @Override
-  public void onContainerStatusReceived(ContainerId containerId,
-                                        ContainerStatus containerStatus) {
-      LOG.info("Container Status: id=" + containerId + ", status=" +
-              containerStatus);
-  }
+    @Override
+    public void onContainerStatusReceived(ContainerId containerId,
+                                          ContainerStatus containerStatus) {
+        LOG.info("Container Status: id=" + containerId + ", status=" +
+                containerStatus);
+    }
 
-  @Override
-  public void onContainerStopped(ContainerId containerId) {
-      LOG.info("Succeeded to stop Container " + containerId);
-      containers.remove(containerId);
-  }
+    @Override
+    public void onContainerStopped(ContainerId containerId) {
+        LOG.info("Succeeded to stop Container " + containerId);
+        containers.remove(containerId);
+    }
 
-  @Override
-  public void onStartContainerError(ContainerId containerId, Throwable t) {
-      LOG.error("Failed to start Container " + containerId);
-      containers.remove(containerId);
-  }
+    @Override
+    public void onStartContainerError(ContainerId containerId, Throwable t) {
+        LOG.error("Failed to start Container " + containerId);
+        containers.remove(containerId);
+    }
 
-  @Override
-  public void onGetContainerStatusError(ContainerId containerId, Throwable t) {
-    LOG.info("Container " + containerId.toString() + " get status error ", t);
-  }
+    @Override
+    public void onGetContainerStatusError(ContainerId containerId, Throwable t) {
+        LOG.info("Container " + containerId.toString() + " get status error ", t);
+    }
 
-  @Override
-  public void onStopContainerError(ContainerId containerId, Throwable t) {
-      LOG.error("Failed to stop Container " + containerId);
-      containers.remove(containerId);
-  }
+    @Override
+    public void onStopContainerError(ContainerId containerId, Throwable t) {
+        LOG.error("Failed to stop Container " + containerId);
+        containers.remove(containerId);
+    }
 
 }

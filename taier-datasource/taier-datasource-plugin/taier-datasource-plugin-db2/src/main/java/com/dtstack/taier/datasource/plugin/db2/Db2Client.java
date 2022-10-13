@@ -1,8 +1,6 @@
 package com.dtstack.taier.datasource.plugin.db2;
 
-import com.dtstack.taier.datasource.plugin.common.utils.DBUtil;
-import com.dtstack.taier.datasource.plugin.rdbms.AbsRdbmsClient;
-import com.dtstack.taier.datasource.plugin.rdbms.ConnFactory;
+import com.dtstack.taier.datasource.api.downloader.IDownloader;
 import com.dtstack.taier.datasource.api.dto.ColumnMetaDTO;
 import com.dtstack.taier.datasource.api.dto.SqlQueryDTO;
 import com.dtstack.taier.datasource.api.dto.source.Db2SourceDTO;
@@ -10,7 +8,9 @@ import com.dtstack.taier.datasource.api.dto.source.ISourceDTO;
 import com.dtstack.taier.datasource.api.dto.source.RdbmsSourceDTO;
 import com.dtstack.taier.datasource.api.exception.SourceException;
 import com.dtstack.taier.datasource.api.source.DataSourceType;
-import com.dtstack.taier.datasource.api.downloader.IDownloader;
+import com.dtstack.taier.datasource.plugin.common.utils.DBUtil;
+import com.dtstack.taier.datasource.plugin.rdbms.AbsRdbmsClient;
+import com.dtstack.taier.datasource.plugin.rdbms.ConnFactory;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
@@ -135,6 +135,7 @@ public class Db2Client extends AbsRdbmsClient {
 
     /**
      * 处理db2 schema和tableName，适配schema和tableName中有.的情况
+     *
      * @param schema
      * @param tableName
      * @return
@@ -147,7 +148,7 @@ public class Db2Client extends AbsRdbmsClient {
         if (StringUtils.isBlank(schema)) {
             return tableName;
         }
-        if (!schema.startsWith("\"") || !schema.endsWith("\"")){
+        if (!schema.startsWith("\"") || !schema.endsWith("\"")) {
             schema = String.format("\"%s\"", schema);
         }
         return String.format("%s.%s", schema, tableName);

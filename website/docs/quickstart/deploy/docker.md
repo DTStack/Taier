@@ -7,20 +7,22 @@
 如果需要使用数据同步任务，还需要自行挂载chunjun的插件目录和flink lib目录
 :::
 
-
-
 ## 1. 仅使用taier的web和ui镜像
+
 仅使用taier的web和ui，确保以下环境正常:
-- [x] 外部的mysql，初始化好taier的数据库数据  
+
+- [x] 外部的mysql，初始化好taier的数据库数据
 - [x] 外部的zookeeper，可以正常连接
 
-获取taier镜像 
+获取taier镜像
+
 ```shell
 $ docker pull dtopensource/taier:latest
 $ docker pull dtopensource/taier-ui:latest
 ```
 
 启动web容器,mysql和zookeeper的配置信息根据实际环境调整
+
 ```shell
 docker run -itd -p 8090:8090 --env ZK_HOST=172.16.85.111 \
 --env ZK_PORT=2181 \
@@ -35,6 +37,7 @@ dtopensource/taier:latest
 
 启动ui容器
 TAIER_IP配置为启动的`web容器`的ip
+
 ```shell
 docker run -itd -p 80:80 --env TAIER_IP=172.16.100.38 \
 --env TAIER_PORT=8090 \
@@ -48,15 +51,19 @@ dtopensource/taier-ui:lastest
 :::
 
 :::tip
-如果web容器和ui容器都同台服务器上，ui容器需要访问宿主讥网络 请修改防火墙策略  
+如果web容器和ui容器都同台服务器上，ui容器需要访问宿主讥网络 请修改防火墙策略
+
 ```shell
 firewall-cmd --zone=public --add-port=8090/tcp --permanent    
 firewall-cmd --reload  
 ```
+
 :::
 
 ## 2. 使用docker-compose
+
 通过docker-compose启动
+
 ```yaml
 version: '3'
 services:
@@ -89,11 +96,12 @@ services:
 ```
 
 进入docker-compose目录，执行
+
 ```shell
 $ docker-compose up -d
 ```
-当命令执行完成后，在浏览器上直接访问 127.0.0.1:8090 [快速上手](./quickstart/start.md)
 
+当命令执行完成后，在浏览器上直接访问 127.0.0.1:8090 [快速上手](./quickstart/start.md)
 
 :::tip
 如果有使用到chunjun插件包，可以自行挂载相关目录，并在flink组件上配置对应目录

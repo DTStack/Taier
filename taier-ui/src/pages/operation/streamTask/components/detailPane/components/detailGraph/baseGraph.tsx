@@ -1,21 +1,16 @@
 // eslint-disable-next-line max-classes-per-file
 import * as React from 'react';
-import { Spin, Tooltip } from 'antd';
-import { DateTime } from '@dtinsight/dt-utils';
-import { cloneDeep, isArray } from 'lodash';
-import {
-	QuestionCircleOutlined,
-	ArrowsAltOutlined,
-	ShrinkOutlined,
-	DeleteOutlined,
-} from '@ant-design/icons';
+import {Spin, Tooltip} from 'antd';
+import {DateTime} from '@dtinsight/dt-utils';
+import {cloneDeep, isArray} from 'lodash';
+import {ArrowsAltOutlined, DeleteOutlined, QuestionCircleOutlined, ShrinkOutlined,} from '@ant-design/icons';
 
-import { SOURCE_INPUT_BPS_UNIT_TYPE, COLLECTION_BPS_UNIT_TYPE, UNIT_TYPE } from '@/constant';
+import {COLLECTION_BPS_UNIT_TYPE, SOURCE_INPUT_BPS_UNIT_TYPE, UNIT_TYPE} from '@/constant';
 
 import Resize from '@/components/resize';
 import Fullscreen from '@/components/fullScreen';
-import { metricsType as METRICSTYPE } from './index';
-import { lineAreaChartOptions } from './help';
+import {metricsType as METRICSTYPE} from './index';
+import {lineAreaChartOptions} from './help';
 
 // 引入 ECharts 主模块
 const echarts = require('echarts/lib/echarts');
@@ -26,7 +21,7 @@ require('echarts/lib/component/legendScroll');
 require('echarts/lib/component/tooltip');
 
 function haveData(lineData: any = {}) {
-	const { y = [] } = lineData;
+	const {y = []} = lineData;
 
 	let haveData = false;
 	y.forEach((item: any) => {
@@ -94,9 +89,9 @@ class AlarmBaseGraphBox extends React.Component<any, any> {
 	};
 
 	render() {
-		const { key } = this.state;
-		const { title, lineData, desc, allowDelete, onDelete } = this.props;
-		const { loading } = lineData;
+		const {key} = this.state;
+		const {title, lineData, desc, allowDelete, onDelete} = this.props;
+		const {loading} = lineData;
 		const haveLineData = haveData(lineData);
 		return (
 			<div className="basegraph-size">
@@ -114,23 +109,23 @@ class AlarmBaseGraphBox extends React.Component<any, any> {
 								arrowPointAtCenter={true}
 							>
 								<QuestionCircleOutlined
-									style={{ marginLeft: '8px', color: '#666', fontSize: 12 }}
+									style={{marginLeft: '8px', color: '#666', fontSize: 12}}
 								/>
 							</Tooltip>
 						)}
 						{!loading && haveLineData ? (
 							<Fullscreen
 								target={key}
-								fullIcon={<ArrowsAltOutlined className="alt" />}
-								exitFullIcon={<ShrinkOutlined className="alt" />}
+								fullIcon={<ArrowsAltOutlined className="alt"/>}
+								exitFullIcon={<ShrinkOutlined className="alt"/>}
 								isShowTitle={false}
 							/>
 						) : null}
-						{!loading && allowDelete && <DeleteOutlined onClick={onDelete} />}
+						{!loading && allowDelete && <DeleteOutlined onClick={onDelete}/>}
 					</header>
 					{loading ? (
 						<div className="loading-box">
-							<Spin className="loading" />
+							<Spin className="loading"/>
 						</div>
 					) : (
 						<div className="graph-content">
@@ -196,7 +191,7 @@ class AlarmBaseGraph extends React.Component<any, any> {
 		if (!lineData) {
 			return;
 		}
-		const { loading } = lineData;
+		const {loading} = lineData;
 		if (loading) {
 			return;
 		}
@@ -358,13 +353,13 @@ class AlarmBaseGraph extends React.Component<any, any> {
 					);
 				};
 			}
-			options.legend = { ...options.legend, ...legendOption };
+			options.legend = {...options.legend, ...legendOption};
 		}
 		if (gridOption) {
-			options.grid = { ...options.grid, ...gridOption };
+			options.grid = {...options.grid, ...gridOption};
 		}
 		if (tooltipOption) {
-			options.tooltip = { ...options.tooltip, ...tooltipOption };
+			options.tooltip = {...options.tooltip, ...tooltipOption};
 		}
 
 		myChart.setOption(options);
@@ -384,7 +379,7 @@ class AlarmBaseGraph extends React.Component<any, any> {
 					ref={(ref: any) => {
 						this._dom = ref;
 					}}
-					style={{ width: '100%', height: '100%' }}
+					style={{width: '100%', height: '100%'}}
 				/>
 			</Resize>
 		);

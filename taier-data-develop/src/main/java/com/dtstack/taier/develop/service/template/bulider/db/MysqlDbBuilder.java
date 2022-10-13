@@ -2,12 +2,9 @@ package com.dtstack.taier.develop.service.template.bulider.db;
 
 import com.alibaba.fastjson.JSONObject;
 import com.dtstack.taier.datasource.api.dto.source.ISourceDTO;
-import com.dtstack.taier.datasource.api.dto.source.Mysql5SourceDTO;
 import com.dtstack.taier.datasource.api.source.DataSourceType;
-import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.Collections;
@@ -20,6 +17,7 @@ public class MysqlDbBuilder extends AbsRdbmsDbBuilder {
     private static final Logger logger = LoggerFactory.getLogger(MysqlDbBuilder.class);
 
     private static Pattern pollColumn = Pattern.compile("^VARCHAR.*|^DATE.*|^DATETIME.*|^INT.*|^BIGINT.*|^TIMESTAMP.*");
+
     @Override
     public DataSourceType getDataSourceType() {
         return DataSourceType.MySQL;

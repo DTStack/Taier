@@ -114,7 +114,7 @@ public class DevelopCatalogueService {
             grandCatalogueIds = grandCatalogueTaskIds(tenantId, id, name);
         } else if (CatalogueType.RESOURCE_MANAGER.getType().equals(catalogueType)) {
             grandCatalogueIds = grandCatalogueResourceIds(id);
-        }else {
+        } else {
             throw new DtCenterDefException("不支持其他");
         }
         return grandCatalogueIds;
@@ -631,7 +631,7 @@ public class DevelopCatalogueService {
                     //封装工作流子任务
                     for (CatalogueVO catalogueVO : catalogueChildFileList) {
                         List<CatalogueVO> children = flowChildren.get(catalogueVO.getId());
-                        if (CollectionUtils.isNotEmpty(children)){
+                        if (CollectionUtils.isNotEmpty(children)) {
                             catalogueVO.setChildren(children);
                         }
                     }

@@ -21,7 +21,7 @@ import java.util.List;
  * @date 2021-11-11 15:39:03
  */
 @Component
-public class EsDbBuilder implements DbBuilder{
+public class EsDbBuilder implements DbBuilder {
 
     @Override
     public IClient getClient() {

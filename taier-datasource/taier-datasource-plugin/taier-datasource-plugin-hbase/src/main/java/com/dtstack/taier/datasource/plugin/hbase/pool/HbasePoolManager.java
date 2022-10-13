@@ -2,15 +2,15 @@ package com.dtstack.taier.datasource.plugin.hbase.pool;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
-import com.dtstack.taier.datasource.plugin.common.DtClassConsistent;
-import com.dtstack.taier.datasource.plugin.common.utils.JSONUtil;
-import com.dtstack.taier.datasource.plugin.kerberos.core.util.JaasUtil;
-import com.dtstack.taier.datasource.plugin.kerberos.core.util.KerberosLoginUtil;
 import com.dtstack.taier.datasource.api.dto.SqlQueryDTO;
 import com.dtstack.taier.datasource.api.dto.source.HbaseSourceDTO;
 import com.dtstack.taier.datasource.api.dto.source.ISourceDTO;
 import com.dtstack.taier.datasource.api.exception.SourceException;
+import com.dtstack.taier.datasource.plugin.common.DtClassConsistent;
 import com.dtstack.taier.datasource.plugin.common.constant.KerberosConstant;
+import com.dtstack.taier.datasource.plugin.common.utils.JSONUtil;
+import com.dtstack.taier.datasource.plugin.kerberos.core.util.JaasUtil;
+import com.dtstack.taier.datasource.plugin.kerberos.core.util.KerberosLoginUtil;
 import com.google.common.collect.Maps;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.MapUtils;
@@ -106,7 +106,7 @@ public class HbasePoolManager {
                         boolean effectZookeeper = BooleanUtils.toBoolean((String) sourceToMap.getOrDefault(KerberosConstant.HBASE_KERBEROS_EFFECT_ZOOKEEPER, "true"));
                         if (MapUtils.isNotEmpty(kerberosConfig) && effectZookeeper) {
                             // hbase zk kerberos 需要写 jaas 文件
-                            String jaasConf = JaasUtil.writeJaasConf(kerberosConfig,JaasUtil.JAAS_CONTENT);
+                            String jaasConf = JaasUtil.writeJaasConf(kerberosConfig, JaasUtil.JAAS_CONTENT);
                             // 刷新kerberos认证信息，在设置完java.security.krb5.conf后进行，否则会使用上次的krb5文件进行 refresh 导致认证失败
                             try {
                                 Config.refresh();

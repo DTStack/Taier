@@ -16,14 +16,13 @@
  * limitations under the License.
  */
 
-import { useEffect, useMemo, useState } from 'react';
-import { Select, Radio, Form } from 'antd';
-import { ENGINE_SOURCE_TYPE_ENUM } from '@/constant';
-import { isOracleEngine } from '@/utils/is';
-import { PROJECT_CREATE_MODEL } from '@/constant';
+import {useEffect, useMemo, useState} from 'react';
+import {Form, Radio, Select} from 'antd';
+import {ENGINE_SOURCE_TYPE_ENUM, PROJECT_CREATE_MODEL} from '@/constant';
+import {isOracleEngine} from '@/utils/is';
 import api from '../../api';
 
-const { Option } = Select;
+const {Option} = Select;
 const RadioGroup = Radio.Group;
 const FormItem = Form.Item;
 
@@ -53,18 +52,18 @@ interface IConfigItemProps {
  * 引擎配置表单域
  */
 export default ({
-	engineType,
-	formParentField,
-	formItemLayout,
-	checked,
-	metaComponent,
-	clusterId,
-	hadoopName = 'Hive2.x',
-}: IConfigItemProps) => {
+					engineType,
+					formParentField,
+					formItemLayout,
+					checked,
+					metaComponent,
+					clusterId,
+					hadoopName = 'Hive2.x',
+				}: IConfigItemProps) => {
 	const [targetDb, setTargetDb] = useState<string[]>([]);
 
 	const getRetainDBList = () => {
-		api.getRetainDBList({ clusterId, componentTypeCode: metaComponent }).then((res) => {
+		api.getRetainDBList({clusterId, componentTypeCode: metaComponent}).then((res) => {
 			if (res.code === 1) {
 				const data = res.data || [];
 				setTargetDb([...data]);
@@ -123,13 +122,11 @@ export default ({
 		? PROJECT_CREATE_MODEL.IMPORT
 		: PROJECT_CREATE_MODEL.NORMAL;
 
-	const createModelOptions = useMemo<
-		{
-			label: string;
-			value: PROJECT_CREATE_MODEL;
-			disabled?: boolean;
-		}[]
-	>(() => {
+	const createModelOptions = useMemo<{
+		label: string;
+		value: PROJECT_CREATE_MODEL;
+		disabled?: boolean;
+	}[]>(() => {
 		switch (engineType) {
 			case ENGINE_SOURCE_TYPE_ENUM.HADOOP: {
 				return getEngineRadios(engineType, hadoopName);
@@ -178,7 +175,7 @@ export default ({
 					pre[`${parentField}.createModel`] !== cur[`${parentField}.createModel`]
 				}
 			>
-				{({ getFieldValue }) =>
+				{({getFieldValue}) =>
 					getFieldValue(`${parentField}.createModel`) === PROJECT_CREATE_MODEL.IMPORT ||
 					isOracleEngine(engineType) ? (
 						<>
@@ -193,7 +190,7 @@ export default ({
 										},
 									]}
 								>
-									<Select style={{ width: '100%' }} placeholder="请选择对接目标">
+									<Select style={{width: '100%'}} placeholder="请选择对接目标">
 										{renderDbOptions(targetDb)}
 									</Select>
 								</FormItem>

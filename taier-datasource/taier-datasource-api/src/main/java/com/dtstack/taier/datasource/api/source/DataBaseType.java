@@ -18,7 +18,6 @@ public enum DataBaseType {
     DB2("db2", "com.ibm.db2.jcc.DB2Driver"),
     HIVE("hive", "org.apache.hive.jdbc.HiveDriver"),
     HIVE3("hive3", "org.apache.hive.jdbc.HiveDriver"),
-    HIVE3_CDP("hive3_cdp", "org.apache.hive.jdbc.HiveDriver"),
     CarbonData("carbonData", "org.apache.hive.jdbc.HiveDriver"),
     Spark("hive", "org.apache.hive.jdbc.HiveDriver"),
     INCEPTOR("inceptor", "org.apache.hive.jdbc.HiveDriver"),

@@ -16,13 +16,13 @@ public class ReturnFillDataJobListVO {
     /**
      * 补数据ID
      */
-    @ApiModelProperty(value = "补数据ID",example = "1")
+    @ApiModelProperty(value = "补数据ID", example = "1")
     private Long id;
 
     /**
      * 补数据名称
      */
-    @ApiModelProperty(value = "补数据名称",example = "123123")
+    @ApiModelProperty(value = "补数据名称", example = "123123")
     private String fillDataName;
 
     /**
@@ -30,7 +30,7 @@ public class ReturnFillDataJobListVO {
      * FILL_FINISH(2,"完成生成补数据实例"),
      * FILL_FAIL(3,"生成补数据失败"),
      */
-    @ApiModelProperty(value = "REALLY_GENERATED(1,\"表示正在生成\"),FILL_FINISH(2,\"完成生成补数据实例\"),FILL_FAIL(3,\"生成补数据失败\"),",example = "1")
+    @ApiModelProperty(value = "REALLY_GENERATED(1,\"表示正在生成\"),FILL_FINISH(2,\"完成生成补数据实例\"),FILL_FAIL(3,\"生成补数据失败\"),", example = "1")
     private Integer fillGenerateStatus;
 
     /**

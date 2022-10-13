@@ -35,6 +35,7 @@ public class ScheduleCorn {
 
     /**
      * 获得距离date的上一次执行最近的时间
+     *
      * @param date 时间
      * @return 上一次执行最近的时间
      */
@@ -80,6 +81,7 @@ public class ScheduleCorn {
 
     /**
      * 判断当前时间是否是执行时间
+     *
      * @param date 当前时间
      */
     public Boolean isMatch(Date date) {

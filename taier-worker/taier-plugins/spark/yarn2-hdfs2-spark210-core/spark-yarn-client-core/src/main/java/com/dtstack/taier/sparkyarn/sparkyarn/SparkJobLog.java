@@ -29,6 +29,7 @@ import java.util.List;
  * 从spark上获取的任务日志
  * Date: 2017/11/24
  * Company: www.dtstack.com
+ *
  * @author xuchao
  */
 
@@ -58,23 +59,23 @@ public class SparkJobLog {
         this.driverLogList = driverLogList;
     }
 
-    public void addAppLog(String key, String value){
+    public void addAppLog(String key, String value) {
         SparkDetailLog detailLog = new SparkDetailLog(key, value);
         appLogList.add(detailLog);
     }
 
-    public void addDriverLog(String key, String value){
+    public void addDriverLog(String key, String value) {
         SparkDetailLog detailLog = new SparkDetailLog(key, value);
         driverLogList.add(0, detailLog);
     }
 
-    class SparkDetailLog{
+    class SparkDetailLog {
 
         private String id;
 
         private String value;
 
-        SparkDetailLog(String id, String value){
+        SparkDetailLog(String id, String value) {
             this.id = id;
             this.value = value;
         }
@@ -99,12 +100,12 @@ public class SparkJobLog {
     @Override
     public String toString() {
 
-        try{
+        try {
             String driverLogStr = PublicUtil.objToString(driverLogList);
             String appLogStr = PublicUtil.objToString(appLogList);
             return String.format(TO_STRING_FORMAT, driverLogStr, appLogStr);
 
-        }catch (Exception e){
+        } catch (Exception e) {
             logger.error("", e);
         }
 

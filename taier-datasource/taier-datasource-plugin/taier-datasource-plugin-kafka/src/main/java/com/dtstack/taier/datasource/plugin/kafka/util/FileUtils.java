@@ -1,7 +1,7 @@
 package com.dtstack.taier.datasource.plugin.kafka.util;
 
-import com.dtstack.taier.datasource.plugin.common.utils.IOUtils;
 import com.dtstack.taier.datasource.api.exception.SourceException;
+import com.dtstack.taier.datasource.plugin.common.utils.IOUtils;
 
 import java.io.File;
 import java.io.FileOutputStream;

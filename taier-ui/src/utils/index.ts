@@ -17,26 +17,26 @@
  */
 
 /* eslint-disable no-bitwise */
-import { endsWith, get, pickBy, range as lodashRange } from 'lodash';
+import {endsWith, get, pickBy, range as lodashRange} from 'lodash';
 import moment from 'moment';
 import {
 	FAILED_STATUS,
 	FINISH_STATUS,
 	FROZEN_STATUS,
 	PARENTFAILED_STATUS,
-	RUNNING_STATUS,
 	RUN_FAILED_STATUS,
+	RUNNING_STATUS,
 	STOP_STATUS,
 	SUBMITTING_STATUS,
 	TASK_STATUS,
 	WAIT_STATUS,
 } from '@/constant';
-import { Utils } from '@dtinsight/dt-utils';
-import { history } from 'umi';
-import { updateDrawer } from '@/components/customDrawer';
-import type { languages } from '@dtinsight/molecule/esm/monaco';
-import { Keywords, Snippets } from './competion';
-import { taskRenderService } from '@/services';
+import {Utils} from '@dtinsight/dt-utils';
+import {history} from 'umi';
+import {updateDrawer} from '@/components/customDrawer';
+import type {languages} from '@dtinsight/molecule/esm/monaco';
+import {Keywords, Snippets} from './competion';
+import {taskRenderService} from '@/services';
 
 /**
  * 返回今日 [00:00:00, 23:59:69]
@@ -111,13 +111,14 @@ interface FilterParser {
 		end: number;
 	}[];
 }
+
 /**
  * 过滤sql中的注释
  */
 export function filterComments(rawSql: string) {
 	// 处理引号
 	function quoteToken(parser: FilterParser, sql: string): string | undefined {
-		const { queue } = parser;
+		const {queue} = parser;
 		const lastItem = queue[queue.length - 1];
 		if (lastItem === "'" || lastItem === '"') {
 			const nextToken = sql.indexOf(lastItem, parser.index + 1);
@@ -139,7 +140,7 @@ export function filterComments(rawSql: string) {
 
 	// 处理单行注释
 	function singleLineCommentToken(parser: FilterParser, sql: string): string | undefined {
-		const { queue } = parser;
+		const {queue} = parser;
 		if (queue.endsWith('--')) {
 			const nextToken = sql.indexOf('\n', parser.index + 1);
 			const begin = parser.index - 1;
@@ -170,7 +171,7 @@ export function filterComments(rawSql: string) {
 
 	// 处理多行注释
 	function multipleLineCommentToken(parser: FilterParser, sql: string): string | undefined {
-		const { queue } = parser;
+		const {queue} = parser;
 		if (queue.endsWith('/*')) {
 			const nextToken = sql.indexOf('*/', parser.index + 1);
 			if (nextToken !== -1) {
@@ -230,7 +231,7 @@ export function replaceStrFormIndexArr(
 	}
 	for (let i = 0; i < indexArr.length; i += 1) {
 		const indexItem = indexArr[i];
-		const { begin } = indexItem;
+		const {begin} = indexItem;
 
 		result = result + str.substring(index, begin) + replaceStr;
 		index = indexItem.end + 1;
@@ -347,7 +348,7 @@ export const convertToObj = (values: Record<string, any>) => {
 					this.res = this.res[key];
 				}
 			},
-			{ res },
+			{res},
 		);
 	});
 	return res;
@@ -362,7 +363,7 @@ export const convertToStr = (values: Record<string, any>, prefix = '') => {
 	Object.keys(values).forEach((key) => {
 		if (typeof values[key] === 'object' && !Array.isArray(values[key])) {
 			const obj = convertToStr(values[key], `${prefix ? `${prefix}.` : ''}${key}`);
-			res = { ...res, ...obj };
+			res = {...res, ...obj};
 		} else {
 			res[`${prefix ? `${prefix}.` : ''}${key}`] = values[key];
 		}
@@ -448,15 +449,15 @@ export const utf8to16 = (str: string) => {
 };
 
 export function goToTaskDev(record: { id: string | number; [key: string]: any }) {
-	const { id } = record ?? {};
+	const {id} = record ?? {};
 	// Open task in tab
-	taskRenderService.openTask({ id: id.toString() });
+	taskRenderService.openTask({id: id.toString()});
 	// Clear history query
 	history.push({
 		query: {},
 	});
 	// Close drawer
-	updateDrawer({ id: 'root', visible: false, renderContent: () => null });
+	updateDrawer({id: 'root', visible: false, renderContent: () => null});
 	// clear popupMenu
 	removePopUpMenu();
 }
@@ -713,7 +714,7 @@ export const convertParams = (params: Record<string, any>, form: Record<string, 
 		if (typeof value === 'string' && regex.test(value)) {
 			const content = value.substring(2, value.length - 2);
 			const [scope, path] = content.split('#');
-			value = get({ form }, `${scope.trim()}.${path.trim()}`);
+			value = get({form}, `${scope.trim()}.${path.trim()}`);
 		}
 
 		// eslint-disable-next-line no-param-reassign
@@ -755,7 +756,7 @@ export function getPlus(obj: Record<string, any>, rawPath: string, value?: any) 
  * ```
  */
 export function convertObjToNamePath(obj: Record<string, any>) {
-	let stack = { ...obj };
+	let stack = {...obj};
 	const namePath = [];
 	while (typeof stack === 'object' && Object.keys(stack).length) {
 		const firstKey = Object.keys(stack)[0];
@@ -776,12 +777,11 @@ export function convertObjToNamePath(obj: Record<string, any>) {
  * })
  * ```
  */
-export function visit<
-	T extends { children: P[]; [key: string]: any },
+export function visit<T extends { children: P[]; [key: string]: any },
 	P extends { type: string; [key: string]: any },
->(obj: T, filter: (item: P) => boolean, handler: (item: P, vNode: { formName: string[] }) => void) {
+	>(obj: T, filter: (item: P) => boolean, handler: (item: P, vNode: { formName: string[] }) => void) {
 	const stack = [
-		...obj.children.map((child) => ({ node: child, vNode: { formName: [child.name] } })),
+		...obj.children.map((child) => ({node: child, vNode: {formName: [child.name]}})),
 	];
 	while (stack.length) {
 		const item = stack.pop()!;
@@ -794,7 +794,7 @@ export function visit<
 			stack.push(
 				...item.node.children.map((child: any) => ({
 					node: child,
-					vNode: { formName: [...item.vNode.formName, child.name] },
+					vNode: {formName: [...item.vNode.formName, child.name]},
 				})),
 			);
 		}

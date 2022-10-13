@@ -4,19 +4,22 @@ sidebar_label: 贡献指南
 ---
 
 ## 为 Taier 做贡献
+
 **Taier** 使用了 Apache 的多个开源项目如`Flink`、`Spark` 作为计算组件实现数据同步和批处理计算    
 得益于开源社区才有 **Taier**。取之社区， 回馈社区。也欢迎对 Taier 感兴趣的开源伙伴一起参与共建！提出你宝贵的`issue` 与 `pr`
 
 如果您想为 **Taier** 做贡献（即便是一些微小的），请不要犹豫，参考下面的指导方针
 
-1. 查看标记为feature或question的标签的问题并解决    
-2. 回答有疑问的问题   
+1. 查看标记为feature或question的标签的问题并解决
+2. 回答有疑问的问题
 3. 改善使用文档
 
 ### 报告问题
-在报告任何关于 **Taier** 的问题时，请前往[issues](https://github.com/DTStack/Taier/issues/new) 
+
+在报告任何关于 **Taier** 的问题时，请前往[issues](https://github.com/DTStack/Taier/issues/new)
 
 ### 贡献流程
+
 这是一个贡献者工作流程的大致说明：
 
 1. 克隆 **Taier** 项目
@@ -26,8 +29,8 @@ sidebar_label: 贡献指南
 5. 将新分支推送到您克隆的代码库中。
 6. 执行检查表 `pull request`模版。
 7. 在提交 `pull request` 请求前, 请将您克隆的代码和远程代码库同步，这样您的 `pull request` 会简单清晰。
-  
-:::tip 
+
+:::tip
 具体操作如下：
 
 * git remote add upstream git@github.com:DTStack/Taier.git
@@ -36,21 +39,25 @@ sidebar_label: 贡献指南
 * git checkout -b your_awesome_patch
 * ... add some work
 * git push origin your_awesome_patch
-:::
+  :::
 
 ### 代码约定
-保持代码的一致性，提高代码的可读性来保证代码的高质量及高维护性。我们的代码风格和标准 `Java` 约定一致，并参考`《阿里巴巴Java开发手册》`。
+
+保持代码的一致性，提高代码的可读性来保证代码的高质量及高维护性。我们的代码风格和标准 `Java`
+约定一致，并参考`《阿里巴巴Java开发手册》`。
 
 :::tip
 额外附加限制：
+
 * 将ASF许可注释添加到所有新的 `.java` 文件（从项目中的现有文件复制）
 
 * 对于新的特征或重要的修复程序，应该添加单元测试。
 
 * 如果没有其他人使用您的分支，请将它与 `master`（或主项目中的其他目标分支）同步。
-:::
-  
+  :::
+
 ### 代码风格
+
 1. 点击`Browse repositories`–>再搜索`CheckStyle`–>找到`CheckStyle-IDEA`–>再点击`Install`–>自动安装完成后重启
 2. 找到`Other Settings` –>点击`Checkstyle`–>再点击`Configuration File`的加号
    先填写规则描述名–>然后点击`Browse`导入规则文件–>点击`Next`–再点击`Finish`
@@ -58,7 +65,8 @@ sidebar_label: 贡献指南
 
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE module PUBLIC "-//Puppy Crawl//DTD Check Configuration 1.2//EN" "http://www.puppycrawl.com/dtds/configuration_1_2.dtd">
+<!DOCTYPE module PUBLIC "-//Puppy Crawl//DTD Check Configuration 1.2//EN"
+        "http://www.puppycrawl.com/dtds/configuration_1_2.dtd">
 
 <module name="Checker">
 
@@ -122,9 +130,9 @@ sidebar_label: 贡献指南
             <property name="classes" value="java.lang.Boolean"/>
         </module>
 
-               <!-- 代码缩进 
-        <module name="Indentation">
-        </module>  -->
+        <!-- 代码缩进 
+ <module name="Indentation">
+ </module>  -->
 
         <!-- Checks for redundant exceptions declared in throws clause such as duplicates, unchecked exceptions or subclasses of another declared exception.
           检查是否抛出了多余的异常
@@ -234,52 +242,59 @@ sidebar_label: 贡献指南
 ```
 
 ### 框架使用规范
+
 1. 统一使用`mybatisPlus`、`springboot`
 2. 使用`mapstruct`
 3. 禁止使用`lombok`
 
-
 ### 命名规范
+
 1. `dao`统一后缀为`mapper` 统一放入`engine-dao` 模块
 2. `datadevelop`中 按照功能划分包为`console`、`datasource`、`develop`、`schedule`
 3. `controller`对应的接口需要补充`swagger`，统一返回值为 `R<Boolean>`
-如果`controller`未使用参数校验，禁止使用
+   如果`controller`未使用参数校验，禁止使用
+
 ```java
-return new APITemplate<Boolean>() {
-    @Override
-    protected Boolean process() {
+return new APITemplate<Boolean>(){
+@Override
+protected Boolean process(){
         return batchDataSourceService.canSetIncreConf(vo.getId());
-    }
-}.execute();
+        }
+        }.execute();
 ```
 
-直接使用 
+直接使用
+
 ```java
 R.ok(batchDataSourceService.canSetIncreConf(vo.getId()));
 ```
-   
+
 4. `id`、`tenantId`、`userId`等常见`id` 使用`long`类型
 5. 组件枚举统一使用`EComponentType`
 6. 任务枚举统一使用`EScheduleJobType`
 7. 数据源枚举统一使用`DataSourceType`
 8. 日志打印规范 统一使用`LOGGER`大写、`debug`日志需要判断是否开启了`debug`
+
 ```java
- if (LOG.isDebugEnabled()) {
-     LOG.debug("using local user:"+user);
- }
+ if(LOG.isDebugEnabled()){
+        LOG.debug("using local user:"+user);
+        }
 ```
+
 9. 异常错误 统一使用`errorCode`
 
 ### Commitment 规范
- **Commit Message** 三段式格式要求，模板：`[${jira-issue-id}]``[${affected-component}]` `${jira-issue-title}`
+
+**Commit Message** 三段式格式要求，模板：`[${jira-issue-id}]``[${affected-component}]` `${jira-issue-title}`
+
 * 根据`issue-id`，如: **[Taier-issueId][Taier-common] Translate "common module" page into Chinese**
 
-:::tip 
+:::tip
 无`issue-id`时，可以分支命名，如：**[feat_doc][Taier-common] Translate "common module" page into Chinese**
 :::
 
-
 ### 联系我们
+
 我们使用[钉钉](https://www.dingtalk.com/) 沟通交流，可以搜索群号[**30537511**]或者扫描下面的二维码进入钉钉群
 <div align="center"> 
  <img src="/Taier/img/readme/ding.jpeg" width="300" />

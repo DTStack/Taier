@@ -36,7 +36,7 @@ public class DevelopExecuteResultVO<T> {
     private Integer status;
 
     @ApiModelProperty(value = "发送到引擎生成的jobid", example = "1")
-    private String  jobId;
+    private String jobId;
 
     @ApiModelProperty(value = "任务类型", example = "1")
     private Integer taskType;

@@ -8,6 +8,7 @@ sidebar_label: 单机部署
 :::
 
 ## 环境准备
+
 - 本地正确安装JDK1.8+
 - 可用的zookeeper
 - 下载好的[DatasourceX](https://github.com/DTStack/DatasourceX/releases/tag)
@@ -19,12 +20,14 @@ sidebar_label: 单机部署
 
 ## 后端部署
 
-- 下载 [taier-data-develop-with-dependencies.jar](https://github.com/DTStack/Taier/releases/download/v1.2.0/taier-data-develop-with-dependencies.jar)
+-
+下载 [taier-data-develop-with-dependencies.jar](https://github.com/DTStack/Taier/releases/download/v1.2.0/taier-data-develop-with-dependencies.jar)
 - 下载 [taier-plugins插件包](https://github.com/DTStack/Taier/releases/download/v1.2.0/pluginLibs.tar.gz)
 
 - 解压plugins插件包
 
 - 配置文件目录
+
 ```
 |-- conf 
 |---- application.properties  //配置文件
@@ -34,23 +37,25 @@ sidebar_label: 单机部署
 - 修改配置信息
 
 完整的application.properties应该如下
+
 ```properties
 nodeZkAddress=127.0.0.1:2181/taier
 jdbc.driverClassName=com.mysql.jdbc.Driver
 jdbc.url=jdbc:mysql://127.0.0.1:3306/taier?charset=utf8&autoReconnect=true&tinyInt1isBit=false&serverTimezone=Asia/Shanghai
 jdbc.username=
 jdbc.password=
-
-server.tomcat.uri-encoding = UTF-8
-server.port = 8090
-server.tomcat.basedir = ./tmpSave
+server.tomcat.uri-encoding=UTF-8
+server.port=8090
+server.tomcat.basedir=./tmpSave
 datasource.plugin.path=/opt/dtstack/DTCommon/InsightPlugin/dataSourcePlugin
 ```
-:::caution 
+
+:::caution
 jdbc需要指定`charset=utf8` 否则在对接完集群之后，获取开发目录可能会乱码  
 :::
 
 - 配置启动脚本
+
 ```shell
 |-- bin
 |---- base.sh     //jvm相关参数设置脚本
@@ -58,7 +63,8 @@ jdbc需要指定`charset=utf8` 否则在对接完集群之后，获取开发目�
 ```
 
 - 项目结构
-完整的项目结构如下
+  完整的项目结构如下
+
 ``` shell
 ├── bin
 │   ├── base.sh
@@ -104,14 +110,16 @@ jdbc需要指定`charset=utf8` 否则在对接完集群之后，获取开发目�
 ```
 
 * 启动:
+
 ```shell
 $ ./bin/taier.sh start
 ```
+
 * 停止:
+
 ```shell
 $ ./bin/taier.sh stop
 ```
-
 
 ## 前端部署
 
@@ -220,7 +228,8 @@ server {
 nginx -s reload
 ```
 
-此时访问 http://Your-IP-Address（例如：http://127.0.0.1/） 后仍然出现 `Welcome to nginx!` 的页面，原因是因为 Nginx 的默认监听端口和我们的 taier-ui 监听的端口都是 80 端口，此时 Nginx 通过 server_name 来区分需要转发到对应的应用中去。
+此时访问 http://Your-IP-Address（例如：http://127.0.0.1/） 后仍然出现 `Welcome to nginx!` 的页面，原因是因为 Nginx
+的默认监听端口和我们的 taier-ui 监听的端口都是 80 端口，此时 Nginx 通过 server_name 来区分需要转发到对应的应用中去。
 
 那么我们接下来需要通过配置 hosts 将 `.taier.com` 转发到路由去。
 
@@ -230,7 +239,8 @@ nginx -s reload
 这一步需要在主机电脑操作，并不是在服务器操作。即**打开浏览器的那一台电脑**。
 :::
 
-找到 `hosts` 文件所在的位置，windows 用户的 hosts 通常在 `C:\Windows\System32\drivers\etc\hosts`，而 Linux 通常在 `/etc/hosts`。
+找到 `hosts` 文件所在的位置，windows 用户的 hosts 通常在 `C:\Windows\System32\drivers\etc\hosts`，而 Linux
+通常在 `/etc/hosts`。
 
 打开 hosts 文件，其内容通常是一组一组的键值对，如下:
 

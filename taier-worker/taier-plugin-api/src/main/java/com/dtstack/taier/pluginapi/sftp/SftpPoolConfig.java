@@ -47,22 +47,27 @@ public class SftpPoolConfig extends GenericObjectPoolConfig<ChannelSftp> {
     public int getMaxTotal() {
         return maxTotal;
     }
+
     @Override
     public void setMaxTotal(int maxTotal) {
         this.maxTotal = maxTotal;
     }
+
     @Override
     public int getMaxIdle() {
         return maxIdle;
     }
+
     @Override
     public void setMaxIdle(int maxIdle) {
         this.maxIdle = maxIdle;
     }
+
     @Override
     public int getMinIdle() {
         return minIdle;
     }
+
     @Override
     public void setMinIdle(int minIdle) {
         this.minIdle = minIdle;

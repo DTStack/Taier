@@ -6,9 +6,9 @@
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -67,7 +67,6 @@ import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManagerFactory;
 import javax.security.sasl.Sasl;
 import javax.security.sasl.SaslException;
-
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.lang.reflect.InvocationHandler;
@@ -194,10 +193,10 @@ public class HiveConnection implements java.sql.Connection {
             if (StringUtils.isNotBlank(strRetries)) {
                 maxRetries = Integer.parseInt(strRetries);
             }
-        } catch(NumberFormatException e) { // Ignore the exception
+        } catch (NumberFormatException e) { // Ignore the exception
         }
 
-        for (int numRetries = 0;;) {
+        for (int numRetries = 0; ; ) {
             try {
                 assumeSubject =
                         JdbcConnectionParams.AUTH_KERBEROS_AUTH_TYPE_FROM_SUBJECT.equals(sessConfMap
@@ -215,7 +214,7 @@ public class HiveConnection implements java.sql.Connection {
                 if (isZkDynamicDiscoveryMode()) {
                     errMsg = "Could not open client transport for any of the Server URI's in ZooKeeper: ";
                     // Try next available server in zookeeper, or retry all the servers again if retry is enabled
-                    while(!Utils.updateConnParamsFromZooKeeper(connParams) && ++numRetries < maxRetries) {
+                    while (!Utils.updateConnParamsFromZooKeeper(connParams) && ++numRetries < maxRetries) {
                         connParams.getRejectedHostZnodePaths().clear();
                     }
                     // Update with new values
@@ -271,12 +270,11 @@ public class HiveConnection implements java.sql.Connection {
             if (openResp != null) {
                 client.CloseSession(new TCloseSessionReq(openResp.getSessionHandle()));
             }
-        }
-        catch (TException e) {
+        } catch (TException e) {
             LOG.info("JDBC Connection Parameters used : useSSL = " + useSsl + " , httpPath  = " +
                     sessConfMap.get(JdbcConnectionParams.HTTP_PATH) + " Authentication type = " +
                     sessConfMap.get(JdbcConnectionParams.AUTH_TYPE));
-            String msg =  "Could not create http connection to " +
+            String msg = "Could not create http connection to " +
                     jdbcUriString + ". " + e.getMessage();
             throw new TTransportException(msg, e);
         }
@@ -402,7 +400,7 @@ public class HiveConnection implements java.sql.Connection {
                             new SSLConnectionSocketFactory(sslContext, new DefaultHostnameVerifier(null));
                 }
                 final Registry<ConnectionSocketFactory> registry =
-                        RegistryBuilder.<ConnectionSocketFactory> create().register("https", socketFactory)
+                        RegistryBuilder.<ConnectionSocketFactory>create().register("https", socketFactory)
                                 .build();
                 httpClientBuilder.setConnectionManager(new BasicHttpClientConnectionManager(registry));
             } catch (Exception e) {
@@ -641,7 +639,7 @@ public class HiveConnection implements java.sql.Connection {
 
     private boolean isHttpTransportMode() {
         String transportMode = sessConfMap.get(JdbcConnectionParams.TRANSPORT_MODE);
-        if(transportMode != null && (transportMode.equalsIgnoreCase("http"))) {
+        if (transportMode != null && (transportMode.equalsIgnoreCase("http"))) {
             return true;
         }
         return false;
@@ -1235,7 +1233,7 @@ public class HiveConnection implements java.sql.Connection {
     @Override
     public void setAutoCommit(boolean autoCommit) throws SQLException {
         // Per JDBC spec, if the connection is closed a SQLException should be thrown.
-        if(isClosed) {
+        if (isClosed) {
             throw new SQLException("Connection is closed");
         }
         // The auto-commit mode is always enabled for this connection. Per JDBC spec,
@@ -1322,7 +1320,7 @@ public class HiveConnection implements java.sql.Connection {
         // Per JDBC spec, the request defines a hint to the driver to enable database optimizations.
         // The read-only mode for this connection is disabled and cannot be enabled (isReadOnly always returns false).
         // The most correct behavior is to throw only if the request tries to enable the read-only mode.
-        if(readOnly) {
+        if (readOnly) {
             throw new SQLException("Enabling read-only mode not supported");
         }
     }
@@ -1419,7 +1417,7 @@ public class HiveConnection implements java.sql.Connection {
             TCLIService.Iface client) {
         return (TCLIService.Iface) Proxy.newProxyInstance(
                 HiveConnection.class.getClassLoader(),
-                new Class [] { TCLIService.Iface.class },
+                new Class[]{TCLIService.Iface.class},
                 new SynchronizedHandler(client));
     }
 
@@ -1431,7 +1429,7 @@ public class HiveConnection implements java.sql.Connection {
         }
 
         @Override
-        public Object invoke(Object proxy, Method method, Object [] args)
+        public Object invoke(Object proxy, Method method, Object[] args)
                 throws Throwable {
             try {
                 synchronized (client) {
@@ -1440,7 +1438,7 @@ public class HiveConnection implements java.sql.Connection {
             } catch (InvocationTargetException e) {
                 // all IFace APIs throw TException
                 if (e.getTargetException() instanceof TException) {
-                    throw (TException)e.getTargetException();
+                    throw (TException) e.getTargetException();
                 } else {
                     // should not happen
                     throw new TException("Error in calling method " + method.getName(),

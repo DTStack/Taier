@@ -39,6 +39,7 @@ import java.util.Map;
  * 需要单独打成jar 放到hdfs上 用于执行sql的时候调用
  * Date: 2017/4/11
  * Company: www.dtstack.com
+ *
  * @author xuchao
  */
 
@@ -58,9 +59,9 @@ public class SqlProxy {
 
     private static final String SPARK_SESSION_CONF_KEY = "sparkSessionConf";
 
-    public void runJob(String submitSql, String appName, String logLevel, SparkConf conf){
+    public void runJob(String submitSql, String appName, String logLevel, SparkConf conf) {
 
-        if(appName == null){
+        if (appName == null) {
             appName = DEFAULT_APP_NAME;
         }
 
@@ -78,8 +79,8 @@ public class SqlProxy {
         //屏蔽引号内的 分号
         Splitter splitter = new Splitter(';');
         List<String> sqlArray = splitter.splitEscaped(unzipSql);
-        for(String sql : sqlArray){
-            if(sql == null || sql.trim().length() == 0){
+        for (String sql : sqlArray) {
+            if (sql == null || sql.trim().length() == 0) {
                 continue;
             }
             logger.info("processed sql statement {}", sql);
@@ -91,7 +92,7 @@ public class SqlProxy {
 
     public static void main(String[] args) throws UnsupportedEncodingException {
 
-        if(args.length < 1){
+        if (args.length < 1) {
             logger.error("must set args for sql job!!!");
             throw new RuntimeException("must set args for sql job!!!");
         }
@@ -101,9 +102,9 @@ public class SqlProxy {
         argInfo = URLDecoder.decode(argInfo, Charsets.UTF_8.name());
 
         Map<String, Object> argsMap = null;
-        try{
+        try {
             argsMap = OBJECT_MAPPER.readValue(argInfo, Map.class);
-        }catch (Exception e){
+        } catch (Exception e) {
             logger.error("", e);
             throw new RuntimeException("parse args json error, message: " + argInfo, e);
         }
@@ -120,16 +121,16 @@ public class SqlProxy {
     private static SparkConf getSparkSessionConf(Map<String, Object> argsMap) {
         SparkConf sparkConf = new SparkConf();
 
-        if(argsMap.get(SPARK_SESSION_CONF_KEY) == null){
+        if (argsMap.get(SPARK_SESSION_CONF_KEY) == null) {
             return sparkConf;
         }
 
         try {
-            Map<String, String> sessionConf = (Map<String, String>)argsMap.get(SPARK_SESSION_CONF_KEY);
+            Map<String, String> sessionConf = (Map<String, String>) argsMap.get(SPARK_SESSION_CONF_KEY);
             sessionConf.forEach((key, val) -> {
                 sparkConf.set(key, val);
             });
-        } catch (Exception e){
+        } catch (Exception e) {
             logger.error("args map:{}", argsMap);
             throw new RuntimeException("parse spark session json error", e);
         }
@@ -137,7 +138,7 @@ public class SqlProxy {
         return sparkConf;
     }
 
-    private static void setLogLevel(SparkSession sparkSession, String logLevel){
+    private static void setLogLevel(SparkSession sparkSession, String logLevel) {
 
         if (StringUtils.isBlank(logLevel)) {
             return;

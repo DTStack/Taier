@@ -1,7 +1,7 @@
 package com.dtstack.taier.datasource.plugin.libra;
 
-import com.dtstack.taier.datasource.plugin.rdbms.ConnFactory;
 import com.dtstack.taier.datasource.api.source.DataBaseType;
+import com.dtstack.taier.datasource.plugin.rdbms.ConnFactory;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.postgresql.Driver;

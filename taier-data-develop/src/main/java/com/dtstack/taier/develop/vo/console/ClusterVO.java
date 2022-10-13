@@ -56,7 +56,7 @@ public class ClusterVO extends Cluster {
             BeanUtils.copyProperties(cluster, vo);
             vo.setClusterId(cluster.getId());
         } catch (Throwable e) {
-            LOGGER.error("ClusterVO.toVO error:",e);
+            LOGGER.error("ClusterVO.toVO error:", e);
         }
         return vo;
     }

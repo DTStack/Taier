@@ -2,7 +2,6 @@ package com.dtstack.taier.common.metric.stream;
 
 import com.dtstack.taier.common.metric.Filter;
 import com.dtstack.taier.common.metric.QueryInfo;
-import com.dtstack.taier.common.metric.batch.BaseMetric;
 import com.dtstack.taier.common.metric.prometheus.func.CommonFunc;
 import com.google.common.collect.Lists;
 
@@ -11,6 +10,7 @@ import java.util.List;
 
 /**
  * 各Sink的数据输出rps
+ *
  * @author jiangbo
  */
 public class SinkOutputRPSMetric extends StreamBaseMetric {

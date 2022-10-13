@@ -3,7 +3,10 @@
 <mapper namespace="com.dtstack.taier.dao.mapper.DsInfoMapper">
 
     <sql id="selectDsField">
-        a.id as dataInfoId,
+        a
+        .
+        id
+        as dataInfoId,
         a.data_name as dataName,
         a.data_type as dataType,
         a.data_version as dataVersion,
@@ -15,7 +18,10 @@
 
 
     <sql id="select_content_fragment">
-        a.id as id,
+        a
+        .
+        id
+        as id,
         a.data_type as dataType,
         a.data_version as dataVersion,
         a.data_name as dataName,
@@ -58,12 +64,12 @@
                 )
             </if>
             and not EXISTS (
-                select data_info_id
-                FROM dsc_import_ref t
-                WHERE a.id = t.data_info_id
-                and t.is_deleted = 0
-                and t.app_type = #{listQuery.appType}
-                and t.tenant_id = #{listQuery.tenantId}
+            select data_info_id
+            FROM dsc_import_ref t
+            WHERE a.id = t.data_info_id
+            and t.is_deleted = 0
+            and t.app_type = #{listQuery.appType}
+            and t.tenant_id = #{listQuery.tenantId}
             )
         </where>
     </sql>
@@ -135,45 +141,43 @@
     </sql>
 
 
-
-
     <select id="queryDsByAppTypeAndOldDataInfoId" resultType="com.dtstack.taier.dao.domain.DsInfo">
 
         select
-        <include refid="select_content_fragment" />
+        <include refid="select_content_fragment"/>
         from datasource_info a
         inner join dsc_import_ref b on a.id = b.data_info_id
         where a.is_deleted = 0
-        and   b.app_type = #{appType}
+        and b.app_type = #{appType}
         and b.old_data_info_id = #{oldDataInfoId}
     </select>
 
     <select id="getDsInfoListByIdList" resultType="com.dtstack.taier.dao.domain.DsInfo">
 
         select
-        <include refid="select_content_fragment" />
+        <include refid="select_content_fragment"/>
         from datasource_info a
         where id in
         <foreach collection="dataInfoIdList" item="id" open="(" close=")" separator=",">
-                #{id}
+            #{id}
         </foreach>
         and is_deleted = 0;
     </select>
 
     <update id="updateDsInfoStatus">
-       update datasource_info
+        update datasource_info
         set `status` =#{status}
-       where
+        where
         id in(
-            <foreach collection="dsInfoList" item="id" separator=",">
-                #{id}
-            </foreach>
-               )
+        <foreach collection="dsInfoList" item="id" separator=",">
+            #{id}
+        </foreach>
+        )
     </update>
 
     <select id="queryByIds" resultType="com.dtstack.taier.dao.domain.DsInfo">
         select
-         *
+        *
         from
         datasource_info a
         where
@@ -185,27 +189,27 @@
     </select>
 
 
-
     <select id="queryListByDataTypeAndVersion" resultType="com.dtstack.taier.dao.domain.DsInfo">
 
         select
-        <include refid="select_content_fragment" />
+        <include refid="select_content_fragment"/>
         from datasource_info a
         where data_type = #{dataType}
-        <if test="dataVersion !=null and dataVersion !='' " >
+        <if test="dataVersion !=null and dataVersion !='' ">
             and data_version = #{dataVersion}
         </if>
         and is_deleted = 0;
     </select>
 
 
-    <update id="updateDataTypeByDataTypeCode" >
+    <update id="updateDataTypeByDataTypeCode">
 
         update
-        datasource_info
-        set data_type = #{dataType},
-        data_version = #{dataVersion}
-        where data_type_code = #{dataTypeCode} and is_deleted = 0
+            datasource_info
+        set data_type    = #{dataType},
+            data_version = #{dataVersion}
+        where data_type_code = #{dataTypeCode}
+          and is_deleted = 0
     </update>
 
     <select id="countDsPage" resultType="java.lang.Integer">
@@ -234,7 +238,7 @@
         a.schema_name as schemaName
         from
         datasource_info a
-        <include refid="queryDsSql" />
+        <include refid="queryDsSql"/>
         <if test="listQuery.start != null and listQuery.end != null">
             limit #{listQuery.start}, #{listQuery.end}
         </if>
@@ -242,7 +246,7 @@
 
     <select id="queryByTenantId" resultType="com.dtstack.taier.dao.domain.DsInfo">
         select
-        <include refid="select_content_fragment" />
+        <include refid="select_content_fragment"/>
         from datasource_info a
         where a.tenant_id = #{tenantId}
         and is_deleted = 0

@@ -1,15 +1,15 @@
 package com.dtstack.taier.datasource.plugin.vertica;
 
-import com.dtstack.taier.datasource.plugin.common.base.InsideTable;
-import com.dtstack.taier.datasource.plugin.common.utils.DBUtil;
-import com.dtstack.taier.datasource.plugin.common.utils.SchemaUtil;
-import com.dtstack.taier.datasource.plugin.rdbms.AbsRdbmsClient;
-import com.dtstack.taier.datasource.plugin.rdbms.ConnFactory;
 import com.dtstack.taier.datasource.api.dto.ColumnMetaDTO;
 import com.dtstack.taier.datasource.api.dto.SqlQueryDTO;
 import com.dtstack.taier.datasource.api.dto.source.ISourceDTO;
 import com.dtstack.taier.datasource.api.exception.SourceException;
 import com.dtstack.taier.datasource.api.source.DataSourceType;
+import com.dtstack.taier.datasource.plugin.common.base.InsideTable;
+import com.dtstack.taier.datasource.plugin.common.utils.DBUtil;
+import com.dtstack.taier.datasource.plugin.common.utils.SchemaUtil;
+import com.dtstack.taier.datasource.plugin.rdbms.AbsRdbmsClient;
+import com.dtstack.taier.datasource.plugin.rdbms.ConnFactory;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -37,7 +37,7 @@ public class VerticaClient extends AbsRdbmsClient {
     /**
      * 展示特定 SCHEMA 的视图
      */
-    private static final String SHOW_VIEW_BY_SCHEMA_SQL =  " UNION SELECT table_name FROM views WHERE table_schema = '%s' %s ";
+    private static final String SHOW_VIEW_BY_SCHEMA_SQL = " UNION SELECT table_name FROM views WHERE table_schema = '%s' %s ";
 
     /**
      * 获取所有的 schema 下所有表

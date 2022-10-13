@@ -16,15 +16,15 @@
  * limitations under the License.
  */
 
-import { Component } from '@dtinsight/molecule/esm/react';
-import type { ITaskResultService } from './taskResultService';
-import taskResultService, { createLog, createTitle } from './taskResultService';
-import type { CatalogueDataProps, IOfflineTaskProps, IResponseBodyProps } from '@/interface';
+import {Component} from '@dtinsight/molecule/esm/react';
+import type {ITaskResultService} from './taskResultService';
+import taskResultService, {createLog, createTitle} from './taskResultService';
+import type {CatalogueDataProps, IOfflineTaskProps, IResponseBodyProps} from '@/interface';
 import API from '@/api';
-import { checkExist } from '@/utils';
-import { TASK_STATUS_FILTERS, TASK_STATUS, TASK_TYPE_ENUM } from '@/constant';
+import {checkExist} from '@/utils';
+import {TASK_STATUS, TASK_STATUS_FILTERS, TASK_TYPE_ENUM} from '@/constant';
 import moment from 'moment';
-import { singleton } from 'tsyringe';
+import {singleton} from 'tsyringe';
 import notification from '@/components/notification';
 import md5 from 'md5';
 
@@ -226,7 +226,7 @@ export default class ExecuteService extends Component<IExecuteStates> implements
 				return this.selectData(
 					res.data.jobId,
 					currentTabId,
-					{ id: currentTabId, taskType: SELECT_TYPE.TASK },
+					{id: currentTabId, taskType: SELECT_TYPE.TASK},
 					TASK_TYPE_ENUM.SYNC,
 				).then((result) => {
 					this.emit(EXECUTE_EVENT.onEndRun, currentTabId);
@@ -264,7 +264,7 @@ export default class ExecuteService extends Component<IExecuteStates> implements
 		const jobId = this.runningSql.get(currentTabId);
 		if (!jobId) return;
 
-		const res = await API.stopDataSyncImmediately({ jobId });
+		const res = await API.stopDataSyncImmediately({jobId});
 		if (res && res.code === 1) {
 			this.taskResultService.appendLogs(
 				currentTabId.toString(),
@@ -290,7 +290,7 @@ export default class ExecuteService extends Component<IExecuteStates> implements
 		sqls: string[],
 		index: number,
 	): Promise<void> => {
-		const params = { ...rawParams };
+		const params = {...rawParams};
 		params.sql = `${sqls[index]}`;
 		params.isEnd = sqls.length === index + 1;
 		if (index === 0) {
@@ -513,7 +513,7 @@ export default class ExecuteService extends Component<IExecuteStates> implements
 				);
 				return false;
 			}
-			const { code, retryLog } = res;
+			const {code, retryLog} = res;
 			if (code) {
 				this.showMsg(currentTabId, res);
 			}

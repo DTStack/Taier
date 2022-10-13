@@ -1,9 +1,9 @@
-import { Table } from 'antd';
-import { mouse, select } from 'd3-selection';
-import { createRoot } from 'react-dom/client';
-import { merge } from 'lodash';
-import type { Root } from 'react-dom/client';
-import type { ColumnType } from 'antd/lib/table';
+import {Table} from 'antd';
+import {mouse, select} from 'd3-selection';
+import type {Root} from 'react-dom/client';
+import {createRoot} from 'react-dom/client';
+import {merge} from 'lodash';
+import type {ColumnType} from 'antd/lib/table';
 import './index.scss';
 
 interface IOptions<T> {
@@ -180,7 +180,7 @@ export default class LintTo<T extends object> {
 		this.getSvg().select(`.${this.targetPointsClassName}`).remove();
 
 		if (rowsInSource.node()) {
-			const { height } = (rowsInSource.node() as HTMLDivElement).getBoundingClientRect();
+			const {height} = (rowsInSource.node() as HTMLDivElement).getBoundingClientRect();
 
 			this.getSvg()
 				.append('g')
@@ -202,9 +202,9 @@ export default class LintTo<T extends object> {
 		// target points
 		const rowsInTarget = this.getTarget().select(`.${this.rowClassName}`);
 		if (rowsInTarget.node()) {
-			const { height } = (rowsInTarget.node() as HTMLDivElement).getBoundingClientRect();
+			const {height} = (rowsInTarget.node() as HTMLDivElement).getBoundingClientRect();
 
-			const { width } = document
+			const {width} = document
 				.querySelector(`.${this.svgClassName}`)!
 				.getBoundingClientRect();
 

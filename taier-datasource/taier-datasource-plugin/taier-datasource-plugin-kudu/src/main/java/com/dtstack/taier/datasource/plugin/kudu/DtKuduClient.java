@@ -1,5 +1,10 @@
 package com.dtstack.taier.datasource.plugin.kudu;
 
+import com.dtstack.taier.datasource.api.dto.ColumnMetaDTO;
+import com.dtstack.taier.datasource.api.dto.SqlQueryDTO;
+import com.dtstack.taier.datasource.api.dto.source.ISourceDTO;
+import com.dtstack.taier.datasource.api.dto.source.KuduSourceDTO;
+import com.dtstack.taier.datasource.api.exception.SourceException;
 import com.dtstack.taier.datasource.plugin.common.exception.IErrorPattern;
 import com.dtstack.taier.datasource.plugin.common.nosql.AbsNoSqlClient;
 import com.dtstack.taier.datasource.plugin.common.service.ErrorAdapterImpl;
@@ -7,11 +12,6 @@ import com.dtstack.taier.datasource.plugin.common.service.IErrorAdapter;
 import com.dtstack.taier.datasource.plugin.common.utils.SearchUtil;
 import com.dtstack.taier.datasource.plugin.common.utils.TableUtil;
 import com.dtstack.taier.datasource.plugin.kerberos.core.util.KerberosLoginUtil;
-import com.dtstack.taier.datasource.api.dto.ColumnMetaDTO;
-import com.dtstack.taier.datasource.api.dto.SqlQueryDTO;
-import com.dtstack.taier.datasource.api.dto.source.ISourceDTO;
-import com.dtstack.taier.datasource.api.dto.source.KuduSourceDTO;
-import com.dtstack.taier.datasource.api.exception.SourceException;
 import com.google.common.collect.Lists;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
@@ -51,7 +51,7 @@ public class DtKuduClient extends AbsNoSqlClient {
 
     private static final Pattern TABLE_COLUMN = Pattern.compile("(?i)schema.columns\\s*");
 
-    private static final String COLUMN_TYPE_NOT_SUPPORT= "DECIMAL、CHAR、VARCHAR、DATE";
+    private static final String COLUMN_TYPE_NOT_SUPPORT = "DECIMAL、CHAR、VARCHAR、DATE";
 
     private static final IErrorPattern ERROR_PATTERN = new KuduErrorPattern();
 
@@ -64,8 +64,8 @@ public class DtKuduClient extends AbsNoSqlClient {
         if (null == kuduSourceDTO || StringUtils.isBlank(kuduSourceDTO.getUrl())) {
             return false;
         }
-        try (KuduClient client = getConnection(kuduSourceDTO)){
-                client.getTablesList();
+        try (KuduClient client = getConnection(kuduSourceDTO)) {
+            client.getTablesList();
             return true;
         } catch (Exception e) {
             throw new SourceException(ERROR_ADAPTER.connAdapter(e.getMessage(), ERROR_PATTERN), e);
@@ -75,7 +75,7 @@ public class DtKuduClient extends AbsNoSqlClient {
     @Override
     public List<String> getTableList(ISourceDTO iSource, SqlQueryDTO queryDTO) {
         List<String> tableList = Lists.newArrayList();
-        try (KuduClient client = getConnection(iSource);){
+        try (KuduClient client = getConnection(iSource);) {
             tableList = client.getTablesList().getTablesList();
         } catch (KuduException e) {
             log.error(e.getMessage(), e);
@@ -130,10 +130,10 @@ public class DtKuduClient extends AbsNoSqlClient {
         return metaDTOS;
     }
 
-    private String dealMessageError(String errorMessage){
+    private String dealMessageError(String errorMessage) {
         Matcher passLine = TABLE_COLUMN.matcher(errorMessage);
         if (passLine.find()) {
-           return String.format("Please verify the field type, kudu table does not hold %s and other types",COLUMN_TYPE_NOT_SUPPORT);
+            return String.format("Please verify the field type, kudu table does not hold %s and other types", COLUMN_TYPE_NOT_SUPPORT);
         }
         return errorMessage;
     }
@@ -173,11 +173,11 @@ public class DtKuduClient extends AbsNoSqlClient {
                     .scanRequestTimeout(TIME_OUT);
             scanner = scannerBuilder.build();
             int tempSize = PRE_SIZE;
-            while(scanner.hasMoreRows() && tempSize > 0){
+            while (scanner.hasMoreRows() && tempSize > 0) {
                 RowResultIterator curRows = scanner.nextRows();
-                while(curRows.hasNext() && tempSize-- > 0){
+                while (curRows.hasNext() && tempSize-- > 0) {
                     RowResult rowResult = curRows.next();
-                    List<Object> row = findRow(schema,rowResult);
+                    List<Object> row = findRow(schema, rowResult);
                     dataList.add(row);
                 }
             }
@@ -189,13 +189,13 @@ public class DtKuduClient extends AbsNoSqlClient {
         return dataList;
     }
 
-    private static List<Object> findRow(Schema schema,RowResult rowResult){
+    private static List<Object> findRow(Schema schema, RowResult rowResult) {
         List<Object> row = new ArrayList<>();
-        for(ColumnSchema columnSchema : schema.getColumns()){
-            if(rowResult.isNull(columnSchema.getName())){
+        for (ColumnSchema columnSchema : schema.getColumns()) {
+            if (rowResult.isNull(columnSchema.getName())) {
                 row.add(null);
-            }else{
-                switch(columnSchema.getType()){
+            } else {
+                switch (columnSchema.getType()) {
                     case INT8:
                         row.add(rowResult.getByte(columnSchema.getName()));
                         break;

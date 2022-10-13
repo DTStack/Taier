@@ -51,36 +51,36 @@ public class ConsoleController {
         return R.ok(consoleService.nodeAddress());
     }
 
-    @PostMapping(value="/searchJob")
+    @PostMapping(value = "/searchJob")
     public R<ConsoleJobVO> searchJob(@RequestParam("jobName") String jobName) {
         Preconditions.checkNotNull(jobName, "parameters of jobName not be null.");
         return R.ok(consoleService.searchJob(jobName));
     }
 
-    @PostMapping(value="/listNames")
+    @PostMapping(value = "/listNames")
     public R<List<String>> listNames(@RequestParam("jobName") String jobName) {
         Preconditions.checkNotNull(jobName, "parameters of jobName not be null.");
         return R.ok(consoleService.listNames(jobName));
     }
 
-    @PostMapping(value="/jobResources")
+    @PostMapping(value = "/jobResources")
     public R<List<String>> jobResources() {
         return R.ok(consoleService.jobResources());
     }
 
-    @PostMapping(value="/overview")
+    @PostMapping(value = "/overview")
     @ApiOperation(value = "根据计算引擎类型显示任务")
     public R<Collection<Map<String, Object>>> overview(@RequestParam("nodeAddress") String nodeAddress, @RequestParam("clusterName") String clusterName) {
         Preconditions.checkNotNull(clusterName, "clusterName can not be null.");
         return R.ok(consoleService.overview(nodeAddress, clusterName));
     }
 
-    @PostMapping(value="/groupDetail")
+    @PostMapping(value = "/groupDetail")
     public R<PageResult> groupDetail(@RequestParam("jobResource") String jobResource,
-                                  @RequestParam("nodeAddress") String nodeAddress,
-                                  @RequestParam("stage") Integer stage,
-                                  @RequestParam("pageSize") Integer pageSize,
-                                  @RequestParam("currentPage") Integer currentPage) {
+                                     @RequestParam("nodeAddress") String nodeAddress,
+                                     @RequestParam("stage") Integer stage,
+                                     @RequestParam("pageSize") Integer pageSize,
+                                     @RequestParam("currentPage") Integer currentPage) {
         Preconditions.checkNotNull(jobResource, "parameters of jobResource is required");
         Preconditions.checkNotNull(stage, "parameters of stage is required");
         Preconditions.checkArgument(currentPage != null && currentPage > 0, "parameters of currentPage is required");
@@ -88,13 +88,13 @@ public class ConsoleController {
         return R.ok(consoleService.groupDetail(jobResource, nodeAddress, stage, pageSize, currentPage));
     }
 
-    @PostMapping(value="/jobStick")
+    @PostMapping(value = "/jobStick")
     public R<Boolean> jobStick(@RequestParam("jobId") String jobId) {
         Preconditions.checkNotNull(jobId, "parameters of jobId is required");
         return R.ok(consoleService.jobStick(jobId));
     }
 
-    @PostMapping(value="/stopJob")
+    @PostMapping(value = "/stopJob")
     public R<Void> stopJob(@RequestParam("jobId") String jobId) throws Exception {
         Preconditions.checkArgument(StringUtils.isNotBlank(jobId), "parameters of jobId is required");
         consoleService.stopJob(jobId);
@@ -102,20 +102,20 @@ public class ConsoleController {
     }
 
     @ApiOperation(value = "概览，杀死全部")
-    @PostMapping(value="/stopAll")
+    @PostMapping(value = "/stopAll")
     public R<Void> stopAll(@RequestParam("jobResource") String jobResource,
-                        @RequestParam("nodeAddress") String nodeAddress) throws Exception {
+                           @RequestParam("nodeAddress") String nodeAddress) throws Exception {
         Preconditions.checkNotNull(jobResource, "parameters of jobResource is required");
         consoleService.stopAll(jobResource, nodeAddress);
         return R.empty();
     }
 
-    @PostMapping(value="/stopJobList")
+    @PostMapping(value = "/stopJobList")
     public R<Void> stopJobList(@RequestParam("jobResource") String jobResource,
-                            @RequestParam("nodeAddress") String nodeAddress,
-                            @RequestParam("stage") Integer stage,
-                            @RequestParam("jobIdList") List<String> jobIdList) throws Exception {
-        if (CollectionUtils.isEmpty(jobIdList)){
+                               @RequestParam("nodeAddress") String nodeAddress,
+                               @RequestParam("stage") Integer stage,
+                               @RequestParam("jobIdList") List<String> jobIdList) throws Exception {
+        if (CollectionUtils.isEmpty(jobIdList)) {
             Preconditions.checkNotNull(jobResource, "parameters of jobResource is required");
             Preconditions.checkNotNull(stage, "parameters of stage is required");
         }
@@ -123,7 +123,7 @@ public class ConsoleController {
         return R.empty();
     }
 
-    @PostMapping(value="/clusterResources")
+    @PostMapping(value = "/clusterResources")
     public R<ClusterResource> clusterResources(@RequestParam("clusterId") Long clusterId) {
         return R.ok(consoleService.clusterResources(clusterId));
     }

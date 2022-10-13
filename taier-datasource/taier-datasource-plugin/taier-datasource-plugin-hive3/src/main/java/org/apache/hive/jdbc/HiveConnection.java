@@ -18,13 +18,9 @@
 
 package org.apache.hive.jdbc;
 
-import org.apache.commons.lang3.BooleanUtils;
-import org.apache.hive.service.rpc.thrift.TSetClientInfoResp;
-
-import org.apache.hive.service.rpc.thrift.TSetClientInfoReq;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.hadoop.hive.common.auth.HiveAuthUtils;
-import org.apache.hadoop.hive.shims.ShimLoader;
 import org.apache.hive.jdbc.Utils.JdbcConnectionParams;
 import org.apache.hive.service.auth.HiveAuthConstants;
 import org.apache.hive.service.auth.KerberosSaslHelper;
@@ -44,6 +40,8 @@ import org.apache.hive.service.rpc.thrift.TProtocolVersion;
 import org.apache.hive.service.rpc.thrift.TRenewDelegationTokenReq;
 import org.apache.hive.service.rpc.thrift.TRenewDelegationTokenResp;
 import org.apache.hive.service.rpc.thrift.TSessionHandle;
+import org.apache.hive.service.rpc.thrift.TSetClientInfoReq;
+import org.apache.hive.service.rpc.thrift.TSetClientInfoResp;
 import org.apache.http.HttpRequestInterceptor;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.CookieStore;
@@ -68,6 +66,7 @@ import org.apache.thrift.transport.TTransport;
 import org.apache.thrift.transport.TTransportException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManagerFactory;
@@ -119,7 +118,6 @@ import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * HiveConnection.
- *
  */
 public class HiveConnection implements java.sql.Connection {
     public static final Logger LOG = LoggerFactory.getLogger(HiveConnection.class.getName());
@@ -148,6 +146,7 @@ public class HiveConnection implements java.sql.Connection {
 
     /**
      * Get all direct HiveServer2 URLs from a ZooKeeper based HiveServer2 URL
+     *
      * @param zookeeperBasedHS2Url
      * @return
      * @throws Exception
@@ -232,10 +231,10 @@ public class HiveConnection implements java.sql.Connection {
                 if (StringUtils.isNotBlank(strRetries)) {
                     maxRetries = Integer.parseInt(strRetries);
                 }
-            } catch(NumberFormatException e) { // Ignore the exception
+            } catch (NumberFormatException e) { // Ignore the exception
             }
 
-            for (int numRetries = 0;;) {
+            for (int numRetries = 0; ; ) {
                 try {
                     // open the client transport
                     openTransport();
@@ -253,7 +252,7 @@ public class HiveConnection implements java.sql.Connection {
                     if (ZooKeeperHiveClientHelper.isZkDynamicDiscoveryMode(sessConfMap)) {
                         errMsg = "Could not open client transport for any of the Server URI's in ZooKeeper: ";
                         // Try next available server in zookeeper, or retry all the servers again if retry is enabled
-                        while(!Utils.updateConnParamsFromZooKeeper(connParams) && ++numRetries < maxRetries) {
+                        while (!Utils.updateConnParamsFromZooKeeper(connParams) && ++numRetries < maxRetries) {
                             connParams.getRejectedHostZnodePaths().clear();
                         }
                         // Update with new values
@@ -283,7 +282,7 @@ public class HiveConnection implements java.sql.Connection {
             try {
                 List<String> sqlList = parseInitFile(initFile);
                 Statement st = createStatement();
-                for(String sql : sqlList) {
+                for (String sql : sqlList) {
                     boolean hasResult = st.execute(sql);
                     if (hasResult) {
                         ResultSet rs = st.getResultSet();
@@ -292,7 +291,7 @@ public class HiveConnection implements java.sql.Connection {
                         }
                     }
                 }
-            } catch(Exception e) {
+            } catch (Exception e) {
                 LOG.error("Failed to execute initial SQL");
                 throw new SQLException(e.getMessage());
             }
@@ -320,7 +319,7 @@ public class HiveConnection implements java.sql.Connection {
                 }
             }
             initSqlList = getInitSql(sb.toString());
-        } catch(IOException e) {
+        } catch (IOException e) {
             LOG.error("Failed to read initial SQL file", e);
             throw new IOException(e);
         } finally {
@@ -532,7 +531,7 @@ public class HiveConnection implements java.sql.Connection {
                             new SSLConnectionSocketFactory(sslContext, new DefaultHostnameVerifier(null));
                 }
                 final Registry<ConnectionSocketFactory> registry =
-                        RegistryBuilder.<ConnectionSocketFactory> create().register("https", socketFactory)
+                        RegistryBuilder.<ConnectionSocketFactory>create().register("https", socketFactory)
                                 .build();
                 httpClientBuilder.setConnectionManager(new BasicHttpClientConnectionManager(registry));
             } catch (Exception e) {
@@ -579,14 +578,15 @@ public class HiveConnection implements java.sql.Connection {
     /**
      * Create transport per the connection options
      * Supported transport options are:
-     *   - SASL based transports over
-     *      + Kerberos
-     *      + Delegation token
-     *      + SSL
-     *      + non-SSL
-     *   - Raw (non-SASL) socket
+     * - SASL based transports over
+     * + Kerberos
+     * + Delegation token
+     * + SSL
+     * + non-SSL
+     * - Raw (non-SASL) socket
+     * <p>
+     * Kerberos and Delegation token supports SASL QOP configurations
      *
-     *   Kerberos and Delegation token supports SASL QOP configurations
      * @throws SQLException, TTransportException
      */
     private TTransport createBinaryTransport() throws SQLException, TTransportException {
@@ -787,7 +787,7 @@ public class HiveConnection implements java.sql.Connection {
 
     private boolean isHttpTransportMode() {
         String transportMode = sessConfMap.get(JdbcConnectionParams.TRANSPORT_MODE);
-        if(transportMode != null && (transportMode.equalsIgnoreCase("http"))) {
+        if (transportMode != null && (transportMode.equalsIgnoreCase("http"))) {
             return true;
         }
         return false;
@@ -802,6 +802,7 @@ public class HiveConnection implements java.sql.Connection {
     /**
      * Lookup varName in sessConfMap, if its null or empty return the default
      * value varDefault
+     *
      * @param varName
      * @param varDefault
      * @return
@@ -977,8 +978,7 @@ public class HiveConnection implements java.sql.Connection {
     /**
      * Creates a Statement object for sending SQL statements to the database.
      *
-     * @throws SQLException
-     *           if a database access error occurs.
+     * @throws SQLException if a database access error occurs.
      * @see java.sql.Connection#createStatement()
      */
 
@@ -1374,7 +1374,7 @@ public class HiveConnection implements java.sql.Connection {
     @Override
     public void setAutoCommit(boolean autoCommit) throws SQLException {
         // Per JDBC spec, if the connection is closed a SQLException should be thrown.
-        if(isClosed) {
+        if (isClosed) {
             throw new SQLException("Connection is closed");
         }
         // The auto-commit mode is always enabled for this connection. Per JDBC spec,
@@ -1481,7 +1481,7 @@ public class HiveConnection implements java.sql.Connection {
         // Per JDBC spec, the request defines a hint to the driver to enable database optimizations.
         // The read-only mode for this connection is disabled and cannot be enabled (isReadOnly always returns false).
         // The most correct behavior is to throw only if the request tries to enable the read-only mode.
-        if(readOnly) {
+        if (readOnly) {
             throw new SQLException("Enabling read-only mode not supported");
         }
     }
@@ -1578,7 +1578,7 @@ public class HiveConnection implements java.sql.Connection {
             TCLIService.Iface client) {
         return (TCLIService.Iface) Proxy.newProxyInstance(
                 HiveConnection.class.getClassLoader(),
-                new Class [] { TCLIService.Iface.class },
+                new Class[]{TCLIService.Iface.class},
                 new SynchronizedHandler(client));
     }
 
@@ -1591,7 +1591,7 @@ public class HiveConnection implements java.sql.Connection {
         }
 
         @Override
-        public Object invoke(Object proxy, Method method, Object [] args)
+        public Object invoke(Object proxy, Method method, Object[] args)
                 throws Throwable {
             try {
                 lock.lock();
@@ -1599,7 +1599,7 @@ public class HiveConnection implements java.sql.Connection {
             } catch (InvocationTargetException e) {
                 // all IFace APIs throw TException
                 if (e.getTargetException() instanceof TException) {
-                    throw (TException)e.getTargetException();
+                    throw (TException) e.getTargetException();
                 } else {
                     // should not happen
                     throw new TException("Error in calling method " + method.getName(),

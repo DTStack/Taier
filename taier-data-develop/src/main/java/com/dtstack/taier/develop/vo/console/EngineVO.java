@@ -7,7 +7,7 @@ import io.swagger.annotations.ApiModel;
 import java.util.List;
 
 @ApiModel
-public class EngineVO  extends BaseEntity {
+public class EngineVO extends BaseEntity {
 
     private List<ComponentVO> components;
 

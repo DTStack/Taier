@@ -11,5 +11,6 @@ import com.dtstack.taier.develop.dto.devlop.TaskResourceParam;
 public interface NameMappingBuilder {
 
     JSONObject daReaderBuild(TaskResourceParam param) throws Exception;
+
     DataSourceType getDataSourceType();
 }

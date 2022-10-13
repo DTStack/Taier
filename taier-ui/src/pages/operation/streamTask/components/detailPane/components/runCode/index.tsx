@@ -1,24 +1,23 @@
-import { useMemo, useState } from 'react';
-import { Radio } from 'antd';
-import type { IStreamJobParamsProps } from '@/interface';
+import {useMemo, useState} from 'react';
+import {Radio} from 'antd';
+import type {IStreamJobParamsProps} from '@/interface';
 import Editor from '@/components/editor';
-import { prettierJSONstring } from '@/utils';
-import { TASK_TYPE_ENUM, CREATE_MODEL_TYPE } from '@/constant';
+import {prettierJSONstring} from '@/utils';
+import {CREATE_MODEL_TYPE, TASK_TYPE_ENUM} from '@/constant';
 
-export type IRunCodeDataProps = Pick<
-	IStreamJobParamsProps,
+export type IRunCodeDataProps = Pick<IStreamJobParamsProps,
 	| 'createModel'
 	| 'taskType'
 	| 'taskParams'
 	| 'id'
 	| 'originSourceType'
 	| 'targetSourceType'
-	| 'sqlText'
-> & {
+	| 'sqlText'> & {
 	sourceStr?: string;
 	targetStr?: string;
 	settingStr?: string;
 };
+
 interface IProps {
 	data?: IRunCodeDataProps;
 }
@@ -31,7 +30,7 @@ enum TAB_KEYS {
 	ENV = 'env',
 }
 
-export default function RunCode({ data }: IProps) {
+export default function RunCode({data}: IProps) {
 	const [tabKey, setTabKey] = useState<TAB_KEYS>(TAB_KEYS.ENV);
 
 	const renderContent = (key: TAB_KEYS) => {
@@ -40,9 +39,9 @@ export default function RunCode({ data }: IProps) {
 				return (
 					<Editor
 						sync
-						style={{ height: '100%' }}
+						style={{height: '100%'}}
 						language={data?.taskType === TASK_TYPE_ENUM.SQL ? 'hivesql' : 'json'}
-						options={{ readOnly: true, minimap: { enabled: false } }}
+						options={{readOnly: true, minimap: {enabled: false}}}
 						value={prettierJSONstring(data?.sqlText || '')}
 					/>
 				);
@@ -50,9 +49,9 @@ export default function RunCode({ data }: IProps) {
 				return (
 					<Editor
 						sync
-						style={{ height: '100%' }}
+						style={{height: '100%'}}
 						language="sql"
-						options={{ readOnly: true, minimap: { enabled: false } }}
+						options={{readOnly: true, minimap: {enabled: false}}}
 						value={data?.sourceStr}
 					/>
 				);
@@ -60,9 +59,9 @@ export default function RunCode({ data }: IProps) {
 				return (
 					<Editor
 						sync
-						style={{ height: '100%' }}
+						style={{height: '100%'}}
 						language="sql"
-						options={{ readOnly: true, minimap: { enabled: false } }}
+						options={{readOnly: true, minimap: {enabled: false}}}
 						value={data?.targetStr}
 					/>
 				);
@@ -70,9 +69,9 @@ export default function RunCode({ data }: IProps) {
 				return (
 					<Editor
 						sync
-						style={{ height: '100%' }}
+						style={{height: '100%'}}
 						language="sql"
-						options={{ readOnly: true, minimap: { enabled: false } }}
+						options={{readOnly: true, minimap: {enabled: false}}}
 						value={data?.settingStr}
 					/>
 				);
@@ -80,9 +79,9 @@ export default function RunCode({ data }: IProps) {
 				return (
 					<Editor
 						sync
-						style={{ height: '100%' }}
+						style={{height: '100%'}}
 						language="ini"
-						options={{ readOnly: true, minimap: { enabled: false } }}
+						options={{readOnly: true, minimap: {enabled: false}}}
 						value={data?.taskParams}
 					/>
 				);
@@ -97,7 +96,7 @@ export default function RunCode({ data }: IProps) {
 	return (
 		<div className="m-tabs h-full">
 			<Radio.Group
-				style={{ padding: '12px 20px' }}
+				style={{padding: '12px 20px'}}
 				value={tabKey}
 				onChange={(e) => setTabKey(e.target.value)}
 			>

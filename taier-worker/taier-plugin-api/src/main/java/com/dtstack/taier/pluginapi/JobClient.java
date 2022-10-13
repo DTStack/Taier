@@ -171,7 +171,6 @@ public class JobClient implements Serializable {
     }
 
 
-
     public String getPluginInfo() {
         return pluginInfo;
     }

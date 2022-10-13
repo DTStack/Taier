@@ -33,8 +33,8 @@ public class MigrationService {
     @Autowired
     private FailoverStrategy failoverStrategy;
 
-    public void migrate(Map<String,Object> params) throws Exception{
-        String node = (String)params.get("node");
+    public void migrate(Map<String, Object> params) throws Exception {
+        String node = (String) params.get("node");
         failoverStrategy.dataMigration(node);
     }
 }

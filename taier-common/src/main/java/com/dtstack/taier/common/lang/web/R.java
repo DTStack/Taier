@@ -102,6 +102,7 @@ public class R<T> {
 
     /**
      * 是否成功标志位,便于前端进行返回判断
+     *
      * @return
      */
     public boolean isSuccess() {
@@ -113,9 +114,9 @@ public class R<T> {
     }
 
 
-
     /**
      * 设置接口版本
+     *
      * @param version
      */
     public static void setVersion(String version) {

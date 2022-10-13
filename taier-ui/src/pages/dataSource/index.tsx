@@ -16,34 +16,34 @@
  * limitations under the License.
  */
 
-import { useMemo, useState } from 'react';
-import { Empty, message, Modal } from 'antd';
+import {useMemo, useState} from 'react';
+import {Empty, message, Modal} from 'antd';
 import molecule from '@dtinsight/molecule';
-import { ActionBar, Menu, useContextView } from '@dtinsight/molecule/esm/components';
-import { Content, Header } from '@dtinsight/molecule/esm/workbench/sidebar';
-import { connect } from '@dtinsight/molecule/esm/react';
-import { dataSourceService } from '@/services';
+import {ActionBar, Menu, useContextView} from '@dtinsight/molecule/esm/components';
+import {Content, Header} from '@dtinsight/molecule/esm/workbench/sidebar';
+import {connect} from '@dtinsight/molecule/esm/react';
+import {dataSourceService} from '@/services';
 import API from '@/api';
-import { ExclamationCircleOutlined } from '@ant-design/icons';
-import { getEventPosition } from '@dtinsight/molecule/esm/common/dom';
-import { ID_COLLECTIONS } from '@/constant';
-import { DetailInfoModal } from '@/components/detailInfo';
+import {ExclamationCircleOutlined} from '@ant-design/icons';
+import {getEventPosition} from '@dtinsight/molecule/esm/common/dom';
+import {ID_COLLECTIONS} from '@/constant';
+import {DetailInfoModal} from '@/components/detailInfo';
 import Search from './search';
 import Add from './add';
 import classNames from 'classnames';
-import { DataSourceLinkFailed, DataSourceLinkSuccess } from '@/components/icon';
-import type { IDataSourceProps } from '@/interface';
-import type { IDataSourceState } from '@/services/dataSourceService';
+import {DataSourceLinkFailed, DataSourceLinkSuccess} from '@/components/icon';
+import type {IDataSourceProps} from '@/interface';
+import type {IDataSourceState} from '@/services/dataSourceService';
 import './index.scss';
 
-const { confirm } = Modal;
+const {confirm} = Modal;
 
 interface IOther {
 	search: string;
 	dataTypeList: string[];
 }
 
-const DataSourceView = ({ dataSource }: IDataSourceState) => {
+const DataSourceView = ({dataSource}: IDataSourceState) => {
 	const [other, setOther] = useState<IOther>({
 		search: '',
 		dataTypeList: [],
@@ -56,7 +56,7 @@ const DataSourceView = ({ dataSource }: IDataSourceState) => {
 
 	// 搜索事件
 	const handleSearch = (value: Record<string, any>) => {
-		const data = { ...other, ...value };
+		const data = {...other, ...value};
 		setOther(data);
 	};
 
@@ -67,7 +67,7 @@ const DataSourceView = ({ dataSource }: IDataSourceState) => {
 
 	// 删除
 	const toDelete = async (record: IDataSourceProps) => {
-		const { success, message: msg } = await API.dataSourceDelete({
+		const {success, message: msg} = await API.dataSourceDelete({
 			dataInfoId: record.dataInfoId,
 		});
 
@@ -118,14 +118,15 @@ const DataSourceView = ({ dataSource }: IDataSourceState) => {
 			case 'delete':
 				confirm({
 					title: '是否删除此条记录？',
-					icon: <ExclamationCircleOutlined />,
+					icon: <ExclamationCircleOutlined/>,
 					okText: '删除',
 					okType: 'danger',
 					cancelText: '取消',
 					onOk() {
 						toDelete(record);
 					},
-					onCancel() {},
+					onCancel() {
+					},
 				});
 				break;
 			default:
@@ -225,7 +226,7 @@ const DataSourceView = ({ dataSource }: IDataSourceState) => {
 				}
 			/>
 			<Content>
-				<Search onSearch={handleSearch} />
+				<Search onSearch={handleSearch}/>
 				{filterDataSource.length ? (
 					<div tabIndex={0} className="datasource-content">
 						<ul className="datasource-list">
@@ -239,11 +240,11 @@ const DataSourceView = ({ dataSource }: IDataSourceState) => {
 								>
 									{item.status === 0 ? (
 										<DataSourceLinkFailed
-											style={{ color: '#ed5b56', fontSize: 0 }}
+											style={{color: '#ed5b56', fontSize: 0}}
 										/>
 									) : (
 										<DataSourceLinkSuccess
-											style={{ color: '#72c140', fontSize: 0 }}
+											style={{color: '#72c140', fontSize: 0}}
 										/>
 									)}
 									<div className="datasource-title">
@@ -260,7 +261,7 @@ const DataSourceView = ({ dataSource }: IDataSourceState) => {
 						</ul>
 					</div>
 				) : (
-					<Empty image={Empty.PRESENTED_IMAGE_SIMPLE} />
+					<Empty image={Empty.PRESENTED_IMAGE_SIMPLE}/>
 				)}
 				<DetailInfoModal
 					type="dataSource"

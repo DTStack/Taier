@@ -10,6 +10,7 @@ import java.util.Map;
 /**
  * Date: 2020/06/28
  * Company: www.dtstack.com
+ *
  * @author wangchuan
  */
 
@@ -18,7 +19,7 @@ public class Kafka2XReaderBuilder extends KafkaBaseReaderBuilder {
 
     @Override
     public Kafka2XReader createKafkaReader(Map<String, Object> sourceMap) {
-        return JSONObject.parseObject(JSONObject.toJSONString(sourceMap),Kafka2XReader.class);
+        return JSONObject.parseObject(JSONObject.toJSONString(sourceMap), Kafka2XReader.class);
     }
 
     @Override

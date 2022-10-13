@@ -22,6 +22,7 @@ package com.dtstack.taier.common.enums;
  * 任务依赖类型
  * Date: 2018/6/12
  * Company: www.dtstack.com
+ *
  * @author xuchao
  */
 public enum DependencyType {
@@ -38,7 +39,7 @@ public enum DependencyType {
 
     Integer type;
 
-    DependencyType(Integer type){
+    DependencyType(Integer type) {
         this.type = type;
     }
 

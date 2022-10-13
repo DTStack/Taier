@@ -16,14 +16,14 @@
  * limitations under the License.
  */
 
-import { useEffect, useState } from 'react';
-import { Button, Input, Form } from 'antd';
+import {useEffect, useState} from 'react';
+import {Button, Form, Input} from 'antd';
 import molecule from '@dtinsight/molecule/esm';
-import { Scrollable } from '@dtinsight/molecule/esm/components';
+import {Scrollable} from '@dtinsight/molecule/esm/components';
 import FolderPicker from '../../components/folderPicker';
-import { CATALOGUE_TYPE, formItemLayout, tailFormItemLayout } from '@/constant';
-import type { CatalogueDataProps } from '@/interface';
-import { connect } from '@dtinsight/molecule/esm/react';
+import {CATALOGUE_TYPE, formItemLayout, tailFormItemLayout} from '@/constant';
+import type {CatalogueDataProps} from '@/interface';
+import {connect} from '@dtinsight/molecule/esm/react';
 import './editFolder.scss';
 
 interface IEditFolderProps extends molecule.model.IEditor {
@@ -51,13 +51,13 @@ const FormItem = Form.Item;
 
 export default connect(
 	molecule.editor,
-	({ onSubmitFolder, current, record, tabId }: IEditFolderProps) => {
+	({onSubmitFolder, current, record, tabId}: IEditFolderProps) => {
 		const [form] = Form.useForm<IFormFieldProps>();
 		const [loading, setLoading] = useState(false);
 
 		const handleSubmit = (values: IFormFieldProps) => {
 			setLoading(true);
-			onSubmitFolder?.({ nodeName: values.dt_nodeName, nodePid: values.nodePid }).then(
+			onSubmitFolder?.({nodeName: values.dt_nodeName, nodePid: values.nodePid}).then(
 				(success) => {
 					setLoading(success);
 				},
@@ -107,7 +107,7 @@ export default connect(
 							},
 						]}
 					>
-						<Input autoComplete={'off'} />
+						<Input autoComplete={'off'}/>
 					</FormItem>
 					<FormItem
 						{...formItemLayout}
@@ -119,7 +119,7 @@ export default connect(
 							},
 						]}
 					>
-						<FolderPicker showFile={false} dataType={CATALOGUE_TYPE.TASK} />
+						<FolderPicker showFile={false} dataType={CATALOGUE_TYPE.TASK}/>
 					</FormItem>
 					<FormItem {...tailFormItemLayout}>
 						<Button type="primary" htmlType="submit" loading={loading}>

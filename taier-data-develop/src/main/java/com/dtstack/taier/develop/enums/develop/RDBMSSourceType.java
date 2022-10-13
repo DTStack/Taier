@@ -152,27 +152,27 @@ public enum RDBMSSourceType {
         this.dataSourceType = sourceType;
     }
 
-    public static RDBMSSourceType getByDataSourceType(DataSourceType sourceType){
-        for (RDBMSSourceType dataSourceType:values()){
-            if (dataSourceType.getDataSourceType().equals(sourceType)){
+    public static RDBMSSourceType getByDataSourceType(DataSourceType sourceType) {
+        for (RDBMSSourceType dataSourceType : values()) {
+            if (dataSourceType.getDataSourceType().equals(sourceType)) {
                 return dataSourceType;
             }
         }
         return null;
     }
 
-    public static RDBMSSourceType getByDataSourceType(Integer sourceType){
-        for (RDBMSSourceType dataSourceType:values()){
-            if (dataSourceType.getDataSourceType().getVal().equals(sourceType)){
+    public static RDBMSSourceType getByDataSourceType(Integer sourceType) {
+        for (RDBMSSourceType dataSourceType : values()) {
+            if (dataSourceType.getDataSourceType().getVal().equals(sourceType)) {
                 return dataSourceType;
             }
         }
         return null;
     }
 
-    public static Set<Integer> getRDBMS(){
+    public static Set<Integer> getRDBMS() {
         Set<Integer> set = Sets.newHashSet();
-        for (RDBMSSourceType sourceType:values()){
+        for (RDBMSSourceType sourceType : values()) {
             set.add(sourceType.getDataSourceType().getVal());
         }
         return set;

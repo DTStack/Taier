@@ -1,7 +1,7 @@
 package com.dtstack.taier.datasource.plugin.ftp;
 
-import com.dtstack.taier.datasource.plugin.common.enums.SftpAuthType;
 import com.dtstack.taier.datasource.api.exception.SourceException;
+import com.dtstack.taier.datasource.plugin.common.enums.SftpAuthType;
 import com.jcraft.jsch.ChannelSftp;
 import com.jcraft.jsch.JSch;
 import com.jcraft.jsch.JSchException;

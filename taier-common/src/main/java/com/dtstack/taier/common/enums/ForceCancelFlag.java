@@ -19,11 +19,10 @@
 package com.dtstack.taier.common.enums;
 
 /**
- *
+ * @author mowen
  * @ProjectName engine-all
  * @ClassName ForceCancelFlag.java
  * @Description 强制操作标识
- * @author mowen
  * @createTime 2020年09月20日 16:01:00
  */
 public enum ForceCancelFlag {
@@ -31,7 +30,7 @@ public enum ForceCancelFlag {
 
     private Integer flag;
 
-    ForceCancelFlag(Integer flag){
+    ForceCancelFlag(Integer flag) {
         this.flag = flag;
     }
 

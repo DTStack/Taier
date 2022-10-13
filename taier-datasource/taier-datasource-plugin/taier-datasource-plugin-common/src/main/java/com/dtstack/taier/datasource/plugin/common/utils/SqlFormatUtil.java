@@ -95,7 +95,7 @@ public class SqlFormatUtil {
      * @param delimiter
      * @return
      */
-    public static List<String> splitIgnoreQuota(String sqls, char delimiter){
+    public static List<String> splitIgnoreQuota(String sqls, char delimiter) {
         List<String> tokensList = new ArrayList<>();
         boolean inQuotes = false;
         boolean inSingleQuotes = false;
@@ -111,30 +111,30 @@ public class SqlFormatUtil {
                     isEscape = isEscape && '\\' != chars[idx - 2];
                 }
             }
-            if(c == delimiter){
+            if (c == delimiter) {
                 if (inQuotes) {
                     b.append(c);
-                } else if(inSingleQuotes){
+                } else if (inSingleQuotes) {
                     b.append(c);
-                }else {
-                    if (StringUtils.isNotBlank(b)){
+                } else {
+                    if (StringUtils.isNotBlank(b)) {
                         tokensList.add(b.toString());
                         b = new StringBuilder();
                     }
                 }
-            }else if(c == '\"' && !isEscape){
+            } else if (c == '\"' && !isEscape) {
                 inQuotes = !inQuotes;
                 b.append(c);
-            }else if(c == '\'' && !isEscape && !inQuotes){
+            } else if (c == '\'' && !isEscape && !inQuotes) {
                 inSingleQuotes = !inSingleQuotes;
                 b.append(c);
-            }else{
+            } else {
                 b.append(c);
             }
             idx++;
         }
 
-        if (StringUtils.isNotBlank(b)){
+        if (StringUtils.isNotBlank(b)) {
             tokensList.add(b.toString());
         }
 

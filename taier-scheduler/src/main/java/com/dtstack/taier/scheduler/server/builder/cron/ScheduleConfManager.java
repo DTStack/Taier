@@ -30,6 +30,7 @@ import java.text.ParseException;
  * Reason:
  * Date: 2017/5/29
  * Company: www.dtstack.com
+ *
  * @author xuchao
  */
 
@@ -43,19 +44,19 @@ public class ScheduleConfManager {
         // 获得对应的corn表达式
         int periodType = scheduleConfBean.getPeriodType();
         IScheduleConfParser scheduleCron;
-        if(periodType == ESchedulePeriodType.MONTH.getVal()){
+        if (periodType == ESchedulePeriodType.MONTH.getVal()) {
             scheduleCron = new ScheduleCronMonthParser();
-        }else if(periodType == ESchedulePeriodType.WEEK.getVal()){
+        } else if (periodType == ESchedulePeriodType.WEEK.getVal()) {
             scheduleCron = new ScheduleCronWeekParser();
-        }else if(periodType == ESchedulePeriodType.DAY.getVal()){
+        } else if (periodType == ESchedulePeriodType.DAY.getVal()) {
             scheduleCron = new ScheduleCronDayParser();
-        }else if(periodType == ESchedulePeriodType.HOUR.getVal()){
+        } else if (periodType == ESchedulePeriodType.HOUR.getVal()) {
             scheduleCron = new ScheduleCronHourParser();
-        }else if(periodType == ESchedulePeriodType.MIN.getVal()){
+        } else if (periodType == ESchedulePeriodType.MIN.getVal()) {
             scheduleCron = new ScheduleCronMinParser();
-        }else if (periodType == ESchedulePeriodType.CRON.getVal()){
+        } else if (periodType == ESchedulePeriodType.CRON.getVal()) {
             scheduleCron = new ScheduleCronCustomParser();
-        } else{
+        } else {
             throw new RdosDefineException("not support period type!");
         }
         String cron = scheduleCron.parse(scheduleConfBean);
@@ -70,12 +71,12 @@ public class ScheduleConfManager {
     /**
      * 校验必要的参数
      *
-     * @param scheduleConf 调度参数
+     * @param scheduleConf     调度参数
      * @param scheduleConfBean 序列号后的调度对象
      */
     private static void checkConf(String scheduleConf, ScheduleConf scheduleConfBean) {
         if (scheduleConfBean == null) {
-            throw new RdosDefineException("scheduleConf illegal:"+ scheduleConf +",Please check the json pass");
+            throw new RdosDefineException("scheduleConf illegal:" + scheduleConf + ",Please check the json pass");
         }
 
         if (scheduleConfBean.getPeriodType() == null) {

@@ -1,21 +1,15 @@
-import { useContext, useEffect, useMemo, useState } from 'react';
-import { FormContext } from '@/services/rightBarService';
-import { Checkbox, Form, Input, InputNumber, Select } from 'antd';
-import { Collapse } from 'antd';
+import {useContext, useEffect, useMemo, useState} from 'react';
+import type {IRightBarComponentProps} from '@/services/rightBarService';
+import {FormContext} from '@/services/rightBarService';
+import type {FormInstance} from 'antd';
+import {Checkbox, Collapse, Form, Input, InputNumber, Select} from 'antd';
 import molecule from '@dtinsight/molecule';
-import { DATA_SOURCE_ENUM, DIRTY_DATA_SAVE, formItemLayout } from '@/constant';
-import {
-	dirtyMaxRecord,
-	dirtyFailRecord,
-	dirtySaveType,
-	logPrintTimes,
-} from '@/components/helpDoc/docs';
+import {DATA_SOURCE_ENUM, DIRTY_DATA_SAVE, formItemLayout} from '@/constant';
+import {dirtyFailRecord, dirtyMaxRecord, dirtySaveType, logPrintTimes,} from '@/components/helpDoc/docs';
 import api from '@/api';
-import { getTenantId } from '@/utils';
-import type { IRightBarComponentProps } from '@/services/rightBarService';
-import type { FormInstance } from 'antd';
+import {getTenantId} from '@/utils';
 
-const { Panel } = Collapse;
+const {Panel} = Collapse;
 
 interface IFormFieldProps {
 	openDirtyDataManage: boolean;
@@ -29,14 +23,14 @@ interface IFormFieldProps {
 	logPrintInterval?: number;
 }
 
-export default function TaskConfig({ current }: IRightBarComponentProps) {
-	const { form } = useContext(FormContext) as { form?: FormInstance<IFormFieldProps> };
+export default function TaskConfig({current}: IRightBarComponentProps) {
+	const {form} = useContext(FormContext) as { form?: FormInstance<IFormFieldProps> };
 
 	const [dataSourceList, setDataSourceList] = useState<{ label: string; value: number }[]>([]);
 
 	const handleFormValuesChange = () => {
 		setTimeout(() => {
-			const { openDirtyDataManage, ...restValues } = form?.getFieldsValue() || {};
+			const {openDirtyDataManage, ...restValues} = form?.getFieldsValue() || {};
 
 			molecule.editor.updateTab({
 				...current!.tab!,
@@ -53,16 +47,14 @@ export default function TaskConfig({ current }: IRightBarComponentProps) {
 	};
 
 	useEffect(() => {
-		api.queryByTenantId<
-			{ dataInfoId: number; dataName: string; dataTypeCode: DATA_SOURCE_ENUM }[]
-		>({
+		api.queryByTenantId<{ dataInfoId: number; dataName: string; dataTypeCode: DATA_SOURCE_ENUM }[]>({
 			tenantId: getTenantId(),
 		}).then((res) => {
 			if (res.code === 1) {
 				const mysqlDataSource =
 					res.data?.filter((d) => d.dataTypeCode === DATA_SOURCE_ENUM.MYSQL) || [];
 				setDataSourceList(
-					mysqlDataSource.map((i) => ({ label: i.dataName, value: i.dataInfoId })),
+					mysqlDataSource.map((i) => ({label: i.dataName, value: i.dataInfoId})),
 				);
 			}
 		});
@@ -113,7 +105,7 @@ export default function TaskConfig({ current }: IRightBarComponentProps) {
 							<Checkbox> 开启 </Checkbox>
 						</Form.Item>
 						<Form.Item dependencies={['openDirtyDataManage']} noStyle>
-							{({ getFieldValue }) =>
+							{({getFieldValue}) =>
 								getFieldValue('openDirtyDataManage') && (
 									<>
 										<Form.Item
@@ -123,7 +115,7 @@ export default function TaskConfig({ current }: IRightBarComponentProps) {
 											initialValue={100000}
 										>
 											<InputNumber
-												style={{ width: '100%' }}
+												style={{width: '100%'}}
 												addonAfter="条"
 												max={1000000}
 												min={-1}
@@ -136,7 +128,7 @@ export default function TaskConfig({ current }: IRightBarComponentProps) {
 											initialValue={100000}
 										>
 											<InputNumber
-												style={{ width: '100%' }}
+												style={{width: '100%'}}
 												addonAfter="条"
 												max={1000000}
 												min={-1}
@@ -158,9 +150,9 @@ export default function TaskConfig({ current }: IRightBarComponentProps) {
 											</Select>
 										</Form.Item>
 										<Form.Item dependencies={['outputType']} noStyle>
-											{({ getFieldValue: getOutputType }) =>
+											{({getFieldValue: getOutputType}) =>
 												getOutputType('outputType') ===
-													DIRTY_DATA_SAVE.BY_MYSQL && (
+												DIRTY_DATA_SAVE.BY_MYSQL && (
 													<>
 														<Form.Item
 															label="脏数据写入库"
@@ -191,16 +183,16 @@ export default function TaskConfig({ current }: IRightBarComponentProps) {
 															name="tableName"
 															initialValue="flinkx_dirty_data"
 														>
-															<Input disabled />
+															<Input disabled/>
 														</Form.Item>
 													</>
 												)
 											}
 										</Form.Item>
 										<Form.Item dependencies={['outputType', 'maxRows']} noStyle>
-											{({ getFieldValue: innerGetFieldValue }) =>
+											{({getFieldValue: innerGetFieldValue}) =>
 												innerGetFieldValue('outputType') ===
-													DIRTY_DATA_SAVE.NO_SAVE && (
+												DIRTY_DATA_SAVE.NO_SAVE && (
 													<Form.Item
 														label="日志打印频率"
 														name="logPrintInterval"
@@ -208,15 +200,15 @@ export default function TaskConfig({ current }: IRightBarComponentProps) {
 														initialValue={1}
 													>
 														<InputNumber
-															style={{ width: '100%' }}
+															style={{width: '100%'}}
 															addonAfter="条/次"
 															max={
 																typeof innerGetFieldValue(
 																	'maxRows',
 																) === 'number'
 																	? innerGetFieldValue(
-																			'maxRows',
-																	  ) + 1
+																	'maxRows',
+																) + 1
 																	: 1000000
 															}
 															min={0}

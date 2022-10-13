@@ -55,11 +55,11 @@ public class DevelopTaskParamShadeService {
             throw new RdosDefineException("自定义参数赋值不能为空");
         }
         DevelopTaskParamShade dbTaskParam = developTaskParamShadeDao.selectOne(Wrappers.lambdaQuery(DevelopTaskParamShade.class)
-                                    .eq(DevelopTaskParamShade::getTaskId, developTaskParamShade.getTaskId())
-                                    .eq(DevelopTaskParamShade::getType, developTaskParamShade.getType())
-                                    .eq(DevelopTaskParamShade::getParamName, developTaskParamShade.getParamName())
-                                    .eq(DevelopTaskParamShade::getIsDeleted, Deleted.NORMAL.getStatus())
-                                    .last("limit 1"));
+                .eq(DevelopTaskParamShade::getTaskId, developTaskParamShade.getTaskId())
+                .eq(DevelopTaskParamShade::getType, developTaskParamShade.getType())
+                .eq(DevelopTaskParamShade::getParamName, developTaskParamShade.getParamName())
+                .eq(DevelopTaskParamShade::getIsDeleted, Deleted.NORMAL.getStatus())
+                .last("limit 1"));
         if (Objects.nonNull(dbTaskParam)) {
             dbTaskParam.setParamCommand(developTaskParamShade.getParamCommand());
             dbTaskParam.setGmtModified(new Timestamp(System.currentTimeMillis()));
@@ -73,8 +73,8 @@ public class DevelopTaskParamShadeService {
     public List<DevelopTaskParamShade> getTaskParam(long taskId) {
 
         List<DevelopTaskParamShade> taskParamShades = developTaskParamShadeDao.selectList(Wrappers.lambdaQuery(DevelopTaskParamShade.class)
-                                    .eq(DevelopTaskParamShade::getTaskId,taskId)
-                                    .eq(DevelopTaskParamShade::getIsDeleted,Deleted.NORMAL.getStatus()));
+                .eq(DevelopTaskParamShade::getTaskId, taskId)
+                .eq(DevelopTaskParamShade::getIsDeleted, Deleted.NORMAL.getStatus()));
 
         // 特殊处理 TaskParam 系统参数
         for (DevelopTaskParamShade taskParamShade : taskParamShades) {

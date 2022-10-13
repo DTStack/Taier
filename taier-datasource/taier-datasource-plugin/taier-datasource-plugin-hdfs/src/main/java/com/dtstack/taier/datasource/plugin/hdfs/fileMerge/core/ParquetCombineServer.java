@@ -1,10 +1,10 @@
 package com.dtstack.taier.datasource.plugin.hdfs.fileMerge.core;
 
+import com.dtstack.taier.datasource.api.enums.FileFormat;
+import com.dtstack.taier.datasource.api.exception.SourceException;
 import com.dtstack.taier.datasource.plugin.hdfs.fileMerge.ECompressType;
 import com.dtstack.taier.datasource.plugin.hdfs.fileMerge.meta.ParquetMetaData;
 import com.dtstack.taier.datasource.plugin.hdfs.util.FileSystemUtils;
-import com.dtstack.taier.datasource.api.enums.FileFormat;
-import com.dtstack.taier.datasource.api.exception.SourceException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.hadoop.fs.FileStatus;
@@ -53,7 +53,7 @@ public class ParquetCombineServer extends CombineServer {
         long currentCount = 0L;
         try {
             for (Path path : paths) {
-                log.info("start read {}",path);
+                log.info("start read {}", path);
                 GroupReadSupport readSupport = new GroupReadSupport();
                 ParquetReader.Builder<Group> builder = ParquetReader.builder(readSupport, path).withConf(configuration);
                 ParquetReader<Group> reader = builder.build();

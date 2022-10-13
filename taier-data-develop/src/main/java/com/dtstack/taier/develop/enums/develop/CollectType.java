@@ -38,7 +38,7 @@ public enum CollectType {
 
     private Integer collectType;
 
-    CollectType(Integer collectType){
+    CollectType(Integer collectType) {
         this.collectType = collectType;
     }
 

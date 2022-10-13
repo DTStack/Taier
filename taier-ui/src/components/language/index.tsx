@@ -17,13 +17,13 @@
  */
 
 import molecule from '@dtinsight/molecule';
-import { isTaskTab } from '@/utils/is';
-import { connect } from '@dtinsight/molecule/esm/react';
-import { useContext } from 'react';
+import {isTaskTab} from '@/utils/is';
+import {connect} from '@dtinsight/molecule/esm/react';
+import {useContext} from 'react';
 import context from '@/context';
 
-const Language = connect(molecule.editor, ({ current }: molecule.model.IEditor) => {
-	const { supportJobTypes } = useContext(context);
+const Language = connect(molecule.editor, ({current}: molecule.model.IEditor) => {
+	const {supportJobTypes} = useContext(context);
 
 	if (!current) return null;
 

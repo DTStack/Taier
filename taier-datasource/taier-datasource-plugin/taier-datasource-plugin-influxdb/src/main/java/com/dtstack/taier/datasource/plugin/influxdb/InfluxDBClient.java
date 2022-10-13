@@ -1,11 +1,11 @@
 package com.dtstack.taier.datasource.plugin.influxdb;
 
-import com.dtstack.taier.datasource.plugin.common.nosql.AbsNoSqlClient;
-import com.dtstack.taier.datasource.plugin.common.utils.SearchUtil;
 import com.dtstack.taier.datasource.api.dto.ColumnMetaDTO;
 import com.dtstack.taier.datasource.api.dto.SqlQueryDTO;
 import com.dtstack.taier.datasource.api.dto.source.ISourceDTO;
 import com.dtstack.taier.datasource.api.exception.SourceException;
+import com.dtstack.taier.datasource.plugin.common.nosql.AbsNoSqlClient;
+import com.dtstack.taier.datasource.plugin.common.utils.SearchUtil;
 import com.google.common.collect.Lists;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;

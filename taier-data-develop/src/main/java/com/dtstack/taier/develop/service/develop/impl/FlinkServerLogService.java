@@ -48,6 +48,7 @@ public class FlinkServerLogService {
 
     /**
      * 针对引擎获取的基本日志可能是String或者json
+     *
      * @param logInfo
      * @return
      */
@@ -128,7 +129,7 @@ public class FlinkServerLogService {
 
     public String getFailoverLogsByTaskId(ServerLogsVO logsVO) {
         Task task = developTaskMapper.selectById(logsVO.getTaskId());
-        ScheduleJobExpand  scheduleJobExpand = scheduleJobExpandService.getByJobId(task.getJobId());
+        ScheduleJobExpand scheduleJobExpand = scheduleJobExpandService.getByJobId(task.getJobId());
         return scheduleJobExpand.getEngineLog();
     }
 

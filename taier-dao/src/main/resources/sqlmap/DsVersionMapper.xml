@@ -3,13 +3,14 @@
 <mapper namespace="com.dtstack.taier.dao.mapper.DsVersionMapper">
 
     <sql id="select_content_fragment">
-        data_type,data_version,sorted,is_deleted
+        data_type
+        ,data_version,sorted,is_deleted
     </sql>
 
 
     <select id="listDsVersion" resultType="com.dtstack.taier.dao.domain.DsVersion">
         select
-        <include refid="select_content_fragment" />
+        <include refid="select_content_fragment"/>
         from datasource_version
         where is_deleted = 0
     </select>
@@ -17,13 +18,11 @@
 
     <select id="queryDsVersionByType" resultType="com.dtstack.taier.dao.domain.DsVersion">
         select
-        <include refid="select_content_fragment" />
+        <include refid="select_content_fragment"/>
         from datasource_version
         where is_deleted = 0 and data_type = #{dataType}
         order by sorted desc;
     </select>
-
-
 
 
 </mapper>

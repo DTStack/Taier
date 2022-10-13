@@ -3,10 +3,14 @@
 <mapper namespace="com.dtstack.taier.dao.mapper.ComponentConfigMapper">
 
     <sql id="select_content_fragment">
-        id,cluster_id,component_id,component_type_code,type,required,`key`,`value`,`values`,dependencyKey,dependencyValue,`desc`,gmt_create,gmt_modified,is_deleted
+        id
+        ,cluster_id,component_id,component_type_code,type,required,`key`,`value`,`values`,dependencyKey,dependencyValue,`desc`,gmt_create,gmt_modified,is_deleted
     </sql>
     <sql id="select_content_fragment_with_dict">
-        ccc.id,ccc.cluster_id,ccc.component_id,ccc.component_type_code,ccc.type,ccc.required,ccc.`key`,ccc.`value`,ccc.`values`,ccc.dependencyKey,ccc.dependencyValue,ccc.`desc`,ccc.gmt_create,ccc.gmt_modified,ccc.is_deleted,dict.dict_value as keyDescribe
+        ccc
+        .
+        id
+        ,ccc.cluster_id,ccc.component_id,ccc.component_type_code,ccc.type,ccc.required,ccc.`key`,ccc.`value`,ccc.`values`,ccc.dependencyKey,ccc.dependencyValue,ccc.`desc`,ccc.gmt_create,ccc.gmt_modified,ccc.is_deleted,dict.dict_value as keyDescribe
     </sql>
     <sql id="query_tip_left_join_dict">
         left join dict on ccc.`key` = dict.dict_name and (ccc.component_type_code = dict.dict_desc) and dict.type = 25
@@ -47,7 +51,7 @@
         select
         <include refid="select_content_fragment_with_dict"/>
         from console_component_config ccc
-          <include refid="query_tip_left_join_dict"/>
+        <include refid="query_tip_left_join_dict"/>
         where ccc.component_id = #{componentId} and ccc.is_deleted = 0
         <if test="true == isFilter">
             and ccc.`type` != 'OTHER'
@@ -58,7 +62,7 @@
         select
         <include refid="select_content_fragment_with_dict"/>
         from console_component_config ccc
-         <include refid="query_tip_left_join_dict"/>
+        <include refid="query_tip_left_join_dict"/>
         where ccc.cluster_id = #{clusterId} and ccc.is_deleted = 0
         <if test="true == isFilter">
             and ccc.`type` != 'OTHER'
@@ -82,6 +86,7 @@
 
     <update id="updateValueById">
         update console_component_config
-        <include refid="update_fragment"/> where id = #{id}
+        <include refid="update_fragment"/>
+        where id = #{id}
     </update>
 </mapper>

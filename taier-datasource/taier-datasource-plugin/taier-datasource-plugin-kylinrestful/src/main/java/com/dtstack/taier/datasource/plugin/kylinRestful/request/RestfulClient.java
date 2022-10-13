@@ -2,15 +2,15 @@ package com.dtstack.taier.datasource.plugin.kylinRestful.request;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import com.dtstack.taier.datasource.plugin.kylinRestful.http.HttpAPI;
-import com.dtstack.taier.datasource.plugin.kylinRestful.http.HttpClient;
-import com.dtstack.taier.datasource.plugin.kylinRestful.http.HttpClientFactory;
 import com.dtstack.taier.datasource.api.dto.ColumnMetaDTO;
 import com.dtstack.taier.datasource.api.dto.JobParam;
 import com.dtstack.taier.datasource.api.dto.SqlQueryDTO;
 import com.dtstack.taier.datasource.api.dto.source.KylinRestfulSourceDTO;
 import com.dtstack.taier.datasource.api.enums.JobStatus;
 import com.dtstack.taier.datasource.api.exception.SourceException;
+import com.dtstack.taier.datasource.plugin.kylinRestful.http.HttpAPI;
+import com.dtstack.taier.datasource.plugin.kylinRestful.http.HttpClient;
+import com.dtstack.taier.datasource.plugin.kylinRestful.http.HttpClientFactory;
 import com.google.common.collect.Maps;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;

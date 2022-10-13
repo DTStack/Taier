@@ -30,7 +30,6 @@ import com.dtstack.taier.common.metric.batch.IMetric;
 import com.dtstack.taier.common.metric.batch.MetricBuilder;
 import com.dtstack.taier.common.metric.prometheus.PrometheusMetricQuery;
 import com.dtstack.taier.common.util.TaskParamsUtils;
-import com.dtstack.taier.dao.domain.Cluster;
 import com.dtstack.taier.dao.domain.Component;
 import com.dtstack.taier.dao.domain.ScheduleJob;
 import com.dtstack.taier.dao.domain.ScheduleTaskShade;
@@ -72,7 +71,6 @@ import java.net.URLEncoder;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -149,7 +147,7 @@ public class SyncOperatorPipeline extends IPipeline.AbstractPipeline {
         JSONObject savepointArgs = null;
         String taskExeArgs = null;
         if (isRestore(job)) {
-            String savepointPath = this.getSavepointPath(taskShade.getTenantId(),deployMode,taskShade.getComponentVersion());
+            String savepointPath = this.getSavepointPath(taskShade.getTenantId(), deployMode, taskShade.getComponentVersion());
             savepointArgs = this.buildSyncTaskExecArgs(savepointPath, taskParams);
             confProp.putAll(savepointArgs);
 
@@ -255,8 +253,8 @@ public class SyncOperatorPipeline extends IPipeline.AbstractPipeline {
                 if (DataSourceType.hadoopDirtyDataSource.contains(sourceType)) {
                     JSONObject pluginInfo = clusterService.getConfigByKey(tenantId, EComponentType.SPARK_THRIFT.getConfName(), null);
                     IClient client = ClientCache.getClient(sourceType);
-                    pluginInfo.put(DatasourceOperator.DATA_SOURCE_TYPE,sourceType);
-                    pluginInfo.put("schema",db);
+                    pluginInfo.put(DatasourceOperator.DATA_SOURCE_TYPE, sourceType);
+                    pluginInfo.put("schema", db);
                     pluginInfo.compute(ConfigConstant.JDBCURL, (jdbcUrl, val) -> {
                         String jdbcUrlVal = (String) val;
                         if (StringUtils.isBlank(jdbcUrlVal)) {
@@ -284,7 +282,7 @@ public class SyncOperatorPipeline extends IPipeline.AbstractPipeline {
         return sqlObject.toJSONString();
     }
 
-    public String getTableLocation(IClient client, ISourceDTO sourceDTO, String dbName,String sql) {
+    public String getTableLocation(IClient client, ISourceDTO sourceDTO, String dbName, String sql) {
         String location = null;
         List<Map<String, Object>> result = client.executeQuery(sourceDTO, SqlQueryDTO.builder().sql(sql).schema(dbName).build());
 
@@ -526,7 +524,7 @@ public class SyncOperatorPipeline extends IPipeline.AbstractPipeline {
      * @param tenantId 租户id
      * @return checkpoint存储路径
      */
-    private String getSavepointPath(Long tenantId, EDeployMode deployMode,String componentVersion) {
+    private String getSavepointPath(Long tenantId, EDeployMode deployMode, String componentVersion) {
         List<Component> components = componentService.listComponentsByComponentType(tenantId, EComponentType.FLINK.getTypeCode());
         if (CollectionUtils.isEmpty(components)) {
             return null;
@@ -547,7 +545,6 @@ public class SyncOperatorPipeline extends IPipeline.AbstractPipeline {
     }
 
 
-
     private JSONObject buildSyncTaskExecArgs(String savepointPath, String taskParams) throws Exception {
         Properties properties = new Properties();
         properties.load(new ByteArrayInputStream(taskParams.getBytes(Charsets.UTF_8.name())));
@@ -560,7 +557,7 @@ public class SyncOperatorPipeline extends IPipeline.AbstractPipeline {
     }
 
 
-    public String getHiveTypeName(DataSourceType sourceType){
+    public String getHiveTypeName(DataSourceType sourceType) {
         switch (sourceType) {
             case HIVE1X:
                 return "hive";

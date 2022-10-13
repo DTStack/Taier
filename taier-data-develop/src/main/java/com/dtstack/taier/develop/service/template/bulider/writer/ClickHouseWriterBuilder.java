@@ -80,7 +80,7 @@ public class ClickHouseWriterBuilder implements DaWriterBuilder {
         writer.setSourceIds(Lists.newArrayList(sourceId));
 
 
-        List<ColumnMetaDTO> allColumns  = getAllColumns(writerParam, dsInfo);
+        List<ColumnMetaDTO> allColumns = getAllColumns(writerParam, dsInfo);
 
         List<String> fullColumnNames = new ArrayList<>();
         List<String> fullColumnTypes = new ArrayList<>();
@@ -126,7 +126,8 @@ public class ClickHouseWriterBuilder implements DaWriterBuilder {
     }
 
     @Override
-    public void setWriterJson(TaskResourceParam param) {}
+    public void setWriterJson(TaskResourceParam param) {
+    }
 
     @NotNull
     private static ConnectionDTO getConnection(Map<String, Object> sourceMap, Long sourceId, DsInfo dsInfo, JSONObject dataJson) {

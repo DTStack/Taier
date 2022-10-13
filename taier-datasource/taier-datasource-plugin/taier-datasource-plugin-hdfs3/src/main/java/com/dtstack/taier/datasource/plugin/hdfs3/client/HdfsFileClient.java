@@ -1,5 +1,18 @@
 package com.dtstack.taier.datasource.plugin.hdfs3.client;
 
+import com.dtstack.taier.datasource.api.client.IHdfsFile;
+import com.dtstack.taier.datasource.api.downloader.IDownloader;
+import com.dtstack.taier.datasource.api.dto.ColumnMetaDTO;
+import com.dtstack.taier.datasource.api.dto.FileStatus;
+import com.dtstack.taier.datasource.api.dto.HDFSContentSummary;
+import com.dtstack.taier.datasource.api.dto.HdfsQueryDTO;
+import com.dtstack.taier.datasource.api.dto.HdfsWriterDTO;
+import com.dtstack.taier.datasource.api.dto.SqlQueryDTO;
+import com.dtstack.taier.datasource.api.dto.source.Hdfs3SourceDTO;
+import com.dtstack.taier.datasource.api.dto.source.HdfsSourceDTO;
+import com.dtstack.taier.datasource.api.dto.source.ISourceDTO;
+import com.dtstack.taier.datasource.api.enums.FileFormat;
+import com.dtstack.taier.datasource.api.exception.SourceException;
 import com.dtstack.taier.datasource.plugin.common.downloader.IYarnDownloader;
 import com.dtstack.taier.datasource.plugin.common.utils.ReflectUtil;
 import com.dtstack.taier.datasource.plugin.hdfs3.YarnConfUtil;
@@ -9,6 +22,8 @@ import com.dtstack.taier.datasource.plugin.hdfs3.downloader.HdfsORCDownload;
 import com.dtstack.taier.datasource.plugin.hdfs3.downloader.HdfsParquetDownload;
 import com.dtstack.taier.datasource.plugin.hdfs3.downloader.HdfsTextDownload;
 import com.dtstack.taier.datasource.plugin.hdfs3.downloader.YarnLogDownload.YarnTFileDownload;
+import com.dtstack.taier.datasource.plugin.hdfs3.fileMerge.core.CombineMergeBuilder;
+import com.dtstack.taier.datasource.plugin.hdfs3.fileMerge.core.CombineServer;
 import com.dtstack.taier.datasource.plugin.hdfs3.hdfswriter.HdfsOrcWriter;
 import com.dtstack.taier.datasource.plugin.hdfs3.hdfswriter.HdfsParquetWriter;
 import com.dtstack.taier.datasource.plugin.hdfs3.hdfswriter.HdfsTextWriter;
@@ -17,21 +32,6 @@ import com.dtstack.taier.datasource.plugin.hdfs3.util.StringUtil;
 import com.dtstack.taier.datasource.plugin.kerberos.core.hdfs.HadoopConfUtil;
 import com.dtstack.taier.datasource.plugin.kerberos.core.hdfs.HdfsOperator;
 import com.dtstack.taier.datasource.plugin.kerberos.core.util.KerberosLoginUtil;
-import com.dtstack.taier.datasource.plugin.hdfs3.fileMerge.core.CombineMergeBuilder;
-import com.dtstack.taier.datasource.plugin.hdfs3.fileMerge.core.CombineServer;
-import com.dtstack.taier.datasource.api.dto.HdfsQueryDTO;
-import com.dtstack.taier.datasource.api.dto.source.HdfsSourceDTO;
-import com.dtstack.taier.datasource.api.downloader.IDownloader;
-import com.dtstack.taier.datasource.api.client.IHdfsFile;
-import com.dtstack.taier.datasource.api.dto.ColumnMetaDTO;
-import com.dtstack.taier.datasource.api.dto.FileStatus;
-import com.dtstack.taier.datasource.api.dto.HDFSContentSummary;
-import com.dtstack.taier.datasource.api.dto.HdfsWriterDTO;
-import com.dtstack.taier.datasource.api.dto.SqlQueryDTO;
-import com.dtstack.taier.datasource.api.dto.source.Hdfs3SourceDTO;
-import com.dtstack.taier.datasource.api.dto.source.ISourceDTO;
-import com.dtstack.taier.datasource.api.enums.FileFormat;
-import com.dtstack.taier.datasource.api.exception.SourceException;
 import com.google.common.collect.Lists;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
@@ -130,6 +130,7 @@ public class HdfsFileClient implements IHdfsFile {
 
     /**
      * 创建yarn 聚合日志下载器，区分ifile、tfile格式
+     *
      * @param hdfsSourceDTO 数据源信息
      * @return yarn日志下载器
      * @throws Exception 异常信息
@@ -556,7 +557,7 @@ public class HdfsFileClient implements IHdfsFile {
     }
 
     @Override
-    public List<HDFSContentSummary> getContentSummary(ISourceDTO source, List<String> hdfsDirPaths){
+    public List<HDFSContentSummary> getContentSummary(ISourceDTO source, List<String> hdfsDirPaths) {
         if (CollectionUtils.isEmpty(hdfsDirPaths)) {
             throw new SourceException("hdfs path cannot be empty！");
         }

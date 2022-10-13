@@ -17,7 +17,7 @@
  */
 
 import React from 'react';
-import { HELP_DOC_URL } from '@/constant';
+import {HELP_DOC_URL} from '@/constant';
 
 export const dirtyMaxRecord = <span>脏数据达到最大值时，任务自动失败</span>;
 
@@ -51,7 +51,7 @@ export const es7Index = <p>index: 索引</p>;
 export const incrementColumnHelp = (
 	<div>
 		每次同步时，自动记录增量标识的最大值，下次运行时，会从上一次的最大值继续同步数据，实现增量同步
-		<br />
+		<br/>
 		支持将数值类型、Timestamp类型作为增量标识字段
 	</div>
 );
@@ -59,7 +59,7 @@ export const incrementColumnHelp = (
 export const syncModeHelp = (
 	<div>
 		无增量标识：可通过简单的过滤语句实现增量同步；
-		<br />
+		<br/>
 		有增量标识：系统记录每次同步的点位，执行时可从上次点位继续同步
 	</div>
 );
@@ -67,9 +67,9 @@ export const syncModeHelp = (
 export const syncTaskHelp = (
 	<div>
 		向导模式：便捷、简单，可视化字段映射，快速完成同步任务配置
-		<br />
+		<br/>
 		脚本模式：全能 高效，可深度调优，支持全部数据源
-		<br />
+		<br/>
 	</div>
 );
 
@@ -93,7 +93,7 @@ export const dataFilterDoc = (
 		where 条件即针对源头数据筛选条件，根据指定的 column、table、where 条件拼接 SQL
 		进行数据抽取，暂时不支持limit关键字过滤。利用 where
 		条件可进行全量同步和增量同步，具体说明如下：
-		<br />
+		<br/>
 		<ul>
 			<li>1）全量同步：第一次做数据导入时通常为全量导入，可不用设置 where 条件。</li>
 			<li>
@@ -111,7 +111,7 @@ export const selectKey = <div>MySQL、SQLServer、PostgreSQL、Oracle：支持�
 export const hdfsPath = (
 	<div>
 		user/hive/warehouse/projectName.db/
-		<br />
+		<br/>
 		tableName 是RD-OS默认的HDFS文件组织方式，projectName为项目名，
 		其中每个tableName是HDFS内的一个目录，储存着一张表的数据。
 		如果此表的数据存储在当前项目空间内，只需修改tableName即可， 否则需要根据HDFS的存储位置填写。
@@ -161,15 +161,15 @@ export const errorPercentConfig = (
 const baseSystemParams = (
 	<p>
 		<span>${`{bdp.system.bizdate}`} --业务日期，格式：yyyyMMdd</span>
-		<br />
+		<br/>
 		<span>${`{bdp.system.bizdate2}`} --业务日期，格式：yyyy-MM-dd</span>
-		<br />
+		<br/>
 		<span>${`{bdp.system.cyctime}`} --计划时间，格式：yyyyMMddHHmmss</span>
-		<br />
+		<br/>
 		<span>${`{bdp.system.premonth}`} --上个月（以计划时间为基准），格式：yyyyMM</span>
-		<br />
+		<br/>
 		<span>${`{bdp.system.currmonth}`} --当前月（以计划时间为基准），格式：yyyyMM</span>
-		<br />
+		<br/>
 		<span>
 			${`{bdp.system.runtime}`} --当前时间，即任务实际运行的时间，格式：yyyyMMddHHmmss
 		</span>
@@ -216,7 +216,7 @@ export const taskDependentTypeDesc = (
 export const incrementModeScheduleTypeHelp = (
 	<div>
 		每次同步时，自动记录增量标识的最大值，下次运行时，会从上一次的最大值继续同步数据，实现增量同步
-		<br />
+		<br/>
 		支持将数值类型、Timestamp类型作为增量标识字段
 	</div>
 );
@@ -242,7 +242,7 @@ export const breakpointContinualTransferHelp = (
 export const theLastExample = (
 	<div>
 		始终保留：无论是否延迟都可正常执行。
-		<br />
+		<br/>
 		延迟至第二天后自动取消：当天最后一个实例延迟至第二天还未执行完成则自动取消。
 	</div>
 );
@@ -330,7 +330,7 @@ export const sqlserverTip = (
 	<div>
 		<p>
 			当前支持SQL Server 2014、2016、
-			<br />
+			<br/>
 			2017、2019版本
 		</p>
 	</div>
@@ -404,7 +404,7 @@ export const parseRules = (
 	</div>
 );
 export const restfulParam = (
-	<div style={{ wordBreak: 'break-all' }}>
+	<div style={{wordBreak: 'break-all'}}>
 		<p>Key：支持用户手动输入Body中的参数名；</p>
 		<p>Value：Body参数请求的具体参数值；</p>
 		<p>

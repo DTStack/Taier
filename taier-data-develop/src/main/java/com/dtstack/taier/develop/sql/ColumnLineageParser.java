@@ -43,7 +43,7 @@ public class ColumnLineageParser {
 
     private static final String SPLIT_DOT = ".";
 
-    protected Map<String,List<Column>> tableColumnMap;
+    protected Map<String, List<Column>> tableColumnMap;
 
     public void setTableColumnMap(Map<String, List<Column>> tableColumnMap) {
         this.tableColumnMap = tableColumnMap;
@@ -54,7 +54,7 @@ public class ColumnLineageParser {
      *
      * @return
      */
-    public List<ColumnLineage> parseLineage(QueryTableTree rootTree){
+    public List<ColumnLineage> parseLineage(QueryTableTree rootTree) {
         List<ColumnLineage> columnLineages = null;
         try {
             // fill parent
@@ -92,19 +92,19 @@ public class ColumnLineageParser {
      * 将tableName和字段为空的查询上移
      * 需要注意 ConcurrentModificationException
      */
-    private void moveUpNullNode(QueryTableTree rootTree){
+    private void moveUpNullNode(QueryTableTree rootTree) {
         if (CollectionUtils.isEmpty(rootTree.getChildren())) {
             return;
         }
 
         List<QueryTableTree> newChildren = new ArrayList<>();
         Iterator<QueryTableTree> parentChildIterator = rootTree.getChildren().iterator();
-        while (parentChildIterator.hasNext()){
+        while (parentChildIterator.hasNext()) {
             QueryTableTree parentChild = parentChildIterator.next();
             if (parentChild.getName() == null && CollectionUtils.isEmpty(parentChild.getColumns())) {
-                if(CollectionUtils.isNotEmpty(parentChild.getChildren())){
+                if (CollectionUtils.isNotEmpty(parentChild.getChildren())) {
                     Iterator<QueryTableTree> iterator = parentChild.getChildren().iterator();
-                    while (iterator.hasNext()){
+                    while (iterator.hasNext()) {
                         this.moveUpNullNode(iterator.next());
                     }
                 }
@@ -122,23 +122,23 @@ public class ColumnLineageParser {
         }
     }
 
-    private void trimCols(List<ColumnLineage> columnLineages){
+    private void trimCols(List<ColumnLineage> columnLineages) {
         for (ColumnLineage columnLineage : columnLineages) {
-            if(columnLineage.getToColumn().contains(SPLIT_DOT)){
+            if (columnLineage.getToColumn().contains(SPLIT_DOT)) {
                 String toCol = columnLineage.getToColumn();
-                toCol = toCol.substring(toCol.lastIndexOf(SPLIT_DOT)+1);
+                toCol = toCol.substring(toCol.lastIndexOf(SPLIT_DOT) + 1);
                 columnLineage.setToColumn(toCol);
             }
 
-            if(columnLineage.getFromColumn().contains(SPLIT_DOT)){
+            if (columnLineage.getFromColumn().contains(SPLIT_DOT)) {
                 String fromCol = columnLineage.getFromColumn();
-                fromCol = fromCol.substring(fromCol.lastIndexOf(SPLIT_DOT)+1);
+                fromCol = fromCol.substring(fromCol.lastIndexOf(SPLIT_DOT) + 1);
                 columnLineage.setFromColumn(fromCol);
             }
         }
     }
 
-    private List<ColumnLineage> getColumnLineage(QueryTableTree leafNode){
+    private List<ColumnLineage> getColumnLineage(QueryTableTree leafNode) {
         if (null == leafNode) {
             return new ArrayList<>();
         }
@@ -149,9 +149,9 @@ public class ColumnLineageParser {
                 ColumnNode columnNode = new ColumnNode();
                 String name = leafNode.getName();
                 String alias = leafNode.getAlias();
-                if(StringUtils.isBlank(name) && CollectionUtils.isNotEmpty(leafNode.getChildren())){
+                if (StringUtils.isBlank(name) && CollectionUtils.isNotEmpty(leafNode.getChildren())) {
                     for (QueryTableTree child : leafNode.getChildren()) {
-                        if(StringUtils.isNotBlank(child.getAlias()) && column.getName().contains(child.getAlias())){
+                        if (StringUtils.isNotBlank(child.getAlias()) && column.getName().contains(child.getAlias())) {
                             name = child.getName();
                             alias = child.getAlias();
                         }
@@ -162,11 +162,11 @@ public class ColumnLineageParser {
                 columnNode.setColumn(KeywordsHelper.removeKeywordsSuffix(column.getName()));
                 columnNode.setColumnAlias(column.getAlias());
 
-                columnNode = findColumnParent(columnNode, leafNode.getParent(),ind);
+                columnNode = findColumnParent(columnNode, leafNode.getParent(), ind);
                 if (columnNode != null) {
                     columnNodes.add(columnNode);
                 }
-                ind ++;
+                ind++;
             }
         }
 
@@ -179,8 +179,8 @@ public class ColumnLineageParser {
         return lineages;
     }
 
-    private ColumnLineage getColumnLineage(ColumnNode columnNode){
-        if(null == columnNode){
+    private ColumnLineage getColumnLineage(ColumnNode columnNode) {
+        if (null == columnNode) {
             return new ColumnLineage();
         }
         ColumnLineage lineage = new ColumnLineage();
@@ -189,17 +189,17 @@ public class ColumnLineageParser {
         String tableName = columnNode.getTableName();
         String tableAlias = columnNode.getTableAlias();
         String columnName = columnNode.getColumn();
-        if (StringUtils.isNotEmpty(tableAlias)){
-            if (columnName.startsWith(tableAlias+SPLIT_DOT)){
-                columnName = columnName.substring(tableAlias.length()+1,columnName.length());
+        if (StringUtils.isNotEmpty(tableAlias)) {
+            if (columnName.startsWith(tableAlias + SPLIT_DOT)) {
+                columnName = columnName.substring(tableAlias.length() + 1, columnName.length());
             }
         }
         lineage.setFromColumn(columnName);
 
         ColumnNode currentNode = columnNode;
-        while (true){
+        while (true) {
             ColumnNode parentColumn = currentNode.getParent();
-            if(parentColumn == null){
+            if (parentColumn == null) {
                 break;
             }
             currentNode = parentColumn;
@@ -211,17 +211,17 @@ public class ColumnLineageParser {
         return lineage;
     }
 
-    private ColumnNode findColumnParent(ColumnNode columnNode, QueryTableTree leafNode, int ind){
-        if(null == columnNode){
+    private ColumnNode findColumnParent(ColumnNode columnNode, QueryTableTree leafNode, int ind) {
+        if (null == columnNode) {
             return null;
         }
-        if(null == leafNode){
+        if (null == leafNode) {
             return null;
         }
-        if(isSelectAllColumn(leafNode,columnNode.getTableAlias())){
+        if (isSelectAllColumn(leafNode, columnNode.getTableAlias())) {
             ColumnNode parentColumn = new ColumnNode();
             String name = leafNode.getName();
-            if(StringUtils.isEmpty(name)){
+            if (StringUtils.isEmpty(name)) {
                 name = this.getParentName(leafNode);
             }
             getDbAndTable(parentColumn, name);
@@ -233,7 +233,7 @@ public class ColumnLineageParser {
         } else {
             ColumnNode parentColumn = null;
             for (SelectColumn column : leafNode.getColumns()) {
-                if(isNameEquals(columnNode.getColumnAlias(), KeywordsHelper.removeKeywordsSuffix(column.getName()))){
+                if (isNameEquals(columnNode.getColumnAlias(), KeywordsHelper.removeKeywordsSuffix(column.getName()))) {
                     parentColumn = new ColumnNode();
                     getDbAndTable(parentColumn, leafNode.getName());
                     parentColumn.setTableAlias(leafNode.getAlias());
@@ -245,13 +245,13 @@ public class ColumnLineageParser {
                 }
             }
 
-            if(parentColumn == null){
+            if (parentColumn == null) {
                 logger.info("通过index查找血缘");
                 //通过ind查找
-                if (CollectionUtils.isEmpty(leafNode.getColumns())){
-                    return  null;
+                if (CollectionUtils.isEmpty(leafNode.getColumns())) {
+                    return null;
                 }
-                if (ind >= leafNode.getColumns().size()){
+                if (ind >= leafNode.getColumns().size()) {
                     return null;
                 }
                 SelectColumn selectColumn = leafNode.getColumns().get(ind);
@@ -266,29 +266,29 @@ public class ColumnLineageParser {
             }
         }
 
-        if (leafNode.getParent() != null){
-            findColumnParent(columnNode.getParent(), leafNode.getParent(),ind);
+        if (leafNode.getParent() != null) {
+            findColumnParent(columnNode.getParent(), leafNode.getParent(), ind);
         }
 
         return columnNode;
     }
 
-    private String getColumnNameWithTableAlias(ColumnNode columnNode){
+    private String getColumnNameWithTableAlias(ColumnNode columnNode) {
         if (columnNode.getTableAlias() == null) {
             return columnNode.getColumnAlias();
         }
-        if(columnNode.getColumnAlias().startsWith(columnNode.getTableAlias()+SPLIT_DOT)){
+        if (columnNode.getColumnAlias().startsWith(columnNode.getTableAlias() + SPLIT_DOT)) {
             return columnNode.getColumnAlias();
         }
         return columnNode.getTableAlias() + SPLIT_DOT + columnNode.getColumnAlias();
     }
 
-    private void getDbAndTable(ColumnNode columnNode, String name){
-        if(StringUtils.isEmpty(name)){
+    private void getDbAndTable(ColumnNode columnNode, String name) {
+        if (StringUtils.isEmpty(name)) {
             return;
         }
 
-        if(name.contains(SPLIT_DOT)){
+        if (name.contains(SPLIT_DOT)) {
             String[] dbName = name.split("\\.");
             columnNode.setDb(dbName[0]);
             columnNode.setTableName(dbName[1]);
@@ -298,11 +298,11 @@ public class ColumnLineageParser {
     }
 
     private List<QueryTableTree> findLeafNode(QueryTableTree rootTree) {
-        if(null==rootTree){
+        if (null == rootTree) {
             return new ArrayList<>();
         }
         List<QueryTableTree> leafNodes = new ArrayList<>();
-        if (CollectionUtils.isEmpty(rootTree.getChildren())){
+        if (CollectionUtils.isEmpty(rootTree.getChildren())) {
             leafNodes.add(rootTree);
             return leafNodes;
         }
@@ -324,11 +324,11 @@ public class ColumnLineageParser {
         return null;
     }
 
-    private void fillParentNode(QueryTableTree rootTree){
-        if(null==rootTree){
+    private void fillParentNode(QueryTableTree rootTree) {
+        if (null == rootTree) {
             return;
         }
-        if(CollectionUtils.isEmpty(rootTree.getChildren())){
+        if (CollectionUtils.isEmpty(rootTree.getChildren())) {
             return;
         }
 
@@ -338,16 +338,16 @@ public class ColumnLineageParser {
         }
     }
 
-    private boolean isSelectAllColumn(QueryTableTree rootTree, String tableAlias){
-        if(null == rootTree){
+    private boolean isSelectAllColumn(QueryTableTree rootTree, String tableAlias) {
+        if (null == rootTree) {
             return false;
         }
-        if(CollectionUtils.isEmpty(rootTree.getColumns())){
+        if (CollectionUtils.isEmpty(rootTree.getColumns())) {
             return true;
         }
 
-        for (SelectColumn selectColumn : rootTree.getColumns()){
-            if ((tableAlias+".*").equals(selectColumn.getName())){
+        for (SelectColumn selectColumn : rootTree.getColumns()) {
+            if ((tableAlias + ".*").equals(selectColumn.getName())) {
                 return true;
             }
         }
@@ -355,13 +355,13 @@ public class ColumnLineageParser {
         return false;
     }
 
-    private boolean isNameEquals(String srcName,String distName){
+    private boolean isNameEquals(String srcName, String distName) {
         //libra sql并不是所有子查询都必须有alias。
-        if(srcName.contains(SPLIT_DOT)){
+        if (srcName.contains(SPLIT_DOT)) {
             srcName = srcName.split("\\.")[1];
         }
 
-        if(distName.contains(SPLIT_DOT)){
+        if (distName.contains(SPLIT_DOT)) {
             distName = distName.split("\\.")[1];
         }
 
@@ -373,7 +373,7 @@ public class ColumnLineageParser {
      *
      * @param root
      */
-    public void pretreatment(QueryTableTree root) throws SQLException{
+    public void pretreatment(QueryTableTree root) throws SQLException {
         fillMetaColumn(root);
     }
 
@@ -383,11 +383,11 @@ public class ColumnLineageParser {
      * @param tableName
      * @return
      */
-    public List<SelectColumn> getSelectColumn(String tableName){
+    public List<SelectColumn> getSelectColumn(String tableName) {
         List<SelectColumn> selectColumns = new ArrayList<>();
 
         List<Column> metaColumns = tableColumnMap.get(tableName);
-        if(CollectionUtils.isNotEmpty(metaColumns)){
+        if (CollectionUtils.isNotEmpty(metaColumns)) {
             for (Column metaColumn : metaColumns) {
                 selectColumns.add(new SelectColumn(metaColumn.getName(), null));
             }
@@ -399,26 +399,26 @@ public class ColumnLineageParser {
     /**
      * 如果叶子节点的表没有指定字段，或者字段为 * ,需要填充字段信息
      */
-    private void fillMetaColumn(QueryTableTree root){
-        if(CollectionUtils.isNotEmpty(root.getChildren())){
+    private void fillMetaColumn(QueryTableTree root) {
+        if (CollectionUtils.isNotEmpty(root.getChildren())) {
             for (QueryTableTree child : root.getChildren()) {
                 fillMetaColumn(child);
             }
         }
 
         // name为空表示为临时查询
-        if(root.getName() == null){
+        if (root.getName() == null) {
             return;
         }
 
-        if(CollectionUtils.isEmpty(root.getColumns())){
+        if (CollectionUtils.isEmpty(root.getColumns())) {
             root.setColumns(getSelectColumn(root.getName()));
             return;
         }
 
         List<SelectColumn> columns = new ArrayList<>();
         for (SelectColumn column : root.getColumns()) {
-            if (column.getName().contains("*")){
+            if (column.getName().contains("*")) {
                 columns.addAll(getSelectColumn(root.getName()));
             } else {
                 columns.add(column);

@@ -27,13 +27,13 @@ public abstract class DataDelayMetric implements IMetric {
     @Override
     public Object getMetric() {
         QueryInfo queryInfo = buildQueryInfo();
-        MetricResult metricResult = prometheusMetricQuery.query(getMetricName(),null,queryInfo,getTagName());
+        MetricResult metricResult = prometheusMetricQuery.query(getMetricName(), null, queryInfo, getTagName());
         return formatData(metricResult);
     }
 
     public abstract Object formatData(MetricResult metricResult);
 
-    public String getTagName(){
+    public String getTagName() {
         return "topic";
     }
 

@@ -123,9 +123,9 @@ public class MysqlDataConnPool {
         jdbcUrl = dbConfig.get(ConfigConstant.JDBCURL);
         username = dbConfig.get(ConfigConstant.USERNAME);
         password = dbConfig.get(ConfigConstant.PASSWORD);
-        initialSize = NumberUtils.toInt(dbConfig.get(ConfigConstant.INITIAL_SIZE),initialSize);
-        minIdle = NumberUtils.toInt(dbConfig.get(ConfigConstant.MINIDLE),minIdle);
-        maxActive = NumberUtils.toInt(dbConfig.get(ConfigConstant.MAXACTIVE),maxActive);
+        initialSize = NumberUtils.toInt(dbConfig.get(ConfigConstant.INITIAL_SIZE), initialSize);
+        minIdle = NumberUtils.toInt(dbConfig.get(ConfigConstant.MINIDLE), minIdle);
+        maxActive = NumberUtils.toInt(dbConfig.get(ConfigConstant.MAXACTIVE), maxActive);
 
         dataSource.setDriverClassName(DRIVER_NAME);
         dataSource.setUrl(jdbcUrl);

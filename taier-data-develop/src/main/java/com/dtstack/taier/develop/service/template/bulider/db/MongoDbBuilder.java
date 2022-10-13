@@ -1,13 +1,11 @@
 package com.dtstack.taier.develop.service.template.bulider.db;
 
 import com.alibaba.fastjson.JSONObject;
+import com.dtstack.taier.common.exception.RdosDefineException;
 import com.dtstack.taier.datasource.api.base.ClientCache;
 import com.dtstack.taier.datasource.api.client.IClient;
-import com.dtstack.taier.datasource.api.dto.SqlQueryDTO;
 import com.dtstack.taier.datasource.api.dto.source.ISourceDTO;
-import com.dtstack.taier.datasource.api.dto.source.MongoSourceDTO;
 import com.dtstack.taier.datasource.api.source.DataSourceType;
-import com.dtstack.taier.common.exception.RdosDefineException;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -19,7 +17,7 @@ import java.util.List;
  * @date 2021-11-11 15:39:03
  */
 @Component
-public class MongoDbBuilder implements DbBuilder{
+public class MongoDbBuilder implements DbBuilder {
 
     @Override
     public IClient getClient() {

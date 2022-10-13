@@ -487,9 +487,7 @@ public enum PluginInfoToSourceDTO {
                     .password(pluginInfo.getString(SourceConstant.PASSWORD))
                     .build();
         }
-    }
-
-    ;
+    };
 
     PluginInfoToSourceDTO(Integer val) {
         this.val = val;

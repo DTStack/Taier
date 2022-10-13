@@ -49,19 +49,19 @@ public class StreamJobMetricService {
     @Autowired
     private StreamMetricSupportService streamMetricSupportService;
 
-    private static Map<String,List<String>> chartMetricMap = new HashMap<>();
+    private static Map<String, List<String>> chartMetricMap = new HashMap<>();
 
     static {
-        chartMetricMap.put("data_acquisition_rps",Arrays.asList("data_acquisition_input_rps","data_acquisition_output_rps"));
-        chartMetricMap.put("data_acquisition_bps",Arrays.asList("data_acquisition_input_bps","data_acquisition_output_bps"));
-        chartMetricMap.put("data_acquisition_record_sum",Arrays.asList("data_acquisition_input_record_sum","data_acquisition_output_record_sum"));
-        chartMetricMap.put("data_acquisition_byte_sum",Arrays.asList("data_acquisition_input_byte_sum","data_acquisition_output_byte_sum"));
-        chartMetricMap.put("dirtyErrors",Arrays.asList("nErrors","conversionErrors","duplicateErrors","nullErrors","otherErrors"));
+        chartMetricMap.put("data_acquisition_rps", Arrays.asList("data_acquisition_input_rps", "data_acquisition_output_rps"));
+        chartMetricMap.put("data_acquisition_bps", Arrays.asList("data_acquisition_input_bps", "data_acquisition_output_bps"));
+        chartMetricMap.put("data_acquisition_record_sum", Arrays.asList("data_acquisition_input_record_sum", "data_acquisition_output_record_sum"));
+        chartMetricMap.put("data_acquisition_byte_sum", Arrays.asList("data_acquisition_input_byte_sum", "data_acquisition_output_byte_sum"));
+        chartMetricMap.put("dirtyErrors", Arrays.asList("nErrors", "conversionErrors", "duplicateErrors", "nullErrors", "otherErrors"));
     }
 
     public PrometheusMetricQuery buildPrometheusMetric(Long dtUicTenantId, String componentVersion) {
         Pair<String, String> prometheusHostAndPort = serverLogService.getPrometheusHostAndPort(dtUicTenantId, null, ComputeType.STREAM);
-        if (prometheusHostAndPort == null){
+        if (prometheusHostAndPort == null) {
             throw new RdosDefineException("promethues配置为空");
         }
         return new PrometheusMetricQuery(String.format("%s:%s", prometheusHostAndPort.getKey(), prometheusHostAndPort.getValue()));
@@ -81,13 +81,14 @@ public class StreamJobMetricService {
         metric.addAll(commonMetric);
         return metric;
     }
+
     /**
      * 获取任务指标
      *
      * @param metricDTO 请求实体类
      * @return 任务指标
      */
-    public JSONArray getTaskMetrics(StreamTaskMetricDTO metricDTO){
+    public JSONArray getTaskMetrics(StreamTaskMetricDTO metricDTO) {
         if (CollectionUtils.isEmpty(metricDTO.getChartNames())) {
             throw new RdosDefineException("chartName不能为空");
         }
@@ -101,10 +102,10 @@ public class StreamJobMetricService {
         Long span = formatTimespan.getSpan();
         long endTime = metricDTO.getEnd().getTime();
         long startTime = TimeUtil.getStartTime(endTime, span);
-        String jobName = EScheduleJobType.DATA_ACQUISITION.getVal().equals(task.getTaskType()) ? task.getName() :  task.getName() + "_" + task.getId();
+        String jobName = EScheduleJobType.DATA_ACQUISITION.getVal().equals(task.getTaskType()) ? task.getName() : task.getName() + "_" + task.getId();
         ScheduleJob scheduleJob = jobService.getScheduleJob(task.getJobId());
         JSONArray chartDatas = new JSONArray();
-        if(Objects.isNull(scheduleJob)) {
+        if (Objects.isNull(scheduleJob)) {
             return chartDatas;
         }
         String jobId = scheduleJob.getEngineJobId();
@@ -134,6 +135,7 @@ public class StreamJobMetricService {
 
     /**
      * 根据时间跨度构建时间粒度，最多返回 300 个点
+     *
      * @param timespan 时间跨度
      * @return 时间粒度
      */
@@ -182,7 +184,7 @@ public class StreamJobMetricService {
             tagValue = streamTask.getJobId();
         }
         Pair<String, String> prometheusHostAndPort = serverLogService.getPrometheusHostAndPort(dtUicTenantId, null, ComputeType.STREAM);
-        if (prometheusHostAndPort == null){
+        if (prometheusHostAndPort == null) {
             throw new RdosDefineException("promethues配置为空");
         }
         ICustomMetricQuery<List<MetricResultVO>> prometheusMetricQuery = new CustomPrometheusMetricQuery<>(String.format("%s:%s", prometheusHostAndPort.getKey(), prometheusHostAndPort.getValue()));

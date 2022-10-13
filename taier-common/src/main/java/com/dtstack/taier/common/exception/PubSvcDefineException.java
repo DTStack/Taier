@@ -7,7 +7,7 @@ public class PubSvcDefineException extends RdosDefineException {
     }
 
     public PubSvcDefineException(String message, Throwable cause) {
-        super(message,cause);
+        super(message, cause);
     }
 
     public PubSvcDefineException(ExceptionEnums errorCode) {

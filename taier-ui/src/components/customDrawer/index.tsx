@@ -16,12 +16,11 @@
  * limitations under the License.
  */
 
-import { useLayoutEffect, useState } from 'react';
-import { history } from 'umi';
-import type { DrawerProps } from 'antd';
-import { Drawer } from 'antd';
-import React from 'react';
-import { removePopUpMenu } from '@/utils';
+import React, {useLayoutEffect, useState} from 'react';
+import {history} from 'umi';
+import type {DrawerProps} from 'antd';
+import {Drawer} from 'antd';
+import {removePopUpMenu} from '@/utils';
 
 interface CustomDrawerProps extends DrawerProps {
 	id: string;
@@ -36,16 +35,14 @@ const defaultConfig: DrawerProps = {
 	width: '80%',
 };
 
-const drawerListeners: Record<
-	string,
-	(renderContent: CustomDrawerProps['renderContent'], props: Partial<DrawerProps>) => void
-> = {};
+const drawerListeners: Record<string,
+	(renderContent: CustomDrawerProps['renderContent'], props: Partial<DrawerProps>) => void> = {};
 
-export function updateDrawer({ id, renderContent, ...restProps }: CustomDrawerProps) {
+export function updateDrawer({id, renderContent, ...restProps}: CustomDrawerProps) {
 	drawerListeners[id](renderContent, restProps);
 }
 
-export default function CustomDrawer({ id, renderContent, ...restProps }: CustomDrawerProps) {
+export default function CustomDrawer({id, renderContent, ...restProps}: CustomDrawerProps) {
 	const [, setForceRender] = useState(false);
 	const [drawerConfig, setConfig] = useState(restProps);
 
@@ -61,7 +58,7 @@ export default function CustomDrawer({ id, renderContent, ...restProps }: Custom
 		}: Omit<CustomDrawerProps, 'renderContent' | 'id'> = {},
 	) => {
 		setConfig((config) =>
-			update ? { ...config, ...restDrawerProps } : { ...restDrawerProps },
+			update ? {...config, ...restDrawerProps} : {...restDrawerProps},
 		);
 		if (contentFn) {
 			setChildrenRender(() => contentFn);
@@ -77,14 +74,14 @@ export default function CustomDrawer({ id, renderContent, ...restProps }: Custom
 		history.push({
 			query: {},
 		});
-		drawerListeners[id](() => null, { visible: false });
+		drawerListeners[id](() => null, {visible: false});
 		removePopUpMenu();
 	};
 
 	return (
 		<Drawer
 			getContainer={() => document.querySelector('.mo-mainBench') || document.body}
-			style={{ position: 'absolute' }}
+			style={{position: 'absolute'}}
 			onClose={handleCloseDrawer}
 			{...defaultConfig}
 			{...drawerConfig}

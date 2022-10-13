@@ -266,12 +266,12 @@ public class AstNodeParser extends BaseSqlParser {
                 Identifier key = pair.getKey();
                 Identifier value = pair.getValue();
                 ColumnLineage columnLineage = new ColumnLineage();
-                columnLineage.setFromDb(value.getDb().replace("`",""));
-                columnLineage.setFromTable(value.getTable().replace("`",""));
-                columnLineage.setFromColumn(value.getColumn().replace("`",""));
-                columnLineage.setToDb(key.getDb().replace("`",""));
-                columnLineage.setToTable(key.getTable().replace("`",""));
-                columnLineage.setToColumn(key.getColumn().replace("`",""));
+                columnLineage.setFromDb(value.getDb().replace("`", ""));
+                columnLineage.setFromTable(value.getTable().replace("`", ""));
+                columnLineage.setFromColumn(value.getColumn().replace("`", ""));
+                columnLineage.setToDb(key.getDb().replace("`", ""));
+                columnLineage.setToTable(key.getTable().replace("`", ""));
+                columnLineage.setToColumn(key.getColumn().replace("`", ""));
                 resList.add(columnLineage);
             }
         }
@@ -337,9 +337,9 @@ public class AstNodeParser extends BaseSqlParser {
             if (((SelectNode) node).getFromClause() instanceof Identifier) {
                 table = (Identifier) ((SelectNode) node).getFromClause();
             }
-            if (parseResult.getStandardSql().toLowerCase().startsWith("with")){
+            if (parseResult.getStandardSql().toLowerCase().startsWith("with")) {
                 parseResult.setSqlType(SqlType.WITH_QUERY);
-            }else {
+            } else {
                 parseResult.setSqlType(SqlType.QUERY);
             }
         } else {
@@ -445,12 +445,12 @@ public class AstNodeParser extends BaseSqlParser {
         return result;
     }
 
-    private String removeEl(String sql){
+    private String removeEl(String sql) {
         char[] array = sql.toCharArray();
         StringBuilder sb = new StringBuilder(array.length);
         for (int i = 0; i < array.length; i++) {
-            if (array[i] == '$' && i+1<array.length && array[i+1]=='{'){
-                while (array[i]!='}'){
+            if (array[i] == '$' && i + 1 < array.length && array[i + 1] == '{') {
+                while (array[i] != '}') {
                     i++;
                 }
                 sb.append('1');

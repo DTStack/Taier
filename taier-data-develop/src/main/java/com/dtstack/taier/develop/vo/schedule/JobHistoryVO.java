@@ -1,4 +1,3 @@
-
 package com.dtstack.taier.develop.vo.schedule;
 
 import io.swagger.annotations.ApiModelProperty;

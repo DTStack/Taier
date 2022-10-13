@@ -3,13 +3,14 @@
 <mapper namespace="com.dtstack.taier.dao.mapper.DsTypeMapper">
 
     <sql id="select_content_fragment">
-        data_type,data_classify_id,weight,img_url,is_deleted,sorted,invisible
+        data_type
+        ,data_classify_id,weight,img_url,is_deleted,sorted,invisible
     </sql>
 
 
     <select id="dsTypeList" resultType="com.dtstack.taier.dao.domain.DsType">
         select
-        <include refid="select_content_fragment" />
+        <include refid="select_content_fragment"/>
         from datasource_type
         where is_deleted = 0 and invisible = 0
         order by sorted desc,id asc
@@ -17,9 +18,9 @@
 
     <select id="queryDsTypeByClassify" resultType="com.dtstack.taier.dao.domain.DsType">
         select
-        <include refid="select_content_fragment" />
+        <include refid="select_content_fragment"/>
         from datasource_type
-        where is_deleted = 0   and invisible = 0
+        where is_deleted = 0 and invisible = 0
         <if test="search !=null and search!=''">
             and lower(data_type) like concat('%',#{search},'%')
         </if>
@@ -42,9 +43,8 @@
     <update id="plusDataTypeWeight">
         update datasource_type
         set weight = weight + #{plusWeight}
-        where
-        data_type = #{dataType}
-        and weight + #{plusWeight} > 0.0
-        and is_deleted = 0
+        where data_type = #{dataType}
+          and weight + #{plusWeight} > 0.0
+          and is_deleted = 0
     </update>
 </mapper>

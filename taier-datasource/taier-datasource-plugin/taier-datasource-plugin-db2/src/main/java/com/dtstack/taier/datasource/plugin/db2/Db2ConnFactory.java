@@ -1,7 +1,7 @@
 package com.dtstack.taier.datasource.plugin.db2;
 
-import com.dtstack.taier.datasource.plugin.rdbms.ConnFactory;
 import com.dtstack.taier.datasource.api.source.DataBaseType;
+import com.dtstack.taier.datasource.plugin.rdbms.ConnFactory;
 
 /**
  * @company: www.dtstack.com

@@ -15,7 +15,7 @@ public class ReturnTaskDisplayVO {
      */
     @ApiModelProperty(value = "查询方向:\n" +
             "FATHER(1):向上查询 \n" +
-            "CHILD(2):向下查询",example = "1")
+            "CHILD(2):向下查询", example = "1")
     private Integer directType;
 
     /**

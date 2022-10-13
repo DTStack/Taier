@@ -17,9 +17,9 @@ public interface ScheduleTaskShadeMapper extends BaseMapper<ScheduleTaskShade> {
     /**
      * 查询所有可以生成周期实例的任务
      *
-     * @param startId 开始id
+     * @param startId            开始id
      * @param scheduleStatusList 任务状态
-     * @param taskSize 获取的任务数
+     * @param taskSize           获取的任务数
      * @return 任务列表
      */
     List<ScheduleTaskShade> listRunnableTask(@Param("startId") Long startId, @Param("scheduleStatusList") List<Integer> scheduleStatusList, @Param("taskSize") Integer taskSize);

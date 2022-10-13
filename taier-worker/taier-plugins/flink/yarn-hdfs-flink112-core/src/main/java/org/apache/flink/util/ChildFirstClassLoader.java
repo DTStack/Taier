@@ -42,7 +42,9 @@ public final class ChildFirstClassLoader extends FlinkUserCodeClassLoader {
      */
     private final String[] alwaysParentFirstPatterns;
 
-    /** load those classes by flinkx */
+    /**
+     * load those classes by flinkx
+     */
     private List<String> childFirstPatterns = new ArrayList<>();
 
     public ChildFirstClassLoader(

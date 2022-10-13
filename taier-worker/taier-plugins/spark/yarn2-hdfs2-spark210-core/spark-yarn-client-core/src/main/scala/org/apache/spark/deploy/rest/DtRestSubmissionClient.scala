@@ -17,50 +17,49 @@
 
 package org.apache.spark.deploy.rest
 
+import com.fasterxml.jackson.core.JsonProcessingException
+import org.apache.spark.internal.Logging
+import org.apache.spark.util.Utils
+import org.apache.spark.{SparkConf, SparkException, SPARK_VERSION => sparkVersion}
+
 import java.io.{DataOutputStream, FileNotFoundException}
 import java.net.{ConnectException, HttpURLConnection, SocketException, URL}
 import java.nio.charset.StandardCharsets
 import java.util.concurrent.TimeoutException
 import javax.servlet.http.HttpServletResponse
-
 import scala.collection.mutable
-import scala.concurrent.{Await, Future}
 import scala.concurrent.duration._
+import scala.concurrent.{Await, Future}
 import scala.io.Source
 import scala.util.control.NonFatal
 
-import com.fasterxml.jackson.core.JsonProcessingException
-
-import org.apache.spark.{SPARK_VERSION => sparkVersion, SparkConf, SparkException}
-import org.apache.spark.internal.Logging
-import org.apache.spark.util.Utils
-
 /**
-  *
-  *  通过restful模式提交任务到session,暂时还未用。
-  *
-  * A client that submits applications to a [[RestSubmissionServer]].
-  *
-  * In protocol version v1, the REST URL takes the form http://[host:port]/v1/submissions/[action],
-  * where [action] can be one of create, kill, or status. Each type of request is represented in
-  * an HTTP message sent to the following prefixes:
-  *   (1) submit - POST to /submissions/create
-  *   (2) kill - POST /submissions/kill/[submissionId]
-  *   (3) status - GET /submissions/status/[submissionId]
-  *
-  * In the case of (1), parameters are posted in the HTTP body in the form of JSON fields.
-  * Otherwise, the URL fully specifies the intended action of the client.
-  *
-  * Since the protocol is expected to be stable across Spark versions, existing fields cannot be
-  * added or removed, though new optional fields can be added. In the rare event that forward or
-  * backward compatibility is broken, Spark must introduce a new protocol version (e.g. v2).
-  *
-  * The client and the server must communicate using the same version of the protocol. If there
-  * is a mismatch, the server will respond with the highest protocol version it supports. A future
-  * implementation of this client can use that information to retry using the version specified
-  * by the server.
-  */
+ *
+ * 通过restful模式提交任务到session,暂时还未用。
+ *
+ * A client that submits applications to a [[RestSubmissionServer]].
+ *
+ * In protocol version v1, the REST URL takes the form http://[host:port]/v1/submissions/[action],
+ * where [action] can be one of create, kill, or status. Each type of request is represented in
+ * an HTTP message sent to the following prefixes:
+ * (1) submit - POST to /submissions/create
+ * (2) kill - POST /submissions/kill/[submissionId]
+ * (3) status - GET /submissions/status/[submissionId]
+ *
+ * In the case of (1), parameters are posted in the HTTP body in the form of JSON fields.
+ * Otherwise, the URL fully specifies the intended action of the client.
+ *
+ * Since the protocol is expected to be stable across Spark versions, existing fields cannot be
+ * added or removed, though new optional fields can be added. In the rare event that forward or
+ * backward compatibility is broken, Spark must introduce a new protocol version (e.g. v2).
+ *
+ * The client and the server must communicate using the same version of the protocol. If there
+ * is a mismatch, the server will respond with the highest protocol version it supports. A future
+ * implementation of this client can use that information to retry using the version specified
+ * by the server.
+ */
 private[spark] class DtRestSubmissionClient(master: String) extends Logging {
+
   import DtRestSubmissionClient._
 
   private val supportedMasterPrefixes = Seq("spark://", "mesos://")
@@ -76,11 +75,11 @@ private[spark] class DtRestSubmissionClient(master: String) extends Logging {
   private val lostMasters = new mutable.HashSet[String]
 
   /**
-    * Submit an application specified by the parameters in the provided request.
-    *
-    * If the submission was successful, poll the status of the submission and report
-    * it to the user. Otherwise, report the error message provided by the server.
-    */
+   * Submit an application specified by the parameters in the provided request.
+   *
+   * If the submission was successful, poll the status of the submission and report
+   * it to the user. Otherwise, report the error message provided by the server.
+   */
   def createSubmission(request: CreateSubmissionRequest): SubmitRestProtocolResponse = {
     logInfo(s"Submitting a request to launch an application in $master.")
     var handled: Boolean = false
@@ -228,10 +227,10 @@ private[spark] class DtRestSubmissionClient(master: String) extends Logging {
   }
 
   /**
-    * Read the response from the server and return it as a validated [[SubmitRestProtocolResponse]].
-    * If the response represents an error, report the embedded message to the user.
-    * Exposed for testing.
-    */
+   * Read the response from the server and return it as a validated [[SubmitRestProtocolResponse]].
+   * If the response represents an error, report the embedded message to the user.
+   * Exposed for testing.
+   */
   private[rest] def readResponse(connection: HttpURLConnection): SubmitRestProtocolResponse = {
     import scala.concurrent.ExecutionContext.Implicits.global
     val responseFuture = Future {
@@ -263,11 +262,13 @@ private[spark] class DtRestSubmissionClient(master: String) extends Logging {
     }
 
     // scalastyle:off awaitresult
-    try { Await.result(responseFuture, 10.seconds) } catch {
+    try {
+      Await.result(responseFuture, 10.seconds)
+    } catch {
       // scalastyle:on awaitresult
-      case unreachable @ (_: FileNotFoundException | _: SocketException) =>
+      case unreachable@(_: FileNotFoundException | _: SocketException) =>
         throw new SubmitRestConnectionException("Unable to connect to server", unreachable)
-      case malformed @ (_: JsonProcessingException | _: SubmitRestProtocolException) =>
+      case malformed@(_: JsonProcessingException | _: SubmitRestProtocolException) =>
         throw new SubmitRestProtocolException("Malformed response received from server", malformed)
       case timeout: TimeoutException =>
         throw new SubmitRestConnectionException("No response from server", timeout)
@@ -329,15 +330,17 @@ private[spark] class DtRestSubmissionClient(master: String) extends Logging {
         logError("Application successfully submitted, but submission ID was not provided!")
       }
     } else {
-      val failMessage = Option(submitResponse.message).map { ": " + _ }.getOrElse("")
+      val failMessage = Option(submitResponse.message).map {
+        ": " + _
+      }.getOrElse("")
       logError(s"Application submission failed$failMessage")
     }
   }
 
   /**
-    * Poll the status of the specified submission and log it.
-    * This retries up to a fixed number of times before giving up.
-    */
+   * Poll the status of the specified submission and log it.
+   * This retries up to a fixed number of times before giving up.
+   */
   private def pollSubmissionStatus(submissionId: String): Unit = {
     (1 to REPORT_DRIVER_STATUS_MAX_TRIES).foreach { _ =>
       val response = requestSubmissionStatus(submissionId, quiet = true)
@@ -380,12 +383,12 @@ private[spark] class DtRestSubmissionClient(master: String) extends Logging {
   }
 
   /**
-    * When a connection exception is caught, return true if all masters are lost.
-    * Note that the heuristic used here does not take into account that masters
-    * can recover during the lifetime of this client. This assumption should be
-    * harmless because this client currently does not support retrying submission
-    * on failure yet (SPARK-6443).
-    */
+   * When a connection exception is caught, return true if all masters are lost.
+   * Note that the heuristic used here does not take into account that masters
+   * can recover during the lifetime of this client. This assumption should be
+   * harmless because this client currently does not support retrying submission
+   * on failure yet (SPARK-6443).
+   */
   private def handleConnectionException(masterUrl: String): Boolean = {
     if (!lostMasters.contains(masterUrl)) {
       logWarning(s"Unable to connect to server ${masterUrl}.")
@@ -401,9 +404,9 @@ private[spark] object DtRestSubmissionClient {
   val PROTOCOL_VERSION = "v1"
 
   /**
-    * Submit an application, assuming Spark parameters are specified through the given config.
-    * This is abstracted to its own method for testing purposes.
-    */
+   * Submit an application, assuming Spark parameters are specified through the given config.
+   * This is abstracted to its own method for testing purposes.
+   */
   def run(
            appResource: String,
            mainClass: String,
@@ -426,16 +429,16 @@ private[spark] object DtRestSubmissionClient {
       sys.exit(1)
     }
     val appResource = args(0)
-    val mainClass = args(1)                   // main类
-    val appArgs = args.slice(2, args.length)  // 执行参数
-    val conf = new SparkConf                  // spark conf
+    val mainClass = args(1) // main类
+    val appArgs = args.slice(2, args.length) // 执行参数
+    val conf = new SparkConf // spark conf
     val env = filterSystemEnvironment(sys.env) //  环境变量
     run(appResource, mainClass, appArgs, conf, env)
   }
 
   /**
-    * Filter non-spark environment variables from any environment.
-    */
+   * Filter non-spark environment variables from any environment.
+   */
   private[rest] def filterSystemEnvironment(env: Map[String, String]): Map[String, String] = {
     env.filterKeys { k =>
       // SPARK_HOME is filtered out because it is usually wrong on the remote machine (SPARK-12345)

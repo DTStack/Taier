@@ -18,8 +18,8 @@ import java.util.regex.Pattern;
 public class ErrorAdapterImpl implements IErrorAdapter {
 
     @Override
-    public String connAdapter(String errorMsg, IErrorPattern errorPattern){
-        for (ConnErrorCode errorCode : ConnErrorCode.values()){
+    public String connAdapter(String errorMsg, IErrorPattern errorPattern) {
+        for (ConnErrorCode errorCode : ConnErrorCode.values()) {
             if (StringUtils.isBlank(errorMsg) || Objects.isNull(errorPattern)) {
                 break;
             }

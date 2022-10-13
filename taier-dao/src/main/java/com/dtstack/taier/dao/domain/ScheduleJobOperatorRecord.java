@@ -33,7 +33,7 @@ public class ScheduleJobOperatorRecord {
     /**
      * 主键
      */
-    @TableId(value="id", type= IdType.AUTO)
+    @TableId(value = "id", type = IdType.AUTO)
     private Long id;
 
     /**
@@ -57,7 +57,7 @@ public class ScheduleJobOperatorRecord {
     private Integer operatorType;
 
     /**
-     *  强制标志 0非强制 1强制
+     * 强制标志 0非强制 1强制
      */
     private Integer forceCancelFlag;
 

@@ -41,13 +41,13 @@ public class JobClientUtil {
             jobClient.setPluginInfo(JSONObject.toJSONString(paramAction.getPluginInfo()));
         }
         if (jobClient.getTaskParams() != null) {
-            jobClient.setConfProperties( PublicUtil.stringToProperties(jobClient.getTaskParams()));
+            jobClient.setConfProperties(PublicUtil.stringToProperties(jobClient.getTaskParams()));
         }
         if (paramAction.getPriority() <= 0) {
             String valStr = jobClient.getConfProperties() == null ? null : jobClient.getConfProperties().getProperty(ConfigConstant.CUSTOMER_PRIORITY_VAL);
-            jobClient.setPriorityLevel( valStr == null ? JobClient.DEFAULT_PRIORITY_LEVEL_VALUE : MathUtil.getIntegerVal(valStr));
+            jobClient.setPriorityLevel(valStr == null ? JobClient.DEFAULT_PRIORITY_LEVEL_VALUE : MathUtil.getIntegerVal(valStr));
             //设置priority值, 值越小，优先级越高
-            jobClient.setPriority(paramAction.getGenerateTime() + (long)jobClient.getPriorityLevel() * JobClient.PRIORITY_LEVEL_WEIGHT) ;
+            jobClient.setPriority(paramAction.getGenerateTime() + (long) jobClient.getPriorityLevel() * JobClient.PRIORITY_LEVEL_WEIGHT);
         } else {
             jobClient.setPriority(paramAction.getPriority());
         }

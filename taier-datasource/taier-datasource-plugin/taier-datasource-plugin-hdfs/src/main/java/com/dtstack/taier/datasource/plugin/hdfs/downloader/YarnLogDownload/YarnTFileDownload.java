@@ -1,9 +1,9 @@
 package com.dtstack.taier.datasource.plugin.hdfs.downloader.YarnLogDownload;
 
+import com.dtstack.taier.datasource.api.exception.SourceException;
 import com.dtstack.taier.datasource.plugin.common.downloader.IYarnDownloader;
 import com.dtstack.taier.datasource.plugin.hdfs.YarnConfUtil;
 import com.dtstack.taier.datasource.plugin.kerberos.core.util.KerberosLoginUtil;
-import com.dtstack.taier.datasource.api.exception.SourceException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hadoop.conf.Configuration;
@@ -191,7 +191,7 @@ public class YarnTFileDownload implements IYarnDownloader {
     @Override
     public boolean reachedEnd() {
         return KerberosLoginUtil.loginWithUGI(kerberosConfig).doAs(
-                (PrivilegedAction<Boolean>) ()->{
+                (PrivilegedAction<Boolean>) () -> {
                     try {
                         return isReachedEnd || totalReadByte >= readLimit || !nextRecord();
                     } catch (Exception e) {
@@ -377,11 +377,11 @@ public class YarnTFileDownload implements IYarnDownloader {
     @Override
     public List<String> getTaskManagerList() {
         return KerberosLoginUtil.loginWithUGI(kerberosConfig).doAs(
-                (PrivilegedAction<List<String>>) ()->{
+                (PrivilegedAction<List<String>>) () -> {
                     try {
                         return getContainersWithKerberos();
-                    } catch (Exception e){
-                        throw new SourceException(String.format("Abnormal reading file,%s",e.getMessage()), e);
+                    } catch (Exception e) {
+                        throw new SourceException(String.format("Abnormal reading file,%s", e.getMessage()), e);
                     }
                 });
     }
@@ -397,7 +397,7 @@ public class YarnTFileDownload implements IYarnDownloader {
             this.currValueStream.close();
         }
 
-        while(this.nextStream()) {
+        while (this.nextStream()) {
             if (this.currValueStream != null) {
                 this.currFileType = this.currValueStream.readUTF();
                 if (this.currFileType.toUpperCase().startsWith("TASKMANAGER")) {
@@ -408,7 +408,7 @@ public class YarnTFileDownload implements IYarnDownloader {
             }
         }
 
-        while(this.nextLogFile()) {
+        while (this.nextLogFile()) {
             if (this.currValueStream != null) {
                 if (this.currFileType.toUpperCase().startsWith("TASKMANAGER")) {
                     containers.add(this.currLogKey.toString());

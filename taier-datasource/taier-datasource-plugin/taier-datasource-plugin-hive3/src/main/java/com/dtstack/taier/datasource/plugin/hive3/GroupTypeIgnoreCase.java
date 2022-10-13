@@ -22,7 +22,7 @@ public class GroupTypeIgnoreCase {
         this.fields = groupType.getFields();
         this.indexByName = new HashMap();
 
-        for(int i = 0; i < this.fields.size(); ++i) {
+        for (int i = 0; i < this.fields.size(); ++i) {
             this.indexByName.put((this.fields.get(i)).getName().toLowerCase(), i);
         }
 
@@ -37,7 +37,7 @@ public class GroupTypeIgnoreCase {
         if (!this.indexByName.containsKey(name)) {
             throw new InvalidRecordException(name + " not found in " + this);
         } else {
-            return (Integer)this.indexByName.get(name);
+            return (Integer) this.indexByName.get(name);
         }
     }
 }

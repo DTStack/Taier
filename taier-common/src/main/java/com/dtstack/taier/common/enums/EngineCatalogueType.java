@@ -46,10 +46,11 @@ public enum EngineCatalogueType {
 
     /**
      * 根据名称获取 EngineCatalogueType
+     *
      * @param nodeName
      * @return
      */
-    public static EngineCatalogueType getByeName (String nodeName) {
+    public static EngineCatalogueType getByeName(String nodeName) {
         for (EngineCatalogueType engineCatalogueType : EngineCatalogueType.values()) {
             if (engineCatalogueType.getDesc().equals(nodeName)) {
                 return engineCatalogueType;
@@ -61,6 +62,7 @@ public enum EngineCatalogueType {
 
     /**
      * 根据引擎类型获取目录结构
+     *
      * @param taskType
      * @return
      */

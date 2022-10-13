@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useEffect} from 'react';
 import FlinkDimensionPanel from '@/pages/rightBar/flinkDimension';
 import FlinkResultPanel from '@/pages/rightBar/flinkResult';
 import FlinkSourcePanel from '@/pages/rightBar/flinkSource';
@@ -6,16 +6,15 @@ import EnvParams from '@/pages/rightBar/envParams';
 import SchedulingConfig from '@/pages/rightBar/schedulingConfig';
 import TaskInfo from '@/pages/rightBar/taskInfo';
 import TaskParams from '@/pages/rightBar/taskParams';
-import { isTaskTab } from '@/utils/is';
+import {isTaskTab} from '@/utils/is';
 import molecule from '@dtinsight/molecule';
-import { Component } from '@dtinsight/molecule/esm/react';
-import type { FormInstance } from 'antd';
-import { Form } from 'antd';
+import {Component} from '@dtinsight/molecule/esm/react';
+import type {FormInstance} from 'antd';
+import {Form} from 'antd';
 import classNames from 'classnames';
-import { useEffect } from 'react';
-import { singleton } from 'tsyringe';
-import { RightBarKind } from '@/interface';
-import { taskRenderService } from '.';
+import {singleton} from 'tsyringe';
+import {RightBarKind} from '@/interface';
+import {taskRenderService} from '.';
 import TaskConfig from '@/pages/rightBar/taskConfig';
 import QueueConfig from '@/pages/rightBar/queueConfig';
 
@@ -80,7 +79,7 @@ export default class RightBarService extends Component<IRightbarState> implement
 		};
 	}
 
-	private WithForm = ({ children }: { children: React.ReactNode }) => {
+	private WithForm = ({children}: { children: React.ReactNode }) => {
 		// eslint-disable-next-line react-hooks/rules-of-hooks
 		const [form] = Form.useForm();
 
@@ -91,7 +90,7 @@ export default class RightBarService extends Component<IRightbarState> implement
 				this.form = null;
 			};
 		}, []);
-		return <FormContext.Provider value={{ form }}>{children}</FormContext.Provider>;
+		return <FormContext.Provider value={{form}}>{children}</FormContext.Provider>;
 	};
 
 	/**
@@ -149,7 +148,7 @@ export default class RightBarService extends Component<IRightbarState> implement
 	 * 根据右侧栏的 key 值返回对应的 JSX 组件
 	 */
 	public createContent = (kind: string) => {
-		const { current } = molecule.editor.getState();
+		const {current} = molecule.editor.getState();
 		/**
 		 * 当前的 tab 是否不合法，如不合法则展示 Empty
 		 */
@@ -174,23 +173,23 @@ export default class RightBarService extends Component<IRightbarState> implement
 
 		switch (kind) {
 			case RightBarKind.TASK:
-				return <TaskInfo current={current} />;
+				return <TaskInfo current={current}/>;
 			case RightBarKind.DEPENDENCY:
-				return <SchedulingConfig current={current} />;
+				return <SchedulingConfig current={current}/>;
 			case RightBarKind.TASK_PARAMS:
-				return <TaskParams current={current} />;
+				return <TaskParams current={current}/>;
 			case RightBarKind.ENV_PARAMS:
-				return <EnvParams current={current} />;
+				return <EnvParams current={current}/>;
 			case RightBarKind.TASK_CONFIG:
-				return this.withForm(<TaskConfig key="config" current={current} />);
+				return this.withForm(<TaskConfig key="config" current={current}/>);
 			case RightBarKind.FLINKSQL_SOURCE:
-				return this.withForm(<FlinkSourcePanel key="source" current={current} />);
+				return this.withForm(<FlinkSourcePanel key="source" current={current}/>);
 			case RightBarKind.FLINKSQL_RESULT:
-				return this.withForm(<FlinkResultPanel key="result" current={current} />);
+				return this.withForm(<FlinkResultPanel key="result" current={current}/>);
 			case RightBarKind.FLINKSQL_DIMENSION:
-				return this.withForm(<FlinkDimensionPanel key="dimension" current={current} />);
+				return this.withForm(<FlinkDimensionPanel key="dimension" current={current}/>);
 			case RightBarKind.QUEUE:
-				return <QueueConfig current={current} />;
+				return <QueueConfig current={current}/>;
 			default:
 				return null;
 		}

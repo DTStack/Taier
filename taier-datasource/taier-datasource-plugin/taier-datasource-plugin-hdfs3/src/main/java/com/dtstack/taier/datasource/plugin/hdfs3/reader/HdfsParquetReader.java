@@ -55,7 +55,8 @@ public class HdfsParquetReader extends AbsReader {
                         for (int i = 0; i < groupType.getFieldCount(); i++) {
                             String value = group.getValueToString(i, 0);
                             colValue.add(value);
-                        }if (colIndex >= colValue.size()) {
+                        }
+                        if (colIndex >= colValue.size()) {
                             throw new SourceException(
                                     String.format("max columns : %s, colIndex : %s", colValue.size(), colIndex));
                         }
@@ -69,7 +70,8 @@ public class HdfsParquetReader extends AbsReader {
                     for (int i = 0; i < groupType.getFieldCount(); i++) {
                         String value = group.getValueToString(i, 0);
                         colValue.add(value);
-                    }if (colIndex >= colValue.size()) {
+                    }
+                    if (colIndex >= colValue.size()) {
                         throw new SourceException(
                                 String.format("max columns : %s, colIndex : %s", colValue.size(), colIndex));
                     }

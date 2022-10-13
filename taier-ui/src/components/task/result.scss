@@ -1,26 +1,29 @@
 .c-ide-result__table {
-    position: absolute;
-    top: 0px;
-    left: 0px;
-    right: 0px;
-    bottom: 40px;
-    overflow: hidden;
+	position: absolute;
+	top: 0px;
+	left: 0px;
+	right: 0px;
+	bottom: 40px;
+	overflow: hidden;
 }
+
 .c-ide-result__tools {
-    position: absolute;
-    bottom: 0px;
-    height: 40px;
-    width: 100%;
-    padding-top: 5px;
-    padding-left: 8px;
+	position: absolute;
+	bottom: 0px;
+	height: 40px;
+	width: 100%;
+	padding-top: 5px;
+	padding-left: 8px;
 }
+
 .c-ide-result__tools__pagination {
-    float: right;
-    padding-right: 5px;
+	float: right;
+	padding-right: 5px;
 }
+
 .c-ide-result__mark {
-    float: right;
-    padding-right: 18px;
-    color: #ccc;
-    line-height: 1.8;
+	float: right;
+	padding-right: 18px;
+	color: #ccc;
+	line-height: 1.8;
 }

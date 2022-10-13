@@ -1,16 +1,16 @@
 package com.dtstack.taier.datasource.plugin.common.nosql;
 
-import com.dtstack.taier.datasource.plugin.common.exception.ErrorCode;
 import com.dtstack.taier.datasource.api.client.IClient;
+import com.dtstack.taier.datasource.api.downloader.IDownloader;
 import com.dtstack.taier.datasource.api.dto.ColumnMetaDTO;
 import com.dtstack.taier.datasource.api.dto.Database;
 import com.dtstack.taier.datasource.api.dto.SqlQueryDTO;
 import com.dtstack.taier.datasource.api.dto.Table;
-import com.dtstack.taier.datasource.api.dto.WriteFileDTO;
 import com.dtstack.taier.datasource.api.dto.TableInfo;
+import com.dtstack.taier.datasource.api.dto.WriteFileDTO;
 import com.dtstack.taier.datasource.api.dto.source.ISourceDTO;
 import com.dtstack.taier.datasource.api.exception.SourceException;
-import com.dtstack.taier.datasource.api.downloader.IDownloader;
+import com.dtstack.taier.datasource.plugin.common.exception.ErrorCode;
 
 import java.sql.Connection;
 import java.util.List;

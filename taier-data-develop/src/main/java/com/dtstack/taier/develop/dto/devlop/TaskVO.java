@@ -225,7 +225,7 @@ public class TaskVO extends Task {
     }
 
     public void setSource(List<JSONObject> source) {
-        this.source  = source;
+        this.source = source;
     }
 
     public List<JSONObject> getSource() {
@@ -233,7 +233,7 @@ public class TaskVO extends Task {
     }
 
     public void setSink(List<JSONObject> sink) {
-        this.sink  = sink;
+        this.sink = sink;
     }
 
     public List<JSONObject> getSink() {
@@ -241,7 +241,7 @@ public class TaskVO extends Task {
     }
 
     public void setSide(List<JSONObject> side) {
-        this.side  = side;
+        this.side = side;
     }
 
     public List<JSONObject> getSide() {

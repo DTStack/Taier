@@ -373,10 +373,11 @@ final class RequestConverters {
 
     /**
      * Convert a {@linkplain SearchRequest} into a {@linkplain Request}.
-     * @param searchRequest the request to convert
+     *
+     * @param searchRequest  the request to convert
      * @param searchEndpoint the name of the search endpoint. {@literal _search}
-     *    for standard searches and {@literal _rollup_search} for rollup
-     *    searches.
+     *                       for standard searches and {@literal _rollup_search} for rollup
+     *                       searches.
      */
     static Request search(SearchRequest searchRequest, String searchEndpoint) throws IOException {
         Request request = new Request(HttpPost.METHOD_NAME, endpoint(searchRequest.indices(), searchRequest.types(), searchEndpoint));
@@ -483,7 +484,7 @@ final class RequestConverters {
 
     static Request explain(ExplainRequest explainRequest) throws IOException {
         Request request = new Request(HttpGet.METHOD_NAME,
-            endpoint(explainRequest.index(), explainRequest.type(), explainRequest.id(), "_explain"));
+                endpoint(explainRequest.index(), explainRequest.type(), explainRequest.id(), "_explain"));
 
         Params params = new Params(request);
         params.withStoredFields(explainRequest.storedFields());
@@ -527,11 +528,11 @@ final class RequestConverters {
         String endpoint = new EndpointBuilder().addPathPart("_reindex").build();
         Request request = new Request(HttpPost.METHOD_NAME, endpoint);
         Params params = new Params(request)
-            .withWaitForCompletion(waitForCompletion)
-            .withRefresh(reindexRequest.isRefresh())
-            .withTimeout(reindexRequest.getTimeout())
-            .withWaitForActiveShards(reindexRequest.getWaitForActiveShards(), ActiveShardCount.DEFAULT)
-            .withRequestsPerSecond(reindexRequest.getRequestsPerSecond());
+                .withWaitForCompletion(waitForCompletion)
+                .withRefresh(reindexRequest.isRefresh())
+                .withTimeout(reindexRequest.getTimeout())
+                .withWaitForActiveShards(reindexRequest.getWaitForActiveShards(), ActiveShardCount.DEFAULT)
+                .withRequestsPerSecond(reindexRequest.getRequestsPerSecond());
 
         if (reindexRequest.getScrollTime() != null) {
             params.putParam("scroll", reindexRequest.getScrollTime());
@@ -542,16 +543,16 @@ final class RequestConverters {
 
     static Request updateByQuery(UpdateByQueryRequest updateByQueryRequest) throws IOException {
         String endpoint =
-            endpoint(updateByQueryRequest.indices(), updateByQueryRequest.getDocTypes(), "_update_by_query");
+                endpoint(updateByQueryRequest.indices(), updateByQueryRequest.getDocTypes(), "_update_by_query");
         Request request = new Request(HttpPost.METHOD_NAME, endpoint);
         Params params = new Params(request)
-            .withRouting(updateByQueryRequest.getRouting())
-            .withPipeline(updateByQueryRequest.getPipeline())
-            .withRefresh(updateByQueryRequest.isRefresh())
-            .withTimeout(updateByQueryRequest.getTimeout())
-            .withWaitForActiveShards(updateByQueryRequest.getWaitForActiveShards(), ActiveShardCount.DEFAULT)
-            .withRequestsPerSecond(updateByQueryRequest.getRequestsPerSecond())
-            .withIndicesOptions(updateByQueryRequest.indicesOptions());
+                .withRouting(updateByQueryRequest.getRouting())
+                .withPipeline(updateByQueryRequest.getPipeline())
+                .withRefresh(updateByQueryRequest.isRefresh())
+                .withTimeout(updateByQueryRequest.getTimeout())
+                .withWaitForActiveShards(updateByQueryRequest.getWaitForActiveShards(), ActiveShardCount.DEFAULT)
+                .withRequestsPerSecond(updateByQueryRequest.getRequestsPerSecond())
+                .withIndicesOptions(updateByQueryRequest.indicesOptions());
         if (updateByQueryRequest.isAbortOnVersionConflict() == false) {
             params.putParam("conflicts", "proceed");
         }
@@ -570,15 +571,15 @@ final class RequestConverters {
 
     static Request deleteByQuery(DeleteByQueryRequest deleteByQueryRequest) throws IOException {
         String endpoint =
-            endpoint(deleteByQueryRequest.indices(), deleteByQueryRequest.getDocTypes(), "_delete_by_query");
+                endpoint(deleteByQueryRequest.indices(), deleteByQueryRequest.getDocTypes(), "_delete_by_query");
         Request request = new Request(HttpPost.METHOD_NAME, endpoint);
         Params params = new Params(request)
-            .withRouting(deleteByQueryRequest.getRouting())
-            .withRefresh(deleteByQueryRequest.isRefresh())
-            .withTimeout(deleteByQueryRequest.getTimeout())
-            .withWaitForActiveShards(deleteByQueryRequest.getWaitForActiveShards(), ActiveShardCount.DEFAULT)
-            .withRequestsPerSecond(deleteByQueryRequest.getRequestsPerSecond())
-            .withIndicesOptions(deleteByQueryRequest.indicesOptions());
+                .withRouting(deleteByQueryRequest.getRouting())
+                .withRefresh(deleteByQueryRequest.isRefresh())
+                .withTimeout(deleteByQueryRequest.getTimeout())
+                .withWaitForActiveShards(deleteByQueryRequest.getWaitForActiveShards(), ActiveShardCount.DEFAULT)
+                .withRequestsPerSecond(deleteByQueryRequest.getRequestsPerSecond())
+                .withIndicesOptions(deleteByQueryRequest.indicesOptions());
         if (deleteByQueryRequest.isAbortOnVersionConflict() == false) {
             params.putParam("conflicts", "proceed");
         }
@@ -645,7 +646,7 @@ final class RequestConverters {
 
     static Request termVectors(TermVectorsRequest tvrequest) throws IOException {
         String endpoint = new EndpointBuilder().addPathPart(
-            tvrequest.getIndex(), tvrequest.getType(), tvrequest.getId()).addPathPartAsIs("_termvectors").build();
+                tvrequest.getIndex(), tvrequest.getType(), tvrequest.getId()).addPathPartAsIs("_termvectors").build();
         Request request = new Request(HttpGet.METHOD_NAME, endpoint);
         Params params = new Params(request);
         params.withRouting(tvrequest.getRouting());
@@ -685,7 +686,7 @@ final class RequestConverters {
     }
 
     static HttpEntity createEntity(ToXContent toXContent, XContentType xContentType, ToXContent.Params toXContentParams)
-        throws IOException {
+            throws IOException {
         BytesRef source = XContentHelper.toXContent(toXContent, xContentType, toXContentParams, false).toBytesRef();
         return new NByteArrayEntity(source.bytes, source.offset, source.length, createContentType(xContentType));
     }
@@ -816,8 +817,8 @@ final class RequestConverters {
         }
 
         /**
-         *  @deprecated If creating a new HLRC ReST API call, use {@link RefreshPolicy}
-         *  instead of {@link WriteRequest.RefreshPolicy} from the server project
+         * @deprecated If creating a new HLRC ReST API call, use {@link RefreshPolicy}
+         * instead of {@link WriteRequest.RefreshPolicy} from the server project
          */
         @Deprecated
         Params withRefreshPolicy(WriteRequest.RefreshPolicy refreshPolicy) {
@@ -1111,7 +1112,7 @@ final class RequestConverters {
             return this;
         }
 
-        EndpointBuilder addPathPartAsIs(String ... parts) {
+        EndpointBuilder addPathPartAsIs(String... parts) {
             for (String part : parts) {
                 if (Strings.hasLength(part)) {
                     joiner.add(part);

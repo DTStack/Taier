@@ -16,17 +16,17 @@
  * limitations under the License.
  */
 
-import { useEffect, useState } from 'react';
-import { Form, Select, Input } from 'antd';
+import {useEffect, useState} from 'react';
+import {Form, Input, Select} from 'antd';
 import API from '@/api';
-import { SearchOutlined } from '@ant-design/icons';
+import {SearchOutlined} from '@ant-design/icons';
 import './search.scss';
 
 interface IProps {
 	onSearch: (value: IFormFieldProps) => void;
 }
 
-const { Option } = Select;
+const {Option} = Select;
 
 interface ITypeProps {
 	dataType: string;
@@ -37,12 +37,12 @@ interface IFormFieldProps {
 	dataTypeList: string[];
 }
 
-export default function Search({ onSearch }: IProps) {
+export default function Search({onSearch}: IProps) {
 	const [form] = Form.useForm<IFormFieldProps>();
 	const [typeList, setTypeList] = useState<ITypeProps[]>([]);
 
 	const handleSearch = () => {
-		const { search = '', dataTypeList } = form.getFieldsValue();
+		const {search = '', dataTypeList} = form.getFieldsValue();
 		onSearch({
 			search: search.trim(),
 			dataTypeList,
@@ -50,7 +50,7 @@ export default function Search({ onSearch }: IProps) {
 	};
 
 	const getTypeList = async () => {
-		const { data, success } = await API.typeList({});
+		const {data, success} = await API.typeList({});
 
 		if (success) {
 			setTypeList(data || []);
@@ -63,7 +63,7 @@ export default function Search({ onSearch }: IProps) {
 
 	return (
 		<div className="top-search">
-			<Form<IFormFieldProps> form={form} wrapperCol={{ span: 24 }} autoComplete="off">
+			<Form<IFormFieldProps> form={form} wrapperCol={{span: 24}} autoComplete="off">
 				<Form.Item name="search">
 					<Input
 						placeholder="数据源名称/描述"
@@ -71,7 +71,7 @@ export default function Search({ onSearch }: IProps) {
 						suffix={
 							<SearchOutlined
 								onClick={() => handleSearch()}
-								style={{ cursor: 'pointer' }}
+								style={{cursor: 'pointer'}}
 							/>
 						}
 					/>

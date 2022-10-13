@@ -16,30 +16,30 @@
  * limitations under the License.
  */
 
-import { useContext, useEffect, useState } from 'react';
+import {useContext, useEffect, useState} from 'react';
 import ReactDOMServer from 'react-dom/server';
-import { PlusSquareOutlined, ReloadOutlined } from '@ant-design/icons';
-import { Tooltip, Modal, message, Row, Col } from 'antd';
+import {PlusSquareOutlined, ReloadOutlined} from '@ant-design/icons';
+import {Col, message, Modal, Row, Tooltip} from 'antd';
 import LogInfo from './taskLog';
-import { taskStatusText } from '@/utils/enums';
+import {taskStatusText} from '@/utils/enums';
 import Api from '@/api';
 import {
-	TASK_STATUS,
-	RESTART_STATUS_ENUM,
 	FAILED_STATUS,
 	PARENTFAILED_STATUS,
+	RESTART_STATUS_ENUM,
 	RUN_FAILED_STATUS,
+	TASK_STATUS,
 	TASK_TYPE_ENUM,
 } from '@/constant';
-import type { IUpstreamJobProps } from '@/interface';
+import type {IUpstreamJobProps} from '@/interface';
+import {DIRECT_TYPE_ENUM} from '@/interface';
 import context from '@/context';
-import { DIRECT_TYPE_ENUM } from '@/interface';
-import { formatDateTime, getVertexStyle, goToTaskDev } from '@/utils';
-import { DetailInfoModal } from '@/components/detailInfo';
+import {formatDateTime, getVertexStyle, goToTaskDev} from '@/utils';
+import {DetailInfoModal} from '@/components/detailInfo';
+import type {IContextMenuConfig} from '@/components/mxGraph/container';
 import MxGraphContainer from '@/components/mxGraph/container';
-import type { IContextMenuConfig } from '@/components/mxGraph/container';
-import type { IScheduleTaskProps } from '../schedule';
-import type { mxCell } from 'mxgraph';
+import type {IScheduleTaskProps} from '../schedule';
+import type {mxCell} from 'mxgraph';
 import './index.scss';
 
 interface ITaskJobFlowViewProps {
@@ -47,8 +47,8 @@ interface ITaskJobFlowViewProps {
 	reload?: () => void;
 }
 
-export default function TaskJobFlowView({ taskJob, reload }: ITaskJobFlowViewProps) {
-	const { supportJobTypes } = useContext(context);
+export default function TaskJobFlowView({taskJob, reload}: ITaskJobFlowViewProps) {
+	const {supportJobTypes} = useContext(context);
 	const [graphData, setGraphData] = useState<IUpstreamJobProps[] | null>(null);
 	const [loading, setLoading] = useState(false);
 	// 任务属性
@@ -168,13 +168,11 @@ export default function TaskJobFlowView({ taskJob, reload }: ITaskJobFlowViewPro
 		isAfter: boolean;
 		jobId: string;
 		limit: number;
-	}): Promise<
-		{
-			cycTime: string;
-			jobId: string;
-			status: TASK_STATUS;
-		}[]
-	> => {
+	}): Promise<{
+		cycTime: string;
+		jobId: string;
+		status: TASK_STATUS;
+	}[]> => {
 		const res = await Api.getOfflineTaskPeriods(params);
 		if (res.code === 1) {
 			return res.data;
@@ -209,7 +207,7 @@ export default function TaskJobFlowView({ taskJob, reload }: ITaskJobFlowViewPro
 
 			setLoading(true);
 
-			Api.getRootWorkflowJob<string[]>({ jobId: data.jobId })
+			Api.getRootWorkflowJob<string[]>({jobId: data.jobId})
 				.then((res) => {
 					if (res.code === 1) {
 						return res.data;
@@ -251,11 +249,11 @@ export default function TaskJobFlowView({ taskJob, reload }: ITaskJobFlowViewPro
 							{task.taskName}
 							<span className="vertex-extra">
 								{task.taskType === TASK_TYPE_ENUM.WORK_FLOW && (
-									<PlusSquareOutlined />
+									<PlusSquareOutlined/>
 								)}
 							</span>
 						</span>
-						<br />
+						<br/>
 						<span className="vertex-desc">{taskType}</span>
 					</div>,
 				);
@@ -280,12 +278,12 @@ export default function TaskJobFlowView({ taskJob, reload }: ITaskJobFlowViewPro
 			},
 			{
 				title: '查看任务属性',
-				callback: () => setAttribute({ visible: true, job: data }),
+				callback: () => setAttribute({visible: true, job: data}),
 			},
 			{
 				title: '转到前一周期实例',
 				children: (
-					await loadPeriodsData({ jobId: data.jobId, isAfter: false, limit: 6 })
+					await loadPeriodsData({jobId: data.jobId, isAfter: false, limit: 6})
 				).map((period) => ({
 					title: `${period.cycTime} (${taskStatusText(period.status)})`,
 					callback: () => loadByJobId(period.jobId),
@@ -294,7 +292,7 @@ export default function TaskJobFlowView({ taskJob, reload }: ITaskJobFlowViewPro
 			{
 				title: '转到下一周期实例',
 				children: (
-					await loadPeriodsData({ jobId: data.jobId, isAfter: true, limit: 6 })
+					await loadPeriodsData({jobId: data.jobId, isAfter: true, limit: 6})
 				).map((period) => ({
 					title: `${period.cycTime} (${taskStatusText(period.status)})`,
 					callback: () => loadByJobId(period.jobId),
@@ -302,11 +300,11 @@ export default function TaskJobFlowView({ taskJob, reload }: ITaskJobFlowViewPro
 			},
 			{
 				title: '修改任务',
-				callback: () => goToTaskDev({ id: data.taskId }),
+				callback: () => goToTaskDev({id: data.taskId}),
 			},
 			{
 				title: '终止',
-				callback: () => handleStopJob({ jobIds: [data.jobId] }),
+				callback: () => handleStopJob({jobIds: [data.jobId]}),
 				disabled:
 					data.status === TASK_STATUS.WAIT_SUBMIT || // 等待提交
 					data.status === TASK_STATUS.SUBMITTING || // 提交中
@@ -355,24 +353,24 @@ export default function TaskJobFlowView({ taskJob, reload }: ITaskJobFlowViewPro
 					<>
 						<div className="graph-status">
 							<Row justify="start" wrap={false}>
-								<Col span={4} style={{ minWidth: 200 }}>
-									<div className="mxYellow" />
+								<Col span={4} style={{minWidth: 200}}>
+									<div className="mxYellow"/>
 									等待提交/提交中/等待运行
 								</Col>
 								<Col span={3}>
-									<div className="mxBlue" />
+									<div className="mxBlue"/>
 									运行中
 								</Col>
 								<Col span={3}>
-									<div className="mxGreen" />
+									<div className="mxGreen"/>
 									成功
 								</Col>
 								<Col span={3}>
-									<div className="mxRed" />
+									<div className="mxRed"/>
 									失败
 								</Col>
 								<Col span={4}>
-									<div className="mxGray" />
+									<div className="mxGray"/>
 									冻结/取消
 								</Col>
 							</Row>
@@ -388,14 +386,14 @@ export default function TaskJobFlowView({ taskJob, reload }: ITaskJobFlowViewPro
 									<a
 										title="双击任务可快速查看日志"
 										onClick={() => handleGetTaskLog(data.jobId, 0)}
-										style={{ marginRight: '8' }}
+										style={{marginRight: '8'}}
 									>
 										查看日志
 									</a>
 									&nbsp;
 									<a
 										onClick={() => {
-											goToTaskDev({ id: data.taskId });
+											goToTaskDev({id: data.taskId});
 										}}
 									>
 										查看代码
@@ -411,7 +409,7 @@ export default function TaskJobFlowView({ taskJob, reload }: ITaskJobFlowViewPro
 				visible={visible}
 				width={800}
 				footer={null}
-				bodyStyle={{ height: 400 }}
+				bodyStyle={{height: 400}}
 				destroyOnClose
 				onCancel={() => setVisible(false)}
 			>
@@ -428,7 +426,7 @@ export default function TaskJobFlowView({ taskJob, reload }: ITaskJobFlowViewPro
 			<DetailInfoModal
 				title="查看属性"
 				visible={taskAttribute.visible}
-				onCancel={() => setAttribute({ visible: false, job: undefined })}
+				onCancel={() => setAttribute({visible: false, job: undefined})}
 				loading={false}
 				type="taskJob"
 				data={taskAttribute.job}
@@ -453,7 +451,7 @@ export default function TaskJobFlowView({ taskJob, reload }: ITaskJobFlowViewPro
 				wrapClassName="no-padding-modal"
 				visible={taskLogInfo.visible}
 				onCancel={() =>
-					setTaskLog({ visible: false, current: 0, total: 0, log: null, jobId: null })
+					setTaskLog({visible: false, current: 0, total: 0, log: null, jobId: null})
 				}
 				footer={null}
 				maskClosable={true}

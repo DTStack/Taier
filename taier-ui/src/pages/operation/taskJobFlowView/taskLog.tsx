@@ -16,14 +16,14 @@
  * limitations under the License.
  */
 
-import { useMemo } from 'react';
-import { Row, Pagination, Col } from 'antd';
-import type { PaginationProps } from 'antd';
+import {useMemo} from 'react';
+import type {PaginationProps} from 'antd';
+import {Col, Pagination, Row} from 'antd';
 import Editor from '@/components/editor';
-import { formatDateTime, prettierJSONstring } from '@/utils';
-import { createLinkMark, createLog } from '@/services/taskResultService';
+import {formatDateTime, prettierJSONstring} from '@/utils';
+import {createLinkMark, createLog} from '@/services/taskResultService';
 
-const defaultEditorStyle: React.CSSProperties = { height: '300px' };
+const defaultEditorStyle: React.CSSProperties = {height: '300px'};
 
 function wrappTitle(title: string) {
 	return `====================${title}====================`;
@@ -92,7 +92,7 @@ interface ILogInfoProps {
 }
 
 export default function LogInfo(props: ILogInfoProps) {
-	const { syncLog, sqlText, downLoadUrl } = props;
+	const {syncLog, sqlText, downLoadUrl} = props;
 	const logText = useMemo(() => {
 		/**
 		 * 这里要多加一些空格后缀，不然codemirror计算滚动的时候会有问题
@@ -107,11 +107,11 @@ export default function LogInfo(props: ILogInfoProps) {
 			// then to render sqlInfo or engineLog
 			const log: Record<string, any> = props.log
 				? JSON.parse(
-						props.log.replace(/\n/g, '\\n').replace(/\r/g, '\\r').replace(/\t/g, '\\t'),
-				  )
+					props.log.replace(/\n/g, '\\n').replace(/\r/g, '\\r').replace(/\t/g, '\\t'),
+				)
 				: {};
 			const errors = log['all-exceptions'] || '';
-			const { engineLogErr } = log;
+			const {engineLogErr} = log;
 			const flinkLog = errors;
 
 			const appLogs = engineLogErr && `${wrappTitle('appLogs')}\n${engineLogErr}\n`;
@@ -214,12 +214,12 @@ export default function LogInfo(props: ILogInfoProps) {
 		return text;
 	}, [props.log]);
 
-	const editorStyle = { ...defaultEditorStyle, height: props.height };
+	const editorStyle = {...defaultEditorStyle, height: props.height};
 
 	return (
 		<div>
 			{props.syncJobInfo ? (
-				<Row style={{ marginBottom: '14px' }}>
+				<Row style={{marginBottom: '14px'}}>
 					<p>运行时长：{props.syncJobInfo.execTime}秒</p>
 					<p>
 						<span>读取数据：{props.syncJobInfo.readNum}条</span>
@@ -257,7 +257,7 @@ export default function LogInfo(props: ILogInfoProps) {
 			<Row style={editorStyle}>
 				<Col span={24}>
 					<Editor
-						style={{ height: editorStyle.height }}
+						style={{height: editorStyle.height}}
 						sync
 						value={logText}
 						language="jsonlog"

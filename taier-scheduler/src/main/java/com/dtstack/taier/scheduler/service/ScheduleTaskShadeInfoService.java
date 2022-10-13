@@ -12,20 +12,20 @@ import org.springframework.stereotype.Service;
 public class ScheduleTaskShadeInfoService extends ServiceImpl<ScheduleTaskShadeInfoMapper, ScheduleTaskShadeInfo> {
 
 
-    public void update(ScheduleTaskShadeInfo scheduleTaskShadeInfo,Long taskId){
+    public void update(ScheduleTaskShadeInfo scheduleTaskShadeInfo, Long taskId) {
         getBaseMapper().update(scheduleTaskShadeInfo,
                 Wrappers.lambdaQuery(ScheduleTaskShadeInfo.class)
-                        .eq(ScheduleTaskShadeInfo::getTaskId,taskId));
+                        .eq(ScheduleTaskShadeInfo::getTaskId, taskId));
     }
 
-    public void insert(ScheduleTaskShadeInfo scheduleTaskShadeInfo){
+    public void insert(ScheduleTaskShadeInfo scheduleTaskShadeInfo) {
         getBaseMapper().insert(scheduleTaskShadeInfo);
     }
 
     public JSONObject getInfoJSON(Long taskId) {
         ScheduleTaskShadeInfo scheduleTaskShadeInfo = getBaseMapper().selectOne(Wrappers.lambdaQuery(ScheduleTaskShadeInfo.class)
                 .eq(ScheduleTaskShadeInfo::getTaskId, taskId));
-        if(null == scheduleTaskShadeInfo){
+        if (null == scheduleTaskShadeInfo) {
             return null;
         }
         return JSONObject.parseObject(scheduleTaskShadeInfo.getInfo());

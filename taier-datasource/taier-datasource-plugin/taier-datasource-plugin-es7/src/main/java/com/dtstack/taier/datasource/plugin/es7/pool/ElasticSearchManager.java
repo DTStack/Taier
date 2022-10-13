@@ -57,6 +57,7 @@ public class ElasticSearchManager {
 
     /**
      * 初始化es pool
+     *
      * @param source
      * @return
      */

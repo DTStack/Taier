@@ -21,7 +21,7 @@ public class ScheduleEngineJobCache {
     /**
      * 唯一标识
      */
-    @TableId(value="id", type= IdType.AUTO)
+    @TableId(value = "id", type = IdType.AUTO)
     private Long id;
 
     /**

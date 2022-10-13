@@ -50,7 +50,6 @@ import com.dtstack.taier.develop.mapstruct.vo.DatasourceMapstructTransfer;
 import com.dtstack.taier.develop.vo.console.ConsoleJobInfoVO;
 import com.dtstack.taier.develop.vo.console.ConsoleJobVO;
 import com.dtstack.taier.pluginapi.JobClient;
-import com.dtstack.taier.pluginapi.constrant.ConfigConstant;
 import com.dtstack.taier.pluginapi.enums.TaskStatus;
 import com.dtstack.taier.pluginapi.pojo.ClusterResource;
 import com.dtstack.taier.pluginapi.pojo.ParamAction;
@@ -166,7 +165,7 @@ public class ConsoleService {
         return null;
     }
 
-    public List<String> listNames( String jobName) {
+    public List<String> listNames(String jobName) {
         try {
             return scheduleEngineJobCacheMapper.listNames(jobName);
         } catch (Exception e) {
@@ -266,7 +265,7 @@ public class ConsoleService {
                     ScheduleJob scheduleJob = scheduleJobMap.getOrDefault(engineJobCache.getJobId(), new ScheduleJob());
                     //补充租户信息
                     Tenant tenant = tenantMap.get(scheduleJob.getTenantId());
-                    this.fillJobInfo(theJobMap, scheduleJob, engineJobCache,tenant);
+                    this.fillJobInfo(theJobMap, scheduleJob, engineJobCache, tenant);
                     data.add(theJobMap);
                 }
             }
@@ -274,7 +273,7 @@ public class ConsoleService {
             LOGGER.error("groupDetail error", e);
         }
         PageQuery pageQuery = new PageQuery<>(currentPage, pageSize);
-        return new PageResult<>(data,count.intValue(),pageQuery);
+        return new PageResult<>(data, count.intValue(), pageQuery);
     }
 
     private void fillJobInfo(Map<String, Object> theJobMap, ScheduleJob scheduleJob, ScheduleEngineJobCache engineJobCache, Tenant tenant) {
@@ -301,10 +300,10 @@ public class ConsoleService {
         return infoVO;
     }
 
-    public Boolean jobStick( String jobId) {
+    public Boolean jobStick(String jobId) {
         try {
             ScheduleEngineJobCache engineJobCache = scheduleEngineJobCacheMapper.getOne(jobId);
-            if(null == engineJobCache){
+            if (null == engineJobCache) {
                 return false;
             }
             //只支持DB、PRIORITY两种调整顺序
@@ -333,7 +332,7 @@ public class ConsoleService {
         return false;
     }
 
-    public void stopJob(String jobId, Integer isForce){
+    public void stopJob(String jobId, Integer isForce) {
         Preconditions.checkArgument(StringUtils.isNotBlank(jobId), "parameters of jobId is required");
         List<String> alreadyExistJobIds = engineJobStopRecordMapper.listByJobIds(Lists.newArrayList(jobId));
         if (alreadyExistJobIds.contains(jobId)) {
@@ -349,15 +348,15 @@ public class ConsoleService {
 
     }
 
-    public void stopJob( String jobId) throws Exception {
-        stopJob(jobId , ForceCancelFlag.NO.getFlag());
+    public void stopJob(String jobId) throws Exception {
+        stopJob(jobId, ForceCancelFlag.NO.getFlag());
     }
 
     /**
      * 概览，杀死全部
      */
-    public void stopAll( String jobResource,
-                         String nodeAddress) throws Exception {
+    public void stopAll(String jobResource,
+                        String nodeAddress) throws Exception {
 
 
         for (Integer eJobCacheStage : EJobCacheStage.unSubmitted()) {
@@ -369,7 +368,7 @@ public class ConsoleService {
                             String nodeAddress,
                             Integer stage,
                             List<String> jobIdList,
-                            Integer isForce){
+                            Integer isForce) {
         if (CollectionUtils.isNotEmpty(jobIdList)) {
             //杀死指定jobIdList的任务
             if (EJobCacheStage.unSubmitted().contains(stage)) {
@@ -402,7 +401,7 @@ public class ConsoleService {
 
             long startId = 0L;
             while (true) {
-                List<ScheduleEngineJobCache> jobCaches = scheduleEngineJobCacheMapper.listByStage(startId, nodeAddress, stage, jobResource,Boolean.FALSE);
+                List<ScheduleEngineJobCache> jobCaches = scheduleEngineJobCacheMapper.listByStage(startId, nodeAddress, stage, jobResource, Boolean.FALSE);
                 if (CollectionUtils.isEmpty(jobCaches)) {
                     //两种情况：
                     //1. 可能本身没有jobcaches的数据
@@ -440,10 +439,10 @@ public class ConsoleService {
         }
     }
 
-    public void stopJobList( String jobResource,
-                             String nodeAddress,
-                             Integer stage,
-                             List<String> jobIdList) throws Exception {
+    public void stopJobList(String jobResource,
+                            String nodeAddress,
+                            Integer stage,
+                            List<String> jobIdList) throws Exception {
         stopJobList(jobResource, nodeAddress, stage, jobIdList, ForceCancelFlag.NO.getFlag());
     }
 
@@ -453,12 +452,12 @@ public class ConsoleService {
             throw new RdosDefineException(ErrorCode.DATA_NOT_FIND);
         }
 
-        Component yarnComponent = componentService.getComponentByClusterId(cluster.getId(),EComponentType.YARN.getTypeCode(),null);
+        Component yarnComponent = componentService.getComponentByClusterId(cluster.getId(), EComponentType.YARN.getTypeCode(), null);
         if (yarnComponent == null) {
             return null;
         }
-        JSONObject yarnConfigStr = componentService.getComponentByClusterId(cluster.getId(), EComponentType.YARN.getTypeCode(), false, JSONObject.class,null);
-        return getResources(yarnComponent, cluster,yarnConfigStr);
+        JSONObject yarnConfigStr = componentService.getComponentByClusterId(cluster.getId(), EComponentType.YARN.getTypeCode(), false, JSONObject.class, null);
+        return getResources(yarnComponent, cluster, yarnConfigStr);
     }
 
 
@@ -467,15 +466,15 @@ public class ConsoleService {
         return clusterResources(clusterId);
     }
 
-    public ClusterResource getResources(Component yarnComponent, Cluster cluster,JSONObject componentConfig) {
+    public ClusterResource getResources(Component yarnComponent, Cluster cluster, JSONObject componentConfig) {
         try {
             JSONObject pluginInfo = new JSONObject();
             pluginInfo.put(EComponentType.YARN.getConfName(), componentConfig);
             if (StringUtils.isNotBlank(yarnComponent.getKerberosFileName())) {
                 //开启kerberos 添加信息
-                KerberosConfig kerberosConfig = consoleKerberosMapper.getByComponentType(cluster.getId(), yarnComponent.getComponentTypeCode(), ComponentVersionUtil.formatMultiVersion(yarnComponent.getComponentTypeCode(),yarnComponent.getVersionValue()));
-                Map sftpMap = componentService.getComponentByClusterId(cluster.getId(), EComponentType.SFTP.getTypeCode(), false, Map.class,null);
-                pluginInfo = componentService.wrapperConfig(yarnComponent.getComponentTypeCode(),componentConfig.toJSONString(),sftpMap,kerberosConfig,cluster.getId());
+                KerberosConfig kerberosConfig = consoleKerberosMapper.getByComponentType(cluster.getId(), yarnComponent.getComponentTypeCode(), ComponentVersionUtil.formatMultiVersion(yarnComponent.getComponentTypeCode(), yarnComponent.getVersionValue()));
+                Map sftpMap = componentService.getComponentByClusterId(cluster.getId(), EComponentType.SFTP.getTypeCode(), false, Map.class, null);
+                pluginInfo = componentService.wrapperConfig(yarnComponent.getComponentTypeCode(), componentConfig.toJSONString(), sftpMap, kerberosConfig, cluster.getId());
             }
             Integer datasourceType = DatasourceTypeUtil.getTypeByComponentAndVersion(yarnComponent.getComponentTypeCode(), yarnComponent.getVersionName());
             pluginInfo.put(DatasourceOperator.DATA_SOURCE_TYPE, datasourceType);

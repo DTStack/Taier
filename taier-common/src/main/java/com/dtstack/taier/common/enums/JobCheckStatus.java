@@ -34,7 +34,7 @@ package com.dtstack.taier.common.enums;
  */
 
 public enum JobCheckStatus {
-    TASK_STATUS_STOP(1,"任务:%s,调度状态:%s,不能执行实例"),
+    TASK_STATUS_STOP(1, "任务:%s,调度状态:%s,不能执行实例"),
     TASK_DELETE(2, "该任务已经被删除"),
     NOT_UNSUBMIT(3, "并非未提交状态"),
     TIME_NOT_REACH(4, "时间未到"),

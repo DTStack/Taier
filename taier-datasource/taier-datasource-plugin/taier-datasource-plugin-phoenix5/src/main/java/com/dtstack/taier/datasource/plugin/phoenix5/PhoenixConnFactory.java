@@ -1,14 +1,14 @@
 package com.dtstack.taier.datasource.plugin.phoenix5;
 
+import com.dtstack.taier.datasource.api.dto.source.ISourceDTO;
+import com.dtstack.taier.datasource.api.dto.source.Phoenix5SourceDTO;
+import com.dtstack.taier.datasource.api.exception.SourceException;
+import com.dtstack.taier.datasource.api.source.DataBaseType;
+import com.dtstack.taier.datasource.plugin.common.constant.KerberosConstant;
 import com.dtstack.taier.datasource.plugin.common.utils.PropertiesUtil;
 import com.dtstack.taier.datasource.plugin.kerberos.core.util.KerberosLoginUtil;
 import com.dtstack.taier.datasource.plugin.kerberos.core.util.KerberosUtil;
 import com.dtstack.taier.datasource.plugin.rdbms.ConnFactory;
-import com.dtstack.taier.datasource.api.dto.source.ISourceDTO;
-import com.dtstack.taier.datasource.api.dto.source.Phoenix5SourceDTO;
-import com.dtstack.taier.datasource.api.exception.SourceException;
-import com.dtstack.taier.datasource.plugin.common.constant.KerberosConstant;
-import com.dtstack.taier.datasource.api.source.DataBaseType;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;

@@ -26,17 +26,17 @@ package com.dtstack.taier.scheduler.zookeeper.data;
  */
 public class BrokersNode {
 
-	private String master;
+    private String master;
 
-	public String getMaster() {
-		return master;
-	}
+    public String getMaster() {
+        return master;
+    }
 
-	public void setMaster(String master) {
-		this.master = master;
-	}
-	
-	public static BrokersNode initBrokersNode(){
-		return new BrokersNode();
-	}
+    public void setMaster(String master) {
+        this.master = master;
+    }
+
+    public static BrokersNode initBrokersNode() {
+        return new BrokersNode();
+    }
 }

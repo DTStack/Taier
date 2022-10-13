@@ -32,10 +32,14 @@ public class BaseConfig {
 
     private boolean openKerberos;
 
-    /** remote file path eg. sftp */
+    /**
+     * remote file path eg. sftp
+     */
     private String remoteDir;
 
-    /** keytab file name */
+    /**
+     * keytab file name
+     */
     private String principalFile;
 
     private String krbName;

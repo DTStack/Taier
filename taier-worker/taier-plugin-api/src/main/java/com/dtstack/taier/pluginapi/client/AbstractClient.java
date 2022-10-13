@@ -23,7 +23,6 @@ import com.dtstack.taier.pluginapi.JobIdentifier;
 import com.dtstack.taier.pluginapi.enums.EJobType;
 import com.dtstack.taier.pluginapi.enums.TaskStatus;
 import com.dtstack.taier.pluginapi.pojo.CheckResult;
-import com.dtstack.taier.pluginapi.pojo.ClusterResource;
 import com.dtstack.taier.pluginapi.pojo.ComponentTestResult;
 import com.dtstack.taier.pluginapi.pojo.FileResult;
 import com.dtstack.taier.pluginapi.pojo.JobResult;
@@ -76,7 +75,7 @@ public abstract class AbstractClient implements IClient {
         TaskStatus status = TaskStatus.NOTFOUND;
         try {
             status = processJobStatus(jobIdentifier);
-        }catch (Exception e) {
+        } catch (Exception e) {
             LOGGER.error("get job status error: {}", e.getMessage());
         } finally {
             handleJobStatus(jobIdentifier, status);
@@ -111,7 +110,7 @@ public abstract class AbstractClient implements IClient {
 
     @Override
     public JudgeResult judgeSlots(JobClient jobClient) {
-        return JudgeResult.notOk( "");
+        return JudgeResult.notOk("");
     }
 
     protected void beforeSubmitFunc(JobClient jobClient) {
@@ -140,12 +139,12 @@ public abstract class AbstractClient implements IClient {
     }
 
     @Override
-    public CheckResult grammarCheck(JobClient jobClient){
+    public CheckResult grammarCheck(JobClient jobClient) {
         return null;
     }
 
     @Override
-    public List<FileResult> listFile(String path,boolean isPathPattern) {
+    public List<FileResult> listFile(String path, boolean isPathPattern) {
         return null;
     }
 }

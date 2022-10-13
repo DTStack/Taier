@@ -17,7 +17,6 @@
 
 package org.apache.flink.streaming.api.graph;
 
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.flink.annotation.Internal;
 import org.apache.flink.annotation.VisibleForTesting;
@@ -95,7 +94,9 @@ import static org.apache.flink.util.Preconditions.checkArgument;
 import static org.apache.flink.util.Preconditions.checkNotNull;
 import static org.apache.flink.util.Preconditions.checkState;
 
-/** The StreamingJobGraphGenerator converts a {@link StreamGraph} into a {@link JobGraph}. */
+/**
+ * The StreamingJobGraphGenerator converts a {@link StreamGraph} into a {@link JobGraph}.
+ */
 @Internal
 public class StreamingJobGraphGenerator {
 
@@ -639,7 +640,7 @@ public class StreamingJobGraphGenerator {
         JobVertexID jobVertexID = new JobVertexID(hash);
 
         String operatorName = streamGraph.getStreamNode(vertexID).getOperatorName();
-        if(!chainedOperatorNames.containsKey(jobVertexID)) {
+        if (!chainedOperatorNames.containsKey(jobVertexID)) {
             List<String> list = new ArrayList<>();
             list.add(operatorName);
             chainedOperatorNames.put(jobVertexID, list);
@@ -1111,7 +1112,9 @@ public class StreamingJobGraphGenerator {
         return isChainable;
     }
 
-    /** Backtraces the head of an operator chain. */
+    /**
+     * Backtraces the head of an operator chain.
+     */
     private static StreamOperatorFactory<?> getHeadOperator(
             StreamNode upStreamVertex, StreamGraph streamGraph) {
         if (upStreamVertex.getInEdges().size() == 1
@@ -1353,7 +1356,7 @@ public class StreamingJobGraphGenerator {
                         useCase,
                         operatorWeight > 0
                                 ? ManagedMemoryUtils.getFractionRoundedDown(
-                                        operatorWeight, groupWeight)
+                                operatorWeight, groupWeight)
                                 : 0.0);
             }
             for (ManagedMemoryUseCase useCase : groupSlotScopeUseCases) {
@@ -1500,15 +1503,15 @@ public class StreamingJobGraphGenerator {
         return chainedSourceInfos.isEmpty()
                 ? operatorName
                 : String.format(
-                        "%s [%s]",
-                        operatorName,
-                        chainedSourceInfos.stream()
-                                .map(
-                                        chainedSourceInfo ->
-                                                chainedSourceInfo
-                                                        .getOperatorConfig()
-                                                        .getOperatorName())
-                                .collect(Collectors.joining(", ")));
+                "%s [%s]",
+                operatorName,
+                chainedSourceInfos.stream()
+                        .map(
+                                chainedSourceInfo ->
+                                        chainedSourceInfo
+                                                .getOperatorConfig()
+                                                .getOperatorName())
+                        .collect(Collectors.joining(", ")));
     }
 
     /**

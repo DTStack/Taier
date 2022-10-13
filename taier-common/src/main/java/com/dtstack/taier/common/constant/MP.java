@@ -1,7 +1,6 @@
 package com.dtstack.taier.common.constant;
 
 /**
- *
  * @description:
  * @author: liuxx
  * @date: 2021/3/15

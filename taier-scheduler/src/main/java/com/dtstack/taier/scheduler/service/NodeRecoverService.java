@@ -77,7 +77,7 @@ public class NodeRecoverService {
         try {
             long startId = 0L;
             while (true) {
-                List<ScheduleEngineJobCache> jobCaches = ScheduleJobCacheService.listByStage(startId, localAddress, EJobCacheStage.SUBMITTED.getStage(),null);
+                List<ScheduleEngineJobCache> jobCaches = ScheduleJobCacheService.listByStage(startId, localAddress, EJobCacheStage.SUBMITTED.getStage(), null);
                 if (CollectionUtils.isEmpty(jobCaches)) {
                     break;
                 }

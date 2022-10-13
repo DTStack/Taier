@@ -31,7 +31,7 @@ public class DevelopParamDTO {
 
     private String paramCommand;
 
-    public DevelopParamDTO(int type, String paramName, String paramCommand){
+    public DevelopParamDTO(int type, String paramName, String paramCommand) {
         this.type = type;
         this.paramName = paramName;
         this.paramCommand = paramCommand;

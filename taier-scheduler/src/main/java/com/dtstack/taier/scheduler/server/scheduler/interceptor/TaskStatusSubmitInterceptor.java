@@ -41,7 +41,7 @@ public class TaskStatusSubmitInterceptor extends SubmitInterceptorAdapter {
         // 任务已经删除
         if (scheduleTaskShade == null || Deleted.DELETED.getStatus().equals(scheduleTaskShade.getIsDeleted())) {
             scheduleJobService.updateStatusAndLogInfoById(scheduleJob.getJobId(), TaskStatus.FAILED.getStatus(), JobCheckStatus.TASK_DELETE.getMsg());
-            LOGGER.info("jobId:{} task deleted ,update job status:{}",scheduleJob.getJobId(),TaskStatus.FAILED.getStatus());
+            LOGGER.info("jobId:{} task deleted ,update job status:{}", scheduleJob.getJobId(), TaskStatus.FAILED.getStatus());
             return Boolean.FALSE;
         }
 

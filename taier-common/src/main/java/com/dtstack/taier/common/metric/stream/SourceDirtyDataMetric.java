@@ -10,6 +10,7 @@ import java.util.List;
 
 /**
  * 各个数据源的脏数据
+ *
  * @author jiangbo
  */
 public class SourceDirtyDataMetric extends StreamBaseMetric {

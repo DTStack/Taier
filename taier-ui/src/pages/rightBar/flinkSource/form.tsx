@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import React, { useContext, useState } from 'react';
+import React, {useContext, useState} from 'react';
 import {
 	CODE_TYPE,
 	DATA_SOURCE_ENUM,
@@ -27,7 +27,7 @@ import {
 	KAFKA_DATA_TYPE,
 	SOURCE_TIME_TYPE,
 } from '@/constant';
-import { isAvro, isKafka, isShowTimeForOffsetReset } from '@/utils/is';
+import {isAvro, isKafka, isShowTimeForOffsetReset} from '@/utils/is';
 import {
 	Button,
 	Cascader,
@@ -42,20 +42,20 @@ import {
 	Row,
 	Select,
 } from 'antd';
-import { UpOutlined, DownOutlined } from '@ant-design/icons';
-import { getColumnsByColumnsText } from '@/utils';
+import {DownOutlined, UpOutlined} from '@ant-design/icons';
+import {getColumnsByColumnsText} from '@/utils';
 import Editor from '@/components/editor';
-import type { IDataSourceUsedInSyncProps } from '@/interface';
-import { NAME_FIELD } from '.';
-import type { DefaultOptionType } from 'antd/lib/cascader';
-import { FormContext } from '@/services/rightBarService';
-import { CustomParams } from '../customParams';
+import type {IDataSourceUsedInSyncProps} from '@/interface';
+import {NAME_FIELD} from '.';
+import type {DefaultOptionType} from 'antd/lib/cascader';
+import {FormContext} from '@/services/rightBarService';
+import {CustomParams} from '../customParams';
 import DataPreviewModal from '../../editor/streamCollection/source/dataPreviewModal';
 import taskSaveService from '@/services/taskSaveService';
-import { taskRenderService } from '@/services';
+import {taskRenderService} from '@/services';
 
 const FormItem = Form.Item;
-const { Option } = Select;
+const {Option} = Select;
 
 interface ISourceFormProps {
 	/**
@@ -69,25 +69,25 @@ interface ISourceFormProps {
 }
 
 export default function SourceForm({
-	index,
-	componentVersion,
-	originOptionType,
-	topicOptionType,
-	timeZoneData,
-}: ISourceFormProps) {
-	const { form } = useContext(FormContext);
+									   index,
+									   componentVersion,
+									   originOptionType,
+									   topicOptionType,
+									   timeZoneData,
+								   }: ISourceFormProps) {
+	const {form} = useContext(FormContext);
 	const [visible, setVisible] = useState(false);
 	const [params, setParams] = useState({});
 	const [showAdvancedParams, setShowAdvancedParams] = useState(false);
 
 	const showPreviewModal = () => {
-		const { sourceId, topic } = form?.getFieldValue(NAME_FIELD)?.[index] || {};
+		const {sourceId, topic} = form?.getFieldValue(NAME_FIELD)?.[index] || {};
 		let nextParam = {};
 		if (!sourceId || !topic) {
 			message.error('数据预览需要选择数据源和Topic！');
 			return;
 		}
-		nextParam = { sourceId, topic };
+		nextParam = {sourceId, topic};
 		setVisible(true);
 		setParams(nextParam);
 	};
@@ -151,7 +151,7 @@ export default function SourceForm({
 			</FormItem>
 			<FormItem
 				label="编码类型"
-				style={{ marginBottom: '10px' }}
+				style={{marginBottom: '10px'}}
 				name={[index, 'charset']}
 				tooltip="编码类型：指Kafka数据的编码类型"
 			>
@@ -161,7 +161,7 @@ export default function SourceForm({
 				</Select>
 			</FormItem>
 			<FormItem noStyle dependencies={[[index, 'type']]}>
-				{({ getFieldValue }) =>
+				{({getFieldValue}) =>
 					isKafka(getFieldValue(NAME_FIELD)?.[index].type) && (
 						<FormItem
 							{...formItemLayout}
@@ -180,7 +180,7 @@ export default function SourceForm({
 										{KAFKA_DATA_TYPE.TYPE_AVRO_CONFLUENT}
 									</Option>
 								) : (
-									KAFKA_DATA_LIST.map(({ text, value }) => (
+									KAFKA_DATA_LIST.map(({text, value}) => (
 										<Option value={value} key={text + value}>
 											{text}
 										</Option>
@@ -192,7 +192,7 @@ export default function SourceForm({
 				}
 			</FormItem>
 			<FormItem noStyle dependencies={[[index, 'sourceDataType']]}>
-				{({ getFieldValue }) =>
+				{({getFieldValue}) =>
 					isAvro(getFieldValue(NAME_FIELD)?.[index].sourceDataType) && (
 						<FormItem
 							{...formItemLayout}
@@ -226,13 +226,13 @@ export default function SourceForm({
 				rules={validDes.table}
 				tooltip="该表是kafka中的topic映射而成，可以以SQL的方式使用它。"
 			>
-				<Input placeholder="请输入映射表名" className="right-input" />
+				<Input placeholder="请输入映射表名" className="right-input"/>
 			</FormItem>
 			<FormItem noStyle dependencies={[[index, 'type']]}>
-				{({ getFieldValue }) => (
+				{({getFieldValue}) => (
 					<FormItem label="字段" required name={[index, 'columnsText']}>
 						<Editor
-							style={{ minHeight: 202 }}
+							style={{minHeight: 202}}
 							className="bd"
 							sync
 							options={{
@@ -252,7 +252,7 @@ export default function SourceForm({
 				)}
 			</FormItem>
 			<FormItem noStyle dependencies={[[index, 'type']]}>
-				{({ getFieldValue }) => (
+				{({getFieldValue}) => (
 					<FormItem
 						label="Offset"
 						tooltip={
@@ -287,29 +287,29 @@ export default function SourceForm({
 				)}
 			</FormItem>
 			<FormItem noStyle dependencies={[[index, 'offsetReset']]}>
-				{({ getFieldValue }) =>
+				{({getFieldValue}) =>
 					getFieldValue(NAME_FIELD)?.[index].offsetReset === 'timestamp' && (
 						<FormItem
 							label="选择时间"
 							name={[index, 'timestampOffset']}
-							rules={[{ required: true, message: '请选择时间' }]}
+							rules={[{required: true, message: '请选择时间'}]}
 						>
 							<DatePicker
 								showTime
 								placeholder="请选择时间"
 								format={'YYYY-MM-DD HH:mm:ss'}
-								style={{ width: '100%' }}
+								style={{width: '100%'}}
 							/>
 						</FormItem>
 					)
 				}
 			</FormItem>
 			<FormItem noStyle shouldUpdate>
-				{({ getFieldValue }) =>
+				{({getFieldValue}) =>
 					getFieldValue(NAME_FIELD)?.[index].offsetReset === 'custom' && (
 						<FormItem label="字段" required name={[index, 'offsetValue']}>
 							<Editor
-								style={{ minHeight: 202, height: '100%' }}
+								style={{minHeight: 202, height: '100%'}}
 								className="bd"
 								sync
 								placeholder="分区 偏移量，比如pt 2 一行一对值"
@@ -349,14 +349,14 @@ export default function SourceForm({
 				) : (
 					<Checkbox.Group
 						options={[
-							{ label: 'ProcTime', value: 1 },
-							{ label: 'EventTime', value: 2 },
+							{label: 'ProcTime', value: 1},
+							{label: 'EventTime', value: 2},
 						]}
 					/>
 				)}
 			</FormItem>
 			<FormItem noStyle dependencies={[[index, 'timeTypeArr']]}>
-				{({ getFieldValue }) =>
+				{({getFieldValue}) =>
 					componentVersion === FLINK_VERSIONS.FLINK_1_12 &&
 					getFieldValue(NAME_FIELD)?.[index].timeTypeArr?.includes?.(
 						SOURCE_TIME_TYPE.PROC_TIME,
@@ -364,7 +364,7 @@ export default function SourceForm({
 						<FormItem
 							label="ProcTime 名称"
 							name={[index, 'procTime']}
-							rules={[{ pattern: /^\w*$/, message: '仅支持输入英文、数字、下划线' }]}
+							rules={[{pattern: /^\w*$/, message: '仅支持输入英文、数字、下划线'}]}
 						>
 							<Input
 								className="right-input"
@@ -383,9 +383,9 @@ export default function SourceForm({
 					[index, 'columnsText'],
 				]}
 			>
-				{({ getFieldValue }) =>
+				{({getFieldValue}) =>
 					((componentVersion !== FLINK_VERSIONS.FLINK_1_12 &&
-						getFieldValue(NAME_FIELD)?.[index].timeType ===
+							getFieldValue(NAME_FIELD)?.[index].timeType ===
 							SOURCE_TIME_TYPE.EVENT_TIME) ||
 						(componentVersion === FLINK_VERSIONS.FLINK_1_12 &&
 							getFieldValue(NAME_FIELD)?.[index].timeTypeArr?.includes?.(
@@ -455,13 +455,13 @@ export default function SourceForm({
 				}
 			</FormItem>
 			{/* 高级参数按钮 */}
-			<FormItem wrapperCol={{ span: 24 }}>
+			<FormItem wrapperCol={{span: 24}}>
 				<Button
 					block
 					type="link"
 					onClick={() => setShowAdvancedParams(!showAdvancedParams)}
 				>
-					高级参数{showAdvancedParams ? <UpOutlined /> : <DownOutlined />}
+					高级参数{showAdvancedParams ? <UpOutlined/> : <DownOutlined/>}
 				</Button>
 			</FormItem>
 			{/* 高级参数抽屉 */}
@@ -469,7 +469,7 @@ export default function SourceForm({
 				{() => (
 					<>
 						<FormItem name={[index, 'parallelism']} label="并行度">
-							<InputNumber style={{ width: '100%' }} min={1} />
+							<InputNumber style={{width: '100%'}} min={1}/>
 						</FormItem>
 						<FormItem
 							label="时区"
@@ -483,12 +483,12 @@ export default function SourceForm({
 								options={timeZoneData}
 							/>
 						</FormItem>
-						<CustomParams index={index} />
+						<CustomParams index={index}/>
 					</>
 				)}
 			</FormItem>
 			<FormItem noStyle shouldUpdate>
-				{({ getFieldValue }) => (
+				{({getFieldValue}) => (
 					<DataPreviewModal
 						visible={visible}
 						type={getFieldValue(NAME_FIELD)?.[index]?.type}

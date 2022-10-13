@@ -1,11 +1,11 @@
 package com.dtstack.taier.datasource.plugin.kerberos.core.hdfs;
 
+import com.dtstack.taier.datasource.api.exception.SourceException;
+import com.dtstack.taier.datasource.api.source.DataSourceType;
 import com.dtstack.taier.datasource.plugin.common.exception.IErrorPattern;
 import com.dtstack.taier.datasource.plugin.common.service.ErrorAdapterImpl;
 import com.dtstack.taier.datasource.plugin.common.service.IErrorAdapter;
 import com.dtstack.taier.datasource.plugin.kerberos.core.util.KerberosLoginUtil;
-import com.dtstack.taier.datasource.api.exception.SourceException;
-import com.dtstack.taier.datasource.api.source.DataSourceType;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.tuple.MutablePair;
@@ -99,7 +99,7 @@ public class HdfsOperator {
     }
 
 
-    public static FileSystem getFileSystemWithProxyUser(Map<String, Object> kerberosConfig, String config, String defaultFS,String proxyUserName) {
+    public static FileSystem getFileSystemWithProxyUser(Map<String, Object> kerberosConfig, String config, String defaultFS, String proxyUserName) {
         Configuration conf = HadoopConfUtil.getHdfsConf(defaultFS, config, kerberosConfig);
         log.info("get Hdfs FileSystem message, defaultFS : {}, config : {}, kerberosConfig : {}", defaultFS, config, kerberosConfig);
         // 加锁原因：UGI.doAs 没有锁，如果已经认证成功，在 FileSystem.get(conf) 执行前别的线程进行 kerberos 认证，此时 fs 正常获取，但是是不可用的

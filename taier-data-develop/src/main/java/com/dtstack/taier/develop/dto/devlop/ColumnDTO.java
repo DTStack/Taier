@@ -1,7 +1,6 @@
 package com.dtstack.taier.develop.dto.devlop;
 
 
-
 /**
  * Date: 2020/1/8
  * Company: www.dtstack.com

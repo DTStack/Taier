@@ -1,11 +1,11 @@
 package com.dtstack.taier.datasource.plugin.hdfs3.downloader;
 
 import com.alibaba.fastjson.JSON;
+import com.dtstack.taier.datasource.api.downloader.IDownloader;
+import com.dtstack.taier.datasource.api.exception.SourceException;
 import com.dtstack.taier.datasource.plugin.common.utils.ListUtil;
 import com.dtstack.taier.datasource.plugin.kerberos.core.hdfs.HdfsOperator;
 import com.dtstack.taier.datasource.plugin.kerberos.core.util.KerberosLoginUtil;
-import com.dtstack.taier.datasource.api.downloader.IDownloader;
-import com.dtstack.taier.datasource.api.exception.SourceException;
 import com.google.common.collect.Lists;
 import jodd.util.StringUtil;
 import lombok.extern.slf4j.Slf4j;

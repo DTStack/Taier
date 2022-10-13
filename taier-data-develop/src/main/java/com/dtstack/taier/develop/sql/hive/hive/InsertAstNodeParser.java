@@ -72,8 +72,8 @@ public class InsertAstNodeParser extends SelectAstNodeParser {
         result.setColumnLineages(columnLineageParser.parseLineage(result.getRoot()));
     }
 
-    private void setMainTableInfo(String insertTable){
-        if(StringUtils.isEmpty(insertTable)){
+    private void setMainTableInfo(String insertTable) {
+        if (StringUtils.isEmpty(insertTable)) {
             return;
         }
 

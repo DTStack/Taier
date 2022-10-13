@@ -19,7 +19,6 @@
 package org.apache.flink.yarn;
 
 import com.dtstack.taier.base.util.HadoopConfTool;
-import com.dtstack.taier.pluginapi.enums.EJobType;
 import com.dtstack.taier.flink.constant.ConfigConstant;
 import com.google.common.base.Strings;
 import com.google.common.collect.Sets;
@@ -131,7 +130,9 @@ import static org.apache.flink.util.Preconditions.checkArgument;
 import static org.apache.flink.util.Preconditions.checkNotNull;
 import static org.apache.flink.yarn.YarnConfigKeys.LOCAL_RESOURCE_DESCRIPTOR_SEPARATOR;
 
-/** The descriptor with deployment information for deploying a Flink cluster on Yarn. */
+/**
+ * The descriptor with deployment information for deploying a Flink cluster on Yarn.
+ */
 public class YarnClusterDescriptor implements ClusterDescriptor<ApplicationId> {
     private static final Logger LOG = LoggerFactory.getLogger(YarnClusterDescriptor.class);
 
@@ -141,10 +142,14 @@ public class YarnClusterDescriptor implements ClusterDescriptor<ApplicationId> {
 
     private final YarnClusterInformationRetriever yarnClusterInformationRetriever;
 
-    /** True if the descriptor must not shut down the YarnClient. */
+    /**
+     * True if the descriptor must not shut down the YarnClient.
+     */
     private final boolean sharedYarnClient;
 
-    /** Lazily initialized list of files to ship. */
+    /**
+     * Lazily initialized list of files to ship.
+     */
     private final List<File> shipFiles = new LinkedList<>();
 
     private final List<File> shipArchives = new LinkedList<>();
@@ -163,15 +168,19 @@ public class YarnClusterDescriptor implements ClusterDescriptor<ApplicationId> {
 
     private YarnConfigOptions.UserJarInclusion userJarInclusion;
 
-    /** Optional Jar file to include in the system class loader of all application nodes
-     * (for per-job submission). */
+    /**
+     * Optional Jar file to include in the system class loader of all application nodes
+     * (for per-job submission).
+     */
     private final Set<File> providedUserJarFiles = new HashSet<>();
 
     //------------------------------------ Constants   -------------------------
 
     private static final String FLINK_LOG_DIR = "flinkconf";
 
-    /** directory of log4j2 file */
+    /**
+     * directory of log4j2 file
+     */
     private static final String FLINK_VERSION = "log4j2";
 
     public YarnClusterDescriptor(
@@ -523,12 +532,12 @@ public class YarnClusterDescriptor implements ClusterDescriptor<ApplicationId> {
     /**
      * This method will block until the ApplicationMaster/JobManager have been deployed on YARN.
      *
-     * @param clusterSpecification Initial cluster specification for the Flink cluster to be
-     *     deployed
-     * @param applicationName name of the Yarn application to start
+     * @param clusterSpecification  Initial cluster specification for the Flink cluster to be
+     *                              deployed
+     * @param applicationName       name of the Yarn application to start
      * @param yarnClusterEntrypoint Class name of the Yarn cluster entry point.
-     * @param jobGraph A job graph which is deployed with the Flink cluster, {@code null} if none
-     * @param detached True if the cluster should be started in detached mode
+     * @param jobGraph              A job graph which is deployed with the Flink cluster, {@code null} if none
+     * @param detached              True if the cluster should be started in detached mode
      */
     private ClusterClientProvider<ApplicationId> deployInternal(
             ClusterSpecification clusterSpecification,
@@ -566,8 +575,8 @@ public class YarnClusterDescriptor implements ClusterDescriptor<ApplicationId> {
         final YarnClientApplication yarnApplication = yarnClient.createApplication();
         final GetNewApplicationResponse appResponse = yarnApplication.getNewApplicationResponse();
 
-        if(clusterSpecification.isCreateProgramDelay()){
-            jobGraph = getJobGraph(appResponse.getApplicationId().toString(),clusterSpecification);
+        if (clusterSpecification.isCreateProgramDelay()) {
+            jobGraph = getJobGraph(appResponse.getApplicationId().toString(), clusterSpecification);
         }
 
         Resource maxRes = appResponse.getMaximumResourceCapability();
@@ -740,7 +749,7 @@ public class YarnClusterDescriptor implements ClusterDescriptor<ApplicationId> {
             List<QueueInfo> queues = yarnClient.getAllQueues();
             if (queues.size() > 0
                     && this.yarnQueue
-                            != null) { // check only if there are queues configured in yarn and for
+                    != null) { // check only if there are queues configured in yarn and for
                 // this session.
                 boolean queueFound = false;
                 for (QueueInfo queue : queues) {
@@ -842,12 +851,12 @@ public class YarnClusterDescriptor implements ClusterDescriptor<ApplicationId> {
                     FLINK_VERSION + File.separator + logLevel;
             String uploadConfigFilePath = configFileParentPath + File.separator + YarnLogConfigUtil.CONFIG_FILE_LOG4J_NAME;
             File uploadFile = new File(uploadConfigFilePath);
-            if ( uploadFile.exists() ) {
+            if (uploadFile.exists()) {
                 logConfigFilePath = uploadConfigFilePath;
             } else {
                 uploadConfigFilePath = configFileParentPath + File.separator + YarnLogConfigUtil.CONFIG_FILE_LOGBACK_NAME;
                 uploadFile = new File(uploadConfigFilePath);
-                if ( uploadFile.exists() ) {
+                if (uploadFile.exists()) {
                     logConfigFilePath = uploadConfigFilePath;
                 } else {
                     LOG.warn("No log configuration file to upload was found. Please check if there are any log configuration files in the [{}] ", configFileParentPath);
@@ -1005,7 +1014,7 @@ public class YarnClusterDescriptor implements ClusterDescriptor<ApplicationId> {
         File tmpFileDir = new File(System.getProperty("user.dir") + File.separator + "tmp112");
         if (!tmpFileDir.exists()) {
             boolean succeed = tmpFileDir.mkdirs();
-            if(!succeed){
+            if (!succeed) {
                 LOG.error("failed to create directory {}.", tmpFileDir.getAbsolutePath());
             }
         }
@@ -1062,7 +1071,7 @@ public class YarnClusterDescriptor implements ClusterDescriptor<ApplicationId> {
             try {
                 tmpJobGraphFile = File.createTempFile(appId.toString(), null);
                 try (FileOutputStream output = new FileOutputStream(tmpJobGraphFile);
-                        ObjectOutputStream obOutput = new ObjectOutputStream(output)) {
+                     ObjectOutputStream obOutput = new ObjectOutputStream(output)) {
                     obOutput.writeObject(jobGraph);
                 }
 
@@ -1561,7 +1570,8 @@ public class YarnClusterDescriptor implements ClusterDescriptor<ApplicationId> {
         private final Method applicationTagsMethod;
         private final Method attemptFailuresValidityIntervalMethod;
         private final Method keepContainersMethod;
-        @Nullable private final Method nodeLabelExpressionMethod;
+        @Nullable
+        private final Method nodeLabelExpressionMethod;
 
         private ApplicationSubmissionContextReflector(Class<ApplicationSubmissionContext> clazz) {
             Method applicationTagsMethod;
@@ -1905,7 +1915,7 @@ public class YarnClusterDescriptor implements ClusterDescriptor<ApplicationId> {
                 yarnApplicationId);
     }
 
-    private JobGraph getJobGraph(String appId, ClusterSpecification clusterSpecification) throws Exception{
+    private JobGraph getJobGraph(String appId, ClusterSpecification clusterSpecification) throws Exception {
         PackagedProgram program = buildProgram(clusterSpecification);
         clusterSpecification.setProgram(program);
         JobGraph jobGraph = PackagedProgramUtils.createJobGraph(program, this.flinkConfiguration, clusterSpecification.getParallelism(), false);
@@ -1930,8 +1940,8 @@ public class YarnClusterDescriptor implements ClusterDescriptor<ApplicationId> {
         List<File> shipFiles = new ArrayList<>();
         // flinksql get classpath
         Map<String, DistributedCache.DistributedCacheEntry> jobCacheFileConfig = jobGraph.getUserArtifacts();
-        for(Map.Entry<String,  DistributedCache.DistributedCacheEntry> tmp : jobCacheFileConfig.entrySet()){
-            if(tmp.getKey().startsWith("class_path")){
+        for (Map.Entry<String, DistributedCache.DistributedCacheEntry> tmp : jobCacheFileConfig.entrySet()) {
+            if (tmp.getKey().startsWith("class_path")) {
                 shipFiles.add(new File(tmp.getValue().filePath));
             }
         }
@@ -1949,10 +1959,10 @@ public class YarnClusterDescriptor implements ClusterDescriptor<ApplicationId> {
         addShipFiles(shipFiles);
     }
 
-    private  JobGraph fillStreamJobGraphClassPath(JobGraph jobGraph) throws MalformedURLException {
+    private JobGraph fillStreamJobGraphClassPath(JobGraph jobGraph) throws MalformedURLException {
         Map<String, DistributedCache.DistributedCacheEntry> jobCacheFileConfig = jobGraph.getUserArtifacts();
-        for(Map.Entry<String,  DistributedCache.DistributedCacheEntry> tmp : jobCacheFileConfig.entrySet()){
-            if(tmp.getKey().startsWith("class_path")){
+        for (Map.Entry<String, DistributedCache.DistributedCacheEntry> tmp : jobCacheFileConfig.entrySet()) {
+            if (tmp.getKey().startsWith("class_path")) {
                 jobGraph.getClasspaths().add(new URL("file:" + tmp.getValue().filePath));
             }
         }
@@ -1963,24 +1973,24 @@ public class YarnClusterDescriptor implements ClusterDescriptor<ApplicationId> {
         Map<String, String> jobCacheFileConfig = jobGraph.getJobConfiguration().toMap();
         Set<String> classPathKeySet = Sets.newHashSet();
         fillClassPathKeySet(jobCacheFileConfig, classPathKeySet);
-        for(String key : classPathKeySet){
+        for (String key : classPathKeySet) {
             String pathStr = jobCacheFileConfig.get(key);
             jobGraph.getClasspaths().add(new URL("file:" + pathStr));
         }
     }
 
     private void fillClassPathKeySet(Map<String, String> jobCacheFileConfig, Set<String> classPathKeySet) {
-        for(Map.Entry<String, String> tmp : jobCacheFileConfig.entrySet()){
-            if(Strings.isNullOrEmpty(tmp.getValue())){
+        for (Map.Entry<String, String> tmp : jobCacheFileConfig.entrySet()) {
+            if (Strings.isNullOrEmpty(tmp.getValue())) {
                 continue;
             }
 
-            if(tmp.getValue().startsWith("class_path")){
+            if (tmp.getValue().startsWith("class_path")) {
                 //DISTRIBUTED_CACHE_FILE_NAME_1
                 //DISTRIBUTED_CACHE_FILE_PATH_1
                 String key = tmp.getKey();
                 String[] array = key.split("_");
-                if(array.length < 5){
+                if (array.length < 5) {
                     continue;
                 }
 
@@ -1990,7 +2000,7 @@ public class YarnClusterDescriptor implements ClusterDescriptor<ApplicationId> {
         }
     }
 
-    private PackagedProgram buildProgram(ClusterSpecification clusterSpecification) throws Exception{
+    private PackagedProgram buildProgram(ClusterSpecification clusterSpecification) throws Exception {
         PackagedProgram program = PackagedProgram.newBuilder()
                 .setJarFile(clusterSpecification.getJarFile())
                 .setUserClassPaths(clusterSpecification.getClassPaths())

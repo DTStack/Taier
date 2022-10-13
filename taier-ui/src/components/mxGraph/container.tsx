@@ -1,19 +1,19 @@
-import React, { forwardRef, useEffect, useImperativeHandle, useRef, useState } from 'react';
-import { ReloadOutlined, ZoomInOutlined, ZoomOutOutlined } from '@ant-design/icons';
-import { Space, Spin, Tooltip } from 'antd';
+import type {ForwardedRef, Ref} from 'react';
+import React, {forwardRef, useEffect, useImperativeHandle, useRef, useState} from 'react';
+import {ReloadOutlined, ZoomInOutlined, ZoomOutOutlined} from '@ant-design/icons';
+import {Space, Spin, Tooltip} from 'antd';
 import MxFactory from '.';
 import type {
-	mxGraph,
 	mxCell,
 	mxCellHighlight,
-	mxEventSource,
-	mxPopupMenuHandler,
 	mxCellState,
-	mxKeyHandler,
 	mxEventObject,
+	mxEventSource,
+	mxGraph,
+	mxKeyHandler,
+	mxPopupMenuHandler,
 } from 'mxgraph';
-import type { Ref, ForwardedRef } from 'react';
-import { renderCharacterByCode } from '@/utils';
+import {renderCharacterByCode} from '@/utils';
 import './container.scss';
 
 const Mx = new MxFactory();
@@ -236,14 +236,12 @@ function MxGraphContainer<T extends IMxGraphData>(
 ) {
 	const container = useRef<HTMLDivElement>(null);
 	const graph = useRef<mxGraph>();
-	const graphView = useRef<
-		| undefined
+	const graphView = useRef<| undefined
 		| {
-				scale: number;
-				dx: number;
-				dy: number;
-		  }
-	>(undefined);
+		scale: number;
+		dx: number;
+		dy: number;
+	}>(undefined);
 	const keybindingsRef = useRef<IKeyDownConfig[]>([]);
 	const [current, setCurrent] = useState<null | T>(null);
 
@@ -282,7 +280,7 @@ function MxGraphContainer<T extends IMxGraphData>(
 			if (graph.current) {
 				const cell = graph.current.getModel().getCell(cellId);
 				if (cell) {
-					cell.setValue({ ...cell.value, ...data });
+					cell.setValue({...cell.value, ...data});
 					onCellsChanged?.(cell);
 					graph.current.view.refresh();
 				}
@@ -478,7 +476,7 @@ function MxGraphContainer<T extends IMxGraphData>(
 			const keyBindings = onKeyDown();
 			keybindingsRef.current = keyBindings;
 
-			keyBindings.forEach(({ method, keyCode, func }) => {
+			keyBindings.forEach(({method, keyCode, func}) => {
 				keyHandler[method](keyCode, () => {
 					if (graph.current?.isEnabled()) {
 						func();
@@ -670,7 +668,7 @@ function MxGraphContainer<T extends IMxGraphData>(
 				? await onContextMenu?.(cell.value!, cell, graph.current!)
 				: await onEdgeContextMenu?.(cell.value!, cell, graph.current!);
 
-			contextMenus?.forEach(({ id, title, disabled, children: subMenu, callback }) => {
+			contextMenus?.forEach(({id, title, disabled, children: subMenu, callback}) => {
 				// 如果发现当前菜单项在快捷键里存在相同 id 的注册事件
 				const target =
 					!!keybindingsRef.current.length &&
@@ -680,14 +678,14 @@ function MxGraphContainer<T extends IMxGraphData>(
 				const parent = menu.addItem(
 					target
 						? `${title}(${(() => {
-								switch (target.method) {
-									case 'bindControlKey':
-										return mxClient.IS_MAC ? '⌘' : 'Meta';
-									case 'bindKey':
-									default:
-										return '';
-								}
-						  })()} ${renderCharacterByCode(target.keyCode)})`
+							switch (target.method) {
+								case 'bindControlKey':
+									return mxClient.IS_MAC ? '⌘' : 'Meta';
+								case 'bindKey':
+								default:
+									return '';
+							}
+						})()} ${renderCharacterByCode(target.keyCode)})`
 						: title,
 					undefined,
 					() => {
@@ -733,7 +731,7 @@ function MxGraphContainer<T extends IMxGraphData>(
 			}));
 
 			while (stack.length) {
-				const { sourceOrTarget, data } = stack.pop()!;
+				const {sourceOrTarget, data} = stack.pop()!;
 				const style = onDrawVertex?.(data);
 
 				const vertex = graph.current!.insertVertex(
@@ -871,13 +869,13 @@ function MxGraphContainer<T extends IMxGraphData>(
 				<Space size={12}>
 					{onRenderActions?.(graph.current)}
 					<Tooltip placement="bottom" title="刷新">
-						<ReloadOutlined onClick={handleRefresh} />
+						<ReloadOutlined onClick={handleRefresh}/>
 					</Tooltip>
 					<Tooltip placement="bottom" title="放大">
-						<ZoomInOutlined onClick={() => handleLayoutZoom(ZoomKind.In)} />
+						<ZoomInOutlined onClick={() => handleLayoutZoom(ZoomKind.In)}/>
 					</Tooltip>
 					<Tooltip placement="bottom" title="缩小">
-						<ZoomOutOutlined onClick={() => handleLayoutZoom(ZoomKind.Out)} />
+						<ZoomOutOutlined onClick={() => handleLayoutZoom(ZoomKind.Out)}/>
 					</Tooltip>
 				</Space>
 			</div>

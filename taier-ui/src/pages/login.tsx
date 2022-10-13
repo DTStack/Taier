@@ -16,14 +16,14 @@
  * limitations under the License.
  */
 
-import { useState, useLayoutEffect } from 'react';
-import { Button, Checkbox, Form, Input, message, Modal, Select } from 'antd';
+import {useLayoutEffect, useState} from 'react';
+import {Button, Checkbox, Form, Input, message, Modal, Select} from 'antd';
 import api from '@/api';
-import { formItemLayout } from '@/constant';
-import { getTenantId, getCookie } from '@/utils';
+import {formItemLayout} from '@/constant';
+import {getCookie, getTenantId} from '@/utils';
 import './login.scss';
 
-const { Option } = Select;
+const {Option} = Select;
 
 interface IFormField {
 	username: string;
@@ -108,7 +108,7 @@ export default () => {
 	};
 
 	const doTenantChange = (tenantId: number, isDefault: boolean) => {
-		api.switchTenant({ tenantId }).then((res) => {
+		api.switchTenant({tenantId}).then((res) => {
 			if (res.code === 1) {
 				if (isDefault) {
 					const userId = getCookie('userId');
@@ -143,7 +143,7 @@ export default () => {
 				form={form}
 				hidden={isLogin}
 				preserve={false}
-				wrapperCol={{ span: 24 }}
+				wrapperCol={{span: 24}}
 				autoComplete="off"
 				onFinish={handleOk}
 			>
@@ -215,7 +215,7 @@ export default () => {
 				onFinish={handleTenantSubmit}
 			>
 				<Form.Item label="租户名称" name="change_ten_id">
-					<Select style={{ width: '100%' }} showSearch placeholder="请选择租户">
+					<Select style={{width: '100%'}} showSearch placeholder="请选择租户">
 						{tenants.map((o) => (
 							<Option key={o.tenantId} value={o.tenantId}>
 								{o.tenantName}

@@ -19,6 +19,7 @@ import java.util.Map;
 /**
  * Date: 2021/09/13
  * Company: www.dtstack.com
+ *
  * @author xiuzhu
  */
 public class HadoopUtils {
@@ -47,12 +48,12 @@ public class HadoopUtils {
     public static Configuration initConfiguration(BaseConfig baseConfig, Map<String, Object> hadoopConf, boolean loadDefaults) {
         Configuration configuration = new Configuration(loadDefaults);
 
-        if(MapUtils.isNotEmpty(hadoopConf)){
-            hadoopConf.keySet().forEach(key ->{
+        if (MapUtils.isNotEmpty(hadoopConf)) {
+            hadoopConf.keySet().forEach(key -> {
                 Object value = hadoopConf.get(key);
-                if (value instanceof String){
+                if (value instanceof String) {
                     configuration.set(key, (String) value);
-                } else if (value instanceof Boolean){
+                } else if (value instanceof Boolean) {
                     configuration.setBoolean(key, (boolean) value);
                 }
             });
@@ -65,8 +66,8 @@ public class HadoopUtils {
 
         // set hfds crypto.codec failover
         String cryptoCodec = configuration.get("hadoop.security.crypto.codec.classes.aes.ctr.nopadding");
-        if(cryptoCodec == null || "".equals(cryptoCodec.trim())){
-            String failoverCryptoCodec= "org.apache.hadoop.crypto.OpensslAesCtrCryptoCodec, org.apache.hadoop.crypto.JceAesCtrCryptoCodec";
+        if (cryptoCodec == null || "".equals(cryptoCodec.trim())) {
+            String failoverCryptoCodec = "org.apache.hadoop.crypto.OpensslAesCtrCryptoCodec, org.apache.hadoop.crypto.JceAesCtrCryptoCodec";
             configuration.set("hadoop.security.crypto.codec.classes.aes.ctr.nopadding", failoverCryptoCodec);
         }
 
@@ -95,12 +96,12 @@ public class HadoopUtils {
         Configuration configuration = initConfiguration(baseConfig, hadoopConf, loadDefaults);
         YarnConfiguration yarnConfiguration = new YarnConfiguration(configuration);
 
-        if(MapUtils.isNotEmpty(yarnConf)){
-            yarnConf.keySet().forEach(key ->{
+        if (MapUtils.isNotEmpty(yarnConf)) {
+            yarnConf.keySet().forEach(key -> {
                 Object value = yarnConf.get(key);
-                if (value instanceof String){
+                if (value instanceof String) {
                     yarnConfiguration.set(key, (String) value);
-                } else if (value instanceof Boolean){
+                } else if (value instanceof Boolean) {
                     yarnConfiguration.setBoolean(key, (boolean) value);
                 }
             });
@@ -137,11 +138,10 @@ public class HadoopUtils {
     }
 
 
-
-    public static String getRMWebAddress(YarnConfiguration yarnConf, YarnClient yarnClient){
+    public static String getRMWebAddress(YarnConfiguration yarnConf, YarnClient yarnClient) {
         String rmId;
         String webAddress = "";
-        try{
+        try {
             Field rmClientField = yarnClient.getClass().getDeclaredField("rmClient");
             rmClientField.setAccessible(true);
             Object rmClient = rmClientField.get(yarnClient);
@@ -156,7 +156,7 @@ public class HadoopUtils {
                 Field currentProxyField = h.getClass().getDeclaredField("currentProxy");
                 currentProxyField.setAccessible(true);
                 currentProxy = currentProxyField.get(h);
-            }catch (Exception e){
+            } catch (Exception e) {
                 //兼容Hadoop 2.7.3.2.6.4.91-3
                 Field proxyDescriptorField = h.getClass().getDeclaredField("proxyDescriptor");
                 proxyDescriptorField.setAccessible(true);
@@ -169,7 +169,7 @@ public class HadoopUtils {
             Field proxyInfoField = currentProxy.getClass().getDeclaredField("proxyInfo");
             proxyInfoField.setAccessible(true);
             rmId = (String) proxyInfoField.get(currentProxy);
-        }catch (Exception e){
+        } catch (Exception e) {
             LOG.error("get proxyDescriptor error: {}", e);
             rmId = getYarnRmIdFromConf(yarnConf);
         }
@@ -177,7 +177,7 @@ public class HadoopUtils {
         String policyStr = yarnConf.get(YarnConfiguration.YARN_HTTP_POLICY_KEY);
         HttpConfig.Policy defaultPolicy = HttpConfig.Policy.HTTP_ONLY;
         HttpConfig.Policy policy = HttpConfig.Policy.fromString(policyStr);
-        if (policy == null ) {
+        if (policy == null) {
             policy = defaultPolicy;
         }
         String httpAddress = null;

@@ -1,21 +1,21 @@
-import { useContext, useMemo, useState } from 'react';
-import type { FormItemProps } from 'antd';
+import {useContext, useMemo, useState} from 'react';
+import type {FormItemProps} from 'antd';
 import {
-	Popconfirm,
-	Space,
-	Checkbox,
 	Button,
 	Cascader,
-	message,
-	Select,
-	Tooltip,
-	Upload,
+	Checkbox,
+	Collapse,
 	Form,
 	Input,
 	Layout,
+	message,
+	Popconfirm,
 	Radio,
-	Collapse,
+	Select,
+	Space,
 	Spin,
+	Tooltip,
+	Upload,
 } from 'antd';
 import api from '@/api';
 import context from '@/context/cluster';
@@ -28,12 +28,12 @@ import {
 	RightOutlined,
 	UploadOutlined,
 } from '@ant-design/icons';
-import type { RcFile } from 'antd/lib/upload';
-import type { IComponentProps } from '.';
+import type {RcFile} from 'antd/lib/upload';
+import type {IComponentProps} from '.';
 import './detail.scss';
 
-const { Sider, Content } = Layout;
-const { Panel } = Collapse;
+const {Sider, Content} = Layout;
+const {Panel} = Collapse;
 
 interface IDetailProps {
 	templateData: ILayoutData[];
@@ -83,16 +83,16 @@ export interface ITemplateData {
 }
 
 export default function Detail({
-	loading,
-	currentTreeNode,
-	templateData = [],
-	onUploadConfigSuccess,
-	onUploadKerberos,
-	onDeleteKerberos,
-	onDownloadKerberos,
-	onDownloadConfig,
-}: IDetailProps) {
-	const { principals } = useContext(context);
+								   loading,
+								   currentTreeNode,
+								   templateData = [],
+								   onUploadConfigSuccess,
+								   onUploadKerberos,
+								   onDeleteKerberos,
+								   onDownloadKerberos,
+								   onDownloadConfig,
+							   }: IDetailProps) {
+	const {principals} = useContext(context);
 	const [collapsed, setCollapsed] = useState(false);
 
 	const handleUploadConfig = (file: RcFile) => {
@@ -116,9 +116,9 @@ export default function Detail({
 	const renderContent = (type: ILayoutData['type'], componentProps?: any) => {
 		switch (type.toLocaleUpperCase()) {
 			case 'INPUT':
-				return <Input />;
+				return <Input/>;
 			case 'PASSWORD':
-				return <Input.Password />;
+				return <Input.Password/>;
 			case 'RADIO_LINKAGE':
 				return <Radio.Group {...componentProps} />;
 			case 'CHECKBOX':
@@ -142,15 +142,15 @@ export default function Detail({
 				name="versionName"
 				label="组件版本"
 				colon={false}
-				labelCol={{ span: 24 }}
-				wrapperCol={{ span: 24 }}
+				labelCol={{span: 24}}
+				wrapperCol={{span: 24}}
 			>
 				{isCascader ? (
 					<Cascader
 						displayRender={(label) => label[label.length - 1]}
 						allowClear={false}
 						options={currentTreeNode.versionDictionary!}
-						fieldNames={{ label: 'key', value: 'key', children: 'value' }}
+						fieldNames={{label: 'key', value: 'key', children: 'value'}}
 						placeholder="请选择组件版本"
 					/>
 				) : (
@@ -172,17 +172,17 @@ export default function Detail({
 			className="sider-formItem"
 			label="配置文件"
 			colon={false}
-			labelCol={{ span: 24 }}
-			wrapperCol={{ span: 24 }}
+			labelCol={{span: 24}}
+			wrapperCol={{span: 24}}
 		>
 			<Upload accept=".zip" fileList={[]} beforeUpload={handleUploadConfig}>
-				<Button block icon={<UploadOutlined />}>
+				<Button block icon={<UploadOutlined/>}>
 					点击上传
 				</Button>
 				<span className="description">zip格式，至少包括yarn-site.xml和core-site.xml</span>
 			</Upload>
 			<Form.Item noStyle name="uploadFileName">
-				<FileCol actionSlot={['download']} onDownload={onDownloadConfig} />
+				<FileCol actionSlot={['download']} onDownload={onDownloadConfig}/>
 			</Form.Item>
 		</Form.Item>
 	);
@@ -193,11 +193,11 @@ export default function Detail({
 				className="sider-formItem"
 				label="Hadoop Kerberos认证文件"
 				colon={false}
-				labelCol={{ span: 24 }}
-				wrapperCol={{ span: 24 }}
+				labelCol={{span: 24}}
+				wrapperCol={{span: 24}}
 			>
 				<Upload accept=".zip" fileList={[]} beforeUpload={hanldeUploadKerberos}>
-					<Button block icon={<UploadOutlined />}>
+					<Button block icon={<UploadOutlined/>}>
 						点击上传
 					</Button>
 					<span className="description">仅支持.zip格式</span>
@@ -214,8 +214,8 @@ export default function Detail({
 				<Form.Item
 					className="sider-formItem"
 					colon={false}
-					labelCol={{ span: 24 }}
-					wrapperCol={{ span: 24 }}
+					labelCol={{span: 24}}
+					wrapperCol={{span: 24}}
 					name="principal"
 					label="principal"
 				>
@@ -244,11 +244,11 @@ export default function Detail({
 		const res: (
 			| { type: 'NON_GROUP'; children: ILayoutData[] }
 			| {
-					type: 'GROUP';
-					groupName: string;
-					children: ILayoutData[];
-			  }
-		)[] = [];
+			type: 'GROUP';
+			groupName: string;
+			children: ILayoutData[];
+		}
+			)[] = [];
 		templateData.forEach((template) => {
 			if (Array.isArray(template.name)) {
 				const groupName = template.name[0]!.toString();
@@ -264,7 +264,7 @@ export default function Detail({
 					});
 				}
 			} else {
-				res.push({ type: 'NON_GROUP', children: [template] });
+				res.push({type: 'NON_GROUP', children: [template]});
 			}
 		});
 
@@ -285,7 +285,7 @@ export default function Detail({
 							className="cluster-component-collapse"
 							onClick={() => setCollapsed((c) => !c)}
 						>
-							{collapsed ? <RightOutlined /> : <LeftOutlined />}
+							{collapsed ? <RightOutlined/> : <LeftOutlined/>}
 						</Button>
 					</Sider>
 				)}
@@ -303,8 +303,8 @@ export default function Detail({
 							return (
 								<Form.Item
 									key={id}
-									labelCol={{ span: 8 }}
-									wrapperCol={{ span: 12 }}
+									labelCol={{span: 8}}
+									wrapperCol={{span: 12}}
 									label={
 										<Tooltip title={label}>
 											<span className="formitem-config-text">{label}</span>
@@ -323,21 +323,21 @@ export default function Detail({
 								bordered={false}
 								className="cluster__detail__collapse"
 								defaultActiveKey={[template.groupName]}
-								expandIcon={({ isActive }) => (
-									<CaretRightOutlined rotate={isActive ? 90 : 0} />
+								expandIcon={({isActive}) => (
+									<CaretRightOutlined rotate={isActive ? 90 : 0}/>
 								)}
 							>
 								<Panel header={template.groupName} key={template.groupName}>
 									{template.children.map(
 										({
-											id,
-											componentProps,
-											type,
-											dependencyValue,
-											label,
-											dependencies,
-											...formItemProps
-										}) => {
+											 id,
+											 componentProps,
+											 type,
+											 dependencyValue,
+											 label,
+											 dependencies,
+											 ...formItemProps
+										 }) => {
 											return (
 												<Form.Item
 													key={id}
@@ -345,7 +345,7 @@ export default function Detail({
 													requiredMark={formItemProps.required}
 													dependencies={dependencies}
 												>
-													{({ getFieldValue }) => {
+													{({getFieldValue}) => {
 														const value = getFieldValue(
 															dependencies![0],
 														);
@@ -356,8 +356,8 @@ export default function Detail({
 														return (
 															isShow && (
 																<Form.Item
-																	labelCol={{ span: 8 }}
-																	wrapperCol={{ span: 12 }}
+																	labelCol={{span: 8}}
+																	wrapperCol={{span: 12}}
 																	label={
 																		<Tooltip title={label}>
 																			<span className="formitem-config-text">
@@ -385,7 +385,7 @@ export default function Detail({
 					})}
 
 					<Form.Item dependencies={['config']} noStyle>
-						{({ getFieldValue }) => {
+						{({getFieldValue}) => {
 							const fieldValue = getFieldValue('config');
 							if (!fieldValue) return null;
 							return Object.keys(fieldValue).map((key) => {
@@ -397,10 +397,10 @@ export default function Detail({
 											</Tooltip>
 										}
 										key={key}
-										labelCol={{ span: 8 }}
-										wrapperCol={{ span: 12 }}
+										labelCol={{span: 8}}
+										wrapperCol={{span: 12}}
 									>
-										<Input value={fieldValue[key]} />
+										<Input value={fieldValue[key]}/>
 									</Form.Item>
 								);
 							});
@@ -413,11 +413,11 @@ export default function Detail({
 }
 
 function FileCol({
-	value,
-	actionSlot = [],
-	onDelete,
-	onDownload,
-}: {
+					 value,
+					 actionSlot = [],
+					 onDelete,
+					 onDownload,
+				 }: {
 	value?: string | RcFile;
 	actionSlot?: ('delete' | 'download')[];
 	onDelete?: () => void;
@@ -434,15 +434,15 @@ function FileCol({
 				cancelText="取消"
 				key="delete"
 			>
-				<DeleteOutlined />
+				<DeleteOutlined/>
 			</Popconfirm>
 		),
-		download: <DownloadOutlined onClick={onDownload} key="download" />,
+		download: <DownloadOutlined onClick={onDownload} key="download"/>,
 	};
 
 	return value ? (
 		<div className="cluster-file-col">
-			<PaperClipOutlined />
+			<PaperClipOutlined/>
 			<Tooltip title={isFileName ? value : value.name} placement="topLeft">
 				<span className="cluster-file-name">{isFileName ? value : value.name}</span>
 			</Tooltip>

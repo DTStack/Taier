@@ -89,6 +89,7 @@ public class JobService extends ServiceImpl<ScheduleJobMapper, ScheduleJob> {
 
     @Autowired
     private FillStatusUpdateFinishEvent fillStatusUpdateFinishEvent;
+
     /**
      * 查询周期实例列表
      *

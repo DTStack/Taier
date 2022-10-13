@@ -115,7 +115,7 @@ public class ScriptConfiguration extends Configuration {
     };
 
     /**
-     *  Python configuration
+     * Python configuration
      */
     public static final String SCRIPT_PYTHON2_PATH = "script.python2.path";
     public static final String SCRIPT_PYTHON3_PATH = "script.python3.path";

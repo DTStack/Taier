@@ -19,7 +19,7 @@ public class Hive2XReaderParam extends DaPluginParam {
     protected String fileType = FileType.ORCFILE.getVal();
     protected String encoding = "utf-8";
     protected String fieldDelimiter = "\001";
-    protected Map<String,Object> hadoopConfig;
+    protected Map<String, Object> hadoopConfig;
     protected long interval;
     protected List column;
     protected String writeMode;

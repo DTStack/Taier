@@ -67,20 +67,30 @@ public class JobGraph implements Serializable {
 
     // --- job and configuration ---
 
-    /** List of task vertices included in this job graph. */
+    /**
+     * List of task vertices included in this job graph.
+     */
     private final Map<JobVertexID, JobVertex> taskVertices =
             new LinkedHashMap<JobVertexID, JobVertex>();
 
-    /** The job configuration attached to this job. */
+    /**
+     * The job configuration attached to this job.
+     */
     private final Configuration jobConfiguration = new Configuration();
 
-    /** ID of this job. May be set if specific job id is desired (e.g. session management) */
+    /**
+     * ID of this job. May be set if specific job id is desired (e.g. session management)
+     */
     private JobID jobID;
 
-    /** Name of this job. */
+    /**
+     * Name of this job.
+     */
     private final String jobName;
 
-    /** The mode in which the job is scheduled. */
+    /**
+     * The mode in which the job is scheduled.
+     */
     private ScheduleMode scheduleMode = ScheduleMode.LAZY_FROM_SOURCES;
 
     /**
@@ -91,31 +101,47 @@ public class JobGraph implements Serializable {
 
     // --- checkpointing ---
 
-    /** Job specific execution config. */
+    /**
+     * Job specific execution config.
+     */
     private SerializedValue<ExecutionConfig> serializedExecutionConfig;
 
-    /** The settings for the job checkpoints. */
+    /**
+     * The settings for the job checkpoints.
+     */
     private JobCheckpointingSettings snapshotSettings;
 
-    /** Savepoint restore settings. */
+    /**
+     * Savepoint restore settings.
+     */
     private SavepointRestoreSettings savepointRestoreSettings = SavepointRestoreSettings.none();
 
     // --- attached resources ---
 
-    /** Set of JAR files required to run this job. */
+    /**
+     * Set of JAR files required to run this job.
+     */
     private final List<Path> userJars = new ArrayList<Path>();
 
-    /** Set of custom files required to run this job. */
+    /**
+     * Set of custom files required to run this job.
+     */
     private final Map<String, DistributedCache.DistributedCacheEntry> userArtifacts =
             new HashMap<>();
 
-    /** Set of blob keys identifying the JAR files required to run this job. */
+    /**
+     * Set of blob keys identifying the JAR files required to run this job.
+     */
     private final List<PermanentBlobKey> userJarBlobKeys = new ArrayList<>();
 
-    /** List of classpaths required to run this job. */
+    /**
+     * List of classpaths required to run this job.
+     */
     private List<URL> classpaths = Collections.emptyList();
 
-    /** save the relation of JobVertexID and OperatorNames. */
+    /**
+     * save the relation of JobVertexID and OperatorNames.
+     */
     private Map<JobVertexID, List<String>> vertexOperatorNames = new HashMap<>();
 
     // --------------------------------------------------------------------------------------------
@@ -135,7 +161,7 @@ public class JobGraph implements Serializable {
      * the given name and the given execution configuration (see {@link ExecutionConfig}). The
      * ExecutionConfig will be serialized and can't be modified afterwards.
      *
-     * @param jobId The id of the job. A random ID is generated, if {@code null} is passed.
+     * @param jobId   The id of the job. A random ID is generated, if {@code null} is passed.
      * @param jobName The name of the job.
      */
     public JobGraph(JobID jobId, String jobName) {
@@ -166,7 +192,7 @@ public class JobGraph implements Serializable {
      * job ID, and the given job vertices. The ExecutionConfig will be serialized and can't be
      * modified afterwards.
      *
-     * @param jobName The name of the job.
+     * @param jobName  The name of the job.
      * @param vertices The vertices to add to the graph.
      */
     public JobGraph(String jobName, JobVertex... vertices) {
@@ -178,8 +204,8 @@ public class JobGraph implements Serializable {
      * jobId or a random one if null supplied, and the given job vertices. The ExecutionConfig will
      * be serialized and can't be modified afterwards.
      *
-     * @param jobId The id of the job. A random ID is generated, if {@code null} is passed.
-     * @param jobName The name of the job.
+     * @param jobId    The id of the job. A random ID is generated, if {@code null} is passed.
+     * @param jobName  The name of the job.
      * @param vertices The vertices to add to the graph.
      */
     public JobGraph(JobID jobId, String jobName, JobVertex... vertices) {
@@ -201,7 +227,9 @@ public class JobGraph implements Serializable {
         return this.jobID;
     }
 
-    /** Sets the ID of the job. */
+    /**
+     * Sets the ID of the job.
+     */
     public void setJobID(JobID jobID) {
         this.jobID = jobID;
     }
@@ -388,7 +416,7 @@ public class JobGraph implements Serializable {
      *
      * @param id the ID of the vertex to search for
      * @return the vertex with the matching ID or <code>null</code> if no vertex with such ID could
-     *     be found
+     * be found
      */
     public JobVertex findVertexByID(JobVertexID id) {
         return this.taskVertices.get(id);
@@ -527,7 +555,7 @@ public class JobGraph implements Serializable {
      * Adds the given jar files to the {@link JobGraph} via {@link JobGraph#addJar}.
      *
      * @param jarFilesToAttach a list of the {@link URL URLs} of the jar files to attach to the
-     *     jobgraph.
+     *                         jobgraph.
      * @throws RuntimeException if a jar URL is not valid.
      */
     public void addJars(final List<URL> jarFilesToAttach) {
@@ -553,7 +581,7 @@ public class JobGraph implements Serializable {
      * Adds the path of a custom file required to run the job on a task manager.
      *
      * @param name a name under which this artifact will be accessible through {@link
-     *     DistributedCache}
+     *             DistributedCache}
      * @param file path of a custom file required to run the job on a task manager
      */
     public void addUserArtifact(String name, DistributedCache.DistributedCacheEntry file) {
@@ -647,6 +675,7 @@ public class JobGraph implements Serializable {
 
     /**
      * Returns the all operatorNames of current JobVertex
+     *
      * @return all operatorNames of current JobVertex
      */
     public Map<JobVertexID, List<String>> getVertexOperatorNames() {

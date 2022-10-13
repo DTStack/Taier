@@ -2,7 +2,6 @@ package com.dtstack.taier.common.metric.stream;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import com.dtstack.taier.common.metric.batch.BaseMetric;
 import com.dtstack.taier.common.metric.batch.IMetric;
 import com.dtstack.taier.common.metric.prometheus.PrometheusMetricQuery;
 import org.apache.commons.collections.CollectionUtils;
@@ -21,13 +20,14 @@ import java.util.regex.Pattern;
 
 /**
  * metric builder
+ *
  * @author jiangbo
  */
 public class StreamMetricBuilder {
 
     private static final Logger logger = LoggerFactory.getLogger(StreamMetricBuilder.class);
 
-    private static Map<String,String> metricNameMap = new HashMap<>();
+    private static Map<String, String> metricNameMap = new HashMap<>();
 
     private static List<String> cumulativeMetricName = new ArrayList<>(4);
 
@@ -48,14 +48,14 @@ public class StreamMetricBuilder {
         granularityMap.put("d", 24 * 60 * 60 * GRANULARITY_BASIC_UNIT);
         granularityMap.put("w", 7 * 24 * 60 * 60 * GRANULARITY_BASIC_UNIT);
 
-        metricNameMap.put("flink_taskmanager_job_task_operator_chunjun_numReadPerSecond","data_acquisition_input_rps");
-        metricNameMap.put("flink_taskmanager_job_task_operator_chunjun_numWritePerSecond","data_acquisition_output_rps");
-        metricNameMap.put("flink_taskmanager_job_task_operator_chunjun_byteReadPerSecond","data_acquisition_input_bps");
-        metricNameMap.put("flink_taskmanager_job_task_operator_chunjun_byteWritePerSecond","data_acquisition_output_bps");
-        metricNameMap.put("flink_taskmanager_job_task_operator_chunjun_numRead","data_acquisition_input_record_sum");
-        metricNameMap.put("flink_taskmanager_job_task_operator_chunjun_numWrite","data_acquisition_output_record_sum");
-        metricNameMap.put("flink_taskmanager_job_task_operator_chunjun_byteRead","data_acquisition_input_byte_sum");
-        metricNameMap.put("flink_taskmanager_job_task_operator_chunjun_byteWrite","data_acquisition_output_byte_sum");
+        metricNameMap.put("flink_taskmanager_job_task_operator_chunjun_numReadPerSecond", "data_acquisition_input_rps");
+        metricNameMap.put("flink_taskmanager_job_task_operator_chunjun_numWritePerSecond", "data_acquisition_output_rps");
+        metricNameMap.put("flink_taskmanager_job_task_operator_chunjun_byteReadPerSecond", "data_acquisition_input_bps");
+        metricNameMap.put("flink_taskmanager_job_task_operator_chunjun_byteWritePerSecond", "data_acquisition_output_bps");
+        metricNameMap.put("flink_taskmanager_job_task_operator_chunjun_numRead", "data_acquisition_input_record_sum");
+        metricNameMap.put("flink_taskmanager_job_task_operator_chunjun_numWrite", "data_acquisition_output_record_sum");
+        metricNameMap.put("flink_taskmanager_job_task_operator_chunjun_byteRead", "data_acquisition_input_byte_sum");
+        metricNameMap.put("flink_taskmanager_job_task_operator_chunjun_byteWrite", "data_acquisition_output_byte_sum");
 
         cumulativeMetricName.add("data_acquisition_record_sum");
         cumulativeMetricName.add("data_acquisition_byte_sum");
@@ -66,37 +66,86 @@ public class StreamMetricBuilder {
     }
 
     public static IMetric buildMetric(String metricName, long startTime, long endTime, String jobName, String jobId,
-                                      String granularity, PrometheusMetricQuery prometheusMetricQuery, String componentVersion){
+                                      String granularity, PrometheusMetricQuery prometheusMetricQuery, String componentVersion) {
         StreamBaseMetric metric = null;
-        switch (metricName){
-            case "fail_over_history" : metric = new FailOverHistoryMetric(); break;
-            case "data_delay" : metric = new BizDataDelayMetric(); break;
-            case "source_input_tps" : metric = new SourceMetric(); break;
-            case "sink_output_rps" : metric = new SinkOutputRPSMetric(); break;
-            case "source_input_rps" : metric = new SourceMetric(); break;
-            case "source_input_bps" : metric = new SourceMetric(); break;
-            case "source_dirty_out" : metric = new SourceDirtyDataOutMetric(); break;
-            case "source_dirty_data" : metric = new SourceDirtyDataMetric(); break;
-            case "data_discard_tps" : metric = new DataDiscardTPSMetric(); break;
-            case "data_discard_count" : metric = new DataDiscardCountMetric(); break;
-            case "data_acquisition_input_rps" : metric = new DataAcquisitionMetric(); break;
-            case "data_acquisition_output_rps" : metric = new DataAcquisitionMetric(); break;
-            case "data_acquisition_input_bps" : metric = new DataAcquisitionMetric(); break;
-            case "data_acquisition_output_bps" : metric = new DataAcquisitionMetric(); break;
-            case "data_acquisition_input_record_sum" : metric = new DataAcquisitionMetric(); break;
-            case "data_acquisition_output_record_sum" : metric = new DataAcquisitionMetric(); break;
-            case "data_acquisition_input_byte_sum" : metric = new DataAcquisitionMetric(); break;
-            case "data_acquisition_output_byte_sum" : metric = new DataAcquisitionMetric(); break;
-            case "lastCheckpointDuration" : metric = new CheckPointsHistoryMetric(); break;
-            case "nErrors" : metric = new CheckPointsHistoryMetric(); break;
-            case "conversionErrors" : metric = new CheckPointsHistoryMetric(); break;
-            case "otherErrors" : metric = new CheckPointsHistoryMetric(); break;
-            case "duplicateErrors" : metric = new CheckPointsHistoryMetric(); break;
-            case "nullErrors" : metric = new CheckPointsHistoryMetric(); break;
-            default: break;
+        switch (metricName) {
+            case "fail_over_history":
+                metric = new FailOverHistoryMetric();
+                break;
+            case "data_delay":
+                metric = new BizDataDelayMetric();
+                break;
+            case "source_input_tps":
+                metric = new SourceMetric();
+                break;
+            case "sink_output_rps":
+                metric = new SinkOutputRPSMetric();
+                break;
+            case "source_input_rps":
+                metric = new SourceMetric();
+                break;
+            case "source_input_bps":
+                metric = new SourceMetric();
+                break;
+            case "source_dirty_out":
+                metric = new SourceDirtyDataOutMetric();
+                break;
+            case "source_dirty_data":
+                metric = new SourceDirtyDataMetric();
+                break;
+            case "data_discard_tps":
+                metric = new DataDiscardTPSMetric();
+                break;
+            case "data_discard_count":
+                metric = new DataDiscardCountMetric();
+                break;
+            case "data_acquisition_input_rps":
+                metric = new DataAcquisitionMetric();
+                break;
+            case "data_acquisition_output_rps":
+                metric = new DataAcquisitionMetric();
+                break;
+            case "data_acquisition_input_bps":
+                metric = new DataAcquisitionMetric();
+                break;
+            case "data_acquisition_output_bps":
+                metric = new DataAcquisitionMetric();
+                break;
+            case "data_acquisition_input_record_sum":
+                metric = new DataAcquisitionMetric();
+                break;
+            case "data_acquisition_output_record_sum":
+                metric = new DataAcquisitionMetric();
+                break;
+            case "data_acquisition_input_byte_sum":
+                metric = new DataAcquisitionMetric();
+                break;
+            case "data_acquisition_output_byte_sum":
+                metric = new DataAcquisitionMetric();
+                break;
+            case "lastCheckpointDuration":
+                metric = new CheckPointsHistoryMetric();
+                break;
+            case "nErrors":
+                metric = new CheckPointsHistoryMetric();
+                break;
+            case "conversionErrors":
+                metric = new CheckPointsHistoryMetric();
+                break;
+            case "otherErrors":
+                metric = new CheckPointsHistoryMetric();
+                break;
+            case "duplicateErrors":
+                metric = new CheckPointsHistoryMetric();
+                break;
+            case "nullErrors":
+                metric = new CheckPointsHistoryMetric();
+                break;
+            default:
+                break;
         }
 
-        if (metric != null){
+        if (metric != null) {
             metric.setMetricName(metricName);
             metric.setStartTime(startTime);
             metric.setEndTime(endTime);
@@ -113,9 +162,9 @@ public class StreamMetricBuilder {
     /**
      * 合并指标到一个图中
      */
-    public static JSONObject mergeMetric(List<JSONObject> metricDatas,String chartName, String granularity){
+    public static JSONObject mergeMetric(List<JSONObject> metricDatas, String chartName, String granularity) {
         JSONObject chartData = new JSONObject();
-        chartData.put("chartName",chartName);
+        chartData.put("chartName", chartName);
 
         JSONArray data = new JSONArray();
 
@@ -131,7 +180,7 @@ public class StreamMetricBuilder {
         Collections.sort(timeList);
         dealSeparatedTime(timeList, granularity);
 
-        if(CollectionUtils.isNotEmpty(metricDatas)){
+        if (CollectionUtils.isNotEmpty(metricDatas)) {
             for (Long time : timeList) {
                 JSONObject item = new JSONObject();
                 for (JSONObject metricData : metricDatas) {
@@ -146,13 +195,13 @@ public class StreamMetricBuilder {
 
                 Set<String> keys = new HashSet<>(item.keySet());
                 for (String key : keys) {
-                    item.put(metricNameMap.getOrDefault(key,key),item.get(key));
-                    if(metricNameMap.containsKey(key)){
+                    item.put(metricNameMap.getOrDefault(key, key), item.get(key));
+                    if (metricNameMap.containsKey(key)) {
                         item.remove(key);
                     }
                 }
 
-                item.put("time",time);
+                item.put("time", time);
                 data.add(item);
             }
         }

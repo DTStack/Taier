@@ -21,6 +21,7 @@ package com.dtstack.taier.flink.info.resource;
 /**
  * Date: 2020/7/6
  * Company: www.dtstack.com
+ *
  * @author maqi
  */
 public class TaskManagerInfo {

@@ -157,7 +157,7 @@ public class SessionStatusMonitor implements Runnable {
                 try {
                     Thread.sleep(CHECK_INTERVAL);
                     sessionClientDeployer.flushRole();
-                    LOG.info("Current SessionAppName is "+ sessionClientDeployer.getSessionAppNameSuffix() +" and Current role is : "+ (sessionClientDeployer.getIsLeader().get() ? "Leader": "Follower"));
+                    LOG.info("Current SessionAppName is " + sessionClientDeployer.getSessionAppNameSuffix() + " and Current role is : " + (sessionClientDeployer.getIsLeader().get() ? "Leader" : "Follower"));
                 } catch (Exception e) {
                     LOG.error("", e);
                 }
@@ -190,7 +190,7 @@ public class SessionStatusMonitor implements Runnable {
                             CompletableFuture<JobStatus> status = sessionClientDeployer.getClusterClient().getJobStatus(executionResult.getJobID());
                             JobStatus temp_status = status.get();
                             jobStatus = TaskStatus.getTaskStatus(temp_status.toString());
-                        } catch (InterruptedException| ExecutionException ex) {
+                        } catch (InterruptedException | ExecutionException ex) {
                             LOG.error("Fetch session check job status failed by cluster client.", ex);
                             jobStatus = TaskStatus.FAILED;
                         }
@@ -217,7 +217,7 @@ public class SessionStatusMonitor implements Runnable {
                             long cost = System.currentTimeMillis() - startTime;
                             if (cost > 60000 && cost < 300000) {
                                 LOG.info("Yarn Session Job took more than 60 seconds.");
-                            } else if (cost > 300000){
+                            } else if (cost > 300000) {
                                 LOG.info("Yarn Session Job took more than 300 seconds.");
                                 // cancel this job.
                                 try {
@@ -285,7 +285,7 @@ public class SessionStatusMonitor implements Runnable {
         try {
             LOG.warn("ThreadName : {} retry times is {}", Thread.currentThread().getName(), tempNum);
             LOG.warn("----{} retry Flink yarn-session client ----", tempNum);
-            if(sessionClientDeployer.getIsLeader().get() && sessionClientDeployer.getFlinkConfig().getSessionStartAuto()){
+            if (sessionClientDeployer.getIsLeader().get() && sessionClientDeployer.getFlinkConfig().getSessionStartAuto()) {
                 stopFlinkYarnSession();
             }
             startTime = System.currentTimeMillis();
@@ -315,7 +315,7 @@ public class SessionStatusMonitor implements Runnable {
         try {
             Configuration newConf = new Configuration(sessionClientDeployer.getFlinkConfiguration());
             ApplicationId applicationId = sessionClientDeployer.acquireAppIdAndSetClusterId(newConf);
-            if (applicationId != null){
+            if (applicationId != null) {
                 LOG.info("------- Flink yarn-session application kill. ----");
                 sessionClientDeployer.getYarnClient().killApplication(applicationId);
                 LOG.info("------- Flink yarn-session application kill over. ----");

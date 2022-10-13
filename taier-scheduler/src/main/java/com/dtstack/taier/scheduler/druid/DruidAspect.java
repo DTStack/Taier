@@ -31,7 +31,8 @@ import org.springframework.stereotype.Component;
 public class DruidAspect {
 
     private final DruidDataSourceService druidDataSourceService;
-    public DruidAspect(DruidDataSourceService druidDataSourceService){
+
+    public DruidAspect(DruidDataSourceService druidDataSourceService) {
         this.druidDataSourceService = druidDataSourceService;
     }
 

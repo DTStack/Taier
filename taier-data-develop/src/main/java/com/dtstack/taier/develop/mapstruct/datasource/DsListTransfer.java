@@ -25,11 +25,10 @@ public interface DsListTransfer {
 
     DsInfoVO toDsInfoVO(DsListBO dsListBO);
 
-    @Mapping(source = "id",target = "dataInfoId")
+    @Mapping(source = "id", target = "dataInfoId")
     DsInfoVO toDsInfoVO(DsInfo dsInfo);
 
     List<DsInfoVO> toDsInfoVOS(List<DsInfo> dsInfoList);
-
 
 
 }

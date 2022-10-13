@@ -25,4 +25,4 @@ services:
       DB_PASSWORD: 123456
       DATASOURCEX_PATH: /usr/taier/datasourcex
     volumes:
-        - /data/datasourcex:/usr/taier/datasourcex
+      - /data/datasourcex:/usr/taier/datasourcex

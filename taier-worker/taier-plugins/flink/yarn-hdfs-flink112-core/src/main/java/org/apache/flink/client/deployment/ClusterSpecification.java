@@ -29,6 +29,7 @@ import java.util.List;
 
 /**
  * Description of the cluster to start by the {@link ClusterDescriptor}.
+ *
  * @author xiuzhu
  */
 public final class ClusterSpecification {
@@ -45,17 +46,24 @@ public final class ClusterSpecification {
     private SavepointRestoreSettings spSetting;
     private List<URL> classPaths;
     private String entryPointClass;
-    /** 任务执行参数 */
+    /**
+     * 任务执行参数
+     */
     private String[] programArgs;
     private File jarFile;
-    /** 延迟到YarnClusterDescriptor中再构建PackagedProgram */
+    /**
+     * 延迟到YarnClusterDescriptor中再构建PackagedProgram
+     */
     private boolean createProgramDelay = false;
-    /** 包含任务的执行信息，能够构建jobGraph */
+    /**
+     * 包含任务的执行信息，能够构建jobGraph
+     */
     private PackagedProgram program;
 
-    private ClusterSpecification(){}
+    private ClusterSpecification() {
+    }
 
-    public static ClusterSpecification newInstance(int masterMemoryMB, int taskManagerMemoryMB, int slotsPerTaskManager){
+    public static ClusterSpecification newInstance(int masterMemoryMB, int taskManagerMemoryMB, int slotsPerTaskManager) {
         ClusterSpecification clusterSpecification = new ClusterSpecification();
         clusterSpecification.setJobMasterMemoryMB(masterMemoryMB);
         clusterSpecification.setTaskManagerMemoryMB(taskManagerMemoryMB);
@@ -64,13 +72,12 @@ public final class ClusterSpecification {
     }
 
     public static ClusterSpecification newInstance(int masterMemoryMB, int taskManagerMemoryMB, int slotsPerTaskManager,
-                                                   int parallelism, int priority){
+                                                   int parallelism, int priority) {
         ClusterSpecification clusterSpecification = newInstance(masterMemoryMB, taskManagerMemoryMB, slotsPerTaskManager);
         clusterSpecification.setParallelism(parallelism);
         clusterSpecification.setPriority(priority);
         return clusterSpecification;
     }
-
 
 
     public int getJobMasterMemoryMB() {

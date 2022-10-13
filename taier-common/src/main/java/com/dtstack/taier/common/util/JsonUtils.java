@@ -60,7 +60,7 @@ public class JsonUtils {
         try {
             formatJson = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(objectMapper.readValue(json, Object.class));
         } catch (Exception e) {
-            LOG.warn("JOSN解析失败:{}",json, e);
+            LOG.warn("JOSN解析失败:{}", json, e);
             return json;
         }
         return formatJson;

@@ -16,44 +16,44 @@
  * limitations under the License.
  */
 
-import { binlogPortHelp } from "@/components/helpDoc/docs";
-import { Form, Input } from "antd";
+import {binlogPortHelp} from "@/components/helpDoc/docs";
+import {Form, Input} from "antd";
 import React from "react";
 
 const FormItem = Form.Item;
 
 export default () => {
-    return <React.Fragment>
-        <FormItem
-            name="macAndIp"
-            label="主机名/IP"
-        >
-            <Input disabled />
-        </FormItem>
-        <FormItem
-            name="port"
-            label="端口"
-            rules={[{
-                validator: (rule: any, value: any, callback: any) => {
-                    if (value) {
-                        if (parseInt(value)) {
-                            callback()
-                        } else {
-                            const error = '请输入正确的端口'
-                            callback(error)
-                        }
-                    } else {
-                        callback()
-                    }
-                }
-            }]}
-            tooltip={binlogPortHelp}
-        >
-            <Input
-                // disabled={isEdit}
-                placeholder="请输入端口"
-                style={{ width: '100%' }}
-            />
-        </FormItem>
-    </React.Fragment>
+	return <React.Fragment>
+		<FormItem
+			name="macAndIp"
+			label="主机名/IP"
+		>
+			<Input disabled/>
+		</FormItem>
+		<FormItem
+			name="port"
+			label="端口"
+			rules={[{
+				validator: (rule: any, value: any, callback: any) => {
+					if (value) {
+						if (parseInt(value)) {
+							callback()
+						} else {
+							const error = '请输入正确的端口'
+							callback(error)
+						}
+					} else {
+						callback()
+					}
+				}
+			}]}
+			tooltip={binlogPortHelp}
+		>
+			<Input
+				// disabled={isEdit}
+				placeholder="请输入端口"
+				style={{width: '100%'}}
+			/>
+		</FormItem>
+	</React.Fragment>
 }

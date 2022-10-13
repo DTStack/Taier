@@ -1,7 +1,7 @@
 import React from 'react';
-import { Button, DatePicker } from 'antd';
-import { LeftOutlined, RightOutlined } from '@ant-design/icons';
-import { cloneDeep } from 'lodash';
+import {Button, DatePicker} from 'antd';
+import {LeftOutlined, RightOutlined} from '@ant-design/icons';
+import {cloneDeep} from 'lodash';
 import moment from 'moment';
 import classNames from 'classnames';
 
@@ -20,7 +20,7 @@ function getDuration(timeRange: string) {
 }
 
 const GraphTimePicker: React.FC<IProps> = (props) => {
-	const { timeRange, value, onChange, className, ...rest } = props;
+	const {timeRange, value, onChange, className, ...rest} = props;
 
 	// 结束时间提前
 	const endTimeAhead = () => {
@@ -47,7 +47,7 @@ const GraphTimePicker: React.FC<IProps> = (props) => {
 	const getDisabledTime = (date?: moment.Moment) => {
 		const FORMAT_TYPE = 'YYYY-MM-DD';
 		const current = moment();
-		const { hours, minutes, seconds } = current.toObject();
+		const {hours, minutes, seconds} = current.toObject();
 		if (current.format(FORMAT_TYPE) !== date?.format(FORMAT_TYPE)) {
 			return;
 		}
@@ -67,6 +67,7 @@ const GraphTimePicker: React.FC<IProps> = (props) => {
 			disabledMinutes: () => getDisabledTimeRange(60, minutes),
 			disabledSeconds: () => getDisabledTimeRange(60, seconds),
 		};
+
 		// 时间范围
 		function getDisabledTimeRange(len: number, value: number) {
 			return Array.from(new Array(len).keys()).filter((t: number) => t > value);
@@ -74,9 +75,9 @@ const GraphTimePicker: React.FC<IProps> = (props) => {
 	};
 
 	return (
-		<div className={classNames('graph-time graph-time-picker', { className })} {...rest}>
+		<div className={classNames('graph-time graph-time-picker', {className})} {...rest}>
 			<Button className="btn-prev" onClick={endTimeAhead}>
-				<LeftOutlined />
+				<LeftOutlined/>
 			</Button>
 			<DatePicker
 				showTime
@@ -92,7 +93,7 @@ const GraphTimePicker: React.FC<IProps> = (props) => {
 				}}
 			/>
 			<Button className="btn-next" onClick={endTimeDelay}>
-				<RightOutlined />
+				<RightOutlined/>
 			</Button>
 		</div>
 	);

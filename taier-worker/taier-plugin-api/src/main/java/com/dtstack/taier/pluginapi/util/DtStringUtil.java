@@ -33,11 +33,12 @@ public class DtStringUtil {
 
     /**
      * 根据指定分隔符分割字符串---忽略在引号里面的分隔符
+     *
      * @param str
      * @param delimiter
      * @return
      */
-    public static List<String> splitIgnoreQuota(String sqls, char delimiter){
+    public static List<String> splitIgnoreQuota(String sqls, char delimiter) {
         List<String> tokensList = new ArrayList<>();
         boolean inQuotes = false;
         boolean inSingleQuotes = false;
@@ -46,33 +47,33 @@ public class DtStringUtil {
         int idx = 0;
         for (char c : chars) {
             char flag = 0;
-            if (idx>0){
-                flag = chars[idx-1];
+            if (idx > 0) {
+                flag = chars[idx - 1];
             }
-            if(c == delimiter){
+            if (c == delimiter) {
                 if (inQuotes) {
                     b.append(c);
-                } else if(inSingleQuotes){
+                } else if (inSingleQuotes) {
                     b.append(c);
-                }else {
-                    if (StringUtils.isNotBlank(b)){
+                } else {
+                    if (StringUtils.isNotBlank(b)) {
                         tokensList.add(b.toString());
                         b = new StringBuilder();
                     }
                 }
-            }else if(c == '\"' && '\\'!=flag){
+            } else if (c == '\"' && '\\' != flag) {
                 inQuotes = !inQuotes;
                 b.append(c);
-            }else if(c == '\'' && '\\'!=flag && !inQuotes){
+            } else if (c == '\'' && '\\' != flag && !inQuotes) {
                 inSingleQuotes = !inSingleQuotes;
                 b.append(c);
-            }else{
+            } else {
                 b.append(c);
             }
             idx++;
         }
 
-        if (StringUtils.isNotBlank(b)){
+        if (StringUtils.isNotBlank(b)) {
             tokensList.add(b.toString());
         }
 
@@ -81,6 +82,7 @@ public class DtStringUtil {
 
     /**
      * 使用zip进行压缩
+     *
      * @param str 压缩前的文本
      * @return 返回压缩后的文本
      */
@@ -120,7 +122,7 @@ public class DtStringUtil {
         return compressedStr;
     }
 
-    public static List<String> splitIngoreBlank(String str){
+    public static List<String> splitIngoreBlank(String str) {
         String[] strs = str.trim().split("\\s+");
         List<String> tokensList = new ArrayList<>();
         boolean inSingleQuotes = false;
@@ -129,11 +131,11 @@ public class DtStringUtil {
             if (c.contains("\'")) {
                 inSingleQuotes = !inSingleQuotes;
                 b.append(c).append(' ');
-                if (!inSingleQuotes){
-                    tokensList.add(b.toString().replace('\'',' '));
+                if (!inSingleQuotes) {
+                    tokensList.add(b.toString().replace('\'', ' '));
                     b = new StringBuilder();
                 }
-            } else if (inSingleQuotes){
+            } else if (inSingleQuotes) {
                 b.append(c).append(' ');
             } else {
                 tokensList.add(c);

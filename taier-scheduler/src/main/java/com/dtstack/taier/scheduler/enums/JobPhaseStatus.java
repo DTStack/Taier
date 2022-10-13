@@ -26,7 +26,7 @@ package com.dtstack.taier.scheduler.enums;
  */
 public enum JobPhaseStatus {
 
-    CREATE(0,"创建"),JOIN_THE_TEAM(1,"入队"),EXECUTE_OVER(2,"执行完成");
+    CREATE(0, "创建"), JOIN_THE_TEAM(1, "入队"), EXECUTE_OVER(2, "执行完成");
 
     private Integer code;
 

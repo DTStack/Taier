@@ -26,7 +26,7 @@ import com.dtstack.taier.pluginapi.util.MathUtil;
  */
 public class JobKeyUtils {
 
-    public static  String getJobTriggerTimeFromJobKey(String jobKey) {
+    public static String getJobTriggerTimeFromJobKey(String jobKey) {
         String[] strings = jobKey.split("_");
         if (strings.length < 1) {
             return "";
@@ -43,6 +43,7 @@ public class JobKeyUtils {
 
     /**
      * 此处获取的时候schedule_task_shade 的id 不是task_id
+     *
      * @param jobKey
      * @return
      */
@@ -62,8 +63,9 @@ public class JobKeyUtils {
 
     /**
      * 生成jobkey
-     * @param keyPreStr 前缀
-     * @param taskId 任务id
+     *
+     * @param keyPreStr   前缀
+     * @param taskId      任务id
      * @param triggerTime 计划时间
      * @return jobKey
      */

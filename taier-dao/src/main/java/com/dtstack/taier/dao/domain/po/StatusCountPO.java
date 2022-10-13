@@ -8,10 +8,14 @@ package com.dtstack.taier.dao.domain.po;
  */
 public class StatusCountPO {
 
-    /**任务状态**/
+    /**
+     * 任务状态
+     **/
     private Integer status;
 
-    /**对应的数量**/
+    /**
+     * 对应的数量
+     **/
     private Integer count;
 
     public Integer getStatus() {

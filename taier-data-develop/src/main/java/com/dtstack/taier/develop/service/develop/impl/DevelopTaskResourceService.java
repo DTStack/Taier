@@ -22,8 +22,8 @@ import com.dtstack.taier.common.enums.Deleted;
 import com.dtstack.taier.common.exception.ErrorCode;
 import com.dtstack.taier.common.exception.RdosDefineException;
 import com.dtstack.taier.dao.domain.DevelopResource;
-import com.dtstack.taier.dao.domain.Task;
 import com.dtstack.taier.dao.domain.DevelopTaskResource;
+import com.dtstack.taier.dao.domain.Task;
 import com.dtstack.taier.dao.mapper.DevelopTaskResourceMapper;
 import com.google.common.collect.Lists;
 import org.slf4j.Logger;
@@ -63,7 +63,7 @@ public class DevelopTaskResourceService {
     /**
      * 获得 资源-任务 列表
      *
-     * @param taskId    任务id
+     * @param taskId 任务id
      * @return
      */
     public List<DevelopResource> getResources(Long taskId, Integer type) {
@@ -96,7 +96,7 @@ public class DevelopTaskResourceService {
     /**
      * 根据 任务id 和 项目id，删除《任务资源关系》与《资源》
      *
-     * @param taskId    任务id
+     * @param taskId 任务id
      * @author toutian
      */
     public void deleteTaskResource(Long taskId) {

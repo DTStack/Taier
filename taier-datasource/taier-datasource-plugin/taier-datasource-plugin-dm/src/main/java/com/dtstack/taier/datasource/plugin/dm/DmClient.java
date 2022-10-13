@@ -1,7 +1,5 @@
 package com.dtstack.taier.datasource.plugin.dm;
 
-import com.dtstack.taier.datasource.plugin.rdbms.AbsRdbmsClient;
-import com.dtstack.taier.datasource.plugin.rdbms.ConnFactory;
 import com.dtstack.taier.datasource.api.downloader.IDownloader;
 import com.dtstack.taier.datasource.api.dto.ColumnMetaDTO;
 import com.dtstack.taier.datasource.api.dto.SqlQueryDTO;
@@ -10,6 +8,8 @@ import com.dtstack.taier.datasource.api.dto.source.ISourceDTO;
 import com.dtstack.taier.datasource.api.dto.source.RdbmsSourceDTO;
 import com.dtstack.taier.datasource.api.exception.SourceException;
 import com.dtstack.taier.datasource.api.source.DataSourceType;
+import com.dtstack.taier.datasource.plugin.rdbms.AbsRdbmsClient;
+import com.dtstack.taier.datasource.plugin.rdbms.ConnFactory;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
@@ -85,8 +85,8 @@ public class DmClient extends AbsRdbmsClient {
     @Override
     public String getCreateTableSql(ISourceDTO source, SqlQueryDTO queryDTO) {
         DmSourceDTO dmSourceDTO = (DmSourceDTO) source;
-        queryDTO.setSql(String.format(CREATE_TABLE_SQL,queryDTO.getTableName(), dmSourceDTO.getSchema()));
-        return super.getCreateTableSql(source,queryDTO);
+        queryDTO.setSql(String.format(CREATE_TABLE_SQL, queryDTO.getTableName(), dmSourceDTO.getSchema()));
+        return super.getCreateTableSql(source, queryDTO);
     }
 
     @Override
@@ -125,7 +125,7 @@ public class DmClient extends AbsRdbmsClient {
             log.info("schema is null，get all table！");
             searchSql = queryDTO.getView() ? String.format(SHOW_ALL_TABLE_SQL + SHOW_ALL_VIEW_SQL, tableConstr, viewConstr) : String.format(SHOW_ALL_TABLE_SQL, tableConstr);
         } else {
-            searchSql = queryDTO.getView() ?  String.format(SHOW_TABLE_BY_SCHEMA_SQL + SHOW_VIEW_BY_SCHEMA_SQL, schema, tableConstr, schema, viewConstr) : String.format(SHOW_TABLE_BY_SCHEMA_SQL, schema, tableConstr);
+            searchSql = queryDTO.getView() ? String.format(SHOW_TABLE_BY_SCHEMA_SQL + SHOW_VIEW_BY_SCHEMA_SQL, schema, tableConstr, schema, viewConstr) : String.format(SHOW_TABLE_BY_SCHEMA_SQL, schema, tableConstr);
         }
         log.info("current used schema：{}", schema);
 

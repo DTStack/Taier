@@ -1,4 +1,3 @@
-
 package com.dtstack.taier.flink.constant;
 
 import org.apache.flink.configuration.ConfigOption;
@@ -54,8 +53,8 @@ public class ConfigConstant {
     /**
      * session check configuration
      */
-    public static final String  SESSION_CHECK_JAR_NAME= "dt-flink-check.jar";
-    public static final String  SESSION_CHECK_MAIN_CLASS= "com.dtstack.taier.flink.check.FlinkSessionCheck";
+    public static final String SESSION_CHECK_JAR_NAME = "dt-flink-check.jar";
+    public static final String SESSION_CHECK_MAIN_CLASS = "com.dtstack.taier.flink.check.FlinkSessionCheck";
     public static final String DEFAULT_SESSION_CHECK_PATH = "/pluginLibs/flinkcommon";
 
     public static final String HADOOP_CONF_BYTES_KEY = "hadoop.conf.bytes";
@@ -96,7 +95,6 @@ public class ConfigConstant {
                     .defaultValue(3600000);
 
 
-
     // ------------------------------------------------------------------------
     // Plugin Load Configs
     // ------------------------------------------------------------------------
@@ -116,7 +114,7 @@ public class ConfigConstant {
     // ------------------------------------------------------------------------
 
     public static final String OPEN_KERBEROS_KEY = "openKerberos";
-    public static final String ZOOKEEPER_CLIENT_APPEND_JAAS_ENABLE= "zookeeper.client.append.jaas.enable";
+    public static final String ZOOKEEPER_CLIENT_APPEND_JAAS_ENABLE = "zookeeper.client.append.jaas.enable";
 
     // ------------------------------------------------------------------------
     // Restful Url Format Configs

@@ -16,15 +16,15 @@
  * limitations under the License.
  */
 
-import React, { useEffect, useState } from 'react';
-import { Modal, Select, message, Form } from 'antd';
-import { formItemLayout } from '@/constant';
+import React, {useEffect, useState} from 'react';
+import {Form, message, Modal, Select} from 'antd';
+import {formItemLayout} from '@/constant';
 import api from '@/api';
 import './index.scss';
 
-const { Option } = Select;
+const {Option} = Select;
 const FormItem = Form.Item;
-const { confirm } = Modal;
+const {confirm} = Modal;
 
 interface IResourceManageModalProps {
 	title?: React.ReactNode;
@@ -41,15 +41,15 @@ interface IResourceManageModalProps {
 }
 
 export default ({
-	title,
-	visible,
-	queueName,
-	clusterId,
-	tenantId,
-	isBindTenant = false,
-	onCancel,
-	onOk,
-}: IResourceManageModalProps) => {
+					title,
+					visible,
+					queueName,
+					clusterId,
+					tenantId,
+					isBindTenant = false,
+					onCancel,
+					onOk,
+				}: IResourceManageModalProps) => {
 	const [form] = Form.useForm();
 	const [isLoading, setLoading] = useState(false);
 	const [queueList, setQueueList] = useState<string[]>([]);

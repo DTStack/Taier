@@ -23,6 +23,7 @@ export interface TableCellProps extends React.TextareaHTMLAttributes<HTMLTextAre
 	style?: React.CSSProperties;
 	onChange?: any;
 }
+
 export default function TableCell(props: TableCellProps) {
 	const originStyle: React.CSSProperties = {
 		textIndent: '5px',
@@ -32,8 +33,8 @@ export default function TableCell(props: TableCellProps) {
 		border: 'none',
 	};
 
-	const { style } = props;
-	const newStyle: any = { ...originStyle, ...style };
+	const {style} = props;
+	const newStyle: any = {...originStyle, ...style};
 
-	return <textarea {...props} style={newStyle} />;
+	return <textarea {...props} style={newStyle}/>;
 }

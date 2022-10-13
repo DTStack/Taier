@@ -39,6 +39,7 @@ public class OdpsPoolFactory implements PooledObjectFactory<Odps> {
 
     /**
      * 当对象池中没有多余的对象可以用的时候，调用此方法。
+     *
      * @return
      * @throws Exception
      */
@@ -51,6 +52,7 @@ public class OdpsPoolFactory implements PooledObjectFactory<Odps> {
 
     /**
      * 销毁
+     *
      * @param pooledObject
      * @throws Exception
      */
@@ -67,6 +69,7 @@ public class OdpsPoolFactory implements PooledObjectFactory<Odps> {
      * 则调用 factory.validateObject() 方法.
      * 2：将连接返还给连接池的时候，参数 testOnReturn，配置为 true 时，调用此方法.
      * 3：连接回收线程，回收连接的时候，参数 testWhileIdle，配置为 true 时，调用此方法.
+     *
      * @param pooledObject
      * @return
      */
@@ -87,8 +90,9 @@ public class OdpsPoolFactory implements PooledObjectFactory<Odps> {
      * 功能描述：激活资源对象
      * 什么时候会调用此方法
      * 1：从连接池中获取连接的时候
-     *  2：连接回收线程，连接资源的时候，根据配置的 testWhileIdle 参数，
-     *  判断 是否执行 factory.activateObject()方法，true 执行，false 不执行
+     * 2：连接回收线程，连接资源的时候，根据配置的 testWhileIdle 参数，
+     * 判断 是否执行 factory.activateObject()方法，true 执行，false 不执行
+     *
      * @param pooledObject
      * @throws Exception
      */
@@ -107,6 +111,7 @@ public class OdpsPoolFactory implements PooledObjectFactory<Odps> {
     /**
      * 功能描述：钝化资源对象
      * 将连接返还给连接池时，调用此方法。
+     *
      * @param pooledObject
      * @throws Exception
      */

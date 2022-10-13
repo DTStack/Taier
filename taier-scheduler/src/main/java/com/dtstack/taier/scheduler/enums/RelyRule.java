@@ -7,7 +7,7 @@ package com.dtstack.taier.scheduler.enums;
  * @Description:
  */
 public enum RelyRule {
-    RUN_FINISH(1,"父实例运行完成，可以运行"),RUN_SUCCESS(2,"父实例运行成功，可以运行");
+    RUN_FINISH(1, "父实例运行完成，可以运行"), RUN_SUCCESS(2, "父实例运行成功，可以运行");
 
     private final Integer type;
 

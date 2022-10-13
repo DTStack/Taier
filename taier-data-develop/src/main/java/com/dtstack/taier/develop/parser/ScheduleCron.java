@@ -31,10 +31,11 @@ import java.util.List;
  * [秒] [分] [时] [天] [月] [周]
  * Date: 2017/5/4
  * Company: www.dtstack.com
+ *
  * @author xuchao
  */
 
-public abstract class ScheduleCron implements IScheduleCronParser{
+public abstract class ScheduleCron implements IScheduleCronParser {
 
     private static final Logger logger = LoggerFactory.getLogger(ScheduleCron.class);
 
@@ -48,11 +49,14 @@ public abstract class ScheduleCron implements IScheduleCronParser{
 
     private int periodType;
 
-    /**FIXME 由于历史原因该字段含义已经不是字段表面的意思，当前标识依赖的类型*/
+    /**
+     * FIXME 由于历史原因该字段含义已经不是字段表面的意思，当前标识依赖的类型
+     */
     private Integer selfReliance = 0;//默认不为自依赖
 
     /**
      * 获得指定日期的触发时间
+     *
      * @param specifyDate 格式: yyyy-MM-dd
      * @return yyyy-MM-dd HH:mm:ss
      */
@@ -60,13 +64,14 @@ public abstract class ScheduleCron implements IScheduleCronParser{
 
     /**
      * 判断指定的天是否有可以执行
+     *
      * @param specifyDate
      * @return
      * @throws ParseException
      */
     public abstract boolean checkSpecifyDayCanExe(String specifyDate) throws ParseException;
 
-    public String getTimeStr(int timeNum){
+    public String getTimeStr(int timeNum) {
         String timeStr = timeNum >= 10 ? timeNum + "" : "0" + timeNum;
         return timeStr;
     }

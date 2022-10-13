@@ -22,10 +22,10 @@ import com.dtstack.taier.pluginapi.sftp.SftpConfig;
 import org.apache.hadoop.conf.Configuration;
 
 /**
- *
- *  创建文件管理器时， 依赖的相关配置
+ * 创建文件管理器时， 依赖的相关配置
  * Date: 2020/7/20
  * Company: www.dtstack.com
+ *
  * @author maqi
  */
 public class FileConfig {

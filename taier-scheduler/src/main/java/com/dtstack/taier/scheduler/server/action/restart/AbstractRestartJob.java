@@ -16,7 +16,7 @@ import java.util.Map;
 public abstract class AbstractRestartJob extends AbstractRestart {
 
     public AbstractRestartJob(EnvironmentContext environmentContext, ApplicationContext applicationContext) {
-        super( environmentContext, applicationContext);
+        super(environmentContext, applicationContext);
     }
 
     /**

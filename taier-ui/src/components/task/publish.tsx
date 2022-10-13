@@ -16,14 +16,14 @@
  * limitations under the License.
  */
 
-import { useState } from 'react';
-import { message, Modal, Alert } from 'antd';
+import {useState} from 'react';
+import {Alert, message, Modal} from 'antd';
 import ajax from '../../api';
-import { getTenantId, getUserId } from '@/utils';
+import {getTenantId, getUserId} from '@/utils';
 
 export const CONTAINER_ID = 'container_wrapper';
 
-export default ({ taskId }: { taskId: number }) => {
+export default ({taskId}: { taskId: number }) => {
 	const [visible, changeVisible] = useState(true);
 	const [loading, changeLoading] = useState(false);
 
@@ -36,7 +36,7 @@ export default ({ taskId }: { taskId: number }) => {
 			preSave: true,
 		})
 			.then((res) => {
-				const { code } = res;
+				const {code} = res;
 				if (code === 1) {
 					message.success('提交成功！');
 					changeVisible(false);
@@ -52,7 +52,7 @@ export default ({ taskId }: { taskId: number }) => {
 			title="提交任务"
 			getContainer={() => document.getElementById(CONTAINER_ID)!}
 			prefixCls="ant-modal"
-			style={{ height: '600px', width: '600px' }}
+			style={{height: '600px', width: '600px'}}
 			visible={visible}
 			onCancel={() => changeVisible(false)}
 			onOk={() => checkPublishTask()}
@@ -64,7 +64,7 @@ export default ({ taskId }: { taskId: number }) => {
 				type="warning"
 				closable={false}
 			/>
-			<br />
+			<br/>
 			<Alert
 				message="新提交的任务需要第二天才能生成周期实例"
 				type="warning"

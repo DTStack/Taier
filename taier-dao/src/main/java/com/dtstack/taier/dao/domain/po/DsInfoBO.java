@@ -65,34 +65,34 @@ public class DsInfoBO {
 
     private String defaultFs;
 
-    private Map<String,Object> hadoopConfig;
+    private Map<String, Object> hadoopConfig;
 
-    private Map<String,Object> kerberosConfig;
+    private Map<String, Object> kerberosConfig;
 
-    private String  userName;
+    private String userName;
 
     private String password;
 
     private String jdbc;
 
 
-    public static DsInfoBO buildDsInfoBO(DsInfo dsInfo){
+    public static DsInfoBO buildDsInfoBO(DsInfo dsInfo) {
         DsInfoBO bo = new DsInfoBO();
-        BeanUtils.copyProperties(dsInfo,bo);
+        BeanUtils.copyProperties(dsInfo, bo);
         try {
             JSONObject data = DataSourceUtils.getDataSourceJson(dsInfo.getDataJson());
             bo.setData(data);
             JSONObject hadoopConfig = data.getJSONObject(FormNames.HADOOP_CONFIG);
-            hadoopConfig = hadoopConfig == null?new JSONObject(1):hadoopConfig;
-            String defaultFs = String.valueOf(data.getOrDefault(FormNames.DEFAULT_FS,""));
-            bo.setHadoopConfig(hadoopConfig.fluentPut(FormNames.DEFAULT_FS,defaultFs));
+            hadoopConfig = hadoopConfig == null ? new JSONObject(1) : hadoopConfig;
+            String defaultFs = String.valueOf(data.getOrDefault(FormNames.DEFAULT_FS, ""));
+            bo.setHadoopConfig(hadoopConfig.fluentPut(FormNames.DEFAULT_FS, defaultFs));
             bo.setKerberosConfig(data.getJSONObject(FormNames.KERBEROS_CONFIG));
             bo.setDefaultFs(defaultFs);
-            bo.setUserName(String.valueOf(data.getOrDefault(FormNames.USERNAME,"")));
-            bo.setPassword(String.valueOf(data.getOrDefault(FormNames.PASSWORD,"")));
-            bo.setJdbc(String.valueOf(data.getOrDefault(FormNames.JDBC_URL,"")));
-        }catch (Exception e){
-            LOGGER.error("build datasource info",e);
+            bo.setUserName(String.valueOf(data.getOrDefault(FormNames.USERNAME, "")));
+            bo.setPassword(String.valueOf(data.getOrDefault(FormNames.PASSWORD, "")));
+            bo.setJdbc(String.valueOf(data.getOrDefault(FormNames.JDBC_URL, "")));
+        } catch (Exception e) {
+            LOGGER.error("build datasource info", e);
             throw e;
         }
         return bo;

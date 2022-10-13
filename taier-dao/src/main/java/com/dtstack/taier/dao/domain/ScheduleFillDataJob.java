@@ -19,7 +19,7 @@ public class ScheduleFillDataJob implements Serializable {
     /**
      * 补数据id
      */
-    @TableId(value="id", type= IdType.AUTO)
+    @TableId(value = "id", type = IdType.AUTO)
     private Long id;
 
     /**

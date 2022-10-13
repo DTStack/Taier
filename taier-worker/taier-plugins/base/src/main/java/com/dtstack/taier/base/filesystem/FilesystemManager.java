@@ -34,6 +34,7 @@ import java.util.List;
 /**
  * Date: 2020/10/21
  * Company: www.dtstack.com
+ *
  * @author toutian
  */
 public class FilesystemManager {
@@ -55,6 +56,7 @@ public class FilesystemManager {
 
     /**
      * 创建可用的的文件管理器
+     *
      * @param config
      * @return
      */
@@ -72,7 +74,8 @@ public class FilesystemManager {
     }
 
     /**
-     *   远程文件下载到本地文件夹，优先使用本地已有文件
+     * 远程文件下载到本地文件夹，优先使用本地已有文件
+     *
      * @param remoteJarPath
      * @param localPath
      * @return
@@ -83,10 +86,11 @@ public class FilesystemManager {
     }
 
     /**
-     *  使用文件管理器下载文件，返回本地文件
-     * @param remoteJarPath  远程jar完整路径
+     * 使用文件管理器下载文件，返回本地文件
+     *
+     * @param remoteJarPath 远程jar完整路径
      * @param localPath     本地临时文件夹/文件
-     * @param alwaysPullNew   总是从远程下载最新文件
+     * @param alwaysPullNew 总是从远程下载最新文件
      * @return
      */
     public File downloadFile(String remoteFilePath, String localFilePath, boolean alwaysPullNew) {
@@ -122,7 +126,8 @@ public class FilesystemManager {
     }
 
     /**
-     *  使用文件管理器下载文件夹内容
+     * 使用文件管理器下载文件夹内容
+     *
      * @return
      */
     public boolean downloadDir(String remoteDir, String localDir) {
@@ -153,7 +158,8 @@ public class FilesystemManager {
     }
 
     /**
-     *  根据路径加载本地文件
+     * 根据路径加载本地文件
+     *
      * @param localJarPath
      * @return
      */

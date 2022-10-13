@@ -30,31 +30,31 @@ public class CreateTableSqlParseUtil {
 
     private static final Pattern CREATE_PATTERN = Pattern.compile(CREATE_REGEX);
 
-    public static String parseTableName(String originSql){
+    public static String parseTableName(String originSql) {
         String sql = originSql.replace("\n", "").replace("\r", "");
-        if(sql.contains("(")){
+        if (sql.contains("(")) {
             sql = sql.substring(0, sql.indexOf("("));
         }
 
-        if(!sql.matches(CREATE_REGEX)){
+        if (!sql.matches(CREATE_REGEX)) {
             throw new DtCenterDefException("Only accept sql like 'create table ....'");
         }
 
         String tableName = null;
         Matcher matcher = CREATE_PATTERN.matcher(sql);
         if (matcher.find()) {
-            tableName =  matcher.group("tableName");
+            tableName = matcher.group("tableName");
         }
 
-        if(tableName == null){
+        if (tableName == null) {
             throw new DtCenterDefException("Can not parse tableName from sql:" + sql);
         }
 
-        if (tableName.contains(".")){
+        if (tableName.contains(".")) {
             tableName = tableName.split("\\.")[1];
         }
 
-        if(tableName.contains("`") || tableName.contains("'") || tableName.contains("\"")){
+        if (tableName.contains("`") || tableName.contains("'") || tableName.contains("\"")) {
             tableName = tableName.substring(1, tableName.length() - 1);
         }
 

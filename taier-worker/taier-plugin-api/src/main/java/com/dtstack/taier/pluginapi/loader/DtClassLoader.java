@@ -34,6 +34,7 @@ import java.util.LinkedHashSet;
  * 自定义类加载器--->优先从当前加载器获取class
  * Date: 2017/6/18
  * Company: www.dtstack.com
+ *
  * @author xuchao
  */
 
@@ -71,7 +72,7 @@ public class DtClassLoader extends URLClassLoader {
     @Override
     protected Class<?> loadClass(String name, boolean resolve) throws ClassNotFoundException {
         synchronized (getClassLoadingLock(name)) {
-            if (LOGGER.isDebugEnabled()){
+            if (LOGGER.isDebugEnabled()) {
                 LOGGER.debug("loadClass(" + name + ", " + resolve + ")");
             }
             Class<?> clazz = null;
@@ -79,26 +80,26 @@ public class DtClassLoader extends URLClassLoader {
             // (0.1) Check our previously loaded class cache
             clazz = findLoadedClass(name);
             if (clazz != null) {
-                if (LOGGER.isDebugEnabled()){
+                if (LOGGER.isDebugEnabled()) {
                     LOGGER.debug("  Returning class from cache");
                 }
-                if (resolve){
+                if (resolve) {
                     resolveClass(clazz);
                 }
                 return (clazz);
             }
 
             // (2) Search local repositories
-            if (LOGGER.isDebugEnabled()){
+            if (LOGGER.isDebugEnabled()) {
                 LOGGER.debug("  Searching local repositories");
             }
             try {
                 clazz = findClass(name);
                 if (clazz != null) {
-                    if (LOGGER.isDebugEnabled()){
+                    if (LOGGER.isDebugEnabled()) {
                         LOGGER.debug("  Loading class from local repository");
                     }
-                    if (resolve){
+                    if (resolve) {
                         resolveClass(clazz);
                     }
                     return (clazz);
@@ -107,17 +108,17 @@ public class DtClassLoader extends URLClassLoader {
                 // Ignore
             }
 
-            if (LOGGER.isDebugEnabled()){
+            if (LOGGER.isDebugEnabled()) {
                 LOGGER.debug("  Delegating to parent classloader at end: " + parent);
             }
 
             try {
                 clazz = Class.forName(name, false, parent);
                 if (clazz != null) {
-                    if (LOGGER.isDebugEnabled()){
+                    if (LOGGER.isDebugEnabled()) {
                         LOGGER.debug("  Loading class from parent");
                     }
-                    if (resolve){
+                    if (resolve) {
                         resolveClass(clazz);
                     }
                     return (clazz);
@@ -134,7 +135,7 @@ public class DtClassLoader extends URLClassLoader {
     @Override
     public URL getResource(String name) {
 
-        if (LOGGER.isDebugEnabled()){
+        if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("getResource(" + name + ")");
         }
 
@@ -143,7 +144,7 @@ public class DtClassLoader extends URLClassLoader {
         // (2) Search local repositories
         url = findResource(name);
         if (url != null) {
-            if (LOGGER.isDebugEnabled()){
+            if (LOGGER.isDebugEnabled()) {
                 LOGGER.debug("  --> Returning '" + url.toString() + "'");
             }
             return (url);
@@ -152,14 +153,14 @@ public class DtClassLoader extends URLClassLoader {
         // (3) Delegate to parent unconditionally if not already attempted
         url = parent.getResource(name);
         if (url != null) {
-            if (LOGGER.isDebugEnabled()){
+            if (LOGGER.isDebugEnabled()) {
                 LOGGER.debug("  --> Returning '" + url.toString() + "'");
             }
             return (url);
         }
 
         // (4) Resource was not found
-        if (LOGGER.isDebugEnabled()){
+        if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("  --> Resource not found, returning null");
         }
         return (null);
@@ -173,6 +174,7 @@ public class DtClassLoader extends URLClassLoader {
 
     /**
      * FIXME 需要测试
+     *
      * @param name
      * @return
      * @throws IOException
@@ -183,7 +185,7 @@ public class DtClassLoader extends URLClassLoader {
         Enumeration<URL>[] tmp = (Enumeration<URL>[]) new Enumeration<?>[1];
         tmp[0] = findResources(name);//优先使用当前类的资源
 
-        if(!tmp[0].hasMoreElements()){//只有子classLoader找不到任何资源才会调用原生的方法
+        if (!tmp[0].hasMoreElements()) {//只有子classLoader找不到任何资源才会调用原生的方法
             return super.getResources(name);
         }
 
@@ -193,7 +195,7 @@ public class DtClassLoader extends URLClassLoader {
     @Override
     public Enumeration<URL> findResources(String name) throws IOException {
 
-        if (LOGGER.isDebugEnabled()){
+        if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("findResources(" + name + ")");
         }
 
@@ -201,7 +203,7 @@ public class DtClassLoader extends URLClassLoader {
 
         Enumeration<URL> superResource = super.findResources(name);
 
-        while (superResource.hasMoreElements()){
+        while (superResource.hasMoreElements()) {
             result.add(superResource.nextElement());
         }
 

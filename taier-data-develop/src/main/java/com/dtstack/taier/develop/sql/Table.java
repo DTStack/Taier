@@ -343,8 +343,8 @@ public class Table implements Cloneable {
 
     @Override
     public int hashCode() {
-        String dbStr = Objects.isNull(db)?null:db.toLowerCase();
-        String nameStr = Objects.isNull(name)?null:name.toLowerCase();
+        String dbStr = Objects.isNull(db) ? null : db.toLowerCase();
+        String nameStr = Objects.isNull(name) ? null : name.toLowerCase();
         return Objects.hash(dbStr, nameStr);
     }
 }

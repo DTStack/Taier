@@ -49,7 +49,7 @@ public class ZkConfig {
 
     public void setLocalAddress(String localAddress) {
         if (StringUtils.isBlank(localAddress)) {
-            localAddress = String.format("%s:%s", AddressUtil.getOneIp(),"8090");
+            localAddress = String.format("%s:%s", AddressUtil.getOneIp(), "8090");
         }
         this.localAddress = localAddress;
     }

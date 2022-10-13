@@ -33,6 +33,7 @@ import java.util.Map;
  * eg:${bdp.system.bizdate}：yyyyMMdd-1
  * Date: 2017/6/7
  * Company: www.dtstack.com
+ *
  * @author xuchao
  */
 @Service
@@ -43,24 +44,24 @@ public class DevelopSysParamService {
 
     private Map<String, DevelopSysParameter> cache = null;
 
-    public Collection<DevelopSysParameter> listSystemParam(){
-        if (cache == null){
+    public Collection<DevelopSysParameter> listSystemParam() {
+        if (cache == null) {
             loadSystemParam();
         }
         return cache.values();
     }
 
-    public void loadSystemParam(){
+    public void loadSystemParam() {
         cache = Maps.newHashMap();
         List<DevelopSysParameter> sysParamList = developSysParamDao.listAll();
-        for(DevelopSysParameter tmp : sysParamList){
+        for (DevelopSysParameter tmp : sysParamList) {
             cache.put(tmp.getParamName(), tmp);
         }
     }
 
-    public DevelopSysParameter getBatchSysParamByName(String name){
+    public DevelopSysParameter getBatchSysParamByName(String name) {
 
-        if(cache == null){
+        if (cache == null) {
             loadSystemParam();
         }
 

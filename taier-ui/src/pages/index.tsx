@@ -17,34 +17,33 @@
  */
 
 import 'reflect-metadata';
-import { useState, useEffect, useLayoutEffect } from 'react';
-import type { IPersonLists } from '@/context';
+import {useEffect, useLayoutEffect, useState} from 'react';
+import type {IPersonLists} from '@/context';
 import Context from '@/context';
-import { history } from 'umi';
-import { extensions } from '@/extensions';
+import {history} from 'umi';
+import {extensions} from '@/extensions';
 import api from '@/api';
-import molecule, { create } from '@dtinsight/molecule';
-import { Workbench } from './workbench';
+import molecule, {create} from '@dtinsight/molecule';
+import {Workbench} from './workbench';
 import Task from '@/pages/operation/task';
 import StreamTask from '@/pages/operation/streamTask';
 import Schedule from '@/pages/operation/schedule';
 import Patch from '@/pages/operation/patch';
 import Layout from '@/layout';
-import { updateDrawer } from '@/components/customDrawer';
-import { Breadcrumb } from 'antd';
+import CustomDrawer, {updateDrawer} from '@/components/customDrawer';
+import {Breadcrumb} from 'antd';
 import PatchDetail from './operation/patch/detail';
 import Login from './login';
-import CustomDrawer from '@/components/customDrawer';
-import { CONSOLE, DRAWER_MENU_ENUM } from '@/constant';
+import {CONSOLE, DRAWER_MENU_ENUM} from '@/constant';
 import QueueManage from './console/queue';
 import TaskDetail from './console/taskDetail';
 import ResourceManage from './console/resource';
 import ClusterManage from './console/cluster';
 import ClusterDetail from './console/cluster/detail';
-import { getCookie } from '@/utils';
-import { taskRenderService } from '@/services';
-import { connect } from '@dtinsight/molecule/esm/react';
-import type { ITaskRenderState } from '@/services/taskRenderService';
+import {getCookie} from '@/utils';
+import {taskRenderService} from '@/services';
+import {connect} from '@dtinsight/molecule/esm/react';
+import type {ITaskRenderState} from '@/services/taskRenderService';
 import '@dtinsight/molecule/esm/style/mo.css';
 import './index.scss';
 
@@ -58,9 +57,9 @@ moInstance.onBeforeInit(() => {
 	molecule.builtin.inactiveModule('FOLDER_PANEL_CONTEXT_MENU');
 });
 
-const MoleculeProvider = () => moInstance.render(<Workbench />);
+const MoleculeProvider = () => moInstance.render(<Workbench/>);
 
-export default connect(taskRenderService, ({ supportTaskList }: ITaskRenderState) => {
+export default connect(taskRenderService, ({supportTaskList}: ITaskRenderState) => {
 	const [personList, setPersonList] = useState<IPersonLists[]>([]);
 	const [username, setUsername] = useState<string | undefined>(undefined);
 
@@ -102,13 +101,13 @@ export default connect(taskRenderService, ({ supportTaskList }: ITaskRenderState
 						const children = (() => {
 							switch (drawerId) {
 								case DRAWER_MENU_ENUM.TASK:
-									return <Task />;
+									return <Task/>;
 								case DRAWER_MENU_ENUM.STREAM_TASK:
-									return <StreamTask />;
+									return <StreamTask/>;
 								case DRAWER_MENU_ENUM.SCHEDULE:
-									return <Schedule />;
+									return <Schedule/>;
 								case DRAWER_MENU_ENUM.PATCH:
-									return <Patch />;
+									return <Patch/>;
 								default:
 									return <div>404</div>;
 							}
@@ -144,7 +143,7 @@ export default connect(taskRenderService, ({ supportTaskList }: ITaskRenderState
 					renderContent: () => {
 						return (
 							<Layout>
-								<PatchDetail />
+								<PatchDetail/>
 							</Layout>
 						);
 					},
@@ -168,11 +167,11 @@ export default connect(taskRenderService, ({ supportTaskList }: ITaskRenderState
 						const children = (() => {
 							switch (drawerId) {
 								case DRAWER_MENU_ENUM.QUEUE:
-									return <QueueManage />;
+									return <QueueManage/>;
 								case DRAWER_MENU_ENUM.RESOURCE:
-									return <ResourceManage />;
+									return <ResourceManage/>;
 								case DRAWER_MENU_ENUM.CLUSTER:
-									return <ClusterManage />;
+									return <ClusterManage/>;
 								default:
 									return <div>404</div>;
 							}
@@ -183,7 +182,7 @@ export default connect(taskRenderService, ({ supportTaskList }: ITaskRenderState
 				break;
 			}
 			case DRAWER_MENU_ENUM.QUEUE_DETAIL: {
-				const { jobResource, clusterName } = history.location.query || {};
+				const {jobResource, clusterName} = history.location.query || {};
 				updateDrawer({
 					id: 'root',
 					visible: true,
@@ -209,7 +208,7 @@ export default connect(taskRenderService, ({ supportTaskList }: ITaskRenderState
 					renderContent: () => {
 						return (
 							<Layout>
-								<TaskDetail />
+								<TaskDetail/>
 							</Layout>
 						);
 					},
@@ -217,7 +216,7 @@ export default connect(taskRenderService, ({ supportTaskList }: ITaskRenderState
 				break;
 			}
 			case DRAWER_MENU_ENUM.CLUSTER_DETAIL: {
-				const { clusterName } = history.location.query || {};
+				const {clusterName} = history.location.query || {};
 				updateDrawer({
 					id: 'root',
 					visible: true,
@@ -242,7 +241,7 @@ export default connect(taskRenderService, ({ supportTaskList }: ITaskRenderState
 					renderContent: () => {
 						return (
 							<Layout>
-								<ClusterDetail />
+								<ClusterDetail/>
 							</Layout>
 						);
 					},
@@ -269,7 +268,7 @@ export default connect(taskRenderService, ({ supportTaskList }: ITaskRenderState
 
 	useEffect(() => {
 		function handleBeforeLeave(e: BeforeUnloadEvent) {
-			const { groups } = molecule.editor.getState();
+			const {groups} = molecule.editor.getState();
 			if (groups?.length) {
 				// refer to: https://developer.mozilla.org/en-US/docs/Web/API/BeforeUnloadEvent
 				// prettier-ignore
@@ -280,6 +279,7 @@ export default connect(taskRenderService, ({ supportTaskList }: ITaskRenderState
 				return confirmationMessage; // Webkit, Safari, Chrome
 			}
 		}
+
 		window.addEventListener('beforeunload', handleBeforeLeave);
 
 		return () => window.removeEventListener('beforeunload', handleBeforeLeave);
@@ -293,9 +293,9 @@ export default connect(taskRenderService, ({ supportTaskList }: ITaskRenderState
 				supportJobTypes: supportTaskList,
 			}}
 		>
-			<MoleculeProvider />
-			<Login />
-			<CustomDrawer id="root" renderContent={() => null} />
+			<MoleculeProvider/>
+			<Login/>
+			<CustomDrawer id="root" renderContent={() => null}/>
 		</Context.Provider>
 	);
 });

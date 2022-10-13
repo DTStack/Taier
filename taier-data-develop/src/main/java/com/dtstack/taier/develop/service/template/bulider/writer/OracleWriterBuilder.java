@@ -17,7 +17,7 @@ import org.springframework.stereotype.Component;
  * @date 2021-11-03 16:36:39
  */
 @Component
-public class OracleWriterBuilder extends AbsRDBWriterBuilder{
+public class OracleWriterBuilder extends AbsRDBWriterBuilder {
 
     @Autowired
     DsInfoService dataSourceAPIClient;

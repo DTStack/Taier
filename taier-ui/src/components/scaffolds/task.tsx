@@ -1,17 +1,17 @@
-import { useContext, useEffect, useMemo, useState } from 'react';
-import { message, Modal, Tooltip, AutoComplete, Form, Select, Input } from 'antd';
-import type { AutoCompleteProps, SelectProps } from 'antd';
-import { omit } from 'lodash';
-import { Context } from '@/context/dataSync';
+import {useContext, useEffect, useMemo, useState} from 'react';
+import type {AutoCompleteProps, SelectProps} from 'antd';
+import {AutoComplete, Form, Input, message, Modal, Select, Tooltip} from 'antd';
+import {omit} from 'lodash';
+import {Context} from '@/context/dataSync';
 import http from '@/api/http';
-import { convertParams, splitByKey } from '@/utils';
-import { ConsoleSqlOutlined, FundViewOutlined, LoadingOutlined } from '@ant-design/icons';
+import {convertParams, splitByKey} from '@/utils';
+import {ConsoleSqlOutlined, FundViewOutlined, LoadingOutlined} from '@ant-design/icons';
 import api from '@/api';
 import Editor from '../editor';
-import { DATA_SOURCE_ENUM, DATA_SYNC_MODE, DDL_IDE_PLACEHOLDER, TASK_LANGUAGE } from '@/constant';
+import {DATA_SOURCE_ENUM, DATA_SYNC_MODE, DDL_IDE_PLACEHOLDER, TASK_LANGUAGE} from '@/constant';
 import molecule from '@dtinsight/molecule';
 import PreviewTable from '../previewTable';
-import type { TextAreaProps } from 'antd/lib/input';
+import type {TextAreaProps} from 'antd/lib/input';
 import md5 from 'md5';
 import viewStoreService from '@/services/viewStoreService';
 
@@ -53,7 +53,7 @@ export type IOptionsFromRequest = IOptionsFromRequestFalsy | IOptionsFromRequest
 
 export const SelectWithRequest = (props: SelectProps & IOptionsFromRequest) => {
 	const form = Form.useFormInstance();
-	const { optionCollections, dispatch, transformerFactory } = useContext(Context);
+	const {optionCollections, dispatch, transformerFactory} = useContext(Context);
 	const [errorMsg, setErrorMsg] = useState('');
 
 	useEffect(() => {
@@ -134,7 +134,7 @@ export const SelectWithRequest = (props: SelectProps & IOptionsFromRequest) => {
 
 	const Content = (
 		<Select
-			style={{ width: '100%' }}
+			style={{width: '100%'}}
 			getPopupContainer={(node) => node.parentNode}
 			optionFilterProp="label"
 			showSearch
@@ -150,7 +150,7 @@ export const SelectWithRequest = (props: SelectProps & IOptionsFromRequest) => {
 		<Tooltip
 			getPopupContainer={(node) => node.parentElement!}
 			title={errorMsg}
-			overlayStyle={{ maxWidth: 500 }}
+			overlayStyle={{maxWidth: 500}}
 		>
 			{Content}
 		</Tooltip>
@@ -161,7 +161,7 @@ export const SelectWithRequest = (props: SelectProps & IOptionsFromRequest) => {
 
 export const AutoCompleteWithRequest = (props: AutoCompleteProps & IOptionsFromRequest) => {
 	const form = Form.useFormInstance();
-	const { transformerFactory, optionCollections, dispatch } = useContext(Context);
+	const {transformerFactory, optionCollections, dispatch} = useContext(Context);
 
 	useEffect(() => {
 		if (props.optionsFromRequest) {
@@ -229,14 +229,14 @@ export const AutoCompleteWithRequest = (props: AutoCompleteProps & IOptionsFromR
 
 	const restProps = omit(props, ['method', 'url', 'optionsFromRequest', 'params', 'transformer']);
 
-	const { obj1: inputProps, obj2: autoCompleteProps } = splitByKey<any>(restProps, [
+	const {obj1: inputProps, obj2: autoCompleteProps} = splitByKey<any>(restProps, [
 		'placeholder',
 		'suffix',
 	]);
 
 	return (
 		<AutoComplete
-			style={{ width: '100%' }}
+			style={{width: '100%'}}
 			getPopupContainer={(node) => node.parentNode}
 			optionFilterProp="label"
 			showSearch
@@ -257,8 +257,8 @@ export function SelectWithCreate(props: SelectProps & IOptionsFromRequest) {
 	const [loading, setLoading] = useState(false);
 
 	const [renderKey, forceRender] = useState(0);
-	const [modalInfo, setModalInfo] = useState({ loading: false, visible: false });
-	const [editorInfo, setEditorInfo] = useState({ textSql: '', sync: false });
+	const [modalInfo, setModalInfo] = useState({loading: false, visible: false});
+	const [editorInfo, setEditorInfo] = useState({textSql: '', sync: false});
 
 	const handleCreateTable = () => {
 		setLoading(true);
@@ -299,7 +299,7 @@ export function SelectWithCreate(props: SelectProps & IOptionsFromRequest) {
 	};
 
 	const createTable = () => {
-		setModalInfo({ loading: true, visible: true });
+		setModalInfo({loading: true, visible: true});
 		api.createDdlTable({
 			sql: editorInfo.textSql,
 			sourceId: form.getFieldValue(['targetMap', 'sourceId']),
@@ -312,19 +312,19 @@ export function SelectWithCreate(props: SelectProps & IOptionsFromRequest) {
 							table: res.data,
 						},
 					});
-					setModalInfo((i) => ({ ...i, visible: false }));
+					setModalInfo((i) => ({...i, visible: false}));
 					// Force re-render select to request options again
 					forceRender((i) => i + 1);
 				}
 			})
 			.finally(() => {
-				setModalInfo((i) => ({ ...i, loading: false }));
+				setModalInfo((i) => ({...i, loading: false}));
 			});
 	};
 
 	const suffixIcon = (
 		<Tooltip title="一键生成目标表">
-			{loading ? <LoadingOutlined /> : <ConsoleSqlOutlined onClick={handleCreateTable} />}
+			{loading ? <LoadingOutlined/> : <ConsoleSqlOutlined onClick={handleCreateTable}/>}
 		</Tooltip>
 	);
 
@@ -341,20 +341,20 @@ export function SelectWithCreate(props: SelectProps & IOptionsFromRequest) {
 				confirmLoading={modalInfo.loading}
 				destroyOnClose
 				maskClosable={false}
-				style={{ height: 424 }}
+				style={{height: 424}}
 				width={500}
 				visible={modalInfo.visible}
-				onCancel={() => setModalInfo({ visible: false, loading: false })}
+				onCancel={() => setModalInfo({visible: false, loading: false})}
 				onOk={createTable}
 			>
 				<Editor
-					style={{ height: 400, marginTop: 1 }}
+					style={{height: 400, marginTop: 1}}
 					language={TASK_LANGUAGE.MYSQL}
 					value={editorInfo.textSql}
 					sync={editorInfo.sync}
 					placeholder={DDL_IDE_PLACEHOLDER}
 					options={{
-						minimap: { enabled: false },
+						minimap: {enabled: false},
 					}}
 					onChange={(val) =>
 						setEditorInfo({
@@ -407,7 +407,7 @@ export function SelectWithPreviewer(props: SelectProps & IOptionsFromRequest) {
 							data: {
 								...res.data,
 							},
-							renderPane: (item) => <PreviewTable data={item.data} />,
+							renderPane: (item) => <PreviewTable data={item.data}/>,
 						});
 						molecule.panel.setActive(tableName);
 					}
@@ -436,17 +436,17 @@ export function SelectWithPreviewer(props: SelectProps & IOptionsFromRequest) {
 	const suffixIcon = (
 		<Tooltip title="数据预览">
 			{loading ? (
-				<LoadingOutlined />
+				<LoadingOutlined/>
 			) : (
 				<FundViewOutlined
-					style={{ pointerEvents: disabled ? 'none' : 'auto' }}
+					style={{pointerEvents: disabled ? 'none' : 'auto'}}
 					onClick={() => handlePreviewTable()}
 				/>
 			)}
 		</Tooltip>
 	);
 
-	return <SelectWithRequest {...props} mode={mode} allowClear={false} suffixIcon={suffixIcon} />;
+	return <SelectWithRequest {...props} mode={mode} allowClear={false} suffixIcon={suffixIcon}/>;
 }
 
 export function TextareaWithJSONValidator(props: TextAreaProps) {

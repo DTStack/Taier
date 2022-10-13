@@ -46,7 +46,7 @@ public class ResponseAdvisor implements ResponseBodyAdvice<Object> {
             message.append(fieldError.getField()).append(":").append(fieldError.getDefaultMessage()).append(",");
         }
 
-        return R.fail(errorCode.getCode(),message.toString());
+        return R.fail(errorCode.getCode(), message.toString());
     }
 
     /**
@@ -55,7 +55,7 @@ public class ResponseAdvisor implements ResponseBodyAdvice<Object> {
     @ResponseBody
     @ExceptionHandler(ValidationException.class)
     public R handleValidationException(ValidationException e) {
-        return R.fail(ErrorCode.INVALID_PARAMETERS.getCode(),e.getMessage());
+        return R.fail(ErrorCode.INVALID_PARAMETERS.getCode(), e.getMessage());
     }
 
     /**
@@ -64,7 +64,7 @@ public class ResponseAdvisor implements ResponseBodyAdvice<Object> {
     @ResponseBody
     @ExceptionHandler(ConstraintViolationException.class)
     public R handleConstraintViolationException(ConstraintViolationException e) {
-        return R.fail(ErrorCode.INVALID_PARAMETERS.getCode(),e.getMessage());
+        return R.fail(ErrorCode.INVALID_PARAMETERS.getCode(), e.getMessage());
     }
 
     @ResponseBody
@@ -73,9 +73,9 @@ public class ResponseAdvisor implements ResponseBodyAdvice<Object> {
         BindingResult result = ex.getBindingResult();
         List<org.springframework.validation.FieldError> fieldErrors = result.getFieldErrors();
         for (FieldError fieldError : fieldErrors) {
-            return R.fail(ErrorCode.INVALID_PARAMETERS.getCode(),fieldError.getDefaultMessage());
+            return R.fail(ErrorCode.INVALID_PARAMETERS.getCode(), fieldError.getDefaultMessage());
         }
-        return R.fail(ErrorCode.INVALID_PARAMETERS.getCode(),ex.getMessage());
+        return R.fail(ErrorCode.INVALID_PARAMETERS.getCode(), ex.getMessage());
     }
 
 

@@ -25,7 +25,7 @@ import com.alibaba.fastjson.JSONObject;
  * author: toutian
  * create: 2017/5/15
  */
-public interface Reader extends CheckFormat{
+public interface Reader extends CheckFormat {
     JSONObject toReaderJson();
 
     String toReaderJsonString();

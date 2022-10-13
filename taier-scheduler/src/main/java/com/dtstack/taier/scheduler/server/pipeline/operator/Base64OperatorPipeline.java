@@ -36,7 +36,7 @@ public class Base64OperatorPipeline extends IPipeline.AbstractPipeline {
 
     @Override
     public void pipeline(Map<String, Object> actionParam, Map<String, Object> pipelineParam) {
-        String base64String = (String) super.getExecuteValue(actionParam,pipelineParam);
+        String base64String = (String) super.getExecuteValue(actionParam, pipelineParam);
         if (StringUtils.isNotBlank(base64String)) {
             pipelineParam.put(pipelineKey, Base64Util.baseEncode(base64String));
         }

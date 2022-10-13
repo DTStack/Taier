@@ -72,9 +72,9 @@
         </dependency>
 
         <dependency>
-        <groupId>commons-codec</groupId>
-        <artifactId>commons-codec</artifactId>
-        <version>${commons-codec.version}</version>
+            <groupId>commons-codec</groupId>
+            <artifactId>commons-codec</artifactId>
+            <version>${commons-codec.version}</version>
         </dependency>
     </dependencies>
 
@@ -130,7 +130,7 @@
                         <configuration>
                             <tasks>
                                 <copy file="${basedir}/target/${project.name}-${datasource.version}.jar"
-                                      tofile="${basedir}/../../../datasource-plugins/${jar.package.name}/${jar.name}--${datasource.version}.jar" />
+                                      tofile="${basedir}/../../../datasource-plugins/${jar.package.name}/${jar.name}--${datasource.version}.jar"/>
                                 <delete>
                                     <fileset dir="${basedir}/../../../datasource-plugins/${jar.package.name}/"
                                              includes="${jar.name}-*.jar"

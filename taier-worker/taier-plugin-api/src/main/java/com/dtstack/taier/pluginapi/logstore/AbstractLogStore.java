@@ -25,11 +25,11 @@ import java.util.Collection;
  */
 public abstract class AbstractLogStore {
 
-    public abstract  int insert(String jobId, String jobInfo, int status);
+    public abstract int insert(String jobId, String jobInfo, int status);
 
-    public abstract  int updateStatus(String jobId, int status);
+    public abstract int updateStatus(String jobId, int status);
 
-    public abstract  void updateModifyTime(Collection<String> jobIds);
+    public abstract void updateModifyTime(Collection<String> jobIds);
 
     public abstract void updateErrorLog(String jobId, String errorLog);
 
@@ -41,4 +41,4 @@ public abstract class AbstractLogStore {
 
     public abstract void clearJob();
 
-    }
+}

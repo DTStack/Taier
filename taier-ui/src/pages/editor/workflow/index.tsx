@@ -1,22 +1,14 @@
-import { useContext, useEffect, useRef, useState } from 'react';
-import { Badge, Button, Form, Input, message, Modal, Select, Space, Tooltip } from 'antd';
+import {useContext, useEffect, useRef, useState} from 'react';
+import {Badge, Button, Form, Input, message, Modal, Select, Space, Tooltip} from 'antd';
 import viewStoreService from '@/services/viewStoreService';
 import api from '@/api';
 import taskSaveService from '@/services/taskSaveService';
-import { formItemLayout, TASK_TYPE_ENUM } from '@/constant';
+import type {CREATE_MODEL_TYPE, FLINK_VERSIONS} from '@/constant';
+import {formItemLayout, TASK_TYPE_ENUM} from '@/constant';
 import context from '@/context';
 import classNames from 'classnames';
 import ReactDOMServer from 'react-dom/server';
-import { taskRenderService } from '@/services';
-import MxGraphContainer, { WIDGETS_PREFIX } from '@/components/mxGraph/container';
-import molecule from '@dtinsight/molecule';
-import { connect } from '@dtinsight/molecule/esm/react';
-import { ApartmentOutlined, CheckOutlined } from '@ant-design/icons';
-import { getTenantId, randomId } from '@/utils';
-import { IComputeType } from '@/interface';
-import type { CREATE_MODEL_TYPE, FLINK_VERSIONS } from '@/constant';
-import type { mxCell, mxGraph } from 'mxgraph';
-import type { IOfflineTaskProps } from '@/interface';
+import {taskRenderService} from '@/services';
 import type {
 	IContainerProps,
 	IContainerRef,
@@ -24,6 +16,14 @@ import type {
 	IGeometryPosition,
 	IKeyDownConfig,
 } from '@/components/mxGraph/container';
+import MxGraphContainer, {WIDGETS_PREFIX} from '@/components/mxGraph/container';
+import molecule from '@dtinsight/molecule';
+import {connect} from '@dtinsight/molecule/esm/react';
+import {ApartmentOutlined, CheckOutlined} from '@ant-design/icons';
+import {getTenantId, randomId} from '@/utils';
+import type {IOfflineTaskProps} from '@/interface';
+import {IComputeType} from '@/interface';
+import type {mxCell, mxGraph} from 'mxgraph';
 import './index.scss';
 
 interface IFormFieldProps {
@@ -72,8 +72,8 @@ const renderErrorMessage = (dom: HTMLInputElement, errorMsg: string) => {
 };
 
 // 工作流
-function Workflow({ current }: molecule.model.IEditor) {
-	const { supportJobTypes } = useContext(context);
+function Workflow({current}: molecule.model.IEditor) {
+	const {supportJobTypes} = useContext(context);
 	const [loading, setLoading] = useState(false);
 	const [modalInfo, setModalInfo] = useState<{
 		visible: boolean;
@@ -114,7 +114,7 @@ function Workflow({ current }: molecule.model.IEditor) {
 		if (!reg.test(value))
 			return Promise.reject(new Error('节点名称只能由字母、数字、中文、下划线组成!'));
 
-		const res = await api.validateRepeatTaskName({ taskName: value, tenantId: getTenantId() });
+		const res = await api.validateRepeatTaskName({taskName: value, tenantId: getTenantId()});
 		if (res.code !== 1) return Promise.reject(new Error('子节点名称已存在!'));
 
 		return Promise.resolve();
@@ -128,13 +128,13 @@ function Workflow({ current }: molecule.model.IEditor) {
 		x,
 		y,
 	) => {
-		dragStage.current = { x, y };
+		dragStage.current = {x, y};
 		setTimeout(() => {
 			const taskType = Number(node.dataset.type);
 			form.setFieldsValue({
 				taskType,
 			});
-			setModalInfo({ visible: true, create: true });
+			setModalInfo({visible: true, create: true});
 		}, 0);
 	};
 
@@ -158,7 +158,7 @@ function Workflow({ current }: molecule.model.IEditor) {
 	const handleInsertCell = () => {
 		form.validateFields().then((values) => {
 			if (modalInfo.create) {
-				const { x, y } = dragStage.current;
+				const {x, y} = dragStage.current;
 				container.current?.insertCell(
 					{
 						...values,
@@ -172,7 +172,7 @@ function Workflow({ current }: molecule.model.IEditor) {
 					y,
 				);
 
-				setModalInfo({ visible: false, create: true });
+				setModalInfo({visible: false, create: true});
 				form.resetFields();
 			} else {
 				container.current?.updateCell(modalInfo.editData!.id.toString(), {
@@ -180,7 +180,7 @@ function Workflow({ current }: molecule.model.IEditor) {
 					[isEditing]: true,
 				});
 
-				setModalInfo({ visible: false, create: false, editData: undefined });
+				setModalInfo({visible: false, create: false, editData: undefined});
 				updateCurrentTab();
 				form.resetFields();
 			}
@@ -211,7 +211,7 @@ function Workflow({ current }: molecule.model.IEditor) {
 		if (!isInEdit.current) {
 			setLoading(true);
 			taskRenderService.openTask(
-				{ ...data },
+				{...data},
 				{
 					// workflow task don't need to getTaskById again
 					// since already request getTaskById for each vertex in workflow's useEffect
@@ -281,7 +281,7 @@ function Workflow({ current }: molecule.model.IEditor) {
 						name: data.name,
 						taskDesc: data.taskDesc,
 					});
-					setModalInfo({ visible: true, create: false, editData: data });
+					setModalInfo({visible: true, create: false, editData: data});
 				},
 			},
 			{
@@ -310,7 +310,7 @@ function Workflow({ current }: molecule.model.IEditor) {
 	};
 
 	const renderCell = (cell: mxCell) => {
-		const { value } = cell;
+		const {value} = cell;
 
 		return ReactDOMServer.renderToString(
 			<div className="workflow__vertex" tabIndex={-1}>
@@ -322,10 +322,10 @@ function Workflow({ current }: molecule.model.IEditor) {
 						)}
 						defaultValue={value.name}
 					/>
-					<CheckOutlined title="保存" className="workflow__vertex__input__icon" />
+					<CheckOutlined title="保存" className="workflow__vertex__input__icon"/>
 				</div>
 				<div className="workflow__vertex__title">
-					{value[isEditing] && <Badge status="processing" />}
+					{value[isEditing] && <Badge status="processing"/>}
 					{value.name || '-'}
 				</div>
 				<div className="workflow__vertex__taskType">
@@ -372,7 +372,7 @@ function Workflow({ current }: molecule.model.IEditor) {
 										container.current?.removeCell(cell.id);
 										updateCurrentTab();
 									} else {
-										api.delOfflineTask({ taskId: cell.value.id }).then(
+										api.delOfflineTask({taskId: cell.value.id}).then(
 											(res) => {
 												if (res.code === 1) {
 													const id = cell.value.id.toString();
@@ -446,7 +446,7 @@ function Workflow({ current }: molecule.model.IEditor) {
 
 				setLoading(true);
 				Promise.all(
-					vertexIds.map((id) => api.getOfflineTaskByID<IOfflineTaskProps>({ id })),
+					vertexIds.map((id) => api.getOfflineTaskByID<IOfflineTaskProps>({id})),
 				)
 					.then((results) => {
 						if (results.every((res) => res.code === 1)) {
@@ -464,7 +464,7 @@ function Workflow({ current }: molecule.model.IEditor) {
 								);
 
 								if (task) {
-									const node = { ...task, childNode: [], [isEditing]: false };
+									const node = {...task, childNode: [], [isEditing]: false};
 
 									const parentTaskId: number | undefined = nodeMap[node.id]?.[0];
 									// 根节点添加的时候，childrenNodeReference 上不存在对象缓存
@@ -552,7 +552,7 @@ function Workflow({ current }: molecule.model.IEditor) {
 												t.key !== TASK_TYPE_ENUM.WORK_FLOW &&
 												t.computeType === IComputeType.BATCH,
 										)
-										.map(({ key, value }) => (
+										.map(({key, value}) => (
 											<div
 												key={key}
 												data-type={key}
@@ -575,7 +575,7 @@ function Workflow({ current }: molecule.model.IEditor) {
 				visible={modalInfo.visible}
 				onCancel={() => {
 					form.resetFields();
-					setModalInfo((p) => ({ ...p, visible: false, editData: undefined }));
+					setModalInfo((p) => ({...p, visible: false, editData: undefined}));
 				}}
 				onOk={handleInsertCell}
 			>
@@ -584,9 +584,9 @@ function Workflow({ current }: molecule.model.IEditor) {
 						label="节点名称"
 						name="name"
 						validateTrigger="onBlur"
-						rules={[{ validator: validateTaskName }]}
+						rules={[{validator: validateTaskName}]}
 					>
-						<Input placeholder="请输入节点名称" />
+						<Input placeholder="请输入节点名称"/>
 					</Form.Item>
 					<Form.Item
 						label="节点类型"
@@ -626,7 +626,7 @@ function Workflow({ current }: molecule.model.IEditor) {
 							},
 						]}
 					>
-						<Input.TextArea placeholder="请输入描述" disabled={false} rows={4} />
+						<Input.TextArea placeholder="请输入描述" disabled={false} rows={4}/>
 					</Form.Item>
 				</Form>
 			</Modal>

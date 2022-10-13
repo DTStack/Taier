@@ -18,7 +18,7 @@ public class KeywordsHelper {
 
     private static final Pattern ERROR_INFO_PATTERN = Pattern.compile(ERROR_INFO_REGEX);
 
-    private static char SPACE =' ';
+    private static char SPACE = ' ';
     private static char SPLIT_DOT = ',';
 
     private String sql;
@@ -38,7 +38,7 @@ public class KeywordsHelper {
         this.originSql = sql;
     }
 
-    public static boolean exceptionWithKeywords( String errorInfo) {
+    public static boolean exceptionWithKeywords(String errorInfo) {
         if (StringUtils.isEmpty(errorInfo)) {
             return false;
         }
@@ -49,7 +49,7 @@ public class KeywordsHelper {
                 return false;
             }
             String[] split = info.split("\\s");
-            if (split.length == 1){
+            if (split.length == 1) {
                 String fWord = split[0];
                 Keywords fkeywords = Keywords.getKeywords(fWord.trim());
                 if (fkeywords != null) {
@@ -88,7 +88,7 @@ public class KeywordsHelper {
             //第一种情况：Encountered ", position" at line 1, column 86.
             String fWord = split[0];
             Keywords fkeywords = Keywords.getKeywords(fWord.trim());
-            if (split.length==1){
+            if (split.length == 1) {
                 if (fkeywords != null) {
                     dealKeywords(fWord.trim(), column, SUFFIX);
                     return true;
@@ -105,7 +105,7 @@ public class KeywordsHelper {
             if (bkeywords != null) {
 
                 Integer offset = sql.substring(column).indexOf(bWord);
-                dealKeywords(bWord.trim(),column+(offset==0?0:offset) , SUFFIX);
+                dealKeywords(bWord.trim(), column + (offset == 0 ? 0 : offset), SUFFIX);
                 return true;
             }
         }
@@ -113,27 +113,26 @@ public class KeywordsHelper {
     }
 
     private void dealKeywords(String keywords, int start, String suffix) {
-        if (sql.charAt(start) == SPACE || sql.charAt(start) == SPLIT_DOT){
+        if (sql.charAt(start) == SPACE || sql.charAt(start) == SPLIT_DOT) {
             start++;
-        }else {
+        } else {
             Integer pos = Keywords.findCharFirstPosition(sql.charAt(start), keywords);
-            if (pos != null){
-                start-=pos;
+            if (pos != null) {
+                start -= pos;
             }
         }
 
         String head = sql.substring(0, start);
         String tail = sql.substring(start + keywords.length(), sql.length());
-        sql = head + keywords+suffix + tail;
+        sql = head + keywords + suffix + tail;
     }
 
-    public static String removeKeywordsSuffix(String columnName){
-        if (StringUtils.contains(columnName,SUFFIX)){
-            return StringUtils.remove(columnName,SUFFIX);
+    public static String removeKeywordsSuffix(String columnName) {
+        if (StringUtils.contains(columnName, SUFFIX)) {
+            return StringUtils.remove(columnName, SUFFIX);
         }
         return columnName;
     }
-
 
 
     public enum Keywords {
@@ -192,16 +191,17 @@ public class KeywordsHelper {
 
         /**
          * 获取char在关键字字符串中的第一个位置
+         *
          * @param start
          * @param keywords
          * @return
          */
-        public static Integer findCharFirstPosition(char start,String keywords){
-            if (getKeywords(keywords) == null){
+        public static Integer findCharFirstPosition(char start, String keywords) {
+            if (getKeywords(keywords) == null) {
                 return null;
             }
-            for (int i=0;i<keywords.length();i++){
-                if (start == keywords.charAt(i)){
+            for (int i = 0; i < keywords.length(); i++) {
+                if (start == keywords.charAt(i)) {
                     return i;
                 }
             }

@@ -17,12 +17,12 @@
  */
 
 import stream from '@/api';
-import { Collapse, Input, Row, Spin, Table } from 'antd';
-import { UpOutlined, DownOutlined, FrownOutlined } from '@ant-design/icons';
+import {Collapse, Input, Row, Spin, Table} from 'antd';
+import {DownOutlined, FrownOutlined, UpOutlined} from '@ant-design/icons';
 import React from 'react';
-import { isShowCollapse } from '../../helper';
-import { assign } from 'lodash';
-import { Utils } from '@dtinsight/dt-utils/lib';
+import {isShowCollapse} from '../../helper';
+import {assign} from 'lodash';
+import {Utils} from '@dtinsight/dt-utils/lib';
 
 const Panel = Collapse.Panel;
 const TextArea = Input.TextArea;
@@ -37,7 +37,7 @@ interface CollaProps {
 
 export class CollapsePreview extends React.Component<CollaProps, any> {
 	render() {
-		const { previewData, style, className, loading, type } = this.props;
+		const {previewData, style, className, loading, type} = this.props;
 		let defaultStyle: any = {
 			maxHeight: '300px',
 			minHeight: '200px',
@@ -58,18 +58,18 @@ export class CollapsePreview extends React.Component<CollaProps, any> {
 							header={<div className={defaultClass}>{jsonStr || '无数据'}</div>}
 							key={`data-preview-${index}`}
 						>
-							<TextArea style={defaultStyle} value={jsonStr} />
+							<TextArea style={defaultStyle} value={jsonStr}/>
 						</Panel>
 					);
 				})}
 			</Collapse>
 		) : (
-			<div style={{ textAlign: 'center' }}>
+			<div style={{textAlign: 'center'}}>
 				{loading ? (
-					<Spin size="small" tip="加载中..." />
+					<Spin size="small" tip="加载中..."/>
 				) : (
 					<>
-						<FrownOutlined /> 暂无数据
+						<FrownOutlined/> 暂无数据
 					</>
 				)}
 			</div>
@@ -91,7 +91,7 @@ class TablePreview extends React.Component<any, any> {
 	}
 
 	componentDidUpdate(prevProps: any) {
-		const { data, notDesc } = this.props;
+		const {data, notDesc} = this.props;
 		/** flinkSql任务es数据源索引值可相同，区分处理flinkSql任务和实时采集任务 */
 		if (
 			(prevProps?.data !== data && notDesc) ||
@@ -108,7 +108,7 @@ class TablePreview extends React.Component<any, any> {
 	}
 
 	showPreview = () => {
-		const { isShow } = this.state;
+		const {isShow} = this.state;
 		if (isShow) {
 			this.setState({
 				isShow: false,
@@ -122,8 +122,8 @@ class TablePreview extends React.Component<any, any> {
 		}
 	};
 	loadData = async () => {
-		const { data } = this.props;
-		const { sourceId, schema, tableName } = data;
+		const {data} = this.props;
+		const {sourceId, schema, tableName} = data;
 		if (!sourceId || !tableName) {
 			return;
 		}
@@ -148,7 +148,7 @@ class TablePreview extends React.Component<any, any> {
 		}
 	};
 	getColumn = () => {
-		const { data } = this.state;
+		const {data} = this.state;
 		const columns = data?.columnList;
 		if (!columns) {
 			return {
@@ -172,38 +172,38 @@ class TablePreview extends React.Component<any, any> {
 		};
 	};
 	getData = () => {
-		const { data } = this.state;
+		const {data} = this.state;
 		return data?.dataList || [];
 	};
 
 	render() {
-		const { notDesc, type } = this.props; // 是否展示数据预览, flinkSql任务标记
-		const { isShow, loading } = this.state;
-		const { columns, width } = this.getColumn();
+		const {notDesc, type} = this.props; // 是否展示数据预览, flinkSql任务标记
+		const {isShow, loading} = this.state;
+		const {columns, width} = this.getColumn();
 
 		return (
-			<div style={{ textAlign: 'center' }}>
+			<div style={{textAlign: 'center'}}>
 				{!notDesc && (
 					<a onClick={this.showPreview}>
-						数据预览 {isShow ? <UpOutlined /> : <DownOutlined />}
+						数据预览 {isShow ? <UpOutlined/> : <DownOutlined/>}
 					</a>
 				)}
 				{(isShow || notDesc) && !isShowCollapse(type) && (
-					<Row style={{ padding: !notDesc ? 20 : 0 }}>
+					<Row style={{padding: !notDesc ? 20 : 0}}>
 						<Table
 							className="dt-table-border"
 							columns={columns}
 							dataSource={this.getData()}
 							pagination={false}
 							loading={loading}
-							scroll={{ x: width }}
+							scroll={{x: width}}
 							size="middle"
 						/>
 					</Row>
 				)}
 
 				{(isShow || notDesc) && isShowCollapse(type) && (
-					<CollapsePreview previewData={this.getData()} loading={loading} type={type} />
+					<CollapsePreview previewData={this.getData()} loading={loading} type={type}/>
 				)}
 			</div>
 		);

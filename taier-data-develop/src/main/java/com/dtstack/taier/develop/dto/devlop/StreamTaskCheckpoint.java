@@ -7,7 +7,7 @@ import java.sql.Timestamp;
 
 public class StreamTaskCheckpoint {
 
-    @TableId(value = "id",type = IdType.AUTO)
+    @TableId(value = "id", type = IdType.AUTO)
     private Long id = 0L;
 
     private String taskId;

@@ -1,10 +1,10 @@
 import api from '@/api';
-import { CATALOGUE_TYPE, TASK_TYPE_ENUM } from '@/constant';
-import { executeService, taskRenderService } from '@/services';
-import taskResultService, { createLog } from '@/services/taskResultService';
+import {CATALOGUE_TYPE, TASK_TYPE_ENUM} from '@/constant';
+import {executeService, taskRenderService} from '@/services';
+import taskResultService, {createLog} from '@/services/taskResultService';
 import molecule from '@dtinsight/molecule';
-import { TreeViewUtil } from '@dtinsight/molecule/esm/common/treeUtil';
-import { fileIcon, getParentNode, runTask, syntaxValidate } from '../extensions';
+import {TreeViewUtil} from '@dtinsight/molecule/esm/common/treeUtil';
+import {fileIcon, getParentNode, runTask, syntaxValidate} from '../extensions';
 
 jest.mock('@/services/taskSaveService', () => {
 	return {
@@ -14,7 +14,7 @@ jest.mock('@/services/taskSaveService', () => {
 
 jest.mock('@/services/taskResultService', () => {
 	return {
-		getState: jest.fn(() => ({ results: { test: 'test' } })),
+		getState: jest.fn(() => ({results: {test: 'test'}})),
 		clearLogs: jest.fn(),
 		appendLogs: jest.fn(),
 		createLog: jest.fn(),
@@ -43,7 +43,7 @@ describe('utils/extensions', () => {
 	beforeAll(() => {
 		(molecule.panel.getState as jest.Mock)
 			.mockReset()
-			.mockImplementation(() => ({ data: [{ id: 'panel.output.log' }] }));
+			.mockImplementation(() => ({data: [{id: 'panel.output.log'}]}));
 	});
 
 	it('Should render file icon', () => {
@@ -58,13 +58,13 @@ describe('utils/extensions', () => {
 		// Mock the molecule.layout.getState
 		(molecule.layout.getState as jest.Mock)
 			.mockReset()
-			.mockImplementationOnce(() => ({ panel: { hidden: false } }))
-			.mockImplementation(() => ({ panel: { hidden: true } }));
+			.mockImplementationOnce(() => ({panel: {hidden: false}}))
+			.mockImplementation(() => ({panel: {hidden: true}}));
 
 		(molecule.panel.getPanel as jest.Mock)
 			.mockReset()
 			.mockImplementationOnce(() => undefined)
-			.mockImplementation(() => ({ id: 'test' }));
+			.mockImplementation(() => ({id: 'test'}));
 
 		runTask({
 			id: 1,
@@ -82,7 +82,7 @@ describe('utils/extensions', () => {
 		// At first time called, the panel is visible because of the return value of molecule.layout.getState
 		expect(molecule.layout.togglePanelVisibility).not.toBeCalled();
 		// Whatever the log panel is hidden or visible, the activated panel must be the log panel
-		expect(molecule.panel.setState).toBeCalledWith({ current: { id: 'panel.output.log' } });
+		expect(molecule.panel.setState).toBeCalledWith({current: {id: 'panel.output.log'}});
 
 		expect(executeService.execDataSync).toBeCalledWith('test', {
 			taskId: 'test',
@@ -169,7 +169,7 @@ describe('utils/extensions', () => {
 
 		(molecule.layout.getState as jest.Mock)
 			.mockReset()
-			.mockImplementation(() => ({ panel: { hidden: false } }));
+			.mockImplementation(() => ({panel: {hidden: false}}));
 
 		(api.checkSyntax as jest.Mock).mockReset().mockImplementation(() => Promise.reject());
 
@@ -198,7 +198,7 @@ describe('utils/extensions', () => {
 		// At first time called, the molecule.layout.getState returns false
 		expect(molecule.layout.togglePanelVisibility).not.toBeCalled();
 		// Whatever the log panel is hidden or visible, the activated panel must be the log panel
-		expect(molecule.panel.setState).toBeCalledWith({ current: { id: 'panel.output.log' } });
+		expect(molecule.panel.setState).toBeCalledWith({current: {id: 'panel.output.log'}});
 
 		await new Promise<void>((resolve) => {
 			setTimeout(() => {
@@ -227,15 +227,15 @@ describe('utils/extensions', () => {
 
 		(molecule.layout.getState as jest.Mock)
 			.mockReset()
-			.mockImplementation(() => ({ panel: { hidden: true } }));
+			.mockImplementation(() => ({panel: {hidden: true}}));
 
 		(api.checkSyntax as jest.Mock)
 			.mockReset()
-			.mockImplementationOnce(() => Promise.resolve({ code: 100, message: 'test' }))
+			.mockImplementationOnce(() => Promise.resolve({code: 100, message: 'test'}))
 			.mockImplementationOnce(() =>
-				Promise.resolve({ code: 1, data: { code: 100, errorMsg: 'errorMsg' } }),
+				Promise.resolve({code: 1, data: {code: 100, errorMsg: 'errorMsg'}}),
 			)
-			.mockImplementation(() => Promise.resolve({ code: 1, data: { code: 1 } }));
+			.mockImplementation(() => Promise.resolve({code: 1, data: {code: 1}}));
 
 		(createLog as jest.Mock).mockClear();
 		(taskResultService.appendLogs as jest.Mock).mockClear();

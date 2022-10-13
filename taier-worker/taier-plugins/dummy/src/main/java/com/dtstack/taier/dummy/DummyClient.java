@@ -19,12 +19,12 @@
 package com.dtstack.taier.dummy;
 
 import com.alibaba.fastjson.JSONObject;
-import com.dtstack.taier.pluginapi.pojo.ComponentTestResult;
 import com.dtstack.taier.pluginapi.JobClient;
 import com.dtstack.taier.pluginapi.JobIdentifier;
 import com.dtstack.taier.pluginapi.client.AbstractClient;
 import com.dtstack.taier.pluginapi.enums.TaskStatus;
 import com.dtstack.taier.pluginapi.exception.ExceptionUtil;
+import com.dtstack.taier.pluginapi.pojo.ComponentTestResult;
 import com.dtstack.taier.pluginapi.pojo.JobResult;
 import com.dtstack.taier.pluginapi.pojo.JudgeResult;
 import com.dtstack.taier.pluginapi.sftp.SftpConfig;

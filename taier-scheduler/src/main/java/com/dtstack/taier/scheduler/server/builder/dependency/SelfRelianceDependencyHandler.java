@@ -8,7 +8,6 @@ import com.dtstack.taier.scheduler.enums.RelyType;
 import com.dtstack.taier.scheduler.server.builder.cron.ScheduleCorn;
 import com.dtstack.taier.scheduler.service.ScheduleJobService;
 import com.dtstack.taier.scheduler.utils.JobKeyUtils;
-import com.google.common.collect.Lists;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,11 +27,11 @@ public class SelfRelianceDependencyHandler extends DecoratorJobDependency {
     private static final Logger LOGGER = LoggerFactory.getLogger(SelfRelianceDependencyHandler.class);
 
     public SelfRelianceDependencyHandler(String keyPreStr,
-                                  ScheduleTaskShade currentTaskShade,
-                                  ScheduleJobService scheduleJobService,
-                                  List<ScheduleTaskShade> taskShadeList,
-                                  JobDependency jobDependency) {
-        super(keyPreStr, currentTaskShade, scheduleJobService, taskShadeList,jobDependency);
+                                         ScheduleTaskShade currentTaskShade,
+                                         ScheduleJobService scheduleJobService,
+                                         List<ScheduleTaskShade> taskShadeList,
+                                         JobDependency jobDependency) {
+        super(keyPreStr, currentTaskShade, scheduleJobService, taskShadeList, jobDependency);
     }
 
     @Override

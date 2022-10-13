@@ -18,8 +18,8 @@
 
 package org.apache.flink.client;
 
-import com.dtstack.taier.pluginapi.exception.PluginDefineException;
 import com.dtstack.taier.flink.constant.ConfigConstant;
+import com.dtstack.taier.pluginapi.exception.PluginDefineException;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.flink.api.common.JobExecutionResult;
@@ -64,7 +64,9 @@ import java.util.concurrent.TimeoutException;
 import static org.apache.flink.util.FlinkUserCodeClassLoader.NOOP_EXCEPTION_HANDLER;
 import static org.apache.flink.util.Preconditions.checkNotNull;
 
-/** Utility functions for Flink client. */
+/**
+ * Utility functions for Flink client.
+ */
 public enum ClientUtils {
     ;
 
@@ -148,7 +150,7 @@ public enum ClientUtils {
      *
      * @param jobStatusSupplier supplier returning the job status.
      * @param jobResultSupplier supplier returning the job result. This will only be called if the
-     *     job reaches the FAILED state.
+     *                          job reaches the FAILED state.
      * @throws JobInitializationException If the initialization failed
      */
     public static void waitUntilJobInitializationFinished(
@@ -235,7 +237,7 @@ public enum ClientUtils {
             Arrays.sort(urls, Comparator.comparing(URL::toString));
             String[] jarMd5s = new String[urls.length];
             for (int i = 0; i < urls.length; ++i) {
-                try (FileInputStream inputStream = new FileInputStream(urls[i].getPath())){
+                try (FileInputStream inputStream = new FileInputStream(urls[i].getPath())) {
                     jarMd5s[i] = DigestUtils.md5Hex(inputStream);
                 } catch (Exception e) {
                     throw new PluginDefineException("Exceptions appears when read file:" + e);

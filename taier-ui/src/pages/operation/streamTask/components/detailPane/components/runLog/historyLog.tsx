@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from 'react';
-import { Table, Pagination, TablePaginationConfig } from 'antd';
-import { ColumnsType, FilterValue, SorterResult } from 'antd/lib/table/interface';
+import React, {useEffect, useState} from 'react';
+import {Pagination, Table, TablePaginationConfig} from 'antd';
+import {ColumnsType, FilterValue, SorterResult} from 'antd/lib/table/interface';
 import moment from 'moment';
 import stream from '@/api';
 import reqStream from '@/api/request';
@@ -19,9 +19,9 @@ interface IDataSource {
 }
 
 function HistoryLog(props: HistoryLogProps) {
-	const { id, isShow, jobId } = props;
+	const {id, isShow, jobId} = props;
 	const [tableData, setTableData] = useState([]);
-	const [pageInfo, setPageInfo] = useState({ current: 1, total: 0, pageSize: 20 });
+	const [pageInfo, setPageInfo] = useState({current: 1, total: 0, pageSize: 20});
 
 	useEffect(() => {
 		if (isShow) {
@@ -31,11 +31,11 @@ function HistoryLog(props: HistoryLogProps) {
 
 	function getTableData(page = 1, pageSize = 20, sort?: string, orderBy?: React.Key) {
 		stream
-			.getHistoryLog({ taskId: props.id, currentPage: page, pageSize, sort, orderBy })
+			.getHistoryLog({taskId: props.id, currentPage: page, pageSize, sort, orderBy})
 			.then((res) => {
 				if (res.code === 1) {
 					setTableData(res.data?.data || []);
-					setPageInfo({ current: page, pageSize, total: res.data?.totalCount || 0 });
+					setPageInfo({current: page, pageSize, total: res.data?.totalCount || 0});
 				}
 			});
 	}
@@ -54,7 +54,7 @@ function HistoryLog(props: HistoryLogProps) {
 	}
 
 	const columns: ColumnsType<IDataSource> = [
-		{ title: 'Application ID', dataIndex: 'applicationId', sorter: true, width: '370px' },
+		{title: 'Application ID', dataIndex: 'applicationId', sorter: true, width: '370px'},
 		{
 			title: '开始时间',
 			dataIndex: 'execStartTime',
@@ -96,7 +96,7 @@ function HistoryLog(props: HistoryLogProps) {
 			showSizeChanger
 			showTotal={(total) => (
 				<>
-					共<span style={{ color: '#3F87FF' }}>{total}</span>条数据
+					共<span style={{color: '#3F87FF'}}>{total}</span>条数据
 				</>
 			)}
 			onChange={getTableData}
@@ -105,13 +105,13 @@ function HistoryLog(props: HistoryLogProps) {
 	);
 
 	return (
-		<div className="dt-table-fixed-contain-footer" style={{ padding: '0 20px' }}>
+		<div className="dt-table-fixed-contain-footer" style={{padding: '0 20px'}}>
 			<Table
 				dataSource={tableData}
 				columns={columns}
 				rowKey="id"
 				className="dt-table-border dt-table-fixed-overflowx-auto"
-				style={{ height: 'calc(100vh - 310px)', boxShadow: 'none' }}
+				style={{height: 'calc(100vh - 310px)', boxShadow: 'none'}}
 				size="middle"
 				pagination={false}
 				footer={pagination}

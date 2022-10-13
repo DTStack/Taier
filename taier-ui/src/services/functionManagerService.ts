@@ -16,10 +16,12 @@
  * limitations under the License.
  */
 
-import { FolderTreeService } from '@dtinsight/molecule/esm/services';
+import {FolderTreeService} from '@dtinsight/molecule/esm/services';
 
 let functionManagerService;
-class FunctionManagerService extends FolderTreeService {}
+
+class FunctionManagerService extends FolderTreeService {
+}
 
 if (!functionManagerService) {
 	functionManagerService = new FunctionManagerService();

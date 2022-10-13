@@ -44,7 +44,7 @@ import java.util.Objects;
  */
 @Service
 @Configuration
-public class TokenService{
+public class TokenService {
     private Logger log = LoggerFactory.getLogger(TokenService.class);
 
     @Value("${dtstack.jwtSecret:SGVsbG8gV29ybGQK}")
@@ -139,7 +139,7 @@ public class TokenService{
 
             JWTCreator.Builder builder = JWT.create();
 
-            if (SESSION_TIMEOUT >0) {
+            if (SESSION_TIMEOUT > 0) {
                 //Token的过期时间和Session的过期时间保持一致
                 Calendar c = Calendar.getInstance();
                 c.setTime(expireAt);

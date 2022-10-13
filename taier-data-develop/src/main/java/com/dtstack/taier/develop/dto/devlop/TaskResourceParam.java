@@ -40,7 +40,7 @@ public class TaskResourceParam extends Task {
 
     private List<Long> refResourceIdList;
 
-    private boolean preSave= false;
+    private boolean preSave = false;
 
     /**
      * flinksql 源表
@@ -163,6 +163,7 @@ public class TaskResourceParam extends Task {
     public void setOpenDirtyDataManage(Boolean openDirtyDataManage) {
         this.openDirtyDataManage = openDirtyDataManage;
     }
+
     public Long getParentId() {
         return parentId;
     }
@@ -326,7 +327,7 @@ public class TaskResourceParam extends Task {
 
 
     public void setSource(List<JSONObject> source) {
-        this.source  = source;
+        this.source = source;
     }
 
     public List<JSONObject> getSource() {
@@ -334,7 +335,7 @@ public class TaskResourceParam extends Task {
     }
 
     public void setSink(List<JSONObject> sink) {
-        this.sink  = sink;
+        this.sink = sink;
     }
 
     public List<JSONObject> getSink() {
@@ -342,7 +343,7 @@ public class TaskResourceParam extends Task {
     }
 
     public void setSide(List<JSONObject> side) {
-        this.side  = side;
+        this.side = side;
     }
 
     public List<JSONObject> getSide() {

@@ -41,7 +41,7 @@ public class StoragePart extends PartImpl {
     @Override
     public String getVersionValue() {
         //special hdfs same as yarn
-        if(StringUtils.isBlank(versionName) && EComponentType.HDFS.equals(type)){
+        if (StringUtils.isBlank(versionName) && EComponentType.HDFS.equals(type)) {
             Component resourceComponent = componentScheduleGroup.get(EComponentScheduleType.RESOURCE).get(0);
             versionName = resourceComponent.getVersionName();
         }
@@ -51,7 +51,7 @@ public class StoragePart extends PartImpl {
     @Override
     public Long getExtraVersionParameters() {
         Component resourceComponent = componentScheduleGroup.get(EComponentScheduleType.RESOURCE).get(0);
-        if(null == resourceComponent){
+        if (null == resourceComponent) {
             throw new RdosDefineException(ErrorCode.RESOURCE_COMPONENT_NOT_CONFIG);
         }
         String resourceVersion = resourceComponent.getVersionName();

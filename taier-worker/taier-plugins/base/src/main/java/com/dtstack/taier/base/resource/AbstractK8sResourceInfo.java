@@ -72,7 +72,7 @@ public abstract class AbstractK8sResourceInfo implements EngineResourceInfo {
     protected JudgeResult judgeResource(List<InstanceInfo> instanceInfos) {
         if (totalFreeCore == 0 || totalFreeMem == 0) {
             logger.info("judgeResource, totalFreeCore={}, totalFreeMem={}", totalFreeCore, totalFreeMem);
-            return JudgeResult.notOk( "totalFreeCore or totalFreeMem is 0");
+            return JudgeResult.notOk("totalFreeCore or totalFreeMem is 0");
         }
         double needTotalCore = 0;
         double needTotalMem = 0;
@@ -106,10 +106,10 @@ public abstract class AbstractK8sResourceInfo implements EngineResourceInfo {
             return JudgeResult.limitError("task resource configuration error，instance：" + instances + ", coresPerInstance：" + coresPerInstance + ", memPerInstance：" + memPerInstance);
         }
         if (!judgeCores(instances, coresPerInstance)) {
-            return JudgeResult.notOk( "Insufficient cpu resources of kubernetes cluster");
+            return JudgeResult.notOk("Insufficient cpu resources of kubernetes cluster");
         }
         if (!judgeMem(instances, memPerInstance)) {
-            return JudgeResult.notOk( "Insufficient memory resources of kubernetes cluster");
+            return JudgeResult.notOk("Insufficient memory resources of kubernetes cluster");
         }
         return JudgeResult.ok();
     }
@@ -223,12 +223,12 @@ public abstract class AbstractK8sResourceInfo implements EngineResourceInfo {
 
         if (freeCores <= needTotalCore) {
             logger.warn("Insufficient cpu resources。 needTotalCore: {}, freeCores: {}", needTotalCore, freeCores);
-            return JudgeResult.notOk( "Insufficient cpu resources。 needTotalCore:" + needTotalCore + ", freeCores: " + freeCores);
+            return JudgeResult.notOk("Insufficient cpu resources。 needTotalCore:" + needTotalCore + ", freeCores: " + freeCores);
         }
 
         if (freeMem <= needTotalMem) {
             logger.warn("Insufficient memory resources。 needTotalMem: {}, freeMem: {}", needTotalMem, freeMem);
-            return JudgeResult.notOk( "Insufficient memory resources。 needTotalMem: " + needTotalMem + ", freeMem: " + freeMem);
+            return JudgeResult.notOk("Insufficient memory resources。 needTotalMem: " + needTotalMem + ", freeMem: " + freeMem);
         }
         return JudgeResult.ok();
     }

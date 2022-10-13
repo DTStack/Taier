@@ -197,6 +197,7 @@ public class ASTNodeUtil {
 
     /**
      * 解析sql中使用的函数，返回函数名称
+     *
      * @param root
      * @return
      */
@@ -206,9 +207,9 @@ public class ASTNodeUtil {
             if (CollectionUtils.isNotEmpty(root.getChildren())) {
                 for (Node node : root.getChildren()) {
                     ASTNode astNode = (ASTNode) node;
-                    if (astNode.getToken().getType() == HiveParser.Identifier){
+                    if (astNode.getToken().getType() == HiveParser.Identifier) {
                         values.add(astNode.getText());
-                    }else if (CollectionUtils.isNotEmpty(node.getChildren())) {
+                    } else if (CollectionUtils.isNotEmpty(node.getChildren())) {
                         for (Node childNode : node.getChildren()) {
                             values.addAll(getFunctionNames((ASTNode) childNode));
                         }

@@ -3,13 +3,13 @@ package com.dtstack.taier.datasource.plugin.postgresql;
 import java.sql.Types;
 
 public class PostgreSqlAdapter {
-    public static String mapColumnTypeJdbc2Oracle(final int columnType,int precision,int scale){
+    public static String mapColumnTypeJdbc2Oracle(final int columnType, int precision, int scale) {
         //TODO 转化成用户读(oracle显示)类型
         return null;
     }
 
-    public static String mapColumnTypeJdbc2Java(final int columnType,int precision,int scale){
-        switch (columnType){
+    public static String mapColumnTypeJdbc2Java(final int columnType, int precision, int scale) {
+        switch (columnType) {
             case Types.CHAR:
                 return JavaType.TYPE_VARCHAR.getFlinkSqlType();
             case Types.CLOB:
@@ -29,7 +29,7 @@ public class PostgreSqlAdapter {
             case Types.TIME:
                 return JavaType.TYPE_DATE.getFlinkSqlType();
             case Types.TIMESTAMP:
-                if (scale == 0){
+                if (scale == 0) {
                     return JavaType.TYPE_DATE.getFlinkSqlType();
                 }
                 return JavaType.TYPE_TIMESTAMP.getFlinkSqlType();
@@ -65,7 +65,7 @@ public class PostgreSqlAdapter {
         }
     }
 
-    public enum JavaType{
+    public enum JavaType {
 
         TYPE_BOOLEAN("boolean"),
         TYPE_INT("int"),

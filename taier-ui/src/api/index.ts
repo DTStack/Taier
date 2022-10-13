@@ -1,6 +1,6 @@
 import http from './http';
 import req from './request';
-import { TASK_TYPE_ENUM } from '@/constant';
+import {TASK_TYPE_ENUM} from '@/constant';
 
 export default {
 	// 获取节点下拉

@@ -60,7 +60,8 @@ public class CatalogueVO {
      */
     private Long tenantId;
 
-    public CatalogueVO(){}
+    public CatalogueVO() {
+    }
 
     public Long getId() {
         return id;

@@ -238,6 +238,7 @@ public class SqlFormatUtil {
 
     /**
      * 处理 array<struct<room_id:string,days:array<struct<day_id:string,price:int>>>> 格式
+     *
      * @param sql
      * @return
      */
@@ -247,7 +248,7 @@ public class SqlFormatUtil {
             return sql;
         }
         Matcher matcher = pattern.matcher(sql);
-        if(!matcher.find()){
+        if (!matcher.find()) {
             return sql;
         }
         String replace_type = sql.replaceAll("(?i)(map|struct|array)\\s*<", "replace_type<");
@@ -266,7 +267,7 @@ public class SqlFormatUtil {
                     stack.push(value);
                 } else if (">".equals(value)) {
                     stack.pop();
-                    if(stack.isEmpty()){
+                    if (stack.isEmpty()) {
                         isBegin = false;
                     }
                 }
@@ -274,19 +275,19 @@ public class SqlFormatUtil {
                     stringBuilder.append(value);
                 }
             }
-           if(i != s.length -1 && !isBegin && stack.isEmpty() ){
-               stringBuilder.append(" string ");
-           }
+            if (i != s.length - 1 && !isBegin && stack.isEmpty()) {
+                stringBuilder.append(" string ");
+            }
         }
         return stringBuilder.toString();
     }
 
     public static List<String> splitSqlWithoutSemi(String sqlText) {
-        if(StringUtils.isEmpty(sqlText)){
+        if (StringUtils.isEmpty(sqlText)) {
             return ListUtils.EMPTY_LIST;
         }
         String sql = sqlText.trim();
-        if(!sql.endsWith(";")){
+        if (!sql.endsWith(";")) {
             sql = sql + ";";
         }
         return splitSqlText(sql);

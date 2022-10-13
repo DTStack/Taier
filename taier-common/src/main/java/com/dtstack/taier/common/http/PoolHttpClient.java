@@ -67,10 +67,10 @@ public class PoolHttpClient {
     private static String code = "UTF-8";
 
     static {
-        try{
+        try {
             httpClient = getHttpClient();
-        }catch (Exception e){
-            logger.error("",e);
+        } catch (Exception e) {
+            logger.error("", e);
         }
     }
 
@@ -80,7 +80,7 @@ public class PoolHttpClient {
 //		LayeredConnectionSocketFactory sslsf = SSLConnectionSocketFactory
 //				.getSocketFactory();
         Registry<ConnectionSocketFactory> registry = RegistryBuilder
-                .<ConnectionSocketFactory> create().register("http", plainsf)
+                .<ConnectionSocketFactory>create().register("http", plainsf)
                 .register("https", new SSLConnectionSocketFactory(VerifySSLContext.createIgnoreVerifySSL())).build();
         PoolingHttpClientConnectionManager cm = new PoolingHttpClientConnectionManager(
                 registry);
@@ -90,19 +90,19 @@ public class PoolHttpClient {
                 .setConnectionManager(cm).setRetryHandler(new RdosHttpRequestRetryHandler()).build();
     }
 
-    public static String post(String url, String bodyData, Map<String,Object> cookies) {
+    public static String post(String url, String bodyData, Map<String, Object> cookies) {
         return post(url, bodyData, cookies, null);
     }
 
-    public static String postWithTimeout(String url, String bodyData,Map<String,Object> cookies,int socketTimeout,int connectTimeout){
-        return postWithTimeout(url, bodyData, cookies, null,socketTimeout,connectTimeout);
+    public static String postWithTimeout(String url, String bodyData, Map<String, Object> cookies, int socketTimeout, int connectTimeout) {
+        return postWithTimeout(url, bodyData, cookies, null, socketTimeout, connectTimeout);
     }
 
-    public static String postWithFile(String url, Map<String,Object> data, Map<String,Object> cookies, Map<String, File> files) {
-        return postForm(url, data, cookies, null,files);
+    public static String postWithFile(String url, Map<String, Object> data, Map<String, Object> cookies, Map<String, File> files) {
+        return postForm(url, data, cookies, null, files);
     }
 
-    public static String postForm(String url, Map<String,Object> params, Map<String, Object> cookies, Map<String, Object> headers,Map<String,File> files) {
+    public static String postForm(String url, Map<String, Object> params, Map<String, Object> cookies, Map<String, Object> headers, Map<String, File> files) {
         HttpPost httpPost = new HttpPost(url);
         if (cookies != null && cookies.size() > 0) {
             httpPost.addHeader("Cookie", getCookieFormate(cookies));
@@ -115,7 +115,7 @@ public class PoolHttpClient {
         MultipartEntityBuilder builder = MultipartEntityBuilder.create();
         // 上传的文件
         for (Map.Entry<String, File> file : files.entrySet()) {
-            builder.addBinaryBody(file.getKey(), file.getValue(), ContentType.MULTIPART_FORM_DATA.withCharset("UTF-8"),file.getValue().getName());
+            builder.addBinaryBody(file.getKey(), file.getValue(), ContentType.MULTIPART_FORM_DATA.withCharset("UTF-8"), file.getValue().getName());
         }
         // 设置其他参数
         for (Map.Entry<String, Object> entry : params.entrySet()) {
@@ -131,7 +131,6 @@ public class PoolHttpClient {
     }
 
     /**
-     *
      * @param url
      * @param bodyData
      * @param cookies
@@ -139,7 +138,7 @@ public class PoolHttpClient {
      * @param dealWithRespBody true :deal with RespBody,false: Don't deal with RespBody
      * @return
      */
-    public static String post(String url, String bodyData, Map<String, Object> cookies, Map<String, Object> headers,Boolean dealWithRespBody) {
+    public static String post(String url, String bodyData, Map<String, Object> cookies, Map<String, Object> headers, Boolean dealWithRespBody) {
         HttpPost httpPost = new HttpPost(url);
         if (cookies != null && cookies.size() > 0) {
             httpPost.addHeader("Cookie", getCookieFormate(cookies));
@@ -170,7 +169,7 @@ public class PoolHttpClient {
         return null;
     }
 
-    public static String postWithTimeout(String url, String bodyData, Map<String, Object> cookies, Map<String, Object> headers,int socketTimeout,int connectTimeout) {
+    public static String postWithTimeout(String url, String bodyData, Map<String, Object> cookies, Map<String, Object> headers, int socketTimeout, int connectTimeout) {
         HttpPost httpPost = new HttpPost(url);
         if (cookies != null && cookies.size() > 0) {
             httpPost.addHeader("Cookie", getCookieFormate(cookies));
@@ -186,8 +185,8 @@ public class PoolHttpClient {
             stringEntity.setContentType("application/json");
             httpPost.setEntity(stringEntity);
         }
-        socketTimeout = socketTimeout <= 0?300000:socketTimeout;
-        connectTimeout = connectTimeout <= 0?2000:connectTimeout;
+        socketTimeout = socketTimeout <= 0 ? 300000 : socketTimeout;
+        connectTimeout = connectTimeout <= 0 ? 2000 : connectTimeout;
         RequestConfig requestConfig = RequestConfig.custom()
                 .setSocketTimeout(socketTimeout)
                 .setConnectTimeout(connectTimeout).build();// 设置请求和传输超时时间
@@ -205,7 +204,7 @@ public class PoolHttpClient {
             String result = EntityUtils.toString(entity, code);
             if (status == HttpStatus.SC_OK) {
                 responseBody = result;
-            } else if (status == HttpStatus.SC_UNAUTHORIZED){
+            } else if (status == HttpStatus.SC_UNAUTHORIZED) {
                 throw new DtCenterDefException("登陆状态失效");
             } else {
                 logger.error("request url:{} fail:{}", httpPost.getURI().toString(), result);
@@ -218,15 +217,15 @@ public class PoolHttpClient {
         return null;
     }
 
-    public static String post(String url, Map<String, Object> paramMap,Map<String,Object> cookies) throws IOException {
+    public static String post(String url, Map<String, Object> paramMap, Map<String, Object> cookies) throws IOException {
         String bodyData = "";
         if (paramMap != null && paramMap.size() > 0) {
             bodyData = objectMapper.writeValueAsString(paramMap);
         }
-        return post(url, bodyData,cookies);
+        return post(url, bodyData, cookies);
     }
 
-    private static void setConfig(HttpRequestBase httpRequest){
+    private static void setConfig(HttpRequestBase httpRequest) {
         if (SetTimeOut) {
             RequestConfig requestConfig = RequestConfig.custom()
                     .setSocketTimeout(SocketTimeout)
@@ -235,26 +234,25 @@ public class PoolHttpClient {
         }
     }
 
-    public static String get(String url,Map<String,Object> cookies) {
+    public static String get(String url, Map<String, Object> cookies) {
         return get(url, cookies, null);
     }
 
-    public static String get(String url, Map<String,Object> cookies, Map<String, Object> headers) {
-        return get(url, cookies, null,true);
+    public static String get(String url, Map<String, Object> cookies, Map<String, Object> headers) {
+        return get(url, cookies, null, true);
     }
 
     /**
-     *
      * @param url
      * @param cookies
      * @param headers
      * @param dealWithRespBody true :deal with RespBody,false: Don't deal with RespBody
      * @return
      */
-    public static String get(String url, Map<String,Object> cookies, Map<String, Object> headers,Boolean dealWithRespBody) {
+    public static String get(String url, Map<String, Object> cookies, Map<String, Object> headers, Boolean dealWithRespBody) {
         HttpGet httpGet = new HttpGet(url);
         setConfig(httpGet);
-        if(cookies!=null&&cookies.size()>0){
+        if (cookies != null && cookies.size() > 0) {
             httpGet.setHeader("Cookie", getCookieFormate(cookies));
         }
         if (headers != null && !headers.isEmpty()) {
@@ -286,7 +284,7 @@ public class PoolHttpClient {
         return null;
     }
 
-    public static String getCookieFormate(Map<String,Object> cookies){
+    public static String getCookieFormate(Map<String, Object> cookies) {
         StringBuffer sb = new StringBuffer();
         Set<Map.Entry<String, Object>> sets = cookies.entrySet();
         for (Map.Entry<String, Object> s : sets) {

@@ -42,7 +42,7 @@ public class ScheduleJobExpandService extends ServiceImpl<ScheduleJobExpandMappe
                 .eq(ScheduleJobExpand::getJobId, jobId));
     }
 
-    public void updateEngineLog(String jobId,String engineLog) {
+    public void updateEngineLog(String jobId, String engineLog) {
         ScheduleJobExpand scheduleJobExpand = new ScheduleJobExpand();
         scheduleJobExpand.setJobId(jobId);
         scheduleJobExpand.setEngineLog(engineLog);
@@ -69,7 +69,7 @@ public class ScheduleJobExpandService extends ServiceImpl<ScheduleJobExpandMappe
     }
 
     public String getJobGraphJson(String jobId) {
-        String jobExtraInfo =getByJobId(jobId).getJobExtraInfo();
+        String jobExtraInfo = getByJobId(jobId).getJobExtraInfo();
         JSONObject jobExtraObj = JSONObject.parseObject(jobExtraInfo);
         if (null != jobExtraObj) {
             return jobExtraObj.getString(JobResultConstant.JOB_GRAPH);

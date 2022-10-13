@@ -1,15 +1,15 @@
 package com.dtstack.taier.datasource.plugin.dorisrestful;
 
-import com.dtstack.taier.datasource.plugin.common.nosql.AbsNoSqlClient;
-import com.dtstack.taier.datasource.plugin.common.utils.SearchUtil;
-import com.dtstack.taier.datasource.plugin.dorisrestful.request.DorisRestfulClient;
-import com.dtstack.taier.datasource.plugin.dorisrestful.request.DorisRestfulClientFactory;
 import com.dtstack.taier.datasource.api.dto.ColumnMetaDTO;
 import com.dtstack.taier.datasource.api.dto.SqlQueryDTO;
 import com.dtstack.taier.datasource.api.dto.Table;
 import com.dtstack.taier.datasource.api.dto.source.DorisRestfulSourceDTO;
 import com.dtstack.taier.datasource.api.dto.source.ISourceDTO;
 import com.dtstack.taier.datasource.api.exception.SourceException;
+import com.dtstack.taier.datasource.plugin.common.nosql.AbsNoSqlClient;
+import com.dtstack.taier.datasource.plugin.common.utils.SearchUtil;
+import com.dtstack.taier.datasource.plugin.dorisrestful.request.DorisRestfulClient;
+import com.dtstack.taier.datasource.plugin.dorisrestful.request.DorisRestfulClientFactory;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 

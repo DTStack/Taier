@@ -16,16 +16,15 @@
  * limitations under the License.
  */
 
-import { useLayoutEffect, useState, useCallback } from 'react';
-import { Menu, message, Input } from 'antd';
-import { SearchOutlined } from '@ant-design/icons';
-import { useRef } from 'react';
-import { debounce } from 'lodash';
+import {useCallback, useLayoutEffect, useRef, useState} from 'react';
+import type {MenuProps} from 'antd';
+import {Input, Menu, message} from 'antd';
+import {SearchOutlined} from '@ant-design/icons';
+import {debounce} from 'lodash';
 import API from '@/api';
 import classNames from 'classnames';
-import type { MenuProps } from 'antd';
-import type { IDataSourceType } from './add';
-import type { DATA_SOURCE_ENUM } from '@/constant';
+import type {IDataSourceType} from './add';
+import type {DATA_SOURCE_ENUM} from '@/constant';
 import './selectSource.scss';
 
 const IMG_URL = 'images';
@@ -45,10 +44,10 @@ interface IMenuProps {
 }
 
 export default function SelectSource({
-	onSelectDataSource,
-	defaultMenu,
-	defaultDataSource,
-}: IProps) {
+										 onSelectDataSource,
+										 defaultMenu,
+										 defaultDataSource,
+									 }: IProps) {
 	const wrapper = useRef<HTMLDivElement>(null);
 	const [searchName, setSearchName] = useState<string | undefined>(undefined);
 	const [current, setCurrent] = useState<string[]>(
@@ -65,7 +64,7 @@ export default function SelectSource({
 			search: searchName || '',
 		})
 			.then((res) => {
-				const { data = [], success } = res;
+				const {data = [], success} = res;
 				if (success) {
 					const nextData = (data as IDataSourceType[]).map((ele) => {
 						return {
@@ -85,7 +84,7 @@ export default function SelectSource({
 	const getMenuList = async () => {
 		API.queryDsClassifyList({})
 			.then((res) => {
-				const { data, code } = res;
+				const {data, code} = res;
 				if (code === 1) {
 					// set the default menu after getting the menu list
 					const firstMenu = data[0].classifyId;
@@ -102,7 +101,7 @@ export default function SelectSource({
 			});
 	};
 
-	const handleMenuClick: MenuProps['onClick'] = ({ key }) => {
+	const handleMenuClick: MenuProps['onClick'] = ({key}) => {
 		if (current[0] !== key) {
 			setCurrent([key]);
 			getDataSourceList(key);
@@ -153,14 +152,14 @@ export default function SelectSource({
 	return (
 		<div className="dt-select-source">
 			<Input
-				style={{ width: 200 }}
+				style={{width: 200}}
 				value={searchName}
 				placeholder="按数据源名称搜索"
 				onChange={(e) => {
 					setSearchName(e.target.value);
 				}}
 				suffix={
-					<SearchOutlined onClick={() => handleSearch()} style={{ cursor: 'pointer' }} />
+					<SearchOutlined onClick={() => handleSearch()} style={{cursor: 'pointer'}}/>
 				}
 				onPressEnter={() => handleSearch()}
 			/>

@@ -20,6 +20,7 @@ package com.dtstack.taier.common.util;
 
 /**
  * company: www.dtstack.com
+ *
  * @author: toutian
  * create: 2020/8/20
  */

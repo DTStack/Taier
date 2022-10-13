@@ -1,9 +1,9 @@
 package com.dtstack.taier.datasource.plugin.common.utils;
 
-import com.dtstack.taier.datasource.plugin.common.sftp.SFTPHandler;
 import com.dtstack.taier.datasource.api.dto.source.AbstractSourceDTO;
 import com.dtstack.taier.datasource.api.dto.source.ISourceDTO;
 import com.dtstack.taier.datasource.api.utils.AssertUtils;
+import com.dtstack.taier.datasource.plugin.common.sftp.SFTPHandler;
 import com.jcraft.jsch.ChannelSftp;
 import com.jcraft.jsch.SftpException;
 import lombok.extern.slf4j.Slf4j;

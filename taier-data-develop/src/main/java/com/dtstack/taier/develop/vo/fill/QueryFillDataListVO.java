@@ -32,7 +32,7 @@ public class QueryFillDataListVO extends PageVO {
     /**
      * 租户id
      */
-    @ApiModelProperty(value = "租户id",hidden = true)
+    @ApiModelProperty(value = "租户id", hidden = true)
     private Long tenantId;
 
     public String getJobName() {

@@ -49,7 +49,7 @@ public class RestartJobScheduler extends OperatorRecordJobScheduler {
     }
 
     public EScheduleType getScheduleType() {
-       return null;
+        return null;
     }
 
     @Override

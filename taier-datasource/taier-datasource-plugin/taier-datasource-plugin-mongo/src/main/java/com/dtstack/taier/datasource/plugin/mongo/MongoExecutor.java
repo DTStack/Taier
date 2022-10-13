@@ -62,7 +62,8 @@ public class MongoExecutor {
 
     private static final String COUNT_KEY = "count";
 
-    private MongoExecutor() {}
+    private MongoExecutor() {
+    }
 
     public static MongoExecutor getInstance() {
         if (mongoExecutor == null) {
@@ -77,6 +78,7 @@ public class MongoExecutor {
 
     /**
      * 自定义查询
+     *
      * @param source
      * @param queryDTO
      * @return
@@ -121,8 +123,8 @@ public class MongoExecutor {
                 default:
                     throw new SourceException(String.format("not support request:db.%s.%s", dataBaseName, operationName));
             }
-        }catch (Exception e){
-            throw new SourceException(e.getMessage(),e);
+        } catch (Exception e) {
+            throw new SourceException(e.getMessage(), e);
         } finally {
             if (!BooleanUtils.isTrue(MongoDBUtils.IS_OPEN_POOL.get()) && mongoClient != null) {
                 mongoClient.close();
@@ -175,7 +177,7 @@ public class MongoExecutor {
         }
 
         for (Document document : findIterable) {
-            if(document == null){
+            if (document == null) {
                 continue;
             }
             if (document.containsKey("_id")) {
@@ -200,7 +202,7 @@ public class MongoExecutor {
         if (StringUtils.isNotBlank(queryStr)) {
             BasicDBObject queryObject = BasicDBObject.parse(queryStr);
             count = collection.countDocuments(queryObject);
-        }else{
+        } else {
             count = collection.countDocuments();
         }
         Map<String, Object> result = Maps.newHashMap();
@@ -216,27 +218,27 @@ public class MongoExecutor {
 
     private void distinct(String sqlQuery, List<Map<String, Object>> list, MongoCollection<Document> collection) {
         String fieldSql = RegExpUtil.getQuery(sqlQuery);
-        if(StringUtils.isBlank(fieldSql)){
+        if (StringUtils.isBlank(fieldSql)) {
             return;
         }
 
         BsonArray queryList;
         if (fieldSql.startsWith("[")) {
             queryList = BsonArray.parse(fieldSql);
-        } else{
+        } else {
             String queryArray = String.format("[%s]", fieldSql);
-            queryList =  BsonArray.parse(queryArray);
+            queryList = BsonArray.parse(queryArray);
         }
         String query = "{}";
         String field = "";
-        if(queryList.size()>1){
-            field = ((BsonString)queryList.get(0)).getValue();
+        if (queryList.size() > 1) {
+            field = ((BsonString) queryList.get(0)).getValue();
             query = queryList.get(1).toString();
-        }else{
-            field = ((BsonString)queryList.get(0)).getValue();
+        } else {
+            field = ((BsonString) queryList.get(0)).getValue();
         }
 
-        String queryStr = String.format(DISTINCT_TMPLATE,query, field, field);
+        String queryStr = String.format(DISTINCT_TMPLATE, query, field, field);
         aggregateWithQuery(sqlQuery, list, collection, queryStr);
     }
 
@@ -255,7 +257,7 @@ public class MongoExecutor {
         List<BasicDBObject> pipeline = new ArrayList<>();
         for (Object o : dbList) {
             BasicDBObject basicDBObject = (BasicDBObject) o;
-            if(!(basicDBObject == null || basicDBObject.size() ==0)){
+            if (!(basicDBObject == null || basicDBObject.size() == 0)) {
                 pipeline.add(basicDBObject);
             }
         }
@@ -268,7 +270,7 @@ public class MongoExecutor {
         }
 
         for (Document document : aggregateIterable) {
-            if(document == null){
+            if (document == null) {
                 continue;
             }
             if (document.containsKey("_id")) {
@@ -361,11 +363,11 @@ public class MongoExecutor {
 
             dataBaseName = StringUtils.isBlank(source.getSchema()) ? MongoDBUtils.dealSchema(source.getHostPort()) : source.getSchema();
 
-            sqlQuery =  sqlQuery.replaceAll("\"", "'");
+            sqlQuery = sqlQuery.replaceAll("\"", "'");
             String[] sql = sqlQuery.split("\\.");
             if (sql.length < 3) {
                 //增加判断是否为建表语句
-                if (sql.length == 2 && (collectionName = RegExpUtil.getUnsetCName(sqlQuery)) != null){
+                if (sql.length == 2 && (collectionName = RegExpUtil.getUnsetCName(sqlQuery)) != null) {
                     operationName = CREATE_COLLECTION;
                     return this;
                 }
@@ -390,7 +392,7 @@ public class MongoExecutor {
 
     }
 
-    private static String addBrackets(String sql){
+    private static String addBrackets(String sql) {
         if (sql.startsWith("{")) {
             sql = "[" + sql + "]";
         }

@@ -38,6 +38,7 @@ public interface Part {
 
     /**
      * 获取组件版本适配参数
+     *
      * @return
      */
     Long getExtraVersionParameters();

@@ -13,7 +13,7 @@ public class QueryTaskDisplayVO {
     /**
      * 任务id
      */
-    @ApiModelProperty(value = "任务id",required = true)
+    @ApiModelProperty(value = "任务id", required = true)
     private Long taskId;
 
     /**

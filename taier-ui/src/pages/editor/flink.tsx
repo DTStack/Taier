@@ -1,9 +1,9 @@
 import Create from '@/components/task/create';
 import taskSaveService from '@/services/taskSaveService';
 import molecule from '@dtinsight/molecule';
-import { connect } from '@dtinsight/molecule/esm/react';
+import {connect} from '@dtinsight/molecule/esm/react';
 
-const Flink = connect(molecule.editor, ({ current }: molecule.model.IEditor) => {
+const Flink = connect(molecule.editor, ({current}: molecule.model.IEditor) => {
 	if (!current) {
 		return null;
 	}
@@ -16,7 +16,7 @@ const Flink = connect(molecule.editor, ({ current }: molecule.model.IEditor) => 
 		});
 	};
 
-	return <Create record={current.tab?.data} isRequest={false} onSubmit={handleSubmit} />;
+	return <Create record={current.tab?.data} isRequest={false} onSubmit={handleSubmit}/>;
 });
 
 export default Flink;

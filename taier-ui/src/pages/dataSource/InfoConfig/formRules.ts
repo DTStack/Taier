@@ -16,9 +16,9 @@
  * limitations under the License.
  */
 
-import { utf8to16 } from '@/utils';
-import type { Rule } from 'antd/lib/form';
-import type { IFormFieldVoList } from '.';
+import {utf8to16} from '@/utils';
+import type {Rule} from 'antd/lib/form';
+import type {IFormFieldVoList} from '.';
 
 export function getRules(item: IFormFieldVoList) {
 	const ruleArr: Rule[] = [

@@ -24,6 +24,7 @@ import java.util.Map;
  * Reason:
  * Date: 2017/5/4
  * Company: www.dtstack.com
+ *
  * @ahthor xuchao
  */
 public interface IScheduleCronParser {

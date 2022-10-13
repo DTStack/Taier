@@ -1,5 +1,9 @@
 package com.dtstack.taier.datasource.plugin.rdbms;
 
+import com.dtstack.taier.datasource.api.dto.SqlQueryDTO;
+import com.dtstack.taier.datasource.api.dto.source.ISourceDTO;
+import com.dtstack.taier.datasource.api.dto.source.RdbmsSourceDTO;
+import com.dtstack.taier.datasource.api.exception.SourceException;
 import com.dtstack.taier.datasource.plugin.common.DtClassThreadFactory;
 import com.dtstack.taier.datasource.plugin.common.exception.ErrorCode;
 import com.dtstack.taier.datasource.plugin.common.exception.IErrorPattern;
@@ -10,10 +14,6 @@ import com.dtstack.taier.datasource.plugin.common.utils.MD5Util;
 import com.dtstack.taier.datasource.plugin.common.utils.PropertiesUtil;
 import com.dtstack.taier.datasource.plugin.common.utils.ReflectUtil;
 import com.dtstack.taier.datasource.plugin.common.utils.SqlFormatUtil;
-import com.dtstack.taier.datasource.api.dto.SqlQueryDTO;
-import com.dtstack.taier.datasource.api.dto.source.ISourceDTO;
-import com.dtstack.taier.datasource.api.dto.source.RdbmsSourceDTO;
-import com.dtstack.taier.datasource.api.exception.SourceException;
 import com.zaxxer.hikari.HikariDataSource;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.MapUtils;

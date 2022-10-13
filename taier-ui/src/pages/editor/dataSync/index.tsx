@@ -1,34 +1,36 @@
-import { useEffect, useReducer, useState } from 'react';
-import { debounce, get } from 'lodash';
-import { DATA_SOURCE_TEXT, formItemLayout } from '@/constant';
-import { Form, Collapse, InputNumber, Input, Radio, Switch, Empty } from 'antd';
-import { GlobalEvent } from '@dtinsight/molecule/esm/common/event';
+import type {Reducer} from 'react';
+import {useEffect, useReducer, useState} from 'react';
+import {debounce, get} from 'lodash';
+import {DATA_SOURCE_TEXT, formItemLayout} from '@/constant';
+import type {FormItemProps} from 'antd';
+import {Collapse, Empty, Form, Input, InputNumber, Radio, Switch} from 'antd';
+import {GlobalEvent} from '@dtinsight/molecule/esm/common/event';
 import KeyMap from './keyMap';
 import notification from '@/components/notification';
+import type {IOptionsFromRequest} from '@/components/scaffolds/task';
 import {
-	SelectWithPreviewer,
-	SelectWithCreate,
 	AutoCompleteWithRequest,
+	SelectWithCreate,
+	SelectWithPreviewer,
 	SelectWithRequest,
 } from '@/components/scaffolds/task';
-import { Context } from '@/context/dataSync';
-import { convertObjToNamePath, getPlus, pickByTruly, visit } from '@/utils';
-import { useConstant } from '@/hooks';
+import {Context} from '@/context/dataSync';
+import {convertObjToNamePath, getPlus, pickByTruly, visit} from '@/utils';
+import {useConstant} from '@/hooks';
 import molecule from '@dtinsight/molecule';
-import { connect } from '@dtinsight/molecule/esm/react';
-import { EditorEvent } from '@dtinsight/molecule/esm/model';
+import {connect} from '@dtinsight/molecule/esm/react';
+import {EditorEvent} from '@dtinsight/molecule/esm/model';
 import taskSaveService from '@/services/taskSaveService';
-import { Scrollable } from '@dtinsight/molecule/esm/components';
+import {Scrollable} from '@dtinsight/molecule/esm/components';
 import api from '@/api';
-import { taskRenderService } from '@/services';
-import type { Reducer } from 'react';
-import type { IDataColumnsProps, IDataSourceUsedInSyncProps, IOfflineTaskProps } from '@/interface';
-import type { FormItemProps } from 'antd';
-import type { IOptionsFromRequest } from '@/components/scaffolds/task';
-import type { Rule } from 'antd/lib/form';
+import {taskRenderService} from '@/services';
+import type {IDataColumnsProps, IDataSourceUsedInSyncProps, IOfflineTaskProps} from '@/interface';
+import type {Rule} from 'antd/lib/form';
 import './index.scss';
 
-export const event = new (class extends GlobalEvent {})();
+export const event = new (class extends GlobalEvent {
+})();
+
 export enum EventKind {
 	Changed = 'changed',
 }
@@ -60,13 +62,13 @@ interface IBasic {
 	hidden?:
 		| boolean
 		| {
-				field: string;
-				value: string;
-				/**
-				 * 是否取反
-				 */
-				isNot?: boolean;
-		  }[];
+		field: string;
+		value: string;
+		/**
+		 * 是否取反
+		 */
+		isNot?: boolean;
+	}[];
 	/**
 	 * 是否必选
 	 */
@@ -132,10 +134,8 @@ type Root = Pick<IObject, 'type' | 'children'>;
 /**
  * 定义「转化」的工厂，用于 Select 中接口返回的数据需要再「转化」
  */
-const transformerFactory: Record<
-	string,
-	(value: any, index: number, array: any[]) => any | undefined
-> = {
+const transformerFactory: Record<string,
+	(value: any, index: number, array: any[]) => any | undefined> = {
 	sourceIdOnWriter: (item: IDataSourceUsedInSyncProps) => ({
 		label: `${item.dataName}（${DATA_SOURCE_TEXT[item.dataTypeCode]}）`,
 		value: item.dataInfoId,
@@ -195,13 +195,13 @@ const validatorFactory: Record<string, (rule: any, value: string) => Promise<voi
  * 默认的 Widget
  */
 const defaultWidget: Record<string, ((props: any) => JSX.Element) | undefined> = {
-	number: (props: any) => <InputNumber style={{ width: '100%' }} {...props} />,
+	number: (props: any) => <InputNumber style={{width: '100%'}} {...props} />,
 	string: (props: any) => <Input {...props} />,
 	boolean: (props: any) => <Switch {...props} />,
 	input: (props: any) => <Input {...props} />,
 	select: (props: any) => <SelectWithRequest {...props} />,
 	radio: (props: any) => <Radio.Group {...props} />,
-	inputNumber: (props: any) => <InputNumber style={{ width: '100%' }} {...props} />,
+	inputNumber: (props: any) => <InputNumber style={{width: '100%'}} {...props} />,
 	textarea: (props: any) => <Input.TextArea {...props} />,
 	autoComplete: (props: any) => <AutoCompleteWithRequest {...props} />,
 	// User-Defined Widget
@@ -217,7 +217,7 @@ const registerWidget: Record<string, (props: any) => JSX.Element> = {
 };
 
 export const updateValuesInData = debounce((data) => {
-	const { current } = molecule.editor.getState();
+	const {current} = molecule.editor.getState();
 	if (current?.tab) {
 		molecule.editor.updateTab({
 			id: current?.tab?.id,
@@ -232,7 +232,7 @@ export const updateValuesInData = debounce((data) => {
 	}
 }, 300);
 
-export default connect(molecule.editor, ({ current }: molecule.model.IEditor) => {
+export default connect(molecule.editor, ({current}: molecule.model.IEditor) => {
 	const [form] = Form.useForm();
 	const [templateSchema, setSchema] = useState<Root>({
 		type: 'object',
@@ -241,18 +241,14 @@ export default connect(molecule.editor, ({ current }: molecule.model.IEditor) =>
 	/**
 	 * 全局的 state，用于存放接口返回的数据
 	 */
-	const [optionCollections, dispatch] = useReducer<
-		Reducer<
-			Record<string, any[]>,
-			{
-				type: 'update';
-				payload: {
-					field: string;
-					collection: any[];
-				};
-			}
-		>
-	>((state, action) => {
+	const [optionCollections, dispatch] = useReducer<Reducer<Record<string, any[]>,
+		{
+			type: 'update';
+			payload: {
+				field: string;
+				collection: any[];
+			};
+		}>>((state, action) => {
 		switch (action.type) {
 			case 'update':
 				return {
@@ -292,14 +288,14 @@ export default connect(molecule.editor, ({ current }: molecule.model.IEditor) =>
 			case 'any': {
 				const Widget = registerWidget[data.widget || data.type];
 				if (Widget) {
-					return <Widget key={data.widget} />;
+					return <Widget key={data.widget}/>;
 				}
 
 				notification.error({
 					key: 'UNDEFINED_WIDGET',
 					message: `未找到 ${data.widget}`,
 				});
-				return <Empty key={data.widget} />;
+				return <Empty key={data.widget}/>;
 			}
 			case 'string':
 			case 'boolean':
@@ -310,12 +306,12 @@ export default connect(molecule.editor, ({ current }: molecule.model.IEditor) =>
 						key: 'UNDEFINED_WIDGET',
 						message: `未找到 ${data.name} 注册的 ${data.widget || data.type}`,
 					});
-					return <Empty key={data.name} />;
+					return <Empty key={data.name}/>;
 				}
 				const dependencies = data.depends?.map((d) => d.split('.')) || [];
 				return (
 					<Form.Item noStyle dependencies={dependencies} key={data.name}>
-						{({ getFieldsValue }) => {
+						{({getFieldsValue}) => {
 							const values = getFieldsValue();
 							const depValues = dependencies.reduce<string>(
 								(pre, cur) => `${pre}-${get(values, cur.join('.'))}`,
@@ -324,15 +320,15 @@ export default connect(molecule.editor, ({ current }: molecule.model.IEditor) =>
 
 							const hidden = Array.isArray(data.hidden)
 								? data.hidden
-										.map((item) => {
-											const value = get({ form: values }, item.field);
-											const isEqual = item.value
-												?.split(',')
-												.includes(`${value}`);
+									.map((item) => {
+										const value = get({form: values}, item.field);
+										const isEqual = item.value
+											?.split(',')
+											.includes(`${value}`);
 
-											return item.isNot ? !isEqual : isEqual;
-										})
-										.some(Boolean)
+										return item.isNot ? !isEqual : isEqual;
+									})
+									.some(Boolean)
 								: data.hidden;
 
 							const rules: Rule[] = [];
@@ -381,12 +377,12 @@ export default connect(molecule.editor, ({ current }: molecule.model.IEditor) =>
 			const targetMap = data.targetMap ? pickByTruly(data.targetMap) : undefined;
 			const settingMap = data.settingMap
 				? pickByTruly({
-						...data.settingMap,
-						speed:
-							data.settingMap?.speed === '-1'
-								? '不限制传输速率'
-								: data.settingMap?.speed,
-				  })
+					...data.settingMap,
+					speed:
+						data.settingMap?.speed === '-1'
+							? '不限制传输速率'
+							: data.settingMap?.speed,
+				})
 				: {};
 			const sourceMap = pickByTruly(data.sourceMap);
 
@@ -428,6 +424,7 @@ export default connect(molecule.editor, ({ current }: molecule.model.IEditor) =>
 				},
 			);
 		}
+
 		event.subscribe(EventKind.Changed, handler);
 
 		return () => {
@@ -466,7 +463,7 @@ export default connect(molecule.editor, ({ current }: molecule.model.IEditor) =>
 	return (
 		<Scrollable isShowShadow>
 			<div className="taier__dataSync__container">
-				<Context.Provider value={{ optionCollections, dispatch, transformerFactory }}>
+				<Context.Provider value={{optionCollections, dispatch, transformerFactory}}>
 					<Form
 						{...formItemLayout}
 						validateMessages={{

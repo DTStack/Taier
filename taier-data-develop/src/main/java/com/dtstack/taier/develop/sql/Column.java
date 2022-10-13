@@ -112,12 +112,12 @@ public class Column {
     }
 
 
-    public static List<Column> getColumns(List<String> cols){
+    public static List<Column> getColumns(List<String> cols) {
         List<Column> columns = Lists.newArrayList();
         int index = 0;
         for (String col : cols) {
-            if(StringUtils.isNotEmpty(col)){
-                columns.add(new Column(col,index++));
+            if (StringUtils.isNotEmpty(col)) {
+                columns.add(new Column(col, index++));
             }
         }
         return columns;

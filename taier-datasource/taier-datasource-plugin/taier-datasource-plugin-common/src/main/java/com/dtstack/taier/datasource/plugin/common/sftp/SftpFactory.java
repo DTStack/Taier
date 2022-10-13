@@ -59,10 +59,10 @@ public class SftpFactory extends BasePooledObjectFactory<ChannelSftp> {
     }
 
     private void checkConfig(Map<String, String> sftpConfig) {
-        if(sftpConfig == null || sftpConfig.isEmpty()){
+        if (sftpConfig == null || sftpConfig.isEmpty()) {
             throw new IllegalArgumentException("The config of sftp is null");
         }
-        if(StringUtils.isEmpty(sftpConfig.get(KEY_HOST))){
+        if (StringUtils.isEmpty(sftpConfig.get(KEY_HOST))) {
             throw new IllegalArgumentException("The host of sftp is null");
         }
     }
@@ -84,31 +84,31 @@ public class SftpFactory extends BasePooledObjectFactory<ChannelSftp> {
 
     private ChannelSftp getChannelSftp() throws JSchException {
 
-            JSch jsch = new JSch();
-            if (SftpType.PUBKEY_AUTHENTICATION.getType() == authType && StringUtils.isNotBlank(rsaPath)) {
-                jsch.addIdentity(rsaPath.trim(), "");
-            }
-            Session session = jsch.getSession(username, host, port);
-            if (session == null) {
-                throw new RuntimeException("Login failed. Please check if username and password are correct");
-            }
+        JSch jsch = new JSch();
+        if (SftpType.PUBKEY_AUTHENTICATION.getType() == authType && StringUtils.isNotBlank(rsaPath)) {
+            jsch.addIdentity(rsaPath.trim(), "");
+        }
+        Session session = jsch.getSession(username, host, port);
+        if (session == null) {
+            throw new RuntimeException("Login failed. Please check if username and password are correct");
+        }
 
-            if (SftpType.PASSWORD_AUTHENTICATION.getType()==authType) {
-                //默认走密码验证模式
-                session.setPassword(password);
-            }
-            Properties config = new Properties();
-            config.put("StrictHostKeyChecking", "no");
-            session.setConfig(config);
-            session.setTimeout(timeout);
-            session.connect();
+        if (SftpType.PASSWORD_AUTHENTICATION.getType() == authType) {
+            //默认走密码验证模式
+            session.setPassword(password);
+        }
+        Properties config = new Properties();
+        config.put("StrictHostKeyChecking", "no");
+        session.setConfig(config);
+        session.setTimeout(timeout);
+        session.connect();
 
-            ChannelSftp channelSftp = (ChannelSftp) session.openChannel("sftp");
-            channelSftp.connect();
+        ChannelSftp channelSftp = (ChannelSftp) session.openChannel("sftp");
+        channelSftp.connect();
 
-            log.info("create执行, 与ftp服务器建立连接成功 : " + channelSftp);
+        log.info("create执行, 与ftp服务器建立连接成功 : " + channelSftp);
 
-            return channelSftp;
+        return channelSftp;
 
     }
 

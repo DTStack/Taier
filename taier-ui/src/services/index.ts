@@ -1,4 +1,4 @@
-import { container } from 'tsyringe';
+import {container} from 'tsyringe';
 import EditorActionBarService from './editorActionBarService';
 import ExecuteService from './executeService';
 import CatalogueService from './catalogueService';

@@ -70,11 +70,12 @@ public class AcceptedApplicationMonitor implements Runnable {
     public void run() {
 
         try (
-            YarnClient yarnClient = KerberosUtils.login(config, () -> {
-                YarnClient client = YarnClient.createYarnClient();
-                client.init(yarnConf);
-                client.start();
-                return client;}, yarnConf);
+                YarnClient yarnClient = KerberosUtils.login(config, () -> {
+                    YarnClient client = YarnClient.createYarnClient();
+                    client.init(yarnConf);
+                    client.start();
+                    return client;
+                }, yarnConf);
         ) {
             EnumSet<YarnApplicationState> enumSet = EnumSet.noneOf(YarnApplicationState.class);
             enumSet.add(YarnApplicationState.ACCEPTED);

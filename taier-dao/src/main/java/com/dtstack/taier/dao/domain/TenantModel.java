@@ -6,6 +6,7 @@ import com.dtstack.taier.common.constant.MP;
 
 /**
  * 带租户属性的数据模型类
+ *
  * @description:
  * @author: liuxx
  * @date: 2021/3/15

@@ -31,12 +31,13 @@ public class DevelopStreamJobMetricController {
 
     @Autowired
     StreamJobMetricService streamJobMetricService;
+
     @ApiOperation(value = "获取任务指标")
     @PostMapping(value = "getTaskMetrics")
-    public R<JSONArray> getTaskMetrics(@RequestBody  StreamTaskMetricDTO dto) {
+    public R<JSONArray> getTaskMetrics(@RequestBody StreamTaskMetricDTO dto) {
         return new APITemplate<JSONArray>() {
             @Override
-            protected JSONArray process()   {
+            protected JSONArray process() {
                 return streamJobMetricService.getTaskMetrics(dto);
             }
         }.execute();
@@ -47,17 +48,18 @@ public class DevelopStreamJobMetricController {
     public R<List<String>> values(StreamTaskMetricDTO vo) {
         return new APITemplate<List<String>>() {
             @Override
-            protected List<String> process()   {
+            protected List<String> process() {
                 return streamJobMetricService.getMetricsByTaskType(vo.getTaskId());
             }
         }.execute();
     }
+
     @ApiOperation(value = "查询指定指标信息")
     @PostMapping(value = "queryTaskMetrics")
     public R<List<MetricResultVO>> queryTaskMetrics(@RequestBody GetMetricValueVO vo) {
         return new APITemplate<List<MetricResultVO>>() {
             @Override
-            protected List<MetricResultVO> process()   {
+            protected List<MetricResultVO> process() {
                 return streamJobMetricService.queryTaskMetrics(vo.getDtuicTenantId(), vo.getTaskId(), vo.getEnd(), vo.getTimespan(), vo.getChartName());
             }
         }.execute();
@@ -68,7 +70,7 @@ public class DevelopStreamJobMetricController {
     public R<TimespanVO> formatTimespan(GetFormatTimespanVO vo) {
         return new APITemplate<TimespanVO>() {
             @Override
-            protected TimespanVO process()  {
+            protected TimespanVO process() {
                 return streamJobMetricService.formatTimespan(vo.getTimespan());
             }
         }.execute();

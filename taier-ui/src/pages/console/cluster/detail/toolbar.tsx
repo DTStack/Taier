@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { Button, Space, Tooltip } from 'antd';
+import {useState} from 'react';
+import {Button, Space, Tooltip} from 'antd';
 
 interface IToolbarProps {
 	disabled?: boolean;
@@ -7,7 +7,7 @@ interface IToolbarProps {
 	onSave?: () => Promise<void>;
 }
 
-export default function Toolbar({ disabled, onConnection, onSave }: IToolbarProps) {
+export default function Toolbar({disabled, onConnection, onSave}: IToolbarProps) {
 	const [connecting, setConnecting] = useState(false);
 
 	const handleTestConnectable = () => {

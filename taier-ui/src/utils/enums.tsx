@@ -218,7 +218,7 @@ export function linkMapping(key?: string) {
 }
 
 export function TaskTimeType(props: { value?: TASK_PERIOD_ENUM }) {
-	const { value } = props;
+	const {value} = props;
 	switch (value) {
 		case TASK_PERIOD_ENUM.MINUTE:
 			return <span>分钟任务</span>;
@@ -236,13 +236,13 @@ export function TaskTimeType(props: { value?: TASK_PERIOD_ENUM }) {
 }
 
 export function TaskStatus(props: { value?: TASK_STATUS }) {
-	const { value } = props;
+	const {value} = props;
 	switch (value) {
 		case TASK_STATUS.RUNNING:
 		case TASK_STATUS.TASK_STATUS_NOT_FOUND:
 			return (
 				<span>
-					<Circle type="running" />
+					<Circle type="running"/>
 					&nbsp; {taskStatusText(value)}
 				</span>
 			);
@@ -250,7 +250,7 @@ export function TaskStatus(props: { value?: TASK_STATUS }) {
 		case TASK_STATUS.SET_SUCCESS:
 			return (
 				<span>
-					<Circle type="finished" />
+					<Circle type="finished"/>
 					&nbsp; {taskStatusText(value)}
 				</span>
 			);
@@ -259,7 +259,7 @@ export function TaskStatus(props: { value?: TASK_STATUS }) {
 		case TASK_STATUS.AUTO_CANCEL:
 			return (
 				<span>
-					<Circle type="stopped" />
+					<Circle type="stopped"/>
 					&nbsp; {taskStatusText(value)}
 				</span>
 			);
@@ -269,14 +269,14 @@ export function TaskStatus(props: { value?: TASK_STATUS }) {
 		case TASK_STATUS.DO_FAIL:
 			return (
 				<span>
-					<Circle type="fail" />
+					<Circle type="fail"/>
 					&nbsp; {taskStatusText(value)}
 				</span>
 			);
 		case TASK_STATUS.SUBMITTING:
 			return (
 				<span>
-					<Circle type="submitting" />
+					<Circle type="submitting"/>
 					&nbsp; {taskStatusText(value)}
 				</span>
 			);
@@ -284,7 +284,7 @@ export function TaskStatus(props: { value?: TASK_STATUS }) {
 		case TASK_STATUS.WAIT_SUBMIT:
 			return (
 				<span>
-					<Circle type="waitSubmit" />
+					<Circle type="waitSubmit"/>
 					&nbsp; {taskStatusText(value)}
 				</span>
 			);
@@ -292,21 +292,21 @@ export function TaskStatus(props: { value?: TASK_STATUS }) {
 		case TASK_STATUS.KILLED:
 			return (
 				<span>
-					<Circle type="frozen" />
+					<Circle type="frozen"/>
 					&nbsp; {taskStatusText(value)}
 				</span>
 			);
 		case TASK_STATUS.RESTARTING:
 			return (
 				<span>
-					<Circle type="restarting" />
+					<Circle type="restarting"/>
 					&nbsp; {taskStatusText(value)}
 				</span>
 			);
 		default:
 			return (
 				<span>
-					<Circle type="fail" />
+					<Circle type="fail"/>
 					&nbsp; {taskStatusText(value)}
 				</span>
 			);
@@ -397,12 +397,12 @@ export function mappingTaskTypeToLanguage(taskType: TASK_TYPE_ENUM) {
  * @returns diabled
  */
 export function getFlinkDisabledSource({
-	version,
-	value,
-	disabled112List,
-	allow110List,
-	allow112List,
-}: {
+										   version,
+										   value,
+										   disabled112List,
+										   allow110List,
+										   allow112List,
+									   }: {
 	version: string;
 	value: number;
 	disabled112List?: number[];

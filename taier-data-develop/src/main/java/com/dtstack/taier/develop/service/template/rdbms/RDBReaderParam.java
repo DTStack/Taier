@@ -44,7 +44,7 @@ public class RDBReaderParam extends DaPluginParam {
      * 采集字段
      */
     private List<String> tableFields;
-   // private List column;
+    // private List column;
 
     private String session;
     private String preSql;

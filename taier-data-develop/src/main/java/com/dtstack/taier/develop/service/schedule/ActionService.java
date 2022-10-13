@@ -153,7 +153,7 @@ public class ActionService {
         }
 
         //取最新
-        if(0 == pageInfo){
+        if (0 == pageInfo) {
             pageInfo = scheduleJob.getRetryNum();
         }
 
@@ -230,8 +230,8 @@ public class ActionService {
                 jobLogVO.setSyncLog(syncLog);
             }
 
-            if(EScheduleJobType.SPARK_SQL.getType().equals(scheduleTaskShade.getTaskType())){
-                jobLogVO.setDownLoadUrl(String.format(CommonConstant.DOWNLOAD_LOG,scheduleJob.getJobId(),scheduleJob.getTaskType(),scheduleJob.getTenantId()));
+            if (EScheduleJobType.SPARK_SQL.getType().equals(scheduleTaskShade.getTaskType())) {
+                jobLogVO.setDownLoadUrl(String.format(CommonConstant.DOWNLOAD_LOG, scheduleJob.getJobId(), scheduleJob.getTaskType(), scheduleJob.getTenantId()));
             }
         }
         return jobLogVO;

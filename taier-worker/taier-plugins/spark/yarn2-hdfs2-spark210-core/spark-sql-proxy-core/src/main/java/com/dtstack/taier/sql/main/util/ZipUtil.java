@@ -35,7 +35,8 @@ public class ZipUtil {
 
     /**
      * 使用zip进行解压缩
-     * @param  compressedStr 压缩后的文本
+     *
+     * @param compressedStr 压缩后的文本
      * @return 解压后的字符串
      */
     public static final String unzip(String compressedStr) {

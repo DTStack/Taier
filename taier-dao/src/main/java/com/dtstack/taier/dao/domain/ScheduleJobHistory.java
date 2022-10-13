@@ -9,7 +9,7 @@ import java.util.Date;
 @TableName("schedule_job_history")
 public class ScheduleJobHistory {
 
-    @TableId(value="id", type= IdType.AUTO)
+    @TableId(value = "id", type = IdType.AUTO)
     private Long id;
 
     private String jobId;

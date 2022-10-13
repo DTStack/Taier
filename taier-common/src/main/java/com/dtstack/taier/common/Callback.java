@@ -11,6 +11,7 @@ public interface Callback<E> {
 
     /**
      * 函数式接口
+     *
      * @param event 入参
      * @return
      */

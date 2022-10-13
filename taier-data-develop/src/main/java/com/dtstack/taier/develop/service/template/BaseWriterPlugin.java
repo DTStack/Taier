@@ -2,7 +2,6 @@ package com.dtstack.taier.develop.service.template;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
-import com.dtstack.taier.develop.common.template.Reader;
 import com.dtstack.taier.develop.common.template.Writer;
 
 import java.util.List;

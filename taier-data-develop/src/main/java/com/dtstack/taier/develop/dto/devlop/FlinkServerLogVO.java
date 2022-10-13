@@ -5,7 +5,6 @@ import com.dtstack.taier.dao.domain.ScheduleJobExpand;
 public class FlinkServerLogVO {
 
 
-
     private String jobId;
 
     /**
@@ -65,17 +64,18 @@ public class FlinkServerLogVO {
     public void setJobId(String jobId) {
         this.jobId = jobId;
     }
+
     public FlinkServerLogVO(String jobId, String logInfo, String engineLog) {
         this.jobId = jobId;
         this.logInfo = logInfo;
         this.engineLog = engineLog;
     }
 
-    public FlinkServerLogVO(ScheduleJobExpand scheduleJobExpand, String downLoadLog,String submitLog) {
+    public FlinkServerLogVO(ScheduleJobExpand scheduleJobExpand, String downLoadLog, String submitLog) {
         this.jobId = scheduleJobExpand.getJobId();
         this.logInfo = scheduleJobExpand.getLogInfo();
         this.engineLog = scheduleJobExpand.getEngineLog();
         this.downLoadLog = downLoadLog;
-        this.submitLog =submitLog;
+        this.submitLog = submitLog;
     }
 }

@@ -1,16 +1,15 @@
 package com.dtstack.taier.develop.service.template.bulider.db;
 
 import com.alibaba.fastjson.JSONObject;
+import com.dtstack.taier.common.exception.RdosDefineException;
 import com.dtstack.taier.datasource.api.dto.source.ISourceDTO;
 import com.dtstack.taier.datasource.api.source.DataSourceType;
-import com.dtstack.taier.common.exception.RdosDefineException;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.regex.Pattern;
 
 /**
- *
  * @author ：wangchuan
  * date：Created in 上午10:23 2020/8/14
  * company: www.dtstack.com

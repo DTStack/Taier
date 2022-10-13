@@ -16,18 +16,18 @@
  * limitations under the License.
  */
 
-import { useMemo } from 'react';
+import {useMemo} from 'react';
 import moment from 'moment';
-import { history } from 'umi';
-import type { FormInstance } from 'antd';
-import { message, Checkbox, Modal } from 'antd';
+import {history} from 'umi';
+import type {FormInstance} from 'antd';
+import {Checkbox, message, Modal} from 'antd';
 import Api from '@/api';
-import { getCookie } from '@/utils';
-import type { ColumnsType } from 'antd/lib/table';
+import {getCookie} from '@/utils';
+import type {ColumnsType} from 'antd/lib/table';
 import Sketch from '@/components/sketch';
-import { DRAWER_MENU_ENUM } from '@/constant';
+import {DRAWER_MENU_ENUM} from '@/constant';
 
-const { confirm } = Modal;
+const {confirm} = Modal;
 
 const disabledDate = (current: moment.Moment) => {
 	return current && current.valueOf() > Date.now();
@@ -124,7 +124,7 @@ export default () => {
 					const isComplete =
 						record.finishedJobSum === record.doneJobSum &&
 						record.doneJobSum === record.allJobSum;
-					const style = isComplete ? { color: 'var(--editor-foreground)' } : { color: 'var(--editorError-foreground)' };
+					const style = isComplete ? {color: 'var(--editor-foreground)'} : {color: 'var(--editorError-foreground)'};
 					return (
 						<span style={style}>
 							{record.finishedJobSum || 0}/{record.doneJobSum || 0}/
@@ -178,7 +178,7 @@ export default () => {
 	}, []);
 
 	const convertFormFieldToParams = (values: IFormFieldProps): Partial<IRequestParams> => {
-		const { name, operatorId, runDay } = values;
+		const {name, operatorId, runDay} = values;
 		return {
 			jobName: name,
 			runDay: runDay ? moment(runDay).format('YYYY-MM-DD') : undefined,
@@ -188,7 +188,7 @@ export default () => {
 
 	const handleRequestSearch = (
 		values: IFormFieldProps,
-		{ current, pageSize }: { current: number; pageSize: number },
+		{current, pageSize}: { current: number; pageSize: number },
 	) => {
 		const params: Partial<IRequestParams> = {
 			currentPage: current,
@@ -282,7 +282,7 @@ export default () => {
 					{
 						name: 'operatorId',
 						props: {
-							formItemProps: { label: '操作人' },
+							formItemProps: {label: '操作人'},
 							slotProps: {
 								placeholder: '请选择操作人',
 							},
@@ -313,7 +313,7 @@ export default () => {
 				]}
 				onFormFieldChange={handleFormFieldChange}
 				columns={columns}
-				tableProps={{ rowSelection: undefined }}
+				tableProps={{rowSelection: undefined}}
 			/>
 		</>
 	);

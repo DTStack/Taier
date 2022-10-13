@@ -27,15 +27,20 @@ import java.util.List;
  * Reason:
  * Date: 2018/10/9
  * Company: www.dtstack.com
+ *
  * @author xuchao
  */
 
 public class QueryInfo {
 
-    /**查询粒度,eg: 20s*/
+    /**
+     * 查询粒度,eg: 20s
+     */
     private String granularity;
 
-    /**sum,min,max,avg,stddev,stdvar,count,count_values,bottomk,topk,quantile*/
+    /**
+     * sum,min,max,avg,stddev,stdvar,count,count_values,bottomk,topk,quantile
+     */
     private List<IFunction> aggregator = Lists.newArrayList();
 
     private List<Filter> filters;
@@ -60,8 +65,8 @@ public class QueryInfo {
         return aggregator;
     }
 
-    public void addAggregator(IFunction func){
-        if(!func.checkParam()){
+    public void addAggregator(IFunction func) {
+        if (!func.checkParam()) {
             throw new RuntimeException(String.format("this func:%s param is error..", func));
         }
 

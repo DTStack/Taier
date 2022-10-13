@@ -81,7 +81,7 @@ public class ScriptResourceInfo extends AbstractYarnResourceInfo {
             return this;
         }
 
-        public ScriptResourceInfoBuilder withScriptConf(ScriptConfiguration scriptConf){
+        public ScriptResourceInfoBuilder withScriptConf(ScriptConfiguration scriptConf) {
             this.scriptConf = scriptConf;
             return this;
         }

@@ -40,15 +40,15 @@ public class JobParamOperatorPipeline extends IPipeline.AbstractPipeline {
 
     @Override
     public void pipeline(Map<String, Object> actionParam, Map<String, Object> pipelineParam) throws Exception {
-        String urlKey = (String) super.getExecuteValue(actionParam,pipelineParam);
-        if(StringUtils.isNotBlank(urlKey)){
+        String urlKey = (String) super.getExecuteValue(actionParam, pipelineParam);
+        if (StringUtils.isNotBlank(urlKey)) {
             @SuppressWarnings("unchecked")
             List<ScheduleTaskParamShade> taskParamShades = (List) pipelineParam.get(taskParamsToReplaceKey);
             ScheduleJob scheduleJob = (ScheduleJob) pipelineParam.get(scheduleJobKey);
             if (null == scheduleJob) {
                 throw new RdosDefineException("upload param pipeline schedule job can not be null");
             }
-            pipelineParam.put(pipelineKey,JobParamReplace.paramReplace(urlKey,taskParamShades,scheduleJob.getCycTime()));
+            pipelineParam.put(pipelineKey, JobParamReplace.paramReplace(urlKey, taskParamShades, scheduleJob.getCycTime()));
         }
     }
 }

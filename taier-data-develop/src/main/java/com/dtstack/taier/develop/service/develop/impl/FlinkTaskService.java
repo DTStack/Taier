@@ -7,7 +7,6 @@ import com.alibaba.fastjson.JSONPath;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.dtstack.taier.datasource.api.utils.AssertUtils;
 import com.dtstack.taier.common.enums.Deleted;
 import com.dtstack.taier.common.enums.EComponentType;
 import com.dtstack.taier.common.enums.EScheduleJobType;
@@ -27,6 +26,7 @@ import com.dtstack.taier.dao.mapper.DevelopTaskMapper;
 import com.dtstack.taier.dao.mapper.ScheduleJobMapper;
 import com.dtstack.taier.dao.mapper.UserMapper;
 import com.dtstack.taier.dao.pager.PageResult;
+import com.dtstack.taier.datasource.api.utils.AssertUtils;
 import com.dtstack.taier.develop.dto.devlop.TaskResourceParam;
 import com.dtstack.taier.develop.dto.devlop.TaskVO;
 import com.dtstack.taier.develop.enums.develop.FlinkVersion;
@@ -153,7 +153,6 @@ public class FlinkTaskService {
         taskResourceParam.setTargetStr(taskResourceParam.getSink() != null ? JSON.toJSONString(GuideTableParamsUtil.deal(taskResourceParam.getSink(), taskResourceParam.getComponentVersion())) : null);
         taskResourceParam.setSideStr(taskResourceParam.getSide() != null ? JSON.toJSONString(GuideTableParamsUtil.deal(taskResourceParam.getSide(), taskResourceParam.getComponentVersion())) : null);
     }
-
 
 
     private String generateCreateFlinkSql(String sourceParams, String componentVersion, TableType type) {

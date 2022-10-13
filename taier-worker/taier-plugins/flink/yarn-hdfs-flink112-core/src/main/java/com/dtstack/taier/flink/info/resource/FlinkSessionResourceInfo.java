@@ -1,10 +1,10 @@
 package com.dtstack.taier.flink.info.resource;
 
-import com.dtstack.taier.pluginapi.pojo.JudgeResult;
-import com.dtstack.taier.pluginapi.util.MathUtil;
-import com.dtstack.taier.pluginapi.JobClient;
 import com.dtstack.taier.base.resource.AbstractFlinkResourceInfo;
 import com.dtstack.taier.flink.constant.ConfigConstant;
+import com.dtstack.taier.pluginapi.JobClient;
+import com.dtstack.taier.pluginapi.pojo.JudgeResult;
+import com.dtstack.taier.pluginapi.util.MathUtil;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.codehaus.jackson.map.ObjectMapper;
@@ -34,7 +34,7 @@ public class FlinkSessionResourceInfo extends AbstractFlinkResourceInfo {
     private final boolean standalone;
 
 
-    public FlinkSessionResourceInfo(boolean standalone){
+    public FlinkSessionResourceInfo(boolean standalone) {
         this.standalone = standalone;
     }
 
@@ -59,33 +59,33 @@ public class FlinkSessionResourceInfo extends AbstractFlinkResourceInfo {
     }
 
     @SuppressWarnings("unchecked")
-    public void getFlinkSessionSlots(String message, int flinkSessionSlotCount){
-        if(StringUtils.isNotBlank(message)){
-            try{
+    public void getFlinkSessionSlots(String message, int flinkSessionSlotCount) {
+        if (StringUtils.isNotBlank(message)) {
+            try {
                 Map<String, Object> taskManagerInfo = OBJ_MAPPER.readValue(message, Map.class);
-                if(taskManagerInfo.containsKey("taskmanagers")){
+                if (taskManagerInfo.containsKey("taskmanagers")) {
                     List<Map<String, Object>> taskManagerList = (List<Map<String, Object>>) taskManagerInfo.get("taskmanagers");
-                    if (taskManagerList.size()==0){
+                    if (taskManagerList.size() == 0) {
                         this.addNodeResource(new NodeResourceDetail("1", flinkSessionSlotCount, flinkSessionSlotCount));
-                    }else {
+                    } else {
                         int totalUsedSlots = 0;
                         int totalFreeSlots = 0;
                         int totalSlotsNumber = 0;
-                        for(Map<String, Object> tmp : taskManagerList){
-                            int freeSlots = MapUtils.getIntValue(tmp,"freeSlots");
+                        for (Map<String, Object> tmp : taskManagerList) {
+                            int freeSlots = MapUtils.getIntValue(tmp, "freeSlots");
                             int slotsNumber = MapUtils.getIntValue(tmp, "slotsNumber");
                             totalUsedSlots += slotsNumber - freeSlots;
                             totalFreeSlots += freeSlots;
                             totalSlotsNumber += slotsNumber;
                         }
-                        if(standalone){
+                        if (standalone) {
                             this.addNodeResource(new NodeResourceDetail("1", totalFreeSlots, totalSlotsNumber));
-                        }else{
+                        } else {
                             this.addNodeResource(new NodeResourceDetail("1", flinkSessionSlotCount - totalUsedSlots, flinkSessionSlotCount));
                         }
                     }
                 }
-            }catch (Exception e){
+            } catch (Exception e) {
                 logger.error("", e);
             }
         }

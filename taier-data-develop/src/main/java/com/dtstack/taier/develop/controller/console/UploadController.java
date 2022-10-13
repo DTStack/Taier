@@ -56,20 +56,20 @@ public class UploadController {
 
     private static String uploadsDir = System.getProperty("user.dir") + File.separator + "file-uploads";
 
-    @PostMapping(value="/component/config")
+    @PostMapping(value = "/component/config")
     @ApiOperation(value = "解析zip中xml或者json")
     public R<List<Object>> upload(@RequestParam("fileName") List<MultipartFile> files, @RequestParam("componentType") Integer componentType,
-                               @RequestParam(value = "autoDelete", required = false) Boolean autoDelete,@RequestParam(value = "version", required = false) String componentVersion) {
-        return R.ok(consoleComponentService.config(getResourcesFromFiles(files), componentType, autoDelete,componentVersion));
+                                  @RequestParam(value = "autoDelete", required = false) Boolean autoDelete, @RequestParam(value = "version", required = false) String componentVersion) {
+        return R.ok(consoleComponentService.config(getResourcesFromFiles(files), componentType, autoDelete, componentVersion));
     }
 
-    @PostMapping(value="/component/addOrUpdateComponent")
+    @PostMapping(value = "/component/addOrUpdateComponent")
     public R<ComponentVO> addOrUpdateComponent(@RequestParam("resources1") List<MultipartFile> files1, @RequestParam("resources2") List<MultipartFile> files2, @RequestParam("clusterId") Long clusterId,
-                                               @RequestParam(value = "componentConfig") String componentConfig, @RequestParam("versionName")@NotNull String versionName,
+                                               @RequestParam(value = "componentConfig") String componentConfig, @RequestParam("versionName") @NotNull String versionName,
                                                @RequestParam("kerberosFileName") String kerberosFileName,
                                                @RequestParam("componentCode") Integer componentCode,
-                                               @RequestParam("principals")String principals, @RequestParam("principal")String principal, @RequestParam(value = "isMetadata",defaultValue = "false")Boolean isMetadata,
-                                               @RequestParam(value = "isDefault",defaultValue = "false") Boolean isDefault, @RequestParam(value = "deployType")Integer deployType) {
+                                               @RequestParam("principals") String principals, @RequestParam("principal") String principal, @RequestParam(value = "isMetadata", defaultValue = "false") Boolean isMetadata,
+                                               @RequestParam(value = "isDefault", defaultValue = "false") Boolean isDefault, @RequestParam(value = "deployType") Integer deployType) {
         List<Resource> resources = getResourcesFromFiles(files1);
         List<Resource> resourcesAdd = getResourcesFromFiles(files2);
         resources.addAll(resourcesAdd);
@@ -119,24 +119,24 @@ public class UploadController {
 
     }
 
-    @PostMapping(value="/component/parseKerberos")
+    @PostMapping(value = "/component/parseKerberos")
     @ApiOperation(value = "解析kerberos文件中信息")
     public R<List<String>> parseKerberos(@RequestParam("fileName") List<MultipartFile> files) {
         return R.ok(consoleComponentService.parseKerberos(getResourcesFromFiles(files)));
     }
 
-    @PostMapping(value="/component/uploadKerberos")
+    @PostMapping(value = "/component/uploadKerberos")
     public R<String> uploadKerberos(@RequestParam("kerberosFile") List<MultipartFile> files, @RequestParam("clusterId") Long clusterId,
-                                 @RequestParam("componentCode") Integer componentCode,@RequestParam("versionName") String versionName) {
+                                    @RequestParam("componentCode") Integer componentCode, @RequestParam("versionName") String versionName) {
         List<Resource> resources = getResourcesFromFiles(files);
-        return R.ok(consoleComponentService.uploadKerberos(resources, clusterId, componentCode,versionName));
+        return R.ok(consoleComponentService.uploadKerberos(resources, clusterId, componentCode, versionName));
     }
 
     private List<Resource> getResourcesFromFiles(List<MultipartFile> files) {
         List<Resource> resources = new ArrayList<>(files.size());
         for (MultipartFile file : files) {
             String fileOriginalName = file.getOriginalFilename();
-            String path =  uploadsDir + File.separator + fileOriginalName;
+            String path = uploadsDir + File.separator + fileOriginalName;
             File saveFile = new File(path);
             if (!saveFile.getParentFile().exists()) {
                 saveFile.getParentFile().mkdirs();
@@ -144,7 +144,7 @@ public class UploadController {
             try {
                 file.transferTo(saveFile);
             } catch (Exception e) {
-                LOGGER.error("" , e);
+                LOGGER.error("", e);
                 throw new RdosDefineException("An error occurred while storing the file");
             }
             resources.add(new Resource(fileOriginalName, path, (int) file.getSize(), file.getContentType(), file.getName()));

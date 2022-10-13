@@ -32,6 +32,7 @@ public interface DevelopResourceMapper {
 
     /**
      * 根据 id 获取资源信息
+     *
      * @param id
      * @return
      */
@@ -48,6 +49,7 @@ public interface DevelopResourceMapper {
 
     /**
      * 根据 ids 获取资源列表
+     *
      * @param ids
      * @return
      */
@@ -55,6 +57,7 @@ public interface DevelopResourceMapper {
 
     /**
      * 根据 租户、目录Id 获取资源列表
+     *
      * @param tenantId
      * @param nodePid
      * @return
@@ -63,6 +66,7 @@ public interface DevelopResourceMapper {
 
     /**
      * 根据 租户 查询资源列表
+     *
      * @param tenantId
      * @return
      */
@@ -70,6 +74,7 @@ public interface DevelopResourceMapper {
 
     /**
      * 根据 id 删除数据
+     *
      * @param id
      * @return
      */
@@ -77,6 +82,7 @@ public interface DevelopResourceMapper {
 
     /**
      * 根据 租户、名称 获取资源列表
+     *
      * @param tenantId
      * @param resourceName
      * @return
@@ -85,6 +91,7 @@ public interface DevelopResourceMapper {
 
     /**
      * 插入数据
+     *
      * @param DevelopResource
      * @return
      */
@@ -92,6 +99,7 @@ public interface DevelopResourceMapper {
 
     /**
      * 更新数据
+     *
      * @param DevelopResource
      * @return
      */
@@ -99,6 +107,7 @@ public interface DevelopResourceMapper {
 
     /**
      * 通用查询
+     *
      * @param query
      * @return
      */
@@ -106,6 +115,7 @@ public interface DevelopResourceMapper {
 
     /**
      * 通用查询统计
+     *
      * @param model
      * @return
      */

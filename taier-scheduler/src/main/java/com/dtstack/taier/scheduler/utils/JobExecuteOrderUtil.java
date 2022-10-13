@@ -25,6 +25,6 @@ public class JobExecuteOrderUtil {
         // 时间格式 yyyyMMddHHmmss  截取 jobExecuteOrder = yyMMddHHmm +  9位的自增
         String substring = triggerTime.substring(2, triggerTime.length() - 2);
         String increasing = String.format("%09d", count);
-        return Long.parseLong(substring+increasing);
+        return Long.parseLong(substring + increasing);
     }
 }

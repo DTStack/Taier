@@ -33,7 +33,7 @@ public class RegExpUtil {
      * @return
      */
     public static String getUnsetCName(String sql) {
-        if (StringUtils.isBlank(sql)){
+        if (StringUtils.isBlank(sql)) {
             return null;
         }
         return getWithRegExp(sql, createCollectionRegExp);

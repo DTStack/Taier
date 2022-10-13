@@ -15,7 +15,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class JobExpandService extends ServiceImpl<ScheduleJobExpandMapper, ScheduleJobExpand> {
 
-    public ScheduleJobExpand selectOneByJobId(String jobId){
+    public ScheduleJobExpand selectOneByJobId(String jobId) {
         // 查询当前日志
         return this.lambdaQuery()
                 .eq(ScheduleJobExpand::getIsDeleted, Deleted.NORMAL.getStatus())

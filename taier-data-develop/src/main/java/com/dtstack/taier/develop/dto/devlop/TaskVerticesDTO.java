@@ -69,22 +69,22 @@ public class TaskVerticesDTO {
     /**
      * 延迟集合
      */
-    private Map<String,Double> delayMap = new HashMap<>();
+    private Map<String, Double> delayMap = new HashMap<>();
 
     /**
      * 背压集合
      */
-    private HashMap<Integer,Double> backPressureMap = new HashMap<>();
+    private HashMap<Integer, Double> backPressureMap = new HashMap<>();
 
     /**
      * 输入字节数集合
      */
-    private Map<Integer,Long> inBytes = new HashMap<>();
+    private Map<Integer, Long> inBytes = new HashMap<>();
 
     /**
      * 输出字节数集合
      */
-    private Map<Integer,Long> outBytes = new HashMap<>();
+    private Map<Integer, Long> outBytes = new HashMap<>();
 
     private Integer indexLevel;
 

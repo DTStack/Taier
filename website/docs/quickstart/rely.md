@@ -19,11 +19,11 @@ sidebar_label: 部署依赖
 ## 大数据组件
 
 - [Flink](https://flink.apache.org/) On Yarn
-  - 数据同步任务依赖
-  - 版本：`flink-1.12`
+    - 数据同步任务依赖
+    - 版本：`flink-1.12`
 - [Spark](https://spark.apache.org/) On Yarn
-  - Spark SQL 任务运行依赖
-  - 版本：`spark-2.1.3`
+    - Spark SQL 任务运行依赖
+    - 版本：`spark-2.1.3`
 
 ## Web 浏览器要求
 

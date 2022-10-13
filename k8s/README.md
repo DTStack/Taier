@@ -1,14 +1,4 @@
-
-
-
-
 ---
-
-
-
-
-
-
 
 # Kubernetes 快速部署
 
@@ -24,7 +14,6 @@ k8s-n3          Ready                      control-plane,master   165d   v1.19.4
 k8s-n2          Ready                      control-plane,master   165d   v1.19.4
 k8s-n1          Ready,SchedulingDisabled   master                 165d   v1.19.4
 ```
-
 
 ## 1. 说明
 
@@ -45,8 +34,8 @@ k8s-n1          Ready,SchedulingDisabled   master                 165d   v1.19.4
 - taier-ui是taier前端的镜像
 - taier是taier后端的镜像
 
-
 参考命令：
+
 ```bash
 # 从 github 拉 Taier 代码
 $ git clone https://github.com/DTStack/Taier.git
@@ -107,8 +96,8 @@ NAME                         READY   AGE
 statefulset.apps/zookeeper   3/3     8h
 ```
 
-
 ## 3. 配置代理
+
 ### nginx
 
 ```bash
@@ -156,10 +145,10 @@ nginx_机器_ip dt.taier.cn
 
 访问地址：http://dt.taier.cn
 
-
-
 ## 可能出现的问题
-第一次部署时，可能会出现 taier 的后端服务探针失败导致容器重启，此时需要等待几分钟，查看 MySQL 容器是否初始化完成(容器启动成功, 并且数据库和表初始化完整)，待 MySQL 容器初始化完成后，删掉当前 taier 后端服务的 pod 等待重启完成。
+
+第一次部署时，可能会出现 taier 的后端服务探针失败导致容器重启，此时需要等待几分钟，查看 MySQL 容器是否初始化完成(容器启动成功,
+并且数据库和表初始化完整)，待 MySQL 容器初始化完成后，删掉当前 taier 后端服务的 pod 等待重启完成。
 
 
 

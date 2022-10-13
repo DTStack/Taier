@@ -12,7 +12,6 @@ import com.dtstack.taier.develop.vo.develop.query.GetCheckpointListVO;
 import com.dtstack.taier.develop.vo.develop.query.GetSavePointVO;
 import com.dtstack.taier.develop.vo.develop.query.TaskCheckPointQueryVO;
 import com.dtstack.taier.develop.vo.develop.result.GetCheckPointTimeRangeResultVO;
-import com.dtstack.taier.develop.vo.develop.result.GetCheckpointListResultVO;
 import com.dtstack.taier.develop.vo.develop.result.GetSavePointResultVO;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -33,7 +32,7 @@ import java.util.List;
  */
 @Api(value = "任务快照管理", tags = {"任务快照管理"})
 @RestController
-@RequestMapping(value =  "/streamTaskCheckpoint")
+@RequestMapping(value = "/streamTaskCheckpoint")
 public class DevelopTaskCheckpointController {
     @Autowired
     StreamTaskCheckpointService taskCheckpointService;

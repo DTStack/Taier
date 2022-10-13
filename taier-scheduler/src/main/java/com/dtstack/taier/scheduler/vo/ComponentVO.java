@@ -27,7 +27,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @ApiModel
-public class ComponentVO extends Component{
+public class ComponentVO extends Component {
 
     private String clusterName;
 
@@ -113,7 +113,7 @@ public class ComponentVO extends Component{
         return vos;
     }
 
-    public static ComponentVO getInstance(){
+    public static ComponentVO getInstance() {
         return new ComponentVO();
     }
 

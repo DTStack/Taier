@@ -3,7 +3,8 @@
 <mapper namespace="com.dtstack.taier.dao.mapper.DevelopSysParamMapper">
 
     <sql id="select_content_fragment">
-      id,param_name,param_command,is_deleted
+        id
+        ,param_name,param_command,is_deleted
     </sql>
 
     <select id="listAll" resultType="com.dtstack.taier.dao.domain.DevelopSysParameter">

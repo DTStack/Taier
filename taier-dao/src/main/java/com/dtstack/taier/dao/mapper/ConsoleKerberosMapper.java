@@ -26,7 +26,7 @@ import java.util.List;
 
 public interface ConsoleKerberosMapper extends BaseMapper<KerberosConfig> {
 
-    KerberosConfig getByComponentType(@Param("clusterId") Long clusterId, @Param("componentType") Integer componentType,@Param("componentVersion")String componentVersion);
+    KerberosConfig getByComponentType(@Param("clusterId") Long clusterId, @Param("componentType") Integer componentType, @Param("componentVersion") String componentVersion);
 
     List<KerberosConfig> getByClusters(@Param("clusterId") Long clusterId);
 

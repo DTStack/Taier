@@ -5,17 +5,17 @@ import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.dtstack.taier.datasource.api.base.ClientCache;
-import com.dtstack.taier.datasource.api.client.IClient;
-import com.dtstack.taier.datasource.api.dto.SqlQueryDTO;
-import com.dtstack.taier.datasource.api.dto.source.ISourceDTO;
 import com.dtstack.taier.common.enums.Deleted;
 import com.dtstack.taier.common.enums.EScheduleJobType;
 import com.dtstack.taier.common.exception.RdosDefineException;
 import com.dtstack.taier.dao.domain.DsInfo;
 import com.dtstack.taier.dao.domain.TaskDirtyDataManage;
-import com.dtstack.taier.develop.datasource.convert.load.SourceLoaderService;
 import com.dtstack.taier.dao.mapper.TaskDirtyDataManageMapper;
+import com.dtstack.taier.datasource.api.base.ClientCache;
+import com.dtstack.taier.datasource.api.client.IClient;
+import com.dtstack.taier.datasource.api.dto.SqlQueryDTO;
+import com.dtstack.taier.datasource.api.dto.source.ISourceDTO;
+import com.dtstack.taier.develop.datasource.convert.load.SourceLoaderService;
 import com.dtstack.taier.develop.enums.develop.TaskDirtyDataManageParamEnum;
 import com.dtstack.taier.develop.enums.develop.TaskDirtyOutPutTypeEnum;
 import com.dtstack.taier.develop.mapstruct.vo.TaskDirtyDataManageTransfer;
@@ -38,7 +38,7 @@ import java.util.Objects;
  * @Date: 2022/06/14/2:52 PM
  */
 @Service
-public class TaskDirtyDataManageService extends ServiceImpl<TaskDirtyDataManageMapper, TaskDirtyDataManage> implements TaskDirtyDataManageIService<TaskDirtyDataManage>{
+public class TaskDirtyDataManageService extends ServiceImpl<TaskDirtyDataManageMapper, TaskDirtyDataManage> implements TaskDirtyDataManageIService<TaskDirtyDataManage> {
 
     private static final Logger logger = LoggerFactory.getLogger(TaskDirtyDataManageService.class);
 
@@ -76,8 +76,8 @@ public class TaskDirtyDataManageService extends ServiceImpl<TaskDirtyDataManageM
      * 添加或修改任务脏数据管理
      *
      * @param vo
-     * @param tenantId        租户 id
-     * @param taskId          任务 id
+     * @param tenantId 租户 id
+     * @param taskId   任务 id
      */
     public void addOrUpdateDirtyDataManage(TaskDirtyDataManageVO vo, Long tenantId, Long taskId) {
         // 先删除原有的脏数据管理
@@ -87,7 +87,7 @@ public class TaskDirtyDataManageService extends ServiceImpl<TaskDirtyDataManageM
         taskDirtyDataManage.setTenantId(tenantId);
         taskDirtyDataManage.setGmtCreate(new Timestamp(System.currentTimeMillis()));
         taskDirtyDataManage.setGmtModified(new Timestamp(System.currentTimeMillis()));
-        if(Objects.equals(TaskDirtyOutPutTypeEnum.LOG.getValue(),taskDirtyDataManage.getOutputType())){
+        if (Objects.equals(TaskDirtyOutPutTypeEnum.LOG.getValue(), taskDirtyDataManage.getOutputType())) {
             taskDirtyDataManage.setLinkInfo("{}");
         }
         taskDirtyDataIService.save(taskDirtyDataManage);

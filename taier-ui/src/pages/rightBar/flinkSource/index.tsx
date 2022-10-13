@@ -15,32 +15,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { useEffect, useMemo, useState, useContext, useRef } from 'react';
-import type { FormInstance } from 'antd';
-import { Button, Collapse, Form, Popconfirm } from 'antd';
-import { PlusOutlined, DeleteOutlined } from '@ant-design/icons';
-import { getTimeZoneList } from './panelData';
+import {useContext, useEffect, useMemo, useRef, useState} from 'react';
+import type {FormInstance} from 'antd';
+import {Button, Collapse, Form, Popconfirm} from 'antd';
+import {DeleteOutlined, PlusOutlined} from '@ant-design/icons';
+import {getTimeZoneList} from './panelData';
 import moment from 'moment';
-import {
-	CODE_TYPE,
-	DATA_SOURCE_ENUM,
-	FLINK_VERSIONS,
-	formItemLayout,
-	KAFKA_DATA_TYPE,
-} from '@/constant';
+import {CODE_TYPE, DATA_SOURCE_ENUM, FLINK_VERSIONS, formItemLayout, KAFKA_DATA_TYPE,} from '@/constant';
 import classNames from 'classnames';
 import stream from '@/api';
-import { isAvro, isKafka } from '@/utils/is';
-import { getColumnsByColumnsText } from '@/utils';
+import {isAvro, isKafka} from '@/utils/is';
+import {getColumnsByColumnsText} from '@/utils';
 import SourceForm from './form';
 import molecule from '@dtinsight/molecule';
-import type { IDataSourceUsedInSyncProps, IFlinkSourceProps } from '@/interface';
-import type { DefaultOptionType } from 'antd/lib/cascader';
-import type { IRightBarComponentProps } from '@/services/rightBarService';
-import { FormContext } from '@/services/rightBarService';
+import type {IDataSourceUsedInSyncProps, IFlinkSourceProps} from '@/interface';
+import type {DefaultOptionType} from 'antd/lib/cascader';
+import type {IRightBarComponentProps} from '@/services/rightBarService';
+import {FormContext} from '@/services/rightBarService';
 import './index.scss';
 
-const { Panel } = Collapse;
+const {Panel} = Collapse;
 const DEFAULT_TYPE = DATA_SOURCE_ENUM.KAFKA_2X;
 
 /**
@@ -69,22 +63,18 @@ const DEFAULT_INPUT_VALUE: IFormFieldProps[typeof NAME_FIELD][number] = {
 export const NAME_FIELD = 'panelColumn';
 
 interface IFormFieldProps {
-	[NAME_FIELD]: Partial<
-		Omit<IFlinkSourceProps, 'timeZone' | 'timestampOffset'> & {
-			timeZone?: string[];
-			timestampOffset?: moment.Moment;
-		}
-	>[];
+	[NAME_FIELD]: Partial<Omit<IFlinkSourceProps, 'timeZone' | 'timestampOffset'> & {
+		timeZone?: string[];
+		timestampOffset?: moment.Moment;
+	}>[];
 }
 
-export default function FlinkSourcePanel({ current }: IRightBarComponentProps) {
+export default function FlinkSourcePanel({current}: IRightBarComponentProps) {
 	const currentPage = current?.tab?.data || {};
 
-	const { form } = useContext(FormContext) as { form?: FormInstance<IFormFieldProps> };
+	const {form} = useContext(FormContext) as { form?: FormInstance<IFormFieldProps> };
 	const [panelActiveKey, setPanelActiveKey] = useState<string[]>([]);
-	const [originOptionType, setOriginOptionType] = useState<
-		Record<number, IDataSourceUsedInSyncProps[]>
-	>({});
+	const [originOptionType, setOriginOptionType] = useState<Record<number, IDataSourceUsedInSyncProps[]>>({});
 	const [topicOptionType, setTopicOptionType] = useState<Record<number, string[]>>({});
 	// 时区数据
 	const [timeZoneData, setTimeZoneData] = useState<DefaultOptionType[]>([]);
@@ -102,10 +92,10 @@ export default function FlinkSourcePanel({ current }: IRightBarComponentProps) {
 			if (existData) {
 				return;
 			}
-			const res = await stream.getTypeOriginData({ type });
+			const res = await stream.getTypeOriginData({type});
 			if (res.code === 1) {
 				// 没有新建对象来 setState，当有多个源表同时请求数据源的话，新建对象的话会导致旧对象会被新对象覆盖掉
-				setOriginOptionType((options) => ({ ...options, [type]: res.data }));
+				setOriginOptionType((options) => ({...options, [type]: res.data}));
 			}
 		}
 	};
@@ -117,7 +107,7 @@ export default function FlinkSourcePanel({ current }: IRightBarComponentProps) {
 			if (existTopic) {
 				return;
 			}
-			const res = await stream.getTopicType({ sourceId });
+			const res = await stream.getTopicType({sourceId});
 			if (res.code === 1) {
 				setTopicOptionType((options) => ({
 					...options,
@@ -186,8 +176,8 @@ export default function FlinkSourcePanel({ current }: IRightBarComponentProps) {
 			const value = changedValues[NAME_FIELD][changeIndex].type;
 			getTypeOriginData(value);
 
-			const nextValues = { ...values };
-			nextValues[NAME_FIELD][changeIndex] = { ...DEFAULT_INPUT_VALUE, type: value };
+			const nextValues = {...values};
+			nextValues[NAME_FIELD][changeIndex] = {...DEFAULT_INPUT_VALUE, type: value};
 			if (isKafka(value)) {
 				nextValues[NAME_FIELD][changeIndex].sourceDataType =
 					value === DATA_SOURCE_ENUM.KAFKA_CONFLUENT
@@ -201,7 +191,7 @@ export default function FlinkSourcePanel({ current }: IRightBarComponentProps) {
 			const value = changedValues[NAME_FIELD][changeIndex].sourceId;
 			getTopicType(value);
 
-			const nextValues = { ...values };
+			const nextValues = {...values};
 			nextValues[NAME_FIELD][changeIndex] = {
 				...DEFAULT_INPUT_VALUE,
 				type: nextValues[NAME_FIELD][changeIndex].type,
@@ -228,7 +218,7 @@ export default function FlinkSourcePanel({ current }: IRightBarComponentProps) {
 				return values[NAME_FIELD][changeIndex].timeColumn;
 			};
 
-			const nextValues = { ...values };
+			const nextValues = {...values};
 			nextValues[NAME_FIELD][changeIndex].timeColumn = timeColumnCheck(cols);
 			form?.setFieldsValue(nextValues);
 		}
@@ -236,7 +226,7 @@ export default function FlinkSourcePanel({ current }: IRightBarComponentProps) {
 		if (changeKeys.includes('sourceDataType')) {
 			const value = changedValues[NAME_FIELD][changeIndex].sourceDataType;
 			if (!isAvro(value)) {
-				const nextValues = { ...values };
+				const nextValues = {...values};
 				nextValues[NAME_FIELD][changeIndex].schemaInfo = undefined;
 				form?.setFieldsValue(nextValues);
 			}
@@ -249,7 +239,7 @@ export default function FlinkSourcePanel({ current }: IRightBarComponentProps) {
 			// 不勾选 ProcTime，不传 procTime 名称字段
 			// 不勾选 EventTime，不传时间列、最大延迟时间字段
 			if (currentPage.componentVersion === FLINK_VERSIONS.FLINK_1_12) {
-				const nextValues = { ...values };
+				const nextValues = {...values};
 				const panel = nextValues[NAME_FIELD][changeIndex];
 
 				// 如果只勾选了 EventTime，则还需要同时勾选 ProcTime
@@ -271,7 +261,7 @@ export default function FlinkSourcePanel({ current }: IRightBarComponentProps) {
 		}
 
 		if (changeKeys.includes('offsetReset')) {
-			const nextValues = { ...values };
+			const nextValues = {...values};
 			const panel = nextValues[NAME_FIELD][changeIndex];
 
 			panel.timestampOffset = undefined;
@@ -296,11 +286,11 @@ export default function FlinkSourcePanel({ current }: IRightBarComponentProps) {
 	const initialValues = useMemo<IFormFieldProps>(() => {
 		return {
 			[NAME_FIELD]:
-				(currentPage?.source as IFlinkSourceProps[]).map((s) => ({
-					...s,
-					timeZone: s.timeZone?.split('/'),
-					timestampOffset: s.timestampOffset ? moment(s.timestampOffset) : undefined,
-				})) || [],
+			(currentPage?.source as IFlinkSourceProps[]).map((s) => ({
+				...s,
+				timeZone: s.timeZone?.split('/'),
+				timestampOffset: s.timestampOffset ? moment(s.timestampOffset) : undefined,
+			})) || [],
 		};
 	}, []);
 
@@ -315,7 +305,7 @@ export default function FlinkSourcePanel({ current }: IRightBarComponentProps) {
 					initialValues={initialValues}
 				>
 					<Form.List name={NAME_FIELD}>
-						{(fields, { add, remove }) => (
+						{(fields, {add, remove}) => (
 							<>
 								<Collapse
 									activeKey={panelActiveKey}
@@ -324,8 +314,8 @@ export default function FlinkSourcePanel({ current }: IRightBarComponentProps) {
 									destroyInactivePanel
 								>
 									{fields.map((field, index) => {
-										const { sourceId, type, table } =
-											form?.getFieldValue(NAME_FIELD)[index] || {};
+										const {sourceId, type, table} =
+										form?.getFieldValue(NAME_FIELD)[index] || {};
 										return (
 											<Panel
 												header={
@@ -359,7 +349,7 @@ export default function FlinkSourcePanel({ current }: IRightBarComponentProps) {
 														/>
 													</Popconfirm>
 												}
-												style={{ position: 'relative' }}
+												style={{position: 'relative'}}
 												className="input-panel"
 											>
 												<SourceForm
@@ -382,10 +372,10 @@ export default function FlinkSourcePanel({ current }: IRightBarComponentProps) {
 									block
 									onClick={() =>
 										handlePanelChanged('add').then(() =>
-											add({ ...DEFAULT_INPUT_VALUE }),
+											add({...DEFAULT_INPUT_VALUE}),
 										)
 									}
-									icon={<PlusOutlined />}
+									icon={<PlusOutlined/>}
 								>
 									<span>添加源表</span>
 								</Button>

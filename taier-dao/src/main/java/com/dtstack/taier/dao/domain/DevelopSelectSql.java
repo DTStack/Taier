@@ -69,6 +69,7 @@ public class DevelopSelectSql extends TenantEntity {
     public void setIsSelectSql(int isSelectSql) {
         this.isSelectSql = isSelectSql;
     }
+
     /**
      * 如果是数据同步任务则需要解密
      *

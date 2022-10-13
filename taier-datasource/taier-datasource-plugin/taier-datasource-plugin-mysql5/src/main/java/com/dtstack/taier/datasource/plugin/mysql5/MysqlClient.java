@@ -1,9 +1,5 @@
 package com.dtstack.taier.datasource.plugin.mysql5;
 
-import com.dtstack.taier.datasource.plugin.common.DtClassConsistent;
-import com.dtstack.taier.datasource.plugin.common.utils.DBUtil;
-import com.dtstack.taier.datasource.plugin.rdbms.AbsRdbmsClient;
-import com.dtstack.taier.datasource.plugin.rdbms.ConnFactory;
 import com.dtstack.taier.datasource.api.downloader.IDownloader;
 import com.dtstack.taier.datasource.api.dto.ColumnMetaDTO;
 import com.dtstack.taier.datasource.api.dto.SqlQueryDTO;
@@ -12,6 +8,10 @@ import com.dtstack.taier.datasource.api.dto.source.Mysql5SourceDTO;
 import com.dtstack.taier.datasource.api.dto.source.RdbmsSourceDTO;
 import com.dtstack.taier.datasource.api.exception.SourceException;
 import com.dtstack.taier.datasource.api.source.DataSourceType;
+import com.dtstack.taier.datasource.plugin.common.DtClassConsistent;
+import com.dtstack.taier.datasource.plugin.common.utils.DBUtil;
+import com.dtstack.taier.datasource.plugin.rdbms.AbsRdbmsClient;
+import com.dtstack.taier.datasource.plugin.rdbms.ConnFactory;
 import com.google.common.collect.Lists;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
@@ -183,7 +183,7 @@ public class MysqlClient extends AbsRdbmsClient {
                 throw new SourceException(String.format("Failed to get the comment information of the field of the table: %s. Please contact the DBA to check the database and table information.",
                         queryDTO.getTableName()), e);
             }
-        }finally {
+        } finally {
             DBUtil.closeDBResources(rs, statement, connection);
         }
         return columnComments;
@@ -235,8 +235,9 @@ public class MysqlClient extends AbsRdbmsClient {
 
     /**
      * 获取指定schema下的表，如果没有填schema，默认使用当前schema。支持正则匹配查询、条数限制
+     *
      * @param sourceDTO 数据源信息
-     * @param queryDTO 查询条件
+     * @param queryDTO  查询条件
      * @return
      */
     @Override
@@ -271,6 +272,7 @@ public class MysqlClient extends AbsRdbmsClient {
 
     /**
      * 处理 schema和tableName，适配schema和tableName中有.的情况
+     *
      * @param schema
      * @param tableName
      * @return
@@ -283,7 +285,7 @@ public class MysqlClient extends AbsRdbmsClient {
         if (StringUtils.isBlank(schema)) {
             return tableName;
         }
-        if (!schema.startsWith("`") || !schema.endsWith("`")){
+        if (!schema.startsWith("`") || !schema.endsWith("`")) {
             schema = String.format("`%s`", schema);
         }
         return String.format("%s.%s", schema, tableName);

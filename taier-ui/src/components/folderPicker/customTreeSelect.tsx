@@ -16,17 +16,17 @@
  * limitations under the License.
  */
 
-import { useEffect, useState } from 'react';
-import { omit } from 'lodash';
-import { TreeSelect, Input } from 'antd';
+import {useEffect, useState} from 'react';
+import {omit} from 'lodash';
+import {Input, TreeSelect} from 'antd';
 
-import type { TreeSelectProps } from 'antd/lib/tree-select';
-import { Icon } from '@dtinsight/molecule/esm/components';
+import type {TreeSelectProps} from 'antd/lib/tree-select';
+import {Icon} from '@dtinsight/molecule/esm/components';
 import type molecule from '@dtinsight/molecule';
-import type { CATALOGUE_TYPE } from '@/constant';
-import { fileIcon } from '@/utils/extensions';
+import type {CATALOGUE_TYPE} from '@/constant';
+import {fileIcon} from '@/utils/extensions';
 
-const { TreeNode } = TreeSelect;
+const {TreeNode} = TreeSelect;
 
 export interface CustomTreeSelectProps extends Omit<TreeSelectProps, 'treeData'> {
 	dataType: CATALOGUE_TYPE;
@@ -42,7 +42,7 @@ export interface CustomTreeSelectProps extends Omit<TreeSelectProps, 'treeData'>
  * 使用 Input 和 TreeSelect 组件分别承担 数据收集和选择、展示的功能
  */
 export default function CustomTreeSelect(props: CustomTreeSelectProps) {
-	const { value, showFile, treeData, nodeNameField, dataType, onChange } = props;
+	const {value, showFile, treeData, nodeNameField, dataType, onChange} = props;
 	// 表单收集数据时真正的值，兼容 initialValue
 	const [realValue, setRealValue] = useState(value);
 	const [showName, setShowName] = useState(value);
@@ -66,7 +66,7 @@ export default function CustomTreeSelect(props: CustomTreeSelectProps) {
 
 	const renderIcon = (isShowFile: boolean, type: string, catalogueType: CATALOGUE_TYPE) => {
 		if (isShowFile) {
-			return type === 'file' ? fileIcon({} as any, catalogueType) : <Icon type="folder" />;
+			return type === 'file' ? fileIcon({} as any, catalogueType) : <Icon type="folder"/>;
 		}
 		return null;
 	};
@@ -74,7 +74,7 @@ export default function CustomTreeSelect(props: CustomTreeSelectProps) {
 	// TODO: 将generateTreeNodes暴露出去以兼容不同的数据格式
 	const generateTreeNodes = () => {
 		const loop = (data: molecule.model.IFolderTreeNodeProps) => {
-			const { createUser, id, name, type } = data?.data || {};
+			const {createUser, id, name, type} = data?.data || {};
 			const isLeaf = type === 'file';
 			if (!showFile && type === 'file') return null;
 			return (
@@ -103,7 +103,7 @@ export default function CustomTreeSelect(props: CustomTreeSelectProps) {
 
 	return (
 		<>
-			<Input type="hidden" value={realValue} />
+			<Input type="hidden" value={realValue}/>
 			<TreeSelect
 				{...omit(props, ['onChange', 'treeData', 'value', 'showFile', 'dataType'])}
 				value={showName}

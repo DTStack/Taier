@@ -39,7 +39,7 @@ public class ScriptUtil {
             if (key.contains("memory")) {
                 value = String.valueOf(getNormalizedMem(param.getValue()));
             }
-            execDtconf.set(key,value);
+            execDtconf.set(key, value);
         }
 
         // exeArgs, 来自 com.dtstack.taier.develop.service.develop.saver.ScriptTaskSaver.populateExeArgs
@@ -62,19 +62,19 @@ public class ScriptUtil {
         // taskParams，任务新增时设置
         Properties confProperties = jobClient.getConfProperties();
         confProperties.stringPropertyNames().stream()
-        .map(String::trim)
-        .forEach(
-            key -> {
-                String value = confProperties.getProperty(key).trim();
-                if (key.contains("memory")) {
-                    value = String.valueOf(getNormalizedMem(value));
-                }
-                if (key.contains("priority")) {
-                    key = "priority";
-                    value = String.valueOf(jobClient.getPriority()).trim();
-                }
-                execDtconf.set(key, value);
-            });
+                .map(String::trim)
+                .forEach(
+                        key -> {
+                            String value = confProperties.getProperty(key).trim();
+                            if (key.contains("memory")) {
+                                value = String.valueOf(getNormalizedMem(value));
+                            }
+                            if (key.contains("priority")) {
+                                key = "priority";
+                                value = String.valueOf(jobClient.getPriority()).trim();
+                            }
+                            execDtconf.set(key, value);
+                        });
         return execDtconf;
     }
 
@@ -97,8 +97,8 @@ public class ScriptUtil {
             }
             Object value = prop.get(key);
             if (value instanceof String) {
-                if (key.contains("memory")){
-                    value = String.valueOf(getNormalizedMem((String)value));
+                if (key.contains("memory")) {
+                    value = String.valueOf(getNormalizedMem((String) value));
                 }
                 dtconf.set(key, (String) value);
             } else if (value instanceof Integer) {

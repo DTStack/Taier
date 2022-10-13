@@ -1,13 +1,11 @@
 package com.dtstack.taier.datasource.plugin.spark.client;
 
-import com.dtstack.taier.datasource.plugin.rdbms.AbsTableClient;
-import com.dtstack.taier.datasource.plugin.rdbms.ConnFactory;
-import com.dtstack.taier.datasource.plugin.spark.SparkConnFactory;
 import com.dtstack.taier.datasource.api.dto.UpsertColumnMetaDTO;
 import com.dtstack.taier.datasource.api.dto.source.ISourceDTO;
 import com.dtstack.taier.datasource.api.dto.source.RdbmsSourceDTO;
 import com.dtstack.taier.datasource.api.exception.SourceException;
 import com.dtstack.taier.datasource.api.source.DataSourceType;
+import com.dtstack.taier.datasource.plugin.rdbms.AbsTableClient;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;

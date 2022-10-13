@@ -12,7 +12,9 @@ public class RdbmsPollReaderParam extends DaPluginParam {
      */
     private Integer rdbmsDaType;
 
-    /**离线同步方式（0：全量同步；1：增量同步）
+    /**
+     * 离线同步方式（0：全量同步；1：增量同步）
+     *
      * @see SyncModel
      */
     private Integer syncModel;
@@ -47,7 +49,7 @@ public class RdbmsPollReaderParam extends DaPluginParam {
      */
     private List<String> tableFields;
 
-    private  List<Object> sourceList;
+    private List<Object> sourceList;
     /**
      * splitPk代表的字段进行数据分片
      */

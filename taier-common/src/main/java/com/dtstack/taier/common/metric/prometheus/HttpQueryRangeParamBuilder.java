@@ -27,6 +27,7 @@ import java.io.UnsupportedEncodingException;
  * 根据参数构建 prometheus rangeQuery 查询的url
  * Date: 2018/10/9
  * Company: www.dtstack.com
+ *
  * @author xuchao
  */
 
@@ -39,9 +40,9 @@ public class HttpQueryRangeParamBuilder extends AbsHttpQueryParamBuilder {
      */
     public static String builder(String metricName, long startTime, long endTime, QueryInfo queryInfo) throws UnsupportedEncodingException {
 
-        long startSec = startTime/1000;
+        long startSec = startTime / 1000;
         endTime = endTime < System.currentTimeMillis() ? endTime : System.currentTimeMillis();
-        long endSec = endTime/1000;
+        long endSec = endTime / 1000;
         String reqParam = QUERY_RANGE_TPL.replace("${start}", startSec + "").replace("${end}", endSec + "").replace("${step}", queryInfo.getGranularity());
         String queryParam = buildQuery(metricName, queryInfo);
 

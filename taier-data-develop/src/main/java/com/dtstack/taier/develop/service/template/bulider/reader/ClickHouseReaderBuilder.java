@@ -77,7 +77,8 @@ public class ClickHouseReaderBuilder implements DaReaderBuilder {
     }
 
     @Override
-    public void setReaderJson(TaskResourceParam param) {}
+    public void setReaderJson(TaskResourceParam param) {
+    }
 
     private DsInfo getDsInfo(Long sourceId) {
         return dataSourceCenterService.getOneById(sourceId);

@@ -22,7 +22,7 @@ package com.dtstack.taier.common.param;
 import java.util.Objects;
 
 /**
- * @Author: 尘二(chener@dtstack.com)
+ * @Author: 尘二(chener @ dtstack.com)
  * @Date: 2018/12/21 16:07
  * @Description: 分页鉴权基类
  */

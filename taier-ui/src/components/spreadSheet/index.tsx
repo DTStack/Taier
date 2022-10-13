@@ -16,9 +16,9 @@
  * limitations under the License.
  */
 
-import { HotTable } from '@handsontable/react';
-import { registerAllModules } from 'handsontable/registry';
-import { copyText } from '@/utils';
+import {HotTable} from '@handsontable/react';
+import {registerAllModules} from 'handsontable/registry';
+import {copyText} from '@/utils';
 import 'handsontable/dist/handsontable.full.css';
 import './index.scss';
 
@@ -30,7 +30,7 @@ interface ISpreadSheet {
 	data: string[][];
 }
 
-export default function SpreadSheet({ columns = [], data }: ISpreadSheet) {
+export default function SpreadSheet({columns = [], data}: ISpreadSheet) {
 	const handleCopy = (arr: any[][]) => {
 		/**
 		 * 去除格式化
@@ -57,14 +57,14 @@ export default function SpreadSheet({ columns = [], data }: ISpreadSheet) {
 
 	const getCell = () => {
 		if (!data || !data.length) {
-			return [{ row: 0, col: 0, className: 'htCenter htMiddle' }];
+			return [{row: 0, col: 0, className: 'htCenter htMiddle'}];
 		}
 		return undefined;
 	};
 
 	const getMergeCells = () => {
 		if (!data || !data.length) {
-			return [{ row: 0, col: 0, rowspan: 1, colspan: columns.length }];
+			return [{row: 0, col: 0, rowspan: 1, colspan: columns.length}];
 		}
 		return false;
 	};

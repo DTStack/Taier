@@ -1,12 +1,11 @@
 package com.dtstack.taier.datasource.plugin.saphana;
 
-import com.dtstack.taier.datasource.plugin.rdbms.AbsTableClient;
-import com.dtstack.taier.datasource.plugin.rdbms.ConnFactory;
 import com.dtstack.taier.datasource.api.dto.UpsertColumnMetaDTO;
 import com.dtstack.taier.datasource.api.dto.source.ISourceDTO;
 import com.dtstack.taier.datasource.api.dto.source.RdbmsSourceDTO;
 import com.dtstack.taier.datasource.api.exception.SourceException;
 import com.dtstack.taier.datasource.api.source.DataSourceType;
+import com.dtstack.taier.datasource.plugin.rdbms.AbsTableClient;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
@@ -41,9 +40,10 @@ public class SapHanaTableClient extends AbsTableClient {
 
     /**
      * 更改表相关参数，暂时只支持更改表注释
-     * @param source 数据源信息
+     *
+     * @param source    数据源信息
      * @param tableName 表名
-     * @param params 修改的参数，map集合
+     * @param params    修改的参数，map集合
      * @return 执行结果
      */
     @Override

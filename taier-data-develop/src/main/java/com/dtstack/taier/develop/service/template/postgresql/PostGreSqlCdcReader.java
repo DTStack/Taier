@@ -44,7 +44,7 @@ public class PostGreSqlCdcReader extends BaseReaderPlugin {
     private String cat;
 
     /**
-     *是否将解析出的json数据拍平
+     * 是否将解析出的json数据拍平
      */
     private Boolean pavingData;
 

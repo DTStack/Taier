@@ -1,6 +1,5 @@
 package com.dtstack.taier.datasource.plugin.kafka;
 
-import com.dtstack.taier.datasource.plugin.kafka.util.KafkaUtil;
 import com.dtstack.taier.datasource.api.client.IKafka;
 import com.dtstack.taier.datasource.api.dto.KafkaConsumerDTO;
 import com.dtstack.taier.datasource.api.dto.KafkaPartitionDTO;
@@ -9,6 +8,7 @@ import com.dtstack.taier.datasource.api.dto.SqlQueryDTO;
 import com.dtstack.taier.datasource.api.dto.source.ISourceDTO;
 import com.dtstack.taier.datasource.api.dto.source.KafkaSourceDTO;
 import com.dtstack.taier.datasource.api.exception.SourceException;
+import com.dtstack.taier.datasource.plugin.kafka.util.KafkaUtil;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;

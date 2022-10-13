@@ -23,7 +23,7 @@
  * @Last Modified time: 2018-09-28 11:43:51
  */
 import * as React from 'react';
-import { Modal } from 'antd';
+import {Modal} from 'antd';
 import CodeEditor from '@/components/editor';
 
 class ViewDetail extends React.Component<any, any> {
@@ -34,8 +34,9 @@ class ViewDetail extends React.Component<any, any> {
 			sync: true,
 		},
 	};
+
 	render() {
-		const { title } = this.props;
+		const {title} = this.props;
 		return (
 			<Modal
 				title={title || '任务详情'}
@@ -46,7 +47,7 @@ class ViewDetail extends React.Component<any, any> {
 				destroyOnClose
 			>
 				<CodeEditor
-					style={{ height: '400px', marginTop: '1px' }}
+					style={{height: '400px', marginTop: '1px'}}
 					value={this.props.resource}
 					language="json"
 					options={{
@@ -60,4 +61,5 @@ class ViewDetail extends React.Component<any, any> {
 		);
 	}
 }
+
 export default ViewDetail;

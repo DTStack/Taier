@@ -5,7 +5,6 @@ import com.dtstack.taier.scheduler.server.Sort;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 
 /**

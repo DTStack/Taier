@@ -17,48 +17,48 @@ import java.util.concurrent.LinkedBlockingQueue;
 
 public interface ApplicationContext {
 
-  ApplicationId getApplicationId();
+    ApplicationId getApplicationId();
 
-  int getWorkerNum();
+    int getWorkerNum();
 
-  int getPsNum();
+    int getPsNum();
 
-  List<Container> getWorkerContainers();
+    List<Container> getWorkerContainers();
 
-  List<Container> getPsContainers();
+    List<Container> getPsContainers();
 
-  ContainerStatus getContainerStatus(ScriptContainerId containerId);
+    ContainerStatus getContainerStatus(ScriptContainerId containerId);
 
-  List<LocalRemotePath> getInputs(ScriptContainerId containerId);
+    List<LocalRemotePath> getInputs(ScriptContainerId containerId);
 
-  List<InputSplit> getStreamInputs(ScriptContainerId containerId);
+    List<InputSplit> getStreamInputs(ScriptContainerId containerId);
 
-  List<LocalRemotePath> getOutputs();
+    List<LocalRemotePath> getOutputs();
 
-  LinkedBlockingQueue<Message> getMessageQueue();
+    LinkedBlockingQueue<Message> getMessageQueue();
 
-  String getTensorBoardUrl();
+    String getTensorBoardUrl();
 
-  Map<ScriptContainerId, String> getReporterProgress();
+    Map<ScriptContainerId, String> getReporterProgress();
 
-  Map<ScriptContainerId, String> getContainersAppStartTime();
+    Map<ScriptContainerId, String> getContainersAppStartTime();
 
-  Map<ScriptContainerId, String> getContainersAppFinishTime();
+    Map<ScriptContainerId, String> getContainersAppFinishTime();
 
-  Map<ScriptContainerId, String> getMapedTaskId();
+    Map<ScriptContainerId, String> getMapedTaskId();
 
-  Map<ScriptContainerId, ConcurrentHashMap<String, LinkedBlockingDeque<Object>>> getContainersCpuMetrics();
+    Map<ScriptContainerId, ConcurrentHashMap<String, LinkedBlockingDeque<Object>>> getContainersCpuMetrics();
 
-  int getSavingModelStatus();
+    int getSavingModelStatus();
 
-  int getSavingModelTotalNum();
+    int getSavingModelTotalNum();
 
-  Boolean getStartSavingStatus();
+    Boolean getStartSavingStatus();
 
-  void startSavingModelStatus(Boolean flag);
+    void startSavingModelStatus(Boolean flag);
 
-  Boolean getLastSavingStatus();
+    Boolean getLastSavingStatus();
 
-  List<Long> getModelSavingList();
+    List<Long> getModelSavingList();
 
 }

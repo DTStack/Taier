@@ -8,12 +8,12 @@ import org.apache.hadoop.ipc.VersionedProtocol;
 
 public interface ApplicationContainerProtocol extends VersionedProtocol {
 
-  long versionID = 1090L;
+    long versionID = 1090L;
 
-  HeartbeatResponse heartbeat(ScriptContainerId containerId, HeartbeatRequest heartbeatRequest);
+    HeartbeatResponse heartbeat(ScriptContainerId containerId, HeartbeatRequest heartbeatRequest);
 
-  LocalRemotePath[] getOutputLocation();
+    LocalRemotePath[] getOutputLocation();
 
-  LocalRemotePath[] getInputSplit(ScriptContainerId containerId);
+    LocalRemotePath[] getInputSplit(ScriptContainerId containerId);
 
 }

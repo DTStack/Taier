@@ -5,7 +5,6 @@ import com.dtstack.taier.base.exception.EnginePluginsBaseException;
 import com.dtstack.taier.base.monitor.AcceptedApplicationMonitor;
 import com.dtstack.taier.base.util.HadoopUtils;
 import com.dtstack.taier.base.util.KerberosUtils;
-import com.dtstack.taier.script.client.Client;
 import com.dtstack.taier.pluginapi.JobClient;
 import com.dtstack.taier.pluginapi.JobIdentifier;
 import com.dtstack.taier.pluginapi.client.AbstractClient;
@@ -15,6 +14,7 @@ import com.dtstack.taier.pluginapi.exception.ExceptionUtil;
 import com.dtstack.taier.pluginapi.pojo.JobResult;
 import com.dtstack.taier.pluginapi.pojo.JudgeResult;
 import com.dtstack.taier.pluginapi.util.PublicUtil;
+import com.dtstack.taier.script.client.Client;
 import com.google.gson.Gson;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hadoop.yarn.api.records.ApplicationReport;
@@ -97,7 +97,7 @@ public class ScriptClient extends AbstractClient {
     public JobResult cancelJob(JobIdentifier jobIdentifier) {
         String jobId = jobIdentifier.getApplicationId();
         try {
-            return KerberosUtils.login(configMap, ()->{
+            return KerberosUtils.login(configMap, () -> {
                 try {
                     client.kill(jobId);
                     return JobResult.createSuccessResult(jobId);
@@ -120,7 +120,7 @@ public class ScriptClient extends AbstractClient {
                     ScriptResourceInfo resourceInfo = ScriptResourceInfo.scriptResourceInfoBuilder()
                             .withYarnClient(client.getYarnClient())
                             .withQueueName(dtconf.get(ScriptConfiguration.APP_QUEUE))
-                            .withYarnAccepterTaskNumber(dtconf.getInt(ScriptConfiguration.APP_YARN_ACCEPTER_TASK_NUMBER,1))
+                            .withYarnAccepterTaskNumber(dtconf.getInt(ScriptConfiguration.APP_YARN_ACCEPTER_TASK_NUMBER, 1))
                             .withScriptConf(ScriptUtil.buildScriptConf(jobClient, dtconf))
                             .build();
                     return resourceInfo.judgeSlots(jobClient);
@@ -138,7 +138,7 @@ public class ScriptClient extends AbstractClient {
     @Override
     public TaskStatus getJobStatus(JobIdentifier jobIdentifier) throws IOException {
         String jobId = jobIdentifier.getApplicationId();
-        if(StringUtils.isEmpty(jobId)){
+        if (StringUtils.isEmpty(jobId)) {
             return null;
         }
         try {
@@ -146,7 +146,7 @@ public class ScriptClient extends AbstractClient {
                 try {
                     ApplicationReport report = client.getApplicationReport(jobId);
                     YarnApplicationState applicationState = report.getYarnApplicationState();
-                    switch(applicationState) {
+                    switch (applicationState) {
                         case KILLED:
                             return TaskStatus.KILLED;
                         case NEW:
@@ -162,13 +162,13 @@ public class ScriptClient extends AbstractClient {
                         case FINISHED:
                             //state 为finished状态下需要兼顾判断finalStatus.
                             FinalApplicationStatus finalApplicationStatus = report.getFinalApplicationStatus();
-                            if(finalApplicationStatus == FinalApplicationStatus.FAILED){
+                            if (finalApplicationStatus == FinalApplicationStatus.FAILED) {
                                 return TaskStatus.FAILED;
-                            }else if(finalApplicationStatus == FinalApplicationStatus.SUCCEEDED){
+                            } else if (finalApplicationStatus == FinalApplicationStatus.SUCCEEDED) {
                                 return TaskStatus.FINISHED;
-                            }else if(finalApplicationStatus == FinalApplicationStatus.KILLED){
+                            } else if (finalApplicationStatus == FinalApplicationStatus.KILLED) {
                                 return TaskStatus.KILLED;
-                            }else{
+                            } else {
                                 return TaskStatus.RUNNING;
                             }
 
@@ -181,7 +181,7 @@ public class ScriptClient extends AbstractClient {
                     LOG.error("getJobStatus error, return NOTFOUND", e);
                     return TaskStatus.NOTFOUND;
                 }
-            },yarnconf);
+            }, yarnconf);
         } catch (Exception e) {
             LOG.error("getJobStatus error, return RUNNING", e);
             return TaskStatus.RUNNING;
@@ -191,7 +191,7 @@ public class ScriptClient extends AbstractClient {
     @Override
     public String getJobLog(JobIdentifier jobIdentifier) {
         try {
-            return KerberosUtils.login(configMap, ()-> {
+            return KerberosUtils.login(configMap, () -> {
                 String engineJobId = jobIdentifier.getApplicationId();
                 Map<String, Object> jobLog = new HashMap<>(4);
                 try {
@@ -205,7 +205,7 @@ public class ScriptClient extends AbstractClient {
             }, yarnconf);
         } catch (Exception e) {
             LOG.error("getJobLog error", e);
-            Map<String,Object> jobLog = new HashMap<>();
+            Map<String, Object> jobLog = new HashMap<>();
             jobLog.put("msg_info", e.getMessage());
             return GSON.toJson(jobLog, Map.class);
         }
@@ -215,7 +215,7 @@ public class ScriptClient extends AbstractClient {
     public String getJobMaster(JobIdentifier jobIdentifier) {
         YarnClient yarnClient = client.getYarnClient();
         String url = "";
-        try{
+        try {
             //调用一次远程,防止rm切换本地没有及时切换
             yarnClient.getNodeReports();
             Field rmClientField = yarnClient.getClass().getDeclaredField("rmClient");
@@ -238,12 +238,12 @@ public class ScriptClient extends AbstractClient {
             String key = YARN_RM_WEB_KEY_PREFIX + proxyInfoKey;
             String addr = yarnconf.get(key);
 
-            if(addr == null) {
+            if (addr == null) {
                 addr = yarnconf.get("yarn.resourcemanager.webapp.address");
             }
 
             url = String.format(APP_URL_FORMAT, addr);
-        }catch (Exception e){
+        } catch (Exception e) {
             LOG.error("Getting URL failed" + e);
         }
         LOG.info("get req url=" + url);

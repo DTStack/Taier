@@ -14,7 +14,7 @@ import java.util.Map;
  * @Date:2020-09-03 17:24
  * @Description:
  */
-public class DAGBackPressureMetrics extends DagMetric{
+public class DAGBackPressureMetrics extends DagMetric {
     public static final String METRIC_QUERY = "%s-%s-%s";
     public static final String METRIC_QUERY_LATENCY = "%s-%s-%s-%s-%s";
     private String taskId;
@@ -22,16 +22,17 @@ public class DAGBackPressureMetrics extends DagMetric{
     private Integer subtaskIndex;
 
     private static String METRIC_NAME = "flink_taskmanager_job_task_isBackPressured";
+
     @Override
     public Object formatData(String result) {
-        Map<String,Object> metricMap = new HashMap<>();
+        Map<String, Object> metricMap = new HashMap<>();
         if (result == null) {
             return metricMap;
         }
-        PromtheusMetrics promtheusMetrics = JSONObject.parseObject(result,PromtheusMetrics.class);
-        for(MetricResult metricResult:promtheusMetrics.getData().getResult()){
+        PromtheusMetrics promtheusMetrics = JSONObject.parseObject(result, PromtheusMetrics.class);
+        for (MetricResult metricResult : promtheusMetrics.getData().getResult()) {
             MetricPO metricPO = metricResult.getMetric();
-            metricMap.putIfAbsent(String.format(METRIC_QUERY,this.getMetricName(),metricPO.getTaskId(),metricPO.getSubtaskIndex()),metricResult.getValue().get(1));
+            metricMap.putIfAbsent(String.format(METRIC_QUERY, this.getMetricName(), metricPO.getTaskId(), metricPO.getSubtaskIndex()), metricResult.getValue().get(1));
         }
         return metricMap;
     }

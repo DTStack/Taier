@@ -11,14 +11,15 @@ import java.util.List;
  */
 public interface DsTypeMapper {
 
-    List<DsType>  dsTypeList();
+    List<DsType> dsTypeList();
 
 
-    List<DsType> queryDsTypeByClassify(@Param("classifyId") Long classifyId,@Param("search") String search);
+    List<DsType> queryDsTypeByClassify(@Param("classifyId") Long classifyId, @Param("search") String search);
 
     /**
      * 添加数据源类型的权重值
      * 目前固定增加1
+     *
      * @param dataType
      * @param plusWeight
      * @return

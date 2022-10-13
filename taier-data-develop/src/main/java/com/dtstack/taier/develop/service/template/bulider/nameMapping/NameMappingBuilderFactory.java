@@ -29,7 +29,7 @@ public class NameMappingBuilderFactory {
         if (CollectionUtils.isEmpty(nameMappingBuilderList)) {
             throw new RuntimeException("no daReaderBuilderList in spring context!!");
         }
-        new Thread(()-> {
+        new Thread(() -> {
             for (NameMappingBuilder nameMappingBuilder : nameMappingBuilderList) {
                 daReaderBuilderMap.put(nameMappingBuilder.getDataSourceType(), nameMappingBuilder);
 
@@ -37,7 +37,6 @@ public class NameMappingBuilderFactory {
             logger.info("init DaReaderBuilderFactory success...");
         }, "DaReaderBuilderFactoryInitThread").start();
     }
-
 
 
     public NameMappingBuilder getDaReaderBuilder(DataSourceType dataSourceType) {

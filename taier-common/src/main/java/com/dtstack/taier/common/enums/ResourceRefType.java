@@ -12,7 +12,7 @@ public enum ResourceRefType {
 
     private int type;
 
-    ResourceRefType(int type){
+    ResourceRefType(int type) {
         this.type = type;
     }
 

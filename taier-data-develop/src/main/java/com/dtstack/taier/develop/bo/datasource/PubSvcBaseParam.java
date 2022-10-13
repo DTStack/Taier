@@ -5,6 +5,7 @@ import io.swagger.annotations.ApiModelProperty;
 
 /**
  * 基础服务入参基类
+ *
  * @description:
  * @author: liuxx
  * @date: 2021/3/18

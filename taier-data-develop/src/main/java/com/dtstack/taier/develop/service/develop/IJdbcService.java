@@ -16,10 +16,11 @@ public interface IJdbcService {
      * @param taskParam
      * @return
      */
-    List<List<Object>> executeQuery(ISourceDTO sourceDTO,List<String> sqls, String taskParam,Integer limit);
+    List<List<Object>> executeQuery(ISourceDTO sourceDTO, List<String> sqls, String taskParam, Integer limit);
 
     /**
-     *  执行sql 忽略查询结果
+     * 执行sql 忽略查询结果
+     *
      * @return
      */
     Boolean executeQueryWithoutResult(ISourceDTO sourceDTO, String sql);

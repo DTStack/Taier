@@ -1,6 +1,5 @@
 package com.dtstack.taier.common.metric.prometheus.func;
 
-import com.dtstack.taier.common.metric.IFunction;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.UnsupportedEncodingException;

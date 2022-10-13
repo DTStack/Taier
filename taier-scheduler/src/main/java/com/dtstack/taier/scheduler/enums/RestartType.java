@@ -37,12 +37,12 @@ public enum RestartType {
         this.type = type;
     }
 
-    public static RestartType getByCode(Integer type){
+    public static RestartType getByCode(Integer type) {
         if (type == null) {
             return null;
         }
-        for (RestartType et:values()){
-            if (et.getType().equals(type)){
+        for (RestartType et : values()) {
+            if (et.getType().equals(type)) {
                 return et;
             }
         }

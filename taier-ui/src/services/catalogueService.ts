@@ -1,12 +1,12 @@
 import api from '@/api';
-import { CATALOGUE_TYPE, MENU_TYPE_ENUM } from '@/constant';
-import type { CatalogueDataProps } from '@/interface';
-import { getTenantId, getUserId } from '@/utils';
-import { fileIcon } from '@/utils/extensions';
+import {CATALOGUE_TYPE, MENU_TYPE_ENUM} from '@/constant';
+import type {CatalogueDataProps} from '@/interface';
+import {getTenantId, getUserId} from '@/utils';
+import {fileIcon} from '@/utils/extensions';
 import molecule from '@dtinsight/molecule';
-import { GlobalEvent } from '@dtinsight/molecule/esm/common/event';
-import { FileTypes, TreeNodeModel } from '@dtinsight/molecule/esm/model';
-import { singleton } from 'tsyringe';
+import {GlobalEvent} from '@dtinsight/molecule/esm/common/event';
+import {FileTypes, TreeNodeModel} from '@dtinsight/molecule/esm/model';
+import {singleton} from 'tsyringe';
 import functionManagerService from './functionManagerService';
 import resourceManagerService from './resourceManagerService';
 
@@ -106,7 +106,7 @@ export default class CatalogueService extends GlobalEvent implements ICatalogueS
 			}
 
 			case CATALOGUE_TYPE.FUNCTION: {
-				const { type, name } = catalogue;
+				const {type, name} = catalogue;
 				const fileType = folderType.includes(type) ? FileTypes.Folder : FileTypes.File;
 
 				// Because of the same id in different levels, so we should set another uniq id for each tree node
@@ -203,11 +203,11 @@ export default class CatalogueService extends GlobalEvent implements ICatalogueS
 	};
 
 	public loadRootFolder = () => {
-		this.getCatalogueViaNode({ id: 0 }).then((res) => {
+		this.getCatalogueViaNode({id: 0}).then((res) => {
 			if (!res || !res.children) {
 				return;
 			}
-			const { children } = res;
+			const {children} = res;
 
 			const taskData = this.getRootFolderViaSource(children, CATALOGUE_TYPE.TASK);
 			const resourceData = this.getRootFolderViaSource(children, CATALOGUE_TYPE.RESOURCE);

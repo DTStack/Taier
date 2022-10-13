@@ -8,7 +8,7 @@ import java.util.List;
  * @author leon
  * @date 2022-10-11 19:57
  **/
-public class ClickHouseReaderParam  {
+public class ClickHouseReaderParam {
 
     private Integer sourceId;
 

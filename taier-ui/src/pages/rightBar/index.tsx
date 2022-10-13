@@ -17,10 +17,10 @@
  */
 
 import classNames from 'classnames';
-import { connect } from '@dtinsight/molecule/esm/react';
+import {connect} from '@dtinsight/molecule/esm/react';
 import molecule from '@dtinsight/molecule';
-import { taskRenderService, rightBarService } from '@/services';
-import type { IRightbarState } from '@/services/rightBarService';
+import {rightBarService, taskRenderService} from '@/services';
+import type {IRightbarState} from '@/services/rightBarService';
 import './index.scss';
 
 interface IProps {
@@ -29,10 +29,10 @@ interface IProps {
 }
 
 export default connect(
-	{ editor: molecule.editor, rightBar: rightBarService },
-	({ editor, rightBar }: IProps) => {
-		const { current: propsCurrent } = editor;
-		const { width, current } = rightBar;
+	{editor: molecule.editor, rightBar: rightBarService},
+	({editor, rightBar}: IProps) => {
+		const {current: propsCurrent} = editor;
+		const {width, current} = rightBar;
 
 		const handleClickTab = (key: string) => {
 			const nextCurrent = current === key ? null : key;
@@ -40,7 +40,7 @@ export default connect(
 		};
 
 		return (
-			<div className="dt-right-bar" style={{ width }}>
+			<div className="dt-right-bar" style={{width}}>
 				<div className="dt-right-bar-content" key={propsCurrent?.activeTab}>
 					{current && rightBarService.createContent(current)}
 				</div>

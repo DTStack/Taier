@@ -2,14 +2,14 @@ package com.dtstack.taier.datasource.plugin.hdfs.hdfswriter;
 
 
 import com.csvreader.CsvReader;
-import com.dtstack.taier.datasource.plugin.common.utils.ReflectUtil;
-import com.dtstack.taier.datasource.plugin.kerberos.core.hdfs.HadoopConfUtil;
 import com.dtstack.taier.datasource.api.dto.ColumnMetaDTO;
 import com.dtstack.taier.datasource.api.dto.HDFSImportColumn;
 import com.dtstack.taier.datasource.api.dto.HdfsWriterDTO;
 import com.dtstack.taier.datasource.api.dto.source.HdfsSourceDTO;
 import com.dtstack.taier.datasource.api.dto.source.ISourceDTO;
 import com.dtstack.taier.datasource.api.exception.SourceException;
+import com.dtstack.taier.datasource.plugin.common.utils.ReflectUtil;
+import com.dtstack.taier.datasource.plugin.kerberos.core.hdfs.HadoopConfUtil;
 import com.google.common.collect.Lists;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;

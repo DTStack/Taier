@@ -93,7 +93,7 @@ public class ComponentService {
                     ComponentVersionUtil.formatMultiVersion(componentCode, componentVersion));
         }
         Map sftpMap = getComponentByClusterId(clusterId, EComponentType.SFTP.getTypeCode(), false, Map.class, null);
-        pluginInfo = wrapperConfig(componentCode, componentConfig.toJSONString(), sftpMap, kerberosConfig,clusterId);
+        pluginInfo = wrapperConfig(componentCode, componentConfig.toJSONString(), sftpMap, kerberosConfig, clusterId);
         return pluginInfo;
     }
 
@@ -105,7 +105,7 @@ public class ComponentService {
      * @param componentConfig
      * @return
      */
-    public JSONObject wrapperConfig(int componentType, String componentConfig, Map<String, String> sftpConfig, KerberosConfig kerberosConfig,Long clusterId) {
+    public JSONObject wrapperConfig(int componentType, String componentConfig, Map<String, String> sftpConfig, KerberosConfig kerberosConfig, Long clusterId) {
         EComponentType eComponentType = EComponentType.getByCode(componentType);
         JSONObject dataInfo = new JSONObject();
         if (EComponentType.YARN.equals(eComponentType) || EComponentType.HDFS.equals(eComponentType)) {

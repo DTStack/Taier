@@ -1,4 +1,4 @@
-const { editor, ...rest } = require('./monaco-editor');
+const {editor, ...rest} = require('./monaco-editor');
 
 module.exports = {
 	Component: class {
@@ -6,7 +6,8 @@ module.exports = {
 		getState = () => this.state;
 		setState = (state) => (this.state = state);
 	},
-	FolderTreeService: class FolderTreeService {},
+	FolderTreeService: class FolderTreeService {
+	},
 	GlobalEvent: class {
 		emit = jest.fn();
 		subscribe = jest.fn();

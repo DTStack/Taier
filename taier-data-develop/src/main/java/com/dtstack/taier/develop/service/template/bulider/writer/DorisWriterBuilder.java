@@ -97,7 +97,8 @@ public class DorisWriterBuilder implements DaWriterBuilder {
     }
 
     @Override
-    public void setWriterJson(TaskResourceParam param) {}
+    public void setWriterJson(TaskResourceParam param) {
+    }
 
     private DsInfo getDsInfo(Long sourceId) {
         return dataSourceCenterService.getOneById(sourceId);

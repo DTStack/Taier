@@ -2,10 +2,10 @@ package com.dtstack.taier.datasource.plugin.odps.pool;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
-import com.dtstack.taier.datasource.api.pool.PoolConfig;
-import com.dtstack.taier.datasource.plugin.odps.common.OdpsFields;
 import com.dtstack.taier.datasource.api.dto.source.ISourceDTO;
 import com.dtstack.taier.datasource.api.dto.source.OdpsSourceDTO;
+import com.dtstack.taier.datasource.api.pool.PoolConfig;
+import com.dtstack.taier.datasource.plugin.odps.common.OdpsFields;
 import com.google.common.collect.Maps;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -55,6 +55,7 @@ public class OdpsManager {
 
     /**
      * 初始化odps pool
+     *
      * @param source
      * @return odps pool
      */
@@ -87,10 +88,11 @@ public class OdpsManager {
 
     /**
      * 获取odps唯一key
+     *
      * @param sourceDTO
      * @return
      */
-    private String getPrimaryKey (ISourceDTO sourceDTO) {
+    private String getPrimaryKey(ISourceDTO sourceDTO) {
         OdpsSourceDTO odpsSourceDTO = (OdpsSourceDTO) sourceDTO;
         JSONObject odpsConfig = JSON.parseObject(odpsSourceDTO.getConfig());
         return String.format(ODPS_KEY,

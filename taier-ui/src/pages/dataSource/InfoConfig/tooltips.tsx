@@ -31,7 +31,7 @@ export default () => (
 			<li>所有参数以JSON格式填写；</li>
 			<li>
 				格式为：
-				<br />
+				<br/>
 				"dfs.nameservices": "nameservice名称",
 				"dfs.ha.namenodes.nameservice名称": "namenode名称，以逗号分隔",
 				"dfs.namenode.rpc-address.nameservice名称.namenode名称": "",

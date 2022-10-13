@@ -22,16 +22,17 @@ package com.dtstack.taier.common.enums;
  * Reason:
  * Date: 2017/5/5
  * Company: www.dtstack.com
+ *
  * @author xuchao
  */
 public enum EScheduleStatus {
 
     // 调度状态：0 正常 1冻结 2停止
-    NORMAL(0),FREEZE(1), STOP(2);
+    NORMAL(0), FREEZE(1), STOP(2);
 
     private Integer val;
 
-    EScheduleStatus(Integer val){
+    EScheduleStatus(Integer val) {
         this.val = val;
     }
 
@@ -39,9 +40,9 @@ public enum EScheduleStatus {
         return val;
     }
 
-    public static EScheduleStatus getStatus(Integer val){
-        for(EScheduleStatus status : EScheduleStatus.values()){
-            if(status.getVal().equals(val)){
+    public static EScheduleStatus getStatus(Integer val) {
+        for (EScheduleStatus status : EScheduleStatus.values()) {
+            if (status.getVal().equals(val)) {
                 return status;
             }
         }

@@ -26,26 +26,24 @@ import java.util.Objects;
 public class ComponentVersionUtil {
 
 
-
-    public static String getComponentVersion(Map<Integer,String > componentVersionMap, EComponentType componentType){
-        return Objects.isNull(componentVersionMap)?null:componentVersionMap.get(componentType.getTypeCode());
+    public static String getComponentVersion(Map<Integer, String> componentVersionMap, EComponentType componentType) {
+        return Objects.isNull(componentVersionMap) ? null : componentVersionMap.get(componentType.getTypeCode());
     }
 
-    public static String getComponentVersion(Map<Integer,String > componentVersionMap, Integer componentTypeCode){
-        return Objects.isNull(componentVersionMap)?null:componentVersionMap.get(componentTypeCode);
+    public static String getComponentVersion(Map<Integer, String> componentVersionMap, Integer componentTypeCode) {
+        return Objects.isNull(componentVersionMap) ? null : componentVersionMap.get(componentTypeCode);
     }
 
-    public static boolean isMultiVersionComponent(Integer componentTypeCode){
-        if (EComponentType.FLINK.getTypeCode().equals(componentTypeCode) || EComponentType.SPARK.getTypeCode().equals(componentTypeCode)){
+    public static boolean isMultiVersionComponent(Integer componentTypeCode) {
+        if (EComponentType.FLINK.getTypeCode().equals(componentTypeCode) || EComponentType.SPARK.getTypeCode().equals(componentTypeCode)) {
             return true;
         }
         return false;
     }
 
 
-
-    public static String formatMultiVersion(Integer componentCode,String componentVersion){
-        return isMultiVersionComponent(componentCode)? componentVersion : null;
+    public static String formatMultiVersion(Integer componentCode, String componentVersion) {
+        return isMultiVersionComponent(componentCode) ? componentVersion : null;
     }
 
 

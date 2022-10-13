@@ -31,11 +31,11 @@ public enum ESubmitStatus {
 
     int status;
 
-    ESubmitStatus(int status){
+    ESubmitStatus(int status) {
         this.status = status;
     }
 
-    public int getStatus(){
+    public int getStatus() {
         return this.status;
     }
 

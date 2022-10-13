@@ -17,7 +17,7 @@
  */
 
 import zhCN from 'antd/lib/locale/zh_CN';
-import { ConfigProvider, message } from 'antd';
+import {ConfigProvider, message} from 'antd';
 
 message.config({
 	top: 20,

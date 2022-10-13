@@ -11,7 +11,7 @@ public interface DsClassifyTransfer {
 
     DsClassifyTransfer INSTANCE = Mappers.getMapper(DsClassifyTransfer.class);
 
-    @Mapping(source = "id",target = "classifyId")
+    @Mapping(source = "id", target = "classifyId")
     DsClassifyVO toInfoVO(DsClassify dsClassify);
 
 

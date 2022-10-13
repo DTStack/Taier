@@ -33,7 +33,7 @@ export default class Resize extends React.Component<IResizeProps> {
 	}
 
 	resize = () => {
-		const { onResize } = this.props;
+		const {onResize} = this.props;
 		if (onResize) onResize();
 	};
 

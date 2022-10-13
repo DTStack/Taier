@@ -1,12 +1,12 @@
 package com.dtstack.taier.datasource.plugin.spark;
 
-import com.dtstack.taier.datasource.plugin.common.utils.PropertiesUtil;
-import com.dtstack.taier.datasource.plugin.kerberos.core.util.KerberosLoginUtil;
-import com.dtstack.taier.datasource.plugin.rdbms.ConnFactory;
 import com.dtstack.taier.datasource.api.dto.source.ISourceDTO;
 import com.dtstack.taier.datasource.api.dto.source.SparkSourceDTO;
 import com.dtstack.taier.datasource.api.exception.SourceException;
 import com.dtstack.taier.datasource.api.source.DataBaseType;
+import com.dtstack.taier.datasource.plugin.common.utils.PropertiesUtil;
+import com.dtstack.taier.datasource.plugin.kerberos.core.util.KerberosLoginUtil;
+import com.dtstack.taier.datasource.plugin.rdbms.ConnFactory;
 import lombok.extern.slf4j.Slf4j;
 
 import java.security.PrivilegedAction;

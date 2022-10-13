@@ -26,9 +26,8 @@ public class LeaderNode {
     }
 
     /**
-     *
      * @param lockName lockName
-     * @param time timeout
+     * @param time     timeout
      * @param timeUnit the unit of timeout
      * @return true for success, otherwise false
      * @throws LockServiceException Lock service error
@@ -42,7 +41,6 @@ public class LeaderNode {
     }
 
     /**
-     *
      * @param lockName lockName
      */
     public void release(String lockName) {
@@ -54,7 +52,6 @@ public class LeaderNode {
     }
 
     /**
-     *
      * @param lockName lockName
      * @param runnable run when locked
      * @throws LockServiceException Lock service error

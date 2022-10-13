@@ -20,7 +20,7 @@ public class LiteralIdentifier extends Identifier {
     private String name;
 
     public LiteralIdentifier(String defaultDb, Map<String, List<Column>> tableColumnsMap) {
-        super(defaultDb,tableColumnsMap);
+        super(defaultDb, tableColumnsMap);
     }
 
     public String getName() {
@@ -39,7 +39,7 @@ public class LiteralIdentifier extends Identifier {
     }
 
     private SqlLiteral sqlLiteralCheckNode(SqlNode node) {
-        if (!(node instanceof SqlLiteral)){
+        if (!(node instanceof SqlLiteral)) {
             throw new IllegalArgumentException("sqlNode类型不匹配");
         }
         return (SqlLiteral) node;

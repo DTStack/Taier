@@ -31,7 +31,7 @@ public enum Restarted {
 
     private int status;
 
-    Restarted(int status){
+    Restarted(int status) {
         this.status = status;
     }
 

@@ -16,35 +16,29 @@
  * limitations under the License.
  */
 
-import React, { useState } from 'react';
-import type { IMenuItemProps, ITreeNodeItemProps } from '@dtinsight/molecule/esm/components';
-import { catalogueService } from '@/services';
-import { debounce } from 'lodash';
-import { ActionBar } from '@dtinsight/molecule/esm/components';
-import { Content, Header } from '@dtinsight/molecule/esm/workbench/sidebar';
-import { connect } from '@dtinsight/molecule/esm/react';
+import React, {useState} from 'react';
+import type {IMenuItemProps, ITreeNodeItemProps} from '@dtinsight/molecule/esm/components';
+import {ActionBar} from '@dtinsight/molecule/esm/components';
+import {catalogueService} from '@/services';
+import {debounce} from 'lodash';
+import {Content, Header} from '@dtinsight/molecule/esm/workbench/sidebar';
+import {connect} from '@dtinsight/molecule/esm/react';
 import functionManagerService from '../../services/functionManagerService';
-import type { IFolderTree } from '@dtinsight/molecule/esm/model';
-import { FileTypes } from '@dtinsight/molecule/esm/model';
-import { FolderTree } from '@dtinsight/molecule/esm/workbench/sidebar/explore';
-import { message, Modal } from 'antd';
+import type {IFolderTree} from '@dtinsight/molecule/esm/model';
+import {FileTypes} from '@dtinsight/molecule/esm/model';
+import {FolderTree} from '@dtinsight/molecule/esm/workbench/sidebar/explore';
+import {message, Modal} from 'antd';
 import ajax from '../../api';
 import FnModal from './fnModal';
 import FolderModal from './folderModal';
-import {
-	CATALOGUE_TYPE,
-	FUNCTOIN_ACTIONS,
-	ID_COLLECTIONS,
-	MENU_TYPE_ENUM,
-	TASK_TYPE_ENUM,
-} from '@/constant';
-import { TreeViewUtil } from '@dtinsight/molecule/esm/common/treeUtil';
-import type { UniqueId } from '@dtinsight/molecule/esm/common/types';
-import { DetailInfoModal } from '@/components/detailInfo';
-import type { IFunctionProps } from '@/interface';
+import {CATALOGUE_TYPE, FUNCTOIN_ACTIONS, ID_COLLECTIONS, MENU_TYPE_ENUM, TASK_TYPE_ENUM,} from '@/constant';
+import {TreeViewUtil} from '@dtinsight/molecule/esm/common/treeUtil';
+import type {UniqueId} from '@dtinsight/molecule/esm/common/types';
+import {DetailInfoModal} from '@/components/detailInfo';
+import type {IFunctionProps} from '@/interface';
 import './index.scss';
 
-const { confirm } = Modal;
+const {confirm} = Modal;
 const FolderTreeView = connect(functionManagerService, FolderTree);
 
 interface IFunctionViewProps {
@@ -78,7 +72,7 @@ function getBaseType(id: UniqueId): typeof TYPE_ITERATOR[number] | null {
 	return null;
 }
 
-const FunctionManagerView = ({ headerToolBar, panel, entry }: IFunctionViewProps & IFolderTree) => {
+const FunctionManagerView = ({headerToolBar, panel, entry}: IFunctionViewProps & IFolderTree) => {
 	const [viewVisible, setViewVisible] = useState(false);
 	const [isModalShow, setModalShow] = useState(false);
 	const [folderVisible, setFolderVisible] = useState(false);
@@ -137,7 +131,7 @@ const FunctionManagerView = ({ headerToolBar, panel, entry }: IFunctionViewProps
 			}
 			case ID_COLLECTIONS.FUNCTION_CREATE_FOLDER: {
 				setFolderVisible(true);
-				setEditData({ parentId: treeNode!.data.id });
+				setEditData({parentId: treeNode!.data.id});
 				break;
 			}
 			case ID_COLLECTIONS.FUNCTION_EDIT: {
@@ -168,11 +162,11 @@ const FunctionManagerView = ({ headerToolBar, panel, entry }: IFunctionViewProps
 					onOk() {
 						const fun = isFolder
 							? ajax.delOfflineFolder({
-									id: treeNode!.data.id,
-							  })
+								id: treeNode!.data.id,
+							})
 							: ajax.delOfflineFn({
-									functionId: treeNode!.data.id,
-							  });
+								functionId: treeNode!.data.id,
+							});
 						fun.then((res) => {
 							if (res.code) {
 								message.success('删除成功!');
@@ -185,7 +179,8 @@ const FunctionManagerView = ({ headerToolBar, panel, entry }: IFunctionViewProps
 							}
 						});
 					},
-					onCancel() {},
+					onCancel() {
+					},
 				});
 				break;
 			}
@@ -210,7 +205,7 @@ const FunctionManagerView = ({ headerToolBar, panel, entry }: IFunctionViewProps
 	};
 
 	const debounceRefreshNode = debounce(() => {
-		const { folderTree } = functionManagerService.getState();
+		const {folderTree} = functionManagerService.getState();
 		if (folderTree?.current) {
 			if (folderTree?.current.fileType === FileTypes.File) {
 				const parentNode = functionManagerService.get(
@@ -286,7 +281,7 @@ const FunctionManagerView = ({ headerToolBar, panel, entry }: IFunctionViewProps
 	};
 
 	const handleAddFunction = (params: any) => {
-		return ajax.addOfflineFunction({ ...params }).then((res) => {
+		return ajax.addOfflineFunction({...params}).then((res) => {
 			if (res.code === 1) {
 				const parentNode = functionManagerService.get(`${params.nodePid}-folder`);
 				if (parentNode) {
@@ -301,7 +296,7 @@ const FunctionManagerView = ({ headerToolBar, panel, entry }: IFunctionViewProps
 
 	const handleEditCatalogue = (params: any) => {
 		return ajax
-			.editOfflineCatalogue({ ...params, type: 'folder' }) // 文件夹编辑，新增参数固定为folder
+			.editOfflineCatalogue({...params, type: 'folder'}) // 文件夹编辑，新增参数固定为folder
 			.then((res) => {
 				if (res.code === 1) {
 					const currentNode = functionManagerService.get(`${params.id}-${params.type}`);

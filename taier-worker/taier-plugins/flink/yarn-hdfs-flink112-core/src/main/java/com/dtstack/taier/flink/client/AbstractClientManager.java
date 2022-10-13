@@ -85,7 +85,7 @@ public class AbstractClientManager implements IClientManager {
      * SecurityUtils.login 的地方才可以直接调用此方法，否则使用 buildYarnClient
      */
     @Override
-    public YarnClient getYarnClient(){
+    public YarnClient getYarnClient() {
         long startTime = System.currentTimeMillis();
         try {
             if (yarnClient == null) {
@@ -115,7 +115,7 @@ public class AbstractClientManager implements IClientManager {
             yarnClient = tempYarnClient;
         } finally {
             if (LOG.isDebugEnabled()) {
-                long endTime= System.currentTimeMillis();
+                long endTime = System.currentTimeMillis();
                 LOG.debug("cost getYarnClient start-time:{} end-time:{}, cost:{}.", startTime, endTime, endTime - startTime);
             }
         }
@@ -171,9 +171,9 @@ public class AbstractClientManager implements IClientManager {
         List<URL> classPaths = new ArrayList<>();
         if (flinkJarPath != null) {
             File flinkDir = new File(flinkJarPath);
-            if(flinkDir.exists() && flinkDir.isDirectory()){
+            if (flinkDir.exists() && flinkDir.isDirectory()) {
                 File[] jars = flinkDir.listFiles();
-                if(null == jars){
+                if (null == jars) {
                     throw new PluginDefineException("could not find any jar file from lib dir");
                 }
                 for (File file : jars) {
@@ -208,13 +208,13 @@ public class AbstractClientManager implements IClientManager {
      * 插件包及Lib包提前上传至HDFS，设置远程HDFS路径参数
      * {@link com.dtstack.taier.flink.config.FlinkConfig}
      */
-    public Configuration setHdfsFlinkJarPath(FlinkConfig flinkConfig, Configuration flinkConfiguration){
+    public Configuration setHdfsFlinkJarPath(FlinkConfig flinkConfig, Configuration flinkConfiguration) {
         //检查HDFS上是否已经上传插件包及Lib包
         String remoteFlinkLibDir = flinkConfig.getRemoteFlinkLibDir();
         //remotePluginRootDir默认不为空
         String remoteChunjunDistDir = flinkConfig.getRemoteChunjunDistDir();
         //不考虑二者只有其一上传到了hdfs上的情况
-        if(StringUtils.startsWith(remoteFlinkLibDir, ConfigConstant.PREFIX_HDFS) && StringUtils.startsWith(remoteChunjunDistDir, ConfigConstant.PREFIX_HDFS)){
+        if (StringUtils.startsWith(remoteFlinkLibDir, ConfigConstant.PREFIX_HDFS) && StringUtils.startsWith(remoteChunjunDistDir, ConfigConstant.PREFIX_HDFS)) {
             flinkConfiguration.setString(ConfigConstant.REMOTE_FLINK_LIB_DIR, remoteFlinkLibDir);
             flinkConfiguration.setString(ConfigConstant.REMOTE_CHUNJUN_DIST_DIR, remoteChunjunDistDir);
             flinkConfiguration.setString(ConfigConstant.FLINK_LIB_DIR, flinkConfig.getFlinkLibDir());

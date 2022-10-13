@@ -16,8 +16,8 @@
  * limitations under the License.
  */
 
-import { Tooltip } from 'antd';
-import { QuestionCircleOutlined } from '@ant-design/icons';
+import {Tooltip} from 'antd';
+import {QuestionCircleOutlined} from '@ant-design/icons';
 import * as Doc from './docs';
 
 export const relativeStyle: any = {
@@ -35,10 +35,10 @@ interface IHelpDocProps {
 	param?: any;
 }
 
-export default function HelpDoc({ doc, style, param }: IHelpDocProps) {
+export default function HelpDoc({doc, style, param}: IHelpDocProps) {
 	return doc ? (
 		<Tooltip title={param ? (Doc as any)[doc](param) : (Doc as any)[doc]}>
-			<QuestionCircleOutlined className="help-doc" style={style} />
+			<QuestionCircleOutlined className="help-doc" style={style}/>
 		</Tooltip>
 	) : null;
 }

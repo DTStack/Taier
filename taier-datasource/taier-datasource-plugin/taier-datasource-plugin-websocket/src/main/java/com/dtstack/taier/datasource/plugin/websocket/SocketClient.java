@@ -1,12 +1,12 @@
 package com.dtstack.taier.datasource.plugin.websocket;
 
+import com.dtstack.taier.datasource.api.dto.source.ISourceDTO;
+import com.dtstack.taier.datasource.api.dto.source.WebSocketSourceDTO;
+import com.dtstack.taier.datasource.api.exception.SourceException;
 import com.dtstack.taier.datasource.plugin.common.exception.IErrorPattern;
 import com.dtstack.taier.datasource.plugin.common.nosql.AbsNoSqlClient;
 import com.dtstack.taier.datasource.plugin.common.service.ErrorAdapterImpl;
 import com.dtstack.taier.datasource.plugin.common.service.IErrorAdapter;
-import com.dtstack.taier.datasource.api.dto.source.ISourceDTO;
-import com.dtstack.taier.datasource.api.dto.source.WebSocketSourceDTO;
-import com.dtstack.taier.datasource.api.exception.SourceException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;

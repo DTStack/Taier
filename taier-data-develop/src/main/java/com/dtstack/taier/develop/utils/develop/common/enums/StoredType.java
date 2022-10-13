@@ -58,12 +58,12 @@ public enum StoredType {
     /**
      * KUDU
      */
-    KUDU("kudu", "KUDU","KuduInputFormat","KuduOutputFormat"),
+    KUDU("kudu", "KUDU", "KuduInputFormat", "KuduOutputFormat"),
 
     /**
      * 未知存储类型
      */
-    UN_KNOW_TYPE("unknown stored type","unknown stored type","unknown stored type","unknown stored type"),
+    UN_KNOW_TYPE("unknown stored type", "unknown stored type", "unknown stored type", "unknown stored type"),
     ;
 
     private String value;

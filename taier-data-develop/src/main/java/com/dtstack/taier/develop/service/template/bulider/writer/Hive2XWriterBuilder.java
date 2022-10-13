@@ -2,16 +2,16 @@ package com.dtstack.taier.develop.service.template.bulider.writer;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.dtstack.taier.common.enums.EScheduleJobType;
+import com.dtstack.taier.common.exception.ErrorCode;
+import com.dtstack.taier.common.exception.RdosDefineException;
+import com.dtstack.taier.dao.domain.DsInfo;
 import com.dtstack.taier.datasource.api.base.ClientCache;
 import com.dtstack.taier.datasource.api.client.IClient;
 import com.dtstack.taier.datasource.api.dto.ColumnMetaDTO;
 import com.dtstack.taier.datasource.api.dto.SqlQueryDTO;
 import com.dtstack.taier.datasource.api.dto.Table;
 import com.dtstack.taier.datasource.api.source.DataSourceType;
-import com.dtstack.taier.common.enums.EScheduleJobType;
-import com.dtstack.taier.common.exception.ErrorCode;
-import com.dtstack.taier.common.exception.RdosDefineException;
-import com.dtstack.taier.dao.domain.DsInfo;
 import com.dtstack.taier.develop.common.template.Writer;
 import com.dtstack.taier.develop.dto.devlop.TaskResourceParam;
 import com.dtstack.taier.develop.enums.develop.PartitionType;
@@ -83,7 +83,7 @@ public class Hive2XWriterBuilder implements DaWriterBuilder {
         map.put("sourceId", sourceId);
         map.put("sourceIds", Arrays.asList(sourceId));
         Boolean sourceEs7 = param.getSourceMap().get("dataSourceType") == null ? false : Objects.equals(DataSourceType.ES7.getVal(), Integer.valueOf(param.getSourceMap().get("dataSourceType").toString()));
-        String partition = param.getTargetMap().getOrDefault("partition","").toString();
+        String partition = param.getTargetMap().getOrDefault("partition", "").toString();
         List<String> partList = null;
         if (StringUtils.isNotBlank(partition)) {
             String[] parts = partition.split("/");
@@ -192,7 +192,7 @@ public class Hive2XWriterBuilder implements DaWriterBuilder {
             hdfsWriter.setPassword(writerParam.getPassword());
             hdfsWriter.setJdbcUrl(writerParam.getJdbcUrl());
             hdfsWriter.setSchema(writerParam.getSchema());
-            hdfsWriter.setTablesColumn(writerParam.getTablesColumn().replaceAll("\"type\":\"VARCHAR\"|\"type\":\"varchar\"","\"type\":\"STRING\""));
+            hdfsWriter.setTablesColumn(writerParam.getTablesColumn().replaceAll("\"type\":\"VARCHAR\"|\"type\":\"varchar\"", "\"type\":\"STRING\""));
             // 补充Hive 数据同步特有字段;
             hdfsWriter.setAnalyticalRules(StringUtils.isEmpty(writerParam.getAnalyticalRules()) ? null : "DATASYNC".toLowerCase() + "_" + writerParam.getAnalyticalRules());
             hdfsWriter.setMaxFileSize(writerParam.getMaxFileSize());
@@ -202,7 +202,7 @@ public class Hive2XWriterBuilder implements DaWriterBuilder {
             return hdfsWriter;
         } else if (Objects.equals(param.getTaskType(), EScheduleJobType.SYNC.getVal())) {
             Hive2XWriter hdfsWriter = new Hive2XWriter();
-            datasourceService.setSftpConfig(JSONObject.parseObject(targetSource.getDataJson()),param.getTenantId() ,targetMap,  HADOOP_CONFIG);
+            datasourceService.setSftpConfig(JSONObject.parseObject(targetSource.getDataJson()), param.getTenantId(), targetMap, HADOOP_CONFIG);
             Hive2XWriterParam writerParam = JSON.parseObject(JSON.toJSONString(targetMap), Hive2XWriterParam.class);
             if (StringUtils.isNotBlank(writerParam.getTable())) {
                 try {

@@ -16,34 +16,34 @@
  * limitations under the License.
  */
 
-import { useContext } from 'react';
-import type { InputProps, SelectProps, RadioGroupProps } from 'antd';
-import { Form, Input, Select, Tooltip, DatePicker, Radio } from 'antd';
+import {useContext} from 'react';
+import type {InputProps, RadioGroupProps, SelectProps} from 'antd';
+import {DatePicker, Form, Input, Radio, Select, Tooltip} from 'antd';
 import classnames from 'classnames';
 import Context from '@/context';
-import { SearchOutlined } from '@ant-design/icons';
-import type { DatePickerProps, RangePickerProps } from 'antd/lib/date-picker';
-import type { ISlotItemProps } from '.';
+import {SearchOutlined} from '@ant-design/icons';
+import type {DatePickerProps, RangePickerProps} from 'antd/lib/date-picker';
+import type {ISlotItemProps} from '.';
 import './headerForm.scss';
 
-const { RangePicker } = DatePicker;
+const {RangePicker} = DatePicker;
 const FormItem = Form.Item;
-const { Option } = Select;
+const {Option} = Select;
 
 // 内置任务名称搜索
 export const InputItem = ({
-	formItemProps = {},
-	slotProps = {},
-}: Partial<ISlotItemProps<string, InputProps>>) => {
-	const { style: inputStyle, ...restInputProps } = slotProps;
+							  formItemProps = {},
+							  slotProps = {},
+						  }: Partial<ISlotItemProps<string, InputProps>>) => {
+	const {style: inputStyle, ...restInputProps} = slotProps;
 
 	return (
 		<FormItem<string> name="name" {...formItemProps}>
 			<Input
 				addonAfter={null}
 				placeholder="按任务名称搜索"
-				style={{ width: 210, ...inputStyle }}
-				suffix={<SearchOutlined style={{ cursor: 'pointer' }} />}
+				style={{width: 210, ...inputStyle}}
+				suffix={<SearchOutlined style={{cursor: 'pointer'}}/>}
 				{...restInputProps}
 			/>
 		</FormItem>
@@ -76,10 +76,10 @@ const SEARCH_TYPE = [
 ];
 
 const CheckList = ({
-	options,
-	value,
-	onChange,
-}: {
+					   options,
+					   value,
+					   onChange,
+				   }: {
 	options: SearchType[];
 	value?: SearchType;
 	onChange?: (value: SearchType) => void;
@@ -90,7 +90,7 @@ const CheckList = ({
 	};
 
 	return (
-		<div style={{ display: 'flex' }}>
+		<div style={{display: 'flex'}}>
 			{options.map((option) => {
 				const item = SEARCH_TYPE.find((type) => type.key === option);
 				if (!item) return null;
@@ -111,20 +111,16 @@ const CheckList = ({
 };
 
 export const InputWithConditionItem = ({
-	formItemProps = {},
-	slotProps = {},
-	restProps = {},
-}: Partial<
-	ISlotItemProps<
-		string,
-		InputProps,
-		{
-			filterOptions?: SearchType[];
-			onSuffixClick?: (value: SearchType) => void;
-		}
-	>
->) => {
-	const { filterOptions = ['precise', 'front', 'tail'], onSuffixClick } = restProps;
+										   formItemProps = {},
+										   slotProps = {},
+										   restProps = {},
+									   }: Partial<ISlotItemProps<string,
+	InputProps,
+	{
+		filterOptions?: SearchType[];
+		onSuffixClick?: (value: SearchType) => void;
+	}>>) => {
+	const {filterOptions = ['precise', 'front', 'tail'], onSuffixClick} = restProps;
 
 	return (
 		<FormItem<string> name="multipleName" {...formItemProps}>
@@ -133,7 +129,7 @@ export const InputWithConditionItem = ({
 				className="dt-multiple"
 				suffix={
 					<Form.Item<string> name="multipleNameSuffix" initialValue="fuzzy" noStyle>
-						<CheckList options={filterOptions} onChange={onSuffixClick} />
+						<CheckList options={filterOptions} onChange={onSuffixClick}/>
 					</Form.Item>
 				}
 				{...slotProps}
@@ -143,11 +139,11 @@ export const InputWithConditionItem = ({
 };
 
 export const OwnerItem = ({
-	formItemProps = {},
-	slotProps = {},
-}: Partial<ISlotItemProps<number, SelectProps<number>>>) => {
-	const { personList } = useContext(Context);
-	const { style: selectStyle, ...restSelectProps } = slotProps;
+							  formItemProps = {},
+							  slotProps = {},
+						  }: Partial<ISlotItemProps<number, SelectProps<number>>>) => {
+	const {personList} = useContext(Context);
+	const {style: selectStyle, ...restSelectProps} = slotProps;
 
 	return (
 		<FormItem<number> label="操作人" name="owner" {...formItemProps}>
@@ -156,7 +152,7 @@ export const OwnerItem = ({
 				showSearch
 				size="middle"
 				className="dt-form-shadow-bg"
-				style={{ width: 200, ...selectStyle }}
+				style={{width: 200, ...selectStyle}}
 				placeholder="请选择操作人"
 				optionFilterProp="userName"
 				{...restSelectProps}
@@ -172,9 +168,9 @@ export const OwnerItem = ({
 };
 
 export const RangeItem = ({
-	formItemProps = {},
-	slotProps = {},
-}: Partial<ISlotItemProps<number, RangePickerProps>>) => {
+							  formItemProps = {},
+							  slotProps = {},
+						  }: Partial<ISlotItemProps<number, RangePickerProps>>) => {
 	return (
 		<FormItem name="rangeDate" label="日期范围选择" {...formItemProps}>
 			<RangePicker {...slotProps} />
@@ -183,15 +179,15 @@ export const RangeItem = ({
 };
 
 export const DatePickerItem = ({
-	formItemProps = {},
-	slotProps = {},
-}: Partial<ISlotItemProps<number, DatePickerProps>>) => {
+								   formItemProps = {},
+								   slotProps = {},
+							   }: Partial<ISlotItemProps<number, DatePickerProps>>) => {
 	return (
 		<FormItem name="date" label="业务日期" {...formItemProps}>
 			<DatePicker
 				format="YYYY-MM-DD"
 				placeholder="业务日期"
-				style={{ width: 210 }}
+				style={{width: 210}}
 				{...slotProps}
 			/>
 		</FormItem>
@@ -199,21 +195,21 @@ export const DatePickerItem = ({
 };
 
 export const SelectItem = ({
-	formItemProps = {},
-	slotProps = {},
-}: Partial<ISlotItemProps<number, SelectProps<string>>>) => {
-	const { style, ...restSelectProps } = slotProps;
+							   formItemProps = {},
+							   slotProps = {},
+						   }: Partial<ISlotItemProps<number, SelectProps<string>>>) => {
+	const {style, ...restSelectProps} = slotProps;
 	return (
 		<FormItem name="select" {...formItemProps}>
-			<Select style={{ width: 150, ...style }} options={[]} {...restSelectProps} />
+			<Select style={{width: 150, ...style}} options={[]} {...restSelectProps} />
 		</FormItem>
 	);
 };
 
 export const RadioItem = ({
-	formItemProps = {},
-	slotProps = {},
-}: Partial<ISlotItemProps<number, RadioGroupProps>>) => {
+							  formItemProps = {},
+							  slotProps = {},
+						  }: Partial<ISlotItemProps<number, RadioGroupProps>>) => {
 	return (
 		<FormItem name="radioGroup" {...formItemProps}>
 			<Radio.Group optionType="button" {...slotProps} />

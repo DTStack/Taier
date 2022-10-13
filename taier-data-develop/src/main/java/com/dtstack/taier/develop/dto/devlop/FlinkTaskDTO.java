@@ -1,6 +1,7 @@
 package com.dtstack.taier.develop.dto.devlop;
 
 import java.util.List;
+
 public class FlinkTaskDTO {
     /**
      * 任务id

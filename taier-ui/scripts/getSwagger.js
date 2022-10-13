@@ -1,5 +1,5 @@
 /* eslint-disable */
-const { Command } = require('commander');
+const {Command} = require('commander');
 const colors = require('colors');
 const inquirer = require('inquirer');
 const path = require('path');
@@ -88,6 +88,7 @@ function get(params, url) {
 	};
 	return rp(options);
 }
+
 /**
  *
  * @param {string} url -url地址
@@ -156,12 +157,12 @@ const parseRenderString = (str) => {
 				const key = keyRegex.test(item) ? item.match(keyRegex)[0].trim() : '';
 				const comment = commentRegex.test(item) ? item.match(commentRegex)[0].trim() : '';
 				Array.isArray(obj.data) &&
-					obj.data.push({
-						path: url,
-						operationId: key,
-						summary: comment,
-						method,
-					});
+				obj.data.push({
+					path: url,
+					operationId: key,
+					summary: comment,
+					method,
+				});
 			} catch (err) {
 				logs(`${item}失败:`, err);
 			}
@@ -169,6 +170,7 @@ const parseRenderString = (str) => {
 	});
 	return result.filter((o) => JSON.stringify(o) != '{}');
 };
+
 /**
  *  处理并合并已存在的文件的内容
  *  @param {string}path-文件地址
@@ -183,6 +185,7 @@ function handleFileData(path, data) {
 	fileResult = fileContent.replace(contentRegex, renderString.match(contentRegex)[0]); // 将正文部分替换成合并的数据部分，非正文部分不变
 	return fileResult;
 }
+
 /* 生成文件 */
 function writerFile(filePath, renderString) {
 	fs.writeFile(filePath, renderString, (err) => {
@@ -194,7 +197,7 @@ function writerFile(filePath, renderString) {
 /* 渲染获取字符串 */
 function renderMustache(interfaceData) {
 	const temp = fs.readFileSync(require.resolve(DEFAULT_TEMPLATE_PATH), 'utf-8').toString();
-	const renderString = Mustache.render(temp, { result: interfaceData });
+	const renderString = Mustache.render(temp, {result: interfaceData});
 	return renderString;
 }
 
@@ -208,11 +211,11 @@ function sortByTags(paths, result) {
 		const object = cloneResult.find((o) => o.name == info.tags[0]);
 		const isFormParams = info.consumes?.includes('multipart/form-data');
 		!/(?<=\{)[^\},]*/.test(reqApi) &&
-			object.data.push({
-				...info,
-				path: reqApi,
-				method: method === 'post' && isFormParams ? 'postForm' : method,
-			});
+		object.data.push({
+			...info,
+			path: reqApi,
+			method: method === 'post' && isFormParams ? 'postForm' : method,
+		});
 	});
 	return cloneResult;
 }
@@ -221,10 +224,11 @@ function sortByTags(paths, result) {
 function getTags(tags) {
 	const result = [];
 	tags.map((item) => {
-		result.push({ name: item.name, description: item.description, data: [] });
+		result.push({name: item.name, description: item.description, data: []});
 	});
 	return result;
 }
+
 /**
  * @param {string} rawPath-swagger地址
  * @param {string} filePath-生成的api接口文件地址

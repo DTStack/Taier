@@ -1,5 +1,3 @@
-
-
 package com.dtstack.taier.datasource.plugin.hdfs;
 
 import org.apache.hadoop.hive.serde2.typeinfo.TypeInfoFactory;
@@ -17,6 +15,7 @@ public class OrcColumnTypeConverter {
 
     /**
      * {@link TypeInfoFactory}
+     *
      * @param type 原始数据类型
      * @return 转化后的数据类型
      */

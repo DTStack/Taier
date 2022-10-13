@@ -4,7 +4,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.dtstack.taier.common.enums.EComponentType;
 import com.dtstack.taier.pluginapi.constrant.ConfigConstant;
 
-public class HivePluginInfoStrategy implements ComponentPluginInfoStrategy{
+public class HivePluginInfoStrategy implements ComponentPluginInfoStrategy {
     @Override
     public JSONObject convertPluginInfo(JSONObject clusterConfigJson, Long clusterId, Integer deployMode) {
         JSONObject computePluginInfo = clusterConfigJson.getJSONObject(EComponentType.HIVE_SERVER.getConfName());

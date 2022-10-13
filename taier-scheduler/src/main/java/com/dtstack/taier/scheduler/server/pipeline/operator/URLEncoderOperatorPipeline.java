@@ -37,9 +37,9 @@ public class URLEncoderOperatorPipeline extends IPipeline.AbstractPipeline {
 
     @Override
     public void pipeline(Map<String, Object> actionParam, Map<String, Object> pipelineParam) throws Exception {
-        String urlKey = (String) super.getExecuteValue(actionParam,pipelineParam);
-        if(StringUtils.isNotBlank(urlKey)){
-            pipelineParam.put(pipelineKey,URLEncoder.encode(urlKey, Charsets.UTF_8.name()));
+        String urlKey = (String) super.getExecuteValue(actionParam, pipelineParam);
+        if (StringUtils.isNotBlank(urlKey)) {
+            pipelineParam.put(pipelineKey, URLEncoder.encode(urlKey, Charsets.UTF_8.name()));
         }
     }
 }

@@ -78,7 +78,6 @@ public class EngineJobCheckpoint {
     }
 
 
-
     public EngineJobCheckpoint() {
     }
 }

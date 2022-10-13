@@ -3,16 +3,16 @@ import * as monaco from '@dtinsight/molecule/esm/monaco';
 const jsonlog = 'jsonlog';
 
 // register json log for view json data with log informations
-monaco.languages.register({ id: jsonlog });
+monaco.languages.register({id: jsonlog});
 monaco.languages.setMonarchTokensProvider(jsonlog, {
 	tokenizer: {
 		root: [
 			// split
-			[/^===========.*/, { token: 'comment' }],
+			[/^===========.*/, {token: 'comment'}],
 			[/[;,.]/, 'delimiter'],
 
 			// string
-			[/"/, { token: 'string.quote', bracket: '@open', next: '@string' }],
+			[/"/, {token: 'string.quote', bracket: '@open', next: '@string'}],
 
 			// numbers
 			[/\d*\.\d+([eE][-+]?\d+)?/, 'number.float'],
@@ -34,7 +34,7 @@ monaco.languages.setMonarchTokensProvider(jsonlog, {
 		string: [
 			[/[^\\"]+/, 'string'],
 			[/\\./, 'string.escape.invalid'],
-			[/"/, { token: 'string.quote', bracket: '@close', next: '@pop' }],
+			[/"/, {token: 'string.quote', bracket: '@close', next: '@pop'}],
 		],
 	},
 });

@@ -1,9 +1,6 @@
 package com.dtstack.taier.datasource.plugin.kylinRestful;
 
 import com.alibaba.fastjson.JSONObject;
-import com.dtstack.taier.datasource.plugin.common.nosql.AbsNoSqlClient;
-import com.dtstack.taier.datasource.plugin.kylinRestful.request.RestfulClient;
-import com.dtstack.taier.datasource.plugin.kylinRestful.request.RestfulClientFactory;
 import com.dtstack.taier.datasource.api.dto.ColumnMetaDTO;
 import com.dtstack.taier.datasource.api.dto.JobParam;
 import com.dtstack.taier.datasource.api.dto.JobResult;
@@ -12,6 +9,9 @@ import com.dtstack.taier.datasource.api.dto.source.ISourceDTO;
 import com.dtstack.taier.datasource.api.dto.source.KylinRestfulSourceDTO;
 import com.dtstack.taier.datasource.api.enums.JobStatus;
 import com.dtstack.taier.datasource.api.exception.SourceException;
+import com.dtstack.taier.datasource.plugin.common.nosql.AbsNoSqlClient;
+import com.dtstack.taier.datasource.plugin.kylinRestful.request.RestfulClient;
+import com.dtstack.taier.datasource.plugin.kylinRestful.request.RestfulClientFactory;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -26,7 +26,7 @@ import java.util.List;
  * company: www.dtstack.com
  */
 @Slf4j
-public class KylinRestfulClient extends AbsNoSqlClient{
+public class KylinRestfulClient extends AbsNoSqlClient {
 
     private static final String KEY_JOB_STATUS = "job_status";
     private static final String KEY_JOB_ID = "uuid";

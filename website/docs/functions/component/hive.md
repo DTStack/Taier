@@ -3,9 +3,10 @@ title: Hive
 sidebar_label: Hive
 ---
 
-
 ## 配置Hive
+
 已配置前置组件
+
 - [x] SFTP
 - [x] YARN
 - [x] HDFS

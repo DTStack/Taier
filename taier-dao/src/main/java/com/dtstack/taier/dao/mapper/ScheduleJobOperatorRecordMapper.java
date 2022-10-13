@@ -35,10 +35,10 @@ public interface ScheduleJobOperatorRecordMapper extends BaseMapper<ScheduleJobO
     /**
      * 扫描操作记录
      *
-     * @param startSort 开始位置
+     * @param startSort   开始位置
      * @param nodeAddress 节点
-     * @param type 操作类型
-     * @param isEq 是否查询开始位置
+     * @param type        操作类型
+     * @param isEq        是否查询开始位置
      * @return 操作记录
      */
     List<ScheduleJobOperatorRecord> listOperatorRecord(@Param("startSort") Long startSort, @Param("nodeAddress") String nodeAddress, @Param("type") Integer type, @Param("isEq") Boolean isEq);
@@ -47,7 +47,7 @@ public interface ScheduleJobOperatorRecordMapper extends BaseMapper<ScheduleJobO
 
     List<String> listByJobIds(@Param("jobIds") List<String> jobIds);
 
-    void updateNodeAddress(@Param("nodeAddress") String nodeAddress, @Param("jobIds")List<String> value);
+    void updateNodeAddress(@Param("nodeAddress") String nodeAddress, @Param("jobIds") List<String> value);
 
     Integer insertIgnoreBatch(@Param("records") Collection<ScheduleJobOperatorRecord> records);
 

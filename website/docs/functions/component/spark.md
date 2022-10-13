@@ -3,9 +3,10 @@ title: Spark
 sidebar_label: Spark
 ---
 
-
 ## 配置Spark
+
 已配置前置组件
+
 - [x] SFTP
 - [x] YARN
 - [x] HDFS
@@ -31,7 +32,6 @@ sidebar_label: Spark
 | spark.yarn.appMasterEnv.PYSPARK_PYTHON | /data/anaconda3/bin/python3 | python环境变量路径                     | 否       |
 | spark.yarn.maxAppAttempts              | 4                           | 提交申请的最大尝试次数                 | 是       |  
 
-
 :::tip
 Spark在自定义参数中添加Spark官方参数来调整任务提交参数信息
 > 更多 Spark 参数项详见[官方文档](https://spark.apache.org/docs/2.1.3/configuration.html)
@@ -47,7 +47,8 @@ Spark在自定义参数中添加Spark官方参数来调整任务提交参数信�
 | yarnAccepterTaskNumber | 3                                                            | 允许的accepter任务数量                     | 否       |
 
 :::caution
-**sparkSqlProxyPath**是Spark SQL任务运行的jar,需要将pluginLibs/yarn2-hdfs2-spark210/spark-sql-proxy.jar 手动上传到HDFS对应的目录  
+**sparkSqlProxyPath**是Spark SQL任务运行的jar,需要将pluginLibs/yarn2-hdfs2-spark210/spark-sql-proxy.jar
+手动上传到HDFS对应的目录  
 **sparkYarnArchive**是Spark SQL程序运行时加载的外部包,需要将spark目录下的jar包上传到对应目录
 :::
 

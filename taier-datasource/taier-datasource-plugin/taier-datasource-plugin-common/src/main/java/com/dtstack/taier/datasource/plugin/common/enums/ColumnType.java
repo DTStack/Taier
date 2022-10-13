@@ -18,8 +18,8 @@
 
 package com.dtstack.taier.datasource.plugin.common.enums;
 
-import com.dtstack.taier.datasource.plugin.common.DtClassConsistent;
 import com.dtstack.taier.datasource.api.exception.SourceException;
+import com.dtstack.taier.datasource.plugin.common.DtClassConsistent;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.Arrays;

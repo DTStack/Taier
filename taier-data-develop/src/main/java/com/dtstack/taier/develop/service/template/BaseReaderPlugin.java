@@ -58,7 +58,7 @@ public abstract class BaseReaderPlugin implements Reader {
     }
 
     @Override
-    public String toReaderJsonString(){
+    public String toReaderJsonString() {
         return toReaderJson().toJSONString();
     }
 

@@ -67,7 +67,7 @@ public class ComponentConfigService {
      * @param componentTypeCode
      */
     @Transactional(rollbackFor = Exception.class)
-    public void addOrUpdateComponentConfig(Long componentId, Long clusterId, Integer componentTypeCode ,List<ComponentConfig> componentConfigs) {
+    public void addOrUpdateComponentConfig(Long componentId, Long clusterId, Integer componentTypeCode, List<ComponentConfig> componentConfigs) {
         if (null == clusterId || null == componentId || null == componentTypeCode || CollectionUtils.isEmpty(componentConfigs)) {
             throw new RdosDefineException("参数不能为空");
         }
@@ -92,8 +92,8 @@ public class ComponentConfigService {
     }
 
 
-    public ComponentConfig getComponentConfigByKey(Long componentId,String key) {
-        return componentConfigMapper.listByKey(componentId,key);
+    public ComponentConfig getComponentConfigByKey(Long componentId, String key) {
+        return componentConfigMapper.listByKey(componentId, key);
     }
 
     public Map<String, Object> convertComponentConfigToMap(Long componentId, boolean isFilter) {
@@ -108,7 +108,7 @@ public class ComponentConfigService {
 
     public Map<String, Object> getCacheComponentConfigMap(Long clusterId, Integer componentType, boolean isFilter, String componentVersion, Long componentId) {
         String cacheKey = LocalCacheUtil.generateKey(clusterId, componentType, isFilter, componentVersion, componentId);
-        Map<String, Object> result = (Map<String, Object>)localCacheUtil.get(componentCacheGroup, cacheKey);
+        Map<String, Object> result = (Map<String, Object>) localCacheUtil.get(componentCacheGroup, cacheKey);
         // 如果缓存中存在，直接返回
         if (MapUtils.isNotEmpty(result)) {
             return result;
@@ -127,7 +127,7 @@ public class ComponentConfigService {
         if (null != componentId) {
             return convertComponentConfigToMap(componentId, isFilter);
         }
-        Component component = componentMapper.getByClusterIdAndComponentType(clusterId, componentType, componentVersion,null);
+        Component component = componentMapper.getByClusterIdAndComponentType(clusterId, componentType, componentVersion, null);
         if (null == component) {
             return null;
         }

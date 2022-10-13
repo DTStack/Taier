@@ -1,9 +1,9 @@
 package com.dtstack.taier.datasource.plugin.mongo.pool;
 
-import com.dtstack.taier.datasource.api.pool.PoolConfig;
-import com.dtstack.taier.datasource.plugin.mongo.MongoDBUtils;
 import com.dtstack.taier.datasource.api.dto.source.ISourceDTO;
 import com.dtstack.taier.datasource.api.dto.source.MongoSourceDTO;
+import com.dtstack.taier.datasource.api.pool.PoolConfig;
+import com.dtstack.taier.datasource.plugin.mongo.MongoDBUtils;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.mongodb.MongoClient;
@@ -39,7 +39,8 @@ public class MongoManager {
 
     public static final int TIME_OUT = 5 * 1000;
 
-    private MongoManager() {}
+    private MongoManager() {
+    }
 
     public static MongoManager getInstance() {
         if (null == manager) {
@@ -102,7 +103,7 @@ public class MongoManager {
             if (StringUtils.isEmpty(username) || StringUtils.isEmpty(password)) {
                 mongoClient = new MongoClient(serverAddress, options);
             } else {
-                if (StringUtils.isBlank(schema)){
+                if (StringUtils.isBlank(schema)) {
                     schema = MongoDBUtils.dealSchema(hostPorts);
                 }
                 MongoCredential credential = MongoCredential.createScramSha1Credential(username, schema,

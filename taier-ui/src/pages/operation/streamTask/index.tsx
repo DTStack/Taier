@@ -16,32 +16,33 @@
  * limitations under the License.
  */
 
-import { useRef, useState, useMemo, useContext } from 'react';
-import { message, Modal, Button, Popconfirm, Tooltip, Space, Divider } from 'antd';
-import { SyncOutlined } from '@ant-design/icons';
-import { debounce } from 'lodash';
-import { history } from 'umi';
-import { DateTime } from '@dtinsight/dt-utils';
-import type { IActionRef } from '@/components/sketch';
+import {useContext, useMemo, useRef, useState} from 'react';
+import {Button, Divider, message, Modal, Popconfirm, Space, Tooltip} from 'antd';
+import {SyncOutlined} from '@ant-design/icons';
+import {debounce} from 'lodash';
+import {history} from 'umi';
+import {DateTime} from '@dtinsight/dt-utils';
+import type {IActionRef} from '@/components/sketch';
 import Sketch from '@/components/sketch';
-import type { IStreamJobProps } from '@/interface';
-import { IComputeType } from '@/interface';
-import type { ColumnsType, FilterValue } from 'antd/lib/table/interface';
-import { TASK_TYPE_ENUM, FLINK_SQL_TYPE } from '@/constant';
+import type {IStreamJobProps} from '@/interface';
+import {IComputeType} from '@/interface';
+import type {ColumnsType, FilterValue} from 'antd/lib/table/interface';
 import {
-	TASK_STATUS_FILTERS,
-	TASK_STATUS,
 	DATA_SOURCE_ENUM,
+	FLINK_SQL_TYPE,
 	FLINK_VERSION_TYPE_FILTER,
+	TASK_STATUS,
+	TASK_STATUS_FILTERS,
+	TASK_TYPE_ENUM
 } from '@/constant';
 import stream from '@/api';
-import { TaskStatus } from '@/utils/enums';
-import { goToTaskDev } from '@/utils';
+import {TaskStatus} from '@/utils/enums';
+import {goToTaskDev} from '@/utils';
 import DetailPane from './components/detailPane';
 import GoOnTask from './components/goOnTask';
 import context from '@/context';
 
-const { confirm } = Modal;
+const {confirm} = Modal;
 
 interface IFormFieldProps {
 	name?: string;
@@ -55,19 +56,19 @@ enum OPERATOR_MODE {
 
 // 是否为 flinksql 向导模式
 function isFlinkSqlGuideMode(taskData: IStreamJobProps) {
-	const { taskType, createModel } = taskData;
+	const {taskType, createModel} = taskData;
 	return taskType === TASK_TYPE_ENUM.SQL && createModel === FLINK_SQL_TYPE.GUIDE;
 }
 
 export default function StreamTask() {
-	const { supportJobTypes } = useContext(context);
+	const {supportJobTypes} = useContext(context);
 	const [overview, setOverview] = useState<{
 		ALL: number;
 		FAILED: number;
 		RUNNING: number;
 		CANCELED: number;
 		UNRUNNING: number;
-	}>({ ALL: 0, FAILED: 0, RUNNING: 0, CANCELED: 0, UNRUNNING: 0 });
+	}>({ALL: 0, FAILED: 0, RUNNING: 0, CANCELED: 0, UNRUNNING: 0});
 	const [polling, setPolling] = useState<boolean>(false);
 	const [goOnTask, setGoOnTask] = useState<Pick<IStreamJobProps, 'jobId' | 'id'> | undefined>(
 		undefined,
@@ -76,7 +77,7 @@ export default function StreamTask() {
 	const [slidePane, setSlidePane] = useState<{
 		visible: boolean;
 		selectTask?: IStreamJobProps;
-	}>({ visible: false, selectTask: undefined });
+	}>({visible: false, selectTask: undefined});
 	const actionRef = useRef<IActionRef>(null);
 
 	const loadCount = (params: any) => {
@@ -88,28 +89,28 @@ export default function StreamTask() {
 	};
 
 	const getStatusList = () => {
-		const { ALL, FAILED, RUNNING, CANCELED, UNRUNNING } = overview;
+		const {ALL, FAILED, RUNNING, CANCELED, UNRUNNING} = overview;
 
 		return [
 			{
 				className: 'status_overview_count_font',
-				children: [{ title: '总数', dataSource: ALL }],
+				children: [{title: '总数', dataSource: ALL}],
 			},
 			{
 				className: 'status_overview_running_font',
-				children: [{ title: '运行中', dataSource: RUNNING }],
+				children: [{title: '运行中', dataSource: RUNNING}],
 			},
 			{
 				className: 'status_overview_yellow_font',
-				children: [{ title: '未运行', dataSource: UNRUNNING }],
+				children: [{title: '未运行', dataSource: UNRUNNING}],
 			},
 			{
 				className: 'status_overview_fail_font',
-				children: [{ title: '失败', dataSource: FAILED }],
+				children: [{title: '失败', dataSource: FAILED}],
 			},
 			{
 				className: 'status_overview_grey_font',
-				children: [{ title: '取消', dataSource: CANCELED }],
+				children: [{title: '取消', dataSource: CANCELED}],
 			},
 		];
 	};
@@ -119,11 +120,11 @@ export default function StreamTask() {
 	};
 
 	const chooseTask = (record: IStreamJobProps) => {
-		setSlidePane({ visible: true, selectTask: record });
+		setSlidePane({visible: true, selectTask: record});
 	};
 
 	const closeSlidePane = () => {
-		setSlidePane({ visible: false, selectTask: undefined });
+		setSlidePane({visible: false, selectTask: undefined});
 	};
 
 	const handleUpdateTaskStatus = (
@@ -133,7 +134,7 @@ export default function StreamTask() {
 	) => {
 		switch (mode) {
 			case OPERATOR_MODE.goOn:
-				setGoOnTask({ id: task.id, jobId: task.jobId });
+				setGoOnTask({id: task.id, jobId: task.jobId});
 				break;
 			case OPERATOR_MODE.stop:
 				stream
@@ -184,7 +185,7 @@ export default function StreamTask() {
 				});
 		},
 		1000,
-		{ maxWait: 5000 },
+		{maxWait: 5000},
 	);
 
 	/**
@@ -203,7 +204,7 @@ export default function StreamTask() {
 			TASK_STATUS.WAIT_RUN,
 			TASK_STATUS.WAIT_COMPUTE,
 		];
-		const doPolling = data.some(({ status }) => SHOULD_POLLING_STATUS.includes(status));
+		const doPolling = data.some(({status}) => SHOULD_POLLING_STATUS.includes(status));
 
 		return doPolling;
 	};
@@ -219,12 +220,12 @@ export default function StreamTask() {
 
 	const loadTaskList = async (
 		values: IFormFieldProps,
-		{ current, pageSize }: { current: number; pageSize: number },
+		{current, pageSize}: { current: number; pageSize: number },
 		filters: Record<string, FilterValue | null>,
 		sorter: any,
 	) => {
-		const { status, taskType, strategyName, componentVersion } = filters || {};
-		const { field, order } = sorter || {};
+		const {status, taskType, strategyName, componentVersion} = filters || {};
+		const {field, order} = sorter || {};
 
 		const orderMapping: Record<string, string> = {
 			gmtModified: 'gmt_modified',
@@ -262,8 +263,8 @@ export default function StreamTask() {
 				return {
 					polling: isPolling
 						? {
-								delay: 5000,
-						  }
+							delay: 5000,
+						}
 						: false,
 					total: res.data?.totalCount,
 					data: res.data?.data,
@@ -274,9 +275,9 @@ export default function StreamTask() {
 
 	const renderStatus = () => {
 		const statusList = getStatusList();
-		return statusList.map(({ className, children }) => (
+		return statusList.map(({className, children}) => (
 			<span key={className} className={className}>
-				{children.map(({ title, dataSource }) => (
+				{children.map(({title, dataSource}) => (
 					<span key={title}>
 						{title}: {dataSource || 0}
 					</span>
@@ -309,7 +310,7 @@ export default function StreamTask() {
 							}}
 							onClick={() => {
 								Confirm.destroy();
-								handleUpdateTaskStatus(OPERATOR_MODE.stop, record, { isForce: 1 });
+								handleUpdateTaskStatus(OPERATOR_MODE.stop, record, {isForce: 1});
 							}}
 						>
 							不保存
@@ -318,7 +319,7 @@ export default function StreamTask() {
 				),
 				okText: '确认',
 				cancelText: '取消',
-				onOk: () => handleUpdateTaskStatus(OPERATOR_MODE.stop, record, { isForce: 0 }),
+				onOk: () => handleUpdateTaskStatus(OPERATOR_MODE.stop, record, {isForce: 0}),
 			});
 		};
 
@@ -326,8 +327,8 @@ export default function StreamTask() {
 			case TASK_STATUS.WAIT_SUBMIT:
 			case TASK_STATUS.SUBMIT_FAILED:
 				return (
-					<Space size={5} split={<Divider type="vertical" />}>
-						<a href="#" onClick={() => goToTaskDev({ id: record?.id })}>
+					<Space size={5} split={<Divider type="vertical"/>}>
+						<a href="#" onClick={() => goToTaskDev({id: record?.id})}>
 							修改
 						</a>
 						<a
@@ -346,8 +347,8 @@ export default function StreamTask() {
 			case TASK_STATUS.STOPED:
 			case TASK_STATUS.KILLED:
 				return (
-					<Space size={5} split={<Divider type="vertical" />}>
-						<a href="#" onClick={() => goToTaskDev({ id: record?.id })}>
+					<Space size={5} split={<Divider type="vertical"/>}>
+						<a href="#" onClick={() => goToTaskDev({id: record?.id})}>
 							修改
 						</a>
 						{!notGoOn && (
@@ -385,8 +386,8 @@ export default function StreamTask() {
 				);
 			case TASK_STATUS.RUN_FAILED:
 				return (
-					<Space size={5} split={<Divider type="vertical" />}>
-						<a href="#" onClick={() => goToTaskDev({ id: record?.id })}>
+					<Space size={5} split={<Divider type="vertical"/>}>
+						<a href="#" onClick={() => goToTaskDev({id: record?.id})}>
 							修改
 						</a>
 						{!notGoOn && (
@@ -416,8 +417,8 @@ export default function StreamTask() {
 			case TASK_STATUS.COMPUTING:
 			case TASK_STATUS.RESTARTING:
 				return (
-					<Space size={5} split={<Divider type="vertical" />}>
-						<a href="#" onClick={() => goToTaskDev({ id: record?.id })}>
+					<Space size={5} split={<Divider type="vertical"/>}>
+						<a href="#" onClick={() => goToTaskDev({id: record?.id})}>
 							修改
 						</a>
 						<a href="#" onClick={openModal}>
@@ -427,8 +428,8 @@ export default function StreamTask() {
 				);
 			case TASK_STATUS.STOPING:
 				return (
-					<Space size={5} split={<Divider type="vertical" />}>
-						<a href="#" onClick={() => goToTaskDev({ id: record?.id })}>
+					<Space size={5} split={<Divider type="vertical"/>}>
+						<a href="#" onClick={() => goToTaskDev({id: record?.id})}>
 							修改
 						</a>
 						<a href="#">正在停止</a>
@@ -436,8 +437,8 @@ export default function StreamTask() {
 				);
 			case TASK_STATUS.AUTO_CANCEL:
 				return (
-					<Space size={5} split={<Divider type="vertical" />}>
-						<a href="#" onClick={() => goToTaskDev({ id: record?.id })}>
+					<Space size={5} split={<Divider type="vertical"/>}>
+						<a href="#" onClick={() => goToTaskDev({id: record?.id})}>
 							修改
 						</a>
 						{!notGoOn && (
@@ -464,8 +465,8 @@ export default function StreamTask() {
 				);
 			case TASK_STATUS.LACKING:
 				return (
-					<Space size={5} split={<Divider type="vertical" />}>
-						<a href="#" onClick={() => goToTaskDev({ id: record?.id })}>
+					<Space size={5} split={<Divider type="vertical"/>}>
+						<a href="#" onClick={() => goToTaskDev({id: record?.id})}>
 							修改
 						</a>
 						<a
@@ -505,7 +506,7 @@ export default function StreamTask() {
 				width: 120,
 				fixed: 'left',
 				render: (text) => {
-					return <TaskStatus value={text} />;
+					return <TaskStatus value={text}/>;
 				},
 				filters: TASK_STATUS_FILTERS,
 				filterMultiple: true,
@@ -583,11 +584,11 @@ export default function StreamTask() {
 				extra={
 					<Tooltip title="刷新数据">
 						<Button className="dt-refresh">
-							<SyncOutlined onClick={handleRefresh} spin={!!polling} />
+							<SyncOutlined onClick={handleRefresh} spin={!!polling}/>
 						</Button>
 					</Tooltip>
 				}
-				tableProps={{ rowSelection: undefined }}
+				tableProps={{rowSelection: undefined}}
 				headerTitle={renderStatus()}
 				headerTitleClassName="ope-statistics"
 				request={loadTaskList}

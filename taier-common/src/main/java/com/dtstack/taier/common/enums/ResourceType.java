@@ -32,7 +32,7 @@ public enum ResourceType {
 
     private int type;
 
-    ResourceType(int type){
+    ResourceType(int type) {
         this.type = type;
     }
 

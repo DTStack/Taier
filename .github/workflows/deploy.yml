@@ -2,8 +2,8 @@ name: Deploy to GitHub Pages
 
 on:
   push:
-    branches: [master]
-    paths: [website/**]
+    branches: [ master ]
+    paths: [ website/** ]
 
 jobs:
   deploy:

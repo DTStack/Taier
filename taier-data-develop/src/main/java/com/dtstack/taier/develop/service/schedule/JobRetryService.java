@@ -15,8 +15,8 @@ import org.springframework.stereotype.Service;
 @Service
 public class JobRetryService extends ServiceImpl<ScheduleEngineJobRetryMapper, ScheduleEngineJobRetry> {
 
-    public void removeByJobId(String jobId){
+    public void removeByJobId(String jobId) {
         getBaseMapper().delete(Wrappers.lambdaQuery(ScheduleEngineJobRetry.class).eq(
-                ScheduleEngineJobRetry::getJobId,jobId));
+                ScheduleEngineJobRetry::getJobId, jobId));
     }
 }

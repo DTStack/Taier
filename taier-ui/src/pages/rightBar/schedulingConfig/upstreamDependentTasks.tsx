@@ -16,16 +16,16 @@
  * limitations under the License.
  */
 
-import { useEffect, useState } from 'react';
-import { Empty, Form, Modal, Select, Spin } from 'antd';
-import type { FormInstance } from 'antd/lib/form/Form';
-import { formItemLayout } from '@/constant';
-import { getCookie } from '@/utils';
+import {useEffect, useState} from 'react';
+import {Empty, Form, Modal, Select, Spin} from 'antd';
+import type {FormInstance} from 'antd/lib/form/Form';
+import {formItemLayout} from '@/constant';
+import {getCookie} from '@/utils';
 import api from '@/api';
-import { debounce } from 'lodash';
+import {debounce} from 'lodash';
 
 const FormItem = Form.Item;
-const { Option } = Select;
+const {Option} = Select;
 
 interface IUpstreamTaskProps {
 	form: FormInstance;
@@ -51,12 +51,12 @@ interface ITenantProps {
 }
 
 export default function UpstreamDependentTasks({
-	form,
-	taskId: currentTaskId,
-	submitData,
-	visible,
-	onCancel,
-}: IUpstreamTaskProps) {
+												   form,
+												   taskId: currentTaskId,
+												   submitData,
+												   visible,
+												   onCancel,
+											   }: IUpstreamTaskProps) {
 	const [tenants, setTenants] = useState<ITenantProps[]>([]);
 	const [tasks, setTasks] = useState<ITaskSearchResultProps[]>([]);
 	const [fetching, setFetching] = useState(false);
@@ -82,7 +82,7 @@ export default function UpstreamDependentTasks({
 				if (res.code === 1) {
 					if (!res.data?.length) {
 						form.setFieldsValue({
-							taskId: { errors: [new Error('没有符合条件的任务')] },
+							taskId: {errors: [new Error('没有符合条件的任务')]},
 						});
 					}
 					setTasks(res.data || []);
@@ -94,7 +94,7 @@ export default function UpstreamDependentTasks({
 	};
 
 	const handleSubmit = () => {
-		form.validateFields().then(({ taskId }) => {
+		form.validateFields().then(({taskId}) => {
 			const task = tasks.find((t) => t.taskId === taskId);
 			if (task) {
 				submitData(task);
@@ -117,7 +117,7 @@ export default function UpstreamDependentTasks({
 					{...formItemLayout}
 					label="所属租户"
 					name="tenantId"
-					rules={[{ required: true, message: '请选择所属租户!' }]}
+					rules={[{required: true, message: '请选择所属租户!'}]}
 					initialValue={Number(getCookie('tenantId'))}
 				>
 					<Select<number> onChange={changeTenant}>
@@ -134,17 +134,18 @@ export default function UpstreamDependentTasks({
 					<FormItem
 						noStyle
 						name="taskId"
-						rules={[{ required: true, message: '请选择任务!' }]}
+						rules={[{required: true, message: '请选择任务!'}]}
 					>
 						<Select
 							showSearch
 							placeholder="请输入任务名称搜索"
-							style={{ width: '100%' }}
+							style={{width: '100%'}}
 							defaultActiveFirstOption={false}
 							showArrow={false}
 							filterOption={false}
-							onSearch={debounce(handleSearch, 500, { maxWait: 2000 })}
-							notFoundContent={fetching ? <Spin spinning /> : <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} />}
+							onSearch={debounce(handleSearch, 500, {maxWait: 2000})}
+							notFoundContent={fetching ? <Spin spinning/> :
+								<Empty image={Empty.PRESENTED_IMAGE_SIMPLE}/>}
 						>
 							{tasks.map((task) => (
 								<Option key={task.taskId} value={task.taskId}>

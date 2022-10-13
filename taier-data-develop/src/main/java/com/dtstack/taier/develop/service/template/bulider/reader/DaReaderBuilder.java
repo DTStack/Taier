@@ -26,6 +26,7 @@ public interface DaReaderBuilder {
 
     /**
      * 参数预处理
+     *
      * @param param
      */
     void setReaderJson(TaskResourceParam param);
@@ -34,6 +35,7 @@ public interface DaReaderBuilder {
 
     /**
      * 基础的参数 例如 sourceId
+     *
      * @param sourceMap
      * @return
      */

@@ -3,7 +3,8 @@
 <mapper namespace="com.dtstack.taier.dao.mapper.DictMapper">
 
     <sql id="select_content_fragment">
-      id,dict_code,dict_name,dict_value,dict_desc,`type`,sort,data_type,depend_name,gmt_create,gmt_modified,is_deleted
+        id
+        ,dict_code,dict_name,dict_value,dict_desc,`type`,sort,data_type,depend_name,gmt_create,gmt_modified,is_deleted
     </sql>
 
 

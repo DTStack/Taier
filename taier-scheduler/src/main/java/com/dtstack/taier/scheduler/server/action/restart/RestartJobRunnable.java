@@ -11,7 +11,6 @@ import com.dtstack.taier.scheduler.server.action.restart.impl.RestartCurrentAndD
 import com.dtstack.taier.scheduler.server.action.restart.impl.RestartCurrentNodeRestartJob;
 import com.dtstack.taier.scheduler.server.action.restart.impl.SetSuccessAndResumeSchedulingRestartJob;
 import com.dtstack.taier.scheduler.service.ScheduleTaskShadeService;
-import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;

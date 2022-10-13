@@ -13,19 +13,19 @@ public class ReturnDisplayPeriodVO {
     /**
      * 实例id
      */
-    @ApiModelProperty(value = "实例id",example = "123123")
+    @ApiModelProperty(value = "实例id", example = "123123")
     private String jobId;
 
     /**
      * 计划时间
      */
-    @ApiModelProperty(value = "计划时间",example = "")
+    @ApiModelProperty(value = "计划时间", example = "")
     private String cycTime;
 
     /**
      * 实例状态
      */
-    @ApiModelProperty(value = "实例状态",example = "5")
+    @ApiModelProperty(value = "实例状态", example = "5")
     private Integer status;
 
     public String getJobId() {

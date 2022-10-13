@@ -30,14 +30,14 @@ public class DevelopServerGetLogByJobIdVO extends DtInsightAuthParam {
     /**
      * 任务实例ID
      */
-    @ApiModelProperty(value = "任务实例ID",example = "1", required = true)
+    @ApiModelProperty(value = "任务实例ID", example = "1", required = true)
     @NotNull
     private String jobId;
 
     /**
      * 页数
      */
-    @ApiModelProperty(value = "页数",example = "1", required = true)
+    @ApiModelProperty(value = "页数", example = "1", required = true)
     @NotNull
     private Integer pageInfo;
 

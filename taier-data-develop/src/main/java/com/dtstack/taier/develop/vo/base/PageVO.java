@@ -30,7 +30,7 @@ public class PageVO {
     private Integer pageSize;
 
     public Integer getCurrentPage() {
-        if (currentPage ==null || currentPage<=0) {
+        if (currentPage == null || currentPage <= 0) {
             currentPage = 1;
         }
 
@@ -42,7 +42,7 @@ public class PageVO {
     }
 
     public Integer getPageSize() {
-        if (pageSize ==null || pageSize<=0) {
+        if (pageSize == null || pageSize <= 0) {
             pageSize = 10;
         }
         return pageSize;

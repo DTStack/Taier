@@ -83,7 +83,7 @@ public interface PluginName {
     String ADB_FOR_PG_W = "adbpostgresqlwriter";
 
     List<String> RDB_READER = Arrays.asList(
-            MySQL_R,MySQLD_R,Oracle_R,SQLServer_R,PostgreSQL_R,DB2_R,GBase_R,Clickhouse_R,Polardb_for_MySQL_R,DM_R,GREENPLUM_R,KINGBASE_R,
+            MySQL_R, MySQLD_R, Oracle_R, SQLServer_R, PostgreSQL_R, DB2_R, GBase_R, Clickhouse_R, Polardb_for_MySQL_R, DM_R, GREENPLUM_R, KINGBASE_R,
             ADB_FOR_PG_R
     );
 }

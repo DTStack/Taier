@@ -44,8 +44,8 @@ public interface IHdfsFile extends Client {
     /**
      * 获取 taskManager 列表
      *
-     * @param source     数据源信息
-     * @param appId      yarn application id
+     * @param source 数据源信息
+     * @param appId  yarn application id
      * @return yarn 日志下载器
      */
     List<String> getTaskManagerList(ISourceDTO source, String appId);

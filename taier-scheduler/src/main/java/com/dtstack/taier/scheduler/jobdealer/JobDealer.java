@@ -168,12 +168,13 @@ public class JobDealer implements InitializingBean, ApplicationContextAware {
 
     /**
      * job cache 表已经存在
+     *
      * @param jobClients
      */
     private void addSubmitJobVast(List<JobClient> jobClients) {
         List<String> jobIds = jobClients.stream().map(JobClient::getJobId).collect(Collectors.toList());
         updateCacheBatch(jobIds, EJobCacheStage.DB.getStage());
-        scheduleJobService.updateJobStatusByJobIds(jobIds, TaskStatus.WAITENGINE.getStatus(),null);
+        scheduleJobService.updateJobStatusByJobIds(jobIds, TaskStatus.WAITENGINE.getStatus(), null);
         LOGGER.info(" addSubmitJobBatch jobId:{} update", JSONObject.toJSONString(jobIds));
         for (JobClient jobClient : jobClients) {
             jobClient.setCallBack((jobStatus) -> {
@@ -227,7 +228,7 @@ public class JobDealer implements InitializingBean, ApplicationContextAware {
     }
 
     public void updateJobStatus(String jobId, Integer status) {
-        scheduleJobService.updateJobStatusByJobIds(Lists.newArrayList(jobId), status,null);
+        scheduleJobService.updateJobStatusByJobIds(Lists.newArrayList(jobId), status, null);
         LOGGER.info("jobId:{} update job status:{}.", jobId, status);
     }
 
@@ -253,7 +254,7 @@ public class JobDealer implements InitializingBean, ApplicationContextAware {
 
     public String getAndUpdateEngineLog(String jobId, String engineJobId, String appId, Long tenantId) {
 
-        if(StringUtils.isBlank(engineJobId)){
+        if (StringUtils.isBlank(engineJobId)) {
             return "";
         }
         String engineLog = null;
@@ -264,13 +265,13 @@ public class JobDealer implements InitializingBean, ApplicationContextAware {
             }
             ParamAction paramAction = PublicUtil.jsonStrToObject(engineJobCache.getJobInfo(), ParamAction.class);
             Map<String, Object> pluginInfo = paramAction.getPluginInfo();
-            JobIdentifier jobIdentifier = new JobIdentifier(engineJobId, appId, jobId,tenantId,paramAction.getTaskType(),
-                    TaskParamsUtils.parseDeployTypeByTaskParams(paramAction.getTaskParams(),engineJobCache.getComputeType()).getType(),
-                    null, MapUtils.isEmpty(pluginInfo) ? null : JSONObject.toJSONString(pluginInfo),paramAction.getComponentVersion(), paramAction.getQueueName());
+            JobIdentifier jobIdentifier = new JobIdentifier(engineJobId, appId, jobId, tenantId, paramAction.getTaskType(),
+                    TaskParamsUtils.parseDeployTypeByTaskParams(paramAction.getTaskParams(), engineJobCache.getComputeType()).getType(),
+                    null, MapUtils.isEmpty(pluginInfo) ? null : JSONObject.toJSONString(pluginInfo), paramAction.getComponentVersion(), paramAction.getQueueName());
             //从engine获取log
             engineLog = workerOperator.getEngineLog(jobIdentifier);
             if (engineLog != null) {
-                scheduleJobService.updateExpandByJobId(jobId,engineLog,null);
+                scheduleJobService.updateExpandByJobId(jobId, engineLog, null);
             }
         } catch (Throwable e) {
             LOGGER.error("getAndUpdateEngineLog error jobId:{} error:.", jobId, e);
@@ -297,7 +298,7 @@ public class JobDealer implements InitializingBean, ApplicationContextAware {
             try {
                 long startId = 0L;
                 while (true) {
-                    List<ScheduleEngineJobCache> jobCaches = scheduleJobCacheService.listByStage(startId, localAddress, null, null,Boolean.TRUE);
+                    List<ScheduleEngineJobCache> jobCaches = scheduleJobCacheService.listByStage(startId, localAddress, null, null, Boolean.TRUE);
                     if (CollectionUtils.isEmpty(jobCaches)) {
                         //两种情况：
                         //1. 可能本身没有jobcaches的数据
@@ -339,7 +340,7 @@ public class JobDealer implements InitializingBean, ApplicationContextAware {
                     List<String> jobIds = jobs.stream().map(SimpleScheduleJobPO::getJobId).collect(Collectors.toList());
                     LOGGER.info("update job ids {}", jobIds);
                     scheduleJobService.updateJobStatusByJobIds(jobIds, TaskStatus.UNSUBMIT.getStatus(), JobPhaseStatus.CREATE.getCode());
-                    jobStartId = jobs.get(jobs.size()-1).getId();
+                    jobStartId = jobs.get(jobs.size() - 1).getId();
                     jobs = scheduleJobService.listJobByStatusAddressAndPhaseStatus(jobStartId, TaskStatus.getUnSubmitStatus(), localAddress, JobPhaseStatus.JOIN_THE_TEAM.getCode());
                 }
                 LOGGER.info("job deal end");

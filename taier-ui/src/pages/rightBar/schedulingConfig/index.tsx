@@ -16,30 +16,24 @@
  * limitations under the License.
  */
 
-import type { CSSProperties } from 'react';
-import { useEffect, useMemo, useRef, useState } from 'react';
-import type { FormInstance, RadioChangeEvent } from 'antd';
-import { Row, Col, Collapse, Radio, message } from 'antd';
-import type { CheckboxChangeEvent } from 'antd/lib/checkbox';
+import type {CSSProperties} from 'react';
+import {useEffect, useMemo, useRef, useState} from 'react';
+import type {FormInstance, RadioChangeEvent} from 'antd';
+import {Col, Collapse, message, Radio, Row} from 'antd';
+import type {CheckboxChangeEvent} from 'antd/lib/checkbox';
 import moment from 'moment';
-import { isArray } from 'lodash';
+import {isArray} from 'lodash';
 import api from '@/api';
-import {
-	DATA_SYNC_MODE,
-	SCHEDULE_DEPENDENCY,
-	SCHEDULE_STATUS,
-	TASK_PERIOD_ENUM,
-	TASK_TYPE_ENUM,
-} from '@/constant';
-import type { IOfflineTaskProps, IScheduleConfProps, ITaskVOProps } from '@/interface';
+import {DATA_SYNC_MODE, SCHEDULE_DEPENDENCY, SCHEDULE_STATUS, TASK_PERIOD_ENUM, TASK_TYPE_ENUM,} from '@/constant';
+import type {IOfflineTaskProps, IScheduleConfProps, ITaskVOProps} from '@/interface';
 import molecule from '@dtinsight/molecule/esm';
 import FormWrap from './scheduleForm';
 import TaskDependence from './taskDependence';
 import HelpDoc from '@/components/helpDoc';
-import type { IRightBarComponentProps } from '@/services/rightBarService';
-import type { IEditorTab } from '@dtinsight/molecule/esm/model';
+import type {IRightBarComponentProps} from '@/services/rightBarService';
+import type {IEditorTab} from '@dtinsight/molecule/esm/model';
 
-const { Panel } = Collapse;
+const {Panel} = Collapse;
 const RadioGroup = Radio.Group;
 
 const radioStyle: CSSProperties = {
@@ -92,7 +86,7 @@ const getDefaultScheduleConf = (value: TASK_PERIOD_ENUM) => {
 	return scheduleConf[value];
 };
 
-export default function SchedulingConfig({ current }: IRightBarComponentProps) {
+export default function SchedulingConfig({current}: IRightBarComponentProps) {
 	const [selfReliance, setSelfReliance] = useState<SCHEDULE_DEPENDENCY>(SCHEDULE_DEPENDENCY.NULL);
 	const form = useRef<FormInstance<IScheduleConfProps & { scheduleStatus: boolean }>>(null);
 
@@ -100,7 +94,7 @@ export default function SchedulingConfig({ current }: IRightBarComponentProps) {
 	 * 修改 tab 的值
 	 */
 	const changeScheduleConf = (currentTab: IEditorTab, value: any) => {
-		const { data } = currentTab;
+		const {data} = currentTab;
 		const tab = {
 			...currentTab,
 			data: {
@@ -144,7 +138,7 @@ export default function SchedulingConfig({ current }: IRightBarComponentProps) {
 
 	// 调度状态 change 处理函数
 	const handleScheduleStatus = (evt: CheckboxChangeEvent) => {
-		const { checked } = evt.target;
+		const {checked} = evt.target;
 		const status = checked ? SCHEDULE_STATUS.FORZON : SCHEDULE_STATUS.NORMAL;
 		const tabData: IOfflineTaskProps = current!.tab!.data;
 		const sucInfo = checked ? '冻结成功' : '解冻成功';
@@ -251,7 +245,7 @@ export default function SchedulingConfig({ current }: IRightBarComponentProps) {
 	const handleAddVOS = (record: Partial<ITaskVOProps>) => {
 		const dependencyTasks = (current!.tab?.data.dependencyTasks || []).concat();
 		dependencyTasks.push(record);
-		changeScheduleConf?.(current!.tab!, { dependencyTasks });
+		changeScheduleConf?.(current!.tab!, {dependencyTasks});
 	};
 
 	const handleDelVOS = (record: ITaskVOProps) => {
@@ -259,11 +253,11 @@ export default function SchedulingConfig({ current }: IRightBarComponentProps) {
 		const index = dependencyTasks.findIndex((vo) => vo.id === record.id);
 		if (index === -1) return;
 		dependencyTasks.splice(index, 1);
-		changeScheduleConf?.(current!.tab!, { dependencyTasks });
+		changeScheduleConf?.(current!.tab!, {dependencyTasks});
 	};
 
 	const handleRadioChanged = (evt: RadioChangeEvent) => {
-		const { value } = evt.target;
+		const {value} = evt.target;
 		setSelfReliance(value);
 	};
 
@@ -297,7 +291,7 @@ export default function SchedulingConfig({ current }: IRightBarComponentProps) {
 
 	return (
 		<molecule.component.Scrollable>
-			<div className="m-scheduling" style={{ position: 'relative' }}>
+			<div className="m-scheduling" style={{position: 'relative'}}>
 				<Collapse bordered={false} defaultActiveKey={['1', '2', '3']}>
 					<Panel key="1" header="调度属性">
 						<FormWrap
@@ -322,7 +316,7 @@ export default function SchedulingConfig({ current }: IRightBarComponentProps) {
 					)}
 					{!isWorkflowNode && (
 						<Panel key="3" header="跨周期依赖">
-							<Row style={{ marginBottom: '16px' }}>
+							<Row style={{marginBottom: '16px'}}>
 								<Col offset={1}>
 									<RadioGroup onChange={handleRadioChanged} value={selfReliance}>
 										{!isIncrementMode && (

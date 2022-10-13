@@ -1,12 +1,7 @@
-import { ID_COLLECTIONS } from '@/constant';
-import {
-	UploadOutlined,
-	LoginOutlined,
-	SwapOutlined,
-	FormatPainterOutlined,
-} from '@ant-design/icons';
-import type { IEditorActionsProps } from '@dtinsight/molecule/esm/model';
-import { SyntaxIcon } from '../icon';
+import {ID_COLLECTIONS} from '@/constant';
+import {FormatPainterOutlined, LoginOutlined, SwapOutlined, UploadOutlined,} from '@ant-design/icons';
+import type {IEditorActionsProps} from '@dtinsight/molecule/esm/model';
+import {SyntaxIcon} from '../icon';
 
 /**
  * 保存按钮 for toolbar
@@ -51,7 +46,7 @@ const SUBMIT_TASK: IEditorActionsProps = {
 	id: ID_COLLECTIONS.TASK_SUBMIT_ID,
 	name: '提交至调度',
 	title: '提交至调度',
-	icon: <UploadOutlined />,
+	icon: <UploadOutlined/>,
 	place: 'outer',
 };
 
@@ -62,7 +57,7 @@ const OPERATOR_TASK: IEditorActionsProps = {
 	id: ID_COLLECTIONS.TASK_OPS_ID,
 	name: '运维',
 	title: '运维',
-	icon: <LoginOutlined />,
+	icon: <LoginOutlined/>,
 	place: 'outer',
 };
 
@@ -73,7 +68,7 @@ const CONVERT_TASK: IEditorActionsProps = {
 	id: ID_COLLECTIONS.TASK_CONVERT_SCRIPT,
 	name: '转换为脚本',
 	title: '转换为脚本',
-	icon: <SwapOutlined />,
+	icon: <SwapOutlined/>,
 	place: 'outer',
 };
 
@@ -95,7 +90,7 @@ const GRAMMAR_TASK: IEditorActionsProps = {
 	id: ID_COLLECTIONS.TASK_SYNTAX_ID,
 	name: '语法检查',
 	title: '语法检查',
-	icon: <SyntaxIcon />,
+	icon: <SyntaxIcon/>,
 	place: 'outer',
 };
 
@@ -117,7 +112,7 @@ const FORMAT_TASK: IEditorActionsProps = {
 	id: ID_COLLECTIONS.TASK_FORMAT_ID,
 	name: '格式化',
 	title: '格式化',
-	icon: <FormatPainterOutlined />,
+	icon: <FormatPainterOutlined/>,
 	place: 'outer',
 };
 

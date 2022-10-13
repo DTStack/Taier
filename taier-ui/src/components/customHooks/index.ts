@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-export { default as useEnv } from './useEnv';
-export { default as useCalcTableScroll } from './useCalcTableScroll';
-export { default as useCurrentTheme } from './useCurrentTheme';
-export { default as useSize } from './useSize';
+export {default as useEnv} from './useEnv';
+export {default as useCalcTableScroll} from './useCalcTableScroll';
+export {default as useCurrentTheme} from './useCurrentTheme';
+export {default as useSize} from './useSize';

@@ -16,11 +16,11 @@
  * limitations under the License.
  */
 
-import { InputNumber, Select } from 'antd';
-import { useEffect, useState } from 'react';
+import {InputNumber, Select} from 'antd';
+import {useEffect, useState} from 'react';
 import './index.scss';
 
-const { Option } = Select;
+const {Option} = Select;
 
 interface ILifeCycleSelectProps {
 	width: number | string;
@@ -34,9 +34,9 @@ const OPTIONS = DEFAULT_DAYS.map((day) => ({
 	renderLable: '天',
 	label: `${day}天`,
 	value: day,
-})).concat({ renderLable: '自定义', label: '自定义', value: -1 });
+})).concat({renderLable: '自定义', label: '自定义', value: -1});
 
-export default function LifeCycleSelect({ width, value, onChange }: ILifeCycleSelectProps) {
+export default function LifeCycleSelect({width, value, onChange}: ILifeCycleSelectProps) {
 	const [selectValue, setSelectValue] = useState(-1);
 	const [readOnly, setReadOnly] = useState(true);
 	const [open, setOpen] = useState(false);
@@ -69,7 +69,7 @@ export default function LifeCycleSelect({ width, value, onChange }: ILifeCycleSe
 	return (
 		<>
 			<InputNumber
-				style={{ width: width || 200 }}
+				style={{width: width || 200}}
 				placeholder="请输入生命周期"
 				value={value}
 				readOnly={readOnly}
@@ -78,7 +78,7 @@ export default function LifeCycleSelect({ width, value, onChange }: ILifeCycleSe
 				onChange={onChange}
 				addonAfter={
 					<Select
-						style={{ width: 100 }}
+						style={{width: 100}}
 						value={selectValue}
 						open={open}
 						optionLabelProp="label"

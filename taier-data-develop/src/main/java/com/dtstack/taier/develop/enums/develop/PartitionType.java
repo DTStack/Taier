@@ -28,7 +28,7 @@ public enum PartitionType {
      */
     String name;
 
-    PartitionType(int type, String name){
+    PartitionType(int type, String name) {
         this.type = type;
         this.name = name;
     }
@@ -41,9 +41,9 @@ public enum PartitionType {
         return name;
     }
 
-    public static PartitionType fromTypeValue(int type){
-        for(PartitionType partitionType : PartitionType.values()){
-            if(type == partitionType.type){
+    public static PartitionType fromTypeValue(int type) {
+        for (PartitionType partitionType : PartitionType.values()) {
+            if (type == partitionType.type) {
                 return partitionType;
             }
         }

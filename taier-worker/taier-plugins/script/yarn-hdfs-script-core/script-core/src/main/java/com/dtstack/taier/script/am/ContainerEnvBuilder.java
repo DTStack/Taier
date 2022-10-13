@@ -53,11 +53,11 @@ public class ContainerEnvBuilder {
         this.applicationMaster = applicationMaster;
     }
 
-    public Map<String,String> build(ScriptConfiguration dtconf) {
+    public Map<String, String> build(ScriptConfiguration dtconf) {
         envs = System.getenv();
         final Configuration conf = applicationMaster.yarnconf;
         final String appEnv = envs.get(ScriptConstants.Environment.APP_ENV.toString());
-        ApplicationAttemptId applicationAttemptId ;
+        ApplicationAttemptId applicationAttemptId;
         if (envs.containsKey(ApplicationConstants.Environment.CONTAINER_ID.toString())) {
             ContainerId containerId = ConverterUtils
                     .toContainerId(envs.get(ApplicationConstants.Environment.CONTAINER_ID.toString()));
@@ -74,7 +74,7 @@ public class ContainerEnvBuilder {
 
         LOG.info("Setting environments for the Container");
         Map<String, String> containerEnv = new HashMap<>();
-        containerEnv.putAll(Utilities.getEnvironmentVariables(ScriptConstants.SCRIPT_ENV_PREFIX,(YarnConfiguration) conf));
+        containerEnv.putAll(Utilities.getEnvironmentVariables(ScriptConstants.SCRIPT_ENV_PREFIX, (YarnConfiguration) conf));
 
         containerEnv.put(ScriptConstants.Environment.SCRIPT_CONTAIENR_GPU_NUM.toString(),
                 String.valueOf(dtconf.getInt(ScriptConfiguration.SCRIPT_WORKER_GPU, ScriptConfiguration.DEFAULT_SCRIPT_WORKER_GPU)));
@@ -88,7 +88,7 @@ public class ContainerEnvBuilder {
         containerEnv.put(ScriptConstants.Environment.APPMASTER_PORT.toString(),
                 String.valueOf(containerListener.getServerPort()));
 
-        containerEnv.put(ScriptConstants.Environment.APP_TYPE.toString(),envs.get(ScriptConstants.Environment.APP_TYPE.toString()));
+        containerEnv.put(ScriptConstants.Environment.APP_TYPE.toString(), envs.get(ScriptConstants.Environment.APP_TYPE.toString()));
         SecurityUtil.setupUserEnv(containerEnv);
 
         // set cmd into container envs
@@ -109,9 +109,10 @@ public class ContainerEnvBuilder {
     /**
      * 1.parse cmd.
      * 2.add key-value into container envs.
+     *
      * @param appEnv
      */
-    private void parseAppEnv(String appEnv, Map<String,String> containerEnv) {
+    private void parseAppEnv(String appEnv, Map<String, String> containerEnv) {
         if (StringUtils.isBlank(appEnv)) {
             return;
         }
@@ -121,7 +122,7 @@ public class ContainerEnvBuilder {
             appEnv = URLDecoder.decode(appEnv, "UTF-8");
             LOG.info("cmdStr decoded is : " + appEnv);
 
-            Map<String,Object> envMap = JSON.parseObject(appEnv.trim());
+            Map<String, Object> envMap = JSON.parseObject(appEnv.trim());
             Iterator entries = envMap.entrySet().iterator();
             while (entries.hasNext()) {
                 Map.Entry entry = (Map.Entry) entries.next();
@@ -133,10 +134,10 @@ public class ContainerEnvBuilder {
                     value = (String) entry.getValue();
                 }
                 //add prefix for app env, make it easier to recognize.
-                containerEnv.put(AppEnvConstant.SUB_PROCESS_ENV.concat(key) , value);
+                containerEnv.put(AppEnvConstant.SUB_PROCESS_ENV.concat(key), value);
             }
         } catch (Exception e) {
-            String message = String.format("Could't parse {%s} to json format. Reason : {%s}", appEnv , e.getMessage());
+            String message = String.format("Could't parse {%s} to json format. Reason : {%s}", appEnv, e.getMessage());
             LOG.error(message);
             throw new RuntimeException(message, e);
         }

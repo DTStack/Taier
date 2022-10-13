@@ -16,24 +16,24 @@
  * limitations under the License.
  */
 
-import { useMemo } from 'react';
-import { Collapse, Input, Form, Tooltip } from 'antd';
-import type { IOfflineTaskProps } from '@/interface';
+import {useMemo} from 'react';
+import {Collapse, Form, Input, Tooltip} from 'antd';
+import type {IOfflineTaskProps} from '@/interface';
 import molecule from '@dtinsight/molecule/esm';
-import { formItemLayout, PARAMS_ENUM } from '@/constant';
+import {formItemLayout, PARAMS_ENUM} from '@/constant';
 import HelpDoc from '../../components/helpDoc';
-import type { IRightBarComponentProps } from '@/services/rightBarService';
+import type {IRightBarComponentProps} from '@/services/rightBarService';
 import './taskParams.scss';
 
 const FormItem = Form.Item;
-const { Panel } = Collapse;
+const {Panel} = Collapse;
 
 // 匹配规则：$[函数]或$[a-z0-9+-两个字符]或随意输入几个字符
 // 原来的正则：/(^\$\[(\S+\(\S*\)|[a-z0-9\+\-\:\s\/\\\*]{2,})\]$)|(^(?!\$)\S+$)/i;
 // eslint-disable-next-line no-useless-escape
 const paramsRegPattern = /^\$[\{\[\(](\S+\((.*)\)|.+)[\}\]\)]$|^(?!\$)\S+$/i;
 
-export default function TaskParams({ current }: IRightBarComponentProps) {
+export default function TaskParams({current}: IRightBarComponentProps) {
 	const [form] = Form.useForm();
 
 	const handleFormChanged = (changed: Record<string, string>, tabData: IOfflineTaskProps) => {
@@ -97,32 +97,32 @@ export default function TaskParams({ current }: IRightBarComponentProps) {
 						header={
 							<span>
 								系统参数配置
-								<HelpDoc doc="customSystemParams" />
+								<HelpDoc doc="customSystemParams"/>
 							</span>
 						}
 					>
 						{systemParams.length
 							? systemParams.map((param) => (
-									<FormItem
-										key={param.paramName}
-										{...formItemLayout}
-										label={
-											<Tooltip className='taskParams__ellipsis' title={param.paramName}>
-												{param.paramName}
-											</Tooltip>
-										}
-										name={param.paramName}
-										rules={[
-											{
-												pattern: paramsRegPattern,
-												message: '参数格式不正确',
-											},
-										]}
-										initialValue={param.paramCommand}
-									>
-										<Input disabled />
-									</FormItem>
-							  ))
+								<FormItem
+									key={param.paramName}
+									{...formItemLayout}
+									label={
+										<Tooltip className='taskParams__ellipsis' title={param.paramName}>
+											{param.paramName}
+										</Tooltip>
+									}
+									name={param.paramName}
+									rules={[
+										{
+											pattern: paramsRegPattern,
+											message: '参数格式不正确',
+										},
+									]}
+									initialValue={param.paramCommand}
+								>
+									<Input disabled/>
+								</FormItem>
+							))
 							: renderNothing('无系统参数')}
 					</Panel>
 					<Panel
@@ -130,28 +130,28 @@ export default function TaskParams({ current }: IRightBarComponentProps) {
 						header={
 							<span>
 								自定义参数配置
-								<HelpDoc doc="customParams" />
+								<HelpDoc doc="customParams"/>
 							</span>
 						}
 					>
 						{customParams.length
 							? customParams.map((param) => (
-									<FormItem
-										key={param.paramName}
-										{...formItemLayout}
-										label={param.paramName}
-										name={param.paramName}
-										rules={[
-											{
-												pattern: paramsRegPattern,
-												message: '参数格式不正确',
-											},
-										]}
-										initialValue={param.paramCommand}
-									>
-										<Input />
-									</FormItem>
-							  ))
+								<FormItem
+									key={param.paramName}
+									{...formItemLayout}
+									label={param.paramName}
+									name={param.paramName}
+									rules={[
+										{
+											pattern: paramsRegPattern,
+											message: '参数格式不正确',
+										},
+									]}
+									initialValue={param.paramCommand}
+								>
+									<Input/>
+								</FormItem>
+							))
 							: renderNothing('无自定义参数')}
 					</Panel>
 				</Collapse>

@@ -16,10 +16,10 @@
  * limitations under the License.
  */
 
-import { useMemo } from 'react';
+import {useMemo} from 'react';
 import molecule from '@dtinsight/molecule';
-import { connect } from '@dtinsight/molecule/esm/react';
-import type { ITaskResultStates } from '@/services/taskResultService';
+import {connect} from '@dtinsight/molecule/esm/react';
+import type {ITaskResultStates} from '@/services/taskResultService';
 import taskResultService from '@/services/taskResultService';
 import Editor from '../editor';
 
@@ -29,9 +29,9 @@ interface ILogEditorProps {
 }
 
 export default connect(
-	{ results: taskResultService, editor: molecule.editor },
-	({ editor, results: { logs } }: ILogEditorProps) => {
-		const { current } = editor;
+	{results: taskResultService, editor: molecule.editor},
+	({editor, results: {logs}}: ILogEditorProps) => {
+		const {current} = editor;
 
 		const value = useMemo(() => {
 			if (current?.tab?.id && logs[current.tab.id]) {

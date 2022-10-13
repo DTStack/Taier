@@ -12,56 +12,56 @@ import java.math.BigInteger;
  * @Description：数字转化
  */
 public class MathUtil {
-    public static Long getLongVal(Object obj){
-        if(obj == null){
+    public static Long getLongVal(Object obj) {
+        if (obj == null) {
             return null;
         }
 
-        if(obj instanceof String){
+        if (obj instanceof String) {
             return Long.valueOf((String) obj);
-        }else if(obj instanceof Long){
+        } else if (obj instanceof Long) {
             return (Long) obj;
-        }else if(obj instanceof Integer){
+        } else if (obj instanceof Integer) {
             return Long.valueOf(obj.toString());
-        }else if(obj instanceof BigDecimal){
-            return ((BigDecimal)obj).longValue();
-        }else if(obj instanceof BigInteger){
-            return ((BigInteger)obj).longValue();
+        } else if (obj instanceof BigDecimal) {
+            return ((BigDecimal) obj).longValue();
+        } else if (obj instanceof BigInteger) {
+            return ((BigInteger) obj).longValue();
         }
 
-        throw new SourceException("not support type of " + obj.getClass() + " convert to Long." );
+        throw new SourceException("not support type of " + obj.getClass() + " convert to Long.");
     }
 
-    public static Long getLongVal(Object obj, long defaultVal){
-        if(obj == null){
+    public static Long getLongVal(Object obj, long defaultVal) {
+        if (obj == null) {
             return defaultVal;
         }
 
         return getLongVal(obj);
     }
 
-    public static Integer getIntegerVal(Object obj){
-        if(obj == null){
+    public static Integer getIntegerVal(Object obj) {
+        if (obj == null) {
             return null;
         }
 
-        if(obj instanceof String){
+        if (obj instanceof String) {
             return Integer.valueOf((String) obj);
-        } else if (obj instanceof Integer){
+        } else if (obj instanceof Integer) {
             return (Integer) obj;
-        } else if (obj instanceof Long){
-            return ((Long)obj).intValue();
-        } else if(obj instanceof Double){
-            return ((Double)obj).intValue();
-        } else if(obj instanceof BigDecimal){
-            return ((BigDecimal)obj).intValue();
+        } else if (obj instanceof Long) {
+            return ((Long) obj).intValue();
+        } else if (obj instanceof Double) {
+            return ((Double) obj).intValue();
+        } else if (obj instanceof BigDecimal) {
+            return ((BigDecimal) obj).intValue();
         }
 
-        throw new SourceException("not support type of " + obj.getClass() + " convert to Integer." );
+        throw new SourceException("not support type of " + obj.getClass() + " convert to Integer.");
     }
 
-    public static Integer getIntegerVal(Object obj, int defaultVal){
-        if(obj == null){
+    public static Integer getIntegerVal(Object obj, int defaultVal) {
+        if (obj == null) {
             return defaultVal;
         }
 
@@ -69,23 +69,23 @@ public class MathUtil {
     }
 
     public static Float getFloatVal(Object obj) {
-        if(obj == null){
+        if (obj == null) {
             return null;
         }
 
-        if(obj instanceof String){
+        if (obj instanceof String) {
             return Float.valueOf((String) obj);
-        }else if(obj instanceof Float){
+        } else if (obj instanceof Float) {
             return (Float) obj;
-        }else if(obj instanceof BigDecimal){
-            return ((BigDecimal)obj).floatValue();
+        } else if (obj instanceof BigDecimal) {
+            return ((BigDecimal) obj).floatValue();
         }
 
-        throw new SourceException("not support type of " + obj.getClass() + " convert to Float." );
+        throw new SourceException("not support type of " + obj.getClass() + " convert to Float.");
     }
 
-    public static Float getFloatVal(Object obj, float defaultVal){
-        if(obj == null){
+    public static Float getFloatVal(Object obj, float defaultVal) {
+        if (obj == null) {
             return defaultVal;
         }
 
@@ -93,23 +93,23 @@ public class MathUtil {
     }
 
     public static Double getDoubleVal(Object obj) {
-        if(obj == null){
+        if (obj == null) {
             return null;
         }
 
-        if(obj instanceof String){
+        if (obj instanceof String) {
             return Double.valueOf((String) obj);
-        }else if(obj instanceof Float){
+        } else if (obj instanceof Float) {
             return (Double) obj;
-        }else if(obj instanceof BigDecimal){
-            return ((BigDecimal)obj).doubleValue();
+        } else if (obj instanceof BigDecimal) {
+            return ((BigDecimal) obj).doubleValue();
         }
 
-        throw new SourceException("not support type of " + obj.getClass() + " convert to Double." );
+        throw new SourceException("not support type of " + obj.getClass() + " convert to Double.");
     }
 
-    public static Double getDoubleVal(Object obj, double defaultVal){
-        if(obj == null){
+    public static Double getDoubleVal(Object obj, double defaultVal) {
+        if (obj == null) {
             return defaultVal;
         }
 
@@ -117,65 +117,65 @@ public class MathUtil {
     }
 
 
-    public static Boolean getBoolean(Object obj){
-        if(obj == null){
+    public static Boolean getBoolean(Object obj) {
+        if (obj == null) {
             return false;
         }
 
-        if(obj instanceof String){
+        if (obj instanceof String) {
             return Boolean.valueOf((String) obj);
-        }else if(obj instanceof Boolean){
+        } else if (obj instanceof Boolean) {
             return (Boolean) obj;
         }
 
-        throw new SourceException("not support type of " + obj.getClass() + " convert to Boolean." );
+        throw new SourceException("not support type of " + obj.getClass() + " convert to Boolean.");
     }
 
-    public static Boolean getBoolean(Object obj, boolean defaultVal){
-        if(obj == null){
+    public static Boolean getBoolean(Object obj, boolean defaultVal) {
+        if (obj == null) {
             return defaultVal;
         }
 
         return getBoolean(obj);
     }
 
-    public static String getString(Object obj){
-        if(obj == null){
+    public static String getString(Object obj) {
+        if (obj == null) {
             return null;
         }
 
-        if(obj instanceof String){
+        if (obj instanceof String) {
             return (String) obj;
         }
 
         return obj.toString();
     }
 
-    public static Byte getByte(Object obj){
-        if(obj == null){
+    public static Byte getByte(Object obj) {
+        if (obj == null) {
             return null;
         }
 
-        if(obj instanceof String){
+        if (obj instanceof String) {
             return Byte.valueOf((String) obj);
-        }else if(obj instanceof Byte){
+        } else if (obj instanceof Byte) {
             return (Byte) obj;
         }
 
-        throw new SourceException("not support type of " + obj.getClass() + " convert to Byte." );
+        throw new SourceException("not support type of " + obj.getClass() + " convert to Byte.");
     }
 
-    public static Short getShort(Object obj){
-        if(obj == null){
+    public static Short getShort(Object obj) {
+        if (obj == null) {
             return null;
         }
 
-        if(obj instanceof String){
+        if (obj instanceof String) {
             return Short.valueOf((String) obj);
-        }else if(obj instanceof Short){
+        } else if (obj instanceof Short) {
             return (Short) obj;
         }
 
-        throw new SourceException("not support type of " + obj.getClass() + " convert to Short." );
+        throw new SourceException("not support type of " + obj.getClass() + " convert to Short.");
     }
 }

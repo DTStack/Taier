@@ -37,10 +37,10 @@ public enum DAoperators {
         return val;
     }
 
-    public static DAoperators getByVal(Integer val){
+    public static DAoperators getByVal(Integer val) {
         DAoperators[] values = DAoperators.values();
         for (DAoperators value : values) {
-            if (value.getVal().equals(val)){
+            if (value.getVal().equals(val)) {
                 return value;
             }
         }

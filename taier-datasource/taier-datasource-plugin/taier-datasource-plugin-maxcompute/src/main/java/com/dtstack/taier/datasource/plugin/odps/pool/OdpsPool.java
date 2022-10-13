@@ -13,7 +13,7 @@ public class OdpsPool extends Pool<Odps> {
 
     private OdpsPoolConfig config;
 
-    public OdpsPool(OdpsPoolConfig config){
+    public OdpsPool(OdpsPoolConfig config) {
         super(config, new OdpsPoolFactory(config));
         this.config = config;
     }

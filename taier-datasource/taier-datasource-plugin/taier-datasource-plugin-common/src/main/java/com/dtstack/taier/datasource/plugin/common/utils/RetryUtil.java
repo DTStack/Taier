@@ -33,7 +33,7 @@ public final class RetryUtil {
         Retry retry = new Retry();
         return retry.doRetry(callable, retryTimes, sleepTimeInMilliSecond, exponential, null);
     }
-    
+
     /**
      * 重试次数工具方法.
      *
@@ -118,7 +118,7 @@ public final class RetryUtil {
                     if (i == 0) {
                         LOG.error(String.format("Exception when calling callable, 异常Msg:%s", saveException.getMessage()), saveException);
                     }
-                    
+
                     if (null != retryExceptionClasss && !retryExceptionClasss.isEmpty()) {
                         boolean needRetry = false;
                         for (Class<?> eachExceptionClass : retryExceptionClasss) {
@@ -131,19 +131,19 @@ public final class RetryUtil {
                             throw saveException;
                         }
                     }
-                    
+
                     if (i + 1 < retryTimes && sleepTimeInMilliSecond > 0) {
                         long startTime = System.currentTimeMillis();
 
                         long timeToSleep;
                         if (exponential) {
                             timeToSleep = sleepTimeInMilliSecond * (long) Math.pow(2, i);
-                            if(timeToSleep >= MAX_SLEEP_MILLISECOND) {
+                            if (timeToSleep >= MAX_SLEEP_MILLISECOND) {
                                 timeToSleep = MAX_SLEEP_MILLISECOND;
                             }
                         } else {
                             timeToSleep = sleepTimeInMilliSecond;
-                            if(timeToSleep >= MAX_SLEEP_MILLISECOND) {
+                            if (timeToSleep >= MAX_SLEEP_MILLISECOND) {
                                 timeToSleep = MAX_SLEEP_MILLISECOND;
                             }
                         }
@@ -153,10 +153,10 @@ public final class RetryUtil {
                         } catch (InterruptedException ignored) {
                         }
 
-                        long realTimeSleep = System.currentTimeMillis()-startTime;
+                        long realTimeSleep = System.currentTimeMillis() - startTime;
 
                         LOG.error(String.format("Exception when calling callable, 即将尝试执行第%s次重试.本次重试计划等待[%s]ms,实际等待[%s]ms, 异常Msg:[%s]",
-                                i+1, timeToSleep,realTimeSleep, e.getMessage()));
+                                i + 1, timeToSleep, realTimeSleep, e.getMessage()));
 
                     }
                 }

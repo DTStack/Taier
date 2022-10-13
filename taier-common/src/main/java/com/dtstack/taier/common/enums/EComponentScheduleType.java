@@ -23,10 +23,10 @@ package com.dtstack.taier.common.enums;
  * @date 2020-05-11
  */
 public enum EComponentScheduleType {
-    COMMON(0,"公共组件"),
-    RESOURCE(1,"资源调度组件"),
-    STORAGE(2,"存储组件"),
-    COMPUTE(3,"计算组件");
+    COMMON(0, "公共组件"),
+    RESOURCE(1, "资源调度组件"),
+    STORAGE(2, "存储组件"),
+    COMPUTE(3, "计算组件");
 
     private int type;
 
@@ -48,7 +48,7 @@ public enum EComponentScheduleType {
         this.type = type;
     }
 
-     EComponentScheduleType(int type, String name) {
+    EComponentScheduleType(int type, String name) {
         this.type = type;
         this.name = name;
     }

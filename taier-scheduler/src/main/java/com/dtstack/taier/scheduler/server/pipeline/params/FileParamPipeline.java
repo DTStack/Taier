@@ -32,16 +32,17 @@ public class FileParamPipeline extends IPipeline.AbstractPipeline {
 
     private static final String uploadFilePath = "uploadPath";
     private static final String fileKey = "file";
+
     public FileParamPipeline() {
         super(fileKey);
     }
 
     @Override
     public void pipeline(Map<String, Object> actionParam, Map<String, Object> pipelineParam) throws RdosDefineException {
-       String uploadPath = (String) pipelineParam.get(uploadFilePath);
-       if(StringUtils.isBlank(uploadPath) && !actionParam.containsKey(fileKey)){
-           throw new RdosDefineException("file param pipe line must after uploadPath pipe line");
-       }
-       pipelineParam.computeIfAbsent(fileKey,k-> uploadPath.substring(StringUtils.lastIndexOf(uploadPath, "/") + 1));
+        String uploadPath = (String) pipelineParam.get(uploadFilePath);
+        if (StringUtils.isBlank(uploadPath) && !actionParam.containsKey(fileKey)) {
+            throw new RdosDefineException("file param pipe line must after uploadPath pipe line");
+        }
+        pipelineParam.computeIfAbsent(fileKey, k -> uploadPath.substring(StringUtils.lastIndexOf(uploadPath, "/") + 1));
     }
 }

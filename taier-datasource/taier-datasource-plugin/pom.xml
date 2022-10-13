@@ -27,7 +27,6 @@
         <module>taier-datasource-plugin-hive</module>
         <module>taier-datasource-plugin-hive1</module>
         <module>taier-datasource-plugin-hive3</module>
-        <module>taier-datasource-plugin-impala</module>
         <module>taier-datasource-plugin-kudu</module>
         <module>taier-datasource-plugin-kylin</module>
         <module>taier-datasource-plugin-libra</module>
@@ -48,7 +47,6 @@
         <module>taier-datasource-plugin-common</module>
         <module>taier-datasource-plugin-kerberos</module>
         <module>taier-datasource-plugin-kerberos-core</module>
-        <module>taier-datasource-plugin-s3</module>
         <module>taier-datasource-plugin-websocket</module>
         <module>taier-datasource-plugin-vertica</module>
         <module>taier-datasource-plugin-socket</module>
@@ -56,18 +54,15 @@
         <module>taier-datasource-plugin-oceanbase</module>
         <module>taier-datasource-plugin-aws_s3</module>
         <module>taier-datasource-plugin-solr</module>
-        <module>taier-datasource-plugin-inceptor</module>
         <module>taier-datasource-plugin-influxdb</module>
         <module>taier-datasource-plugin-doris</module>
         <module>taier-datasource-plugin-kylinrestful</module>
         <module>taier-datasource-plugin-restful</module>
         <module>taier-datasource-plugin-trino</module>
         <module>taier-datasource-plugin-hdfs3</module>
-        <module>taier-datasource-plugin-hdfs3_cdp</module>
         <module>taier-datasource-plugin-dorisrestful</module>
         <module>taier-datasource-plugin-iceberg</module>
         <module>taier-datasource-plugin-csp_s3</module>
-        <module>taier-datasource-plugin-hive3_cdp</module>
         <module>taier-datasource-plugin-sap_hana</module>
         <module>taier-datasource-plugin-tidb</module>
         <module>taier-datasource-plugin-kubernetes</module>
@@ -78,7 +73,7 @@
         <module>taier-datasource-plugin-tdengine</module>
         <module>taier-datasource-plugin-restful-core</module>
     </modules>
-    
+
     <properties>
         <datasource.version>1.0.0</datasource.version>
     </properties>

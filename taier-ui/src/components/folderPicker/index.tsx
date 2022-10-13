@@ -16,18 +16,18 @@
  * limitations under the License.
  */
 
-import { useEffect, useMemo, useState } from 'react';
-import { omit } from 'lodash';
-import type { CustomTreeSelectProps } from './customTreeSelect';
+import {useEffect, useMemo, useState} from 'react';
+import {omit} from 'lodash';
+import type {CustomTreeSelectProps} from './customTreeSelect';
 import CustomTreeSelect from './customTreeSelect';
-import { CATALOGUE_TYPE, MENU_TYPE_ENUM } from '@/constant';
+import {CATALOGUE_TYPE, MENU_TYPE_ENUM} from '@/constant';
 import molecule from '@dtinsight/molecule';
 import resourceManagerTree from '@/services/resourceManagerService';
 import functionManagerService from '@/services/functionManagerService';
-import type { TreeSelectProps } from 'antd/lib/tree-select';
-import { catalogueService } from '@/services';
+import type {TreeSelectProps} from 'antd/lib/tree-select';
+import {catalogueService} from '@/services';
 import api from '@/api';
-import { getTenantId } from '@/utils';
+import {getTenantId} from '@/utils';
 
 interface FolderPickerProps extends CustomTreeSelectProps {
 	dataType: CATALOGUE_TYPE;
@@ -41,7 +41,7 @@ export default function FolderPicker(props: FolderPickerProps) {
 		const currentData = treeNode.props.dataRef;
 		if (!currentData.children?.length) {
 			await catalogueService.loadTreeNode(
-				{ id: currentData?.data?.id, catalogueType: currentData?.data?.catalogueType },
+				{id: currentData?.data?.id, catalogueType: currentData?.data?.catalogueType},
 				props.dataType,
 			);
 			rerender((f) => !f);

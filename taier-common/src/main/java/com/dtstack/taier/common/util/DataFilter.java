@@ -19,41 +19,41 @@ public class DataFilter {
     /**
      * json字符串中的密码脱敏
      */
-    public static String passwordFilter(String dataStr){
-        if (StringUtils.isEmpty(dataStr)){
+    public static String passwordFilter(String dataStr) {
+        if (StringUtils.isEmpty(dataStr)) {
             return dataStr;
         }
 
-        try{
+        try {
             JSONObject jsonData = JSONObject.parseObject(dataStr);
             passwordFilter(jsonData);
             return jsonData.toJSONString();
-        } catch (Exception e){
+        } catch (Exception e) {
             return dataStr;
         }
     }
 
-    public static void passwordFilter(Object data){
-        if (data == null){
+    public static void passwordFilter(Object data) {
+        if (data == null) {
             return;
         }
 
-        if (data instanceof JSONObject){
-            for (String key : ((JSONObject)data).keySet()) {
-                Object item = ((JSONObject)data).get(key);
+        if (data instanceof JSONObject) {
+            for (String key : ((JSONObject) data).keySet()) {
+                Object item = ((JSONObject) data).get(key);
                 // WebSocket 参数特殊处理
                 if (WEB_SOCKET_PARAMS.equalsIgnoreCase(key)) {
-                    ((JSONObject)data).getJSONObject(key).entrySet().forEach(entry -> entry.setValue("******"));
+                    ((JSONObject) data).getJSONObject(key).entrySet().forEach(entry -> entry.setValue("******"));
                     continue;
                 }
 
-                if (item instanceof JSONObject || item instanceof JSONArray){
+                if (item instanceof JSONObject || item instanceof JSONArray) {
                     passwordFilter(item);
-                } else if(PASSWORD_KEYS.contains(key.toLowerCase())){
-                    ((JSONObject)data).put(key, "******");
+                } else if (PASSWORD_KEYS.contains(key.toLowerCase())) {
+                    ((JSONObject) data).put(key, "******");
                 }
             }
-        } else if(data instanceof JSONArray){
+        } else if (data instanceof JSONArray) {
             for (Object datum : ((JSONArray) data)) {
                 passwordFilter(datum);
             }

@@ -21,7 +21,7 @@ public class QueryTaskListVO extends PageVO {
     /**
      * 租户
      */
-    @ApiModelProperty(value = "租户id", hidden = true,required = true)
+    @ApiModelProperty(value = "租户id", hidden = true, required = true)
     private Long tenantId;
 
     /**

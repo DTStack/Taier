@@ -49,9 +49,9 @@ public class DevelopFunctionResourceService {
      * @param developFunctionResource
      */
     public void updateByFunctionId(DevelopFunctionResource developFunctionResource) {
-        developFunctionResourceDao.update(developFunctionResource,Wrappers.lambdaUpdate(DevelopFunctionResource.class)
-                                    .eq(DevelopFunctionResource::getFunctionId, developFunctionResource.getFunctionId())
-                                    .eq(DevelopFunctionResource::getIsDeleted,Deleted.NORMAL.getStatus()));
+        developFunctionResourceDao.update(developFunctionResource, Wrappers.lambdaUpdate(DevelopFunctionResource.class)
+                .eq(DevelopFunctionResource::getFunctionId, developFunctionResource.getFunctionId())
+                .eq(DevelopFunctionResource::getIsDeleted, Deleted.NORMAL.getStatus()));
     }
 
     /**
@@ -75,10 +75,11 @@ public class DevelopFunctionResourceService {
 
     /**
      * 根据资源id 获取列表
+     *
      * @param resourceId
      * @return
      */
-    public  List<DevelopFunctionResource> listByResourceId(Long resourceId) {
+    public List<DevelopFunctionResource> listByResourceId(Long resourceId) {
         return developFunctionResourceDao.listByResourceId(resourceId);
     }
 

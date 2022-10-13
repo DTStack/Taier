@@ -17,27 +17,27 @@
  */
 
 import React from 'react';
-import { debounce } from 'lodash';
+import {debounce} from 'lodash';
 import Editor from '@/components/editor';
 
 const FormItemEditor: React.FC<any> = (props) => {
-    const { value, onChange, ...rest } = props;
+	const {value, onChange, ...rest} = props;
 
-    // 编辑偏移量
-    const editorParamsChange = (type: any, a: any, b: any, c: any) => {
-        if (onChange) {
-            onChange(b)
-        }
-    }
+	// 编辑偏移量
+	const editorParamsChange = (type: any, a: any, b: any, c: any) => {
+		if (onChange) {
+			onChange(b)
+		}
+	}
 
-    const debounceEditorChange = debounce(editorParamsChange, 300, { 'maxWait': 2000 })
+	const debounceEditorChange = debounce(editorParamsChange, 300, {'maxWait': 2000})
 
-    return (
-        <Editor
-            {...rest}
-            value={value}
-            onChange={debounceEditorChange.bind(this, 'offset')}
-        />
-    )
+	return (
+		<Editor
+			{...rest}
+			value={value}
+			onChange={debounceEditorChange.bind(this, 'offset')}
+		/>
+	)
 }
 export default FormItemEditor;

@@ -1,21 +1,21 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import {useEffect, useMemo, useRef, useState} from 'react';
 import classNames from 'classnames';
-import { Button, Col, Form, message, Row, Space, Spin, Tooltip } from 'antd';
+import {Button, Col, Form, message, Row, Space, Spin, Tooltip} from 'antd';
 import api from '@/api';
 import LintTo from '@/components/lineTo';
-import { DATA_SOURCE_ENUM, DATA_SOURCE_TEXT } from '@/constant';
-import { EditOutlined, ExclamationCircleOutlined, MinusOutlined } from '@ant-design/icons';
-import { useConstant } from '@/hooks';
-import { checkExist, isValidFormatType } from '@/utils';
-import { event, EventKind, updateValuesInData } from '.';
+import {DATA_SOURCE_ENUM, DATA_SOURCE_TEXT} from '@/constant';
+import {EditOutlined, ExclamationCircleOutlined, MinusOutlined} from '@ant-design/icons';
+import {useConstant} from '@/hooks';
+import {checkExist, isValidFormatType} from '@/utils';
+import {event, EventKind, updateValuesInData} from '.';
 import KeyModal from './modals/keyModal';
 import ConstModal from './modals/constModal';
 import viewStoreService from '@/services/viewStoreService';
 import molecule from '@dtinsight/molecule';
 import md5 from 'md5';
-import { useSize } from '@/components/customHooks';
-import type { IDataColumnsProps } from '@/interface';
-import type { ColumnType } from 'antd/lib/table';
+import {useSize} from '@/components/customHooks';
+import type {IDataColumnsProps} from '@/interface';
+import type {ColumnType} from 'antd/lib/table';
 import './keyMap.scss';
 
 enum OperatorKind {
@@ -73,8 +73,8 @@ function getSourceColumn(
 						const val = record.value
 							? `常量(${record.type})`
 							: `${text ? text.toUpperCase() : ''}${
-									record.format ? `(${record.format})` : ''
-							  }`;
+								record.format ? `(${record.format})` : ''
+							}`;
 						return <Tooltip title={val}>{val}</Tooltip>;
 					},
 				},
@@ -116,8 +116,8 @@ function getSourceColumn(
 						const val = record.value
 							? `常量(${record.type})`
 							: `${text ? text.toUpperCase() : ''}${
-									record.format ? `(${record.format})` : ''
-							  }`;
+								record.format ? `(${record.format})` : ''
+							}`;
 						return <Tooltip title={val}>{val}</Tooltip>;
 					},
 				},
@@ -161,12 +161,12 @@ function getSourceColumn(
 						const title = record.value
 							? `常量(${record.type})`
 							: `${text ? text.toUpperCase() : ''}${
-									record.format ? `(${record.format})` : ''
-							  }`;
+								record.format ? `(${record.format})` : ''
+							}`;
 						return (
 							<>
 								<Tooltip title={title}>{title}</Tooltip>
-								{record.isPart && <img src="images/primary-key.svg" />}
+								{record.isPart && <img src="images/primary-key.svg"/>}
 							</>
 						);
 					},
@@ -208,12 +208,12 @@ function getSourceColumn(
 						const title = record.value
 							? `常量(${record.type})`
 							: `${text ? text.toUpperCase() : ''}${
-									record.format ? `(${record.format})` : ''
-							  }`;
+								record.format ? `(${record.format})` : ''
+							}`;
 						return (
 							<>
 								<Tooltip title={title}>{title}</Tooltip>
-								{record.isPart && <img src="images/primary-key.svg" />}
+								{record.isPart && <img src="images/primary-key.svg"/>}
 							</>
 						);
 					},
@@ -353,7 +353,7 @@ export default function KeyMap() {
 	const target = useColumns('targetMap');
 	// 连线的数据
 	const [sourceCol, targetCol] = useFormColumns();
-	const { width } = useSize('taier__keyMap__container');
+	const {width} = useSize('taier__keyMap__container');
 
 	const [visibleConst, setConstVisible] = useState(false);
 	const [keyModal, setKeyModal] = useState<{
@@ -475,63 +475,63 @@ export default function KeyMap() {
 			onRenderColumns(s) {
 				return s
 					? getSourceColumn(
-							form.getFieldValue(['sourceMap', 'type']),
-							(record: IDataColumnsProps) => (
-								<Tooltip title="删除当前列">
-									<MinusOutlined
-										className={classNames(
-											disabledRef.current && 'taier__dataSync--disabled',
-										)}
-										onClick={() =>
-											handleColChanged(
-												OperatorKind.REMOVE,
-												[record],
-												'source',
-											)
-										}
-									/>
-								</Tooltip>
-							),
-							(record: IDataColumnsProps) => (
-								<Tooltip title="编辑当前列">
-									<EditOutlined
-										className={classNames(
-											disabledRef.current && 'taier__dataSync--disabled',
-										)}
-										onClick={() => handleOpenKeyModal(record, true)}
-									/>
-								</Tooltip>
-							),
-					  )
+						form.getFieldValue(['sourceMap', 'type']),
+						(record: IDataColumnsProps) => (
+							<Tooltip title="删除当前列">
+								<MinusOutlined
+									className={classNames(
+										disabledRef.current && 'taier__dataSync--disabled',
+									)}
+									onClick={() =>
+										handleColChanged(
+											OperatorKind.REMOVE,
+											[record],
+											'source',
+										)
+									}
+								/>
+							</Tooltip>
+						),
+						(record: IDataColumnsProps) => (
+							<Tooltip title="编辑当前列">
+								<EditOutlined
+									className={classNames(
+										disabledRef.current && 'taier__dataSync--disabled',
+									)}
+									onClick={() => handleOpenKeyModal(record, true)}
+								/>
+							</Tooltip>
+						),
+					)
 					: getTargetColumn(
-							form.getFieldValue(['targetMap', 'type']),
-							(record: IDataColumnsProps) => (
-								<Tooltip title="删除当前列">
-									<MinusOutlined
-										className={classNames(
-											disabledRef.current && 'taier__dataSync--disabled',
-										)}
-										onClick={() =>
-											handleColChanged(
-												OperatorKind.REMOVE,
-												[record],
-												'target',
-											)
-										}
-									/>
-								</Tooltip>
-							),
-							(record: IDataColumnsProps) => (
-								<Tooltip title="编辑当前列">
-									<EditOutlined
-										className={classNames(
-											disabledRef.current && 'taier__dataSync--disabled',
-										)}
-										onClick={() => handleOpenKeyModal(record, false)}
-									/>
-								</Tooltip>
-							),
-					  );
+						form.getFieldValue(['targetMap', 'type']),
+						(record: IDataColumnsProps) => (
+							<Tooltip title="删除当前列">
+								<MinusOutlined
+									className={classNames(
+										disabledRef.current && 'taier__dataSync--disabled',
+									)}
+									onClick={() =>
+										handleColChanged(
+											OperatorKind.REMOVE,
+											[record],
+											'target',
+										)
+									}
+								/>
+							</Tooltip>
+						),
+						(record: IDataColumnsProps) => (
+							<Tooltip title="编辑当前列">
+								<EditOutlined
+									className={classNames(
+										disabledRef.current && 'taier__dataSync--disabled',
+									)}
+									onClick={() => handleOpenKeyModal(record, false)}
+								/>
+							</Tooltip>
+						),
+					);
 			},
 			onRenderFooter(s) {
 				return s ? (
@@ -630,7 +630,7 @@ export default function KeyMap() {
 
 	// Re-render svg when form.xxxMap.column changed
 	useEffect(() => {
-		selection.current?.setLine(sourceCol.map((s, idx) => ({ from: s, to: targetCol[idx] })));
+		selection.current?.setLine(sourceCol.map((s, idx) => ({from: s, to: targetCol[idx]})));
 		selection.current?.render();
 	}, [disabled, sourceCol, targetCol]);
 
@@ -654,6 +654,7 @@ export default function KeyMap() {
 				});
 			}
 		}
+
 		event.subscribe(EventKind.Changed, listener);
 
 		return () => {
@@ -661,7 +662,7 @@ export default function KeyMap() {
 		};
 	}, []);
 
-	const { keyModalTitle, keyModalType } = useMemo(() => {
+	const {keyModalTitle, keyModalType} = useMemo(() => {
 		const type: DATA_SOURCE_ENUM = form.getFieldValue([
 			keyModal.isReader ? 'sourceMap' : 'targetMap',
 			'type',
@@ -702,12 +703,12 @@ export default function KeyMap() {
 				)}
 				您要配置来源表与目标表的字段映射关系，通过连线将待同步的字段左右相连，也可以通过同行映射、同名映射批量完成映射
 			</p>
-			<Form.Item noStyle name={['sourceMap', 'column']} rules={[{ required: true }]} />
-			<Form.Item noStyle name={['targetMap', 'column']} rules={[{ required: true }]} />
+			<Form.Item noStyle name={['sourceMap', 'column']} rules={[{required: true}]}/>
+			<Form.Item noStyle name={['targetMap', 'column']} rules={[{required: true}]}/>
 			<Spin spinning={fetching}>
 				<Row gutter={12}>
 					<Col span={21}>
-						<div ref={container} />
+						<div ref={container}/>
 					</Col>
 					<Col span={3}>
 						<Space
@@ -753,9 +754,9 @@ export default function KeyMap() {
 						type: keyModal.operation,
 						payload: [values],
 					});
-					setKeyModal((m) => ({ ...m, visible: false }));
+					setKeyModal((m) => ({...m, visible: false}));
 				}}
-				onCancel={() => setKeyModal((m) => ({ ...m, visible: false }))}
+				onCancel={() => setKeyModal((m) => ({...m, visible: false}))}
 			/>
 			<ConstModal
 				visible={visibleConst}
@@ -923,7 +924,7 @@ function useColumns(mapKind: 'sourceMap' | 'targetMap') {
 				next.payload.forEach((col) => {
 					const obj = nextValue.find((val) => getUniqueKey(val) === getUniqueKey(col));
 					if (obj) {
-						Object.assign(obj, { ...col });
+						Object.assign(obj, {...col});
 					}
 				});
 
@@ -957,5 +958,5 @@ function useColumns(mapKind: 'sourceMap' | 'targetMap') {
 		}
 	};
 
-	return { data: columns, fetching, disabled, dispatch, errorMsg };
+	return {data: columns, fetching, disabled, dispatch, errorMsg};
 }

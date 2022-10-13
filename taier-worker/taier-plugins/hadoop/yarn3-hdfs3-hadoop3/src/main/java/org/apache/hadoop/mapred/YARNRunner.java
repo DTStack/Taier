@@ -24,21 +24,6 @@
 package org.apache.hadoop.mapred;
 
 import com.google.common.annotations.VisibleForTesting;
-import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.nio.ByteBuffer;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Vector;
-import java.util.Map.Entry;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -53,10 +38,12 @@ import org.apache.hadoop.io.DataOutputBuffer;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.ipc.ProtocolSignature;
 import org.apache.hadoop.mapred.TaskLog.LogName;
+import org.apache.hadoop.mapreduce.Cluster.JobTrackerStatus;
 import org.apache.hadoop.mapreduce.ClusterMetrics;
 import org.apache.hadoop.mapreduce.Counters;
 import org.apache.hadoop.mapreduce.JobID;
 import org.apache.hadoop.mapreduce.JobStatus;
+import org.apache.hadoop.mapreduce.JobStatus.State;
 import org.apache.hadoop.mapreduce.MRJobConfig;
 import org.apache.hadoop.mapreduce.QueueAclsInfo;
 import org.apache.hadoop.mapreduce.QueueInfo;
@@ -66,8 +53,6 @@ import org.apache.hadoop.mapreduce.TaskReport;
 import org.apache.hadoop.mapreduce.TaskTrackerInfo;
 import org.apache.hadoop.mapreduce.TaskType;
 import org.apache.hadoop.mapreduce.TypeConverter;
-import org.apache.hadoop.mapreduce.Cluster.JobTrackerStatus;
-import org.apache.hadoop.mapreduce.JobStatus.State;
 import org.apache.hadoop.mapreduce.protocol.ClientProtocol;
 import org.apache.hadoop.mapreduce.security.token.delegation.DelegationTokenIdentifier;
 import org.apache.hadoop.mapreduce.v2.LogParams;
@@ -105,13 +90,29 @@ import org.apache.hadoop.yarn.util.ConverterUtils;
 import org.apache.hadoop.yarn.util.UnitsConversionUtil;
 import org.apache.hadoop.yarn.util.resource.ResourceUtils;
 
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.nio.ByteBuffer;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Vector;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 public class YARNRunner implements ClientProtocol {
     private static final Log LOG = LogFactory.getLog(YARNRunner.class);
     private static final String RACK_GROUP = "rack";
     private static final String NODE_IF_RACK_GROUP = "node1";
     private static final String NODE_IF_NO_RACK_GROUP = "node2";
     private static final Pattern RACK_NODE_PATTERN = Pattern.compile(String.format("(?<%s>[^/]+?)|(?<%s>/[^/]+?)(?:/(?<%s>[^/]+?))?", new Object[]{"node2", "rack", "node1"}));
-    private static final RecordFactory recordFactory = RecordFactoryProvider.getRecordFactory((Configuration)null);
+    private static final RecordFactory recordFactory = RecordFactoryProvider.getRecordFactory((Configuration) null);
     public static final Priority AM_CONTAINER_PRIORITY;
     private ResourceMgrDelegate resMgrDelegate;
     private ClientCache clientCache;
@@ -166,12 +167,12 @@ public class YARNRunner implements ClientProtocol {
     @VisibleForTesting
     void addHistoryToken(Credentials ts) throws IOException, InterruptedException {
         MRClientProtocol hsProxy = this.clientCache.getInitializedHSProxy();
-        if(UserGroupInformation.isSecurityEnabled() && hsProxy != null) {
+        if (UserGroupInformation.isSecurityEnabled() && hsProxy != null) {
             RMDelegationTokenSelector tokenSelector = new RMDelegationTokenSelector();
             Text service = this.resMgrDelegate.getRMDelegationTokenService();
-            if(tokenSelector.selectToken(service, ts.getAllTokens()) != null) {
+            if (tokenSelector.selectToken(service, ts.getAllTokens()) != null) {
                 Text hsService = SecurityUtil.buildTokenService(hsProxy.getConnectAddress());
-                if(ts.getToken(hsService) == null) {
+                if (ts.getToken(hsService) == null) {
                     ts.addToken(hsService, this.getDelegationTokenFromHS(hsProxy));
                 }
             }
@@ -181,7 +182,7 @@ public class YARNRunner implements ClientProtocol {
 
     @VisibleForTesting
     Token<?> getDelegationTokenFromHS(MRClientProtocol hsProxy) throws IOException, InterruptedException {
-        GetDelegationTokenRequest request = (GetDelegationTokenRequest)recordFactory.newRecordInstance(GetDelegationTokenRequest.class);
+        GetDelegationTokenRequest request = (GetDelegationTokenRequest) recordFactory.newRecordInstance(GetDelegationTokenRequest.class);
         request.setRenewer(Master.getMasterPrincipal(this.conf));
         org.apache.hadoop.yarn.api.records.Token mrDelegationToken = hsProxy.getDelegationToken(request).getDelegationToken();
         return ConverterUtils.convertFromYarn(mrDelegationToken, hsProxy.getConnectAddress());
@@ -238,8 +239,8 @@ public class YARNRunner implements ClientProtocol {
         try {
             ApplicationId applicationId = this.resMgrDelegate.submitApplication(appContext);
             ApplicationReport appMaster = this.resMgrDelegate.getApplicationReport(applicationId);
-            String diagnostics = appMaster == null?"application report is null":appMaster.getDiagnostics();
-            if(appMaster != null && appMaster.getYarnApplicationState() != YarnApplicationState.FAILED && appMaster.getYarnApplicationState() != YarnApplicationState.KILLED) {
+            String diagnostics = appMaster == null ? "application report is null" : appMaster.getDiagnostics();
+            if (appMaster != null && appMaster.getYarnApplicationState() != YarnApplicationState.FAILED && appMaster.getYarnApplicationState() != YarnApplicationState.KILLED) {
                 return this.clientCache.getClient(jobId).getJobStatus(jobId);
             } else {
                 throw new IOException("Failed to run job : " + diagnostics);
@@ -250,18 +251,18 @@ public class YARNRunner implements ClientProtocol {
     }
 
     private LocalResource createApplicationResource(FileSystem fs, Path p, LocalResourceType type) throws IOException {
-        return this.createApplicationResource(fs, p, (String)null, type, LocalResourceVisibility.APPLICATION, Boolean.valueOf(false));
+        return this.createApplicationResource(fs, p, (String) null, type, LocalResourceVisibility.APPLICATION, Boolean.valueOf(false));
     }
 
     private LocalResource createApplicationResource(FileSystem fs, Path p, String fileSymlink, LocalResourceType type, LocalResourceVisibility viz, Boolean uploadToSharedCache) throws IOException {
-        LocalResource rsrc = (LocalResource)recordFactory.newRecordInstance(LocalResource.class);
+        LocalResource rsrc = (LocalResource) recordFactory.newRecordInstance(LocalResource.class);
         FileStatus rsrcStat = fs.getFileStatus(p);
         Path qualifiedPath = fs.resolvePath(rsrcStat.getPath());
         URI uriWithFragment = null;
         boolean useFragment = fileSymlink != null && !fileSymlink.equals("");
 
         try {
-            if(useFragment) {
+            if (useFragment) {
                 uriWithFragment = new URI(qualifiedPath.toUri() + "#" + fileSymlink);
             } else {
                 uriWithFragment = qualifiedPath.toUri();
@@ -285,10 +286,10 @@ public class YARNRunner implements ClientProtocol {
         URL yarnUrlForJobSubmitDir = URL.fromPath(FileSystem.get(jobConf).resolvePath(FileSystem.get(jobConf).makeQualified(new Path(jobSubmitDir))));
         LOG.debug("Creating setup context, jobSubmitDir url is " + yarnUrlForJobSubmitDir);
         localResources.put("job.xml", this.createApplicationResource(FileSystem.get(jobConf), jobConfPath, LocalResourceType.FILE));
-        if(jobConf.get("mapreduce.job.jar") != null) {
+        if (jobConf.get("mapreduce.job.jar") != null) {
             Path jobJarPath = new Path(jobConf.get("mapreduce.job.jar"));
             FileContext fccc = FileContext.getFileContext(jobJarPath.toUri(), jobConf);
-            LocalResourceVisibility jobJarViz = jobConf.getBoolean("mapreduce.job.jobjar.visibility", false)?LocalResourceVisibility.PUBLIC:LocalResourceVisibility.APPLICATION;
+            LocalResourceVisibility jobJarViz = jobConf.getBoolean("mapreduce.job.jobjar.visibility", false) ? LocalResourceVisibility.PUBLIC : LocalResourceVisibility.APPLICATION;
             LocalResource rc = this.createApplicationResource(FileSystem.get(jobConf), jobJarPath, "job.jar", LocalResourceType.PATTERN, jobJarViz, Boolean.valueOf(jobConf.getBoolean("mapreduce.job.jobjar.sharedcache.uploadpolicy", false)));
             String pattern = this.conf.getPattern("mapreduce.job.jar.unpack.pattern", JobConf.UNPACK_JAR_PATTERN_DEFAULT).pattern();
             rc.setPattern(pattern);
@@ -300,7 +301,7 @@ public class YARNRunner implements ClientProtocol {
         String[] var11 = new String[]{"job.split", "job.splitmetainfo"};
         int var12 = var11.length;
 
-        for(int var13 = 0; var13 < var12; ++var13) {
+        for (int var13 = 0; var13 < var12; ++var13) {
             String s = var11[var13];
             localResources.put("jobSubmitDir/" + s, this.createApplicationResource(FileSystem.get(jobConf), new Path(jobSubmitDir, s), LocalResourceType.FILE));
         }
@@ -313,7 +314,7 @@ public class YARNRunner implements ClientProtocol {
         vargs.add(MRApps.crossPlatformifyMREnv(jobConf, Environment.JAVA_HOME) + "/bin/java");
         Path amTmpDir = new Path(MRApps.crossPlatformifyMREnv(this.conf, Environment.PWD), "./tmp");
         vargs.add("-Djava.io.tmpdir=" + amTmpDir);
-        MRApps.addLog4jSystemProperties((Task)null, vargs, this.conf);
+        MRApps.addLog4jSystemProperties((Task) null, vargs, this.conf);
         warnForJavaLibPath(this.conf.get("mapreduce.map.java.opts", ""), "map", "mapreduce.map.java.opts", "mapreduce.map.env");
         warnForJavaLibPath(this.conf.get("mapreduce.admin.map.child.java.opts", ""), "map", "mapreduce.admin.map.child.java.opts", "mapreduce.admin.user.env");
         warnForJavaLibPath(this.conf.get("mapreduce.reduce.java.opts", ""), "reduce", "mapreduce.reduce.java.opts", "mapreduce.reduce.env");
@@ -324,9 +325,9 @@ public class YARNRunner implements ClientProtocol {
         String mrAppMasterUserOptions = this.conf.get("yarn.app.mapreduce.am.command-opts", "-Xmx1024m");
         warnForJavaLibPath(mrAppMasterUserOptions, "app master", "yarn.app.mapreduce.am.command-opts", "yarn.app.mapreduce.am.env");
         vargs.add(mrAppMasterUserOptions);
-        if(jobConf.getBoolean("yarn.app.mapreduce.am.profile", false)) {
+        if (jobConf.getBoolean("yarn.app.mapreduce.am.profile", false)) {
             String profileParams = jobConf.get("yarn.app.mapreduce.am.profile.params", "-agentlib:hprof=cpu=samples,heap=sites,force=n,thread=y,verbose=n,file=%s");
-            if(profileParams != null) {
+            if (profileParams != null) {
                 vargs.add(String.format(profileParams, new Object[]{"<LOG_DIR>/" + LogName.PROFILE}));
             }
         }
@@ -342,8 +343,8 @@ public class YARNRunner implements ClientProtocol {
         StringBuilder mergedCommand = new StringBuilder();
         Iterator var7 = vargs.iterator();
 
-        while(var7.hasNext()) {
-            CharSequence str = (CharSequence)var7.next();
+        while (var7.hasNext()) {
+            CharSequence str = (CharSequence) var7.next();
             mergedCommand.append(str).append(" ");
         }
 
@@ -359,7 +360,7 @@ public class YARNRunner implements ClientProtocol {
         Map<ApplicationAccessType, String> acls = new HashMap(2);
         acls.put(ApplicationAccessType.VIEW_APP, jobConf.get("mapreduce.job.acl-view-job", " "));
         acls.put(ApplicationAccessType.MODIFY_APP, jobConf.get("mapreduce.job.acl-modify-job", " "));
-        return ContainerLaunchContext.newInstance(localResources, environment, vargsFinal, (Map)null, securityTokens, acls);
+        return ContainerLaunchContext.newInstance(localResources, environment, vargsFinal, (Map) null, securityTokens, acls);
     }
 
     public ApplicationSubmissionContext createApplicationSubmissionContext(Configuration jobConf, String jobSubmitDir, Credentials ts) throws IOException {
@@ -371,12 +372,12 @@ public class YARNRunner implements ClientProtocol {
         List<String> vargs = this.setupAMCommand(jobConf);
         ContainerLaunchContext amContainer = this.setupContainerLaunchContextForAM(jobConf, localResources, securityTokens, vargs);
         String regex = this.conf.get("mapreduce.job.send-token-conf");
-        if(regex != null && !regex.isEmpty()) {
+        if (regex != null && !regex.isEmpty()) {
             this.setTokenRenewerConf(amContainer, this.conf, regex);
         }
 
         Collection<String> tagsFromConf = jobConf.getTrimmedStringCollection("mapreduce.job.tags");
-        ApplicationSubmissionContext appContext = (ApplicationSubmissionContext)recordFactory.newRecordInstance(ApplicationSubmissionContext.class);
+        ApplicationSubmissionContext appContext = (ApplicationSubmissionContext) recordFactory.newRecordInstance(ApplicationSubmissionContext.class);
         appContext.setApplicationId(applicationId);
         appContext.setQueue(jobConf.get("mapreduce.job.queuename", "default"));
         ReservationId reservationID = null;
@@ -390,7 +391,7 @@ public class YARNRunner implements ClientProtocol {
             throw new IOException(amNodelabelExpression);
         }
 
-        if(reservationID != null) {
+        if (reservationID != null) {
             appContext.setReservationID(reservationID);
             LOG.info("SUBMITTING ApplicationSubmissionContext app:" + applicationId + " to queue:" + appContext.getQueue() + " with reservationId:" + appContext.getReservationID());
         }
@@ -402,23 +403,23 @@ public class YARNRunner implements ClientProtocol {
         List<ResourceRequest> amResourceRequests = this.generateResourceRequests();
         appContext.setAMContainerResourceRequests(amResourceRequests);
         amNodelabelExpression = this.conf.get("mapreduce.job.am.node-label-expression");
-        if(null != amNodelabelExpression && amNodelabelExpression.trim().length() != 0) {
+        if (null != amNodelabelExpression && amNodelabelExpression.trim().length() != 0) {
             Iterator var16 = amResourceRequests.iterator();
 
-            while(var16.hasNext()) {
-                ResourceRequest amResourceRequest = (ResourceRequest)var16.next();
+            while (var16.hasNext()) {
+                ResourceRequest amResourceRequest = (ResourceRequest) var16.next();
                 amResourceRequest.setNodeLabelExpression(amNodelabelExpression.trim());
             }
         }
 
         appContext.setNodeLabelExpression(jobConf.get("mapreduce.job.node-label-expression"));
         appContext.setApplicationType("MAPREDUCE");
-        if(tagsFromConf != null && !tagsFromConf.isEmpty()) {
+        if (tagsFromConf != null && !tagsFromConf.isEmpty()) {
             appContext.setApplicationTags(new HashSet(tagsFromConf));
         }
 
         String jobPriority = jobConf.get("mapreduce.job.priority");
-        if(jobPriority != null) {
+        if (jobPriority != null) {
             int iPriority;
             try {
                 iPriority = TypeConverter.toYarnApplicationPriority(jobPriority);
@@ -433,52 +434,52 @@ public class YARNRunner implements ClientProtocol {
     }
 
     private List<ResourceRequest> generateResourceRequests() throws IOException {
-        Resource capability = (Resource)recordFactory.newRecordInstance(Resource.class);
+        Resource capability = (Resource) recordFactory.newRecordInstance(Resource.class);
         boolean memorySet = false;
         boolean cpuVcoresSet = false;
         List<ResourceInformation> resourceRequests = ResourceUtils.getRequestedResourcesFromConfig(this.conf, "yarn.app.mapreduce.am.resource.");
         Iterator var5 = resourceRequests.iterator();
 
-        while(true) {
-            while(var5.hasNext()) {
-                ResourceInformation resourceReq = (ResourceInformation)var5.next();
+        while (true) {
+            while (var5.hasNext()) {
+                ResourceInformation resourceReq = (ResourceInformation) var5.next();
                 String resourceName = resourceReq.getName();
-                if(!"memory".equals(resourceName) && !"memory-mb".equals(resourceName)) {
-                    if("vcores".equals(resourceName)) {
-                        capability.setVirtualCores((int)UnitsConversionUtil.convert(resourceReq.getUnits(), "", resourceReq.getValue()));
+                if (!"memory".equals(resourceName) && !"memory-mb".equals(resourceName)) {
+                    if ("vcores".equals(resourceName)) {
+                        capability.setVirtualCores((int) UnitsConversionUtil.convert(resourceReq.getUnits(), "", resourceReq.getValue()));
                         cpuVcoresSet = true;
-                        if(this.conf.get("yarn.app.mapreduce.am.resource.cpu-vcores") != null) {
+                        if (this.conf.get("yarn.app.mapreduce.am.resource.cpu-vcores") != null) {
                             LOG.warn("Configuration yarn.app.mapreduce.am.resource." + resourceName + "=" + resourceReq.getValue() + resourceReq.getUnits() + " is overriding the " + "yarn.app.mapreduce.am.resource.cpu-vcores" + "=" + this.conf.get("yarn.app.mapreduce.am.resource.cpu-vcores") + " configuration");
                         }
-                    } else if(!"yarn.app.mapreduce.am.resource.mb".equals("yarn.app.mapreduce.am.resource." + resourceName) && !"yarn.app.mapreduce.am.resource.cpu-vcores".equals("yarn.app.mapreduce.am.resource." + resourceName)) {
+                    } else if (!"yarn.app.mapreduce.am.resource.mb".equals("yarn.app.mapreduce.am.resource." + resourceName) && !"yarn.app.mapreduce.am.resource.cpu-vcores".equals("yarn.app.mapreduce.am.resource." + resourceName)) {
                         ResourceInformation resourceInformation = capability.getResourceInformation(resourceName);
                         resourceInformation.setUnits(resourceReq.getUnits());
                         resourceInformation.setValue(resourceReq.getValue());
                         capability.setResourceInformation(resourceName, resourceInformation);
                     }
                 } else {
-                    if(memorySet) {
+                    if (memorySet) {
                         throw new IllegalArgumentException("Only one of the following keys can be specified for a single job: memory-mb, memory");
                     }
 
-                    String units = StringUtils.isEmpty(resourceReq.getUnits())?ResourceUtils.getDefaultUnit("memory-mb"):resourceReq.getUnits();
+                    String units = StringUtils.isEmpty(resourceReq.getUnits()) ? ResourceUtils.getDefaultUnit("memory-mb") : resourceReq.getUnits();
                     capability.setMemorySize(UnitsConversionUtil.convert(units, "Mi", resourceReq.getValue()));
                     memorySet = true;
-                    if(this.conf.get("yarn.app.mapreduce.am.resource.mb") != null) {
+                    if (this.conf.get("yarn.app.mapreduce.am.resource.mb") != null) {
                         LOG.warn("Configuration yarn.app.mapreduce.am.resource." + resourceName + "=" + resourceReq.getValue() + resourceReq.getUnits() + " is overriding the " + "yarn.app.mapreduce.am.resource.mb" + "=" + this.conf.get("yarn.app.mapreduce.am.resource.mb") + " configuration");
                     }
                 }
             }
 
-            if(!memorySet) {
-                capability.setMemorySize((long)this.conf.getInt("yarn.app.mapreduce.am.resource.mb", 1536));
+            if (!memorySet) {
+                capability.setMemorySize((long) this.conf.getInt("yarn.app.mapreduce.am.resource.mb", 1536));
             }
 
-            if(!cpuVcoresSet) {
+            if (!cpuVcoresSet) {
                 capability.setVirtualCores(this.conf.getInt("yarn.app.mapreduce.am.resource.cpu-vcores", 1));
             }
 
-            if(LOG.isDebugEnabled()) {
+            if (LOG.isDebugEnabled()) {
                 LOG.debug("AppMaster capability = " + capability);
             }
 
@@ -489,44 +490,44 @@ public class YARNRunner implements ClientProtocol {
             Collection<String> amStrictResources = this.conf.getStringCollection("mapreduce.job.am.strict-locality");
             Iterator var9 = amStrictResources.iterator();
 
-            while(var9.hasNext()) {
-                String amStrictResource = (String)var9.next();
+            while (var9.hasNext()) {
+                String amStrictResource = (String) var9.next();
                 amAnyResourceRequest.setRelaxLocality(false);
                 Matcher matcher = RACK_NODE_PATTERN.matcher(amStrictResource);
                 String nodeName;
-                if(!matcher.matches()) {
+                if (!matcher.matches()) {
                     nodeName = "Invalid resource name: " + amStrictResource + " specified.";
                     LOG.warn(nodeName);
                     throw new IOException(nodeName);
                 }
 
                 String rackName = matcher.group("rack");
-                if(rackName == null) {
+                if (rackName == null) {
                     rackName = "/default-rack";
                     nodeName = matcher.group("node2");
                 } else {
                     nodeName = matcher.group("node1");
                 }
 
-                ResourceRequest amRackResourceRequest = (ResourceRequest)rackRequests.get(rackName);
-                if(amRackResourceRequest == null) {
+                ResourceRequest amRackResourceRequest = (ResourceRequest) rackRequests.get(rackName);
+                if (amRackResourceRequest == null) {
                     amRackResourceRequest = this.createAMResourceRequest(rackName, capability);
                     amResourceRequests.add(amRackResourceRequest);
                     rackRequests.put(rackName, amRackResourceRequest);
                 }
 
-                if(nodeName != null) {
+                if (nodeName != null) {
                     amRackResourceRequest.setRelaxLocality(false);
                     ResourceRequest amNodeResourceRequest = this.createAMResourceRequest(nodeName, capability);
                     amResourceRequests.add(amNodeResourceRequest);
                 }
             }
 
-            if(LOG.isDebugEnabled()) {
+            if (LOG.isDebugEnabled()) {
                 var9 = amResourceRequests.iterator();
 
-                while(var9.hasNext()) {
-                    ResourceRequest amResourceRequest = (ResourceRequest)var9.next();
+                while (var9.hasNext()) {
+                    ResourceRequest amResourceRequest = (ResourceRequest) var9.next();
                     LOG.debug("ResourceRequest: resource = " + amResourceRequest.getResourceName() + ", locality = " + amResourceRequest.getRelaxLocality());
                 }
             }
@@ -536,7 +537,7 @@ public class YARNRunner implements ClientProtocol {
     }
 
     private ResourceRequest createAMResourceRequest(String resource, Resource capability) {
-        ResourceRequest resourceRequest = (ResourceRequest)recordFactory.newRecordInstance(ResourceRequest.class);
+        ResourceRequest resourceRequest = (ResourceRequest) recordFactory.newRecordInstance(ResourceRequest.class);
         resourceRequest.setPriority(AM_CONTAINER_PRIORITY);
         resourceRequest.setResourceName(resource);
         resourceRequest.setCapability(capability);
@@ -552,11 +553,11 @@ public class YARNRunner implements ClientProtocol {
         int count = 0;
         Iterator var7 = conf.iterator();
 
-        while(var7.hasNext()) {
-            Entry<String, String> map = (Entry)var7.next();
-            String key = (String)map.getKey();
-            String val = (String)map.getValue();
-            if(key.matches(regex)) {
+        while (var7.hasNext()) {
+            Entry<String, String> map = (Entry) var7.next();
+            String key = (String) map.getKey();
+            String val = (String) map.getValue();
+            if (key.matches(regex)) {
                 copy.set(key, val);
                 ++count;
             }
@@ -565,12 +566,12 @@ public class YARNRunner implements ClientProtocol {
         copy.write(dob);
         ByteBuffer appConf = ByteBuffer.wrap(dob.getData(), 0, dob.getLength());
         LOG.info("Send configurations that match regex expression: " + regex + " , total number of configs: " + count + ", total size : " + dob.getLength() + " bytes.");
-        if(LOG.isDebugEnabled()) {
+        if (LOG.isDebugEnabled()) {
             Iterator itor = copy.iterator();
 
-            while(itor.hasNext()) {
-                Entry<String, String> entry = (Entry)itor.next();
-                LOG.info((String)entry.getKey() + " ===> " + (String)entry.getValue());
+            while (itor.hasNext()) {
+                Entry<String, String> entry = (Entry) itor.next();
+                LOG.info((String) entry.getKey() + " ===> " + (String) entry.getValue());
             }
         }
 
@@ -629,7 +630,7 @@ public class YARNRunner implements ClientProtocol {
             throw new IOException(var4);
         }
 
-        if(application.getYarnApplicationState() != YarnApplicationState.FINISHED && application.getYarnApplicationState() != YarnApplicationState.FAILED && application.getYarnApplicationState() != YarnApplicationState.KILLED) {
+        if (application.getYarnApplicationState() != YarnApplicationState.FINISHED && application.getYarnApplicationState() != YarnApplicationState.FAILED && application.getYarnApplicationState() != YarnApplicationState.KILLED) {
             this.killApplication(appId);
         }
     }
@@ -649,9 +650,9 @@ public class YARNRunner implements ClientProtocol {
     public void killJob(JobID arg0) throws IOException, InterruptedException {
         JobStatus status = this.clientCache.getClient(arg0).getJobStatus(arg0);
         ApplicationId appId = TypeConverter.toYarn(arg0).getAppId();
-        if(status == null) {
+        if (status == null) {
             this.killUnFinishedApplication(appId);
-        } else if(status.getState() != State.RUNNING) {
+        } else if (status.getState() != State.RUNNING) {
             this.killApplication(appId);
         } else {
             try {
@@ -660,7 +661,7 @@ public class YARNRunner implements ClientProtocol {
                 long timeKillIssued = currentTimeMillis;
                 long killTimeOut = this.conf.getLong("yarn.app.mapreduce.am.hard-kill-timeout-ms", 10000L);
 
-                while(currentTimeMillis < timeKillIssued + killTimeOut && !this.isJobInTerminalState(status)) {
+                while (currentTimeMillis < timeKillIssued + killTimeOut && !this.isJobInTerminalState(status)) {
                     try {
                         Thread.sleep(1000L);
                     } catch (InterruptedException var11) {
@@ -669,7 +670,7 @@ public class YARNRunner implements ClientProtocol {
 
                     currentTimeMillis = System.currentTimeMillis();
                     status = this.clientCache.getClient(arg0).getJobStatus(arg0);
-                    if(status == null) {
+                    if (status == null) {
                         this.killUnFinishedApplication(appId);
                         return;
                     }
@@ -678,7 +679,7 @@ public class YARNRunner implements ClientProtocol {
                 LOG.debug("Error when checking for application status", var12);
             }
 
-            if(status != null && !this.isJobInTerminalState(status)) {
+            if (status != null && !this.isJobInTerminalState(status)) {
                 this.killApplication(appId);
             }
 
@@ -706,19 +707,19 @@ public class YARNRunner implements ClientProtocol {
     }
 
     private static void warnForJavaLibPath(String opts, String component, String javaConf, String envConf) {
-        if(opts != null && opts.contains("-Djava.library.path")) {
+        if (opts != null && opts.contains("-Djava.library.path")) {
             LOG.warn("Usage of -Djava.library.path in " + javaConf + " can cause programs to no longer function if hadoop native libraries are used. These values should be set as part of the LD_LIBRARY_PATH in the " + component + " JVM env using " + envConf + " config settings.");
         }
 
     }
 
     public void close() throws IOException {
-        if(this.resMgrDelegate != null) {
+        if (this.resMgrDelegate != null) {
             this.resMgrDelegate.close();
             this.resMgrDelegate = null;
         }
 
-        if(this.clientCache != null) {
+        if (this.clientCache != null) {
             this.clientCache.close();
             this.clientCache = null;
         }
@@ -726,7 +727,7 @@ public class YARNRunner implements ClientProtocol {
     }
 
     static {
-        AM_CONTAINER_PRIORITY = (Priority)recordFactory.newRecordInstance(Priority.class);
+        AM_CONTAINER_PRIORITY = (Priority) recordFactory.newRecordInstance(Priority.class);
         AM_CONTAINER_PRIORITY.setPriority(0);
     }
 }

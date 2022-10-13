@@ -1,14 +1,14 @@
 package com.dtstack.taier.flink.client;
 
 import com.dtstack.taier.base.util.HadoopConfTool;
-import com.dtstack.taier.pluginapi.exception.PluginDefineException;
 import com.dtstack.taier.flink.base.enums.ClusterMode;
-import com.dtstack.taier.flink.perjob.client.PerJobClientManager;
-import com.dtstack.taier.flink.session.client.SessionClientManager;
-import com.dtstack.taier.flink.standalone.client.StandaloneClientManager;
 import com.dtstack.taier.flink.config.FlinkConfig;
 import com.dtstack.taier.flink.config.HadoopConfig;
 import com.dtstack.taier.flink.constant.ConfigConstant;
+import com.dtstack.taier.flink.perjob.client.PerJobClientManager;
+import com.dtstack.taier.flink.session.client.SessionClientManager;
+import com.dtstack.taier.flink.standalone.client.StandaloneClientManager;
+import com.dtstack.taier.pluginapi.exception.PluginDefineException;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.flink.configuration.Configuration;
 

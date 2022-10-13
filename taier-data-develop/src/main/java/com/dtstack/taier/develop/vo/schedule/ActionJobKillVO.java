@@ -67,7 +67,7 @@ public class ActionJobKillVO {
         return cycStartDay;
     }
 
-    public Timestamp getCycStartTime(){
+    public Timestamp getCycStartTime() {
         if (cycStartDay != null) {
             return new Timestamp(cycStartDay);
         }
@@ -82,7 +82,7 @@ public class ActionJobKillVO {
         return cycEndDay;
     }
 
-    public Timestamp getCycEndTime(){
+    public Timestamp getCycEndTime() {
         if (cycEndDay != null) {
             return new Timestamp(cycEndDay);
         }

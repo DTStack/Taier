@@ -50,14 +50,17 @@ public interface TaskMapstructTransfer {
 
     /**
      * TaskResourceParamVO -> TaskResourceParam
+     *
      * @param DevelopTaskResourceParamVO
      * @return
      */
     TaskResourceParam TaskResourceParamVOToTaskResourceParam(DevelopTaskResourceParamVO DevelopTaskResourceParamVO);
+
     Task taskVOTOTask(TaskVO taskVO, @MappingTarget Task task);
 
     /**
      * Task -> DevelopTaskResultVO
+     *
      * @param task
      * @return
      */
@@ -74,6 +77,7 @@ public interface TaskMapstructTransfer {
 
     /**
      * TaskCatalogueVO -> TaskCatalogueResultVO
+     *
      * @param taskCatalogueVO
      * @return
      */
@@ -81,6 +85,7 @@ public interface TaskMapstructTransfer {
 
     /**
      * ollection<DevelopSysParameter>  -> Collection<DevelopSysParameterResultVO>
+     *
      * @param developSysParameterCollection
      * @return
      */
@@ -88,15 +93,16 @@ public interface TaskMapstructTransfer {
 
     /**
      * List<DevelopResource>  -> List<DevelopResourceResultVO>
+     *
      * @param DevelopResourceList
      * @return
      */
     List<DevelopResourceResultVO> DevelopResourceListToDevelopResourceResultVOList(List<DevelopResource> DevelopResourceList);
 
 
-
     /**
      * TaskCheckResultVO -> DevelopTaskPublishTaskResultVO
+     *
      * @param taskCheckResultVO
      * @return
      */
@@ -105,6 +111,7 @@ public interface TaskMapstructTransfer {
 
     /**
      * List<TaskGetNotDeleteVO> -> List<DevelopPreDeleteTaskResultVO>
+     *
      * @param notDeleteTaskVOS
      * @return
      */

@@ -3,13 +3,14 @@
 <mapper namespace="com.dtstack.taier.dao.mapper.DsClassifyMapper">
 
     <sql id="select_content_fragment">
-      id,classify_code,sorted,classify_name
+        id
+        ,classify_code,sorted,classify_name
     </sql>
 
 
     <select id="queryDsClassifyList" resultType="com.dtstack.taier.dao.domain.DsClassify">
         select
-        <include refid="select_content_fragment" />
+        <include refid="select_content_fragment"/>
         from datasource_classify
         where is_deleted = 0
         order by sorted desc

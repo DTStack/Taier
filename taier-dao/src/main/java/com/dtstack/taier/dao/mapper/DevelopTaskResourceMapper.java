@@ -28,13 +28,14 @@ public interface DevelopTaskResourceMapper extends BaseMapper<DevelopTaskResourc
 
     /**
      * @param taskId
-     * @param resourceType  资源类型 -- ResourceRefType
+     * @param resourceType 资源类型 -- ResourceRefType
      * @return
      */
     List<DevelopTaskResource> listByTaskId(@Param("taskId") Long taskId, @Param("resourceType") Integer resourceType);
 
     /**
      * 根据 任务Id、资源Id 查询管理关系
+     *
      * @param taskId
      * @param resourceId
      * @param resourceType
@@ -44,6 +45,7 @@ public interface DevelopTaskResourceMapper extends BaseMapper<DevelopTaskResourc
 
     /**
      * 根据 任务Id、资源类型 查询
+     *
      * @param taskId
      * @param resourceType
      * @return
@@ -52,6 +54,7 @@ public interface DevelopTaskResourceMapper extends BaseMapper<DevelopTaskResourc
 
     /**
      * 根据 资源Id 查询
+     *
      * @param resourceId
      * @return
      */
@@ -59,6 +62,7 @@ public interface DevelopTaskResourceMapper extends BaseMapper<DevelopTaskResourc
 
     /**
      * 根据 租户Id 删除
+     *
      * @param tenantId
      * @return
      */

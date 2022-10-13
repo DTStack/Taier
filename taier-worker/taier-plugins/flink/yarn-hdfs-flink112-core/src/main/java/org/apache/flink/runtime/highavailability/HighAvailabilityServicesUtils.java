@@ -55,7 +55,9 @@ import java.util.concurrent.Executor;
 import static org.apache.flink.util.Preconditions.checkNotNull;
 import static org.apache.flink.util.StringUtils.isNullOrWhitespaceOnly;
 
-/** Utils class to instantiate {@link HighAvailabilityServices} implementations. */
+/**
+ * Utils class to instantiate {@link HighAvailabilityServices} implementations.
+ */
 public class HighAvailabilityServicesUtils {
 
     private static final Object lock = new Object();
@@ -179,7 +181,7 @@ public class HighAvailabilityServicesUtils {
      * @param configuration Configuration to extract the JobManager's address from
      * @return The JobManager's hostname and port
      * @throws ConfigurationException if the JobManager's address cannot be extracted from the
-     *     configuration
+     *                                configuration
      */
     public static Tuple2<String, Integer> getJobManagerAddress(Configuration configuration)
             throws ConfigurationException {
@@ -210,8 +212,8 @@ public class HighAvailabilityServicesUtils {
      * Get address of web monitor from configuration.
      *
      * @param configuration Configuration contains those for WebMonitor.
-     * @param resolution Whether to try address resolution of the given hostname or not. This allows
-     *     to fail fast in case that the hostname cannot be resolved.
+     * @param resolution    Whether to try address resolution of the given hostname or not. This allows
+     *                      to fail fast in case that the hostname cannot be resolved.
      * @return Address of WebMonitor.
      */
     public static String getWebMonitorAddress(

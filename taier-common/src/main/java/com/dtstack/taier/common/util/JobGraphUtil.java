@@ -98,7 +98,7 @@ public class JobGraphUtil {
      *
      * @param engineTaskId
      * @param latencyMarkerInfo
-     * @param computeType 流计算才需存储jobGraph
+     * @param computeType       流计算才需存储jobGraph
      * @return
      */
     public static String formatJSON(String engineTaskId, String latencyMarkerInfo, ComputeType computeType) {

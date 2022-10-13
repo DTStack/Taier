@@ -1,12 +1,12 @@
-import { useContext } from 'react';
-import { Badge, Button, Descriptions, message, Modal, Spin, Tooltip } from 'antd';
+import {useContext} from 'react';
+import {Badge, Button, Descriptions, message, Modal, Spin, Tooltip} from 'antd';
 import CopyToClipboard from 'react-copy-to-clipboard';
 import moment from 'moment';
 import context from '@/context';
-import { CATALOGUE_TYPE } from '@/constant';
-import type { IDataSourceProps, IFunctionProps, IOfflineTaskProps } from '@/interface';
-import { formatDateTime } from '@/utils';
-import { TaskStatus, TaskTimeType } from '@/utils/enums';
+import {CATALOGUE_TYPE} from '@/constant';
+import type {IDataSourceProps, IFunctionProps, IOfflineTaskProps} from '@/interface';
+import {formatDateTime} from '@/utils';
+import {TaskStatus, TaskTimeType} from '@/utils/enums';
 import LinkInfoCell from '@/pages/dataSource/linkInfoCell';
 import './index.scss';
 
@@ -15,8 +15,8 @@ interface IDetailInfoProps {
 	data: Record<string, any>;
 }
 
-export default function DetailInfo({ type, data }: IDetailInfoProps) {
-	const { supportJobTypes } = useContext(context);
+export default function DetailInfo({type, data}: IDetailInfoProps) {
+	const {supportJobTypes} = useContext(context);
 
 	switch (type) {
 		case CATALOGUE_TYPE.TASK: {
@@ -128,13 +128,13 @@ export default function DetailInfo({ type, data }: IDetailInfoProps) {
 						{dataSourceData.dataDesc || '--'}
 					</Descriptions.Item>
 					<Descriptions.Item label="连接信息" span={12}>
-						<LinkInfoCell sourceData={dataSourceData} />
+						<LinkInfoCell sourceData={dataSourceData}/>
 					</Descriptions.Item>
 					<Descriptions.Item label="连接状态" span={12}>
 						{dataSourceData.status === 0 ? (
-							<Badge status="error" text="连接失败" />
+							<Badge status="error" text="连接失败"/>
 						) : (
-							<Badge status="success" text="正常" />
+							<Badge status="success" text="正常"/>
 						)}
 					</Descriptions.Item>
 					<Descriptions.Item label="修改时间" span={12}>
@@ -163,10 +163,10 @@ export default function DetailInfo({ type, data }: IDetailInfoProps) {
 						{supportJobTypes.find((t) => t.key === data.taskType)?.value || '未知'}
 					</Descriptions.Item>
 					<Descriptions.Item label="状态" span={12}>
-						<TaskStatus value={data.status} />
+						<TaskStatus value={data.status}/>
 					</Descriptions.Item>
 					<Descriptions.Item label="调度周期" span={12}>
-						<TaskTimeType value={data.taskPeriodId} />
+						<TaskTimeType value={data.taskPeriodId}/>
 					</Descriptions.Item>
 					<Descriptions.Item label="计划时间" span={12}>
 						{data.cycTime}
@@ -192,13 +192,13 @@ interface IDetailModalProps {
  * 详情模态框，用于展示函数或资源详情
  */
 export function DetailInfoModal({
-	visible,
-	loading,
-	title,
-	type,
-	data,
-	onCancel,
-}: IDetailModalProps) {
+									visible,
+									loading,
+									title,
+									type,
+									data,
+									onCancel,
+								}: IDetailModalProps) {
 	return (
 		<Modal
 			title={title}
@@ -212,7 +212,7 @@ export function DetailInfoModal({
 			}
 		>
 			<Spin spinning={loading}>
-				{data ? <DetailInfo type={type} data={data} /> : '系统异常'}
+				{data ? <DetailInfo type={type} data={data}/> : '系统异常'}
 			</Spin>
 		</Modal>
 	);

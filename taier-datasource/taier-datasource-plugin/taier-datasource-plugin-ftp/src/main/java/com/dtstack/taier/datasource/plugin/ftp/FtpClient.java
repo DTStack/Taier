@@ -1,9 +1,9 @@
 package com.dtstack.taier.datasource.plugin.ftp;
 
-import com.dtstack.taier.datasource.plugin.common.nosql.AbsNoSqlClient;
-import com.dtstack.taier.datasource.plugin.common.utils.AddressUtil;
 import com.dtstack.taier.datasource.api.dto.source.FtpSourceDTO;
 import com.dtstack.taier.datasource.api.dto.source.ISourceDTO;
+import com.dtstack.taier.datasource.plugin.common.nosql.AbsNoSqlClient;
+import com.dtstack.taier.datasource.plugin.common.utils.AddressUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.net.ftp.FTPClient;

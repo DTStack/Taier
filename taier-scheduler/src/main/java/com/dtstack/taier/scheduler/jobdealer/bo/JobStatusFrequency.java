@@ -22,6 +22,7 @@ package com.dtstack.taier.scheduler.jobdealer.bo;
  * Reason:
  * Date: 2019/2/19
  * Company: www.dtstack.com
+ *
  * @author xuchao
  */
 
@@ -33,7 +34,7 @@ public class JobStatusFrequency {
 
     private Long createTime;
 
-    public JobStatusFrequency(Integer status){
+    public JobStatusFrequency(Integer status) {
         this.createTime = System.currentTimeMillis();
         this.status = status;
         this.num = 0;

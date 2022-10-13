@@ -17,10 +17,10 @@
  */
 
 import * as React from 'react';
-import { Modal, Button, Radio } from 'antd';
+import {Button, Modal, Radio} from 'antd';
 import stream from '@/api';
-import TablePreview, { CollapsePreview } from './component/tablePreview';
-import { isHaveTopic, isHaveDataPreview } from '@/utils/is';
+import TablePreview, {CollapsePreview} from './component/tablePreview';
+import {isHaveDataPreview, isHaveTopic} from '@/utils/is';
 
 const previewTypes = {
 	Latest: 'latest',
@@ -37,9 +37,11 @@ class DataPreviewModal extends React.Component<any, any> {
 		};
 		this.retryCount = 0;
 	}
+
 	retryCount: number;
 	MAX_RETRY_COUNT: number = 3;
 	_clock: any;
+
 	componentDidUpdate(prevProps: any) {
 		const params = this.props.params;
 		if (prevProps.visible != this.props.visible && this.props.visible && params) {
@@ -51,12 +53,14 @@ class DataPreviewModal extends React.Component<any, any> {
 			this.getDataPreviewList(params);
 		}
 	}
+
 	componentWillUnmount() {
 		clearTimeout(this._clock);
 	}
+
 	getDataPreviewList = async (params: any) => {
-		const { type } = this.props;
-		const { previewType } = this.state;
+		const {type} = this.props;
+		const {previewType} = this.state;
 		this.setState({
 			loading: true,
 		});
@@ -106,8 +110,8 @@ class DataPreviewModal extends React.Component<any, any> {
 	};
 
 	render() {
-		const { visible, onCancel, type, dataSource, params } = this.props;
-		const { previewData, loading, previewType } = this.state;
+		const {visible, onCancel, type, dataSource, params} = this.props;
+		const {previewData, loading, previewType} = this.state;
 		return (
 			<Modal
 				visible={visible}
@@ -141,7 +145,7 @@ class DataPreviewModal extends React.Component<any, any> {
 						/>
 					</>
 				)}
-				{isHaveDataPreview(type) && <TablePreview notDesc={true} data={params} type={type} />}
+				{isHaveDataPreview(type) && <TablePreview notDesc={true} data={params} type={type}/>}
 			</Modal>
 		);
 	}

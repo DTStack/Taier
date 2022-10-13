@@ -36,12 +36,12 @@ const DEFAULT_STYLE: React.CSSProperties = {
 };
 
 export default function scrollText(props: ScrollTextProps) {
-	const { value, style: propsStyle = {} } = props;
+	const {value, style: propsStyle = {}} = props;
 
 	return (
 		<input
 			data-testid="test-scroll-text"
-			style={{ ...DEFAULT_STYLE, ...propsStyle }}
+			style={{...DEFAULT_STYLE, ...propsStyle}}
 			title={value?.toString()}
 			readOnly
 			className="cell-input"

@@ -7,6 +7,7 @@ import java.util.List;
 
 /**
  * <a href="https://github.com/DTStack/chunjun/blob/master/chunjun-examples/json/clickhouse/clickhouse.json">...</a>
+ *
  * @author leon
  * @date 2022-10-12 14:54
  **/
@@ -17,7 +18,7 @@ public class ClickHouseWriter extends RDBWriter {
 
     @Override
     public String pluginName() {
-        return  PluginName.Clichhouse_W;
+        return PluginName.Clichhouse_W;
     }
 
     public List<String> getFullColumnName() {

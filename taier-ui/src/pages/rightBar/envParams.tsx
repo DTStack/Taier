@@ -18,9 +18,9 @@
 
 import molecule from '@dtinsight/molecule';
 import Editor from '@/components/editor';
-import type { IRightBarComponentProps } from '@/services/rightBarService';
+import type {IRightBarComponentProps} from '@/services/rightBarService';
 
-export default function EnvParams({ current }: IRightBarComponentProps) {
+export default function EnvParams({current}: IRightBarComponentProps) {
 	const handleValueChanged = (value: string) => {
 		if (current?.tab) {
 			molecule.editor.updateTab({
@@ -40,7 +40,7 @@ export default function EnvParams({ current }: IRightBarComponentProps) {
 			language="ini"
 			options={{
 				automaticLayout: true,
-				minimap: { enabled: false },
+				minimap: {enabled: false},
 			}}
 			onChange={handleValueChanged}
 		/>

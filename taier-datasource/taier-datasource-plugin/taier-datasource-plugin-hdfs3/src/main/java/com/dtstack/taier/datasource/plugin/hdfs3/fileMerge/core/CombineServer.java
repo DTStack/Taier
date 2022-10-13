@@ -1,7 +1,7 @@
 package com.dtstack.taier.datasource.plugin.hdfs3.fileMerge.core;
 
-import com.dtstack.taier.datasource.plugin.hdfs3.util.FileSystemUtils;
 import com.dtstack.taier.datasource.api.exception.SourceException;
+import com.dtstack.taier.datasource.plugin.hdfs3.util.FileSystemUtils;
 import com.google.gson.Gson;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;

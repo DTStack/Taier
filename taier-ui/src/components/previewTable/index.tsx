@@ -1,14 +1,14 @@
-import { useMemo } from 'react';
-import { Table } from 'antd';
-import type { ColumnType } from 'antd/lib/table';
-import { useCalcTableScroll } from '../customHooks';
+import {useMemo} from 'react';
+import {Table} from 'antd';
+import type {ColumnType} from 'antd/lib/table';
+import {useCalcTableScroll} from '../customHooks';
 
 export default function PreviewTable({
-	data,
-}: {
+										 data,
+									 }: {
 	data: { columnList: string[]; dataList: string[][] };
 }) {
-	const { scroll } = useCalcTableScroll({ className: 'taier__preview__table' });
+	const {scroll} = useCalcTableScroll({className: 'taier__preview__table'});
 	const columns = useMemo<ColumnType<any>[]>(() => {
 		if (data?.columnList.length) {
 			return data.columnList.map((s) => {

@@ -41,7 +41,7 @@ public class PageResult<T> {
         this.data = data;
     }
 
-    public PageResult(Integer currentPage, Integer pageSize,Integer totalCount, T data) {
+    public PageResult(Integer currentPage, Integer pageSize, Integer totalCount, T data) {
         this.data = data;
         this.totalCount = totalCount;
         this.currentPage = currentPage;
@@ -50,7 +50,7 @@ public class PageResult<T> {
         this.totalPage = (totalCount % pageSize == 0 ? totalPage : totalPage + 1);
     }
 
-    public PageResult(Integer currentPage, Integer pageSize,Long totalCount, T data) {
+    public PageResult(Integer currentPage, Integer pageSize, Long totalCount, T data) {
         this.data = data;
         this.totalCount = totalCount;
         this.currentPage = currentPage;

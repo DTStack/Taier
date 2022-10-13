@@ -9,14 +9,14 @@ import io.swagger.annotations.ApiModelProperty;
  */
 public class DsInfoIdParam extends PubSvcBaseParam {
 
-   @ApiModelProperty("数据源Id")
-   private Long dataInfoId;
+    @ApiModelProperty("数据源Id")
+    private Long dataInfoId;
 
-   public Long getDataInfoId() {
-      return dataInfoId;
-   }
+    public Long getDataInfoId() {
+        return dataInfoId;
+    }
 
-   public void setDataInfoId(Long dataInfoId) {
-      this.dataInfoId = dataInfoId;
-   }
+    public void setDataInfoId(Long dataInfoId) {
+        this.dataInfoId = dataInfoId;
+    }
 }

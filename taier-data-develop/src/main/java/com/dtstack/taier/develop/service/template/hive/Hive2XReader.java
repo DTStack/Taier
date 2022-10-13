@@ -24,6 +24,7 @@ public class Hive2XReader extends HiveReaderBase {
     protected String remoteDir;
     protected Map<String, Object> sftpConf;
     protected String encoding = "utf-8";
+
     public void checkFormat(JSONObject data) {
         data = data.getJSONObject("parameter");
         if (StringUtils.isEmpty(data.getString("jdbcUrl"))) {
@@ -91,7 +92,7 @@ public class Hive2XReader extends HiveReaderBase {
     public String pluginName() {
         if (CollectionUtils.isNotEmpty(connection)) {
             return PluginName.HDFS_R;
-        }else {
+        } else {
             return PluginName.Hive_R;
         }
     }

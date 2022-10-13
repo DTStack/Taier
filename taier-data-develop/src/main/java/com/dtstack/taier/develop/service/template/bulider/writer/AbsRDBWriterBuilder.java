@@ -22,11 +22,14 @@ import java.util.Map;
  * @Author: gengxin
  * @Date: 2021/10/30 4:43 下午
  */
-public abstract class AbsRDBWriterBuilder implements DaWriterBuilder{
+public abstract class AbsRDBWriterBuilder implements DaWriterBuilder {
 
     public abstract DsInfoService getDataSourceAPIClient();
+
     public abstract RDBWriter getRDBWriter();
+
     public abstract RDBWriterParam getRDBWriterParam(TaskResourceParam param);
+
     public abstract void preWriterJson(TaskResourceParam param);
 
 
@@ -57,7 +60,7 @@ public abstract class AbsRDBWriterBuilder implements DaWriterBuilder{
         rdbWriter.setConnection(Lists.newArrayList(connection));
         rdbWriter.setUsername(rdbReaderParam.getUsername());
         rdbWriter.setPassword(rdbReaderParam.getPassword());
-        rdbWriter.setColumn(ColumnUtil.getColumns(rdbReaderParam.getColumn(),null));
+        rdbWriter.setColumn(ColumnUtil.getColumns(rdbReaderParam.getColumn(), null));
         rdbWriter.setPreSql(StringUtils.isNotBlank(rdbReaderParam.getPreSql()) ? Lists.newArrayList(rdbReaderParam.getPreSql().trim().split(";")) : Lists.newArrayList());
         rdbWriter.setPostSql(StringUtils.isNotBlank(rdbReaderParam.getPostSql()) ? Lists.newArrayList(rdbReaderParam.getPostSql().trim().split(";")) : Lists.newArrayList());
         rdbWriter.setWriteMode(rdbReaderParam.getWriteMode());

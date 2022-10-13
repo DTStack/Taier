@@ -11,10 +11,17 @@
 		"baseUrl": "./",
 		"strict": true,
 		"paths": {
-			"@/*": ["src/*"],
-			"@@/*": ["src/.umi/*"]
+			"@/*": [
+				"src/*"
+			],
+			"@@/*": [
+				"src/.umi/*"
+			]
 		},
-		"typeRoots": ["node_modules/@types", "node_modules/@typed-mxgraph"],
+		"typeRoots": [
+			"node_modules/@types",
+			"node_modules/@typed-mxgraph"
+		],
 		"experimentalDecorators": true,
 		"emitDecoratorMetadata": true,
 		"allowSyntheticDefaultImports": true

@@ -18,10 +18,10 @@
 
 package com.dtstack.taier.hadoop;
 
+import com.dtstack.taier.base.enums.ClassLoaderType;
 import com.dtstack.taier.hadoop.program.PackagedProgram;
 import com.dtstack.taier.pluginapi.JobParam;
 import com.dtstack.taier.pluginapi.callback.ClassLoaderCallBackMethod;
-import com.dtstack.taier.base.enums.ClassLoaderType;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.slf4j.Logger;

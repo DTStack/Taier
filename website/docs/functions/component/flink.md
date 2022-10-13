@@ -4,7 +4,9 @@ sidebar_label: Flink
 ---
 
 ## 配置Flink
+
 已配置前置组件
+
 - [x] SFTP
 - [x] YARN
 - [x] HDFS
@@ -16,6 +18,7 @@ sidebar_label: Flink
 :::
 
 ### 下载chunjun
+
 依赖`Chunjun` [1.12](https://github.com/DTStack/chunjun/releases/tag/v1.12.3) 版本
 [Chunjun源码编译](https://github.com/DTStack/chunjun/blob/master/docs/quickstart.md)
 
@@ -82,14 +85,15 @@ sidebar_label: Flink
 Flink在自定义参数中添加Flink官方参数来调整任务提交参数信息
 :::
 
-
 ### 文件结构
+
 :::tip
 FlinkJarPath为Flink jar 需要配置`taier部署机器`上的centos路径
 :::
 
 如 flinkJarPath 配置为/opt/dtstack/flink110_lib  
 /opt/dtstack/flink110_lib 目录包含文件为:
+
 ```shell
 ├── flink-dist_2.11-1.10.0.jar
 ├── flink-metrics-prometheus-1.10.0.jar
@@ -100,9 +104,9 @@ FlinkJarPath为Flink jar 需要配置`taier部署机器`上的centos路径
 └── log4j-1.2.17.jar
 ```
 
-:::tip 
+:::tip
 FlinkPluginRoot配置的是chunjun的插件包目录 需要配置`taier部署机器`上的centos路径
-:::   
+:::
 
 如 flinkPluginRoot 配置为 /data/insight_plugin1.12/chunjun-dist   
 /data/insight_plugin1.12/chunjun-dist 目录包含文件为:

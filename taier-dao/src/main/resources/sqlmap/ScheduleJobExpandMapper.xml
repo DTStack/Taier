@@ -3,7 +3,8 @@
 <mapper namespace="com.dtstack.taier.dao.mapper.ScheduleJobExpandMapper">
 
     <sql id="filed">
-        `id`,`job_id`,`retry_task_params`,`job_extra_info`,`engine_log`,`log_info`,`gmt_create`,`gmt_modified`,`is_deleted`
+        `id`
+        ,`job_id`,`retry_task_params`,`job_extra_info`,`engine_log`,`log_info`,`gmt_create`,`gmt_modified`,`is_deleted`
     </sql>
 
     <update id="updateLogByJobIds">

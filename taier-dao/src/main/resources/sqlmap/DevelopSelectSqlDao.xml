@@ -3,11 +3,12 @@
 <mapper namespace="com.dtstack.taier.dao.mapper.DevelopHiveSelectSqlMapper">
 
     <sql id="select_content_fragment">
-      id,tenant_id,job_id,temp_table_name,is_select_sql,gmt_create,gmt_modified,is_deleted,sql_text,user_id,parsed_columns,task_type
+        id
+        ,tenant_id,job_id,temp_table_name,is_select_sql,gmt_create,gmt_modified,is_deleted,sql_text,user_id,parsed_columns,task_type
     </sql>
 
 
-    <select id="getByJobId"  resultType="com.dtstack.taier.dao.domain.DevelopSelectSql">
+    <select id="getByJobId" resultType="com.dtstack.taier.dao.domain.DevelopSelectSql">
         SELECT
         <include refid="select_content_fragment"/>
         FROM develop_hive_select_sql
@@ -21,26 +22,29 @@
 
     <insert id="insert">
         insert into develop_hive_select_sql
-        (tenant_id,job_id,temp_table_name,is_select_sql,gmt_create,gmt_modified,is_deleted,sql_text,user_id,parsed_columns,task_type)
-        values
-        (#{tenantId},#{jobId},#{tempTableName},#{isSelectSql},now(),now(),0,#{sqlText},#{userId},#{parsedColumns},#{taskType})
+        (tenant_id, job_id, temp_table_name, is_select_sql, gmt_create, gmt_modified, is_deleted, sql_text, user_id,
+         parsed_columns, task_type)
+        values (#{tenantId}, #{jobId}, #{tempTableName}, #{isSelectSql}, now(), now(), 0, #{sqlText}, #{userId},
+                #{parsedColumns}, #{taskType})
     </insert>
 
     <update id="updateGmtModify">
         update develop_hive_select_sql
         set gmt_modified = now()
         where job_id = #{jobId}
-        and tenant_id = #{tenantId} and is_deleted = 0
+          and tenant_id = #{tenantId}
+          and is_deleted = 0
     </update>
 
     <update id="deleteByJobId">
         update develop_hive_select_sql
         set is_deleted = 1
         where job_id = #{jobId}
-        and tenant_id = #{tenantId} and is_deleted = 0
+          and tenant_id = #{tenantId}
+          and is_deleted = 0
     </update>
 
-    <select id="listSelectTypeByGmtModified"  resultType="com.dtstack.taier.dao.domain.DevelopSelectSql">
+    <select id="listSelectTypeByGmtModified" resultType="com.dtstack.taier.dao.domain.DevelopSelectSql">
         SELECT
         <include refid="select_content_fragment"/>
         FROM develop_hive_select_sql
@@ -49,7 +53,7 @@
     </select>
 
     <delete id="deleteByIds">
-        delete from  develop_hive_select_sql
+        delete from develop_hive_select_sql
         where id in
         <foreach collection="list" item="id" open="(" separator="," close=")">
             #{id}
@@ -66,7 +70,7 @@
         AND is_deleted = 0;
     </update>
 
-    <select id="listBySqlType"  resultType="com.dtstack.taier.dao.domain.DevelopSelectSql">
+    <select id="listBySqlType" resultType="com.dtstack.taier.dao.domain.DevelopSelectSql">
         SELECT
         <include refid="select_content_fragment"/>
         FROM develop_hive_select_sql
@@ -75,7 +79,9 @@
 
     <update id="deleteByTenantId" parameterType="java.lang.Long">
         UPDATE develop_hive_select_sql
-        SET is_deleted = 1, gmt_modified = now()
-        WHERE tenant_id = #{tenantId} AND is_deleted = 0;
+        SET is_deleted   = 1,
+            gmt_modified = now()
+        WHERE tenant_id = #{tenantId}
+          AND is_deleted = 0;
     </update>
 </mapper>

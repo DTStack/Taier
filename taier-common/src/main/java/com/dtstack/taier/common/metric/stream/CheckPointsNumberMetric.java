@@ -47,10 +47,10 @@ public class CheckPointsNumberMetric extends DataDelayMetric {
     @Override
     public Object formatData(MetricResult metricResult) {
         Integer count = 0;
-        if(metricResult != null && CollectionUtils.isNotEmpty(metricResult.getMetricDataList())){
+        if (metricResult != null && CollectionUtils.isNotEmpty(metricResult.getMetricDataList())) {
             for (MetricData metricData : metricResult.getMetricDataList()) {
                 for (Object dp : metricData.getDps()) {
-                    count = ((Tuple<Long, Double>)dp).getTwo().intValue();
+                    count = ((Tuple<Long, Double>) dp).getTwo().intValue();
                 }
             }
         }

@@ -1,5 +1,5 @@
 import api from '@/api';
-import { CATALOGUE_TYPE, MENU_TYPE_ENUM } from '@/constant';
+import {CATALOGUE_TYPE, MENU_TYPE_ENUM} from '@/constant';
 import molecule from '@dtinsight/molecule';
 import CatalogueService from '../catalogueService';
 import functionManagerService from '../functionManagerService';
@@ -121,7 +121,7 @@ describe('Test catalogue service', () => {
 
 		(resourceManagerService.getState as jest.Mock).mockImplementation(() => ({
 			folderTree: {
-				data: [{ children: ['this is resource.getState'] }],
+				data: [{children: ['this is resource.getState']}],
 			},
 		}));
 
@@ -161,7 +161,7 @@ describe('Test catalogue service', () => {
 		// @ts-ignore
 		expect(service.loadTreeNode()).rejects.toThrowError();
 
-		service.loadTreeNode({ id: 0, catalogueType: MENU_TYPE_ENUM.TASK }, CATALOGUE_TYPE.TASK);
+		service.loadTreeNode({id: 0, catalogueType: MENU_TYPE_ENUM.TASK}, CATALOGUE_TYPE.TASK);
 
 		await new Promise<void>((resolve) => {
 			setTimeout(() => {

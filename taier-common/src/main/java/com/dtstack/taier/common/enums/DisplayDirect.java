@@ -23,6 +23,7 @@ package com.dtstack.taier.common.enums;
  * 0 展开上下游, 1:展开上游 2:展开下游
  * Date: 2018/3/21
  * Company: www.dtstack.com
+ *
  * @author xuchao
  */
 public enum DisplayDirect {
@@ -31,11 +32,11 @@ public enum DisplayDirect {
 
     Integer type = 0;
 
-    DisplayDirect(Integer type){
+    DisplayDirect(Integer type) {
         this.type = type;
     }
 
-    public Integer getType(){
+    public Integer getType() {
         return type;
     }
 }

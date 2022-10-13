@@ -16,14 +16,14 @@
  * limitations under the License.
  */
 
-import type { IRightBarComponentProps } from '@/services/rightBarService';
+import type {IRightBarComponentProps} from '@/services/rightBarService';
 import DetailInfo from '@/components/detailInfo';
-import { CATALOGUE_TYPE } from '@/constant';
+import {CATALOGUE_TYPE} from '@/constant';
 
-export default function TaskInfo({ current }: IRightBarComponentProps) {
+export default function TaskInfo({current}: IRightBarComponentProps) {
 	return (
 		<div className="p-8">
-			<DetailInfo type={CATALOGUE_TYPE.TASK} data={current!.tab!.data} />
+			<DetailInfo type={CATALOGUE_TYPE.TASK} data={current!.tab!.data}/>
 		</div>
 	);
 }

@@ -3,13 +3,17 @@
 <mapper namespace="com.dtstack.taier.dao.mapper.ScheduleJobMapper">
 
     <sql id="select_content_fragment">
-        bj.id,bj.tenant_id,bj.job_id,bj.job_key,bj.job_name,bj.task_id,bj.gmt_create,bj.gmt_modified,bj.create_user_id,bj.is_deleted,bj.type,bj.is_restart,
+        bj
+        .
+        id
+        ,bj.tenant_id,bj.job_id,bj.job_key,bj.job_name,bj.task_id,bj.gmt_create,bj.gmt_modified,bj.create_user_id,bj.is_deleted,bj.type,bj.is_restart,
         bj.cyc_time,dependency_type,flow_job_id,bj.period_type,bj.status,bj.task_type,bj.fill_id,bj.exec_start_time,bj.exec_end_time,bj.exec_time,bj.submit_time,bj.retry_num,max_retry_num,
         bj.node_address,bj.version_id,bj.next_cyc_time,bj.compute_type,bj.submit_user_name,bj.engine_job_id,bj.fill_type
     </sql>
 
     <sql id="select_filed_all">
-        `id`,`tenant_id`,`job_id`,`job_key`,`job_name`,`task_id`,`gmt_create`,`gmt_modified`,`create_user_id`,`is_deleted`,`type`,`is_restart`,`cyc_time`
+        `id`
+        ,`tenant_id`,`job_id`,`job_key`,`job_name`,`task_id`,`gmt_create`,`gmt_modified`,`create_user_id`,`is_deleted`,`type`,`is_restart`,`cyc_time`
             ,`dependency_type`,`flow_job_id`,`period_type`,`status`,`task_type`,`fill_id`,`exec_start_time`,`exec_end_time`,`exec_time`,`submit_time`,`max_retry_num`,`retry_num`,`node_address`,`version_id`
             ,`next_cyc_time`,`engine_job_id`,`application_id`,`compute_type`,`phase_status`,`submit_user_name`,`fill_type`
     </sql>
@@ -18,7 +22,7 @@
         SELECT
         *
         FROM schedule_job job
-        WHERE job.task_id = #{taskId} and  #{time} > STR_TO_DATE(job.cyc_time,"%Y%m%d%H%i%s")
+        WHERE job.task_id = #{taskId} and #{time} > STR_TO_DATE(job.cyc_time,"%Y%m%d%H%i%s")
         and job.status = #{status}
         and job.is_deleted = 0
         <if test="type !=null">
@@ -44,7 +48,8 @@
     </select>
 
     <select id="getRdosJobByJobIds" resultType="com.dtstack.taier.dao.domain.ScheduleJob">
-        select id,job_id, engine_job_id,application_id,status,exec_start_time,exec_end_time,exec_time,retry_num,gmt_create,gmt_modified,is_deleted,compute_type,cyc_time,tenant_id
+        select id,job_id,
+        engine_job_id,application_id,status,exec_start_time,exec_end_time,exec_time,retry_num,gmt_create,gmt_modified,is_deleted,compute_type,cyc_time,tenant_id
         from schedule_job
         where job_id IN
         <foreach item="jobId" index="index" collection="jobIds" open="(" separator="," close=")">
@@ -54,7 +59,9 @@
     </select>
 
     <select id="getByName" parameterType="java.lang.String" resultType="com.dtstack.taier.dao.domain.ScheduleJob">
-        select <include refid="select_filed_all"/> from schedule_job where job_name = #{jobName} and is_deleted=0 LIMIT 1;
+        select
+        <include refid="select_filed_all"/>
+        from schedule_job where job_name = #{jobName} and is_deleted=0 LIMIT 1;
     </select>
 
     <update id="updateJobStatusByJobIds">
@@ -129,7 +136,7 @@
                 #{fillType}
             </foreach>
         </if>
-        <if test="statistics.type!=null" >
+        <if test="statistics.type!=null">
             AND `type` = #{statistics.type}
         </if>
         <if test="statistics.fillId!=null">
@@ -210,8 +217,8 @@
         update `schedule_job`
         set `phase_status`=#{update}
         where `id` = #{id}
-        and `phase_status` = #{original}
-        and `is_deleted`=0;
+          and `phase_status` = #{original}
+          and `is_deleted` = 0;
     </update>
 
     <update id="updateJobStatusAndExecTime">

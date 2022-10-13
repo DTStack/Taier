@@ -3,8 +3,8 @@ title: YARN
 sidebar_label: YARN
 ---
 
-
 ## 配置YARN
+
 |文件|是否必须|
 |----|----|
 |core-site.xml|是|
@@ -13,6 +13,7 @@ sidebar_label: YARN
 |hive-site.xml|否|
 
 已配置前置组件
+
 - [x] SFTP
 
 将以上xml文件压缩成zip(`zip文件中不包含层级目录`) 上传之后保存即可

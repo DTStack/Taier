@@ -53,7 +53,7 @@ public class BatchFillDataTask extends AbstractRecursionFillDataTask {
 
                 level++;
                 if (level > environmentContext.getFillDataRootTaskMaxLevel()) {
-                    LOGGER.warn("rootTaskId:{} max:{} break cycle",rootTaskId.getTaskId(),level);
+                    LOGGER.warn("rootTaskId:{} max:{} break cycle", rootTaskId.getTaskId(), level);
                     break;
                 }
 
@@ -63,8 +63,6 @@ public class BatchFillDataTask extends AbstractRecursionFillDataTask {
 
         return runList;
     }
-
-
 
 
 }

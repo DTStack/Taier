@@ -19,7 +19,6 @@
 package com.dtstack.taier.develop.dto.devlop;
 
 
-
 public class ComponentBindDBDTO {
     public Integer getComponentCode() {
         return componentCode;
@@ -57,7 +56,6 @@ public class ComponentBindDBDTO {
 
     /**
      * db 名称
-     *
      */
     private String dbName;
 

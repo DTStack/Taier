@@ -61,10 +61,10 @@ public class SftpFactory extends BasePooledObjectFactory<ChannelSftp> {
     }
 
     private void checkConfig(Map<String, String> sftpConfig) {
-        if(sftpConfig == null || sftpConfig.isEmpty()){
+        if (sftpConfig == null || sftpConfig.isEmpty()) {
             throw new IllegalArgumentException("The config of sftp is null");
         }
-        if(StringUtils.isEmpty(sftpConfig.get(KEY_HOST))){
+        if (StringUtils.isEmpty(sftpConfig.get(KEY_HOST))) {
             throw new IllegalArgumentException("The host of sftp is null");
         }
     }
@@ -95,7 +95,7 @@ public class SftpFactory extends BasePooledObjectFactory<ChannelSftp> {
             throw new RuntimeException("Login failed. Please check if username and password are correct");
         }
 
-        if (SftpType.PASSWORD_AUTHENTICATION.getType()==authType) {
+        if (SftpType.PASSWORD_AUTHENTICATION.getType() == authType) {
             //默认走密码验证模式
             session.setPassword(password);
         }

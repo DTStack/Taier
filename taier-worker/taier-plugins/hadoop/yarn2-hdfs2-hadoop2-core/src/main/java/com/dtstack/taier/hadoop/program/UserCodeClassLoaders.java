@@ -31,154 +31,154 @@ import java.util.List;
  */
 public class UserCodeClassLoaders {
 
-	public static URLClassLoader parentFirst(URL[] urls, ClassLoader parent) {
-		return new ParentFirstClassLoader(urls, parent);
-	}
+    public static URLClassLoader parentFirst(URL[] urls, ClassLoader parent) {
+        return new ParentFirstClassLoader(urls, parent);
+    }
 
-	public static URLClassLoader childFirst(
-		URL[] urls,
-		ClassLoader parent,
-		String[] alwaysParentFirstPatterns) {
-		return new ChildFirstClassLoader(urls, parent, alwaysParentFirstPatterns);
-	}
+    public static URLClassLoader childFirst(
+            URL[] urls,
+            ClassLoader parent,
+            String[] alwaysParentFirstPatterns) {
+        return new ChildFirstClassLoader(urls, parent, alwaysParentFirstPatterns);
+    }
 
-	public static URLClassLoader create(
-		ResolveOrder resolveOrder, URL[] urls, ClassLoader parent, String[] alwaysParentFirstPatterns) {
+    public static URLClassLoader create(
+            ResolveOrder resolveOrder, URL[] urls, ClassLoader parent, String[] alwaysParentFirstPatterns) {
 
-		switch (resolveOrder) {
-			case CHILD_FIRST:
-				return childFirst(urls, parent, alwaysParentFirstPatterns);
-			case PARENT_FIRST:
-				return parentFirst(urls, parent);
-			default:
-				throw new IllegalArgumentException("Unknown class resolution order: " + resolveOrder);
-		}
-	}
+        switch (resolveOrder) {
+            case CHILD_FIRST:
+                return childFirst(urls, parent, alwaysParentFirstPatterns);
+            case PARENT_FIRST:
+                return parentFirst(urls, parent);
+            default:
+                throw new IllegalArgumentException("Unknown class resolution order: " + resolveOrder);
+        }
+    }
 
-	/**
-	 * Class resolution order for Flink URL {@link ClassLoader}.
-	 */
-	public enum ResolveOrder {
-		CHILD_FIRST, PARENT_FIRST;
+    /**
+     * Class resolution order for Flink URL {@link ClassLoader}.
+     */
+    public enum ResolveOrder {
+        CHILD_FIRST, PARENT_FIRST;
 
-		public static ResolveOrder fromString(String resolveOrder) {
-			if (resolveOrder.equalsIgnoreCase("parent-first")) {
-				return PARENT_FIRST;
-			} else if (resolveOrder.equalsIgnoreCase("child-first")) {
-				return CHILD_FIRST;
-			} else {
-				throw new IllegalArgumentException("Unknown resolve order: " + resolveOrder);
-			}
-		}
-	}
+        public static ResolveOrder fromString(String resolveOrder) {
+            if (resolveOrder.equalsIgnoreCase("parent-first")) {
+                return PARENT_FIRST;
+            } else if (resolveOrder.equalsIgnoreCase("child-first")) {
+                return CHILD_FIRST;
+            } else {
+                throw new IllegalArgumentException("Unknown resolve order: " + resolveOrder);
+            }
+        }
+    }
 
-	/**
-	 * Regular URLClassLoader that first loads from the parent and only after that from the URLs.
-	 */
-	static class ParentFirstClassLoader extends URLClassLoader {
+    /**
+     * Regular URLClassLoader that first loads from the parent and only after that from the URLs.
+     */
+    static class ParentFirstClassLoader extends URLClassLoader {
 
-		ParentFirstClassLoader(URL[] urls) {
-			this(urls, UserCodeClassLoaders.class.getClassLoader());
-		}
+        ParentFirstClassLoader(URL[] urls) {
+            this(urls, UserCodeClassLoaders.class.getClassLoader());
+        }
 
-		ParentFirstClassLoader(URL[] urls, ClassLoader parent) {
-			super(urls, parent);
-		}
-	}
+        ParentFirstClassLoader(URL[] urls, ClassLoader parent) {
+            super(urls, parent);
+        }
+    }
 
-	/**
-	 * A variant of the URLClassLoader that first loads from the URLs and only after that from the parent.
-	 *
-	 * <p>{@link #getResourceAsStream(String)} uses {@link #getResource(String)} internally so we
-	 * don't override that.
-	 */
-	static final class ChildFirstClassLoader extends URLClassLoader {
+    /**
+     * A variant of the URLClassLoader that first loads from the URLs and only after that from the parent.
+     *
+     * <p>{@link #getResourceAsStream(String)} uses {@link #getResource(String)} internally so we
+     * don't override that.
+     */
+    static final class ChildFirstClassLoader extends URLClassLoader {
 
-		/**
-		 * The classes that should always go through the parent ClassLoader. This is relevant
-		 * for Flink classes, for example, to avoid loading Flink classes that cross the
-		 * user-code/system-code barrier in the user-code ClassLoader.
-		 */
-		private final String[] alwaysParentFirstPatterns;
+        /**
+         * The classes that should always go through the parent ClassLoader. This is relevant
+         * for Flink classes, for example, to avoid loading Flink classes that cross the
+         * user-code/system-code barrier in the user-code ClassLoader.
+         */
+        private final String[] alwaysParentFirstPatterns;
 
-		public ChildFirstClassLoader(URL[] urls, ClassLoader parent, String[] alwaysParentFirstPatterns) {
-			super(urls, parent);
-			this.alwaysParentFirstPatterns = alwaysParentFirstPatterns;
-		}
+        public ChildFirstClassLoader(URL[] urls, ClassLoader parent, String[] alwaysParentFirstPatterns) {
+            super(urls, parent);
+            this.alwaysParentFirstPatterns = alwaysParentFirstPatterns;
+        }
 
-		@Override
-		protected synchronized Class<?> loadClass(
-			String name, boolean resolve) throws ClassNotFoundException {
+        @Override
+        protected synchronized Class<?> loadClass(
+                String name, boolean resolve) throws ClassNotFoundException {
 
-			// First, check if the class has already been loaded
-			Class<?> c = findLoadedClass(name);
+            // First, check if the class has already been loaded
+            Class<?> c = findLoadedClass(name);
 
-			if (c == null) {
-				// check whether the class should go parent-first
-				for (String alwaysParentFirstPattern : alwaysParentFirstPatterns) {
-					if (name.startsWith(alwaysParentFirstPattern)) {
-						return super.loadClass(name, resolve);
-					}
-				}
+            if (c == null) {
+                // check whether the class should go parent-first
+                for (String alwaysParentFirstPattern : alwaysParentFirstPatterns) {
+                    if (name.startsWith(alwaysParentFirstPattern)) {
+                        return super.loadClass(name, resolve);
+                    }
+                }
 
-				try {
-					// check the URLs
-					c = findClass(name);
-				} catch (ClassNotFoundException e) {
-					// let URLClassLoader do it, which will eventually call the parent
-					c = super.loadClass(name, resolve);
-				}
-			}
+                try {
+                    // check the URLs
+                    c = findClass(name);
+                } catch (ClassNotFoundException e) {
+                    // let URLClassLoader do it, which will eventually call the parent
+                    c = super.loadClass(name, resolve);
+                }
+            }
 
-			if (resolve) {
-				resolveClass(c);
-			}
+            if (resolve) {
+                resolveClass(c);
+            }
 
-			return c;
-		}
+            return c;
+        }
 
-		@Override
-		public URL getResource(String name) {
-			// first, try and find it via the URLClassloader
-			URL urlClassLoaderResource = findResource(name);
+        @Override
+        public URL getResource(String name) {
+            // first, try and find it via the URLClassloader
+            URL urlClassLoaderResource = findResource(name);
 
-			if (urlClassLoaderResource != null) {
-				return urlClassLoaderResource;
-			}
+            if (urlClassLoaderResource != null) {
+                return urlClassLoaderResource;
+            }
 
-			// delegate to super
-			return super.getResource(name);
-		}
+            // delegate to super
+            return super.getResource(name);
+        }
 
-		@Override
-		public Enumeration<URL> getResources(String name) throws IOException {
-			// first get resources from URLClassloader
-			Enumeration<URL> urlClassLoaderResources = findResources(name);
+        @Override
+        public Enumeration<URL> getResources(String name) throws IOException {
+            // first get resources from URLClassloader
+            Enumeration<URL> urlClassLoaderResources = findResources(name);
 
-			final List<URL> result = new ArrayList<>();
+            final List<URL> result = new ArrayList<>();
 
-			while (urlClassLoaderResources.hasMoreElements()) {
-				result.add(urlClassLoaderResources.nextElement());
-			}
+            while (urlClassLoaderResources.hasMoreElements()) {
+                result.add(urlClassLoaderResources.nextElement());
+            }
 
-			// get parent urls
-			Enumeration<URL> parentResources = getParent().getResources(name);
+            // get parent urls
+            Enumeration<URL> parentResources = getParent().getResources(name);
 
-			while (parentResources.hasMoreElements()) {
-				result.add(parentResources.nextElement());
-			}
+            while (parentResources.hasMoreElements()) {
+                result.add(parentResources.nextElement());
+            }
 
-			return new Enumeration<URL>() {
-				Iterator<URL> iter = result.iterator();
+            return new Enumeration<URL>() {
+                Iterator<URL> iter = result.iterator();
 
-				public boolean hasMoreElements() {
-					return iter.hasNext();
-				}
+                public boolean hasMoreElements() {
+                    return iter.hasNext();
+                }
 
-				public URL nextElement() {
-					return iter.next();
-				}
-			};
-		}
-	}
+                public URL nextElement() {
+                    return iter.next();
+                }
+            };
+        }
+    }
 }

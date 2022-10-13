@@ -17,18 +17,17 @@
  */
 
 import molecule from '@dtinsight/molecule';
-import type { IFolderTreeNodeProps } from '@dtinsight/molecule/esm/model';
-import { SyntaxIcon, ResourceIcon } from '@/components/icon';
-import type { RESOURCE_TYPE } from '@/constant';
-import { ID_COLLECTIONS } from '@/constant';
-import { CATALOGUE_TYPE, TASK_TYPE_ENUM } from '@/constant';
-import type { CatalogueDataProps, IOfflineTaskProps } from '@/interface';
-import { executeService, taskRenderService } from '@/services';
-import taskResultService, { createLog } from '@/services/taskResultService';
+import type {IFolderTreeNodeProps} from '@dtinsight/molecule/esm/model';
+import {ResourceIcon, SyntaxIcon} from '@/components/icon';
+import type {RESOURCE_TYPE} from '@/constant';
+import {CATALOGUE_TYPE, ID_COLLECTIONS, TASK_TYPE_ENUM} from '@/constant';
+import type {CatalogueDataProps, IOfflineTaskProps} from '@/interface';
+import {executeService, taskRenderService} from '@/services';
+import taskResultService, {createLog} from '@/services/taskResultService';
 import Result from '@/components/task/result';
-import { filterSql } from '.';
+import {filterSql} from '.';
 import stream from '@/api';
-import { TreeViewUtil } from '@dtinsight/molecule/esm/common/treeUtil';
+import {TreeViewUtil} from '@dtinsight/molecule/esm/common/treeUtil';
 import taskSaveService from '@/services/taskSaveService';
 import md5 from 'md5';
 
@@ -44,7 +43,7 @@ export function fileIcon(
 			return taskRenderService.renderTaskIcon(type as TASK_TYPE_ENUM);
 		}
 		case CATALOGUE_TYPE.RESOURCE: {
-			return <ResourceIcon style={{ color: '#0065f6' }} />;
+			return <ResourceIcon style={{color: '#0065f6'}}/>;
 		}
 		case CATALOGUE_TYPE.FUNCTION:
 		default:
@@ -61,9 +60,9 @@ export function runTask(current: molecule.model.IEditorGroup) {
 		| undefined = current.tab?.data;
 	if (currentTabData) {
 		// active 日志 窗口
-		const { data } = molecule.panel.getState();
+		const {data} = molecule.panel.getState();
 		const {
-			panel: { hidden },
+			panel: {hidden},
 		} = molecule.layout.getState();
 		if (hidden) {
 			molecule.layout.togglePanelVisibility();
@@ -122,7 +121,7 @@ export function runTask(current: molecule.model.IEditorGroup) {
 			}
 
 			executeService.execSql(currentTabData.id, currentTabData, params, sqls).then(() => {
-				const { results } = taskResultService.getState();
+				const {results} = taskResultService.getState();
 				let nextActivePanel: string | null = null;
 				Object.entries(results).forEach(([key, values]) => {
 					const panel = molecule.panel.getPanel(key);
@@ -182,9 +181,9 @@ export function syntaxValidate(current: molecule.model.IEditorGroup) {
 	]);
 
 	// active 日志 窗口
-	const { data } = molecule.panel.getState();
+	const {data} = molecule.panel.getState();
 	const {
-		panel: { hidden },
+		panel: {hidden},
 	} = molecule.layout.getState();
 	if (hidden) {
 		molecule.layout.togglePanelVisibility();
@@ -227,7 +226,7 @@ export function syntaxValidate(current: molecule.model.IEditorGroup) {
 			molecule.editor.updateActions([
 				{
 					id: ID_COLLECTIONS.TASK_SYNTAX_ID,
-					icon: <SyntaxIcon />,
+					icon: <SyntaxIcon/>,
 					disabled: false,
 				},
 			]);

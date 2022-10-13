@@ -1,12 +1,12 @@
 /* eslint-disable no-template-curly-in-string */
-import HelpDoc, { relativeStyle } from '@/components/helpDoc';
-import { Modal, Input, Select, Form } from 'antd';
-import { Utils } from '@dtinsight/dt-utils/lib';
-import type { IDataColumnsProps } from '@/interface';
+import HelpDoc, {relativeStyle} from '@/components/helpDoc';
+import {Form, Input, Modal, Select} from 'antd';
+import {Utils} from '@dtinsight/dt-utils/lib';
+import type {IDataColumnsProps} from '@/interface';
 import './constModal.scss';
-import { formItemLayout } from '@/constant';
+import {formItemLayout} from '@/constant';
 
-const { Option } = Select;
+const {Option} = Select;
 const FormItem = Form.Item;
 
 interface IConstModalProps {
@@ -31,7 +31,7 @@ const systemVariable = [
 	'${bdp.system.runtime}',
 ];
 
-export default function ConstModal({ visible, onOk, onCancel }: IConstModalProps) {
+export default function ConstModal({visible, onOk, onCancel}: IConstModalProps) {
 	const [form] = Form.useForm<IFormFieldProps>();
 
 	const handleSubmit = () => {
@@ -59,7 +59,7 @@ export default function ConstModal({ visible, onOk, onCancel }: IConstModalProps
 				{...formItemLayout}
 				autoComplete="off"
 				form={form}
-				initialValues={{ type: 'STRING' }}
+				initialValues={{type: 'STRING'}}
 				preserve={false}
 			>
 				<FormItem
@@ -72,7 +72,7 @@ export default function ConstModal({ visible, onOk, onCancel }: IConstModalProps
 						},
 					]}
 				>
-					<Input placeholder="请输入常量名称" />
+					<Input placeholder="请输入常量名称"/>
 				</FormItem>
 				<FormItem
 					name="constValue"
@@ -82,7 +82,7 @@ export default function ConstModal({ visible, onOk, onCancel }: IConstModalProps
 							required: true,
 							message: '常量值不可为空！',
 						},
-						({ getFieldValue }) => ({
+						({getFieldValue}) => ({
 							validator(_, value) {
 								const valueWithoutBlank = Utils.trim(value);
 								if (
@@ -99,7 +99,7 @@ export default function ConstModal({ visible, onOk, onCancel }: IConstModalProps
 						}),
 					]}
 				>
-					<Input placeholder="请输入常量值" />
+					<Input placeholder="请输入常量值"/>
 				</FormItem>
 				<FormItem name="type" label="类型">
 					<Select placeholder="请选择类型">
@@ -109,7 +109,7 @@ export default function ConstModal({ visible, onOk, onCancel }: IConstModalProps
 					</Select>
 				</FormItem>
 				<FormItem name="constFormat" label="格式">
-					<Input placeholder="格式化, 例如：yyyy-MM-dd" />
+					<Input placeholder="格式化, 例如：yyyy-MM-dd"/>
 				</FormItem>
 				<FormItem
 					wrapperCol={{
@@ -121,7 +121,7 @@ export default function ConstModal({ visible, onOk, onCancel }: IConstModalProps
 						<li>输入的常量值将会被英文单引号包括，如'abc'、'123'等</li>
 						<li>
 							可以配合调度参数使用，如 ${`{bdp.system.bizdate}`}等
-							<HelpDoc style={relativeStyle} doc="customSystemParams" />
+							<HelpDoc style={relativeStyle} doc="customSystemParams"/>
 						</li>
 						<li>如果您输入的值无法解析，则类型显示为'未识别'</li>
 					</ol>

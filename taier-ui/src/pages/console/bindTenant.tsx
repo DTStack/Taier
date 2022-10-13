@@ -16,11 +16,11 @@
  * limitations under the License.
  */
 
-import { forwardRef, useImperativeHandle, useMemo } from 'react';
-import Sketch, { useSketchRef } from '@/components/sketch';
-import type { ColumnsType } from 'antd/lib/table';
+import {forwardRef, useImperativeHandle, useMemo} from 'react';
+import Sketch, {useSketchRef} from '@/components/sketch';
+import type {ColumnsType} from 'antd/lib/table';
 import Api from '../../api';
-import { isSparkEngine } from '@/utils/is';
+import {isSparkEngine} from '@/utils/is';
 
 interface IFormFieldProps {
 	name: string;
@@ -42,11 +42,11 @@ interface IBindTenantProps {
 }
 
 export default forwardRef(
-	({ clusterId, engineType, clusterName, onClick }: IBindTenantProps, ref) => {
+	({clusterId, engineType, clusterName, onClick}: IBindTenantProps, ref) => {
 		const actionRef = useSketchRef();
 		const requestTenantResource = (
 			values: IFormFieldProps,
-			{ current }: { current: number },
+			{current}: { current: number },
 		) => {
 			return Api.searchTenant({
 				name: values.name,

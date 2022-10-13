@@ -31,6 +31,7 @@ public interface DevelopFunctionResourceMapper extends BaseMapper<DevelopFunctio
 
     /**
      * 根据 资源id 获取函数和资源的关联关系
+     *
      * @param resourceId
      * @return
      */
@@ -38,6 +39,7 @@ public interface DevelopFunctionResourceMapper extends BaseMapper<DevelopFunctio
 
     /**
      * 根据 函数id 删除函数和资源的关联关系
+     *
      * @param functionId
      * @return
      */
@@ -45,6 +47,7 @@ public interface DevelopFunctionResourceMapper extends BaseMapper<DevelopFunctio
 
     /**
      * 根据 函数id 查询函数和资源的关联关系的列表
+     *
      * @param functionId
      * @return
      */
@@ -52,6 +55,7 @@ public interface DevelopFunctionResourceMapper extends BaseMapper<DevelopFunctio
 
     /**
      * 根据 资源id 查询函数和资源关联关系的列表
+     *
      * @param resource_Id
      * @return
      */

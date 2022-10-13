@@ -3,14 +3,16 @@
 <mapper namespace="com.dtstack.taier.dao.mapper.StreamMetricSupportMapper">
 
     <sql id="select_content_fragment">
-      id,name,task_type,value,metric_tag,gmt_create,gmt_modified,is_deleted
+        id
+        ,name,task_type,value,metric_tag,gmt_create,gmt_modified,is_deleted
     </sql>
 
     <select id="getMetricKeyByType" resultType="java.lang.String">
-        SELECT
-        value
+        SELECT value
         FROM stream_metric_support
-        WHERE is_deleted = 0 AND task_type = #{taskType} AND component_version = #{componentVersion}
+        WHERE is_deleted = 0
+          AND task_type = #{taskType}
+          AND component_version = #{componentVersion}
     </select>
 
     <select id="getMetricByType" resultType="com.dtstack.taier.dao.domain.StreamMetricSupport">

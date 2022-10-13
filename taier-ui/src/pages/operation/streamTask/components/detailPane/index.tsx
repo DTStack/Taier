@@ -16,17 +16,17 @@
  * limitations under the License.
  */
 
-import { useEffect, useState } from 'react';
-import { Tabs, Radio } from 'antd';
-import type { RadioChangeEvent } from 'antd/es/radio';
+import {useEffect, useState} from 'react';
+import {Radio, Tabs} from 'antd';
+import type {RadioChangeEvent} from 'antd/es/radio';
 import SlidePane from '@/components/slidePane';
-import type { IStreamJobProps } from '@/interface';
-import { TaskStatus } from '@/utils/enums';
+import type {IStreamJobProps} from '@/interface';
+import {TaskStatus} from '@/utils/enums';
 import stream from '@/api';
 import RunLog from './components/runLog';
 import Failover from './components/runLog/failover';
 import CheckPoint from './components/runLog/checkPoint';
-import RunCode, { IRunCodeDataProps } from './components/runCode';
+import RunCode, {IRunCodeDataProps} from './components/runCode';
 import History from './components/runLog/historyLog';
 import TaskManager from './components/taskManager';
 import RunMsg from './components/runMsg';
@@ -89,17 +89,17 @@ const TABS_OPTIONS = [
 ];
 
 export default function TaskDetailPane({
-	visibleSlidePane,
-	data,
-	extButton,
-	closeSlidePane,
-}: IProps) {
+										   visibleSlidePane,
+										   data,
+										   extButton,
+										   closeSlidePane,
+									   }: IProps) {
 	const [tabKey, setTabKey] = useState<TABS_ENUM>(TABS_ENUM.GRAPH);
 	const [logSubTabKey, setLogSubTabKey] = useState(TABS_LOG_ENUM.RUN_LOG);
 	const [taskParams, setTaskParams] = useState<IRunCodeDataProps | undefined>(undefined);
 
 	const getTaskParams = async () => {
-		const res = await stream.getTaskSqlText({ taskId: data?.id });
+		const res = await stream.getTaskSqlText({taskId: data?.id});
 		if (res?.code === 1) {
 			setTaskParams(res.data || {});
 		}
@@ -128,35 +128,35 @@ export default function TaskDetailPane({
 	};
 
 	const renderSubContent = (key: TABS_LOG_ENUM) => {
-		const { id, jobId } = data!;
+		const {id, jobId} = data!;
 		switch (key) {
 			case TABS_LOG_ENUM.RUN_LOG:
-				return <RunLog key={id} data={data} />;
+				return <RunLog key={id} data={data}/>;
 			case TABS_LOG_ENUM.FAILOVER:
-				return <Failover key={id} isShow={logSubTabKey === 'failover'} data={data} />;
+				return <Failover key={id} isShow={logSubTabKey === 'failover'} data={data}/>;
 			case TABS_LOG_ENUM.TASK_MANAGER:
-				return <TaskManager key={id} data={data} />;
+				return <TaskManager key={id} data={data}/>;
 			case TABS_LOG_ENUM.CHECKPOINT:
-				return <CheckPoint data={data} tabKey={logSubTabKey} />;
+				return <CheckPoint data={data} tabKey={logSubTabKey}/>;
 			case TABS_LOG_ENUM.HISTORY_LOG:
-				return <History id={id!} jobId={jobId!} isShow={logSubTabKey === 'historyLog'} />;
+				return <History id={id!} jobId={jobId!} isShow={logSubTabKey === 'historyLog'}/>;
 			default:
 				return null;
 		}
 	};
 
 	const renderTabContent = (key: TABS_ENUM) => {
-		const { taskType } = data!;
+		const {taskType} = data!;
 		switch (key) {
 			case TABS_ENUM.GRAPH:
-				return <StreamDetailGraph data={data} />;
+				return <StreamDetailGraph data={data}/>;
 			case TABS_ENUM.MESSAGE:
-				return <RunMsg data={data} />;
+				return <RunMsg data={data}/>;
 			case TABS_ENUM.LOG:
 				return (
 					<>
 						<Radio.Group
-							style={{ padding: '12px 20px' }}
+							style={{padding: '12px 20px'}}
 							value={logSubTabKey}
 							onChange={subTabChange}
 						>
@@ -176,7 +176,7 @@ export default function TaskDetailPane({
 					</>
 				);
 			case TABS_ENUM.PARAMS:
-				return <RunCode key={data?.id} data={taskParams} />;
+				return <RunCode key={data?.id} data={taskParams}/>;
 			default:
 				return null;
 		}
@@ -204,9 +204,9 @@ export default function TaskDetailPane({
 			{data && visibleSlidePane && (
 				<div className="c-operation__slidePane">
 					<header className="detailPane-header">
-						<span style={{ fontSize: 14, fontWeight: 500 }}>{data.name}</span>
-						<span style={{ marginLeft: '25px' }}>
-							<TaskStatus value={data.status} />
+						<span style={{fontSize: 14, fontWeight: 500}}>{data.name}</span>
+						<span style={{marginLeft: '25px'}}>
+							<TaskStatus value={data.status}/>
 						</span>
 						<span className="detailPane-header-extra">{extButton}</span>
 					</header>

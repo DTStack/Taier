@@ -36,7 +36,9 @@ import java.util.stream.Stream;
 
 import static java.security.AccessController.doPrivileged;
 
-/** Utilities for generating {@link JobGraph}. */
+/**
+ * Utilities for generating {@link JobGraph}.
+ */
 public enum JobGraphUtils {
     ;
 
@@ -85,9 +87,9 @@ public enum JobGraphUtils {
             } catch (IOException ioe) {
                 throw new FlinkRuntimeException(
                         "Could not compress distributed-cache artifacts.", ioe);
-            }finally {
+            } finally {
                 java.nio.file.Path ioTmpdir = Paths.get(doPrivileged(new GetPropertyAction("java.io.tmpdir")));
-                try(Stream<java.nio.file.Path> pathStream = Files.list(ioTmpdir)) {
+                try (Stream<java.nio.file.Path> pathStream = Files.list(ioTmpdir)) {
                     pathStream.map(path -> {
                         try {
                             if (org.apache.commons.lang3.StringUtils.startsWith(path.getFileName().toString(), prefixDir)) {

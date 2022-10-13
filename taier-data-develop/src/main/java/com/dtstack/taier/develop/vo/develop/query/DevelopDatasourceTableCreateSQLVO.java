@@ -10,13 +10,13 @@ public class DevelopDatasourceTableCreateSQLVO extends DtInsightAuthParam {
     @ApiModelProperty(value = "表名", example = "dev", required = true)
     private String tableName;
 
-    @ApiModelProperty(value = "原数据源 ID",  example = "3", required = true)
+    @ApiModelProperty(value = "原数据源 ID", example = "3", required = true)
     private Long originSourceId;
 
-    @ApiModelProperty(value = "目标数据源 ID",  example = "11", required = true)
+    @ApiModelProperty(value = "目标数据源 ID", example = "11", required = true)
     private Long targetSourceId;
 
-    @ApiModelProperty(value = "分区",  example = "/dev", required = true)
+    @ApiModelProperty(value = "分区", example = "/dev", required = true)
     private String partition;
 
     @ApiModelProperty(value = "原数据源 schema 信息", example = "schema")

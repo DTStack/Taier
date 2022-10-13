@@ -16,15 +16,15 @@
  * limitations under the License.
  */
 
-import { forwardRef, useImperativeHandle } from 'react';
+import {forwardRef, useImperativeHandle} from 'react';
 import moment from 'moment';
 import get from 'lodash/get';
-import type { SelectProps, CheckboxProps } from 'antd';
-import { Form, Checkbox, DatePicker, Select, Input } from 'antd';
-import { scheduleConfigLayout, SCHEDULE_STATUS, TASK_PERIOD_ENUM } from '@/constant';
-import type { IScheduleConfProps } from '@/interface';
+import type {CheckboxProps, SelectProps} from 'antd';
+import {Checkbox, DatePicker, Form, Input, Select} from 'antd';
+import {SCHEDULE_STATUS, scheduleConfigLayout, TASK_PERIOD_ENUM} from '@/constant';
+import type {IScheduleConfProps} from '@/interface';
 
-const { Option } = Select;
+const {Option} = Select;
 const FormItem = Form.Item;
 
 interface IFormWrapProps {
@@ -57,13 +57,13 @@ interface IFormWrapProps {
  */
 const HOURS_OPTIONS = new Array(24)
 	.fill(1)
-	.map((_, i) => ({ label: i < 10 ? `0${i}` : i.toString(), value: i.toString() }));
+	.map((_, i) => ({label: i < 10 ? `0${i}` : i.toString(), value: i.toString()}));
 /**
  * 分钟默认下拉选择, 00 -> 59
  */
 const MINS_OPTIONS = new Array(60)
 	.fill(1)
-	.map((_, i) => ({ label: i < 10 ? `0${i}` : i.toString(), value: i.toString() }));
+	.map((_, i) => ({label: i < 10 ? `0${i}` : i.toString(), value: i.toString()}));
 /**
  * 分钟间隔默认下拉。5分钟，10分钟..., 55分钟
  */
@@ -188,7 +188,7 @@ export default forwardRef(
 								>
 									<Select
 										disabled={isWorkflowNode}
-										style={{ width: '40%' }}
+										style={{width: '40%'}}
 										onChange={handleScheduleConf}
 										options={HOURS_OPTIONS}
 									/>
@@ -209,7 +209,7 @@ export default forwardRef(
 								>
 									<Select
 										disabled={isWorkflowNode}
-										style={{ width: '40%' }}
+										style={{width: '40%'}}
 										onChange={handleScheduleConf}
 										options={MINS_OPTIONS}
 									/>
@@ -249,7 +249,7 @@ export default forwardRef(
 								>
 									<Select
 										disabled={isWorkflowNode}
-										style={{ width: '40%' }}
+										style={{width: '40%'}}
 										onChange={handleScheduleConf}
 										options={HOURS_OPTIONS}
 									/>
@@ -270,7 +270,7 @@ export default forwardRef(
 								>
 									<Select
 										disabled={isWorkflowNode}
-										style={{ width: '40%' }}
+										style={{width: '40%'}}
 										onChange={handleScheduleConf}
 										options={MINS_OPTIONS}
 									/>
@@ -299,7 +299,7 @@ export default forwardRef(
 								>
 									<Select
 										disabled={isWorkflowNode}
-										style={{ width: '40%' }}
+										style={{width: '40%'}}
 										onChange={handleScheduleConf}
 										options={HOURS_OPTIONS}
 									/>
@@ -320,7 +320,7 @@ export default forwardRef(
 								>
 									<Select
 										disabled={isWorkflowNode}
-										style={{ width: '40%' }}
+										style={{width: '40%'}}
 										onChange={handleScheduleConf}
 										options={MINS_OPTIONS}
 									/>
@@ -360,7 +360,7 @@ export default forwardRef(
 								>
 									<Select
 										disabled={isWorkflowNode}
-										style={{ width: '40%' }}
+										style={{width: '40%'}}
 										onChange={handleScheduleConf}
 										options={HOURS_OPTIONS}
 									/>
@@ -381,7 +381,7 @@ export default forwardRef(
 								>
 									<Select
 										disabled={isWorkflowNode}
-										style={{ width: '40%' }}
+										style={{width: '40%'}}
 										onChange={handleScheduleConf}
 										options={MINS_OPTIONS}
 									/>
@@ -413,7 +413,7 @@ export default forwardRef(
 								>
 									<Select
 										disabled={isWorkflowNode}
-										style={{ width: '40%' }}
+										style={{width: '40%'}}
 										onChange={handleScheduleConf}
 										options={HOURS_OPTIONS}
 									/>
@@ -431,7 +431,7 @@ export default forwardRef(
 								>
 									<Select
 										disabled={isWorkflowNode}
-										style={{ width: '40%' }}
+										style={{width: '40%'}}
 										onChange={handleScheduleConf}
 										options={MINS_OPTIONS}
 									/>
@@ -457,7 +457,7 @@ export default forwardRef(
 							>
 								<Select
 									mode="multiple"
-									style={{ width: '100%' }}
+									style={{width: '100%'}}
 									disabled={isWorkflowNode}
 									onChange={handleScheduleConf}
 									options={WEEKS_OPTIONS}
@@ -476,7 +476,7 @@ export default forwardRef(
 								>
 									<Select
 										disabled={isWorkflowNode}
-										style={{ width: '40%' }}
+										style={{width: '40%'}}
 										onChange={handleScheduleConf}
 										options={HOURS_OPTIONS}
 									/>
@@ -494,7 +494,7 @@ export default forwardRef(
 								>
 									<Select
 										disabled={isWorkflowNode}
-										style={{ width: '40%' }}
+										style={{width: '40%'}}
 										onChange={handleScheduleConf}
 										options={MINS_OPTIONS}
 									/>
@@ -520,7 +520,7 @@ export default forwardRef(
 							>
 								<Select
 									mode="multiple"
-									style={{ width: '100%' }}
+									style={{width: '100%'}}
 									disabled={isWorkflowNode}
 									onChange={handleScheduleConf}
 									options={DAYS_OPTIONS}
@@ -539,7 +539,7 @@ export default forwardRef(
 								>
 									<Select
 										disabled={isWorkflowNode}
-										style={{ width: '40%' }}
+										style={{width: '40%'}}
 										onChange={handleScheduleConf}
 										options={HOURS_OPTIONS}
 									/>
@@ -557,7 +557,7 @@ export default forwardRef(
 								>
 									<Select
 										disabled={isWorkflowNode}
-										style={{ width: '40%' }}
+										style={{width: '40%'}}
 										onChange={handleScheduleConf}
 										options={MINS_OPTIONS}
 									/>
@@ -603,7 +603,7 @@ export default forwardRef(
 							<Checkbox onChange={handleScheduleConf}>是</Checkbox>
 						</FormItem>
 						<FormItem noStyle dependencies={['isFailRetry']}>
-							{({ getFieldValue }) =>
+							{({getFieldValue}) =>
 								getFieldValue('isFailRetry') && (
 									<FormItem {...scheduleConfigLayout} label="重试次数" required>
 										<FormItem
@@ -649,7 +649,7 @@ export default forwardRef(
 							allowClear={false}
 							disabledDate={changeStartDisabledDate}
 							disabled={isWorkflowNode}
-							style={{ width: 115 }}
+							style={{width: 115}}
 							onChange={handleScheduleConf}
 						/>
 					</FormItem>
@@ -669,7 +669,7 @@ export default forwardRef(
 							allowClear={false}
 							disabled={isWorkflowNode}
 							disabledDate={changeEndDisabledDate}
-							style={{ width: 115 }}
+							style={{width: 115}}
 							onChange={handleScheduleConf}
 						/>
 					</FormItem>
@@ -704,10 +704,10 @@ export default forwardRef(
 					</Select>
 				</FormItem>
 				<FormItem noStyle name="selfReliance">
-					<Input type="hidden" />
+					<Input type="hidden"/>
 				</FormItem>
 				<FormItem dependencies={['periodType']} noStyle>
-					{({ getFieldValue }) => renderTimeConfig(Number(getFieldValue('periodType')))}
+					{({getFieldValue}) => renderTimeConfig(Number(getFieldValue('periodType')))}
 				</FormItem>
 			</Form>
 		);
