@@ -19,7 +19,11 @@
 package com.dtstack.taier.common.metric.batch;
 
 
-import com.dtstack.taier.common.metric.*;
+import com.dtstack.taier.common.metric.Filter;
+import com.dtstack.taier.common.metric.MetricData;
+import com.dtstack.taier.common.metric.MetricResult;
+import com.dtstack.taier.common.metric.QueryInfo;
+import com.dtstack.taier.common.metric.Tuple;
 import org.apache.commons.collections.CollectionUtils;
 
 import java.util.ArrayList;
@@ -56,8 +60,8 @@ public class SyncJobMetricWithCountMaxSum extends BaseMetric {
         if (metricResult != null && CollectionUtils.isNotEmpty(metricResult.getMetricDataList())) {
             for (MetricData metricData : metricResult.getMetricDataList()) {
                 long count = 0L;
-                if (CollectionUtils.isNotEmpty(metricData.getDps())){
-                    Object dp = metricData.getDps().get(metricData.getDps().size()-1);
+                if (CollectionUtils.isNotEmpty(metricData.getDps())) {
+                    Object dp = metricData.getDps().get(metricData.getDps().size() - 1);
                     count = Math.max(count, ((Tuple<Long, Double>) dp).getTwo().longValue());
                 }
                 sumCount += count;

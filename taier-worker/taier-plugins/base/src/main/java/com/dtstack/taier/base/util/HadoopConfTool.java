@@ -30,7 +30,13 @@ import org.apache.hadoop.yarn.conf.YarnConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
@@ -38,6 +44,7 @@ import java.util.Map;
  * 解析配置获取Hadoop配置
  * Date: 2018/5/3
  * Company: www.dtstack.com
+ *
  * @author xuchao
  */
 
@@ -68,33 +75,33 @@ public class HadoopConfTool {
     public final static String KEYTAB_PATH = "keytabPath";
     public final static String PRINCIPAL_FILE = "principalFile";
 
-    public static String getAuthType(Map<String, Object> conf){
+    public static String getAuthType(Map<String, Object> conf) {
         return MathUtil.getString(conf.get(HADOOP_AUTH_TYPE));
     }
 
-    public static String getDfsNameServices(Map<String, Object> conf){
+    public static String getDfsNameServices(Map<String, Object> conf) {
         String nameServices = MathUtil.getString(conf.get(DFS_NAME_SERVICES));
         return nameServices;
     }
 
-    public static String getFsDefaults(Map<String, Object> conf){
+    public static String getFsDefaults(Map<String, Object> conf) {
         String defaultFs = MathUtil.getString(conf.get(FS_DEFAULTFS));
         Preconditions.checkNotNull(defaultFs, FS_DEFAULTFS + "can not empty");
         return defaultFs;
     }
 
-    public static String getDfsHaNameNodesKey(Map<String, Object> conf){
+    public static String getDfsHaNameNodesKey(Map<String, Object> conf) {
         String nameServices = getDfsNameServices(conf);
         return String.format(DFS_HA_NAMENODES, nameServices);
     }
 
-    public static String getDfsHaNameNodes(Map<String, Object> conf, String key){
+    public static String getDfsHaNameNodes(Map<String, Object> conf, String key) {
         String dfsHaNameNodes = MathUtil.getString(conf.get(key));
         Preconditions.checkNotNull(dfsHaNameNodes, key + "can not empty");
         return dfsHaNameNodes;
     }
 
-    public static List<String> getDfsNameNodeRpcAddressKeys(Map<String, Object> conf){
+    public static List<String> getDfsNameNodeRpcAddressKeys(Map<String, Object> conf) {
 
         String nameServices = getDfsNameServices(conf);
         String dfsHaNameNodesKey = String.format(DFS_HA_NAMENODES, nameServices);
@@ -103,7 +110,7 @@ public class HadoopConfTool {
         String[] nameNodeArr = dfsHaNameNodes.split(",");
 
         List<String> nameNodeRpcAddressKeys = Lists.newArrayList();
-        for(String nameNode : nameNodeArr){
+        for (String nameNode : nameNodeArr) {
             String nameNodePrcAddressKey = String.format(DFS_NAMENODE_RPC_ADDRESS, nameServices, nameNode);
             nameNodeRpcAddressKeys.add(nameNodePrcAddressKey);
         }
@@ -111,50 +118,50 @@ public class HadoopConfTool {
         return nameNodeRpcAddressKeys;
     }
 
-    public static String getDfsNameNodeRpcAddress(Map<String, Object> conf, String key){
+    public static String getDfsNameNodeRpcAddress(Map<String, Object> conf, String key) {
         String nnRpcAddress = MathUtil.getString(conf.get(key));
         Preconditions.checkNotNull(nnRpcAddress, key + "can not empty");
         return nnRpcAddress;
     }
 
-    public static String getClientFailoverProxyProviderKey(Map<String, Object> conf){
+    public static String getClientFailoverProxyProviderKey(Map<String, Object> conf) {
         String nameServices = getDfsNameServices(conf);
         String failoverProxyProviderKey = String.format(DFS_CLIENT_FAILOVER_PROXY_PROVIDER, nameServices);
         return failoverProxyProviderKey;
     }
 
-    public static String getClientFailoverProxyProviderVal(Map<String, Object> conf, String key){
+    public static String getClientFailoverProxyProviderVal(Map<String, Object> conf, String key) {
         String failoverProxyProvider = MathUtil.getString(conf.get(key));
-        if(StringUtils.isEmpty(failoverProxyProvider)){
+        if (StringUtils.isEmpty(failoverProxyProvider)) {
             return DEFAULT_DFS_CLIENT_FAILOVER_PROXY_PROVIDER;
         }
 
         return failoverProxyProvider;
     }
 
-    public static String getFsHdfsImpl(Map<String, Object> conf){
+    public static String getFsHdfsImpl(Map<String, Object> conf) {
         String fsHdfsImpl = MathUtil.getString(conf.get(FS_HDFS_IMPL));
-        if(StringUtils.isEmpty(fsHdfsImpl)){
+        if (StringUtils.isEmpty(fsHdfsImpl)) {
             return DEFAULT_FS_HDFS_IMPL;
         }
 
         return fsHdfsImpl;
     }
 
-    public static String getFsHdfsImplDisableCache(Map<String, Object> conf){
+    public static String getFsHdfsImplDisableCache(Map<String, Object> conf) {
         String disableCache = MathUtil.getString(conf.get(FS_HDFS_IMPL_DISABLE_CACHE));
-        if(Strings.isNullOrEmpty(disableCache)){
+        if (Strings.isNullOrEmpty(disableCache)) {
             return "true";
         }
 
         return disableCache;
     }
 
-    public static void setFsHdfsImplDisableCache(Configuration conf){
+    public static void setFsHdfsImplDisableCache(Configuration conf) {
         conf.setBoolean(FS_HDFS_IMPL_DISABLE_CACHE, true);
     }
 
-    public static void setFsLocalImplDisableCache(Configuration conf){
+    public static void setFsLocalImplDisableCache(Configuration conf) {
         conf.setBoolean(FS_LOCAL_IMPL_DISABLE_CACHE, true);
     }
 
@@ -180,15 +187,15 @@ public class HadoopConfTool {
         LOG.info("yarn.resourcemanager.connect.max-wait.ms:{} yarn.resourcemanager.connect.retry-interval.ms:{}", yarnConf.getLong(YarnConfiguration.RESOURCEMANAGER_CONNECT_MAX_WAIT_MS, -1), yarnConf.getLong(YarnConfiguration.RESOURCEMANAGER_CONNECT_RETRY_INTERVAL_MS, -1));
     }
 
-    public static byte[] serializeHadoopConf(Configuration hadoopConf)  {
+    public static byte[] serializeHadoopConf(Configuration hadoopConf) {
 
         try (
-                ByteArrayOutputStream out =  new ByteArrayOutputStream();
+                ByteArrayOutputStream out = new ByteArrayOutputStream();
                 DataOutputStream dataout = new DataOutputStream(out);
-         ){
+        ) {
             hadoopConf.write(dataout);
             return out.toByteArray();
-        } catch(Exception e) {
+        } catch (Exception e) {
             LOG.error("Serialize hadoopConf happens error: {}", e.getMessage());
             throw new PluginDefineException(e);
         }

@@ -3,9 +3,22 @@ package com.dtstack.taier.develop.sql.calcite;
 
 import com.dtstack.taier.develop.sql.Column;
 import com.dtstack.taier.develop.sql.Pair;
-import com.dtstack.taier.develop.sql.node.*;
+import com.dtstack.taier.develop.sql.node.BasicCall;
+import com.dtstack.taier.develop.sql.node.CreateNode;
+import com.dtstack.taier.develop.sql.node.Identifier;
+import com.dtstack.taier.develop.sql.node.InsertNode;
+import com.dtstack.taier.develop.sql.node.JoinCall;
+import com.dtstack.taier.develop.sql.node.LiteralIdentifier;
+import com.dtstack.taier.develop.sql.node.Node;
+import com.dtstack.taier.develop.sql.node.NodeList;
+import com.dtstack.taier.develop.sql.node.SelectNode;
+import com.dtstack.taier.develop.sql.node.UnionCall;
 import com.google.common.collect.Lists;
-import org.apache.calcite.sql.*;
+import org.apache.calcite.sql.SqlBasicCall;
+import org.apache.calcite.sql.SqlInsert;
+import org.apache.calcite.sql.SqlKind;
+import org.apache.calcite.sql.SqlNode;
+import org.apache.calcite.sql.SqlSelect;
 import org.apache.calcite.sql.ddl.SqlCreateTable;
 import org.apache.calcite.sql.ddl.SqlCreateView;
 import org.apache.commons.lang3.StringUtils;
@@ -46,16 +59,16 @@ public abstract class LineageParser {
     public Node parseSql(SqlNode rootNode, String defaultDb, Map<String, List<Column>> tableColumnsMap) {
         Node node = null;
         if (rootNode instanceof SqlSelect) {
-            node = new SelectNode(defaultDb,tableColumnsMap);
+            node = new SelectNode(defaultDb, tableColumnsMap);
             node.parseSql(rootNode);
         } else if (rootNode instanceof SqlInsert) {
-            node = new InsertNode(defaultDb,tableColumnsMap);
+            node = new InsertNode(defaultDb, tableColumnsMap);
             node.parseSql(rootNode);
         } else if (rootNode instanceof SqlCreateTable || rootNode instanceof SqlCreateView) {
-            node = new CreateNode(defaultDb,tableColumnsMap);
+            node = new CreateNode(defaultDb, tableColumnsMap);
             node.parseSql(rootNode);
         } else if (rootNode instanceof SqlBasicCall && SqlKind.UNION == ((SqlBasicCall) rootNode).getOperator().getKind()) {
-            node = new UnionCall(defaultDb,tableColumnsMap);
+            node = new UnionCall(defaultDb, tableColumnsMap);
             node.parseSql(rootNode);
         }
         return node;
@@ -69,7 +82,7 @@ public abstract class LineageParser {
      */
     public abstract List<Pair<Identifier, Identifier>> parseColumnLineage(Node node);
 
-    public abstract List<Pair<Identifier,Identifier>> parseTableLineage(Node node);
+    public abstract List<Pair<Identifier, Identifier>> parseTableLineage(Node node);
 
     boolean isTableColumn(Identifier identifier) {
         String fullTable = identifier.getFullTable();
@@ -86,11 +99,12 @@ public abstract class LineageParser {
 
     /**
      * 侧视图专用方法
+     *
      * @param identifier
      * @param fromTable
      * @return
      */
-    List<Identifier> isTableColumn(Identifier identifier,Identifier fromTable) {
+    List<Identifier> isTableColumn(Identifier identifier, Identifier fromTable) {
         String fullTable = identifier.getFullTable();
         List<Identifier> identifiers = new ArrayList<>();
         if (tableColumnMap.keySet().contains(fullTable)) {
@@ -102,8 +116,8 @@ public abstract class LineageParser {
             }
         }
         //todo  判断侧视图
-        if (fromTable.getLateralView().containsKey(identifier.getColumn())){
-                return  fromTable.getLateralView().get(identifier.getColumn());
+        if (fromTable.getLateralView().containsKey(identifier.getColumn())) {
+            return fromTable.getLateralView().get(identifier.getColumn());
         }
         return null;
     }
@@ -112,69 +126,69 @@ public abstract class LineageParser {
         List<Identifier> resultList = Lists.newArrayList();
         SelectNode targetNode = null;
         //union查询
-        if (source instanceof NodeList){
+        if (source instanceof NodeList) {
             NodeList sourceList = (NodeList) source;
             targetNode = (SelectNode) sourceList.getList().get(0);
         }
         //select
-        else if (source instanceof SelectNode){
+        else if (source instanceof SelectNode) {
             targetNode = (SelectNode) source;
-        }else {
-            LOG.warn("这是不可能的:{}",source);
+        } else {
+            LOG.warn("这是不可能的:{}", source);
             return new ArrayList<>();
         }
         NodeList selectList = targetNode.getSelectList();
         for (int i = 0; i < selectList.getList().size(); i++) {
             Node column = selectList.getList().get(i);
             //常量
-            if (column instanceof LiteralIdentifier){
-                Identifier identifier = new Identifier(tableName.getDefaultDb(),getTableColumnMap());
+            if (column instanceof LiteralIdentifier) {
+                Identifier identifier = new Identifier(tableName.getDefaultDb(), getTableColumnMap());
                 identifier.setDb(tableName.getDb());
                 identifier.setTable(tableName.getTable());
                 identifier.setColumn(column.getAlias());
                 resultList.add(identifier);
             }
             //字段
-            else if (column instanceof Identifier){
-                Identifier identifier = new Identifier(tableName.getDefaultDb(),getTableColumnMap());
+            else if (column instanceof Identifier) {
+                Identifier identifier = new Identifier(tableName.getDefaultDb(), getTableColumnMap());
                 identifier.setDb(tableName.getDb());
                 identifier.setTable(tableName.getTable());
-                String columnStr = StringUtils.isEmpty(column.getAlias())?((Identifier) column).getColumn():column.getAlias();
+                String columnStr = StringUtils.isEmpty(column.getAlias()) ? ((Identifier) column).getColumn() : column.getAlias();
                 identifier.setColumn(columnStr);
                 resultList.add(identifier);
             }
             //函数字段
-            else if (column instanceof BasicCall){
-                Identifier identifier = new Identifier(tableName.getDefaultDb(),getTableColumnMap());
+            else if (column instanceof BasicCall) {
+                Identifier identifier = new Identifier(tableName.getDefaultDb(), getTableColumnMap());
                 identifier.setDb(tableName.getDb());
                 identifier.setTable(tableName.getTable());
-                if (StringUtils.isEmpty(column.getAlias())){
+                if (StringUtils.isEmpty(column.getAlias())) {
                     identifier.setColumn(((BasicCall) column).getName());
-                }else {
+                } else {
                     identifier.setColumn(column.getAlias());
                 }
                 resultList.add(identifier);
             }
             //selectList中的子查询
-            else if (column instanceof SelectNode){
+            else if (column instanceof SelectNode) {
                 //TODO selectList 中子查询  只考虑一层嵌套
                 String columnName = null;
-                Identifier identifier = new Identifier(tableName.getDefaultDb(),getTableColumnMap());
+                Identifier identifier = new Identifier(tableName.getDefaultDb(), getTableColumnMap());
                 identifier.setDb(tableName.getDb());
                 identifier.setTable(tableName.getTable());
-                Node node =((SelectNode)column).getSelectList().getList().get(0);
+                Node node = ((SelectNode) column).getSelectList().getList().get(0);
                 //todo 如果子查询最外面有别名的话 就拿最外面的
-                if (StringUtils.isNotBlank(column.getAlias())){
-                    columnName=column.getAlias();
-                }else {
-                    if (node instanceof BasicCall){
-                        if (StringUtils.isNotBlank(node.getAlias())){
-                            columnName=node.getAlias();
-                        }else {
-                            columnName=((BasicCall) node).getName();
+                if (StringUtils.isNotBlank(column.getAlias())) {
+                    columnName = column.getAlias();
+                } else {
+                    if (node instanceof BasicCall) {
+                        if (StringUtils.isNotBlank(node.getAlias())) {
+                            columnName = node.getAlias();
+                        } else {
+                            columnName = ((BasicCall) node).getName();
                         }
-                    }else if (node instanceof Identifier){
-                        columnName=((Identifier) node).getColumn();
+                    } else if (node instanceof Identifier) {
+                        columnName = ((Identifier) node).getColumn();
                     }
                 }
                 identifier.setColumn(columnName);
@@ -189,13 +203,13 @@ public abstract class LineageParser {
      * 只解析create和insert语句血缘关系
      */
     public static class ParserProxy {
-        public static LineageParser getParser(SqlNode rootNode, String defaultDb, Map<String,List<Column>> metaDataMap){
+        public static LineageParser getParser(SqlNode rootNode, String defaultDb, Map<String, List<Column>> metaDataMap) {
             LineageParser parser = null;
-            if (rootNode instanceof SqlInsert){
+            if (rootNode instanceof SqlInsert) {
                 parser = new InsertParser();
-            }else if (rootNode instanceof SqlCreateTable || rootNode instanceof SqlCreateView){
+            } else if (rootNode instanceof SqlCreateTable || rootNode instanceof SqlCreateView) {
                 parser = new CreateParser();
-            }else {
+            } else {
                 return null;
             }
             parser.setTableColumnMap(metaDataMap);
@@ -208,13 +222,13 @@ public abstract class LineageParser {
      * 只解析create和insert语句血缘关系
      */
     public static class HiveParserProxy {
-        public static LineageParser getParser(Node rootNode, String defaultDb, Map<String,List<Column>> metaDataMap){
+        public static LineageParser getParser(Node rootNode, String defaultDb, Map<String, List<Column>> metaDataMap) {
             LineageParser parser = null;
-            if (rootNode instanceof InsertNode){
+            if (rootNode instanceof InsertNode) {
                 parser = new InsertParser();
-            }else if (rootNode instanceof CreateNode){
+            } else if (rootNode instanceof CreateNode) {
                 parser = new CreateParser();
-            }else {
+            } else {
                 return null;
             }
             parser.setTableColumnMap(metaDataMap);
@@ -224,34 +238,35 @@ public abstract class LineageParser {
 
     /**
      * 获取node下面所有的表
+     *
      * @param node
      * @return
      */
-    public List<Identifier> getTableLineageByQuery(Node node){
+    public List<Identifier> getTableLineageByQuery(Node node) {
         List<Identifier> tables = new ArrayList<>();
-        if (null == node){
+        if (null == node) {
             return tables;
         }
-        if (node instanceof NodeList){
+        if (node instanceof NodeList) {
             NodeList nodeList = (NodeList) node;
-            for (Node n : nodeList.getList()){
+            for (Node n : nodeList.getList()) {
                 tables.addAll(getTableLineageByQuery(n));
             }
-        }else if (node instanceof SelectNode){
-            SelectNode selectNode  = (SelectNode) node;
+        } else if (node instanceof SelectNode) {
+            SelectNode selectNode = (SelectNode) node;
             tables.addAll(getTableLineageByQuery(selectNode.getFromClause()));
-        }else if (node instanceof JoinCall){
-            JoinCall joinCall = (JoinCall)node;
-            for (Node n : joinCall.getComboList()){
+        } else if (node instanceof JoinCall) {
+            JoinCall joinCall = (JoinCall) node;
+            for (Node n : joinCall.getComboList()) {
                 tables.addAll(getTableLineageByQuery(n));
             }
 
-        }else if (node instanceof UnionCall){
-            UnionCall unionCall = (UnionCall)node;
-            for (Node n : unionCall.getComboFromList()){
+        } else if (node instanceof UnionCall) {
+            UnionCall unionCall = (UnionCall) node;
+            for (Node n : unionCall.getComboFromList()) {
                 tables.addAll(getTableLineageByQuery(n));
             }
-        }else if (node instanceof Identifier){
+        } else if (node instanceof Identifier) {
             tables.add((Identifier) node);
         }
         return tables;

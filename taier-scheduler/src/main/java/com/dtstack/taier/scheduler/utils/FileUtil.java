@@ -31,8 +31,13 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.*;
-import java.util.*;
+import java.io.File;
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -44,14 +49,15 @@ public class FileUtil {
 
     /**
      * parse file to map
+     *
      * @param files
      * @return {fileName, Map<K,V>}
      */
-    public static Map<String, Map<String,Object>> parse2Map(List<File> files) {
+    public static Map<String, Map<String, Object>> parse2Map(List<File> files) {
         if (CollectionUtils.isEmpty(files)) {
             return Collections.emptyMap();
         }
-        Map<String, Map<String,Object>> confMap = new HashMap<>(files.size());
+        Map<String, Map<String, Object>> confMap = new HashMap<>(files.size());
         Map<String, Object> fileMap;
         for (File file : files) {
             if (file.getName().startsWith(CommonConstant.DOT)) {
@@ -65,7 +71,7 @@ public class FileUtil {
                 } catch (Exception e) {
                     throw new RdosDefineException(CommonConstant.XML_SUFFIX + ErrorCode.FILE_PARSE_ERROR.getMsg(), e);
                 }
-            } else if(file.getName().endsWith(CommonConstant.JSON_SUFFIX)){
+            } else if (file.getName().endsWith(CommonConstant.JSON_SUFFIX)) {
                 // json文件
                 String jsonStr;
                 try {
@@ -76,7 +82,7 @@ public class FileUtil {
                 if (StringUtils.isBlank(jsonStr)) {
                     continue;
                 }
-                fileMap = (Map<String, Object>) JSONObject.parseObject(jsonStr,Map.class);
+                fileMap = (Map<String, Object>) JSONObject.parseObject(jsonStr, Map.class);
             } else {
                 throw new RdosDefineException(ErrorCode.FILE_TYPE_NOT_SUPPORTED);
             }
@@ -117,9 +123,10 @@ public class FileUtil {
 
     /**
      * 从 zip 包中寻找 xml 文件
-     * @return
+     *
      * @param targetPath 临时解压目录
-     * @param srcZip zip 源
+     * @param srcZip     zip 源
+     * @return
      */
     public static List<File> getXmlFileFromZip(String targetPath, String srcZip) {
         if (StringUtils.isBlank(targetPath) || StringUtils.isBlank(srcZip)) {

@@ -5,22 +5,30 @@ import com.dtstack.taier.base.BaseConfig;
 import com.dtstack.taier.base.exception.EnginePluginsBaseException;
 import com.dtstack.taier.base.util.HadoopUtils;
 import com.dtstack.taier.base.util.KerberosUtils;
+import com.dtstack.taier.pluginapi.CustomThreadFactory;
+import com.dtstack.taier.pluginapi.util.RetryUtil;
 import com.dtstack.taier.script.ScriptConfiguration;
 import com.dtstack.taier.script.am.ApplicationMaster;
 import com.dtstack.taier.script.api.ScriptConstants;
 import com.dtstack.taier.script.common.SecurityUtil;
 import com.dtstack.taier.script.common.type.AbstractAppType;
 import com.dtstack.taier.script.util.Utilities;
-import com.dtstack.taier.pluginapi.CustomThreadFactory;
-import com.dtstack.taier.pluginapi.util.RetryUtil;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.hadoop.fs.FSDataOutputStream;
 import org.apache.hadoop.fs.FileSystem;
-import org.apache.hadoop.fs.*;
+import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.fs.permission.FsPermission;
 import org.apache.hadoop.mapred.JobConf;
 import org.apache.hadoop.yarn.api.ApplicationConstants;
 import org.apache.hadoop.yarn.api.protocolrecords.GetNewApplicationResponse;
-import org.apache.hadoop.yarn.api.records.*;
+import org.apache.hadoop.yarn.api.records.ApplicationId;
+import org.apache.hadoop.yarn.api.records.ApplicationReport;
+import org.apache.hadoop.yarn.api.records.ApplicationSubmissionContext;
+import org.apache.hadoop.yarn.api.records.ContainerLaunchContext;
+import org.apache.hadoop.yarn.api.records.LocalResource;
+import org.apache.hadoop.yarn.api.records.LocalResourceType;
+import org.apache.hadoop.yarn.api.records.Priority;
+import org.apache.hadoop.yarn.api.records.Resource;
 import org.apache.hadoop.yarn.client.api.YarnClient;
 import org.apache.hadoop.yarn.client.api.YarnClientApplication;
 import org.apache.hadoop.yarn.conf.YarnConfiguration;
@@ -30,7 +38,9 @@ import org.apache.hadoop.yarn.util.Records;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -82,7 +92,7 @@ public class Client {
             yarnconf.set("ipc.client.fallback-to-simple-auth-allowed", "true");
             String[] files = StringUtils.split(dtconf.get(ScriptConfiguration.SCRIPT_FILES), ",");
             // judge file is remote or local
-            if (files != null && !files[0].startsWith("hdfs:") && !files[0].startsWith("http:")){
+            if (files != null && !files[0].startsWith("hdfs:") && !files[0].startsWith("http:")) {
                 localFile = Boolean.TRUE;
             }
             dtconf.setBoolean(ScriptConfiguration.SCRIPT_LOCALFILE, localFile);
@@ -113,23 +123,23 @@ public class Client {
             if (StringUtils.isNoneBlank(dtconf.get(ScriptConfiguration.SCRIPT_SHIP_FILES))) {
                 String shipFiles = dtconf.get(ScriptConfiguration.SCRIPT_SHIP_FILES);
                 String[] shipFile = shipFiles.split(",");
-                    for (int i = 0; i < shipFile.length; i++) {
-                        if (shipFile[i].startsWith("hdfs://")) {
+                for (int i = 0; i < shipFile.length; i++) {
+                    if (shipFile[i].startsWith("hdfs://")) {
                         boolean exists = getFileSystem().exists(new Path(shipFile[i]));
-                            if (!exists) {
-                                LOG.error("{} not exists",shipFile[i]);
-                                throw new EnginePluginsBaseException(shipFile[i] + " not exists");
-                            }
-                        } else {
-                            Path localShipFilePath = new Path(shipFile[i]);
-                            String fileName = localShipFilePath.getName();
-                            Path remoteShipFilePath = Utilities.getRemotePath(yarnconf, dtconf, applicationId, fileName);
-                            getFileSystem().copyFromLocalFile(false, true, localShipFilePath, remoteShipFilePath);
-                            localResources.put(fileName,
-                                    Utilities.createApplicationResource(getFileSystem(), remoteShipFilePath, LocalResourceType.FILE));
-                            shipFile[i] = remoteShipFilePath.toString();
+                        if (!exists) {
+                            LOG.error("{} not exists", shipFile[i]);
+                            throw new EnginePluginsBaseException(shipFile[i] + " not exists");
                         }
+                    } else {
+                        Path localShipFilePath = new Path(shipFile[i]);
+                        String fileName = localShipFilePath.getName();
+                        Path remoteShipFilePath = Utilities.getRemotePath(yarnconf, dtconf, applicationId, fileName);
+                        getFileSystem().copyFromLocalFile(false, true, localShipFilePath, remoteShipFilePath);
+                        localResources.put(fileName,
+                                Utilities.createApplicationResource(getFileSystem(), remoteShipFilePath, LocalResourceType.FILE));
+                        shipFile[i] = remoteShipFilePath.toString();
                     }
+                }
                 shipFileName = StringUtils.join(shipFile, ",");
             }
 
@@ -137,7 +147,7 @@ public class Client {
             Path remoteLog4j = Utilities.getRemotePath(yarnconf, dtconf, applicationId, ScriptConfiguration.SCRIPT_LOG4J_FILENAME);
             File log4jFile = new File(new File(appJarSrc.toString()).getParent(), ScriptConfiguration.SCRIPT_LOG4J_FILENAME);
             if (!log4jFile.exists()) {
-                File tmpFileDir =  new File(System.getProperty("user.dir") + File.separator + "tmp");
+                File tmpFileDir = new File(System.getProperty("user.dir") + File.separator + "tmp");
                 if (!tmpFileDir.exists()) {
                     tmpFileDir.mkdirs();
                 }
@@ -154,7 +164,8 @@ public class Client {
                 }
                 log4jFile = tmpLog4jFile;
             }
-            boolean hasLog4j = false;;
+            boolean hasLog4j = false;
+            ;
             try {
                 Path localLog4j = new Path(log4jFile.toString());
                 if (log4jFile.exists()) {
@@ -171,13 +182,13 @@ public class Client {
                 }
             }
 
-           // add core-site.xml
+            // add core-site.xml
             Path yarnConfPath = Utilities.getRemotePath(yarnconf, dtconf, applicationId, ScriptConstants.YARN_CONFIGURATION);
-            try(FSDataOutputStream coreSiteXml = FileSystem.create(yarnConfPath.getFileSystem(yarnconf), yarnConfPath,
-                    new FsPermission(JOB_FILE_PERMISSION))){
+            try (FSDataOutputStream coreSiteXml = FileSystem.create(yarnConfPath.getFileSystem(yarnconf), yarnConfPath,
+                    new FsPermission(JOB_FILE_PERMISSION))) {
                 yarnconf.writeXml(coreSiteXml);
-            } catch (Exception e){
-                LOG.error("Write core-site.xml error",e);
+            } catch (Exception e) {
+                LOG.error("Write core-site.xml error", e);
                 throw new EnginePluginsBaseException(e);
             }
             localResources.put(ScriptConstants.YARN_CONFIGURATION,
@@ -186,10 +197,10 @@ public class Client {
             // add script-site.xml to container
             Path scriptDtConfPath = Utilities.getRemotePath(yarnconf, dtconf, applicationId, ScriptConstants.SCRIPT_CONFIGURATION);
             LOG.info("job conf path: {}", scriptDtConfPath);
-            try(FSDataOutputStream scriptSiteXml = FileSystem.create(scriptDtConfPath.getFileSystem(yarnconf), scriptDtConfPath,
-                    new FsPermission(JOB_FILE_PERMISSION))){
+            try (FSDataOutputStream scriptSiteXml = FileSystem.create(scriptDtConfPath.getFileSystem(yarnconf), scriptDtConfPath,
+                    new FsPermission(JOB_FILE_PERMISSION))) {
                 dtconf.writeXml(scriptSiteXml);
-            }catch (Exception e){
+            } catch (Exception e) {
                 LOG.error("Write script-site.xml error", e);
                 throw new EnginePluginsBaseException(e);
             }
@@ -259,7 +270,7 @@ public class Client {
 
             LOG.info("Building application master launch command");
             List<String> appMasterArgs = new ArrayList<>(20);
-            appMasterArgs.add(dtconf.get(ScriptConfiguration.JAVA_PATH,"${JAVA_HOME}" + "/bin/java"));
+            appMasterArgs.add(dtconf.get(ScriptConfiguration.JAVA_PATH, "${JAVA_HOME}" + "/bin/java"));
             appMasterArgs.add("-cp " + "${CLASSPATH}");
             appMasterArgs.add("-Xms" + dtconf.getInt(ScriptConfiguration.SCRIPT_AM_MEMORY, ScriptConfiguration.DEFAULT_SCRIPT_AM_MEMORY) + "m");
             appMasterArgs.add("-Xmx" + dtconf.getInt(ScriptConfiguration.SCRIPT_AM_MEMORY, ScriptConfiguration.DEFAULT_SCRIPT_AM_MEMORY) + "m");
@@ -293,7 +304,7 @@ public class Client {
             applicationContext.setApplicationId(applicationId);
             applicationContext.setApplicationName(dtconf.get(ScriptConfiguration.SCRIPT_APP_NAME));
             applicationContext.setApplicationType(dtconf.get(ScriptConfiguration.SCRIPT_APP_TYPE));
-            int appAttempts = Integer.parseInt(dtconf.get(ScriptConfiguration.APP_MAX_ATTEMPTS,String.valueOf(ScriptConfiguration.DEFAULT_APP_MAX_ATTEMPTS)));
+            int appAttempts = Integer.parseInt(dtconf.get(ScriptConfiguration.APP_MAX_ATTEMPTS, String.valueOf(ScriptConfiguration.DEFAULT_APP_MAX_ATTEMPTS)));
             if (appAttempts > yarnconf.getInt(YarnConfiguration.RM_AM_MAX_ATTEMPTS, YarnConfiguration.DEFAULT_RM_AM_MAX_ATTEMPTS)) {
                 appAttempts = yarnconf.getInt(YarnConfiguration.RM_AM_MAX_ATTEMPTS, YarnConfiguration.DEFAULT_RM_AM_MAX_ATTEMPTS);
             }
@@ -312,7 +323,7 @@ public class Client {
                 Path remoteKrb5Conf = Utilities.getRemotePath(yarnconf, dtconf, applicationId, ScriptConstants.LOCALIZED_KR5B_PATH);
                 localResources.put(ScriptConstants.LOCALIZED_KR5B_PATH,
                         Utilities.createApplicationResource(getFileSystem(), remoteKrb5Conf, LocalResourceType.FILE));
-             }
+            }
 
             ContainerLaunchContext amContainer = ContainerLaunchContext.newInstance(
                     localResources, appMasterEnv, appMasterLaunchCommands, null, tokenBuffer, null);
@@ -336,6 +347,7 @@ public class Client {
 
     /**
      * 上传keytab、krb5.conf、py4j-gateway-server jar文件，供给Worker容器使用。
+     *
      * @param yarnConf
      * @param applicationId
      * @param appMasterEnv
@@ -364,7 +376,7 @@ public class Client {
         }
 
         public void uploadSingleResource(Path localPath, String remoteFileName) throws IOException {
-            Path remotePath = Utilities.getRemotePath(this.yarnconf, this.dtconf ,this.applicationId, remoteFileName);
+            Path remotePath = Utilities.getRemotePath(this.yarnconf, this.dtconf, this.applicationId, remoteFileName);
             uploadLocalFileToRemote(localPath, remotePath);
         }
 
@@ -384,7 +396,7 @@ public class Client {
         return getYarnClient().getApplicationReport(appId);
     }
 
-    public YarnClient getYarnClient(){
+    public YarnClient getYarnClient() {
         try {
             if (yarnClient == null) {
                 synchronized (this) {

@@ -21,7 +21,14 @@ package com.dtstack.taier.scheduler.jobdealer;
 
 import com.baomidou.mybatisplus.extension.conditions.update.LambdaUpdateChainWrapper;
 import com.dtstack.taier.common.CustomThreadRunsPolicy;
-import com.dtstack.taier.common.enums.*;
+import com.dtstack.taier.common.enums.Deleted;
+import com.dtstack.taier.common.enums.EComputeType;
+import com.dtstack.taier.common.enums.EJobCacheStage;
+import com.dtstack.taier.common.enums.EJobClientType;
+import com.dtstack.taier.common.enums.EScheduleJobType;
+import com.dtstack.taier.common.enums.ForceCancelFlag;
+import com.dtstack.taier.common.enums.OperatorType;
+import com.dtstack.taier.common.enums.StoppedStatus;
 import com.dtstack.taier.common.env.EnvironmentContext;
 import com.dtstack.taier.common.exception.RdosDefineException;
 import com.dtstack.taier.common.queue.DelayBlockingQueue;
@@ -51,8 +58,19 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.sql.Timestamp;
-import java.util.*;
-import java.util.concurrent.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 /**

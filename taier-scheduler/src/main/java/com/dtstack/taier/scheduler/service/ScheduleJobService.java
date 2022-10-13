@@ -11,7 +11,11 @@ import com.dtstack.taier.common.enums.OperatorType;
 import com.dtstack.taier.common.env.EnvironmentContext;
 import com.dtstack.taier.common.exception.RdosDefineException;
 import com.dtstack.taier.common.util.GenerateErrorMsgUtil;
-import com.dtstack.taier.dao.domain.*;
+import com.dtstack.taier.dao.domain.ScheduleJob;
+import com.dtstack.taier.dao.domain.ScheduleJobExpand;
+import com.dtstack.taier.dao.domain.ScheduleJobJob;
+import com.dtstack.taier.dao.domain.ScheduleJobOperatorRecord;
+import com.dtstack.taier.dao.domain.ScheduleTaskShade;
 import com.dtstack.taier.dao.domain.po.SimpleScheduleJobPO;
 import com.dtstack.taier.dao.mapper.ScheduleJobMapper;
 import com.dtstack.taier.pluginapi.enums.TaskStatus;
@@ -36,7 +40,16 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 
 /**
  * @Auther: dazhi

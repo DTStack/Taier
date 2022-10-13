@@ -1,12 +1,16 @@
 
 package com.dtstack.taier.flink.standalone.client;
 
-import com.dtstack.taier.pluginapi.JobIdentifier;
-import com.dtstack.taier.pluginapi.exception.PluginDefineException;
 import com.dtstack.taier.flink.client.AbstractClientManager;
 import com.dtstack.taier.flink.config.FlinkConfig;
 import com.dtstack.taier.flink.config.HadoopConfig;
-import org.apache.flink.client.deployment.*;
+import com.dtstack.taier.pluginapi.JobIdentifier;
+import com.dtstack.taier.pluginapi.exception.PluginDefineException;
+import org.apache.flink.client.deployment.ClusterClientFactory;
+import org.apache.flink.client.deployment.ClusterDescriptor;
+import org.apache.flink.client.deployment.ClusterRetrieveException;
+import org.apache.flink.client.deployment.StandaloneClientFactory;
+import org.apache.flink.client.deployment.StandaloneClusterId;
 import org.apache.flink.client.program.ClusterClient;
 import org.apache.flink.client.program.ClusterClientProvider;
 import org.slf4j.Logger;
@@ -49,7 +53,7 @@ public class StandaloneClientManager extends AbstractClientManager {
         }
         try (ClusterDescriptor<StandaloneClusterId> clusterDescriptor = standaloneClientFactory.createClusterDescriptor(flinkConfiguration)) {
             ClusterClientProvider<StandaloneClusterId> clientProvider = clusterDescriptor.retrieve(clusterId);
-            return  clientProvider.getClusterClient();
+            return clientProvider.getClusterClient();
         } catch (ClusterRetrieveException e) {
             LOG.error("No standalone session, Couldn't retrieve cluster Client.", e);
             throw new PluginDefineException("No standalone session, Couldn't retrieve cluster Client.", e);

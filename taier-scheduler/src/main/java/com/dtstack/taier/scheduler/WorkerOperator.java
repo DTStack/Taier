@@ -24,7 +24,10 @@ import com.dtstack.taier.common.exception.RdosDefineException;
 import com.dtstack.taier.pluginapi.JobClient;
 import com.dtstack.taier.pluginapi.JobIdentifier;
 import com.dtstack.taier.pluginapi.enums.TaskStatus;
-import com.dtstack.taier.pluginapi.pojo.*;
+import com.dtstack.taier.pluginapi.pojo.CheckResult;
+import com.dtstack.taier.pluginapi.pojo.FileResult;
+import com.dtstack.taier.pluginapi.pojo.JobResult;
+import com.dtstack.taier.pluginapi.pojo.JudgeResult;
 import com.dtstack.taier.pluginapi.util.PublicUtil;
 import com.google.common.collect.Lists;
 import org.apache.commons.lang3.StringUtils;
@@ -74,7 +77,7 @@ public class WorkerOperator {
             throw new RdosDefineException("pluginInfo params lost");
         }
         Map<String, Object> info = pluginWrapper.wrapperPluginInfo(jobIdentifier.getTaskType(), jobIdentifier.getComponentVersion(), jobIdentifier.getTenantId(), jobIdentifier.getDeployMode(), jobIdentifier.getQueueName());
-        if(null == info){
+        if (null == info) {
             return null;
         }
         try {
@@ -132,8 +135,8 @@ public class WorkerOperator {
         return clientOperator.stopJob(jobClient);
     }
 
-    public List<FileResult> listFile(String path,boolean isPathPattern, String pluginInfo) throws Exception{
-        return clientOperator.listFile(path,isPathPattern,pluginInfo);
+    public List<FileResult> listFile(String path, boolean isPathPattern, String pluginInfo) throws Exception {
+        return clientOperator.listFile(path, isPathPattern, pluginInfo);
     }
 
     public CheckResult grammarCheck(JobClient jobClient) throws Exception {

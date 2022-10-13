@@ -2,14 +2,24 @@ package com.dtstack.taier.develop.sql.calcite;
 
 import com.dtstack.taier.develop.sql.Column;
 import com.dtstack.taier.develop.sql.Pair;
-import com.dtstack.taier.develop.sql.node.*;
+import com.dtstack.taier.develop.sql.node.BasicCall;
+import com.dtstack.taier.develop.sql.node.Identifier;
+import com.dtstack.taier.develop.sql.node.InsertNode;
+import com.dtstack.taier.develop.sql.node.LiteralIdentifier;
+import com.dtstack.taier.develop.sql.node.Node;
+import com.dtstack.taier.develop.sql.node.NodeList;
+import com.dtstack.taier.develop.sql.node.SelectNode;
 import com.google.common.collect.Lists;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 
 /**
  * @Author: 尘二(chener @ dtstack.com)
@@ -93,6 +103,7 @@ public class InsertParser extends LineageParser {
 
     /**
      * 如果insert 语句没有写入字段信息 那就从源数据中获取
+     *
      * @param parseNode
      * @return
      */
@@ -125,9 +136,9 @@ public class InsertParser extends LineageParser {
     @Override
     public List<Pair<Identifier, Identifier>> parseTableLineage(Node node) {
         List<Pair<Identifier, Identifier>> tableLineage = new ArrayList<>();
-        InsertNode insertNode  = (InsertNode) node;
+        InsertNode insertNode = (InsertNode) node;
         List<Identifier> tableList = getTableLineageByQuery(insertNode.getSource());
-        if (CollectionUtils.isNotEmpty(tableList)){
+        if (CollectionUtils.isNotEmpty(tableList)) {
             for (Identifier identifier : tableList) {
                 tableLineage.add(new Pair<>(insertNode.getTargetTable(), identifier));
             }
@@ -144,7 +155,7 @@ public class InsertParser extends LineageParser {
      */
     private Identifier firstMatch(int index, SelectNode source) {
         List<Node> selectList = source.getSelectList().getList();
-        if(index >= selectList.size()){
+        if (index >= selectList.size()) {
             return null;
         }
         Node node = selectList.get(index);
@@ -163,11 +174,11 @@ public class InsertParser extends LineageParser {
         } else if (node instanceof SelectNode) {
             // 如果是子查询的话 如果有别名 寻找别名 没有别名拿到第一个
             SelectNode selectNode = (SelectNode) node;
-            Identifier identifier ;
-            if (StringUtils.isNotBlank(selectNode.getAlias())){
+            Identifier identifier;
+            if (StringUtils.isNotBlank(selectNode.getAlias())) {
                 identifier = new Identifier(node.getDefaultDb(), getTableColumnMap());
                 identifier.setColumn(selectNode.getAlias());
-            }else {
+            } else {
                 identifier = firstMatch(0, ((SelectNode) node));
             }
             identifier.setContext(Node.Context.SELECT_COLUMN_QUERY);

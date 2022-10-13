@@ -25,12 +25,27 @@ import com.dtstack.taier.common.lang.web.R;
 import com.dtstack.taier.dao.domain.ScheduleJobHistory;
 import com.dtstack.taier.dao.domain.Task;
 import com.dtstack.taier.dao.pager.PageResult;
-import com.dtstack.taier.develop.dto.devlop.*;
+import com.dtstack.taier.develop.dto.devlop.FlinkServerLogVO;
+import com.dtstack.taier.develop.dto.devlop.FlinkSqlTaskManagerVO;
+import com.dtstack.taier.develop.dto.devlop.FlinkTaskDTO;
+import com.dtstack.taier.develop.dto.devlop.RuntimeLogResultVO;
+import com.dtstack.taier.develop.dto.devlop.ServerLogsVO;
+import com.dtstack.taier.develop.dto.devlop.TaskResourceParam;
 import com.dtstack.taier.develop.service.develop.impl.FlinkRuntimeLogService;
 import com.dtstack.taier.develop.service.develop.impl.FlinkServerLogService;
 import com.dtstack.taier.develop.service.develop.impl.FlinkTaskService;
 import com.dtstack.taier.develop.service.develop.impl.FlinkTaskVertexGraphService;
-import com.dtstack.taier.develop.vo.develop.query.*;
+import com.dtstack.taier.develop.vo.develop.query.CheckResultVO;
+import com.dtstack.taier.develop.vo.develop.query.GetFlinkTaskTextVO;
+import com.dtstack.taier.develop.vo.develop.query.OperateTaskVO;
+import com.dtstack.taier.develop.vo.develop.query.RuntimeLogQueryVO;
+import com.dtstack.taier.develop.vo.develop.query.StartFlinkSqlVO;
+import com.dtstack.taier.develop.vo.develop.query.TaskIdQueryVO;
+import com.dtstack.taier.develop.vo.develop.query.TaskJobHistorySearchVO;
+import com.dtstack.taier.develop.vo.develop.query.TaskSearchVO;
+import com.dtstack.taier.develop.vo.develop.query.TaskSqlFormatVO;
+import com.dtstack.taier.develop.vo.develop.query.TaskStatusSearchVO;
+import com.dtstack.taier.develop.vo.develop.query.TaskVertexGraphVO;
 import com.dtstack.taier.develop.vo.develop.result.StartFlinkResultVO;
 import com.dtstack.taier.develop.vo.develop.result.TaskListResultVO;
 import io.swagger.annotations.Api;
@@ -69,7 +84,7 @@ public class DevelopFlinkController {
         return new APITemplate<StartFlinkResultVO>() {
             @Override
             protected void checkParams() throws IllegalArgumentException {
-                if(null == vo.getTaskId()){
+                if (null == vo.getTaskId()) {
                     throw new RdosDefineException(ErrorCode.CAN_NOT_FIND_TASK);
                 }
             }
@@ -209,14 +224,14 @@ public class DevelopFlinkController {
         return new APITemplate<Boolean>() {
             @Override
             protected void checkParams() throws IllegalArgumentException {
-                if(null == operateTaskVO.getTaskId()){
+                if (null == operateTaskVO.getTaskId()) {
                     throw new RdosDefineException(ErrorCode.CAN_NOT_FIND_TASK);
                 }
             }
 
             @Override
             protected Boolean process() throws RdosDefineException {
-                return flinkTaskService.stopStreamTask(operateTaskVO.getTaskId(),operateTaskVO.getIsForce());
+                return flinkTaskService.stopStreamTask(operateTaskVO.getTaskId(), operateTaskVO.getIsForce());
             }
         }.execute();
     }

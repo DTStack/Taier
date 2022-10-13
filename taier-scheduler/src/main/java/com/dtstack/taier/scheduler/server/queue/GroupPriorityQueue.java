@@ -38,7 +38,13 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
 
 import java.util.List;
-import java.util.concurrent.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.PriorityBlockingQueue;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
@@ -124,7 +130,7 @@ public class GroupPriorityQueue {
     }
 
     private long priorityQueueSize() {
-        return queue.size() + (long)jobSubmitDealer.getDelayJobQueueSize();
+        return queue.size() + (long) jobSubmitDealer.getDelayJobQueueSize();
     }
 
     public String getJobResource() {
@@ -208,7 +214,7 @@ public class GroupPriorityQueue {
 
                 emitJob2PriorityQueue();
             } catch (Exception e) {
-                LOGGER.error("AcquireGroupQueueJob localAddress:{} error:",  environmentContext.getLocalAddress(), e);
+                LOGGER.error("AcquireGroupQueueJob localAddress:{} error:", environmentContext.getLocalAddress(), e);
             }
         }
     }

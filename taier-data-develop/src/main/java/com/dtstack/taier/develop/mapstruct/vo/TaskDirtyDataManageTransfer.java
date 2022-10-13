@@ -3,14 +3,18 @@ package com.dtstack.taier.develop.mapstruct.vo;
 import com.alibaba.fastjson.JSONObject;
 import com.dtstack.taier.dao.domain.TaskDirtyDataManage;
 import com.dtstack.taier.develop.vo.develop.query.TaskDirtyDataManageVO;
-import org.mapstruct.*;
+import org.mapstruct.Builder;
+import org.mapstruct.Mapper;
+import org.mapstruct.NullValueCheckStrategy;
+import org.mapstruct.NullValuePropertyMappingStrategy;
+import org.mapstruct.ReportingPolicy;
 import org.mapstruct.factory.Mappers;
 
 /**
  * @author zhiChen
  * @date 2021/5/12 17:31
  */
-@Mapper( builder = @Builder(disableBuilder = true), nullValueCheckStrategy = NullValueCheckStrategy.ALWAYS, nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE, unmappedTargetPolicy = ReportingPolicy.IGNORE)
+@Mapper(builder = @Builder(disableBuilder = true), nullValueCheckStrategy = NullValueCheckStrategy.ALWAYS, nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE, unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface TaskDirtyDataManageTransfer {
     TaskDirtyDataManageTransfer INSTANCE = Mappers.getMapper(TaskDirtyDataManageTransfer.class);
 
