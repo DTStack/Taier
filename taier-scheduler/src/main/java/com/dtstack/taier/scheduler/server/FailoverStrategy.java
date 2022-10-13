@@ -50,8 +50,18 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.text.SimpleDateFormat;
-import java.util.*;
-import java.util.concurrent.*;
+import java.util.Calendar;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.LinkedBlockingDeque;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 /**
  * company: www.dtstack.com
@@ -183,7 +193,7 @@ public class FailoverStrategy {
                             continue;
                         }
 
-                        PoolHttpClient.post(String.format("http://%s/%s", node,MASTER_TRIGGER_NODE), null);
+                        PoolHttpClient.post(String.format("http://%s/%s", node, MASTER_TRIGGER_NODE), null);
                     }
                     LOGGER.warn("----- nodeAddress:{} node disaster recovery task ends and resumes-----", node);
                 }
@@ -214,7 +224,7 @@ public class FailoverStrategy {
                     break;
                 }
                 Set<String> cronJobIds = new HashSet<>();
-                Set<String> fillJobIds =  new HashSet<>();
+                Set<String> fillJobIds = new HashSet<>();
                 List<String> phaseStatus = Lists.newArrayList();
                 for (SimpleScheduleJobDTO batchJob : simpleScheduleJobDTOS) {
                     if (EScheduleType.NORMAL_SCHEDULE.getType().equals(batchJob.getType())) {
@@ -253,7 +263,7 @@ public class FailoverStrategy {
             ScheduleJob scheduleJob = new ScheduleJob();
             scheduleJob.setPhaseStatus(JobPhaseStatus.CREATE.getCode());
             scheduleJobService.lambdaUpdate()
-                    .in(ScheduleJob::getJobId,jobIds)
+                    .in(ScheduleJob::getJobId, jobIds)
                     .eq(ScheduleJob::getIsDeleted, Deleted.NORMAL.getStatus())
                     .update(scheduleJob);
         }
@@ -296,14 +306,14 @@ public class FailoverStrategy {
             ScheduleJob scheduleJob = new ScheduleJob();
             scheduleJob.setNodeAddress(nodeEntry.getKey());
             scheduleJobService.lambdaUpdate()
-                    .in(ScheduleJob::getJobId,nodeEntry.getValue())
+                    .in(ScheduleJob::getJobId, nodeEntry.getValue())
                     .update(scheduleJob);
 
             // 更新jobOperatorRecord
             ScheduleJobOperatorRecord scheduleJobOperatorRecord = new ScheduleJobOperatorRecord();
             scheduleJobOperatorRecord.setNodeAddress(nodeEntry.getKey());
             scheduleJobOperatorRecordService.lambdaUpdate()
-                    .in(ScheduleJobOperatorRecord::getJobId,nodeEntry.getValue())
+                    .in(ScheduleJobOperatorRecord::getJobId, nodeEntry.getValue())
                     .update(scheduleJobOperatorRecord);
 
             LOGGER.info("jobIds:{} failover to address:{}", nodeEntry.getValue(), nodeEntry.getKey());
@@ -339,7 +349,7 @@ public class FailoverStrategy {
                         startId = jobCache.getId();
                     } catch (Exception e) {
                         //数据转换异常--打日志
-                        LOGGER.error("faultTolerantRecoverJobCache {} error", jobCache.getJobId(),e);
+                        LOGGER.error("faultTolerantRecoverJobCache {} error", jobCache.getJobId(), e);
                         dealSubmitFailJob(jobCache.getJobId(), "This task stores information exception and cannot be converted." + ExceptionUtil.getErrorMessage(e));
                     }
                 }
@@ -419,10 +429,11 @@ public class FailoverStrategy {
 
     /**
      * master 节点分发任务失败
-     * @param jobId 实例id
+     *
+     * @param jobId    实例id
      * @param errorMsg 错误信息，用于更新日志
      */
-    public void dealSubmitFailJob(String jobId, String errorMsg){
+    public void dealSubmitFailJob(String jobId, String errorMsg) {
         ScheduleJobCacheService.deleteByJobId(jobId);
         scheduleJobService.jobFail(jobId, TaskStatus.SUBMITFAILD.getStatus(), GenerateErrorMsgUtil.generateErrorMsg(errorMsg));
         LOGGER.info("jobId:{} update job status:{}, job is finished.", jobId, TaskStatus.SUBMITFAILD.getStatus());

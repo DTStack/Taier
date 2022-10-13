@@ -1,7 +1,7 @@
 package com.dtstack.taier.scheduler.server.action.restart;
 
-import com.dtstack.taier.common.enums.EScheduleJobType;
 import com.dtstack.taier.common.enums.Deleted;
+import com.dtstack.taier.common.enums.EScheduleJobType;
 import com.dtstack.taier.common.env.EnvironmentContext;
 import com.dtstack.taier.dao.domain.ScheduleJob;
 import com.dtstack.taier.pluginapi.enums.TaskStatus;
@@ -17,7 +17,12 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ForkJoinPool;
+import java.util.concurrent.ForkJoinTask;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.stream.Collectors;
 
 /**
@@ -36,7 +41,7 @@ public abstract class AbstractRestart {
 
     protected final EnvironmentContext environmentContext;
 
-    protected final  ApplicationContext applicationContext;
+    protected final ApplicationContext applicationContext;
 
 
     public AbstractRestart(EnvironmentContext environmentContext, ApplicationContext applicationContext) {
@@ -52,15 +57,15 @@ public abstract class AbstractRestart {
      * @param batchJob
      * @param resumeBatchJobs
      */
-    protected void setSubFlowJob(ScheduleJob batchJob, Map<String,String> resumeBatchJobs) {
+    protected void setSubFlowJob(ScheduleJob batchJob, Map<String, String> resumeBatchJobs) {
         List<String> subFlowJob = getSubFlowJob(batchJob);
         if (CollectionUtils.isNotEmpty(subFlowJob)) {
             List<ScheduleJob> jobList = scheduleJobService.lambdaQuery()
                     .in(ScheduleJob::getFlowJobId, subFlowJob)
                     .eq(ScheduleJob::getIsDeleted, Deleted.NORMAL.getStatus())
                     .list();
-            if(CollectionUtils.isNotEmpty(jobList)){
-                resumeBatchJobs.putAll(jobList.stream().collect(Collectors.toMap(ScheduleJob::getJobId,ScheduleJob::getCycTime)));
+            if (CollectionUtils.isNotEmpty(jobList)) {
+                resumeBatchJobs.putAll(jobList.stream().collect(Collectors.toMap(ScheduleJob::getJobId, ScheduleJob::getCycTime)));
             }
         }
     }
@@ -95,11 +100,11 @@ public abstract class AbstractRestart {
      * @param isOnlyNextChild
      * @return
      */
-    protected Map<String,String> getAllChildJobWithSameDayByForkJoin(String jobId, boolean isOnlyNextChild) {
+    protected Map<String, String> getAllChildJobWithSameDayByForkJoin(String jobId, boolean isOnlyNextChild) {
         ForkJoinPool forkJoinPool = ForkJoinPool.commonPool();
-        ConcurrentHashMap<String,String> results = new ConcurrentHashMap<>();
+        ConcurrentHashMap<String, String> results = new ConcurrentHashMap<>();
         ForkJoinJobTask forkJoinJobTask = new ForkJoinJobTask(jobId, results, scheduleJobService, scheduleJobJobService, isOnlyNextChild);
-        ForkJoinTask<Map<String,String>> submit = forkJoinPool.submit(forkJoinJobTask);
+        ForkJoinTask<Map<String, String>> submit = forkJoinPool.submit(forkJoinJobTask);
         try {
             return submit.get(environmentContext.getForkJoinResultTimeOut(), TimeUnit.SECONDS);
         } catch (InterruptedException | ExecutionException | TimeoutException e) {
@@ -122,13 +127,13 @@ public abstract class AbstractRestart {
         ScheduleJob scheduleJob = new ScheduleJob();
         scheduleJob.setStatus(TaskStatus.MANUALSUCCESS.getStatus());
         scheduleJob.setGmtModified(new Timestamp(System.currentTimeMillis()));
-        scheduleJobService.lambdaUpdate().in(ScheduleJob::getJobId,jobIds)
+        scheduleJobService.lambdaUpdate().in(ScheduleJob::getJobId, jobIds)
                 .eq(ScheduleJob::getIsDeleted, Deleted.NORMAL.getStatus())
                 .update(scheduleJob);
 
         LOGGER.info("jobIds {} manual success", jobIds);
         // 置成功并恢复调度,要把当前置成功任务去除掉
-        if(MapUtils.isNotEmpty(jobMap)){
+        if (MapUtils.isNotEmpty(jobMap)) {
             jobIds.forEach(jobMap::remove);
         }
     }

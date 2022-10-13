@@ -4,7 +4,14 @@ package com.dtstack.taier.develop.sql.node;
 import com.dtstack.taier.develop.sql.Column;
 import com.dtstack.taier.develop.sql.calcite.SqlNodeType;
 import com.google.common.collect.Lists;
-import org.apache.calcite.sql.*;
+import org.apache.calcite.sql.SqlBasicCall;
+import org.apache.calcite.sql.SqlIdentifier;
+import org.apache.calcite.sql.SqlInsert;
+import org.apache.calcite.sql.SqlKind;
+import org.apache.calcite.sql.SqlNode;
+import org.apache.calcite.sql.SqlNodeList;
+import org.apache.calcite.sql.SqlOperator;
+import org.apache.calcite.sql.SqlSelect;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -40,7 +47,7 @@ public class InsertNode extends Node {
     private SqlNodeType type;
 
     public InsertNode(String defaultDb, Map<String, List<Column>> tableColumnsMap) {
-        super(defaultDb,tableColumnsMap);
+        super(defaultDb, tableColumnsMap);
     }
 
     public List<Identifier> getColumnList() {
@@ -91,78 +98,77 @@ public class InsertNode extends Node {
     private void handleSource(SqlNode source) {
         //insert into values语法,operator为  SqlValuesOperator
         //union
-        if (source instanceof SqlBasicCall){
+        if (source instanceof SqlBasicCall) {
             SqlOperator operator = ((SqlBasicCall) source).getOperator();
-            if (SqlKind.UNION == operator.kind){
-                UnionCall unionCall = new UnionCall(getDefaultDb(),getTableColumnMap());
+            if (SqlKind.UNION == operator.kind) {
+                UnionCall unionCall = new UnionCall(getDefaultDb(), getTableColumnMap());
                 unionCall.parseSql(source);
-                NodeList nodeList = new NodeList(getDefaultDb(),getTableColumnMap());
+                NodeList nodeList = new NodeList(getDefaultDb(), getTableColumnMap());
                 nodeList.setContext(Context.INSERT_FROM_UNION);
                 List<Node> nodes = Lists.newArrayList();
                 nodes.addAll(unionCall.getComboFromList());
                 nodeList.setList(nodes);
                 this.source = nodeList;
             }
-        }else if (source instanceof SqlSelect){
-            SelectNode selectNode = new SelectNode(getDefaultDb(),getTableColumnMap());
+        } else if (source instanceof SqlSelect) {
+            SelectNode selectNode = new SelectNode(getDefaultDb(), getTableColumnMap());
             selectNode.parseSql(source);
             this.source = selectNode;
         }
     }
 
     /**
-     *
      * @param targetTable
      */
     private void handleTargetTable(SqlNode targetTable) {
         //insert的target通常都是表
-        if (targetTable instanceof SqlIdentifier){
-            Identifier identifier = new Identifier(getDefaultDb(),getTableColumnMap());
+        if (targetTable instanceof SqlIdentifier) {
+            Identifier identifier = new Identifier(getDefaultDb(), getTableColumnMap());
             identifier.setContext(Context.IDENTIFIER_TABLE);
             identifier.parseSql(targetTable);
             this.targetTable = identifier;
-            fillColumnDbAndTable(identifier.getDb(),identifier.getTable());
+            fillColumnDbAndTable(identifier.getDb(), identifier.getTable());
         }
     }
 
     /**
      * 将columnList中的identifier的db和table信息填充
+     *
      * @param db
      * @param table
      */
     private void fillColumnDbAndTable(String db, String table) {
-        for (Identifier identifier:columnList){
-            if (StringUtils.isNotEmpty(db)){
+        for (Identifier identifier : columnList) {
+            if (StringUtils.isNotEmpty(db)) {
                 identifier.setDb(db);
             }
-            if (StringUtils.isEmpty(identifier.getTable())){
+            if (StringUtils.isEmpty(identifier.getTable())) {
                 identifier.setTable(table);
             }
         }
     }
 
     /**
-     *
      * @param targetColumnList
      */
     private void handleColumnList(SqlNodeList targetColumnList) {
-        if (CollectionUtils.isEmpty(columnList)){
+        if (CollectionUtils.isEmpty(columnList)) {
             columnList = Lists.newArrayList();
         }
-        if (targetColumnList == null){
+        if (targetColumnList == null) {
             // insert into select 语句
             return;
         }
-        for (SqlNode node : targetColumnList.getList()){
-            Identifier identifier = new Identifier(getDefaultDb(),getTableColumnMap());
+        for (SqlNode node : targetColumnList.getList()) {
+            Identifier identifier = new Identifier(getDefaultDb(), getTableColumnMap());
             identifier.setContext(Context.IDENTIFIER_COLUMN);
             identifier.parseSql(node);
             columnList.add(identifier);
         }
     }
 
-    private SqlInsert checkNode(SqlNode node){
-        if (!(node instanceof SqlInsert)){
+    private SqlInsert checkNode(SqlNode node) {
+        if (!(node instanceof SqlInsert)) {
             throw new IllegalStateException("sqlNode类型不匹配");
         }
         return (SqlInsert) node;

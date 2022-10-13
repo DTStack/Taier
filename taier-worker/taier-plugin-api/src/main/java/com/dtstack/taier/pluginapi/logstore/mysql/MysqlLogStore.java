@@ -25,8 +25,17 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.sql.*;
-import java.util.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 
 /**
  * 操作
@@ -53,7 +62,6 @@ public class MysqlLogStore extends AbstractLogStore {
     private static final String GET_LOG_BY_JOB_ID = "select log_info from schedule_plugin_job_info where job_id = ?";
 
     private static final String TIME_OUT_ERR_INFO = "task lose connect(maybe: engine shutdown)";
-
 
 
     private static final String SELECT_MIN_ID_SQL = " select min(id) as id from schedule_plugin_job_info";
@@ -217,8 +225,8 @@ public class MysqlLogStore extends AbstractLogStore {
             resultSet = preparedStatement.executeQuery();
             while (resultSet.next()) {
                 Timestamp gmtModified = resultSet.getTimestamp("gmt_modified");
-                if (gmtModified.getTime() < System.currentTimeMillis() - TIMEOUT){
-                    batchExecuteJobTimeOutById(UPDATE_TIME_OUT_TO_FAIL_SQL, Collections.singletonList(resultSet.getLong("id")),connection);
+                if (gmtModified.getTime() < System.currentTimeMillis() - TIMEOUT) {
+                    batchExecuteJobTimeOutById(UPDATE_TIME_OUT_TO_FAIL_SQL, Collections.singletonList(resultSet.getLong("id")), connection);
                 }
                 return resultSet.getInt("status");
             }
@@ -297,7 +305,7 @@ public class MysqlLogStore extends AbstractLogStore {
                         break;
                     }
 
-                    updateStmt= batchExecuteJobTimeOutById(dealSql, ids, connection);
+                    updateStmt = batchExecuteJobTimeOutById(dealSql, ids, connection);
                     LOGGER.info("deal SQL:{} affect ids:{}", dealSql, ids);
                 } catch (SQLException e) {
                     LOGGER.error("", e);
@@ -348,7 +356,7 @@ public class MysqlLogStore extends AbstractLogStore {
         } catch (Exception e) {
             LOGGER.error("", e);
         } finally {
-            closeDBResources(minIdRs, minIdPs,null,null);
+            closeDBResources(minIdRs, minIdPs, null, null);
         }
         return 0L;
     }
@@ -361,15 +369,15 @@ public class MysqlLogStore extends AbstractLogStore {
             prepareStatementSql.append("?,");
         }
         prepareStatementSql.deleteCharAt(prepareStatementSql.length() - 1).append(") ");
-        try(PreparedStatement updateStmt = connection.prepareStatement(prepareStatementSql.toString())){
+        try (PreparedStatement updateStmt = connection.prepareStatement(prepareStatementSql.toString())) {
             int parameterIndex = 1;
             for (long id : ids) {
                 updateStmt.setLong(parameterIndex++, id);
             }
             updateStmt.executeUpdate();
             return updateStmt;
-        }catch (Exception e){
-            LOGGER.error("executeUpdate error:",e);
+        } catch (Exception e) {
+            LOGGER.error("executeUpdate error:", e);
         }
         return null;
     }

@@ -16,10 +16,13 @@
  * limitations under the License.
  */
 
-
 package com.dtstack.taier.develop.sql.hive;
 
-import com.dtstack.taier.develop.sql.hive.hive.*;
+import com.dtstack.taier.develop.sql.hive.hive.AlterAstNodeParser;
+import com.dtstack.taier.develop.sql.hive.hive.CreateTableAstNodeParser;
+import com.dtstack.taier.develop.sql.hive.hive.InsertAstNodeParser;
+import com.dtstack.taier.develop.sql.hive.hive.OtherAstNodeParser;
+import com.dtstack.taier.develop.sql.hive.hive.SelectAstNodeParser;
 import org.apache.hadoop.hive.ql.parse.HiveParser;
 
 /**
@@ -34,23 +37,30 @@ public class AstNodeParserFactory {
 
     private static AstNodeParserFactory factory = new AstNodeParserFactory();
 
-    public static AstNodeParserFactory getInstance(){
+    public static AstNodeParserFactory getInstance() {
         return factory;
     }
 
-    public ASTNodeParserImpl getHiveSqlParser(int operatorType, String sql){
+    public ASTNodeParserImpl getHiveSqlParser(int operatorType, String sql) {
         ASTNodeParserImpl sqlParser;
 
-        if(sql.matches(INSERT_REGEX)){
+        if (sql.matches(INSERT_REGEX)) {
             sqlParser = new InsertAstNodeParser();
             return sqlParser;
         }
 
-        switch (operatorType){
-            case HiveParser.TOK_CREATETABLE: sqlParser = new CreateTableAstNodeParser(); break;
-            case HiveParser.TOK_ALTERTABLE: sqlParser = new AlterAstNodeParser(); break;
-            case HiveParser.TOK_QUERY: sqlParser = new SelectAstNodeParser(); break;
-            default: sqlParser = new OtherAstNodeParser();
+        switch (operatorType) {
+            case HiveParser.TOK_CREATETABLE:
+                sqlParser = new CreateTableAstNodeParser();
+                break;
+            case HiveParser.TOK_ALTERTABLE:
+                sqlParser = new AlterAstNodeParser();
+                break;
+            case HiveParser.TOK_QUERY:
+                sqlParser = new SelectAstNodeParser();
+                break;
+            default:
+                sqlParser = new OtherAstNodeParser();
         }
 
         return sqlParser;

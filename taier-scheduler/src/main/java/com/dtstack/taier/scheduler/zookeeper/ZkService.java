@@ -48,7 +48,11 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -323,8 +327,9 @@ public class ZkService implements InitializingBean, DisposableBean {
 
     /**
      * 设置 watcher
-     * @param group 分组
-     * @param key key
+     *
+     * @param group          分组
+     * @param key            key
      * @param curatorWatcher watcher 回调
      */
     public void setWatcher(String group, String key, CuratorWatcher curatorWatcher) {

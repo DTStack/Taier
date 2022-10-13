@@ -24,7 +24,11 @@ package com.dtstack.taier.develop.sql.formate;
  * Boston, MA  02110-1301  USA
  */
 
-import java.util.*;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.Locale;
+import java.util.Set;
+import java.util.StringTokenizer;
 
 /**
  * Performs formatting of basic SQL statements (DML + query).

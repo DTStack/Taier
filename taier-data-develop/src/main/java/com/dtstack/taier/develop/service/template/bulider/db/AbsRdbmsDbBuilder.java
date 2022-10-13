@@ -7,12 +7,14 @@ import com.dtstack.taier.datasource.api.client.IClient;
 import com.dtstack.taier.datasource.api.dto.ColumnMetaDTO;
 import com.dtstack.taier.datasource.api.dto.SqlQueryDTO;
 import com.dtstack.taier.datasource.api.dto.source.ISourceDTO;
-import com.dtstack.taier.develop.vo.datasource.DsPreviewResultVO;
 import org.apache.commons.collections.CollectionUtils;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.*;
-
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Objects;
+import java.util.Set;
 import java.util.regex.Pattern;
 
 public abstract class AbsRdbmsDbBuilder implements DbBuilder {
@@ -98,7 +100,7 @@ public abstract class AbsRdbmsDbBuilder implements DbBuilder {
         return resultList;
     }
 
-    public List<String> listTablesBySchema(String schema, String tableNamePattern,ISourceDTO sourceDTO, String db) {
+    public List<String> listTablesBySchema(String schema, String tableNamePattern, ISourceDTO sourceDTO, String db) {
         return getClient().getTableListBySchema(sourceDTO, SqlQueryDTO.builder().schema(schema).tableNamePattern(tableNamePattern).limit(LIMIT_COUNT).build());
     }
 

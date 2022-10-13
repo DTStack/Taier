@@ -10,7 +10,11 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Service
@@ -23,18 +27,18 @@ public class UserService extends ServiceImpl<UserMapper, User> {
     }
 
     public Map<Long, User> getUserMap(Collection<Long> userIds) {
-        if(CollectionUtils.isEmpty(userIds)){
+        if (CollectionUtils.isEmpty(userIds)) {
             return new HashMap<>();
         }
         List<User> users = this.baseMapper.selectBatchIds(userIds);
-        if(CollectionUtils.isEmpty(users)){
+        if (CollectionUtils.isEmpty(users)) {
             return new HashMap<>();
         }
         return users.stream().collect(Collectors.toMap(User::getId, u -> u));
     }
 
     public User getById(Long userId) {
-       return this.baseMapper.selectById(userId);
+        return this.baseMapper.selectById(userId);
     }
 
 

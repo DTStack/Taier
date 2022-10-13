@@ -1,6 +1,10 @@
 package com.dtstack.taier.develop.sql.node;
 
-import com.dtstack.taier.develop.sql.*;
+import com.dtstack.taier.develop.sql.AlterColumnResult;
+import com.dtstack.taier.develop.sql.Column;
+import com.dtstack.taier.develop.sql.PartCondition;
+import com.dtstack.taier.develop.sql.Partition;
+import com.dtstack.taier.develop.sql.TableOperateEnum;
 import org.apache.calcite.sql.SqlNode;
 import org.apache.commons.math3.util.Pair;
 
@@ -46,19 +50,19 @@ public class AlterNode extends Node {
     /**
      * 表属性
      */
-    private List<Pair<String,String>> tableProperties;
+    private List<Pair<String, String>> tableProperties;
 
 
     /**
      * 修改的分区
      */
-    private List<Pair<String,String>> renamePart;
+    private List<Pair<String, String>> renamePart;
 
-    public List<Pair<String,String>> getRenamePart() {
+    public List<Pair<String, String>> getRenamePart() {
         return renamePart;
     }
 
-    public void setRenamePart(List<Pair<String,String>> renamePart) {
+    public void setRenamePart(List<Pair<String, String>> renamePart) {
         this.renamePart = renamePart;
     }
 

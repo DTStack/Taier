@@ -43,7 +43,15 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.EnumSet;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -97,7 +105,7 @@ public class PerJobClientManager extends AbstractClientManager {
                         String taskParams = "high-availability.cluster-id=" + applicationId;
                         action.setTaskParams(taskParams);
                         JobClient jobClient = new JobClient(action);
-                        try (YarnClusterDescriptor perJobYarnClusterDescriptor = createPerJobClusterDescriptor(jobClient) )  {
+                        try (YarnClusterDescriptor perJobYarnClusterDescriptor = createPerJobClusterDescriptor(jobClient)) {
                             return perJobYarnClusterDescriptor.retrieve(ConverterUtils.toApplicationId(applicationId)).getClusterClient();
                         }
                     });
@@ -285,7 +293,7 @@ public class PerJobClientManager extends AbstractClientManager {
      * when run in stream-computing mode
      */
     public void deleteTaskIfExist(JobClient jobClient) {
-        if(ComputeType.BATCH.equals(jobClient.getComputeType())){
+        if (ComputeType.BATCH.equals(jobClient.getComputeType())) {
             return;
         }
         try {

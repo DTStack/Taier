@@ -18,19 +18,22 @@
 
 package com.dtstack.taier.local.test;
 
-import com.dtstack.taier.pluginapi.pojo.ParamAction;
 import com.dtstack.taier.pluginapi.JobClient;
 import com.dtstack.taier.pluginapi.JobIdentifier;
 import com.dtstack.taier.pluginapi.callback.CallBack;
 import com.dtstack.taier.pluginapi.callback.ClassLoaderCallBackMethod;
 import com.dtstack.taier.pluginapi.client.IClient;
 import com.dtstack.taier.pluginapi.pojo.JobResult;
+import com.dtstack.taier.pluginapi.pojo.ParamAction;
 import com.dtstack.taier.pluginapi.util.MD5Util;
 import com.dtstack.taier.pluginapi.util.PublicUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStreamReader;
 import java.util.Map;
 import java.util.Properties;
 

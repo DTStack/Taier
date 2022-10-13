@@ -2,7 +2,11 @@ package com.dtstack.taier.develop.mapstruct.fill;
 
 import com.dtstack.taier.dao.domain.ScheduleFillDataJob;
 import com.dtstack.taier.dao.domain.ScheduleJob;
-import com.dtstack.taier.develop.vo.fill.*;
+import com.dtstack.taier.develop.vo.fill.FillDataJobVO;
+import com.dtstack.taier.develop.vo.fill.QueryFillDataJobListVO;
+import com.dtstack.taier.develop.vo.fill.QueryFillDataListVO;
+import com.dtstack.taier.develop.vo.fill.ReturnFillDataListVO;
+import com.dtstack.taier.develop.vo.fill.ScheduleFillJobParticipateVO;
 import com.dtstack.taier.scheduler.dto.fill.QueryFillDataJobListDTO;
 import com.dtstack.taier.scheduler.dto.fill.QueryFillDataListDTO;
 import com.dtstack.taier.scheduler.dto.fill.ScheduleFillJobParticipateDTO;
@@ -36,7 +40,7 @@ public interface FillDataJobMapstructTransfer {
      * 补数据列表 domain->vo
      */
     @Mappings({
-            @Mapping(target = "fillDataName",source = "jobName")
+            @Mapping(target = "fillDataName", source = "jobName")
     })
     ReturnFillDataListVO fillDataListDTOToFillDataReturnListVO(ScheduleFillDataJob record);
 

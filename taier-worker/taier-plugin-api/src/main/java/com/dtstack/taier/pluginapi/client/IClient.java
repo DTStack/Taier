@@ -21,7 +21,11 @@ package com.dtstack.taier.pluginapi.client;
 import com.dtstack.taier.pluginapi.JobClient;
 import com.dtstack.taier.pluginapi.JobIdentifier;
 import com.dtstack.taier.pluginapi.enums.TaskStatus;
-import com.dtstack.taier.pluginapi.pojo.*;
+import com.dtstack.taier.pluginapi.pojo.CheckResult;
+import com.dtstack.taier.pluginapi.pojo.ComponentTestResult;
+import com.dtstack.taier.pluginapi.pojo.FileResult;
+import com.dtstack.taier.pluginapi.pojo.JobResult;
+import com.dtstack.taier.pluginapi.pojo.JudgeResult;
 
 import java.io.IOException;
 import java.util.List;
@@ -42,21 +46,21 @@ public interface IClient {
 
     TaskStatus getJobStatus(JobIdentifier jobIdentifier) throws IOException;
 
-	String getJobMaster(JobIdentifier jobIdentifier);
+    String getJobMaster(JobIdentifier jobIdentifier);
 
-	String getMessageByHttp(String path);
+    String getMessageByHttp(String path);
 
-	String getJobLog(JobIdentifier jobIdentifier);
+    String getJobLog(JobIdentifier jobIdentifier);
 
-	JudgeResult judgeSlots(JobClient jobClient);
+    JudgeResult judgeSlots(JobClient jobClient);
 
-	String getCheckpoints(JobIdentifier jobIdentifier);
+    String getCheckpoints(JobIdentifier jobIdentifier);
 
     ComponentTestResult testConnect(String pluginInfo);
 
-	List<String> getRollingLogBaseInfo(JobIdentifier jobIdentifier);
+    List<String> getRollingLogBaseInfo(JobIdentifier jobIdentifier);
 
-	CheckResult grammarCheck(JobClient jobClient);
+    CheckResult grammarCheck(JobClient jobClient);
 
-	List<FileResult> listFile(String path,boolean isPathPattern);
+    List<FileResult> listFile(String path, boolean isPathPattern);
 }
