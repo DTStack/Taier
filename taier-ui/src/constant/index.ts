@@ -248,6 +248,7 @@ export enum TASK_TYPE_ENUM {
 	FLINK = 11,
 	PYTHON = 12,
 	SHELL = 13,
+	CLICKHOUSE = 26
 }
 
 /**
@@ -528,6 +529,7 @@ export const DATA_SOURCE_TEXT: Partial<{ [key in DATA_SOURCE_ENUM]: string }> = 
 	[DATA_SOURCE_ENUM.KAFKA_HUAWEI]: 'Kafka_huawei',
 	[DATA_SOURCE_ENUM.HBASE_HUAWEI]: 'Hbase_huawei',
 	[DATA_SOURCE_ENUM.KAFKA_CONFLUENT]: 'Confluent',
+	[DATA_SOURCE_ENUM.DorisRestful]: 'Doris(http)',
 };
 
 /**
