@@ -96,27 +96,27 @@ const Resource = () => (
 			},
 			{
 				validator: (_, value) => {
-					const resouceTreeData =
-						resourceManagerTree.getState().folderTree?.data?.[0]?.data;
-					if (!resouceTreeData) return Promise.resolve();
-					let nodeType: any;
-
-					const loop = (arr: any) => {
-						arr.forEach((node: any) => {
-							if (node.id === value) {
-								nodeType = node.type;
-							} else {
-								loop(node.children || []);
-							}
-						});
-					};
-
-					loop([resouceTreeData]);
-
-					if (nodeType === 'folder') {
+					const resourceTreeData = resourceManagerTree.getState().folderTree?.data?.[0];
+					if (!resourceTreeData) return Promise.resolve();
+				
+					const stack = [resourceTreeData];
+					let targetTreeNode: molecule.model.IFolderTreeNodeProps | undefined;
+					while (stack.length) {
+						const item = stack.shift()!;
+						if (item.children?.length) {
+							stack.push(...item.children);
+						}
+				
+						if (item.data.id === value) {
+							targetTreeNode = item;
+							stack.length = 0;
+						}
+					}
+				
+					if (!targetTreeNode || targetTreeNode.data.type === 'folder') {
 						return Promise.reject(new Error('请选择具体文件, 而非文件夹'));
 					}
-
+				
 					return Promise.resolve();
 				},
 			},
