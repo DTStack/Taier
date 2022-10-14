@@ -32,7 +32,7 @@ A: 确认Taier目录下application.properties datasource.plugin.path是否配置
 A: 是否正确配置集群，集群是否正确获取到了队列，租户和集群是否绑定成功 参考[快速上手](./quickstart/start.md)
 
 ### Q: 页面访问报错, 无法登陆用户
-A: 确认下前端配置的后端接口是否正确 参考[快速上手](./quickstart/deploy/web.md)
+A: 确认下前端配置的后端接口是否正确 参考[快速上手](./quickstart/deploy/deployment-quick.md)
 
 ### Q:绑定新租户时初始化时提示数据库已存在
 A: 绑定租户新增schema选择创建 绑定租户已有schema直接选择对接 

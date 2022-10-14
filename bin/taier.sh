@@ -12,24 +12,19 @@ CMD_HOME=`cd "$CMD_PATH"/../; pwd`
 LS_HOME=$CMD_HOME
 LS_LOG_DIR=$CMD_HOME/logs
 LS_CONF_DIR=$CMD_HOME/conf
-LS_OPEN_FILES=16384
 LS_NICE=19
 KILL_ON_STOP_TIMEOUT=1
 LS_OPTS=""
-REMOTE_PORT="9996"
-name=rdos
+name=taier
 LS_HEAP_SIZE="128m"
-#ls_conf=${LS_CONF_DIR}/node.yml
 ls_log="${LS_LOG_DIR}/$name.log"
 pidfile="${CMD_HOME}/run/$name.pid"
-gc_log=${CMD_HOME}/logs/rdos.gc
-heapdump=${CMD_HOME}/rdos.hprof
+gc_log=${CMD_HOME}/logs/taier.gc
+heapdump=${CMD_HOME}/taier.hprof
 
 touch $gc_log
 
 program=${LS_HOME}/bin/base.sh
-#args="agent -f ${ls_conf} -l ${ls_log} ${LS_OPTS}"
-#args="agent -f ${ls_conf} ${LS_OPTS}"
 
 quiet() {
   "$@" > /dev/null 2>&1
