@@ -35,9 +35,9 @@ const sidebars = {
                         collapsed: false,
                         label: '快速部署',
                         items: [
-                            'quickstart/deploy/pre-operation',
                             'quickstart/deploy/docker',
                             'quickstart/deploy/deployment-quick',
+                            'quickstart/deploy/cluster-deploy',
                             'quickstart/deploy/build',
                         ],
                  },

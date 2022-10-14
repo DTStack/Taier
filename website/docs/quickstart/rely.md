@@ -12,8 +12,6 @@ sidebar_label: 部署依赖
 - Zookeeper 版本: **Zookeeper 3.5.7 +**
 
 ## 三方框架
-
-- DatasourceX（数据源插件）：[**latest**](https://github.com/DTStack/DatasourceX/tags)
 - Chunjun（数据同步插件）：[**1.12**](https://github.com/DTStack/chunjun/tags)
 
 ## 大数据组件

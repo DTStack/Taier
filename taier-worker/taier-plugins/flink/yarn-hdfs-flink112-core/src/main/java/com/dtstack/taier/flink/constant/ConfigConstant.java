@@ -56,7 +56,7 @@ public class ConfigConstant {
      */
     public static final String  SESSION_CHECK_JAR_NAME= "dt-flink-check.jar";
     public static final String  SESSION_CHECK_MAIN_CLASS= "com.dtstack.taier.flink.check.FlinkSessionCheck";
-    public static final String DEFAULT_SESSION_CHECK_PATH = "/pluginLibs/flinkcommon";
+    public static final String DEFAULT_SESSION_CHECK_PATH = "/worker-plugins/flinkcommon";
 
     public static final String HADOOP_CONF_BYTES_KEY = "hadoop.conf.bytes";
     public static final String YARN_CONF_BYTES_KEY = "yarn.conf.bytes";
