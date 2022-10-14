@@ -1,4 +1,6 @@
-package com.dtstack.taier.datasource.api.context;
+package com.dtstack.taier.datasource.api.context.enhance;
+
+import com.dtstack.taier.datasource.api.context.RuntimeContext;
 
 /**
  * 基础类增强, 提供获取运行时上下文等能力

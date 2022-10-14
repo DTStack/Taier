@@ -1,6 +1,6 @@
 package com.dtstack.taier.datasource.api.manager;
 
-import com.dtstack.taier.datasource.api.context.ManagerEnhance;
+import com.dtstack.taier.datasource.api.context.enhance.ManagerEnhance;
 import com.dtstack.taier.datasource.api.context.RuntimeContext;
 import com.dtstack.taier.datasource.api.exception.InitializeException;
 import com.dtstack.taier.datasource.api.initialize.AbstractEnvInitialize;

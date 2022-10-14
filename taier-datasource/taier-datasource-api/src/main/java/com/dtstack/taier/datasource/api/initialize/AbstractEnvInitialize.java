@@ -81,9 +81,7 @@ public abstract class AbstractEnvInitialize implements EnvInitialize {
     /**
      * 运行周期调度任务
      */
-    public void runScheduleJob() {
-        throw new RuntimeException("runScheduleJob method not implemented.");
-    }
+    public void runScheduleJob() {}
 
     /**
      * 是否需要周期调度
