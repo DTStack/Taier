@@ -67,7 +67,7 @@ public class ClassloaderManager extends AbstractManager {
     }
 
     /**
-     * 重新加载 classloader
+     * 重新加载制定插件的 classloader
      *
      * @param pluginName 插件名称
      */
@@ -80,33 +80,37 @@ public class ClassloaderManager extends AbstractManager {
 
     @Override
     public void runScheduleJob() {
-        if (pluginDir == null) {
-            throw new RuntimeException("plugin dir is null.");
-        }
-        File pluginDirFile = new File(pluginDir);
-        if (!pluginDirFile.exists()) {
-            throw new RuntimeException(String.format("plugin dir [%s] does not exists.", pluginDir));
-        }
-        File[] pluginFiles = pluginDirFile.listFiles();
+        try {
+            if (pluginDir == null) {
+                throw new InitializeException("plugin dir is null.");
+            }
+            File pluginDirFile = new File(pluginDir);
+            if (!pluginDirFile.exists()) {
+                throw new InitializeException(String.format("plugin dir [%s] does not exists.", pluginDir));
+            }
+            File[] pluginFiles = pluginDirFile.listFiles();
 
-        if (pluginFiles == null || pluginFiles.length == 0) {
-            log.warn("plugin dir [{}] is empty.", pluginDir);
-            // 清理所有插件
-            classLoaderMap.keySet().forEach(this::removeClassloader);
-            return;
-        }
+            if (pluginFiles == null || pluginFiles.length == 0) {
+                log.warn("plugin dir [{}] is empty.", pluginDir);
+                // 清理所有插件
+                classLoaderMap.keySet().forEach(this::removeClassloader);
+                return;
+            }
 
-        // 现存的所有插件
-        List<String> existsPlugins = Arrays.stream(pluginFiles).map(File::getName).collect(Collectors.toList());
+            // 现存的所有插件
+            List<String> existsPlugins = Arrays.stream(pluginFiles).map(File::getName).collect(Collectors.toList());
 
-        // 缓存的所有插件
-        List<String> cachePlugins = new ArrayList<>(classLoaderMap.keySet());
-        // 清理不存在的插件
-        cachePlugins.removeAll(existsPlugins);
-        cachePlugins.forEach(this::removeClassloader);
+            // 缓存的所有插件
+            List<String> cachePlugins = new ArrayList<>(classLoaderMap.keySet());
+            // 清理不存在的插件
+            cachePlugins.removeAll(existsPlugins);
+            cachePlugins.forEach(this::removeClassloader);
 
-        for (String pluginName : existsPlugins) {
-            getClassloaderByPluginName(pluginName);
+            for (String pluginName : existsPlugins) {
+                getClassloaderByPluginName(pluginName);
+            }
+        } catch (Throwable e) {
+            log.error("refresh classloader error: ", e);
         }
     }
 
@@ -159,7 +163,7 @@ public class ClassloaderManager extends AbstractManager {
                 pluginNameMap.put(classLoad, pluginName);
                 return classLoad;
             } catch (Exception e) {
-                throw new RuntimeException(e);
+                throw new InitializeException(String.format("get classloader error, pluginName: %s", pluginName), e);
             }
         });
     }
@@ -189,7 +193,7 @@ public class ClassloaderManager extends AbstractManager {
             File file = getFileByPluginName(pluginName);
             File[] files = file.listFiles();
             if (files == null || files.length == 0) {
-                throw new RuntimeException(String.format("The plugin [%s] folder setting is abnormal, please handle it again", pluginName));
+                throw new InitializeException(String.format("The plugin [%s] folder setting is abnormal, please handle it again", pluginName));
             }
 
             List<URL> urlList = new ArrayList<>();
@@ -214,7 +218,7 @@ public class ClassloaderManager extends AbstractManager {
         String plugin = String.format("%s%s%s", pluginDir, File.separator, pluginName).replaceAll("/+", "/");
         File finPut = new File(plugin);
         if (!finPut.exists()) {
-            throw new RuntimeException(String.format("%s directory not found", plugin));
+            throw new InitializeException(String.format("%s directory not found", plugin));
         }
         return finPut;
     }

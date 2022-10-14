@@ -7,6 +7,7 @@ import com.dtstack.taier.datasource.api.client.IKerberos;
 import com.dtstack.taier.datasource.api.client.IRestful;
 import com.dtstack.taier.datasource.api.client.ITable;
 import com.dtstack.taier.datasource.api.client.IYarn;
+import com.dtstack.taier.datasource.api.exception.InitializeException;
 import com.dtstack.taier.datasource.api.manager.list.ClientManager;
 import com.dtstack.taier.datasource.api.source.DataSourceType;
 import lombok.extern.slf4j.Slf4j;
@@ -49,7 +50,7 @@ public class ClientCache {
      */
     public static <T extends Client> T getClientByType(Class<T> clientType, Integer dataSourceType) {
         if (Objects.isNull(clientManager)) {
-            throw new RuntimeException("client manager can't be null.");
+            throw new InitializeException("client manager can't be null.");
         }
         DataSourceType sourceType = DataSourceType.getSourceType(dataSourceType);
         return clientManager.registerClient(clientType, sourceType.getPluginName(), sourceType.getName(), null);

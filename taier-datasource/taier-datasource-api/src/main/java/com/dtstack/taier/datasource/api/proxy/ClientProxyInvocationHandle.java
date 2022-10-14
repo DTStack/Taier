@@ -14,7 +14,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 
 /**
- * 动态代理实现 invocation handler, 提供 client 一些通用处理的能力, 如重试、方法执行超时等
+ * 动态代理 client, 提供 client 一些通用处理的能力, 如重试、方法执行超时等
  *
  * @author ：wangchuan
  * date：Created in 13:46 2022/9/23
@@ -63,7 +63,7 @@ public class ClientProxyInvocationHandle<T> implements InvocationHandler {
                     executeTimeout,
                     managerFactory.getManager(ProxyThreadPoolManager.class).getThreadPoolExecutor(client.getClass().getClassLoader()));
 
-            // 处理分段下载器, 生成代理对象
+            // 如果返回值是 IDownloader 的子类, 则需要返回该子类对象的代理类, 在调用内部方法时设置线程上下文类加载器为加载插件的 ChildFirstClassLoader
             if (result instanceof IDownloader) {
                 ClassLoader oldClassLoader = result.getClass().getClassLoader();
                 return Proxy.newProxyInstance(

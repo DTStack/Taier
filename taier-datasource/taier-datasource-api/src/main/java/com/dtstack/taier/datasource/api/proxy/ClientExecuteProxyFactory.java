@@ -6,13 +6,13 @@ import com.dtstack.taier.datasource.api.manager.ManagerFactory;
 import java.lang.reflect.Proxy;
 
 /**
- * client execute proxy
+ * client 代理工厂类, 提供获取 client 代理的功能
  *
  * @author ：wangchuan
  * date：Created in 11:35 2022/9/23
  * company: www.dtstack.com
  */
-public class ClientExecuteProxy {
+public class ClientExecuteProxyFactory {
 
     /**
      * 动态代理获取代理对象

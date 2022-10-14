@@ -2,8 +2,9 @@ package com.dtstack.taier.datasource.api.manager.list;
 
 import com.dtstack.taier.datasource.api.base.Client;
 import com.dtstack.taier.datasource.api.config.SourceConfig;
+import com.dtstack.taier.datasource.api.exception.InitializeException;
 import com.dtstack.taier.datasource.api.manager.AbstractManager;
-import com.dtstack.taier.datasource.api.proxy.ClientExecuteProxy;
+import com.dtstack.taier.datasource.api.proxy.ClientExecuteProxyFactory;
 import com.dtstack.taier.datasource.api.utils.ClassUtils;
 import com.dtstack.taier.datasource.api.utils.ClassloaderUtils;
 import com.dtstack.taier.datasource.api.utils.ClientUtils;
@@ -48,7 +49,8 @@ public class ClientManager extends AbstractManager {
     }
 
     /**
-     * 注册并 proxy client 并返回
+     * 注册并 proxy client 并返回, 由于现在每个 plugin 只会初始化一个 Client,
+     * 暂未区分数据源生成不同的 Client, connectorName 参数意义不大
      *
      * @param clientType    client type
      * @param pluginName    plugin name
@@ -72,16 +74,16 @@ public class ClientManager extends AbstractManager {
                 ServiceLoader<T> clientLoader = ServiceLoader.load(clientType);
                 Iterator<T> clientLoaderIterator = clientLoader.iterator();
                 if (!clientLoaderIterator.hasNext()) {
-                    throw new RuntimeException(String.format("This plugin [%s] is not support.", pluginName));
+                    throw new InitializeException(String.format("This plugin [%s] is not support.", pluginName));
                 }
                 T client = clientLoaderIterator.next();
                 ClientUtils.setRuntimeContext(client, getRuntimeContext());
-                // open
+                // 后期可以初始化 client 的一些固定配置, 暂时未用到
                 client.open(sourceConfig);
                 // 创建代理
-                return ClientExecuteProxy.getProxyClient(client, clientType, getRuntimeContext().getConfig(), getManagerFactory());
+                return ClientExecuteProxyFactory.getProxyClient(client, clientType, getRuntimeContext().getConfig(), getManagerFactory());
             }, classLoader);
-            // add cache
+            // add to cache
             putProxyClient(clientType, pluginName, connectorName, proxyClient);
             return proxyClient;
         }
@@ -127,7 +129,7 @@ public class ClientManager extends AbstractManager {
      * @param connectorName connector name
      * @return proxy client
      */
-    private  <T extends Client> T getClient(Class<T> clientType, String pluginName, String connectorName) {
+    private <T extends Client> T getClient(Class<T> clientType, String pluginName, String connectorName) {
         Map<String, Map<String, Client>> pluginNameMap = clientCache.get(pluginName);
         if (MapUtils.isEmpty(pluginNameMap)) {
             return null;

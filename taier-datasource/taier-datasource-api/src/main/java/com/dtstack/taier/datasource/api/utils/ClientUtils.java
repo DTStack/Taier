@@ -1,7 +1,7 @@
 package com.dtstack.taier.datasource.api.utils;
 
 import com.dtstack.taier.datasource.api.base.Client;
-import com.dtstack.taier.datasource.api.context.Enhance;
+import com.dtstack.taier.datasource.api.context.enhance.Enhance;
 import com.dtstack.taier.datasource.api.context.RuntimeContext;
 
 /**
