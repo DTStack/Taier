@@ -1,7 +1,24 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.dtstack.taier.develop.datasource.convert.enums;
 
 import com.alibaba.fastjson.JSONObject;
-import com.dtstack.taier.common.enums.EComponentType;
 import com.dtstack.taier.common.exception.DtCenterDefException;
 import com.dtstack.taier.datasource.api.dto.SSLConfig;
 import com.dtstack.taier.datasource.api.dto.source.AdbForPgSourceDTO;
@@ -24,7 +41,6 @@ import com.dtstack.taier.datasource.api.dto.source.TiDBSourceDTO;
 import com.dtstack.taier.datasource.api.dto.source.TrinoSourceDTO;
 import com.dtstack.taier.datasource.api.source.DataSourceType;
 import com.dtstack.taier.develop.datasource.convert.dto.PluginInfoDTO;
-import com.dtstack.taier.develop.datasource.convert.load.ConsoleLoaderService;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 
@@ -79,7 +95,7 @@ public enum Engine2DTOService {
     HIVE(DataSourceType.HIVE.getVal()) {
         @Override
         public ISourceDTO getSourceDTO(PluginInfoDTO pluginInfo, Long dtUicTenantId, String dbName) {
-            ISourceDTO sourceDTO = HiveSourceDTO.builder()
+            return HiveSourceDTO.builder()
                     .sourceType(DataSourceType.HIVE.getVal())
                     .url(buildUrlWithDb(pluginInfo.getJdbcUrl(), dbName))
                     .username(pluginInfo.getUsername())
@@ -89,7 +105,6 @@ public enum Engine2DTOService {
                     .defaultFS(pluginInfo.getDefaultFs())
                     .config(pluginInfo.getHadoopConfig())
                     .build();
-            return sourceDTO;
         }
     },
 
@@ -436,31 +451,5 @@ public enum Engine2DTOService {
             return String.format(jdbcUrl, dbName);
         }
         return jdbcUrl;
-    }
-
-    /**
-     * jobType 转化为 对应的dataSourceType
-     * 如果没有对应的数据源类型 抛出异常
-     *
-     * @return DataSourceType
-     */
-    public static DataSourceType jobTypeTransitionDataSourceType(EComponentType componentType, String version) {
-        if (EComponentType.HIVE_SERVER.equals(componentType)) {
-            if (HiveVersion.HIVE_1x.getVersion().equals(version)) {
-                return DataSourceType.HIVE1X;
-            } else if (HiveVersion.HIVE_3x.getVersion().equals(version)) {
-                return DataSourceType.HIVE3X;
-            } else if (HiveVersion.HIVE_3x_CDP.getVersion().equals(version)) {
-                return DataSourceType.HIVE3_CDP;
-            } else if (HiveVersion.HIVE_3x_APACHE.getVersion().equals(version)) {
-                return DataSourceType.HIVE3X;
-            } else {
-                return DataSourceType.HIVE;
-            }
-        } else if (EComponentType.SPARK_THRIFT.equals(componentType)) {
-            return DataSourceType.SparkThrift2_1;
-        } else {
-            throw new DtCenterDefException("jobType not transition dataSourceType");
-        }
     }
 }

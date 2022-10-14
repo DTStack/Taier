@@ -19,7 +19,7 @@
         <jar.package.name>trino</jar.package.name>
         <jar.name>dtTrino</jar.name>
 
-        <trino-jdbc.version>359</trino-jdbc.version>
+        <trino-jdbc.version>399</trino-jdbc.version>
     </properties>
 
     <dependencies>
@@ -55,9 +55,8 @@
 
         <dependency>
             <groupId>io.trino</groupId>
-            <artifactId>trino-jdbc-dt</artifactId>
+            <artifactId>trino-jdbc</artifactId>
             <version>${trino-jdbc.version}</version>
-            <scope>compile</scope>
         </dependency>
     </dependencies>
 

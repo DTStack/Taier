@@ -56,6 +56,14 @@
         </dependency>
     </dependencies>
 
+    <repositories>
+        <!-- for greenplum -->
+        <repository>
+            <id>hand-china</id>
+            <url>https://nexus.saas.hand-china.com/content/repositories/rdc</url>
+        </repository>
+    </repositories>
+
     <build>
         <plugins>
             <plugin>

@@ -312,11 +312,7 @@ public class JobSubmitDealer implements Runnable {
             }
         }
         // hashmap不排序，防止多节点下a、b相同priority逻辑死锁
-        if (localAddress.equalsIgnoreCase(minPriorityAddress) || localPriority == minPriority) {
-            return true;
-        } else {
-            return false;
-        }
+        return localAddress.equalsIgnoreCase(minPriorityAddress) || localPriority == minPriority;
     }
 
     private void submitJob(JobClient jobClient) {
@@ -400,45 +396,6 @@ public class JobSubmitDealer implements Runnable {
             handlerFailedWithRetry(jobClient, true, e);
         }
     }
-
-    private RdbJobExecutor getRdbJobExecutor(JobClient jobClient) {
-        if (rdbJobExecutor == null) {
-            try {
-                rdbExecutorLock.lock();
-                // 获取集群信息
-                String pluginInfo = jobClient.getPluginInfo();
-                if (StringUtils.isBlank(pluginInfo)) {
-                    // 查询组件信息
-                    Integer componentType = EScheduleJobType.getByTaskType(jobClient.getTaskType()).getComponentType().getTypeCode();
-                    pluginInfo = componentService.getComponentByTenantId(jobClient.getTenantId(), componentType);
-                }
-
-                if (StringUtils.isNotBlank(pluginInfo)) {
-                    JSONObject jsonObject = JSONObject.parseObject(pluginInfo);
-                    Integer queueSize = jsonObject.getInteger(CommonConstant.RDB_SUBMIT_QUEUE_SIZE);
-                    Integer minNum = jsonObject.getInteger(CommonConstant.RDB_SUBMIT_CONSUMER_MIN_NUM);
-                    Integer maxNum = jsonObject.getInteger(CommonConstant.RDB_SUBMIT_CONSUMER_MAX_NUM);
-                    rdbJobExecutor = new RdbJobExecutor(queueSize, minNum, maxNum, applicationContext);
-                } else {
-                    rdbJobExecutor = new RdbJobExecutor(null, null, null, applicationContext);
-                }
-                new ThreadPoolExecutor(
-                        jobSubmitConcurrent,
-                        jobSubmitConcurrent,
-                        60L,
-                        TimeUnit.SECONDS,
-                        new SynchronousQueue<>(true),
-                        new CustomThreadFactory(this.getClass().getSimpleName() + "_" + jobResource + "_RdbJobExecutor"),
-                        new BlockCallerPolicy()
-                ).execute(rdbJobExecutor);
-
-            } finally {
-                rdbExecutorLock.unlock();
-            }
-        }
-        return rdbJobExecutor;
-    }
-
 
     private void saveArchiveFsDir(JobClient jobClient, JobResult jobResult) {
         JSONObject pluginInfo = jobResult.getExtraInfoJson();

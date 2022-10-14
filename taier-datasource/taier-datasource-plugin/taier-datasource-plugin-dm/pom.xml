@@ -19,7 +19,7 @@
         <jar.package.name>dmdb</jar.package.name>
         <jar.name>dtDm</jar.name>
 
-        <dm.version>18.0.0</dm.version>
+        <dm-jdbc.version>8.1.2.141</dm-jdbc.version>
     </properties>
 
     <dependencies>
@@ -48,10 +48,11 @@
             <artifactId>taier-datasource-plugin-rdbms</artifactId>
         </dependency>
 
+        <!-- https://mvnrepository.com/artifact/com.dameng/DmJdbcDriver18 -->
         <dependency>
-            <groupId>dm.jdbc.driver</groupId>
-            <artifactId>dm8</artifactId>
-            <version>${dm.version}</version>
+            <groupId>com.dameng</groupId>
+            <artifactId>DmJdbcDriver18</artifactId>
+            <version>${dm-jdbc.version}</version>
         </dependency>
     </dependencies>
 
@@ -106,7 +107,7 @@
                         <configuration>
                             <tasks>
                                 <copy file="${basedir}/target/${project.name}-${datasource.version}.jar"
-                                      tofile="${basedir}/../../../datasource-plugins/${jar.package.name}/${jar.name}--${datasource.version}.jar" />
+                                      tofile="${basedir}/../../../datasource-plugins/${jar.package.name}/${jar.name}--${datasource.version}.jar"/>
                                 <delete>
                                     <fileset dir="${basedir}/../../../datasource-plugins/${jar.package.name}/"
                                              includes="${jar.name}-*.jar"
