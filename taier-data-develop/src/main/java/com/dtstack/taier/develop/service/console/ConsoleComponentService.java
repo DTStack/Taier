@@ -1132,7 +1132,7 @@ public class ConsoleComponentService {
                 return componentTestResult;
             }
 
-            JSONObject pluginInfo = componentService.wrapperConfig(componentType, componentConfig, sftpConfig, kerberosConfig, clusterId);
+            JSONObject pluginInfo = componentService.wrapperConfig(componentType, componentConfig, sftpConfig, kerberosConfig);
             componentTestResult = datasourceOperator.testConnect(componentType, pluginInfo.toJSONString(), versionName);
             if (null == componentTestResult) {
                 componentTestResult = new ComponentTestResult();

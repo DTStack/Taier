@@ -120,12 +120,8 @@ public class ConsoleService {
     @Autowired
     private TenantMapper tenantMapper;
 
-
     @Autowired
     private ClusterTenantService clusterTenantService;
-
-    @Autowired
-    private WorkerOperator workerOperator;
 
     @Autowired
     private ConsoleKerberosMapper consoleKerberosMapper;
@@ -475,7 +471,7 @@ public class ConsoleService {
                 //开启kerberos 添加信息
                 KerberosConfig kerberosConfig = consoleKerberosMapper.getByComponentType(cluster.getId(), yarnComponent.getComponentTypeCode(), ComponentVersionUtil.formatMultiVersion(yarnComponent.getComponentTypeCode(),yarnComponent.getVersionValue()));
                 Map sftpMap = componentService.getComponentByClusterId(cluster.getId(), EComponentType.SFTP.getTypeCode(), false, Map.class,null);
-                pluginInfo = componentService.wrapperConfig(yarnComponent.getComponentTypeCode(),componentConfig.toJSONString(),sftpMap,kerberosConfig,cluster.getId());
+                pluginInfo = componentService.wrapperConfig(yarnComponent.getComponentTypeCode(),componentConfig.toJSONString(),sftpMap,kerberosConfig);
             }
             Integer datasourceType = DatasourceTypeUtil.getTypeByComponentAndVersion(yarnComponent.getComponentTypeCode(), yarnComponent.getVersionName());
             pluginInfo.put(DatasourceOperator.DATA_SOURCE_TYPE, datasourceType);

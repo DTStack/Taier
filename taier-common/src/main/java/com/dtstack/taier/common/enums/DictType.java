@@ -59,10 +59,6 @@ public enum DictType {
                 return FLINK_VERSION.type;
             case SPARK:
                 return SPARK_VERSION.type;
-            case HIVE_SERVER:
-                return HIVE_VERSION.type;
-            case SPARK_THRIFT:
-                return SPARK_THRIFT_VERSION.type;
             default:
                 return null;
         }

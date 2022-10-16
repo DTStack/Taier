@@ -31,24 +31,9 @@ public enum EComponentType {
     SPARK(1, "Spark", "sparkConf", EComponentScheduleType.COMPUTE),
     HDFS(2, "HDFS", "hadoopConf", EComponentScheduleType.STORAGE),
     YARN(3, "YARN", "yarnConf", EComponentScheduleType.RESOURCE),
-    SPARK_THRIFT(4, "SparkThrift", "hiveConf", EComponentScheduleType.COMPUTE),
-    HIVE_SERVER(5, "HiveServer", "hiveServerConf", EComponentScheduleType.COMPUTE),
     SFTP(6, "SFTP", "sftpConf", EComponentScheduleType.COMMON),
-    OCEAN_BASE(7, "OceanBase", "oceanBaseConf", EComponentScheduleType.COMPUTE),
     SCRIPT(8, "Script", "scriptConf", EComponentScheduleType.COMPUTE),
-    GaussDB(9, "GaussDB", "gaussDBConf", EComponentScheduleType.COMPUTE),
-    IMPALA(10, "Impala", "impalaConf", EComponentScheduleType.COMPUTE),
-    TIDB(11, "TiDB", "tidbConf", EComponentScheduleType.COMPUTE),
-    ORACLE(12, "Oracle", "oracleConf", EComponentScheduleType.COMPUTE),
-    GREENPLUM(13, "Greenplum", "greenplumConf", EComponentScheduleType.COMPUTE),
-    INCEPTOR(14, "Inceptor", "inceptorConf", EComponentScheduleType.COMPUTE),
-    MYSQL(15, "Mysql", "mysqlConf", EComponentScheduleType.COMPUTE),
-    SQLSERVER(16, "SqlServer", "sqlServerConf", EComponentScheduleType.COMPUTE),
-    DB2(17, "DB2", "db2Conf", EComponentScheduleType.COMPUTE),
-    TRINO(18, "Trino", "trinoConf", EComponentScheduleType.COMPUTE),
-    HANA(19, "Hana", "hanaConf", EComponentScheduleType.COMPUTE),
-    CLICK_HOUSE(20, "ClickHouse", "clickHouseConf", EComponentScheduleType.COMPUTE),
-    DORIS(21, "Doris", "dorisConf", EComponentScheduleType.COMPUTE)
+
     ;
 
     private final Integer typeCode;
@@ -88,14 +73,6 @@ public enum EComponentType {
         throw new IllegalArgumentException("No enum constant with type code:" + code);
     }
 
-    public static EComponentType getByName(String name) {
-        EComponentType componentType = COMPONENT_TYPE_NAME_MAP.get(name);
-        if (Objects.nonNull(componentType)) {
-            return componentType;
-        }
-
-        throw new IllegalArgumentException("No enum constant with name:" + name);
-    }
 
     public static EComponentType getByConfName(String confName) {
         EComponentType componentType = COMPONENT_TYPE_CONF_NAME_MAP.get(confName);
@@ -129,8 +106,8 @@ public enum EComponentType {
 
     // hadoop引擎组件
     private static final List<EComponentType> HadoopComponents = Lists.newArrayList(
-            EComponentType.SPARK, EComponentType.SPARK_THRIFT,
-            EComponentType.FLINK, EComponentType.HIVE_SERVER,
+            EComponentType.SPARK,
+            EComponentType.FLINK,
             EComponentType.YARN
     );
 
@@ -152,7 +129,7 @@ public enum EComponentType {
     // 需要添加TypeName的组件
     public static final List<EComponentType> typeComponentVersion = Lists.newArrayList(
             EComponentType.FLINK, EComponentType.SPARK,
-            EComponentType.HDFS, EComponentType.HIVE_SERVER
+            EComponentType.HDFS
     );
 
     //允许一个组件多个版本
