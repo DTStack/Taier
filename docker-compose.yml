@@ -5,15 +5,11 @@ services:
     environment:
       MYSQL_DATABASE: taier
       MYSQL_ROOT_PASSWORD: 123456
+      TZ: Asia/Shanghai
+    ports:
+      - 3306:3306
   taier-zk:
     image: zookeeper:3.4.9
-  taier-ui:
-    image: dtopensource/taier-ui:latest
-    ports:
-      - 80:80
-    environment:
-      TAIER_IP: taier
-      TAIER_PORT: 8090
   taier:
     image: dtopensource/taier:latest
     environment:
@@ -23,6 +19,6 @@ services:
       DB_PORT: 3306
       DB_ROOT: root
       DB_PASSWORD: 123456
-      DATASOURCEX_PATH: /usr/taier/datasourcex
-    volumes:
-        - /data/datasourcex:/usr/taier/datasourcex
+      TZ: Asia/Shanghai
+    ports:
+      - 8090:8090
