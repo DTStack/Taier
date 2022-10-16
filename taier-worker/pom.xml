@@ -16,8 +16,8 @@
     <packaging>pom</packaging>
 
     <modules>
-        <module>taier-plugin-api</module>
-        <module>taier-plugins</module>
+        <module>taier-worker-api</module>
+        <module>taier-worker-plugin</module>
         <module>taier-worker-server</module>
     </modules>
 

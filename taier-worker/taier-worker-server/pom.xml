@@ -94,19 +94,6 @@
                         <goals>
                             <goal>run</goal>
                         </goals>
-                        <configuration>
-                            <tasks>
-                                <copy file="${basedir}/target/${project.name}-${project.version}.jar"
-                                      tofile="${basedir}/target/${project.name}-with-dependencies.jar"/>
-                                <move todir="${basedir}/../../lib/"
-                                      file="${basedir}/target/${project.name}-with-dependencies.jar"/>
-                                <delete>
-                                    <fileset dir="${basedir}/../../lib/"
-                                             includes="${project.name}-*.jar"
-                                             excludes="${project.name}-with-dependencies.jar"/>
-                                </delete>
-                            </tasks>
-                        </configuration>
                     </execution>
                 </executions>
             </plugin>

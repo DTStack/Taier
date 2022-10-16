@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <groupId>com.dtstack.taier</groupId>
+        <artifactId>taier-worker-plugin</artifactId>
+        <version>1.0.0</version>
+        <relativePath>../pom.xml</relativePath>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+
+    <artifactId>taier-worker-plugin.flink</artifactId>
+    <name>taier-worker-plugin.flink</name>
+
+    <packaging>pom</packaging>
+
+    <modules>
+        <module>common</module>
+        <module>yarn-hdfs-flink112-core</module>
+        <module>yarn3-hdfs3-flink112</module>
+        <module>yarn2-hdfs2-flink112</module>
+        <module>flink112-standalone</module>
+        <module>flink-base</module>
+    </modules>
+
+    <build>
+        <resources>
+            <resource>
+                <directory>src/main/java/</directory>
+            </resource>
+            <resource>
+                <directory>src/main/resources/</directory>
+            </resource>
+        </resources>
+    </build>
+</project>
