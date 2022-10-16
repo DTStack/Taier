@@ -29,8 +29,8 @@ import com.dtstack.taier.common.exception.RdosDefineException;
 import com.dtstack.taier.common.metric.batch.IMetric;
 import com.dtstack.taier.common.metric.batch.MetricBuilder;
 import com.dtstack.taier.common.metric.prometheus.PrometheusMetricQuery;
+import com.dtstack.taier.common.source.SourceDTOLoader;
 import com.dtstack.taier.common.util.TaskParamsUtils;
-import com.dtstack.taier.dao.domain.Cluster;
 import com.dtstack.taier.dao.domain.Component;
 import com.dtstack.taier.dao.domain.ScheduleJob;
 import com.dtstack.taier.dao.domain.ScheduleTaskShade;
@@ -45,12 +45,10 @@ import com.dtstack.taier.pluginapi.enums.EDeployMode;
 import com.dtstack.taier.pluginapi.enums.TaskStatus;
 import com.dtstack.taier.pluginapi.exception.ExceptionUtil;
 import com.dtstack.taier.pluginapi.util.RetryUtil;
-import com.dtstack.taier.scheduler.WorkerOperator;
 import com.dtstack.taier.scheduler.datasource.convert.engine.PluginInfoToSourceDTO;
 import com.dtstack.taier.scheduler.executor.DatasourceOperator;
 import com.dtstack.taier.scheduler.server.pipeline.IPipeline;
 import com.dtstack.taier.scheduler.server.pipeline.JobParamReplace;
-import com.dtstack.taier.scheduler.service.ClusterService;
 import com.dtstack.taier.scheduler.service.ComponentConfigService;
 import com.dtstack.taier.scheduler.service.ComponentService;
 import com.google.common.base.Charsets;
@@ -71,12 +69,7 @@ import java.io.ByteArrayInputStream;
 import java.net.URLEncoder;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Properties;
+import java.util.*;
 
 /**
  * @author yuebai
@@ -106,10 +99,7 @@ public class SyncOperatorPipeline extends IPipeline.AbstractPipeline {
     private static final String CONF_PROPERTIES = "confProp";
 
     @Autowired
-    private WorkerOperator workerOperator;
-
-    @Autowired
-    private ClusterService clusterService;
+    private SourceDTOLoader sourceDTOLoader;
 
     @Autowired
     private EnvironmentContext environmentContext;
@@ -149,7 +139,7 @@ public class SyncOperatorPipeline extends IPipeline.AbstractPipeline {
         JSONObject savepointArgs = null;
         String taskExeArgs = null;
         if (isRestore(job)) {
-            String savepointPath = this.getSavepointPath(taskShade.getTenantId(),deployMode,taskShade.getComponentVersion());
+            String savepointPath = this.getSavepointPath(taskShade.getTenantId(), deployMode, taskShade.getComponentVersion());
             savepointArgs = this.buildSyncTaskExecArgs(savepointPath, taskParams);
             confProp.putAll(savepointArgs);
 
@@ -225,7 +215,7 @@ public class SyncOperatorPipeline extends IPipeline.AbstractPipeline {
      * @return
      * @throws Exception
      */
-    public String replaceTablePath(boolean saveDirty, String sqlText, String taskName, Integer sourceType, String db, Long tenantId) throws Exception {
+    public String replaceTablePath(boolean saveDirty, String sqlText, String taskName, Integer sourceType, String db, Long dirtyDatasourceId) throws Exception {
         if (StringUtils.isBlank(db)) {
             return sqlText;
         }
@@ -245,7 +235,7 @@ public class SyncOperatorPipeline extends IPipeline.AbstractPipeline {
             String path = null;
 
             if (StringUtils.isNotEmpty(tableName)) {
-                //任务提交到task 之前 脏数据表 必须要在 ide 创建
+                //任务提交到task 之前 脏数据表 必须要创建
                 if (!tableName.contains(".")) {
                     tableName = String.format("%s.%s", db, tableName);
                 }
@@ -253,19 +243,8 @@ public class SyncOperatorPipeline extends IPipeline.AbstractPipeline {
                 String alterSql = String.format(ADD_PART_TEMP, tableName, taskName, time);
                 String location = "";
                 if (DataSourceType.hadoopDirtyDataSource.contains(sourceType)) {
-                    JSONObject pluginInfo = clusterService.getConfigByKey(tenantId, EComponentType.SPARK_THRIFT.getConfName(), null);
+                    ISourceDTO sourceDTO = sourceDTOLoader.buildSourceDTO(dirtyDatasourceId);
                     IClient client = ClientCache.getClient(sourceType);
-                    pluginInfo.put(DatasourceOperator.DATA_SOURCE_TYPE,sourceType);
-                    pluginInfo.put("schema",db);
-                    pluginInfo.compute(ConfigConstant.JDBCURL, (jdbcUrl, val) -> {
-                        String jdbcUrlVal = (String) val;
-                        if (StringUtils.isBlank(jdbcUrlVal)) {
-                            return null;
-                        }
-                        return jdbcUrlVal.replace("/%s", environmentContext.getComponentJdbcToReplace());
-                    });
-
-                    ISourceDTO sourceDTO = PluginInfoToSourceDTO.getSourceDTO(pluginInfo.toJSONString());
                     client.executeQuery(sourceDTO, SqlQueryDTO.builder().sql(alterSql).schema(db).build());
                     location = this.getTableLocation(client, sourceDTO, db, String.format("desc formatted %s", tableName));
                 }
@@ -284,7 +263,7 @@ public class SyncOperatorPipeline extends IPipeline.AbstractPipeline {
         return sqlObject.toJSONString();
     }
 
-    public String getTableLocation(IClient client, ISourceDTO sourceDTO, String dbName,String sql) {
+    public String getTableLocation(IClient client, ISourceDTO sourceDTO, String dbName, String sql) {
         String location = null;
         List<Map<String, Object>> result = client.executeQuery(sourceDTO, SqlQueryDTO.builder().sql(sql).schema(dbName).build());
 
@@ -345,7 +324,7 @@ public class SyncOperatorPipeline extends IPipeline.AbstractPipeline {
             try {
                 RetryUtil.executeWithRetry(() -> {
                     LOGGER.info("create partition tenantId {} {}", tenantId, sql);
-                    JSONObject pluginInfo = buildDataSourcePluginInfo(parameter.getJSONObject("hadoopConfig"), sourceType, username, password, jdbcUrl);
+                    JSONObject pluginInfo = buildDataSourcePluginInfo(parameter.getJSONObject("hadoopConfig"), username, password, jdbcUrl);
                     pluginInfo.put(DatasourceOperator.DATA_SOURCE_TYPE, sourceType);
                     // 以脚本中的 schema 为主
                     String schema = parameter.getString("schema");
@@ -368,13 +347,12 @@ public class SyncOperatorPipeline extends IPipeline.AbstractPipeline {
      * 拼接数据源的连接信息
      * hive 需要判断是否开启了kerberos
      *
-     * @param sourceType
      * @param username
      * @param password
      * @param jdbcUrl
      * @return
      */
-    private JSONObject buildDataSourcePluginInfo(JSONObject hadoopConfig, Integer sourceType, String username, String password, String jdbcUrl) {
+    private JSONObject buildDataSourcePluginInfo(JSONObject hadoopConfig, String username, String password, String jdbcUrl) {
         JSONObject pluginInfo = new JSONObject();
         //解析jdbcUrl中的database,将数据库名称替换成default，防止数据库不存在报 NoSuchDatabaseException
         try {
@@ -393,7 +371,6 @@ public class SyncOperatorPipeline extends IPipeline.AbstractPipeline {
         }
         pluginInfo.put(ConfigConstant.USERNAME, username);
         pluginInfo.put(ConfigConstant.PASSWORD, password);
-        pluginInfo.put(ConfigConstant.TYPE_NAME_KEY, getHiveTypeName(DataSourceType.getSourceType(sourceType)));
         if (null == hadoopConfig) {
             return pluginInfo;
         }
@@ -526,7 +503,7 @@ public class SyncOperatorPipeline extends IPipeline.AbstractPipeline {
      * @param tenantId 租户id
      * @return checkpoint存储路径
      */
-    private String getSavepointPath(Long tenantId, EDeployMode deployMode,String componentVersion) {
+    private String getSavepointPath(Long tenantId, EDeployMode deployMode, String componentVersion) {
         List<Component> components = componentService.listComponentsByComponentType(tenantId, EComponentType.FLINK.getTypeCode());
         if (CollectionUtils.isEmpty(components)) {
             return null;
@@ -547,7 +524,6 @@ public class SyncOperatorPipeline extends IPipeline.AbstractPipeline {
     }
 
 
-
     private JSONObject buildSyncTaskExecArgs(String savepointPath, String taskParams) throws Exception {
         Properties properties = new Properties();
         properties.load(new ByteArrayInputStream(taskParams.getBytes(Charsets.UTF_8.name())));
@@ -559,19 +535,5 @@ public class SyncOperatorPipeline extends IPipeline.AbstractPipeline {
         return confProp;
     }
 
-
-    public String getHiveTypeName(DataSourceType sourceType){
-        switch (sourceType) {
-            case HIVE1X:
-                return "hive";
-            case HIVE:
-            case SPARKTHRIFT2_1:
-                return "hive2";
-            case HIVE3:
-                return "hive3";
-            default:
-                return null;
-        }
-    }
 }
 

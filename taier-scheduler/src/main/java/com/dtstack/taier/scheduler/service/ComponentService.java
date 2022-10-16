@@ -23,7 +23,6 @@ import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.dtstack.taier.common.enums.DictType;
 import com.dtstack.taier.common.enums.EComponentType;
 import com.dtstack.taier.common.enums.EScheduleJobType;
-import com.dtstack.taier.common.env.EnvironmentContext;
 import com.dtstack.taier.common.exception.RdosDefineException;
 import com.dtstack.taier.common.util.ComponentVersionUtil;
 import com.dtstack.taier.dao.domain.Cluster;
@@ -41,21 +40,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
-import static com.dtstack.taier.pluginapi.constrant.ConfigConstant.KERBEROS_FILE_TIMESTAMP;
-import static com.dtstack.taier.pluginapi.constrant.ConfigConstant.KRB_NAME;
-import static com.dtstack.taier.pluginapi.constrant.ConfigConstant.MERGE_KRB5_CONTENT_KEY;
-import static com.dtstack.taier.pluginapi.constrant.ConfigConstant.OPEN_KERBEROS;
-import static com.dtstack.taier.pluginapi.constrant.ConfigConstant.PRINCIPAL;
-import static com.dtstack.taier.pluginapi.constrant.ConfigConstant.PRINCIPAL_FILE;
-import static com.dtstack.taier.pluginapi.constrant.ConfigConstant.REMOTE_DIR;
+import static com.dtstack.taier.pluginapi.constrant.ConfigConstant.*;
 
 @Service
 public class ComponentService {
@@ -68,9 +55,6 @@ public class ComponentService {
 
     @Autowired
     private ClusterTenantMapper clusterTenantMapper;
-
-    @Autowired
-    private EnvironmentContext env;
 
     @Autowired
     private ComponentConfigService componentConfigService;
@@ -93,7 +77,7 @@ public class ComponentService {
                     ComponentVersionUtil.formatMultiVersion(componentCode, componentVersion));
         }
         Map sftpMap = getComponentByClusterId(clusterId, EComponentType.SFTP.getTypeCode(), false, Map.class, null);
-        pluginInfo = wrapperConfig(componentCode, componentConfig.toJSONString(), sftpMap, kerberosConfig,clusterId);
+        pluginInfo = wrapperConfig(componentCode, componentConfig.toJSONString(), sftpMap, kerberosConfig);
         return pluginInfo;
     }
 
@@ -105,14 +89,11 @@ public class ComponentService {
      * @param componentConfig
      * @return
      */
-    public JSONObject wrapperConfig(int componentType, String componentConfig, Map<String, String> sftpConfig, KerberosConfig kerberosConfig,Long clusterId) {
+    public JSONObject wrapperConfig(int componentType, String componentConfig, Map<String, String> sftpConfig, KerberosConfig kerberosConfig) {
         EComponentType eComponentType = EComponentType.getByCode(componentType);
         JSONObject dataInfo = new JSONObject();
         if (EComponentType.YARN.equals(eComponentType) || EComponentType.HDFS.equals(eComponentType)) {
             dataInfo.put(eComponentType.getConfName(), JSONObject.parseObject(componentConfig));
-        } else if (EComponentType.HIVE_SERVER.equals(eComponentType)) {
-            dataInfo = JSONObject.parseObject(componentConfig);
-            putYarnConfig(clusterId, dataInfo);
         } else {
             dataInfo = JSONObject.parseObject(componentConfig);
         }
@@ -132,27 +113,6 @@ public class ComponentService {
         dataInfo.put(EComponentType.SFTP.getConfName(), sftpConfig);
         return dataInfo;
     }
-
-    private void putYarnConfig(Long clusterId, JSONObject dataInfo) {
-        Map yarnMap = getComponentByClusterId(clusterId, EComponentType.YARN.getTypeCode(), false, Map.class, null);
-        if (null != yarnMap) {
-            dataInfo.put(EComponentType.YARN.getConfName(), yarnMap);
-        }
-    }
-
-    public String getComponentByTenantId(Long tenantId, Integer componentType) {
-        Long clusterId = clusterTenantMapper.getClusterIdByTenantId(tenantId);
-
-        if (clusterId == null) {
-            return "";
-        }
-
-        if (componentType == null) {
-            return "";
-        }
-        return getComponentByClusterId(clusterId, componentType, false, String.class, null);
-    }
-
     public Component getComponentByClusterId(Long clusterId, Integer componentType, String componentVersion) {
         return componentMapper.getByClusterIdAndComponentType(clusterId, componentType, componentVersion, null);
     }

@@ -54,12 +54,12 @@ public enum EScheduleJobType {
     /**
      * HiveSQL
      */
-    HIVE_SQL(7, "HiveSQL", EJobType.SQL.getType(), 4, EComponentType.HIVE_SERVER, EComputeType.BATCH, EJobClientType.DATASOURCE_PLUGIN),
+    HIVE_SQL(7, "HiveSQL", EJobType.SQL.getType(), 4, null, EComputeType.BATCH, EJobClientType.DATASOURCE_PLUGIN),
 
     /**
      * OceanBaseSQL
      */
-    OCEANBASE_SQL(8, "OceanBaseSQL", EJobType.SQL.getType(), 4, EComponentType.OCEAN_BASE, EComputeType.BATCH, EJobClientType.DATASOURCE_PLUGIN),
+    OCEANBASE_SQL(8, "OceanBaseSQL", EJobType.SQL.getType(), 4, null, EComputeType.BATCH, EJobClientType.DATASOURCE_PLUGIN),
 
     /**
      * 工作流
@@ -74,79 +74,22 @@ public enum EScheduleJobType {
     /**
      * Python
      */
-    PYTHON(12,"Python", EJobType.PYTHON.getType(),12, EComponentType.SCRIPT, EComputeType.BATCH, EJobClientType.ENGINE_PLUGIN),
+    PYTHON(12, "Python", EJobType.PYTHON.getType(), 12, EComponentType.SCRIPT, EComputeType.BATCH, EJobClientType.ENGINE_PLUGIN),
 
     /**
      * Shell
      */
-    SHELL(13,"Shell", EJobType.PYTHON.getType(),13, EComponentType.SCRIPT, EComputeType.BATCH, EJobClientType.ENGINE_PLUGIN),
-
-    /**
-     * TiDBSQL
-     */
-    TIDB_SQL(14, "TiDBSQL", EJobType.SQL.getType(), 4, EComponentType.TIDB, EComputeType.BATCH, EJobClientType.DATASOURCE_PLUGIN),
-
-    /**
-     * OracleSQL
-     */
-    ORACLE_SQL(15, "OracleSQL", EJobType.SQL.getType(), 4, EComponentType.ORACLE, EComputeType.BATCH, EJobClientType.DATASOURCE_PLUGIN),
-
-    /**
-     * GreenplumSQL
-     */
-    GREENPLUM_SQL(16, "GreenplumSQL", EJobType.SQL.getType(), 4, EComponentType.GREENPLUM, EComputeType.BATCH, EJobClientType.DATASOURCE_PLUGIN),
-
-    /**
-     * InceptorSQL
-     */
-    INCEPTOR_SQL(18, "InceptorSQL", EJobType.SQL.getType(), 4, EComponentType.INCEPTOR, EComputeType.BATCH, EJobClientType.DATASOURCE_PLUGIN),
-
-    /**
-     * MySQL
-     */
-    MYSQL(19, "MySQL", EJobType.SQL.getType(), 4, EComponentType.MYSQL, EComputeType.BATCH, EJobClientType.DATASOURCE_PLUGIN),
-
-    /**
-     * SQLServerSQL
-     */
-    SQL_SERVER_SQL(20, "SQLServerSQL", EJobType.SQL.getType(), 4, EComponentType.SQLSERVER, EComputeType.BATCH, EJobClientType.DATASOURCE_PLUGIN),
-
-    /**
-     * DB2SQL
-     */
-    DB2_SQL(21, "DB2SQL", EJobType.SQL.getType(), 4, EComponentType.DB2, EComputeType.BATCH, EJobClientType.DATASOURCE_PLUGIN),
-
-    /**
-     * TrinoSQL
-     */
-    TRINO_SQL(22, "TrinoSQL", EJobType.SQL.getType(), 4, EComponentType.TRINO, EComputeType.BATCH, EJobClientType.DATASOURCE_PLUGIN),
-
-    /**
-     * HanaSQL
-     */
-    HANA_SQL(23, "HanaSQL", EJobType.SQL.getType(), 4, EComponentType.HANA, EComputeType.BATCH, EJobClientType.DATASOURCE_PLUGIN),
-
-    /**
-     * GaussDBSQL
-     */
-    GaussDB_SQL(24, "GaussDBSQL", EJobType.SQL.getType(), 4, EComponentType.GaussDB, EComputeType.BATCH, EJobClientType.DATASOURCE_PLUGIN),
-
-    /**
-     * ImpalaSQL
-     */
-    IMPALA_SQL(25, "ImpalaSQL", EJobType.SQL.getType(), 4, EComponentType.IMPALA, EComputeType.BATCH, EJobClientType.DATASOURCE_PLUGIN),
+    SHELL(13, "Shell", EJobType.PYTHON.getType(), 13, EComponentType.SCRIPT, EComputeType.BATCH, EJobClientType.ENGINE_PLUGIN),
 
     /**
      * ClickHouseSQL
      */
-    CLICK_HOUSE_SQL(26, "ClickHouseSQL",  EJobType.SQL.getType(),14, EComponentType.CLICK_HOUSE, EComputeType.BATCH, EJobClientType.DATASOURCE_PLUGIN),
+    CLICK_HOUSE_SQL(14, "ClickHouseSQL", EJobType.SQL.getType(), 14, null, EComputeType.BATCH, EJobClientType.DATASOURCE_PLUGIN),
 
     /**
      * DorisSQL
      */
-    DORIS_SQL(27, "DorisSQL", EJobType.SQL.getType(), 15, EComponentType.DORIS, EComputeType.BATCH, EJobClientType.DATASOURCE_PLUGIN)
-
-    ;
+    DORIS_SQL(15, "DorisSQL", EJobType.SQL.getType(), 15, null, EComputeType.BATCH, EJobClientType.DATASOURCE_PLUGIN);
 
     private final Integer type;
 
@@ -199,6 +142,7 @@ public enum EScheduleJobType {
         this.computeType = computeType;
         this.jobClientType = jobClientType;
     }
+
     public static EScheduleJobType getByTaskType(int type) {
         EScheduleJobType[] eJobTypes = EScheduleJobType.values();
         for (EScheduleJobType eJobType : eJobTypes) {

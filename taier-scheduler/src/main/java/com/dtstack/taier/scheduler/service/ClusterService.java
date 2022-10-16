@@ -38,7 +38,6 @@ import com.dtstack.taier.pluginapi.constrant.ConfigConstant;
 import com.dtstack.taier.scheduler.server.pluginInfo.ComponentPluginInfoStrategy;
 import com.dtstack.taier.scheduler.server.pluginInfo.DefaultPluginInfoStrategy;
 import com.dtstack.taier.scheduler.server.pluginInfo.FlinkPluginInfoStrategy;
-import com.dtstack.taier.scheduler.server.pluginInfo.HivePluginInfoStrategy;
 import com.dtstack.taier.scheduler.server.pluginInfo.KerberosPluginInfo;
 import com.dtstack.taier.scheduler.server.pluginInfo.ScriptPluginInfoStrategy;
 import com.dtstack.taier.scheduler.server.pluginInfo.SparkPluginInfoStrategy;
@@ -107,8 +106,6 @@ public class ClusterService {
                 return new FlinkPluginInfoStrategy();
             case SPARK:
                 return new SparkPluginInfoStrategy();
-            case HIVE_SERVER:
-                return new HivePluginInfoStrategy();
             case SCRIPT:
                 return new ScriptPluginInfoStrategy();
             default:
