@@ -5,7 +5,6 @@ ENV WORK_PATH /usr/taier
 
 # 创建目录
 # 创建对应的文件夹
-ENV DATASOURCEX_PATH $WORK_PATH/datasourcex
 ENV DB_ROOT root
 ENV DB_PASSWORD 123456
 ENV DB_HOST 127.0.0.1
@@ -16,7 +15,8 @@ WORKDIR $WORK_PATH
 
 RUN mkdir $WORK_PATH/datasourcex && \
 mkdir $WORK_PATH/lib && \
-mkdir $WORK_PATH/pluginLibs   && \
+mkdir $WORK_PATH/datasource-plugins   && \
+mkdir $WORK_PATH/worker-plugins   && \
 mkdir $WORK_PATH/logs   && \
 mkdir $WORK_PATH/bin   && \
 mkdir $WORK_PATH/conf && \
@@ -24,10 +24,14 @@ mkdir $WORK_PATH/run && \
 mkdir $WORK_PATH/finkconf && \
 mkdir $WORK_PATH/sparkconf && \
 touch $WORK_PATH/run/rdos.pid && \
-touch $WORK_PATH/logs/rdos.stdout
+mkdir $WORK_PATH/dist && \
+touch $WORK_PATH/logs/taier.stdout \
+
 
 COPY lib $WORK_PATH/lib/
-COPY pluginLibs $WORK_PATH/pluginLibs/
+COPY datasource-plugins $WORK_PATH/datasource-plugins/
+COPY worker-plugins $WORK_PATH/worker-plugins/
+COPY taier-ui/dist $WORK_PATH/dist/
 COPY bin/ $WORK_PATH/bin/
 COPY conf/ $WORK_PATH/conf/
 COPY flinkconf/ $WORK_PATH/flinkconf/
