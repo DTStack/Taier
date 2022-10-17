@@ -1,0 +1,183 @@
+.introduction {
+  width: 100%;
+  display: grid;
+  max-width: 1200px;
+  margin: 0 auto;
+  grid-template-columns: 479px 1fr;
+
+  .leftContainer {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+
+    .title {
+      font-size: 2.5rem;
+      line-height: 3.5rem;
+      font-weight: var(--ifm-font-weight-semibold);
+      color: var(--ifm-color-content);
+    }
+
+    .divider {
+      border: 0;
+      border-top: 8px solid var(--ifm-navbar-link-hover-color);
+      width: 102px;
+      margin: 0.5rem 0 3.625rem 0;
+    }
+
+    .description {
+      font-size: 1.125rem;
+      color: var(--ifm-color-content);
+      line-height: 1.875rem;
+      margin-bottom: 2.5rem;
+    }
+
+    .btn {
+      width: 128px;
+      height: 44px;
+      background: #0072fb;
+      border-radius: 4px;
+      margin: 0;
+      outline: 0;
+      color: #ffffff;
+      line-height: 20px;
+      font-size: 0.875rem;
+      border: 0;
+      cursor: pointer;
+    }
+  }
+
+  .rightContainer {
+    position: relative;
+    padding-top: 20px;
+    pointer-events: none;
+
+    .bgImg {
+      position: relative;
+      z-index: 2;
+    }
+
+    $animation-duration: 3s;
+
+    @keyframes upAndDown {
+      0% {
+        transform: translateY(0);
+      }
+
+      100% {
+        transform: translateY(-10px);
+      }
+    }
+
+    @keyframes upAndDownPlus {
+      0% {
+        transform: translateY(0);
+      }
+
+      100% {
+        transform: translateY(-20px);
+      }
+    }
+
+    .computerImg {
+      position: absolute;
+      right: 122px;
+      top: 238px;
+      animation: $animation-duration ease-in-out upAndDownPlus infinite
+        alternate;
+      z-index: 3;
+    }
+
+    .screenImg {
+      position: absolute;
+      left: 103px;
+      bottom: 135px;
+      animation: $animation-duration ease-in-out upAndDownPlus infinite 1s
+        alternate;
+      z-index: 3;
+    }
+
+    .cloudImg {
+      position: absolute;
+      right: 260px;
+      top: 190px;
+      animation: $animation-duration ease-in-out upAndDownPlus infinite
+        alternate-reverse;
+      z-index: 3;
+    }
+
+    .widget1Img {
+      position: absolute;
+      right: 320px;
+      bottom: 115px;
+      animation: $animation-duration ease-in-out upAndDown infinite alternate;
+      z-index: 3;
+    }
+
+    .widget2Img {
+      position: absolute;
+      right: 282px;
+      bottom: 146px;
+      animation: $animation-duration ease-in-out upAndDown infinite alternate;
+      z-index: 3;
+    }
+
+    .widget3Img {
+      position: absolute;
+      right: 249px;
+      bottom: 185px;
+      animation: $animation-duration ease-in-out upAndDown infinite alternate;
+      z-index: 3;
+    }
+
+    .decorator1Img {
+      position: absolute;
+      right: 20px;
+      bottom: 20px;
+      animation: $animation-duration ease-in-out upAndDown infinite alternate;
+    }
+
+    .decorator2Img {
+      position: absolute;
+      top: 65px;
+      left: 25px;
+      animation: $animation-duration ease-in-out upAndDown infinite
+        alternate-reverse;
+      z-index: 1;
+    }
+
+    .decorator3Img {
+      position: absolute;
+      top: 30px;
+      left: 233px;
+      animation: $animation-duration ease-in-out upAndDown infinite alternate;
+      z-index: 1;
+    }
+
+    .decorator4Img {
+      position: absolute;
+      top: 35px;
+      right: 82px;
+      animation: $animation-duration ease-in-out upAndDown infinite
+        alternate-reverse;
+      z-index: 1;
+    }
+  }
+}
+
+@media (max-width: 750px) {
+  .introduction {
+    grid-template-columns: 1fr;
+    position: relative;
+
+    .leftContainer {
+      padding: 2rem;
+    }
+
+    .rightContainer {
+      position: absolute;
+      top: 0;
+      left: 0;
+      opacity: 0.1;
+    }
+  }
+}
