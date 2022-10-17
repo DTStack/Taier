@@ -96,28 +96,7 @@ const Resource = () => (
 			},
 			{
 				validator: (_, value) => {
-					const resourceTreeData = resourceManagerTree.getState().folderTree?.data?.[0];
-					if (!resourceTreeData) return Promise.resolve();
-				
-					const stack = [resourceTreeData];
-					let targetTreeNode: molecule.model.IFolderTreeNodeProps | undefined;
-					while (stack.length) {
-						const item = stack.shift()!;
-						if (item.children?.length) {
-							stack.push(...item.children);
-						}
-				
-						if (item.data.id === value) {
-							targetTreeNode = item;
-							stack.length = 0;
-						}
-					}
-				
-					if (!targetTreeNode || targetTreeNode.data.type === 'folder') {
-						return Promise.reject(new Error('请选择具体文件, 而非文件夹'));
-					}
-				
-					return Promise.resolve();
+					return resourceManagerTree.checkNotDir(value);
 				},
 			},
 		]}
