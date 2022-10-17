@@ -91,8 +91,8 @@ public class DependComputePart extends PartImpl {
 
     private Optional<String> getValueWithKey(JSONArray computeVersionModelConfig) {
         for (int i = 0; i < computeVersionModelConfig.size(); i++) {
-            if (StringUtils.isNotBlank(computeVersionModelConfig.getJSONObject(i).getString(versionName))) {
-                return Optional.ofNullable(computeVersionModelConfig.getJSONObject(i).getString(versionName));
+            if (StringUtils.isNotBlank(computeVersionModelConfig.getJSONObject(i).getString(getVersionValue()))) {
+                return Optional.ofNullable(computeVersionModelConfig.getJSONObject(i).getString(getVersionValue()));
             }
         }
         return Optional.empty();
