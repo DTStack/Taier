@@ -1,0 +1,160 @@
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding-bottom: 3.625rem;
+
+  .titleRow {
+    color: var(--ifm-color-content);
+    line-height: 2rem;
+    font-size: 1.5rem;
+    font-weight: 500;
+    text-align: center;
+    width: 100%;
+
+    .title {
+      position: relative;
+
+      &::before {
+        content: " ";
+        position: absolute;
+        left: -14px;
+        transform: translateX(-100%) translateY(1rem);
+        width: 35px;
+        height: 2px;
+        background: linear-gradient(
+          90deg,
+          rgba(0, 220, 243, 0) 0%,
+          rgba(15, 170, 240, 0.26) 25%,
+          rgba(28, 126, 238, 0.49) 50%,
+          rgba(38, 93, 236, 0.66) 72%,
+          rgba(44, 73, 235, 0.76) 89%,
+          rgba(46, 66, 235, 0.8) 100%
+        );
+      }
+
+      &::after {
+        content: " ";
+        position: absolute;
+        right: 0;
+        right: -49px;
+        transform: translateY(1rem);
+        width: 35px;
+        height: 2px;
+        background: linear-gradient(
+          -90deg,
+          rgba(0, 220, 243, 0) 0%,
+          rgba(15, 170, 240, 0.26) 25%,
+          rgba(28, 126, 238, 0.49) 50%,
+          rgba(38, 93, 236, 0.66) 72%,
+          rgba(44, 73, 235, 0.76) 89%,
+          rgba(46, 66, 235, 0.8) 100%
+        );
+      }
+    }
+  }
+
+  .cardGroups {
+    margin-top: 1.5626rem;
+    display: flex;
+
+    > * {
+      flex: 1;
+    }
+
+    .card {
+      background: linear-gradient(
+        to bottom right,
+        var(--homepage-feature-liner-gradient-to-color),
+        var(--homepage-feature-liner-gradient-from-color)
+      );
+      box-shadow: 0 0 1.5rem 0 rgba(61, 68, 110, 0.08);
+      border-radius: 10px;
+      transition: transform 0.3s, box-shadow 0.3s;
+
+      &:hover {
+        transform: scale(1.05);
+        box-shadow: 0 0 2.1875rem 0 rgba(44, 113, 203, 0.16);
+      }
+
+      + .card {
+        margin-left: 1.25rem;
+      }
+
+      .header {
+        user-select: none;
+
+        .img {
+          padding: 1.25rem 0 0 1.5rem;
+        }
+
+        .number {
+          font-size: 7.5rem;
+          color: var(--ifm-color-content);
+          float: right;
+          height: 144px;
+          line-height: 9rem;
+          padding: 0.5rem 1.5rem 0 0;
+        }
+      }
+
+      .cardTitle {
+        font-weight: 600;
+        color: var(--ifm-color-content);
+        line-height: 1.75rem;
+        font-size: 1.25rem;
+        padding: 1.25rem 0 1.25rem 3rem;
+      }
+
+      .description {
+        font-weight: 400;
+        color: var(--ifm-color-content);
+        line-height: 1.375rem;
+        font-size: 0.875rem;
+        padding: 0 3rem 2.5rem;
+      }
+    }
+  }
+}
+
+// dark mode
+:global(html[data-theme="dark"]) {
+  .container .titleRow .title {
+    &::before {
+      background: linear-gradient(
+        90deg,
+        #00a8e300,
+        #00ace40f,
+        #00b6e736,
+        #00c6ec75,
+        #00dcf3cc
+      );
+    }
+
+    &::after {
+      background: linear-gradient(
+        -90deg,
+        #00a8e300,
+        #00ace40f,
+        #00b6e736,
+        #00c6ec75,
+        #00dcf3cc
+      );
+    }
+  }
+}
+
+@media (max-width: 750px) {
+  .container .cardGroups {
+    padding: 0 2rem;
+    flex-direction: column;
+
+    .card {
+      pointer-events: none;
+
+      + .card {
+        margin-left: 0;
+        margin-top: 1.25rem;
+      }
+    }
+  }
+}
