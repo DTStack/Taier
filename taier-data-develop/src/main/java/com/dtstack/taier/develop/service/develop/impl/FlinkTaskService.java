@@ -382,7 +382,11 @@ public class FlinkTaskService {
         actionParam.put("tenantId", task.getTenantId());
         actionParam.put("taskParams", formatTaskParams(taskParams, task.getSourceStr(), task.getComponentVersion(), task.getTaskType()));
         actionParam.put("name", getJobName(task.getName(), task.getJobId()));
-        actionParam.put("deployMode", EDeployMode.PERJOB.getType());
+        Integer deployMode = EDeployMode.PERJOB.getType();
+        if (clusterService.hasStandalone(task.getTenantId(), EComponentType.FLINK.getTypeCode())) {
+            deployMode = EDeployMode.STANDALONE.getType();
+        }
+        actionParam.put("deployMode", deployMode);
         actionParam.put("queueName", task.getQueueName());
 
         if (!Strings.isNullOrEmpty(externalPath)) {

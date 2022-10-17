@@ -21,6 +21,7 @@ package com.dtstack.taier.scheduler.jobdealer;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.dtstack.taier.common.BlockCallerPolicy;
+import com.dtstack.taier.common.enums.EComponentType;
 import com.dtstack.taier.common.enums.EScheduleType;
 import com.dtstack.taier.common.env.EnvironmentContext;
 import com.dtstack.taier.common.util.LogCountUtil;
@@ -32,6 +33,7 @@ import com.dtstack.taier.dao.mapper.ScheduleJobHistoryMapper;
 import com.dtstack.taier.pluginapi.CustomThreadFactory;
 import com.dtstack.taier.pluginapi.JobIdentifier;
 import com.dtstack.taier.pluginapi.enums.ComputeType;
+import com.dtstack.taier.pluginapi.enums.EDeployMode;
 import com.dtstack.taier.pluginapi.enums.TaskStatus;
 import com.dtstack.taier.pluginapi.pojo.ParamAction;
 import com.dtstack.taier.pluginapi.util.PublicUtil;
@@ -41,6 +43,7 @@ import com.dtstack.taier.scheduler.jobdealer.bo.JobLogInfo;
 import com.dtstack.taier.scheduler.jobdealer.bo.JobStatusFrequency;
 import com.dtstack.taier.scheduler.jobdealer.cache.ShardCache;
 import com.dtstack.taier.scheduler.jobdealer.cache.ShardManager;
+import com.dtstack.taier.scheduler.service.ClusterService;
 import com.dtstack.taier.scheduler.service.ScheduleJobCacheService;
 import com.dtstack.taier.scheduler.service.ScheduleJobService;
 import com.google.common.collect.Maps;
@@ -99,6 +102,7 @@ public class JobStatusDealer implements Runnable {
     private EnvironmentContext environmentContext;
     private ScheduleJobHistoryMapper scheduleJobHistoryMapper;
     private JobLogDealer jobLogDealer;
+    private ClusterService clusterService;
 
     private int taskStatusDealerPoolSize;
 
@@ -181,9 +185,11 @@ public class JobStatusDealer implements Runnable {
             ParamAction paramAction = PublicUtil.jsonStrToObject(engineJobCache.getJobInfo(), ParamAction.class);
             Integer taskType = paramAction.getTaskType();
             Map<String, Object> pluginInfo = paramAction.getPluginInfo();
-            JobIdentifier jobIdentifier = new JobIdentifier(engineTaskId, appId, jobId,scheduleJob.getTenantId(),taskType,
-                    TaskParamsUtils.parseDeployTypeByTaskParams(paramAction.getTaskParams(),scheduleJob.getComputeType()).getType(),
-                    null,  MapUtils.isEmpty(pluginInfo) ? null : JSONObject.toJSONString(pluginInfo),paramAction.getComponentVersion(), paramAction.getQueueName());
+            Integer deployType =  TaskParamsUtils.parseDeployTypeByTaskParams(paramAction.getTaskParams(),scheduleJob.getComputeType()).getType();
+            if (clusterService.hasStandalone(scheduleJob.getTenantId(), EComponentType.FLINK.getTypeCode())) {
+                deployType = EDeployMode.STANDALONE.getType();
+            }
+            JobIdentifier jobIdentifier = new JobIdentifier(engineTaskId, appId, jobId, scheduleJob.getTenantId(), taskType, deployType, null, MapUtils.isEmpty(pluginInfo) ? null : JSONObject.toJSONString(pluginInfo), paramAction.getComponentVersion(), paramAction.getQueueName());
 
             TaskStatus taskStatus = workerOperator.getJobStatus(jobIdentifier);
 
@@ -321,6 +327,7 @@ public class JobStatusDealer implements Runnable {
         this.jobRestartDealer = applicationContext.getBean(JobRestartDealer.class);
         this.workerOperator = applicationContext.getBean(WorkerOperator.class);
         this.scheduleJobService = applicationContext.getBean(ScheduleJobService.class);
+        this.clusterService = applicationContext.getBean(ClusterService.class);
         this.scheduleJobCacheService = applicationContext.getBean(ScheduleJobCacheService.class);
         this.scheduleJobHistoryMapper = applicationContext.getBean(ScheduleJobHistoryMapper.class);
         this.jobLogDealer = applicationContext.getBean(JobLogDealer.class);
