@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.dtstack.taier.common.enums.EScheduleJobType;
 import com.dtstack.taier.common.exception.RdosDefineException;
+import com.dtstack.taier.dao.domain.Task;
 import com.dtstack.taier.develop.dto.devlop.TaskResourceParam;
 import com.dtstack.taier.develop.dto.devlop.TaskVO;
 import com.google.common.collect.ImmutableList;
@@ -41,8 +42,8 @@ public class ScriptTaskSaver extends AbstractTaskSaver {
     }
 
     @Override
-    public String processScheduleRunSqlText(Long tenantId, Integer taskType, String sqlText,Long datasourceId) {
-        return sqlText;
+    public String processScheduleRunSqlText(Task task) {
+        return task.getSqlText();
     }
 
     /**

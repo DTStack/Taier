@@ -78,6 +78,7 @@ import com.dtstack.taier.develop.service.develop.saver.AbstractTaskSaver;
 import com.dtstack.taier.develop.service.schedule.TaskService;
 import com.dtstack.taier.develop.service.task.TaskTemplateService;
 import com.dtstack.taier.develop.service.user.UserService;
+import com.dtstack.taier.develop.utils.JsonUtils;
 import com.dtstack.taier.develop.utils.develop.sync.format.ColumnType;
 import com.dtstack.taier.develop.vo.develop.query.AllProductGlobalSearchVO;
 import com.dtstack.taier.develop.vo.develop.query.TaskDirtyDataManageVO;
@@ -384,12 +385,6 @@ public class DevelopTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
     @Transactional(rollbackFor = Exception.class)
     public TaskCheckResultVO publishTask(Long id, Long userId) {
         Task task = getOne(id);
-        if (Objects.equals(task.getTaskType(), EScheduleJobType.DATA_ACQUISITION.getVal())) {
-            if (!checkTaskCanRunByStatus(task)) {
-                throw new RdosDefineException("任务状态未提交发布");
-            }
-        }
-
         // 需要发布的任务集合
         List<Task> tasks = Lists.newArrayList();
         // 工作流下所有子任务置为发布状态
@@ -536,18 +531,6 @@ public class DevelopTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
             throw new RdosDefineException("can not find task by id:" + taskId);
         }
         String extraInfo = getExtraInfo(task, userId);
-        //实时采集不会走到这
-//        if (Objects.equals(task.getTaskType(), EScheduleJobType.DATA_ACQUISITION.getValue())) {
-//            ParamTaskAction paramTaskAction = new ParamTaskAction();
-//            paramTaskAction.setIsRestart(0);
-//            scheduleTasks.setExtraInfo(extraInfo);
-//            if (!scheduleTasks.getScheduleConf().contains("periodType")) {
-//                JSONObject scheduleConf = JSONObject.parseObject(scheduleTasks.getScheduleConf());
-//                scheduleConf.put("periodType", ESchedulePeriodType.DAY.getVal());
-//                scheduleTasks.setScheduleConf(JSON.toJSONString(scheduleConf));
-//            }
-//            paramTaskAction.setTask(scheduleTasks);
-//        } else
         AssertUtils.isTrue(EComputeType.BATCH == EScheduleJobType.getByTaskType(task.getTaskType()).getComputeType(), "unsupported STREAM type task");
         JSONObject scheduleConf = JSONObject.parseObject(scheduleTasks.getScheduleConf());
         scheduleTasks.setPeriodType(scheduleConf.getInteger("periodType"));
@@ -572,7 +555,7 @@ public class DevelopTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
     private String getExtraInfo(Task task, Long userId) throws Exception {
         String extraInfo = "";
         Long taskId = task.getId();
-        Map<String, Object> actionParam = new HashMap<>();
+        Map<String, Object> actionParam = JsonUtils.objectToMap(task);
         List<DevelopTaskParam> taskParam = developTaskParamService.getTaskParam(task.getId());
         ITaskSaver taskSaver = taskConfiguration.getSave(task.getTaskType());
         if (EScheduleJobType.SYNC.getType().equals(task.getTaskType())) {
@@ -581,7 +564,7 @@ public class DevelopTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
             taskDirtyDataManageService.buildTaskDirtyDataManageArgs(task.getTaskType(), task.getId(), confProp);
             actionParam.put("confProp", JSON.toJSONString(confProp));
         } else {
-            String sqlText = taskSaver.processScheduleRunSqlText(task.getTenantId(), task.getTaskType(), task.getSqlText(), task.getDatasourceId());
+            String sqlText = taskSaver.processScheduleRunSqlText(task);
             actionParam.put("sqlText", sqlText);
         }
         String taskExeArgs = buildExeArgs(task);

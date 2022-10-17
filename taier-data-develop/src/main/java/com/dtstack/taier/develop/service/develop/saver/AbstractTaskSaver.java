@@ -2,13 +2,16 @@ package com.dtstack.taier.develop.service.develop.saver;
 
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import com.dtstack.taier.common.enums.EComponentType;
 import com.dtstack.taier.common.enums.EScheduleJobType;
 import com.dtstack.taier.common.enums.EScheduleStatus;
 import com.dtstack.taier.common.enums.ESubmitStatus;
 import com.dtstack.taier.common.enums.TaskTemplateType;
+import com.dtstack.taier.common.env.EnvironmentContext;
 import com.dtstack.taier.common.exception.ErrorCode;
 import com.dtstack.taier.common.exception.RdosDefineException;
 import com.dtstack.taier.common.util.SqlFormatUtil;
+import com.dtstack.taier.dao.domain.DevelopResource;
 import com.dtstack.taier.dao.domain.Task;
 import com.dtstack.taier.dao.domain.TaskTemplate;
 import com.dtstack.taier.dao.mapper.DevelopTaskMapper;
@@ -21,6 +24,9 @@ import com.dtstack.taier.develop.service.develop.impl.DevelopTaskParamService;
 import com.dtstack.taier.develop.service.develop.impl.DevelopTaskService;
 import com.dtstack.taier.develop.service.develop.impl.DevelopTaskTaskService;
 import com.dtstack.taier.develop.service.task.TaskTemplateService;
+import com.dtstack.taier.pluginapi.constrant.ConfigConstant;
+import com.dtstack.taier.scheduler.executor.DatasourceOperator;
+import com.dtstack.taier.scheduler.service.ClusterService;
 import com.dtstack.taier.scheduler.service.ScheduleActionService;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
@@ -32,6 +38,7 @@ import org.springframework.stereotype.Component;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -44,6 +51,13 @@ import java.util.Objects;
  */
 @Component
 public abstract class AbstractTaskSaver implements ITaskSaver {
+
+    @Autowired
+    EnvironmentContext environmentContext;
+
+
+    @Autowired
+    ClusterService clusterService;
 
     protected final static String SQL_NOTE_TEMPLATE =
             "-- name %s \n" +
@@ -63,6 +77,12 @@ public abstract class AbstractTaskSaver implements ITaskSaver {
             "\"maxRetryNum\":\"3\"" +
             "}";
 
+
+
+    private static final String ADD_FILE_FORMAT = "ADD JAR WITH %s AS %s;";
+
+    private static final List<Integer> ADD_JAR_JOB_TYPE = Arrays.asList(EScheduleJobType.SPARK.getVal(), EScheduleJobType.SPARK_PYTHON.getVal());
+
     @Autowired
     public DevelopTaskService developTaskService;
 
@@ -80,6 +100,9 @@ public abstract class AbstractTaskSaver implements ITaskSaver {
 
     @Autowired
     private DevelopTaskTaskService developTaskTaskService;
+
+    @Autowired
+    private DatasourceOperator datasourceOperator;
 
     public abstract TaskResourceParam beforeProcessing(TaskResourceParam taskResourceParam);
 
@@ -105,8 +128,8 @@ public abstract class AbstractTaskSaver implements ITaskSaver {
     }
 
     @Override
-    public String processScheduleRunSqlText(Long tenantId, Integer taskType, String sqlText, Long datasourceId) {
-        return SqlFormatUtil.formatSql(sqlText);
+    public String processScheduleRunSqlText(Task task) {
+        return SqlFormatUtil.formatSql(task.getSqlText());
     }
 
     /**
@@ -292,4 +315,46 @@ public abstract class AbstractTaskSaver implements ITaskSaver {
         return taskVOS;
     }
 
+
+
+    protected String getAddJarSql(Integer taskType, String mainClass, List<DevelopResource> resourceList, String sql) {
+        if (EScheduleJobType.SPARK.getVal().equals(taskType)) {
+            if (resourceList.size() != 1) {
+                //批处理必须关联一个资源
+                throw new RdosDefineException("spark task ref resource size must be one");
+            }
+        }
+        if (ADD_JAR_JOB_TYPE.contains(taskType)) {
+            if (CollectionUtils.isNotEmpty(resourceList)) {
+                String url = resourceList.get(0).getUrl();
+                return formatAddJarSQL(url, mainClass);
+            }
+        } else if (taskType.equals(EScheduleJobType.SYNC.getVal())) {
+            return "";
+        }
+        return sql;
+    }
+
+
+    protected String formatAddJarSQL(String url, String mainClass) {
+        return String.format(ADD_FILE_FORMAT, url, mainClass);
+    }
+
+
+    protected String uploadSqlText(Long tenantId, String content, Integer taskType, String taskName) {
+        String fileName = null;
+
+        if (taskType.equals(EScheduleJobType.SPARK_PYTHON.getVal())) {
+            fileName = String.format("pyspark_%s_%s_%s.py", tenantId, taskName, System.currentTimeMillis());
+        }
+
+        if (org.apache.commons.lang3.StringUtils.isBlank(fileName)) {
+            return "";
+        }
+        JSONObject hdfsConf = clusterService.getConfigByKey(tenantId, EComponentType.HDFS.getConfName(), null);
+        String hdfsURI = hdfsConf.getString(ConfigConstant.FS_DEFAULT);
+        String hdfsPath = environmentContext.getHdfsTaskPath() + fileName;
+        datasourceOperator.uploadInputStreamToHdfs(hdfsConf, tenantId, content.getBytes(), hdfsPath);
+        return hdfsURI + hdfsPath;
+    }
 }
