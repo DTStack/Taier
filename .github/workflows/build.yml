@@ -15,4 +15,9 @@ jobs:
 
       - name: Build
         run: |
-          sh ./build/mvn-build.sh
+          ./mvnw clean package -DskipTests -T 1C -pl \
+          taier-data-develop,\
+          taier-common,\
+          taier-worker/taier-worker-plugin,\
+          taier-datasource/taier-datasource-plugin \
+          -am -amd

@@ -17,7 +17,6 @@
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
         <jar.package.name>mysql5</jar.package.name>
-        <jar.name>dtMysql5</jar.name>
     </properties>
 
     <dependencies>
@@ -45,8 +44,6 @@
             <groupId>com.dtstack.taier</groupId>
             <artifactId>taier-datasource-plugin-rdbms</artifactId>
         </dependency>
-
-
 
         <dependency>
             <groupId>mysql</groupId>

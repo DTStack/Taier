@@ -6,7 +6,7 @@
         <artifactId>taier-all</artifactId>
         <groupId>com.dtstack.taier</groupId>
         <version>1.0.0</version>
-        <relativePath>..</relativePath>
+        <relativePath>../pom.xml</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
