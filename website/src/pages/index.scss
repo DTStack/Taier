@@ -1,0 +1,8 @@
+.banner {
+  background: linear-gradient(
+    to bottom,
+    var(--banner-background-surface-liner-gradient-from-color),
+    var(--banner-background-surface-liner-gradient-to-color)
+  );
+  font-family: PingFangSC-Regular, PingFang SC;
+}

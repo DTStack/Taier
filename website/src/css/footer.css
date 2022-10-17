@@ -1,0 +1,7 @@
+.footer {
+  background: linear-gradient(
+    to bottom,
+    var(--ifm-footer-background-color),
+    var(--ifm-footer-background-liner-gradient-color)
+  );
+}
