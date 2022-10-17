@@ -41,7 +41,6 @@
         <module>taier-datasource-plugin-emq</module>
         <module>taier-datasource-plugin-phoenix5</module>
         <module>taier-datasource-plugin-spark</module>
-        <module>taier-datasource-plugin-kingbase8</module>
         <module>taier-datasource-plugin-common</module>
         <module>taier-datasource-plugin-kerberos</module>
         <module>taier-datasource-plugin-kerberos-core</module>
