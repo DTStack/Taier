@@ -116,7 +116,6 @@ const Create = connect(
 
 								if (formFields) {
 									formFields.taskProperties.formField?.forEach((field) => {
-										console.log('field;', field);
 										// 特殊处理
 										if (field === 'syncModel') {
 											form.setFieldsValue({

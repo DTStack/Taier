@@ -30,7 +30,7 @@ import Version from './version';
 import SelectSource from './selectSource';
 import InfoConfig from './InfoConfig';
 import type { IDataSourceProps } from '@/interface';
-import type { DATA_SOURCE_ENUM} from '@/constant';
+import type { DATA_SOURCE_ENUM } from '@/constant';
 import './add.scss';
 
 const { Step } = Steps;
@@ -229,9 +229,6 @@ export default function Add({ record, onSubmit }: IAddProps) {
 							if (res.success && res.data) {
 								message.success('连接成功');
 							}
-						})
-						.catch(() => {
-							message.error('测试连通性请求超时');
 						})
 						.finally(() => {
 							setLoading(false);

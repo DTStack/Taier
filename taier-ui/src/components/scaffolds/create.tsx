@@ -6,7 +6,7 @@ import {
 	FLINK_VERSION_TYPE,
 	PythonVersionKind,
 } from '@/constant';
-import { Button, Empty, Form, Input, Radio, Select } from 'antd';
+import { Button, Empty, Form, Input, Radio, Select, Spin } from 'antd';
 import { syncModeHelp, syncTaskHelp } from '../helpDoc/docs';
 import FolderPicker from '../folderPicker';
 import resourceManagerTree from '@/services/resourceManagerService';
@@ -14,6 +14,7 @@ import { dataSourceService, taskRenderService } from '@/services';
 import { useEffect, useState } from 'react';
 import { IDataSourceProps } from '@/interface';
 import molecule from '@dtinsight/molecule';
+import api from '@/api';
 
 interface ICreateFormProps {
 	disabled?: boolean;
@@ -243,6 +244,43 @@ const DataSource = () => {
 	);
 };
 
+const QueueConfig = () => {
+	const [resourceList, setResourceList] = useState<string[]>([]);
+	const [fetching, setFetching] = useState(false);
+
+	useEffect(() => {
+		setFetching(true);
+		api.getResourceByTenant({})
+			.then((res) => {
+				if (res.code === 1) {
+					setResourceList(res.data.queues?.map((q: any) => q.queueName));
+				}
+			})
+			.finally(() => {
+				setFetching(false);
+			});
+	}, []);
+
+	return (
+		<Form.Item label="YARN 队列" name="queueName">
+			<Select
+				placeholder="请选择 YARN 队列"
+				getPopupContainer={(node) => node.parentNode}
+				options={resourceList.map((r) => ({ label: r, value: r }))}
+				showSearch
+				optionFilterProp="label"
+				notFoundContent={
+					fetching ? (
+						<Spin spinning={fetching} />
+					) : (
+						<Empty image={Empty.PRESENTED_IMAGE_SIMPLE} />
+					)
+				}
+			/>
+		</Form.Item>
+	);
+};
+
 /**
  * key 值为服务端字段名，value 为组件名
  */
@@ -255,4 +293,5 @@ export default {
 	exeArgs: ExeArgs,
 	pythonVersion: PythonVersion,
 	datasource: DataSource,
+	queue: QueueConfig,
 } as Record<string, (...args: any[]) => JSX.Element>;
