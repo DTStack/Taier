@@ -19,7 +19,7 @@
         <jar.package.name>aws_s3</jar.package.name>
         <jar.name>dtAwsS3</jar.name>
 
-        <amazonaws.version>1.11.636</amazonaws.version>
+        <amazonaws.version>1.12.319</amazonaws.version>
 
     </properties>
 

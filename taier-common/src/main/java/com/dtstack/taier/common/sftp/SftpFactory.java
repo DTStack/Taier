@@ -1,7 +1,25 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.dtstack.taier.common.sftp;
 
-import com.dtstack.taier.pluginapi.enums.SftpType;
-import com.dtstack.taier.pluginapi.util.RetryUtil;
+import com.dtstack.taier.datasource.plugin.common.sftp.SftpType;
+import com.dtstack.taier.datasource.plugin.common.utils.RetryUtil;
 import com.jcraft.jsch.ChannelSftp;
 import com.jcraft.jsch.JSch;
 import com.jcraft.jsch.JSchException;
@@ -61,10 +79,10 @@ public class SftpFactory extends BasePooledObjectFactory<ChannelSftp> {
     }
 
     private void checkConfig(Map<String, String> sftpConfig) {
-        if(sftpConfig == null || sftpConfig.isEmpty()){
+        if (sftpConfig == null || sftpConfig.isEmpty()) {
             throw new IllegalArgumentException("The config of sftp is null");
         }
-        if(StringUtils.isEmpty(sftpConfig.get(KEY_HOST))){
+        if (StringUtils.isEmpty(sftpConfig.get(KEY_HOST))) {
             throw new IllegalArgumentException("The host of sftp is null");
         }
     }
@@ -95,7 +113,7 @@ public class SftpFactory extends BasePooledObjectFactory<ChannelSftp> {
             throw new RuntimeException("Login failed. Please check if username and password are correct");
         }
 
-        if (SftpType.PASSWORD_AUTHENTICATION.getType()==authType) {
+        if (SftpType.PASSWORD_AUTHENTICATION.getType() == authType) {
             //默认走密码验证模式
             session.setPassword(password);
         }

@@ -18,7 +18,6 @@
 
 package com.dtstack.taier.develop.service.develop.impl;
 
-
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.TypeReference;
@@ -582,7 +581,7 @@ public class DevelopTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
             taskDirtyDataManageService.buildTaskDirtyDataManageArgs(task.getTaskType(), task.getId(), confProp);
             actionParam.put("confProp", JSON.toJSONString(confProp));
         } else {
-            String sqlText = taskSaver.processScheduleRunSqlText(task.getTenantId(), task.getTaskType(), task.getSqlText(),task.getDatasourceId());
+            String sqlText = taskSaver.processScheduleRunSqlText(task.getTenantId(), task.getTaskType(), task.getSqlText(), task.getDatasourceId());
             actionParam.put("sqlText", sqlText);
         }
         String taskExeArgs = buildExeArgs(task);

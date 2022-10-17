@@ -44,7 +44,6 @@ public enum EComponentType {
 
     private final EComponentScheduleType componentScheduleType;
 
-
     EComponentType(int typeCode, String name, String confName, EComponentScheduleType componentScheduleType) {
         this.typeCode = typeCode;
         this.name = name;

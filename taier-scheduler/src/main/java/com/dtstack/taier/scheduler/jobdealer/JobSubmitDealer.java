@@ -20,6 +20,7 @@ package com.dtstack.taier.scheduler.jobdealer;
 
 import com.alibaba.fastjson.JSONObject;
 import com.dtstack.taier.common.BlockCallerPolicy;
+import com.dtstack.taier.common.constant.CommonConstant;
 import com.dtstack.taier.common.enums.EJobCacheStage;
 import com.dtstack.taier.common.enums.EJobClientType;
 import com.dtstack.taier.common.enums.EScheduleJobType;
@@ -46,6 +47,7 @@ import com.dtstack.taier.scheduler.jobdealer.cache.ShardCache;
 import com.dtstack.taier.scheduler.server.JobPartitioner;
 import com.dtstack.taier.scheduler.server.queue.GroupInfo;
 import com.dtstack.taier.scheduler.server.queue.GroupPriorityQueue;
+import com.dtstack.taier.scheduler.service.ComponentService;
 import com.dtstack.taier.scheduler.service.ScheduleJobCacheService;
 import com.dtstack.taier.scheduler.service.ScheduleJobExpandService;
 import org.apache.commons.lang3.StringUtils;
@@ -61,6 +63,8 @@ import java.util.concurrent.PriorityBlockingQueue;
 import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * company: www.dtstack.com
@@ -308,11 +312,7 @@ public class JobSubmitDealer implements Runnable {
             }
         }
         // hashmap不排序，防止多节点下a、b相同priority逻辑死锁
-        if (localAddress.equalsIgnoreCase(minPriorityAddress) || localPriority == minPriority) {
-            return true;
-        } else {
-            return false;
-        }
+        return localAddress.equalsIgnoreCase(minPriorityAddress) || localPriority == minPriority;
     }
 
     private void submitJob(JobClient jobClient) {
@@ -396,7 +396,6 @@ public class JobSubmitDealer implements Runnable {
             handlerFailedWithRetry(jobClient, true, e);
         }
     }
-
 
     private void saveArchiveFsDir(JobClient jobClient, JobResult jobResult) {
         JSONObject pluginInfo = jobResult.getExtraInfoJson();

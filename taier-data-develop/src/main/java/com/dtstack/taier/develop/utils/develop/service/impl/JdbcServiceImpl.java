@@ -75,7 +75,7 @@ public class JdbcServiceImpl implements IJdbcService {
         if (sourceDTO instanceof RdbmsSourceDTO) {
             String properties = DBUtil.propToJson(taskParam);
             ((RdbmsSourceDTO) sourceDTO).setProperties(properties);
-             con = client.getCon(sourceDTO);
+            con = client.getCon(sourceDTO);
         }
         // 处理 variables SQL
         try {
