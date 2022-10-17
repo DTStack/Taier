@@ -121,11 +121,6 @@ public enum EComponentType {
         return null;
     }
 
-    public static final List<EComponentType> NOT_CHECK_COMPONENT = Lists.newArrayList(
-            EComponentType.SPARK,
-            EComponentType.FLINK
-    );
-
     // 需要添加TypeName的组件
     public static final List<EComponentType> typeComponentVersion = Lists.newArrayList(
             EComponentType.FLINK, EComponentType.SPARK,
