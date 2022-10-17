@@ -933,33 +933,12 @@ public class ConsoleComponentService {
         PartCluster cluster = clusterFactory.newImmediatelyLoadCluster(clusterId);
         Part part = cluster.create(componentType, versionName, storeType, deployType);
         List<ComponentConfig> componentConfigs = part.loadTemplate();
-        return buildDBDataToClientTemplate(componentConfigs);
-    }
-
-
-    /**
-     * 将数据库数据转换为前端展示的树结构
-     *
-     * @param componentConfigs
-     * @return
-     */
-    public static List<ClientTemplate> buildDBDataToClientTemplate(List<ComponentConfig> componentConfigs) {
-        if (org.springframework.util.CollectionUtils.isEmpty(componentConfigs)) {
-            return new ArrayList<>(0);
-        }
-        List<ClientTemplate> reduceTemplate = new ArrayList<>();
-        List<ComponentConfig> emptyDependencyValue = componentConfigs
-                .stream()
-                .filter(c -> StringUtils.isBlank(c.getDependencyKey()))
-                .collect(Collectors.toList());
-        for (ComponentConfig componentConfig : emptyDependencyValue) {
+        return componentConfigs.stream().map(c -> {
             ClientTemplate clientTemplate = new ClientTemplate();
-            BeanUtils.copyProperties(componentConfig, clientTemplate);
-            reduceTemplate.add(clientTemplate);
-        }
-        return reduceTemplate;
+            BeanUtils.copyProperties(c, clientTemplate);
+            return clientTemplate;
+        }).collect(Collectors.toList());
     }
-
 
     public List<Component> getComponentStore(String clusterName, Integer componentType) {
         Cluster cluster = clusterMapper.getByClusterName(clusterName);
@@ -1004,7 +983,7 @@ public class ConsoleComponentService {
 
         Map<Component, CompletableFuture<ComponentTestResult>> completableFutureMap = components.stream()
                 .collect(Collectors.toMap(component -> component,
-                        c -> CompletableFuture.supplyAsync(() -> testComponentWithResult(cluster, sftpMap, c),executor)));
+                        c -> CompletableFuture.supplyAsync(() -> testComponentWithResult(cluster, sftpMap, c), executor)));
 
         CompletableFuture<Void> totalFuture = CompletableFuture.allOf(completableFutureMap.values().toArray(new CompletableFuture[0]));
         try {
@@ -1145,18 +1124,17 @@ public class ConsoleComponentService {
         }
 
         try {
-            if (EComponentType.NOT_CHECK_COMPONENT.contains(EComponentType.getByCode(componentType))) {
-                componentTestResult.setResult(true);
-                return componentTestResult;
-            }
-
             JSONObject pluginInfo = componentService.wrapperConfig(componentType, componentConfig, sftpConfig, kerberosConfig);
-            componentTestResult = datasourceOperator.testConnect(componentType, pluginInfo.toJSONString(), versionName);
-            if (null == componentTestResult) {
-                componentTestResult = new ComponentTestResult();
-                componentTestResult.setResult(false);
-                componentTestResult.setErrorMsg("测试联通性失败");
-                return componentTestResult;
+            if (EComponentType.SFTP.getTypeCode().equals(componentType)) {
+                componentTestResult = testSftp(pluginInfo);
+            } else {
+                componentTestResult = datasourceOperator.testConnect(componentType, pluginInfo.toJSONString(), versionName);
+                if (null == componentTestResult) {
+                    componentTestResult = new ComponentTestResult();
+                    componentTestResult.setResult(false);
+                    componentTestResult.setErrorMsg("测试联通性失败");
+                    return componentTestResult;
+                }
             }
 
         } catch (Throwable e) {
@@ -1170,6 +1148,21 @@ public class ConsoleComponentService {
                 componentTestResult.setComponentTypeCode(componentType);
                 componentTestResult.setVersionName(versionName);
             }
+        }
+        return componentTestResult;
+    }
+
+    private ComponentTestResult testSftp(JSONObject pluginInfo) {
+        ComponentTestResult componentTestResult = new ComponentTestResult();
+        componentTestResult.setComponentTypeCode(EComponentType.SFTP.getTypeCode());
+        componentTestResult.setResult(true);
+        try {
+            SftpConfig sftp = JSONObject.toJavaObject(pluginInfo, SftpConfig.class);
+            SftpFileManage sftpManager = SftpFileManage.getSftpManager(sftp);
+            sftpManager.listFile(sftp.getPath());
+        } catch (Exception e) {
+            componentTestResult.setResult(false);
+            componentTestResult.setErrorMsg(ExceptionUtil.getErrorMessage(e));
         }
         return componentTestResult;
     }

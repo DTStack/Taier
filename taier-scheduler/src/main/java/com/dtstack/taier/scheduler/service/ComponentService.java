@@ -20,6 +20,7 @@ package com.dtstack.taier.scheduler.service;
 
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import com.dtstack.taier.common.enums.Deleted;
 import com.dtstack.taier.common.enums.DictType;
 import com.dtstack.taier.common.enums.EComponentType;
 import com.dtstack.taier.common.enums.EScheduleJobType;
@@ -40,9 +41,21 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 
-import static com.dtstack.taier.pluginapi.constrant.ConfigConstant.*;
+import static com.dtstack.taier.pluginapi.constrant.ConfigConstant.KERBEROS_FILE_TIMESTAMP;
+import static com.dtstack.taier.pluginapi.constrant.ConfigConstant.KRB_NAME;
+import static com.dtstack.taier.pluginapi.constrant.ConfigConstant.MERGE_KRB5_CONTENT_KEY;
+import static com.dtstack.taier.pluginapi.constrant.ConfigConstant.OPEN_KERBEROS;
+import static com.dtstack.taier.pluginapi.constrant.ConfigConstant.PRINCIPAL;
+import static com.dtstack.taier.pluginapi.constrant.ConfigConstant.PRINCIPAL_FILE;
+import static com.dtstack.taier.pluginapi.constrant.ConfigConstant.REMOTE_DIR;
 
 @Service
 public class ComponentService {
@@ -113,6 +126,7 @@ public class ComponentService {
         dataInfo.put(EComponentType.SFTP.getConfName(), sftpConfig);
         return dataInfo;
     }
+
     public Component getComponentByClusterId(Long clusterId, Integer componentType, String componentVersion) {
         return componentMapper.getByClusterIdAndComponentType(clusterId, componentType, componentVersion, null);
     }
@@ -169,17 +183,20 @@ public class ComponentService {
     }
 
     public List<Component> listAllComponents(Long clusterId) {
-        return componentMapper.selectList(Wrappers.lambdaQuery(Component.class).eq(Component::getClusterId, clusterId));
+        return componentMapper.selectList(Wrappers.lambdaQuery(Component.class).eq(Component::getClusterId, clusterId)
+                .eq(Component::getIsDeleted, Deleted.NORMAL.getStatus()));
     }
 
     public List<Component> listAllComponentsByComponent(Long clusterId, List<Integer> componentType) {
         return componentMapper.selectList(Wrappers.lambdaQuery(Component.class).eq(Component::getClusterId, clusterId)
-                .in(Component::getComponentTypeCode, componentType));
+                .in(Component::getComponentTypeCode, componentType)
+                .eq(Component::getIsDeleted, Deleted.NORMAL.getStatus()));
     }
 
     public List<Component> listAllByClusterIdAndComponentTypeAndVersionName(Long clusterId, Integer typeCode, String versionName) {
         return componentMapper.selectList(Wrappers.lambdaQuery(Component.class).eq(Component::getClusterId, clusterId)
                 .eq(Component::getComponentTypeCode, typeCode)
+                .eq(Component::getIsDeleted, Deleted.NORMAL.getStatus())
                 .eq(Component::getVersionName, versionName));
     }
 

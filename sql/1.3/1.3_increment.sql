@@ -1,35 +1,57 @@
 BEGIN;
 INSERT INTO `dict` (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default, gmt_create, gmt_modified, is_deleted) VALUES ('component_model_config', '1.12-standalone', '{"1.12-standalone":"flink112-standalone"}', null, 14, 1, 'STRING', 'FLINK', 0, now(), now(), 0);
 INSERT INTO `dict` (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default, gmt_create, gmt_modified, is_deleted) VALUES ('typename_mapping', 'flink112-standalone', '-120', NULL, 6, 0, 'LONG', '', 0, now(), now(), 0);
-INSERT INTO `dict` (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default, gmt_create, gmt_modified, is_deleted) VALUES ('flink_version', '1.12-standalone', '112_standalone', null, 1, 2, 'INTEGER', '', 0, now(),now(), 0);
+
+DELETE FROM dict where dict_code = 'flink_version';
+
+INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default, gmt_create, gmt_modified, is_deleted) VALUES ('flink_version', '1.12-on-yarn', '112', null, 1, 2, 'INTEGER', '', 0, '2022-05-03 22:13:12', '2022-05-03 22:13:12', 0);
+INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default, gmt_create, gmt_modified, is_deleted) VALUES ('flink_version', '1.12-standalone', '112_standalone', null, 1, 2, 'INTEGER', '', 0, '2022-09-20 14:57:48', '2022-09-20 14:57:48', 0);
+
+update console_component
+set console_component.is_deleted = 1
+where console_component.component_type_code in (4, 5, 7);
+
+update dict
+set dict_value = replace(dict_value,'1.12', '112')
+where dict_code = 'component_model_config' and dict.depend_name = 'yarn';
+
+update dict
+set dict_value = replace(dict_value,'2.1', '210')
+where dict_code = 'component_model_config' and dict.depend_name = 'yarn';
+
+update dict
+set dict_value = replace(dict_value,'2.4', '240')
+where dict_code = 'component_model_config' and dict.depend_name = 'yarn';
 
 
-INSERT INTO `console_component_config` ( `cluster_id`, `component_id`, `component_type_code`, `type`, `required`, `key`, `value`, `values`, `dependencyKey`, `dependencyValue`, `desc`, `gmt_create`, `gmt_modified`, `is_deleted`) VALUES ( -2, -120, 0, 'INPUT', 0, 'jobmanager.rpc.address', '', NULL, NULL, NULL, NULL, now(), now(), 0);
-INSERT INTO `console_component_config` ( `cluster_id`, `component_id`, `component_type_code`, `type`, `required`, `key`, `value`, `values`, `dependencyKey`, `dependencyValue`, `desc`, `gmt_create`, `gmt_modified`, `is_deleted`) VALUES ( -2, -120, 0, 'INPUT', 0, 'jobmanager.rpc.port', '', NULL, NULL, NULL, NULL, now(), now(), 0);
-INSERT INTO `console_component_config` ( `cluster_id`, `component_id`, `component_type_code`, `type`, `required`, `key`, `value`, `values`, `dependencyKey`, `dependencyValue`, `desc`, `gmt_create`, `gmt_modified`, `is_deleted`) VALUES ( -2, -120, 0, 'INPUT', 1, 'prometheusHost', '', NULL, NULL, NULL, NULL, now(), now(), 0);
-INSERT INTO `console_component_config` ( `cluster_id`, `component_id`, `component_type_code`, `type`, `required`, `key`, `value`, `values`, `dependencyKey`, `dependencyValue`, `desc`, `gmt_create`, `gmt_modified`, `is_deleted`) VALUES ( -2, -120, 0, 'INPUT', 1, 'prometheusPort', '', NULL, NULL, NULL, NULL, now(), now(), 0);
-INSERT INTO `console_component_config` ( `cluster_id`, `component_id`, `component_type_code`, `type`, `required`, `key`, `value`, `values`, `dependencyKey`, `dependencyValue`, `desc`, `gmt_create`, `gmt_modified`, `is_deleted`) VALUES ( -2, -120, 0, 'INPUT', 0, 'high-availability', '', NULL, NULL, NULL, NULL, now(), now(), 0);
-INSERT INTO `console_component_config` ( `cluster_id`, `component_id`, `component_type_code`, `type`, `required`, `key`, `value`, `values`, `dependencyKey`, `dependencyValue`, `desc`, `gmt_create`, `gmt_modified`, `is_deleted`) VALUES ( -2, -120, 0, 'INPUT', 0, 'high-availability.zookeeper.quorum', '', NULL, NULL, NULL, NULL, now(), now(), 0);
-INSERT INTO `console_component_config` ( `cluster_id`, `component_id`, `component_type_code`, `type`, `required`, `key`, `value`, `values`, `dependencyKey`, `dependencyValue`, `desc`, `gmt_create`, `gmt_modified`, `is_deleted`) VALUES ( -2, -120, 0, 'INPUT', 0, 'high-availability.zookeeper.path.root', '', NULL, NULL, NULL, NULL, now(), now(), 0);
-INSERT INTO `console_component_config` ( `cluster_id`, `component_id`, `component_type_code`, `type`, `required`, `key`, `value`, `values`, `dependencyKey`, `dependencyValue`, `desc`, `gmt_create`, `gmt_modified`, `is_deleted`) VALUES ( -2, -120, 0, 'INPUT', 0, 'high-availability.storageDir', '', NULL, NULL, NULL, NULL, now(), now(), 0);
-INSERT INTO `console_component_config` ( `cluster_id`, `component_id`, `component_type_code`, `type`, `required`, `key`, `value`, `values`, `dependencyKey`, `dependencyValue`, `desc`, `gmt_create`, `gmt_modified`, `is_deleted`) VALUES ( -2, -120, 0, 'INPUT', 0, 'high-availability.cluster-id', '', NULL, NULL, NULL, NULL, now(), now(), 0);
-INSERT INTO `console_component_config` ( `cluster_id`, `component_id`, `component_type_code`, `type`, `required`, `key`, `value`, `values`, `dependencyKey`, `dependencyValue`, `desc`, `gmt_create`, `gmt_modified`, `is_deleted`) VALUES ( -2, -120, 0, 'INPUT', 1, 'flinkLibDir', '/data/insight_plugin/flink112_lib', NULL, NULL, NULL, NULL, now(), now(), 0);
-INSERT INTO `console_component_config` ( `cluster_id`, `component_id`, `component_type_code`, `type`, `required`, `key`, `value`, `values`, `dependencyKey`, `dependencyValue`, `desc`, `gmt_create`, `gmt_modified`, `is_deleted`) VALUES ( -2, -120, 0, 'INPUT', 1, 'chunjunDistDir', '/data/insight_plugin112/flinkxplugin', NULL, NULL, NULL, NULL, now(), now(), 0);
-INSERT INTO `console_component_config` ( `cluster_id`, `component_id`, `component_type_code`, `type`, `required`, `key`, `value`, `values`, `dependencyKey`, `dependencyValue`, `desc`, `gmt_create`, `gmt_modified`, `is_deleted`) VALUES ( -2, -120, 0, 'INPUT', 1, 'remoteChunjunDistDir', '/data/insight_plugin112/flinkxplugin', NULL, NULL, NULL, NULL, now(), now(), 0);
-INSERT INTO `console_component_config` ( `cluster_id`, `component_id`, `component_type_code`, `type`, `required`, `key`, `value`, `values`, `dependencyKey`, `dependencyValue`, `desc`, `gmt_create`, `gmt_modified`, `is_deleted`) VALUES ( -2, -120, 0, 'INPUT', 1, 'clusterMode', 'standalone', NULL, NULL, NULL, NULL, now(), now(), 0);
-INSERT INTO `console_component_config` ( `cluster_id`, `component_id`, `component_type_code`, `type`, `required`, `key`, `value`, `values`, `dependencyKey`, `dependencyValue`, `desc`, `gmt_create`, `gmt_modified`, `is_deleted`) VALUES ( -2, -120, 0, '', 0, 'false', 'false', NULL, 'metrics.reporter.promgateway.deleteOnShutdown', NULL, NULL, now(), now(), 0);
-INSERT INTO `console_component_config` ( `cluster_id`, `component_id`, `component_type_code`, `type`, `required`, `key`, `value`, `values`, `dependencyKey`, `dependencyValue`, `desc`, `gmt_create`, `gmt_modified`, `is_deleted`) VALUES ( -2, -120, 0, '', 0, 'true', 'true', NULL, 'metrics.reporter.promgateway.deleteOnShutdown', NULL, NULL, now(), now(), 0);
-INSERT INTO `console_component_config` ( `cluster_id`, `component_id`, `component_type_code`, `type`, `required`, `key`, `value`, `values`, `dependencyKey`, `dependencyValue`, `desc`, `gmt_create`, `gmt_modified`, `is_deleted`) VALUES ( -2, -120, 0, '', 0, 'false', 'false', NULL, 'metrics.reporter.promgateway.randomJobNameSuffix', NULL, NULL, now(), now(), 0);
-INSERT INTO `console_component_config` ( `cluster_id`, `component_id`, `component_type_code`, `type`, `required`, `key`, `value`, `values`, `dependencyKey`, `dependencyValue`, `desc`, `gmt_create`, `gmt_modified`, `is_deleted`) VALUES ( -2, -120, 0, '', 0, 'true', 'true', NULL, 'metrics.reporter.promgateway.randomJobNameSuffix', NULL, NULL, now(), now(), 0);
-INSERT INTO `console_component_config` ( `cluster_id`, `component_id`, `component_type_code`, `type`, `required`, `key`, `value`, `values`, `dependencyKey`, `dependencyValue`, `desc`, `gmt_create`, `gmt_modified`, `is_deleted`) VALUES ( -2, -120, 0, 'INPUT', 0, 'rest.port', '8081', NULL, NULL, NULL, NULL, now(), now(), 0);
-INSERT INTO `console_component_config` ( `cluster_id`, `component_id`, `component_type_code`, `type`, `required`, `key`, `value`, `values`, `dependencyKey`, `dependencyValue`, `desc`, `gmt_create`, `gmt_modified`, `is_deleted`) VALUES ( -2, -120, 0, 'INPUT', 1, 'metrics.reporter.promgateway.class', 'org.apache.flink.metrics.prometheus.PrometheusPushGatewayReporter', NULL, NULL, NULL, NULL, now(), now(), 0);
-INSERT INTO `console_component_config` ( `cluster_id`, `component_id`, `component_type_code`, `type`, `required`, `key`, `value`, `values`, `dependencyKey`, `dependencyValue`, `desc`, `gmt_create`, `gmt_modified`, `is_deleted`) VALUES ( -2, -120, 0, 'INPUT', 1, 'metrics.reporter.promgateway.deleteOnShutdown', 'true', NULL, NULL, NULL, NULL, now(), now(), 0);
-INSERT INTO `console_component_config` ( `cluster_id`, `component_id`, `component_type_code`, `type`, `required`, `key`, `value`, `values`, `dependencyKey`, `dependencyValue`, `desc`, `gmt_create`, `gmt_modified`, `is_deleted`) VALUES ( -2, -120, 0, 'INPUT', 1, 'metrics.reporter.promgateway.host', '', NULL, NULL, NULL, NULL, now(), now(), 0);
-INSERT INTO `console_component_config` ( `cluster_id`, `component_id`, `component_type_code`, `type`, `required`, `key`, `value`, `values`, `dependencyKey`, `dependencyValue`, `desc`, `gmt_create`, `gmt_modified`, `is_deleted`) VALUES ( -2, -120, 0, 'INPUT', 1, 'metrics.reporter.promgateway.jobName', '112job', NULL, NULL, NULL, NULL, now(), now(), 0);
-INSERT INTO `console_component_config` ( `cluster_id`, `component_id`, `component_type_code`, `type`, `required`, `key`, `value`, `values`, `dependencyKey`, `dependencyValue`, `desc`, `gmt_create`, `gmt_modified`, `is_deleted`) VALUES ( -2, -120, 0, 'INPUT', 1, 'metrics.reporter.promgateway.port', '9091', NULL, NULL, NULL, NULL, now(), now(), 0);
-INSERT INTO `console_component_config` ( `cluster_id`, `component_id`, `component_type_code`, `type`, `required`, `key`, `value`, `values`, `dependencyKey`, `dependencyValue`, `desc`, `gmt_create`, `gmt_modified`, `is_deleted`) VALUES ( -2, -120, 0, 'INPUT', 1, 'metrics.reporter.promgateway.randomJobNameSuffix', 'true', NULL, NULL, NULL, NULL, now(), now(), 0);
-INSERT INTO `console_component_config` ( `cluster_id`, `component_id`, `component_type_code`, `type`, `required`, `key`, `value`, `values`, `dependencyKey`, `dependencyValue`, `desc`, `gmt_create`, `gmt_modified`, `is_deleted`) VALUES ( -2, -120, 0, 'INPUT', 0, 'state.backend', 'jobmanager', NULL, NULL, NULL, NULL, now(), now(), 0);
-INSERT INTO `console_component_config` ( `cluster_id`, `component_id`, `component_type_code`, `type`, `required`, `key`, `value`, `values`, `dependencyKey`, `dependencyValue`, `desc`, `gmt_create`, `gmt_modified`, `is_deleted`) VALUES ( -2, -120, 0, 'INPUT', 0, 'pluginLoadMode', 'classpath', NULL, NULL, NULL, NULL, now(), now(), 0);
+DELETE FROM console_component_config where component_id = -120 and cluster_id = -2;
+
+INSERT INTO console_component_config (cluster_id, component_id, component_type_code, type, required, `key`, value, `values`, dependencyKey, dependencyValue, `desc`, gmt_create, gmt_modified, is_deleted) VALUES (-2, -120, 0, 'INPUT', 0, 'jobmanager.rpc.address', '', null, null, null, null, '2022-10-11 14:04:45', '2022-10-11 14:04:45', 0);
+INSERT INTO console_component_config (cluster_id, component_id, component_type_code, type, required, `key`, value, `values`, dependencyKey, dependencyValue, `desc`, gmt_create, gmt_modified, is_deleted) VALUES (-2, -120, 0, 'INPUT', 0, 'jobmanager.rpc.port', '', null, null, null, null, '2022-10-11 14:04:45', '2022-10-11 14:04:45', 0);
+INSERT INTO console_component_config (cluster_id, component_id, component_type_code, type, required, `key`, value, `values`, dependencyKey, dependencyValue, `desc`, gmt_create, gmt_modified, is_deleted) VALUES (-2, -120, 0, 'INPUT', 1, 'prometheusHost', '', null, null, null, null, '2022-10-11 14:04:45', '2022-10-11 14:04:45', 0);
+INSERT INTO console_component_config (cluster_id, component_id, component_type_code, type, required, `key`, value, `values`, dependencyKey, dependencyValue, `desc`, gmt_create, gmt_modified, is_deleted) VALUES (-2, -120, 0, 'INPUT', 1, 'prometheusPort', '', null, null, null, null, '2022-10-11 14:04:45', '2022-10-11 14:04:45', 0);
+INSERT INTO console_component_config (cluster_id, component_id, component_type_code, type, required, `key`, value, `values`, dependencyKey, dependencyValue, `desc`, gmt_create, gmt_modified, is_deleted) VALUES (-2, -120, 0, 'INPUT', 0, 'high-availability', '', null, null, null, null, '2022-10-11 14:04:45', '2022-10-11 14:04:45', 0);
+INSERT INTO console_component_config (cluster_id, component_id, component_type_code, type, required, `key`, value, `values`, dependencyKey, dependencyValue, `desc`, gmt_create, gmt_modified, is_deleted) VALUES (-2, -120, 0, 'INPUT', 0, 'high-availability.zookeeper.quorum', '', null, null, null, null, '2022-10-11 14:04:45', '2022-10-11 14:04:45', 0);
+INSERT INTO console_component_config (cluster_id, component_id, component_type_code, type, required, `key`, value, `values`, dependencyKey, dependencyValue, `desc`, gmt_create, gmt_modified, is_deleted) VALUES (-2, -120, 0, 'INPUT', 0, 'high-availability.zookeeper.path.root', '', null, null, null, null, '2022-10-11 14:04:45', '2022-10-11 14:04:45', 0);
+INSERT INTO console_component_config (cluster_id, component_id, component_type_code, type, required, `key`, value, `values`, dependencyKey, dependencyValue, `desc`, gmt_create, gmt_modified, is_deleted) VALUES (-2, -120, 0, 'INPUT', 0, 'high-availability.storageDir', '', null, null, null, null, '2022-10-11 14:04:45', '2022-10-11 14:04:45', 0);
+INSERT INTO console_component_config (cluster_id, component_id, component_type_code, type, required, `key`, value, `values`, dependencyKey, dependencyValue, `desc`, gmt_create, gmt_modified, is_deleted) VALUES (-2, -120, 0, 'INPUT', 0, 'high-availability.cluster-id', '', null, null, null, null, '2022-10-11 14:04:45', '2022-10-11 14:04:45', 0);
+INSERT INTO console_component_config (cluster_id, component_id, component_type_code, type, required, `key`, value, `values`, dependencyKey, dependencyValue, `desc`, gmt_create, gmt_modified, is_deleted) VALUES (-2, -120, 0, 'INPUT', 1, 'flinkLibDir', '/data/insight_plugin/flink112_lib', null, null, null, null, '2022-10-11 14:04:45', '2022-10-11 14:04:45', 0);
+INSERT INTO console_component_config (cluster_id, component_id, component_type_code, type, required, `key`, value, `values`, dependencyKey, dependencyValue, `desc`, gmt_create, gmt_modified, is_deleted) VALUES (-2, -120, 0, 'INPUT', 1, 'chunjunDistDir', '/data/insight_plugin112/chunjunplugin', null, null, null, null, '2022-10-11 14:04:45', '2022-10-11 14:04:45', 0);
+INSERT INTO console_component_config (cluster_id, component_id, component_type_code, type, required, `key`, value, `values`, dependencyKey, dependencyValue, `desc`, gmt_create, gmt_modified, is_deleted) VALUES (-2, -120, 0, 'INPUT', 1, 'remoteChunjunDistDir', '/data/insight_plugin112/chunjunplugin', null, null, null, null, '2022-10-11 14:04:45', '2022-10-11 14:04:45', 0);
+INSERT INTO console_component_config (cluster_id, component_id, component_type_code, type, required, `key`, value, `values`, dependencyKey, dependencyValue, `desc`, gmt_create, gmt_modified, is_deleted) VALUES (-2, -120, 0, 'INPUT', 1, 'clusterMode', 'standalone', null, null, null, null, '2022-10-11 14:04:45', '2022-10-11 14:04:45', 0);
+INSERT INTO console_component_config (cluster_id, component_id, component_type_code, type, required, `key`, value, `values`, dependencyKey, dependencyValue, `desc`, gmt_create, gmt_modified, is_deleted) VALUES (-2, -120, 0, 'SELECT', 1, 'metrics.reporter.promgateway.deleteOnShutdown', 'true', null, null, null, null, '2022-10-11 14:04:45', '2022-10-11 14:04:45', 0);
+INSERT INTO console_component_config (cluster_id, component_id, component_type_code, type, required, `key`, value, `values`, dependencyKey, dependencyValue, `desc`, gmt_create, gmt_modified, is_deleted) VALUES (-2, -120, 0, '', 0, 'false', 'false', null, 'metrics.reporter.promgateway.deleteOnShutdown', null, null, '2022-10-11 14:04:45', '2022-10-11 14:04:45', 0);
+INSERT INTO console_component_config (cluster_id, component_id, component_type_code, type, required, `key`, value, `values`, dependencyKey, dependencyValue, `desc`, gmt_create, gmt_modified, is_deleted) VALUES (-2, -120, 0, '', 0, 'true', 'true', null, 'metrics.reporter.promgateway.deleteOnShutdown', null, null, '2022-10-11 14:04:45', '2022-10-11 14:04:45', 0);
+INSERT INTO console_component_config (cluster_id, component_id, component_type_code, type, required, `key`, value, `values`, dependencyKey, dependencyValue, `desc`, gmt_create, gmt_modified, is_deleted) VALUES (-2, -120, 0, 'SELECT', 1, 'metrics.reporter.promgateway.randomJobNameSuffix', 'true', null, null, null, null, '2022-10-11 14:04:45', '2022-10-11 14:04:45', 0);
+INSERT INTO console_component_config (cluster_id, component_id, component_type_code, type, required, `key`, value, `values`, dependencyKey, dependencyValue, `desc`, gmt_create, gmt_modified, is_deleted) VALUES (-2, -120, 0, '', 0, 'false', 'false', null, 'metrics.reporter.promgateway.randomJobNameSuffix', null, null, '2022-10-11 14:04:45', '2022-10-11 14:04:45', 0);
+INSERT INTO console_component_config (cluster_id, component_id, component_type_code, type, required, `key`, value, `values`, dependencyKey, dependencyValue, `desc`, gmt_create, gmt_modified, is_deleted) VALUES (-2, -120, 0, '', 0, 'true', 'true', null, 'metrics.reporter.promgateway.randomJobNameSuffix', null, null, '2022-10-11 14:04:45', '2022-10-11 14:04:45', 0);
+INSERT INTO console_component_config (cluster_id, component_id, component_type_code, type, required, `key`, value, `values`, dependencyKey, dependencyValue, `desc`, gmt_create, gmt_modified, is_deleted) VALUES (-2, -120, 0, 'INPUT', 0, 'rest.port', '8081', null, null, null, null, '2022-10-11 14:04:45', '2022-10-11 14:04:45', 0);
+INSERT INTO console_component_config (cluster_id, component_id, component_type_code, type, required, `key`, value, `values`, dependencyKey, dependencyValue, `desc`, gmt_create, gmt_modified, is_deleted) VALUES (-2, -120, 0, 'INPUT', 1, 'metrics.reporter.promgateway.class', 'org.apache.flink.metrics.prometheus.PrometheusPushGatewayReporter', null, null, null, null, '2022-10-11 14:04:45', '2022-10-11 14:04:45', 0);
+INSERT INTO console_component_config (cluster_id, component_id, component_type_code, type, required, `key`, value, `values`, dependencyKey, dependencyValue, `desc`, gmt_create, gmt_modified, is_deleted) VALUES (-2, -120, 0, 'INPUT', 1, 'metrics.reporter.promgateway.host', '', null, null, null, null, '2022-10-11 14:04:45', '2022-10-11 14:04:45', 0);
+INSERT INTO console_component_config (cluster_id, component_id, component_type_code, type, required, `key`, value, `values`, dependencyKey, dependencyValue, `desc`, gmt_create, gmt_modified, is_deleted) VALUES (-2, -120, 0, 'INPUT', 1, 'metrics.reporter.promgateway.jobName', '112job', null, null, null, null, '2022-10-11 14:04:45', '2022-10-11 14:04:45', 0);
+INSERT INTO console_component_config (cluster_id, component_id, component_type_code, type, required, `key`, value, `values`, dependencyKey, dependencyValue, `desc`, gmt_create, gmt_modified, is_deleted) VALUES (-2, -120, 0, 'INPUT', 1, 'metrics.reporter.promgateway.port', '9091', null, null, null, null, '2022-10-11 14:04:45', '2022-10-11 14:04:45', 0);
+INSERT INTO console_component_config (cluster_id, component_id, component_type_code, type, required, `key`, value, `values`, dependencyKey, dependencyValue, `desc`, gmt_create, gmt_modified, is_deleted) VALUES (-2, -120, 0, 'INPUT', 0, 'state.backend', 'jobmanager', null, null, null, null, '2022-10-11 14:04:45', '2022-10-11 14:04:45', 0);
+INSERT INTO console_component_config (cluster_id, component_id, component_type_code, type, required, `key`, value, `values`, dependencyKey, dependencyValue, `desc`, gmt_create, gmt_modified, is_deleted) VALUES (-2, -120, 0, 'INPUT', 0, 'pluginLoadMode', 'classpath', null, null, null, null, '2022-10-11 14:04:45', '2022-10-11 14:04:45', 0);
 
 
 
@@ -140,7 +162,7 @@ logLevel=INFO',now(),now(), 0);
 update dict set dict_value = REPLACE(dict_value, '-dtscript', '-script') where `type` = 14 and depend_name = 'YARN' and dict_value like '%dtscript%';
 update dict set dict_value = REPLACE(dict_value, 'DT_SCRIPT', 'SCRIPT') where `type` = 14 and depend_name = 'YARN' and dict_value like '%DT_SCRIPT%';
 
-delete from dict where `type` = 30 and dict_code in (12, 13);
+delete from dict where `type` = 30 and dict_code in ('12', '13');
 INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default, gmt_create, gmt_modified, is_deleted) VALUES ('12', 'Python', '{"actions": ["SAVE_TASK", "RUN_TASK", "STOP_TASK", "SUBMIT_TASK", "OPERATOR_TASK"], "barItem": ["task", "dependency", "task_params", "env_params"], "formField": ["pythonVersion"], "renderKind": "editor"}', null, 30, 0, 'STRING', '', 1, '2022-02-11 10:28:45', '2022-02-11 10:28:45', 0);
 INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default, gmt_create, gmt_modified, is_deleted) VALUES ('13', 'Shell', '{"actions": ["SAVE_TASK", "RUN_TASK", "STOP_TASK", "SUBMIT_TASK", "OPERATOR_TASK"], "barItem": ["task", "dependency", "task_params", "env_params"], "formField": [], "renderKind": "editor"}', null, 30, 0, 'STRING', '', 1, '2022-02-11 10:28:45', '2022-02-11 10:28:45', 0);
 
@@ -195,6 +217,28 @@ UPDATE datasource_form_field SET `name` = 'url', `label` = 'url' ,`place_hold` =
 INSERT INTO `datasource_form_field` (`name`, `label`, `widget`, `required`, `invisible`, `default_value`, `place_hold`, `request_api`, `is_link`, `valid_info`, `tooltip`, `style`, `regex`, `type_version`, `is_deleted`, `gmt_create`, `gmt_modified`, `create_user_id`, `modify_user_id`, `options`) VALUES
     ('schema', 'schema', 'Input', '1', '0', NULL, NULL, NULL, '0', NULL, NULL, NULL, NULL, 'Doris-0.14.x', '0', now(), now(), '0', '0', '');
 
+DELETE FROM dict WHERE type = 30 AND dict_code = '27' ;
+INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default, gmt_create, gmt_modified, is_deleted) VALUES ('27', 'DorisSQL',
+'{
+    "actions":[
+        "SAVE_TASK",
+        "RUN_TASK",
+        "STOP_TASK",
+        "SUBMIT_TASK",
+        "OPERATOR_TASK"
+    ],
+    "barItem":[
+        "task",
+        "dependency",
+        "task_params",
+        "env_params"
+    ],
+    "formField":[
+        "datasource"
+    ],
+    "renderKind":"editor",
+    "dataTypeCodes":[64]
+}', null, 30, 0, 'STRING', '', 0, now(), now(), 0);
 DELETE FROM dict WHERE type = 30 AND dict_code = '27' ;
 INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default, gmt_create, gmt_modified, is_deleted) VALUES ('27', 'DorisSQL','{"actions":["SAVE_TASK","RUN_TASK","STOP_TASK","SUBMIT_TASK","OPERATOR_TASK"],"barItem":["task","dependency","task_params","env_params"],"formField":["datasource"],"renderKind":"editor","dataTypeCodes":[64]}', null, 30, 0, 'STRING', '', 0, now(), now(), 0);
 
