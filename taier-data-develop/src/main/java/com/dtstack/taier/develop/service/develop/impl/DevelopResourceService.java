@@ -23,6 +23,7 @@ import com.dtstack.taier.common.enums.CatalogueType;
 import com.dtstack.taier.common.enums.Deleted;
 import com.dtstack.taier.common.enums.EComponentType;
 import com.dtstack.taier.common.enums.EComputeType;
+import com.dtstack.taier.common.enums.EScheduleJobType;
 import com.dtstack.taier.common.enums.ResourceType;
 import com.dtstack.taier.common.env.EnvironmentContext;
 import com.dtstack.taier.common.exception.DtCenterDefException;
@@ -385,6 +386,22 @@ public class DevelopResourceService {
      */
     public List<DevelopResource> listByNameAndTenantId(Long tenantId, String resourceName) {
         return developResourceMapper.listByNameAndTenantId(tenantId, resourceName);
+    }
+
+
+    /**
+     * 校验资源类型
+     */
+    public void checkResourceType(List<Long> resourceIds, Integer taskType) {
+        List<DevelopResource> resources = getResourceList(resourceIds);
+        EScheduleJobType eScheduleJobType = EScheduleJobType.getByTaskType(taskType);
+        if (CollectionUtils.isEmpty(resources)) {
+            throw new RdosDefineException(ErrorCode.CAN_NOT_FIND_RESOURCE);
+        }
+        for (DevelopResource resource : resources) {
+            //STREAM 任务资源上传到sftp ,Batch 任务资源上传到HDFS
+            AssertUtils.isTrue(eScheduleJobType.getComputeType().getType() == resource.getComputeType(), "STREAM 任务只能选择上传到sftp资源 ,Batch 任务任务只能选择上传到hdfs资源");
+        }
     }
 
 }

@@ -31,7 +31,6 @@ import com.dtstack.taier.common.util.PublicUtil;
 import com.dtstack.taier.common.util.SqlFormatUtil;
 import com.dtstack.taier.dao.domain.DevelopFunction;
 import com.dtstack.taier.dao.domain.DevelopFunctionResource;
-import com.dtstack.taier.dao.domain.DevelopResource;
 import com.dtstack.taier.dao.domain.Task;
 import com.dtstack.taier.dao.mapper.DevelopFunctionMapper;
 import com.dtstack.taier.develop.dto.devlop.DevelopFunctionVO;
@@ -40,7 +39,6 @@ import com.dtstack.taier.develop.enums.develop.FlinkUDFType;
 import com.dtstack.taier.develop.service.user.UserService;
 import com.dtstack.taier.develop.sql.SqlParserImpl;
 import com.dtstack.taier.develop.sql.parse.SqlParserFactory;
-import com.dtstack.taier.pluginapi.enums.ComputeType;
 import com.google.common.collect.Lists;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
@@ -51,6 +49,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
@@ -69,7 +68,7 @@ public class DevelopFunctionService {
     private UserService userService;
 
     @Autowired
-    private DevelopResourceService DevelopResourceService;
+    private DevelopResourceService developResourceService;
 
     @Autowired
     private DevelopTaskService developTaskService;
@@ -125,7 +124,7 @@ public class DevelopFunctionService {
             throw new RdosDefineException("注意名称只允许存在字母、数字、下划线、横线，hive函数不支持大写字母", ErrorCode.NAME_FORMAT_ERROR);
         }
         AssertUtils.notNull(resourceId, "新增函数必须添加资源");
-        checkResourceType(resourceId, developFunction.getTaskType());
+        developResourceService.checkResourceType(Collections.singletonList(resourceId), developFunction.getTaskType());
 
         // id小于0走新增逻辑
         if (Objects.isNull(developFunction.getId()) || developFunction.getId() < 1) {
@@ -175,24 +174,6 @@ public class DevelopFunctionService {
      */
     private DevelopFunctionResource getResourceFunctionByFunctionId(Long functionId) {
         return developFunctionResourceService.getResourceFunctionByFunctionId(functionId);
-    }
-
-    /**
-     * 校验资源是否存在
-     * @param resourceId
-     */
-    private void checkResourceType(Long resourceId, Integer taskType) {
-        DevelopResource resource = DevelopResourceService.getResource(resourceId);
-        if (Objects.isNull(resource)) {
-            throw new RdosDefineException(ErrorCode.CAN_NOT_FIND_RESOURCE);
-        }
-        //任务类型是flinkSql ,函数饮用的资源必须是上传sftp
-        if (ComputeType.STREAM.getType().equals(resource.getComputeType())) {
-            AssertUtils.isTrue(EScheduleJobType.FLINK_SQL.getType().equals(taskType), "sparkSQL 任务只能引用上传到hdfs的资源");
-        }
-        if (ComputeType.BATCH.getType().equals(resource.getComputeType())) {
-            AssertUtils.isTrue(EScheduleJobType.SPARK_SQL.getType().equals(taskType) || EScheduleJobType.HIVE_SQL.getType().equals(taskType), "flinkSQL 任务只能引用上传到sftp的资源");
-        }
     }
 
     /**
@@ -329,7 +310,7 @@ public class DevelopFunctionService {
         String funcName = developFunction.getName();
         String className = developFunction.getClassName();
         // 获取资源路径
-        String resourceURL = DevelopResourceService.getResourceURLByFunctionId(developFunction.getId());
+        String resourceURL = developResourceService.getResourceURLByFunctionId(developFunction.getId());
         if (StringUtils.isNotBlank(resourceURL)) {
             return String.format(CREATE_TEMP_FUNCTION, funcName, className, resourceURL);
         } else {

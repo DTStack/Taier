@@ -1,6 +1,7 @@
 package com.dtstack.taier.develop.service.develop;
 
 import com.dtstack.taier.common.enums.EScheduleJobType;
+import com.dtstack.taier.dao.domain.Task;
 import com.dtstack.taier.develop.dto.devlop.TaskResourceParam;
 import com.dtstack.taier.develop.dto.devlop.TaskVO;
 
@@ -16,6 +17,6 @@ public interface ITaskSaver {
 
     TaskVO addOrUpdate(TaskResourceParam taskResourceParam);
 
-    String processScheduleRunSqlText(Long tenantId, Integer taskType, String sqlText,Long datasourceId);
+    String processScheduleRunSqlText(Task task);
 
 }

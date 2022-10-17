@@ -287,6 +287,6 @@ public class SyncTaskSaver extends AbstractTaskSaver {
 
     @Override
     public List<EScheduleJobType> support() {
-        return Lists.newArrayList(EScheduleJobType.SYNC);
+        return Lists.newArrayList(EScheduleJobType.DATA_ACQUISITION, EScheduleJobType.SYNC);
     }
 }

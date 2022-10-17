@@ -37,6 +37,11 @@ public enum EScheduleJobType {
     SPARK_SQL(0, "SparkSQL", EJobType.SQL.getType(), 1, EComponentType.SPARK, EComputeType.BATCH, EJobClientType.ENGINE_PLUGIN),
 
     /**
+     * Spark jar
+     */
+    SPARK(1, "Spark", EJobType.MR.getType(), 2, EComponentType.SPARK, EComputeType.BATCH, EJobClientType.ENGINE_PLUGIN),
+
+    /**
      * 数据同步
      */
     SYNC(2, "数据同步", EJobType.SYNC.getType(), 3, EComponentType.FLINK, EComputeType.BATCH, EJobClientType.ENGINE_PLUGIN),
@@ -89,7 +94,14 @@ public enum EScheduleJobType {
     /**
      * DorisSQL
      */
-    DORIS_SQL(15, "DorisSQL", EJobType.SQL.getType(), 15, null, EComputeType.BATCH, EJobClientType.DATASOURCE_PLUGIN);
+    DORIS_SQL(15, "DorisSQL", EJobType.SQL.getType(), 15, null, EComputeType.BATCH, EJobClientType.DATASOURCE_PLUGIN),
+
+
+    /**
+     * PySpark
+     */
+    SPARK_PYTHON(12, "PySpark", EJobType.PYTHON.getType(), 12, EComponentType.SPARK, EComputeType.BATCH, EJobClientType.ENGINE_PLUGIN),
+    ;
 
     private final Integer type;
 

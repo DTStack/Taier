@@ -22,8 +22,8 @@ import com.dtstack.taier.common.enums.Deleted;
 import com.dtstack.taier.common.exception.ErrorCode;
 import com.dtstack.taier.common.exception.RdosDefineException;
 import com.dtstack.taier.dao.domain.DevelopResource;
-import com.dtstack.taier.dao.domain.Task;
 import com.dtstack.taier.dao.domain.DevelopTaskResource;
+import com.dtstack.taier.dao.domain.Task;
 import com.dtstack.taier.dao.mapper.DevelopTaskResourceMapper;
 import com.google.common.collect.Lists;
 import org.slf4j.Logger;
@@ -47,7 +47,7 @@ public class DevelopTaskResourceService {
     private DevelopTaskResourceMapper developTaskResourceDao;
 
     @Autowired
-    private DevelopResourceService DevelopResourceService;
+    private DevelopResourceService developResourceService;
 
     /**
      * 根据资源id，获取可用的 资源-任务 关系记录
@@ -72,7 +72,7 @@ public class DevelopTaskResourceService {
             return Collections.EMPTY_LIST;
         }
 
-        return DevelopResourceService.getResourceList(taskResourceIds);
+        return developResourceService.getResourceList(taskResourceIds);
     }
 
     public void deleteByTenantId(Long tenantId) {
@@ -112,7 +112,7 @@ public class DevelopTaskResourceService {
         for (Long resourceId : resourceIds) {
 
             //检查资源是否存在
-            if (DevelopResourceService.getResource(resourceId) == null) {
+            if (developResourceService.getResource(resourceId) == null) {
                 logger.warn("can't find resource from DevelopResource table by id:{}", resourceId);
                 throw new RdosDefineException(ErrorCode.CAN_NOT_FIND_RESOURCE);
             }
