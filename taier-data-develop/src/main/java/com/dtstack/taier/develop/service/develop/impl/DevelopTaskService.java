@@ -1078,8 +1078,9 @@ public class DevelopTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
         List<DevelopTaskGetComponentVersionResultVO> componentVersionResultVOS = Lists.newArrayList();
         for (Component component : components) {
             DevelopTaskGetComponentVersionResultVO resultVO = new DevelopTaskGetComponentVersionResultVO();
-            resultVO.setComponentVersion(component.getVersionValue());
+            resultVO.setComponentVersion(component.getVersionName());
             resultVO.setDefault(component.getIsDefault());
+            resultVO.setComponentName(component.getComponentName());
             componentVersionResultVOS.add(resultVO);
         }
         componentVersionResultVOS.sort(sortComponentVersion());
