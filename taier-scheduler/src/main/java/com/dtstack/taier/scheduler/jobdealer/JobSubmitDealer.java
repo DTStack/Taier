@@ -20,7 +20,6 @@ package com.dtstack.taier.scheduler.jobdealer;
 
 import com.alibaba.fastjson.JSONObject;
 import com.dtstack.taier.common.BlockCallerPolicy;
-import com.dtstack.taier.common.constant.CommonConstant;
 import com.dtstack.taier.common.enums.EJobCacheStage;
 import com.dtstack.taier.common.enums.EJobClientType;
 import com.dtstack.taier.common.enums.EScheduleJobType;
@@ -47,7 +46,6 @@ import com.dtstack.taier.scheduler.jobdealer.cache.ShardCache;
 import com.dtstack.taier.scheduler.server.JobPartitioner;
 import com.dtstack.taier.scheduler.server.queue.GroupInfo;
 import com.dtstack.taier.scheduler.server.queue.GroupPriorityQueue;
-import com.dtstack.taier.scheduler.service.ComponentService;
 import com.dtstack.taier.scheduler.service.ScheduleJobCacheService;
 import com.dtstack.taier.scheduler.service.ScheduleJobExpandService;
 import org.apache.commons.lang3.StringUtils;
@@ -63,8 +61,6 @@ import java.util.concurrent.PriorityBlockingQueue;
 import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * company: www.dtstack.com
@@ -159,7 +155,7 @@ public class JobSubmitDealer implements Runnable {
                     if (simpleJobDelay != null && jobClient != null) {
                         LOGGER.error("jobId:{} stage:{}", jobClient.getJobId(), simpleJobDelay.getStage(), e);
                     } else {
-                        LOGGER.error("", e);
+                        LOGGER.error("restartJob take error", e);
                     }
                 }
             }
@@ -196,8 +192,9 @@ public class JobSubmitDealer implements Runnable {
     @Override
     public void run() {
         while (true) {
+            JobClient jobClient = null;
             try {
-                JobClient jobClient = queue.take();
+                jobClient = queue.take();
                 if (LOGGER.isDebugEnabled()) {
                     LOGGER.debug("jobId:{} jobResource:{} queue size:{} take job from priorityQueue.", jobClient.getJobId(), jobResource, queue.size());
                 }
@@ -219,9 +216,15 @@ public class JobSubmitDealer implements Runnable {
                 }
 
                 //提交任务
-                jobSubmitConcurrentService.submit(() -> submitJob(jobClient));
+                JobClient finalJobClient = jobClient;
+                jobSubmitConcurrentService.submit(() -> submitJob(finalJobClient));
             } catch (Exception e) {
-                LOGGER.error("", e);
+                if (null != jobClient) {
+                    LOGGER.error("jobId {} submit error", jobClient.getJobId(), e);
+                    handlerFailedWithRetry(jobClient, false, e);
+                } else {
+                    LOGGER.error("submit error", e);
+                }
             }
         }
     }
