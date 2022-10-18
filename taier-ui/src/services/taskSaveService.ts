@@ -670,6 +670,7 @@ class TaskSaveService extends GlobalEvent {
 
 				return Promise.reject();
 			}
+			case TASK_TYPE_ENUM.SPARK:
 			case TASK_TYPE_ENUM.FLINK: {
 				const {
 					id,
