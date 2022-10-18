@@ -170,7 +170,7 @@ public class ComponentService {
         Set<String> distinct = new HashSet<>(2);
         List<Component> components = new ArrayList<>(2);
         for (Component component : componentVersionList) {
-            if (distinct.add(component.getVersionValue())) {
+            if (distinct.add(component.getVersionName())) {
                 components.add(component);
             }
         }
