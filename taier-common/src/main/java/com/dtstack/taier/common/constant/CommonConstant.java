@@ -48,10 +48,7 @@ public interface CommonConstant {
     String TASK_NAME_PREFIX = "run_%s_task_%s";
 
     String DATASOURCE_PREFIX = "taier.datasource.";
+    String DATASOURCE_ID = "datasourceId";
+    String DATASOURCE_TYPE = "datasourceType";
 
-    String RDB_SUBMIT_QUEUE_SIZE = "jobQueueSize";
-
-    String RDB_SUBMIT_CONSUMER_MIN_NUM = "minJobPoolSize";
-
-    String RDB_SUBMIT_CONSUMER_MAX_NUM = "maxJobPoolSize";
 }

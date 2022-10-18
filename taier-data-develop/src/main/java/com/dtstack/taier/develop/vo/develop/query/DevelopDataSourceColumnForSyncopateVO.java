@@ -22,6 +22,8 @@ import com.dtstack.taier.common.param.DtInsightAuthParam;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 
+import java.util.List;
+
 /**
  * 返回切分键需要的列名
  *
@@ -34,11 +36,8 @@ public class DevelopDataSourceColumnForSyncopateVO extends DtInsightAuthParam {
     @ApiModelProperty(value = "数据源id", example = "1", required = true)
     private Long sourceId;
 
-//    @ApiModelProperty(value = "表名称", required = true)
-//    private List<String> tableName;
-
     @ApiModelProperty(value = "表名称", required = true)
-    private String tableName;
+    private List<String> tableName;
 
     @ApiModelProperty(value = "查询的schema", example = "test")
     private String schema;
@@ -54,13 +53,13 @@ public class DevelopDataSourceColumnForSyncopateVO extends DtInsightAuthParam {
         this.sourceId = sourceId;
     }
 
-//    public List<String> getTableName() {
-//        return tableName;
-//    }
-//
-//    public void setTableName(List<String> tableName) {
-//        this.tableName = tableName;
-//    }
+    public List<String> getTableName() {
+        return tableName;
+    }
+
+    public void setTableName(List<String> tableName) {
+        this.tableName = tableName;
+    }
 
     public String getSchema() {
         return schema;
@@ -78,13 +77,5 @@ public class DevelopDataSourceColumnForSyncopateVO extends DtInsightAuthParam {
     @Override
     public void setUserId(Long userId) {
         this.userId = userId;
-    }
-
-    public String getTableName() {
-        return tableName;
-    }
-
-    public void setTableName(String tableName) {
-        this.tableName = tableName;
     }
 }

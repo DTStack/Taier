@@ -32,6 +32,7 @@ import com.dtstack.taier.develop.vo.develop.query.DevelopDatasourceTableCreateVO
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,18 +45,18 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Set;
 
 /**
  * 新增数据源相关功能控制器类
+ *
  * @description:
  * @author: liuxx
  * @date: 2021/3/8
  */
 @Api(tags = {"数据源中心-新增数据源"})
 @RestController
-@RequestMapping(value ="/dataSource/addDs")
+@RequestMapping(value = "/dataSource/addDs")
 public class DatasourceAddController {
 
     private final String RESOURCE = "resource";
@@ -95,7 +96,6 @@ public class DatasourceAddController {
     }
 
 
-
     @ApiOperation("测试联通性")
     @PostMapping("/testCon")
     public R<Boolean> testCon(@RequestBody AddDataSourceParam addDataSourceParam) {
@@ -105,6 +105,7 @@ public class DatasourceAddController {
             protected void checkParams() throws IllegalArgumentException {
                 Asserts.hasText(addDataSourceParam.getDataType(), "数据源类型不能为空!");
             }
+
             @Override
             protected Boolean process() throws RdosDefineException {
                 DataSourceVO dataSourceVO = new DataSourceParam2SourceVOConverter().convert(addDataSourceParam);
@@ -127,6 +128,7 @@ public class DatasourceAddController {
                 String principal = (String) dataSourceJson.get("principal");
                 Asserts.hasText(principal, "kerberos principle不能为空!");
             }
+
             @Override
             protected Boolean process() throws RdosDefineException {
                 Pair<String, String> resource = (Pair<String, String>) params.get("resource");
@@ -139,7 +141,6 @@ public class DatasourceAddController {
     }
 
 
-
     @ApiOperation("添加和修改数据源")
     @PostMapping("/addOrUpdateSource")
     public R<Long> addOrUpdateSource(@RequestBody AddDataSourceParam addDataSourceParam) {
@@ -147,10 +148,11 @@ public class DatasourceAddController {
             @Override
             protected void checkParams() throws IllegalArgumentException {
                 if (addDataSourceParam == null ||
-                        StringUtils.isBlank(addDataSourceParam.getDataName())){
+                        StringUtils.isBlank(addDataSourceParam.getDataName())) {
                     throw new PubSvcDefineException("dataSource name empty");
                 }
             }
+
             @Override
             protected Long process() throws RdosDefineException {
                 DataSourceVO dataSourceVO = new DataSourceParam2SourceVOConverter().convert(addDataSourceParam);
@@ -172,13 +174,14 @@ public class DatasourceAddController {
                 String principal = (String) dataSourceJson.get("principal");
                 Asserts.hasText(principal, "kerberos principle不能为空!");
             }
+
             @Override
             protected Long process() throws RdosDefineException {
                 Pair<String, String> resource = (Pair<String, String>) params.get("resource");
                 params.remove(RESOURCE);
                 DataSourceVO dataSourceVo = PublicUtil.mapToObject(params, DataSourceVO.class);
                 if (dataSourceVo == null ||
-                        StringUtils.isBlank(dataSourceVo.getDataName())){
+                        StringUtils.isBlank(dataSourceVo.getDataName())) {
                     throw new PubSvcDefineException("dataSource name empty");
                 }
                 params.put(RESOURCE, resource);
@@ -227,14 +230,14 @@ public class DatasourceAddController {
         return new APITemplate<Set<JSONObject>>() {
             @Override
             protected void checkParams() throws IllegalArgumentException {
-                if(Objects.isNull(vo.getTableName())){
+                if (CollectionUtils.isEmpty(vo.getTableName())) {
                     throw new RdosDefineException("table can not be null");
                 }
             }
 
             @Override
             protected Set<JSONObject> process() {
-                return datasourceService.columnForSyncopate(vo.getSourceId(), vo.getTableName(), vo.getSchema());
+                return datasourceService.columnForSyncopate(vo.getSourceId(), vo.getTableName().get(0), vo.getSchema());
             }
         }.execute();
     }
@@ -256,7 +259,7 @@ public class DatasourceAddController {
         return new APITemplate<JSONObject>() {
             @Override
             protected JSONObject process() {
-                return datasourceService.preview(vo.getSourceId(), vo.getTableName(),vo.getSchema());
+                return datasourceService.preview(vo.getSourceId(), vo.getTableName(), vo.getSchema());
             }
         }.execute();
     }

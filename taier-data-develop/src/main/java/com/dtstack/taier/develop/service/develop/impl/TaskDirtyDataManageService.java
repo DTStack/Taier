@@ -5,26 +5,24 @@ import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.dtstack.taier.datasource.api.base.ClientCache;
-import com.dtstack.taier.datasource.api.client.IClient;
-import com.dtstack.taier.datasource.api.dto.SqlQueryDTO;
-import com.dtstack.taier.datasource.api.dto.source.ISourceDTO;
+import com.dtstack.taier.common.constant.CommonConstant;
 import com.dtstack.taier.common.enums.Deleted;
 import com.dtstack.taier.common.enums.EScheduleJobType;
 import com.dtstack.taier.common.exception.RdosDefineException;
 import com.dtstack.taier.dao.domain.DsInfo;
 import com.dtstack.taier.dao.domain.TaskDirtyDataManage;
-import com.dtstack.taier.develop.datasource.convert.load.SourceLoaderService;
 import com.dtstack.taier.dao.mapper.TaskDirtyDataManageMapper;
+import com.dtstack.taier.datasource.api.base.ClientCache;
+import com.dtstack.taier.datasource.api.client.IClient;
+import com.dtstack.taier.datasource.api.dto.SqlQueryDTO;
+import com.dtstack.taier.datasource.api.dto.source.ISourceDTO;
+import com.dtstack.taier.develop.datasource.convert.load.SourceLoaderService;
 import com.dtstack.taier.develop.enums.develop.TaskDirtyDataManageParamEnum;
 import com.dtstack.taier.develop.enums.develop.TaskDirtyOutPutTypeEnum;
 import com.dtstack.taier.develop.mapstruct.vo.TaskDirtyDataManageTransfer;
-import com.dtstack.taier.develop.service.datasource.impl.DatasourceService;
 import com.dtstack.taier.develop.service.datasource.impl.DsInfoService;
 import com.dtstack.taier.develop.vo.develop.query.TaskDirtyDataManageVO;
 import org.apache.commons.lang.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -38,18 +36,13 @@ import java.util.Objects;
  * @Date: 2022/06/14/2:52 PM
  */
 @Service
-public class TaskDirtyDataManageService extends ServiceImpl<TaskDirtyDataManageMapper, TaskDirtyDataManage> implements TaskDirtyDataManageIService<TaskDirtyDataManage>{
-
-    private static final Logger logger = LoggerFactory.getLogger(TaskDirtyDataManageService.class);
+public class TaskDirtyDataManageService extends ServiceImpl<TaskDirtyDataManageMapper, TaskDirtyDataManage> implements TaskDirtyDataManageIService<TaskDirtyDataManage> {
 
     @Autowired
     private TaskDirtyDataManageIService taskDirtyDataIService;
 
     @Autowired
     private DsInfoService dsInfoService;
-
-    @Autowired
-    private DatasourceService datasourceService;
 
     @Autowired
     private SourceLoaderService sourceLoaderService;
@@ -76,8 +69,8 @@ public class TaskDirtyDataManageService extends ServiceImpl<TaskDirtyDataManageM
      * 添加或修改任务脏数据管理
      *
      * @param vo
-     * @param tenantId        租户 id
-     * @param taskId          任务 id
+     * @param tenantId 租户 id
+     * @param taskId   任务 id
      */
     public void addOrUpdateDirtyDataManage(TaskDirtyDataManageVO vo, Long tenantId, Long taskId) {
         // 先删除原有的脏数据管理
@@ -87,7 +80,7 @@ public class TaskDirtyDataManageService extends ServiceImpl<TaskDirtyDataManageM
         taskDirtyDataManage.setTenantId(tenantId);
         taskDirtyDataManage.setGmtCreate(new Timestamp(System.currentTimeMillis()));
         taskDirtyDataManage.setGmtModified(new Timestamp(System.currentTimeMillis()));
-        if(Objects.equals(TaskDirtyOutPutTypeEnum.LOG.getValue(),taskDirtyDataManage.getOutputType())){
+        if (Objects.equals(TaskDirtyOutPutTypeEnum.LOG.getValue(), taskDirtyDataManage.getOutputType())) {
             taskDirtyDataManage.setLinkInfo("{}");
         }
         taskDirtyDataIService.save(taskDirtyDataManage);
@@ -103,15 +96,18 @@ public class TaskDirtyDataManageService extends ServiceImpl<TaskDirtyDataManageM
                 confProp.put(TaskDirtyDataManageParamEnum.MAX_ROWS.getParam(), byTaskId.getMaxRows());
                 confProp.put(TaskDirtyDataManageParamEnum.MAX_COLLECT_FAILED_ROWS.getParam(), byTaskId.getMaxCollectFailedRows());
                 confProp.put(TaskDirtyDataManageParamEnum.LOG_PRINT_INTERVAL.getParam(), byTaskId.getLogPrintInterval());
+
                 if (Objects.equals(byTaskId.getOutputType(), "jdbc")) {
                     JSONObject dirtyDataJSON = JSONObject.parseObject(byTaskId.getLinkInfo());
                     Long srcId = Long.parseLong(dirtyDataJSON.getString("sourceId"));
+                    confProp.put(CommonConstant.DATASOURCE_ID, srcId);
                     DsInfo dsInfo = dsInfoService.getOneById(srcId);
                     JSONObject dataJson = JSON.parseObject(dsInfo.getDataJson());
                     confProp.put(TaskDirtyDataManageParamEnum.URL.getParam(), dataJson.getString("jdbcUrl"));
                     confProp.put(TaskDirtyDataManageParamEnum.USERNAME.getParam(), dataJson.getString("username"));
                     confProp.put(TaskDirtyDataManageParamEnum.PASSWORD.getParam(), dataJson.getString("password"));
                     String table = dirtyDataJSON.getString(TaskDirtyDataManageParamEnum.TABLE.name().toLowerCase());
+                    confProp.put(CommonConstant.DATASOURCE_TYPE, dsInfo.getDataTypeCode());
                     if (StringUtils.isNotBlank(table)) {
                         confProp.put(TaskDirtyDataManageParamEnum.TABLE.getParam(), table);
                     } else {
@@ -156,14 +152,7 @@ public class TaskDirtyDataManageService extends ServiceImpl<TaskDirtyDataManageM
      */
     private boolean checkDirtyTableExist(ISourceDTO sourceDTO) {
         IClient client = ClientCache.getClient(sourceDTO.getSourceType());
-        try {
-            client.getTable(sourceDTO, SqlQueryDTO.builder().tableName(TaskDirtyDataManageParamEnum.TABLE.getDefaultValue()).build());
-        } catch (Exception e) {
-            if (e.getMessage().contains("doesn't exist")) {
-                return false;
-            }
-            throw new RdosDefineException("创建脏数据表失败", e);
-        }
-        return true;
+        String currentDatabase = client.getCurrentDatabase(sourceDTO);
+        return client.isTableExistsInDatabase(sourceDTO, TaskDirtyDataManageParamEnum.TABLE.getDefaultValue(), currentDatabase);
     }
 }
