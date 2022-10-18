@@ -69,7 +69,11 @@ import java.io.ByteArrayInputStream;
 import java.net.URLEncoder;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Properties;
 
 /**
  * @author yuebai
@@ -174,19 +178,18 @@ public class SyncOperatorPipeline extends IPipeline.AbstractPipeline {
         //替换系统参数
         job = JobParamReplace.paramReplace(job, taskParamsToReplace, scheduleJob.getCycTime());
 
-        Integer sourceType = (Integer) actionParam.getOrDefault("dataSourceType", DataSourceType.HIVE.getVal());
-        //有可能 mysql-kudu 脏数据表是hive 用以区分数据同步目标表类型 还是脏数据表类型
-        Integer dirtyDataSourceType = (Integer) actionParam.getOrDefault("dirtyDataSourceType", DataSourceType.HIVE.getVal());
-        String engineIdentity = (String) actionParam.get("engineIdentity");
-
-        // 获取脏数据存储路径
-        try {
-            job = replaceTablePath(true, job, taskShade.getName(), dirtyDataSourceType, engineIdentity, taskShade.getTenantId());
-        } catch (Exception e) {
-            LOGGER.error("create dirty table  partition error {}", scheduleJob.getJobId(), e);
+        if (actionParam.containsKey(CONF_PROPERTIES)) {
+            // 获取脏数据存储路径
+            try {
+                JSONObject confObj = JSONObject.parseObject((String) actionParam.get(CONF_PROPERTIES));
+                job = replaceTablePath(true, job, taskShade.getName(), confObj);
+            } catch (Exception e) {
+                LOGGER.error("create dirty table  partition error {}", scheduleJob.getJobId(), e);
+            }
         }
 
         try {
+            Integer sourceType = (Integer) actionParam.get("sourceType");
             // 创建数据同步目标表分区
             job = createPartition(taskShade.getTenantId(), job, sourceType);
         } catch (Exception e) {
@@ -211,55 +214,62 @@ public class SyncOperatorPipeline extends IPipeline.AbstractPipeline {
      * @param saveDirty
      * @param sqlText
      * @param taskName
-     * @param sourceType
      * @return
      * @throws Exception
      */
-    public String replaceTablePath(boolean saveDirty, String sqlText, String taskName, Integer sourceType, String db, Long dirtyDatasourceId) throws Exception {
-        if (StringUtils.isBlank(db)) {
+    public String replaceTablePath(boolean saveDirty, String sqlText, String taskName, JSONObject confObj) {
+        if (MapUtils.isEmpty(confObj)) {
+            return sqlText;
+        }
+        Integer dirtySourceType = confObj.getInteger(CommonConstant.DATASOURCE_TYPE);
+        Long dirtyDatasourceId = confObj.getLong(CommonConstant.DATASOURCE_ID);
+        //需要建分区
+        if (!DataSourceType.hadoopDirtyDataSource.contains(dirtySourceType)) {
             return sqlText;
         }
         JSONObject sqlObject = JSONObject.parseObject(sqlText);
         JSONObject job = sqlObject.getJSONObject("job");
         JSONObject setting = job.getJSONObject("setting");
 
-        if (setting.containsKey("dirty")) {
-
-            if (!saveDirty) {
-                setting.remove("dirty");
-                return sqlObject.toJSONString();
-            }
-
-            JSONObject dirty = setting.getJSONObject("dirty");
-            String tableName = dirty.getString("tableName");
-            String path = null;
-
-            if (StringUtils.isNotEmpty(tableName)) {
-                //任务提交到task 之前 脏数据表 必须要创建
-                if (!tableName.contains(".")) {
-                    tableName = String.format("%s.%s", db, tableName);
-                }
-                Long time = Timestamp.valueOf(LocalDateTime.now()).getTime();
-                String alterSql = String.format(ADD_PART_TEMP, tableName, taskName, time);
-                String location = "";
-                if (DataSourceType.hadoopDirtyDataSource.contains(sourceType)) {
-                    ISourceDTO sourceDTO = sourceDTOLoader.buildSourceDTO(dirtyDatasourceId);
-                    IClient client = ClientCache.getClient(sourceType);
-                    client.executeQuery(sourceDTO, SqlQueryDTO.builder().sql(alterSql).schema(db).build());
-                    location = this.getTableLocation(client, sourceDTO, db, String.format("desc formatted %s", tableName));
-                }
-                if (StringUtils.isBlank(location)) {
-                    LOGGER.warn("table {} replace dirty path is null,dirtyType {} ", tableName, sourceType);
-                }
-                String partName = String.format("task_name=%s/time=%s", taskName, time);
-                path = location + "/" + partName;
-
-                dirty.put("path", path);
-                setting.put("dirty", dirty);
-                job.put("setting", setting);
-                sqlObject.put("job", job);
-            }
+        if (!setting.containsKey("dirty")) {
+            return sqlText;
         }
+
+        if (!saveDirty) {
+            setting.remove("dirty");
+            return sqlObject.toJSONString();
+        }
+
+        JSONObject dirty = setting.getJSONObject("dirty");
+        String tableName = dirty.getString("tableName");
+        String path = null;
+
+        if (StringUtils.isBlank(tableName)) {
+            return sqlObject.toJSONString();
+        }
+        ISourceDTO sourceDTO = sourceDTOLoader.buildSourceDTO(dirtyDatasourceId);
+        IClient client = ClientCache.getClient(sourceDTO.getSourceType());
+        String db = client.getCurrentDatabase(sourceDTO);
+        //任务提交到task 之前 脏数据表 已经创建
+        if (!tableName.contains(".")) {
+            tableName = String.format("%s.%s", db, tableName);
+        }
+        Long time = Timestamp.valueOf(LocalDateTime.now()).getTime();
+        String alterSql = String.format(ADD_PART_TEMP, tableName, taskName, time);
+
+
+        client.executeQuery(sourceDTO, SqlQueryDTO.builder().sql(alterSql).schema(db).build());
+        String location = this.getTableLocation(client, sourceDTO, db, String.format("desc formatted %s", tableName));
+        if (StringUtils.isBlank(location)) {
+            LOGGER.warn("table {} replace dirty path is null,dirtyType {} ", tableName, dirtySourceType);
+        }
+        String partName = String.format("task_name=%s/time=%s", taskName, time);
+        path = location + "/" + partName;
+
+        dirty.put("path", path);
+        setting.put("dirty", dirty);
+        job.put("setting", setting);
+        sqlObject.put("job", job);
         return sqlObject.toJSONString();
     }
 

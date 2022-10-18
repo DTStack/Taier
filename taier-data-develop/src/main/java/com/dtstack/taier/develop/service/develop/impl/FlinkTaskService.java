@@ -561,7 +561,7 @@ public class FlinkTaskService {
                     }
                 }
                 //任务状态为null 设置为未提交状态
-                vo.setStatus(status != null ? status : TaskStatus.UNSUBMIT.getStatus());
+                vo.setStatus(TaskStatus.getShowStatus(status != null ? status : TaskStatus.UNSUBMIT.getStatus()));
 
                 if (CollectionUtils.isEmpty(taskSearchVO.getStatusList()) || taskSearchVO.getStatusList().contains(vo.getStatus())) {
                     vo.setSubmitModified(task.getGmtModified());
