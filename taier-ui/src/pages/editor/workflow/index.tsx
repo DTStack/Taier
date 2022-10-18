@@ -457,7 +457,7 @@ function Workflow({ current }: molecule.model.IEditor) {
 							const stack = [...rootTaskList];
 
 							while (stack.length) {
-								const taskId = stack.pop()!;
+								const taskId = stack.shift()!;
 
 								const task = tasks.find(
 									(t) => t.id.toString() === taskId.toString(),
@@ -466,13 +466,22 @@ function Workflow({ current }: molecule.model.IEditor) {
 								if (task) {
 									const node = { ...task, childNode: [], [isEditing]: false };
 
-									const parentTaskId: number | undefined = nodeMap[node.id]?.[0];
-									// 根节点添加的时候，childrenNodeReference 上不存在对象缓存
-									const referenceHandler =
-										childrenNodeReference[parentTaskId]?.childNode ||
-										nextGraphData;
+									//  获取 parent 节点的 id 集合
+									const parentTaskIds: number[] = nodeMap[node.id] || [];
 
-									referenceHandler.push(node);
+									if (parentTaskIds.length) {
+										parentTaskIds.forEach((parentTaskId) => {
+											// 根节点添加的时候，childrenNodeReference 上不存在对象缓存
+											const referenceHandler =
+												childrenNodeReference[parentTaskId]?.childNode ||
+												nextGraphData;
+
+											referenceHandler.push(node);
+										});
+									} else {
+										// 根节点不存在 parent 节点
+										nextGraphData.push(node);
+									}
 
 									childrenNodeReference[node.id] = node;
 
@@ -480,7 +489,11 @@ function Workflow({ current }: molecule.model.IEditor) {
 										return nodeMap[key].includes(Number(taskId));
 									});
 
-									stack.push(...depsTaskIds);
+									depsTaskIds.forEach((id) => {
+										if (!stack.includes(id)) {
+											stack.push(id);
+										}
+									});
 								}
 							}
 						}

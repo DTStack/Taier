@@ -645,21 +645,19 @@ class TaskSaveService extends GlobalEvent {
 					}>(data.id.toString()).cells;
 				}
 
-				const nodeMap = cells.reduce((pre, cur, _, thisArr) => {
-					// 存在 vertex 并且该 vertex 是某条 edge 的 target
-					if (cur.vertex) {
-						const edge = thisArr.find(
-							(cell) => cell.edge && cell.target.value.id === cur.value.id,
-						);
-						if (edge) {
-							return { ...pre, [edge.target.value.id]: [edge.source.value.id] };
-						}
+				const nodeMap = cells.reduce<Record<number, number[]>>((pre, cur) => {
+					if (cur.edge) {
+						const { source, target } = cur;
+						pre[target.value.id] = pre[target.value.id] ?? [];
+						pre[target.value.id].push(source.value.id);
+					}
 
-						return { ...pre, [cur.value.id]: [] };
+					if (cur.vertex && !pre[cur.value.id]) {
+						pre[cur.value.id] = [];
 					}
 
 					return pre;
-				}, {} as Record<number, number[]>);
+				}, {});
 
 				const res = await api.addOfflineTask({ ...data, nodeMap });
 
