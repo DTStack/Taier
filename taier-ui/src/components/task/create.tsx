@@ -137,8 +137,11 @@ const Create = connect(
 												});
 											} catch {}
 										} else {
+											const mapping: Record<string, string> = {
+												datasource: 'datasourceId',
+											};
 											form.setFieldsValue({
-												[field]: res.data[field],
+												[mapping[field]]: res.data[mapping[field]],
 											});
 										}
 									});

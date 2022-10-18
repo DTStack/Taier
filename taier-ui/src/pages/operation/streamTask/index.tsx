@@ -410,6 +410,7 @@ export default function StreamTask() {
 					</Space>
 				);
 			case TASK_STATUS.RUNNING:
+			case TASK_STATUS.TASK_STATUS_NOT_FOUND:
 			case TASK_STATUS.WAIT_RUN:
 			case TASK_STATUS.WAIT_COMPUTE:
 			case TASK_STATUS.SUBMITTING:
