@@ -733,33 +733,48 @@ function MxGraphContainer<T extends IMxGraphData>(
 			}));
 
 			while (stack.length) {
-				const { sourceOrTarget, data } = stack.pop()!;
+				const { sourceOrTarget, data } = stack.shift()!;
 				const style = onDrawVertex?.(data);
 
-				const vertex = graph.current!.insertVertex(
-					graph.current!.getDefaultParent(),
-					data[vertexKey],
-					data,
-					0,
-					0,
-					vertexSize?.width || MxFactory.VertexSize.width,
-					vertexSize?.height || MxFactory.VertexSize.height,
-					style,
-				);
+				const cell = graph
+					.current!.getModel()
+					.getChildCells(graph.current!.getDefaultParent(), true)
+					.find((i) => i.id === `vertex-${data[vertexKey]}`);
+
+				const vertex =
+					cell ||
+					graph.current!.insertVertex(
+						graph.current!.getDefaultParent(),
+						`vertex-${data[vertexKey]}`,
+						data,
+						0,
+						0,
+						vertexSize?.width || MxFactory.VertexSize.width,
+						vertexSize?.height || MxFactory.VertexSize.height,
+						style,
+					);
 
 				if (sourceOrTarget) {
 					// 判断 sourceOrTarget 存放的 vertex 是 source 还是 target
 					const isSource = !!sourceOrTarget.value?.childNode?.find(
 						(i: T) => i[vertexKey] === data[vertexKey],
 					);
-					graph.current!.insertEdge(
-						graph.current!.getDefaultParent(),
-						null,
-						null,
-						isSource ? sourceOrTarget : vertex,
-						isSource ? vertex : sourceOrTarget,
-						undefined,
+					const isAlreadyLined = vertex.edges?.find(
+						(edge) =>
+							edge[isSource ? 'source' : 'target'].id === sourceOrTarget.id &&
+							edge[isSource ? 'target' : 'source'].id === vertex.id,
 					);
+
+					if (!isAlreadyLined) {
+						graph.current!.insertEdge(
+							graph.current!.getDefaultParent(),
+							null,
+							null,
+							isSource ? sourceOrTarget : vertex,
+							isSource ? vertex : sourceOrTarget,
+							undefined,
+						);
+					}
 				} else {
 					graph.current?.setSelectionCell(vertex);
 				}
