@@ -6,13 +6,16 @@ import api from '@/api';
 import { DATA_SOURCE_ENUM, TASK_TYPE_ENUM } from '@/constant';
 import type { FormInstance } from 'antd';
 import {
+	ClickhouseIcon,
 	DataCollectionIcon,
+	DorisIcon,
 	FlinkIcon,
 	FlinkSQLIcon,
 	HiveSQLIcon,
 	OceanBaseIcon,
 	PythonIcon,
 	ShellIcon,
+	SparkIcon,
 	SparkSQLIcon,
 	VirtualIcon,
 	WorkflowIcon,
@@ -209,6 +212,12 @@ export default class TaskRenderService extends Component<ITaskRenderState> {
 				return <PythonIcon />;
 			case TASK_TYPE_ENUM.SHELL:
 				return <ShellIcon />;
+			case TASK_TYPE_ENUM.CLICKHOUSE:
+				return <ClickhouseIcon />;
+			case TASK_TYPE_ENUM.SPARK:
+				return <SparkIcon />;
+			case TASK_TYPE_ENUM.DORIS:
+				return <DorisIcon />;
 			default:
 				return 'file';
 		}

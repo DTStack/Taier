@@ -229,6 +229,9 @@ export enum TASK_TYPE_ENUM {
 	 * SparkSQL
 	 */
 	SPARK_SQL = 0,
+	/**
+	 * SparkJar
+	 */
 	SPARK = 1,
 	SYNC = 2,
 	/**
@@ -245,10 +248,14 @@ export enum TASK_TYPE_ENUM {
 	 * 工作流
 	 */
 	WORK_FLOW = 10,
+	/**
+	 * FlinkJar
+	 */
 	FLINK = 11,
 	PYTHON = 12,
 	SHELL = 13,
-	CLICKHOUSE = 26
+	CLICKHOUSE = 14,
+	DORIS = 15,
 }
 
 /**
@@ -1279,7 +1286,7 @@ export enum TASK_LANGUAGE {
 	SQL = 'sql',
 	JSON = 'json',
 	PYTHON = 'python',
-	SHELL = 'shell'
+	SHELL = 'shell',
 }
 
 /**
