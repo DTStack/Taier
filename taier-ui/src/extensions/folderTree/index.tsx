@@ -31,6 +31,7 @@ import { CATALOGUE_TYPE, TASK_TYPE_ENUM, ID_COLLECTIONS } from '@/constant';
 import { IComputeType } from '@/interface';
 import { taskRenderService, breadcrumbService, catalogueService } from '@/services';
 import notification from '@/components/notification';
+import taskSaveService from '@/services/taskSaveService';
 
 /**
  * 	实时采集和FlinkSql任务的computeType返回0
@@ -248,54 +249,6 @@ function editTreeNodeName() {
 	});
 }
 
-const onAfterSubmit = (props: {
-	beforeParentId: number;
-	afterParentId: number;
-	taskId: number;
-	nextName: string;
-	editTabId: string;
-}) => {
-	const { beforeParentId, afterParentId, taskId, nextName, editTabId } = props;
-	// 等待更新的文件夹目录
-	const pendingUpdateFolderId = new Set([
-		// 当前节点变更之前所在的文件夹
-		beforeParentId,
-		// 当前节点变更后所在的文件夹
-		afterParentId,
-	]);
-
-	// 1. Update these two folders' children
-	Promise.all(
-		Array.from(pendingUpdateFolderId).map((id) => {
-			const folderNode = molecule.folderTree.get(`${id}-folder`);
-			if (folderNode) {
-				return catalogueService.loadTreeNode(
-					{
-						id: folderNode.data?.id,
-						catalogueType: folderNode.data?.catalogueType,
-					},
-					CATALOGUE_TYPE.TASK,
-				);
-			}
-			return Promise.resolve();
-		}),
-	);
-
-	// 2. Ensure update the opened tab
-	const isOpened = molecule.editor.isOpened(taskId.toString());
-	if (isOpened) {
-		molecule.editor.updateTab({
-			id: taskId.toString(),
-			name: nextName,
-			breadcrumb: breadcrumbService.getBreadcrumb(taskId),
-		});
-	}
-
-	// 3. Close edit tab
-	const groupId = molecule.editor.getGroupIdByTab(editTabId)!;
-	molecule.editor.closeTab(editTabId, groupId);
-};
-
 function onSelectFile() {
 	molecule.folderTree.onSelectFile((file) => {
 		molecule.folderTree.setActive(file.id);
@@ -371,13 +324,13 @@ function contextMenu() {
 							.then((res) => {
 								if (res.code === 1) {
 									message.success('编辑成功');
-									onAfterSubmit({
-										beforeParentId: treeNode!.data.parentId,
-										afterParentId: params.catalogueId,
-										taskId: params.taskId,
-										nextName: params.name,
-										editTabId: tabId,
-									});
+									taskSaveService.updateFolderAndTabAfterSave(
+										treeNode!.data.parentId,
+										params.catalogueId,
+										params.taskId,
+										params.name,
+										tabId,
+									);
 								}
 							})
 							.finally(() => {
@@ -397,13 +350,13 @@ function contextMenu() {
 							.then((res) => {
 								if (res.code === 1) {
 									message.success('编辑成功');
-									onAfterSubmit({
-										beforeParentId: treeNode!.data.parentId,
-										afterParentId: params.nodePid,
-										nextName: params.nodeName,
-										taskId: params.id,
-										editTabId: tabId,
-									});
+									taskSaveService.updateFolderAndTabAfterSave(
+										treeNode!.data.parentId,
+										params.nodePid,
+										params.nodeName,
+										params.id,
+										tabId,
+									);
 								}
 							})
 							.finally(() => {
