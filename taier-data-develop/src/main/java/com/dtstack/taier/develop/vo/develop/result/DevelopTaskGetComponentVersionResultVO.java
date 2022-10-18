@@ -27,6 +27,9 @@ public class DevelopTaskGetComponentVersionResultVO {
     @ApiModelProperty(value = "版本号", example = "1.10")
     private String componentVersion;
 
+    @ApiModelProperty(value = "组件名称", example = "Flink")
+    private String componentName;
+
     @ApiModelProperty(value = "是否默认版本", example = "true")
     private Boolean isDefault;
 
@@ -44,5 +47,13 @@ public class DevelopTaskGetComponentVersionResultVO {
 
     public void setDefault(Boolean aDefault) {
         isDefault = aDefault;
+    }
+
+    public String getComponentName() {
+        return componentName;
+    }
+
+    public void setComponentName(String componentName) {
+        this.componentName = componentName;
     }
 }

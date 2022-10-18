@@ -114,6 +114,7 @@
     <select id="getComponentVersionByEngineType" resultType="com.dtstack.taier.dao.domain.Component">
         SELECT sd.dict_name as versionName,
                cc.gmt_create,
+               cc.component_name,
                cc.is_default
         FROM console_component cc
                  INNER JOIN console_cluster_tenant cct ON cc.cluster_id = cct.cluster_id
