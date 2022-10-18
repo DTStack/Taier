@@ -6,6 +6,7 @@ import { IComputeType } from '@/interface';
 import type { Rules, RuleType, ValidateError } from 'async-validator';
 import ValidSchema from 'async-validator';
 import {
+	CATALOGUE_TYPE,
 	CREATE_MODEL_TYPE,
 	DATA_SOURCE_ENUM,
 	FLINK_VERSIONS,
@@ -17,7 +18,7 @@ import {
 import { cloneDeep } from 'lodash';
 import api from '@/api';
 import { message } from 'antd';
-import { rightBarService } from '.';
+import { breadcrumbService, catalogueService, rightBarService } from '.';
 import {
 	isAvro,
 	isHavePartition,
@@ -672,8 +673,16 @@ class TaskSaveService extends GlobalEvent {
 				return Promise.reject();
 			}
 			case TASK_TYPE_ENUM.FLINK: {
-				const { id, name, mainClass, componentVersion, exeArgs, nodePid, resourceIdList } =
-					data;
+				const {
+					id,
+					name,
+					mainClass,
+					componentVersion,
+					exeArgs,
+					nodePid,
+					resourceIdList,
+					taskDesc,
+				} = data;
 
 				const res = await api.addOfflineTask({
 					id,
@@ -684,12 +693,19 @@ class TaskSaveService extends GlobalEvent {
 					componentVersion,
 					nodePid,
 					taskType,
+					taskDesc,
 					updateSource: false,
 					preSave: false,
 				});
 
 				if (res.code === 1) {
 					message.success('保存成功！');
+					this.updateFolderAndTabAfterSave(
+						molecule.folderTree.get(id)?.data.parentId,
+						nodePid,
+						id,
+						name,
+					);
 					this.emit(SaveEventKind.onSaveTask, res.data);
 					return res;
 				}
@@ -789,6 +805,58 @@ class TaskSaveService extends GlobalEvent {
 
 		return res;
 	};
+
+	/**
+	 * Call it after saving, this function would check the update of folder and tab
+	 */
+	public async updateFolderAndTabAfterSave(
+		beforeParentId: number,
+		afterParentId: number,
+		taskId: number,
+		nextName: string,
+		editTabId?: string,
+	) {
+		// 等待更新的文件夹目录
+		const pendingUpdateFolderId = new Set([
+			// 当前节点变更之前所在的文件夹
+			beforeParentId,
+			// 当前节点变更后所在的文件夹
+			afterParentId,
+		]);
+
+		// 1. Update these two folders' children
+		await Promise.all(
+			Array.from(pendingUpdateFolderId).map((id) => {
+				const folderNode = molecule.folderTree.get(`${id}-folder`);
+				if (folderNode) {
+					return catalogueService.loadTreeNode(
+						{
+							id: folderNode.data?.id,
+							catalogueType: folderNode.data?.catalogueType,
+						},
+						CATALOGUE_TYPE.TASK,
+					);
+				}
+				return Promise.resolve();
+			}),
+		);
+
+		// 2. Ensure update the opened tab
+		const isOpened = molecule.editor.isOpened(taskId.toString());
+		if (isOpened) {
+			molecule.editor.updateTab({
+				id: taskId.toString(),
+				name: nextName,
+				breadcrumb: breadcrumbService.getBreadcrumb(taskId),
+			});
+		}
+
+		// 3. Close edit tab
+		if (editTabId) {
+			const groupId = molecule.editor.getGroupIdByTab(editTabId)!;
+			molecule.editor.closeTab(editTabId, groupId);
+		}
+	}
 
 	/**
 	 * 保存任务成功的回调函数
