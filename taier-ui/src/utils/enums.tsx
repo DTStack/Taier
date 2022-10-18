@@ -368,6 +368,8 @@ export function resourceNameMapping(type?: RESOURCE_TYPE) {
 export function mappingTaskTypeToLanguage(taskType: TASK_TYPE_ENUM) {
 	switch (taskType) {
 		case TASK_TYPE_ENUM.SPARK_SQL:
+		case TASK_TYPE_ENUM.DORIS:
+		case TASK_TYPE_ENUM.CLICKHOUSE:
 			return TASK_LANGUAGE.SPARKSQL;
 		case TASK_TYPE_ENUM.HIVE_SQL:
 			return TASK_LANGUAGE.HIVESQL;
