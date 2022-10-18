@@ -1,20 +1,14 @@
-import {
-	CATALOGUE_TYPE,
-	CREATE_MODEL_TYPE,
-	DATA_SYNC_MODE,
-	FLINK_VERSIONS,
-	FLINK_VERSION_TYPE,
-	PythonVersionKind,
-} from '@/constant';
+import { useEffect, useState } from 'react';
+import { usePrevious } from 'react-use';
+import { CATALOGUE_TYPE, CREATE_MODEL_TYPE, DATA_SYNC_MODE, PythonVersionKind } from '@/constant';
 import { Button, Empty, Form, Input, Radio, Select, Spin } from 'antd';
 import { syncModeHelp, syncTaskHelp } from '../helpDoc/docs';
 import FolderPicker from '../folderPicker';
 import resourceManagerTree from '@/services/resourceManagerService';
 import { dataSourceService, taskRenderService } from '@/services';
-import { useEffect, useState } from 'react';
-import { IDataSourceProps } from '@/interface';
 import molecule from '@dtinsight/molecule';
 import api from '@/api';
+import type { IDataSourceProps } from '@/interface';
 
 interface ICreateFormProps {
 	disabled?: boolean;
@@ -70,17 +64,49 @@ const SyncModel = ({ disabled }: ICreateFormProps) => (
 /**
  * 引擎版本物料
  */
-const ComponentVersion = ({ onChange }: ICreateFormProps) => (
-	<Form.Item label="引擎版本" name="componentVersion" initialValue={FLINK_VERSIONS.FLINK_1_12}>
-		<Select onChange={onChange}>
-			{FLINK_VERSION_TYPE.map(({ value, label }) => (
-				<Select.Option key={value} value={value}>
-					{label}
-				</Select.Option>
-			))}
-		</Select>
-	</Form.Item>
-);
+const ComponentVersion = ({ onChange }: ICreateFormProps) => {
+	const form = Form.useFormInstance();
+	const taskType = Form.useWatch('taskType');
+	const prevTaskType = usePrevious(taskType);
+	const [versions, setVersions] = useState<{ label: string; value: string }[]>([]);
+
+	useEffect(() => {
+		if (taskType) {
+			api.getComponentVersionByTaskType<
+				{ componentVersion: string; default: boolean; componentName: string }[]
+			>({
+				taskType,
+			}).then((res) => {
+				if (res.code === 1) {
+					setVersions(
+						res.data?.map((v) => ({
+							label: v.componentName,
+							value: v.componentVersion,
+						})) || [],
+					);
+
+					const currentComponentVersion = form.getFieldValue('componentVersion');
+					if (
+						!currentComponentVersion ||
+						!res.data.find((v) => v.componentVersion === currentComponentVersion)
+					) {
+						// reset initial value
+						form.setFieldValue(
+							'componentVersion',
+							res.data.find((v) => v.default)?.componentVersion,
+						);
+					}
+				}
+			});
+		}
+	}, [taskType, prevTaskType]);
+
+	return (
+		<Form.Item label="引擎版本" name="componentVersion">
+			<Select onChange={onChange} showSearch options={versions} optionFilterProp="label" />
+		</Form.Item>
+	);
+};
 
 /**
  * 资源下拉菜单物料
@@ -178,6 +204,7 @@ const PythonVersion = ({ disabled }: ICreateFormProps) => (
 const DataSource = () => {
 	const form = Form.useFormInstance();
 	const taskType = Form.useWatch('taskType');
+	const prevTaskType = usePrevious(taskType);
 	const [dataSource, setDataSource] = useState<IDataSourceProps[]>([]);
 
 	const handleGotoSourceCenter = () => {
@@ -199,10 +226,10 @@ const DataSource = () => {
 	}, []);
 
 	useEffect(() => {
-		if (taskType !== undefined) {
+		if (taskType !== prevTaskType && prevTaskType !== undefined) {
 			form.resetFields(['datasourceId']);
 		}
-	}, [taskType]);
+	}, [taskType, prevTaskType]);
 
 	return (
 		<Form.Item label="数据源" name="datasourceId" required>

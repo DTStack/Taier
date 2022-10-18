@@ -562,4 +562,7 @@ export default {
 	getAllDataSource(params: any) {
 		return http.post(req.GET_ALL_DATA_SOURCE, params);
 	},
+	getComponentVersionByTaskType<T = any>(params: any) {
+		return http.post<T>(req.GET_COMPONENT_VERSION, params);
+	},
 };
