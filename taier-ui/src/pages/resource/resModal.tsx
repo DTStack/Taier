@@ -133,11 +133,7 @@ export default function ResModal({
 	 * @description 检查所选是否为文件夹
 	 */
 	const checkNotDir = (_: any, value: number) => {
-		const node = resourceManagerTree.get(value);
-		if (node) {
-			return Promise.resolve();
-		}
-		return Promise.reject(new Error('请选择具体文件, 而非文件夹'));
+		return resourceManagerTree.checkNotDir(value);
 	};
 
 	const validateFileType = (_: any, value: RcFile) => {
