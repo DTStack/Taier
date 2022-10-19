@@ -87,27 +87,7 @@ export default function FnModal({
 	};
 
 	const checkNotDir = (_: any, value: number) => {
-		const resouceTreeData = resourceManagerTree.getState().folderTree?.data?.[0]?.data;
-		if (!resouceTreeData) return Promise.resolve();
-		let nodeType: any;
-
-		const loop = (arr: any) => {
-			arr.forEach((node: any) => {
-				if (node.id === value) {
-					nodeType = node.type;
-				} else {
-					loop(node.children || []);
-				}
-			});
-		};
-
-		loop([resouceTreeData]);
-
-		if (nodeType === 'folder') {
-			return Promise.reject(new Error('请选择具体文件, 而非文件夹'));
-		}
-
-		return Promise.resolve();
+		return resourceManagerTree.checkNotDir(value);
 	};
 
 	useEffect(() => {
