@@ -25,6 +25,7 @@ import { Icon } from '@dtinsight/molecule/esm/components';
 import type molecule from '@dtinsight/molecule';
 import type { CATALOGUE_TYPE } from '@/constant';
 import { fileIcon } from '@/utils/extensions';
+import { FileTypes } from '@dtinsight/molecule/esm/model';
 
 const { TreeNode } = TreeSelect;
 
@@ -75,8 +76,8 @@ export default function CustomTreeSelect(props: CustomTreeSelectProps) {
 	const generateTreeNodes = () => {
 		const loop = (data: molecule.model.IFolderTreeNodeProps) => {
 			const { createUser, id, name, type } = data?.data || {};
-			const isLeaf = type === 'file';
-			if (!showFile && type === 'file') return null;
+			const isLeaf = data.fileType === FileTypes.File;
+			if (!showFile && data.fileType === FileTypes.File) return null;
 			return (
 				<TreeNode
 					title={
