@@ -26,18 +26,12 @@ interface IPagination {
 
 export const usePagination = ({
 	current: initialCurrent = 1,
-	pageSize: initalPageSize = 20,
+	pageSize: initialPageSize = 20,
 	total: initialTotal = 0,
 }: IPagination) => {
 	const [current, setCurrent] = useState(initialCurrent);
-	const [pageSize, setPageSize] = useState(initalPageSize);
+	const [pageSize, setPageSize] = useState(initialPageSize);
 	const [total, setTotal] = useState(initialTotal);
-
-	// ensure get the lastest value inside async function
-	const pageInfoRef = useRef({ current, pageSize, total });
-	useEffect(() => {
-		pageInfoRef.current = { current, pageSize, total };
-	});
 
 	const setPagination = ({
 		current: c,
@@ -59,7 +53,12 @@ export const usePagination = ({
 		}
 	};
 
-	return { ...pageInfoRef.current, setPagination };
+	return {
+		current,
+		pageSize,
+		total,
+		setPagination,
+	};
 };
 
 export function useConstant<T>(val: T) {
