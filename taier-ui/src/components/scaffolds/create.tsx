@@ -232,7 +232,16 @@ const DataSource = () => {
 	}, [taskType, prevTaskType]);
 
 	return (
-		<Form.Item label="数据源" name="datasourceId" required>
+		<Form.Item
+			label="数据源"
+			name="datasourceId"
+			rules={[
+				{
+					required: true,
+					message: '请选择数据源',
+				},
+			]}
+		>
 			<Select
 				placeholder="请选择任务执行的对应数据源"
 				optionFilterProp="label"
