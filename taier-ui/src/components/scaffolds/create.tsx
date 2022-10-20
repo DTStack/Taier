@@ -103,7 +103,13 @@ const ComponentVersion = ({ onChange }: ICreateFormProps) => {
 
 	return (
 		<Form.Item label="引擎版本" name="componentVersion">
-			<Select onChange={onChange} showSearch options={versions} optionFilterProp="label" />
+			<Select
+				onChange={onChange}
+				showSearch
+				options={versions}
+				optionFilterProp="label"
+				getPopupContainer={(node) => node.parentNode}
+			/>
 		</Form.Item>
 	);
 };
@@ -215,6 +221,7 @@ const DataSource = () => {
 			<Select
 				placeholder="请选择任务执行的对应数据源"
 				optionFilterProp="label"
+				getPopupContainer={(node) => node.parentNode}
 				options={dataSource
 					.filter((source) =>
 						taskRenderService

@@ -241,6 +241,7 @@ const Create = connect(
 									placeholder="请选择任务类型"
 									disabled={!!record}
 									showSearch
+									getPopupContainer={(node) => node.parentNode}
 									optionFilterProp="label"
 									notFoundContent={<Empty image={Empty.PRESENTED_IMAGE_SIMPLE} />}
 									options={supportJobTypes.map((t) => ({
