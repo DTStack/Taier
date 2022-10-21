@@ -278,7 +278,7 @@ describe('enums', () => {
 		expect(mappingTaskTypeToLanguage(TASK_TYPE_ENUM.DATA_ACQUISITION)).toBe(TASK_LANGUAGE.JSON);
 		expect(mappingTaskTypeToLanguage(TASK_TYPE_ENUM.OCEANBASE)).toBe(TASK_LANGUAGE.SQL);
 		expect(mappingTaskTypeToLanguage(TASK_TYPE_ENUM.HIVE_SQL)).toBe(TASK_LANGUAGE.HIVESQL);
-		expect(mappingTaskTypeToLanguage(TASK_TYPE_ENUM.SHELL)).toBe(TASK_LANGUAGE.SQL);
+		expect(mappingTaskTypeToLanguage(TASK_TYPE_ENUM.SHELL)).toBe(TASK_LANGUAGE.SHELL);
 		expect(mappingTaskTypeToLanguage(TASK_TYPE_ENUM.SPARK)).toBe(TASK_LANGUAGE.SQL);
 		expect(mappingTaskTypeToLanguage(TASK_TYPE_ENUM.SPARK_SQL)).toBe(TASK_LANGUAGE.SPARKSQL);
 		expect(mappingTaskTypeToLanguage(TASK_TYPE_ENUM.SQL)).toBe(TASK_LANGUAGE.FLINKSQL);
