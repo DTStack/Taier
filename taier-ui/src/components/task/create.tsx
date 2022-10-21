@@ -38,7 +38,7 @@ import './create.scss';
 const FormItem = Form.Item;
 
 interface ICreateProps extends molecule.model.IEditor {
-	onSubmit?: (values: IFormFieldProps) => Promise<boolean>;
+	onSubmit?: (values: ICreateTaskFormFieldProps) => Promise<boolean>;
 	/**
 	 * Only in editing
 	 */
@@ -53,7 +53,7 @@ interface ICreateProps extends molecule.model.IEditor {
 	isRenderPosition?: boolean;
 }
 
-export interface IFormFieldProps {
+export interface ICreateTaskFormFieldProps {
 	name: string;
 	taskType: TASK_TYPE_ENUM;
 	nodePid: number;
@@ -74,7 +74,7 @@ const Create = connect(
 	molecule.editor,
 	({ onSubmit, record, current, isRequest = true, isRenderPosition = true }: ICreateProps) => {
 		const { supportJobTypes } = useContext(Context);
-		const [form] = Form.useForm<IFormFieldProps>();
+		const [form] = Form.useForm<ICreateTaskFormFieldProps>();
 		const [loading, setLoading] = useState(false);
 		const [pageLoading, setPageLoading] = useState(false);
 
@@ -153,20 +153,20 @@ const Create = connect(
 						});
 				} else {
 					form.setFieldsValue({
-						...(record as IFormFieldProps),
+						...(record as ICreateTaskFormFieldProps),
 					});
 				}
 			}
 		};
 
-		const handleSubmit = (values: IFormFieldProps) => {
+		const handleSubmit = (values: ICreateTaskFormFieldProps) => {
 			setLoading(true);
 			onSubmit?.({ ...values }).then((success) => {
 				setLoading(success);
 			});
 		};
 
-		const handleValuesChanged = (_: Partial<IFormFieldProps>, values: IFormFieldProps) => {
+		const handleValuesChanged = (_: Partial<ICreateTaskFormFieldProps>, values: ICreateTaskFormFieldProps) => {
 			if (current?.tab) {
 				const { id } = current.tab;
 				// Insert form values into tab for preventing losing the values when switch tabs
@@ -198,7 +198,7 @@ const Create = connect(
 			<div className="taier__create__container">
 				<div className="taier__create__wrapper">
 					<Spin spinning={pageLoading}>
-						<Form<IFormFieldProps>
+						<Form<ICreateTaskFormFieldProps>
 							form={form}
 							onFinish={handleSubmit}
 							onValuesChange={handleValuesChanged}

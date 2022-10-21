@@ -21,7 +21,7 @@ import type { IExtension } from '@dtinsight/molecule/esm/model';
 import { FileTypes, TreeNodeModel } from '@dtinsight/molecule/esm/model';
 import { localize } from '@dtinsight/molecule/esm/i18n/localize';
 import molecule from '@dtinsight/molecule/esm';
-import type { IFormFieldProps } from '@/components/task/create';
+import type { ICreateTaskFormFieldProps } from '@/components/task/create';
 import Create from '@/components/task/create';
 import EditFolder from '@/components/task/editFolder';
 import { getParentNode } from '@/utils/extensions';
@@ -49,7 +49,7 @@ function getComputeType(type: TASK_TYPE_ENUM): number {
  * Open a tab for creating task
  */
 function openCreateTab(id?: string) {
-	const onSubmit = (values: IFormFieldProps) => {
+	const onSubmit = (values: ICreateTaskFormFieldProps) => {
 		const { resourceIdList, ...restValues } = values;
 		return new Promise<boolean>((resolve) => {
 			const params: Record<string, any> = {
@@ -311,7 +311,7 @@ function contextMenu() {
 					? `${ID_COLLECTIONS.EDIT_TASK_PREFIX}_${new Date().getTime()}`
 					: `${ID_COLLECTIONS.EDIT_FOLDER_PREFIX}_${new Date().getTime()}`;
 
-				const onSubmit = (values: IFormFieldProps) => {
+				const onSubmit = (values: ICreateTaskFormFieldProps) => {
 					return new Promise<boolean>((resolve) => {
 						const params = {
 							taskId: treeNode!.data.id,
