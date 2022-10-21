@@ -111,6 +111,7 @@ export default function CustomTreeSelect(props: CustomTreeSelectProps) {
 				onChange={onTreeChange}
 				onSelect={updateShowName}
 				treeIcon={showFile}
+				getPopupContainer={(node) => node.parentNode}
 			>
 				{generateTreeNodes()}
 			</TreeSelect>
