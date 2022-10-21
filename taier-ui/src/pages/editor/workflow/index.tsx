@@ -25,17 +25,7 @@ import type {
 	IKeyDownConfig,
 } from '@/components/mxGraph/container';
 import './index.scss';
-
-interface IFormFieldProps {
-	name: string;
-	taskType: TASK_TYPE_ENUM;
-	taskDesc: string;
-	createModel?: Valueof<typeof CREATE_MODEL_TYPE>;
-	resourceIdList?: [string];
-	mainClass?: string;
-	exeArgs?: string;
-	componentVersion: Valueof<typeof FLINK_VERSIONS>;
-}
+import { ICreateTaskFormFieldProps } from '@/components/task/create';
 
 // 是否编辑状态未保存的标志符
 export const isEditing = Symbol('editing');
@@ -85,7 +75,7 @@ function Workflow({ current }: molecule.model.IEditor) {
 		editData: undefined,
 	});
 	const [graphData, setGraphData] = useState<IWorkflowData[]>([]);
-	const [form] = Form.useForm<IFormFieldProps>();
+	const [form] = Form.useForm<ICreateTaskFormFieldProps>();
 	const container = useRef<IContainerRef<IWorkflowData>>(null);
 	const dragStage = useRef<{
 		x: number;
@@ -107,15 +97,36 @@ function Workflow({ current }: molecule.model.IEditor) {
 		});
 	};
 
-	const validateTaskName = async (_: any, value: string) => {
-		if (value === '') return Promise.reject(new Error('节点名称不可为空!'));
+	const validateTaskName = async (value: string, cellId: string | number | undefined) => {
+		if (!value) return Promise.reject(new Error('节点名称不可为空!'));
 		if (value.length > 128) return Promise.reject(new Error('节点名称不得超过128个字符!'));
 		const reg = /^[A-Za-z0-9_\u4e00-\u9fa5]+$/;
 		if (!reg.test(value))
 			return Promise.reject(new Error('节点名称只能由字母、数字、中文、下划线组成!'));
 
-		const res = await api.validateRepeatTaskName({ taskName: value, tenantId: getTenantId() });
-		if (res.code !== 1) return Promise.reject(new Error('子节点名称已存在!'));
+		const selfCell = container.current
+			?.getCells()
+			.find((cell) => cell.vertex && cell.value?.id === cellId);
+
+		const isUpdatedName = selfCell?.value.name !== value;
+
+		if (isUpdatedName) {
+			// Validate duplicated name in back-end
+			const res = await api.validateRepeatTaskName({
+				taskName: value,
+				tenantId: getTenantId(),
+			});
+			if (res.code !== 1) return Promise.reject(new Error('子节点名称已存在!'));
+
+			// Validate duplicated name in front-end,
+			// since there were some nodes just added and still not be given to back-end
+			if (
+				container.current
+					?.getCells()
+					.some((cell) => cell.vertex && cell.value?.name === value)
+			)
+				return Promise.reject(new Error('子节点名称已存在!'));
+		}
 
 		return Promise.resolve();
 	};
@@ -244,7 +255,7 @@ function Workflow({ current }: molecule.model.IEditor) {
 
 						// eslint-disable-next-line no-inner-declarations
 						function handleSaveTaskName(this: HTMLInputElement) {
-							validateTaskName({}, this.value)
+							validateTaskName(this.value, cell.id)
 								.then(() => {
 									cell.setValue({
 										...data,
@@ -592,12 +603,17 @@ function Workflow({ current }: molecule.model.IEditor) {
 				}}
 				onOk={handleInsertCell}
 			>
-				<Form<IFormFieldProps> form={form} autoComplete="off" {...formItemLayout}>
+				<Form<ICreateTaskFormFieldProps> form={form} autoComplete="off" {...formItemLayout}>
 					<Form.Item
 						label="节点名称"
 						name="name"
 						validateTrigger="onBlur"
-						rules={[{ validator: validateTaskName }]}
+						rules={[
+							{
+								validator: (_, value) =>
+									validateTaskName(value, modalInfo.editData?.id),
+							},
+						]}
 					>
 						<Input placeholder="请输入节点名称" />
 					</Form.Item>
