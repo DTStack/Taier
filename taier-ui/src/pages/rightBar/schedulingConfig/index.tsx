@@ -17,6 +17,7 @@
  */
 
 import type { CSSProperties } from 'react';
+import { useUpdateEffect } from 'react-use';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import type { FormInstance, RadioChangeEvent } from 'antd';
 import { Row, Col, Collapse, Radio, message } from 'antd';
@@ -267,7 +268,8 @@ export default function SchedulingConfig({ current }: IRightBarComponentProps) {
 		setSelfReliance(value);
 	};
 
-	useEffect(() => {
+	// Only update scheduleConf after reliance changed
+	useUpdateEffect(() => {
 		handleScheduleConf();
 	}, [selfReliance]);
 
