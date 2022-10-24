@@ -8,6 +8,8 @@ import type { IDataSourceProps, IFunctionProps, IOfflineTaskProps } from '@/inte
 import { formatDateTime } from '@/utils';
 import { TaskStatus, TaskTimeType } from '@/utils/enums';
 import LinkInfoCell from '@/pages/dataSource/linkInfoCell';
+import { dataSourceService } from '@/services';
+import { isNumber } from 'lodash';
 import './index.scss';
 
 interface IDetailInfoProps {
@@ -30,6 +32,19 @@ export default function DetailInfo({ type, data }: IDetailInfoProps) {
 					<Descriptions.Item label={`${labelPrefix}类型：`} span={12}>
 						{supportJobTypes.find((t) => t.key === tab.taskType)?.value || '未知'}
 					</Descriptions.Item>
+					{isNumber(tab?.datasourceId) && (
+						<Descriptions.Item label="数据源" span={12}>
+							{(() => {
+								const target = dataSourceService
+									.getDataSource()
+									.find((l) => l.dataInfoId === tab.datasourceId);
+
+								if (!target) return '未知数据源';
+
+								return `${target.dataName}(${target.dataType})`;
+							})()}
+						</Descriptions.Item>
+					)}
 					{tab?.componentVersion && (
 						<Descriptions.Item label="引擎版本：" span={12}>
 							{tab?.componentVersion}

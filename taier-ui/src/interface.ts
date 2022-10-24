@@ -195,6 +195,10 @@ export interface IOfflineTaskProps
 	modifyUserId: number;
 	name: string;
 	computeType: IComputeType;
+	/**
+	 * 任务绑定的数据源 id
+	 */
+	datasourceId?: number;
 	nodePName: string;
 	nodePid: number;
 	ownerUserId: number;
