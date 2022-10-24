@@ -5,7 +5,7 @@ DELETE FROM console_component_config WHERE cluster_id = -2 and component_type_co
 
 INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default, gmt_create, gmt_modified, is_deleted) VALUES ('flink_version', '1.12', '112', null, 1, 2, 'INTEGER', '0,1,2', 0, now(),now(), 0);
 
-DELETE FROM dict WHERE dict_code = 'component_model_config' AND depend_name = 'YARN'
+DELETE FROM dict WHERE dict_code = 'component_model_config' AND depend_name = 'YARN';
 
 INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default, gmt_create, gmt_modified, is_deleted) VALUES ('component_model_config', 'Apache Hadoop 2.x', '{
     "YARN":"yarn2",
@@ -352,7 +352,6 @@ INSERT INTO console_component_config (cluster_id, component_id, component_type_c
 INSERT INTO console_component_config (cluster_id, component_id, component_type_code, type, required, `key`, value, `values`, dependencyKey, dependencyValue, `desc`, gmt_create, gmt_modified, is_deleted) VALUES (-2, -115, 0, 'INPUT', 0, 'restart-strategy.failure-rate.max-failures-per-interval', '3', null, 'deploymode$perjob', null, null, '2021-09-24 12:07:31', '2021-09-24 12:07:31', 0);
 
 
--- auto-generated definition
 create table schedule_job_history
 (
     id              int auto_increment
@@ -397,7 +396,7 @@ CREATE TABLE `task_template` (
                                  `gmt_modified` datetime DEFAULT CURRENT_TIMESTAMP,
                                  `is_deleted` tinyint(1) NOT NULL DEFAULT '0' COMMENT '0正常 1逻辑删除',
                                  PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=59 DEFAULT CHARSET=utf8 COLLATE=utf8_bin
+) ENGINE=InnoDB AUTO_INCREMENT=59 DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 INSERT INTO task_template (id, task_type, type, value_type, content, gmt_create, gmt_modified, is_deleted) VALUES (1, 0, 1, '1', 'create table if not exists ods_order_header (
      order_header_id     string comment ''订单头id''

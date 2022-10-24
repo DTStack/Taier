@@ -160,7 +160,7 @@ update console_component_config set component_type_code = 6 where component_id =
 
 UPDATE console_component_config SET value = 'perjob' WHERE component_id = -108;
 
-DELETE FROM console_component_config WHERE component_id = (-117,-118,-101);
+DELETE FROM console_component_config WHERE component_id IN (-117,-118,-101);
 
 INSERT INTO console_component_config (cluster_id, component_id, component_type_code, type, required, `key`, value, `values`, dependencyKey, dependencyValue, `desc`, gmt_create, gmt_modified, is_deleted) VALUES (-2, -117, 5, 'INPUT', 1, 'jdbcUrl', '', null, null, null, null, now(), now(), 0);
 INSERT INTO console_component_config (cluster_id, component_id, component_type_code, type, required, `key`, value, `values`, dependencyKey, dependencyValue, `desc`, gmt_create, gmt_modified, is_deleted) VALUES (-2, -117, 5, 'INPUT', 0, 'username', '', null, null, null, null, now(), now(), 0);
@@ -339,7 +339,7 @@ CREATE TABLE `task_dirty_data_manage`
     UNIQUE KEY `index_task_id` (`task_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-INSERT INTO task_template (task_type, type, value_type, content, gmt_create, gmt_modified, is_deleted) VALUES ( 11, 0, '1.12', '## 资源相关
+INSERT INTO task_param_template (task_type, task_name, task_version, params, gmt_create, gmt_modified, is_deleted) VALUES ( 11, 'Flink', '1.12', '## 资源相关
 parallelism.default=1
 taskmanager.numberOfTaskSlots=1
 jobmanager.memory.process.size=1g
