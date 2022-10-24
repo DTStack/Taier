@@ -37,7 +37,7 @@ public class KerberosConfigUtil {
      */
     public static void changeToRelativePath(Map<String, Object> kerberosConfig, String checkKey) {
         String path = MapUtils.getString(kerberosConfig, checkKey);
-        if (StringUtils.isBlank(path) || path.contains("/")) {
+        if (StringUtils.isBlank(path) || !path.contains("/")) {
             return;
         }
         String[] splitPathArr = path.split("/");
