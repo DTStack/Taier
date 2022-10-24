@@ -114,6 +114,7 @@ class DataPreviewModal extends React.Component<any, any> {
 				title="数据预览"
 				onCancel={onCancel}
 				maskClosable={false}
+				width={600}
 				footer={[
 					<Button key="back" type="primary" onClick={onCancel}>
 						关闭
