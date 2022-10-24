@@ -698,13 +698,21 @@ export function renderCharacterByCode(keyCode: number) {
 	if (unicodeCharacter === '\b') return '⌫';
 }
 
+/**
+ * Put the value into an array unless the value already is an array
+ */
+export function toArray(value: any) {
+	if (Array.isArray(value)) return value;
+	return [value];
+}
+
 const regex = /({{).+?(}})/s;
 /**
  * Convert dynamic params used in dataSync Form
  * @example
  * ```js
- * const values = convertParams({ sourceId: '{{ form#a.b }}', { a: { b: 1 }} });
- * console.log(values); // { sourceId: 1 }
+ * const values = convertParams({ sourceId: '{{ form#a.b }}', targetId: '{{ form#a.b#toArray }}' }, { a: { b: 1 }});
+ * console.log(values); // { sourceId: 1, targetId: [1] }
  * ```
  */
 export const convertParams = (params: Record<string, any>, form: Record<string, any>) => {
@@ -712,8 +720,15 @@ export const convertParams = (params: Record<string, any>, form: Record<string, 
 		let value = params[cur];
 		if (typeof value === 'string' && regex.test(value)) {
 			const content = value.substring(2, value.length - 2);
-			const [scope, path] = content.split('#');
+			const [scope, path, utils] = content.split('#');
 			value = get({ form }, `${scope.trim()}.${path.trim()}`);
+
+			if (utils) {
+				const utilCollection: Record<string, (value: any) => any> = {
+					toArray: toArray,
+				};
+				value = utilCollection[utils](value);
+			}
 		}
 
 		// eslint-disable-next-line no-param-reassign
