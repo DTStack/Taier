@@ -1,3 +1,19 @@
+/*
+ Navicat Premium Data Transfer
+
+ Source Server         : 开源
+ Source Server Type    : MySQL
+ Source Server Version : 50733
+ Source Host           : 172.16.101.187:3306
+ Source Schema         : taier_beta3
+
+ Target Server Type    : MySQL
+ Target Server Version : 50733
+ File Encoding         : 65001
+
+ Date: 24/10/2022 15:47:09
+*/
+
 SET NAMES utf8mb4;
 SET FOREIGN_KEY_CHECKS = 0;
 
@@ -84,39 +100,39 @@ CREATE TABLE `console_component_config` (
   PRIMARY KEY (`id`),
   KEY `index_cluster_id` (`cluster_id`),
   KEY `index_componentId` (`component_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=819 DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+) ENGINE=InnoDB AUTO_INCREMENT=893 DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 -- ----------------------------
 -- Records of console_component_config
 -- ----------------------------
 BEGIN;
-INSERT INTO `console_component_config` VALUES (535, -2, -117, 5, 'INPUT', 1, 'jdbcUrl', '', NULL, NULL, NULL, NULL, '2022-07-19 14:47:30', '2022-07-19 14:47:30', 0);
-INSERT INTO `console_component_config` VALUES (537, -2, -117, 5, 'INPUT', 0, 'username', '', NULL, NULL, NULL, NULL, '2022-07-19 14:47:30', '2022-07-19 14:47:30', 0);
-INSERT INTO `console_component_config` VALUES (539, -2, -117, 5, 'PASSWORD', 0, 'password', '', NULL, NULL, NULL, NULL, '2022-07-19 14:47:30', '2022-07-19 14:47:30', 0);
-INSERT INTO `console_component_config` VALUES (541, -2, -117, 5, 'INPUT', 0, 'queue', '', NULL, NULL, NULL, NULL, '2022-07-19 14:47:30', '2022-07-19 14:47:30', 0);
-INSERT INTO `console_component_config` VALUES (543, -2, -117, 5, 'INPUT', 0, 'maxJobPoolSize', '', NULL, NULL, NULL, NULL, '2022-07-19 14:47:30', '2022-07-19 14:47:30', 0);
-INSERT INTO `console_component_config` VALUES (545, -2, -117, 5, 'INPUT', 0, 'minJobPoolSize', '', NULL, NULL, NULL, NULL, '2022-07-19 14:47:30', '2022-07-19 14:47:30', 0);
-INSERT INTO `console_component_config` VALUES (547, -2, -101, 6, 'INPUT', 1, 'host', '', NULL, NULL, NULL, NULL, '2022-07-19 14:47:30', '2022-07-19 14:47:30', 0);
-INSERT INTO `console_component_config` VALUES (549, -2, -101, 6, 'RADIO_LINKAGE', 1, 'auth', '1', NULL, NULL, NULL, NULL, '2022-07-19 14:47:30', '2022-07-19 14:47:30', 0);
-INSERT INTO `console_component_config` VALUES (551, -2, -101, 6, '', 1, 'password', '1', NULL, 'auth', '1', NULL, '2022-07-19 14:47:30', '2022-07-19 14:47:30', 0);
-INSERT INTO `console_component_config` VALUES (553, -2, -101, 6, 'INPUT', 1, 'username', '', NULL, NULL, NULL, NULL, '2022-07-19 14:47:30', '2022-07-19 14:47:30', 0);
-INSERT INTO `console_component_config` VALUES (555, -2, -101, 6, 'PASSWORD', 1, 'password', '', NULL, 'auth$password', '', NULL, '2022-07-19 14:47:30', '2022-07-19 14:47:30', 0);
-INSERT INTO `console_component_config` VALUES (557, -2, -101, 6, 'INPUT', 1, 'port', '22', NULL, NULL, NULL, NULL, '2022-07-19 14:47:30', '2022-07-19 14:47:30', 0);
-INSERT INTO `console_component_config` VALUES (559, -2, -101, 6, 'INPUT', 1, 'path', '/data/sftp', NULL, NULL, NULL, NULL, '2022-07-19 14:47:30', '2022-07-19 14:47:30', 0);
-INSERT INTO `console_component_config` VALUES (561, -2, -101, 6, '', 1, 'rsaPath', '2', NULL, 'auth', '2', NULL, '2022-07-19 14:47:30', '2022-07-19 14:47:30', 0);
-INSERT INTO `console_component_config` VALUES (563, -2, -101, 6, 'input', 1, 'rsaPath', '', NULL, 'auth$rsaPath', '', NULL, '2022-07-19 14:47:30', '2022-07-19 14:47:30', 0);
-INSERT INTO `console_component_config` VALUES (565, -2, -101, 6, 'INPUT', 1, 'fileTimeout', '300000', NULL, NULL, NULL, NULL, '2022-07-19 14:47:30', '2022-07-19 14:47:30', 0);
-INSERT INTO `console_component_config` VALUES (567, -2, -101, 6, 'INPUT', 1, 'isUsePool', 'true', NULL, NULL, NULL, NULL, '2022-07-19 14:47:30', '2022-07-19 14:47:30', 0);
-INSERT INTO `console_component_config` VALUES (569, -2, -101, 6, 'INPUT', 1, 'maxIdle', '16', NULL, NULL, NULL, NULL, '2022-07-19 14:47:30', '2022-07-19 14:47:30', 0);
-INSERT INTO `console_component_config` VALUES (571, -2, -101, 6, 'INPUT', 1, 'maxTotal', '16', NULL, NULL, NULL, NULL, '2022-07-19 14:47:30', '2022-07-19 14:47:30', 0);
-INSERT INTO `console_component_config` VALUES (573, -2, -101, 6, 'INPUT', 1, 'maxWaitMillis', '3600000', NULL, NULL, NULL, NULL, '2022-07-19 14:47:30', '2022-07-19 14:47:30', 0);
-INSERT INTO `console_component_config` VALUES (575, -2, -101, 6, 'INPUT', 1, 'minIdle', '16', NULL, NULL, NULL, NULL, '2022-07-19 14:47:30', '2022-07-19 14:47:30', 0);
-INSERT INTO `console_component_config` VALUES (577, -2, -101, 6, 'INPUT', 1, 'timeout', '10000', NULL, NULL, NULL, NULL, '2022-07-19 14:47:30', '2022-07-19 14:47:30', 0);
-INSERT INTO `console_component_config` VALUES (579, -2, -118, 5, 'INPUT', 1, 'jdbcUrl', '', NULL, NULL, NULL, NULL, '2022-07-19 14:47:31', '2022-07-19 14:47:31', 0);
-INSERT INTO `console_component_config` VALUES (581, -2, -118, 5, 'INPUT', 0, 'username', '', NULL, NULL, NULL, NULL, '2022-07-19 14:47:31', '2022-07-19 14:47:31', 0);
-INSERT INTO `console_component_config` VALUES (583, -2, -118, 5, 'PASSWORD', 0, 'password', '', NULL, NULL, NULL, NULL, '2022-07-19 14:47:31', '2022-07-19 14:47:31', 0);
-INSERT INTO `console_component_config` VALUES (585, -2, -118, 5, 'INPUT', 0, 'maxJobPoolSize', '', NULL, NULL, NULL, NULL, '2022-07-19 14:47:31', '2022-07-19 14:47:31', 0);
-INSERT INTO `console_component_config` VALUES (587, -2, -118, 5, 'INPUT', 0, 'minJobPoolSize', '', NULL, NULL, NULL, NULL, '2022-07-19 14:47:31', '2022-07-19 14:47:31', 0);
+INSERT INTO `console_component_config` VALUES (535, -2, -117, 5, 'INPUT', 1, 'jdbcUrl', '', NULL, NULL, NULL, NULL, '2022-10-24 15:45:52', '2022-10-24 15:45:52', 0);
+INSERT INTO `console_component_config` VALUES (537, -2, -117, 5, 'INPUT', 0, 'username', '', NULL, NULL, NULL, NULL, '2022-10-24 15:45:52', '2022-10-24 15:45:52', 0);
+INSERT INTO `console_component_config` VALUES (539, -2, -117, 5, 'PASSWORD', 0, 'password', '', NULL, NULL, NULL, NULL, '2022-10-24 15:45:52', '2022-10-24 15:45:52', 0);
+INSERT INTO `console_component_config` VALUES (541, -2, -117, 5, 'INPUT', 0, 'queue', '', NULL, NULL, NULL, NULL, '2022-10-24 15:45:53', '2022-10-24 15:45:53', 0);
+INSERT INTO `console_component_config` VALUES (543, -2, -117, 5, 'INPUT', 0, 'maxJobPoolSize', '', NULL, NULL, NULL, NULL, '2022-10-24 15:45:53', '2022-10-24 15:45:53', 0);
+INSERT INTO `console_component_config` VALUES (545, -2, -117, 5, 'INPUT', 0, 'minJobPoolSize', '', NULL, NULL, NULL, NULL, '2022-10-24 15:45:53', '2022-10-24 15:45:53', 0);
+INSERT INTO `console_component_config` VALUES (547, -2, -101, 6, 'INPUT', 1, 'host', '', NULL, NULL, NULL, NULL, '2022-10-24 15:45:53', '2022-10-24 15:45:53', 0);
+INSERT INTO `console_component_config` VALUES (549, -2, -101, 6, 'RADIO_LINKAGE', 1, 'auth', '1', NULL, NULL, NULL, NULL, '2022-10-24 15:45:53', '2022-10-24 15:45:53', 0);
+INSERT INTO `console_component_config` VALUES (551, -2, -101, 6, '', 1, 'password', '1', NULL, 'auth', '1', NULL, '2022-10-24 15:45:53', '2022-10-24 15:45:53', 0);
+INSERT INTO `console_component_config` VALUES (553, -2, -101, 6, 'INPUT', 1, 'username', '', NULL, NULL, NULL, NULL, '2022-10-24 15:45:53', '2022-10-24 15:45:53', 0);
+INSERT INTO `console_component_config` VALUES (555, -2, -101, 6, 'PASSWORD', 1, 'password', '', NULL, 'auth$password', '', NULL, '2022-10-24 15:45:53', '2022-10-24 15:45:53', 0);
+INSERT INTO `console_component_config` VALUES (557, -2, -101, 6, 'INPUT', 1, 'port', '22', NULL, NULL, NULL, NULL, '2022-10-24 15:45:53', '2022-10-24 15:45:53', 0);
+INSERT INTO `console_component_config` VALUES (559, -2, -101, 6, 'INPUT', 1, 'path', '/data/sftp', NULL, NULL, NULL, NULL, '2022-10-24 15:45:53', '2022-10-24 15:45:53', 0);
+INSERT INTO `console_component_config` VALUES (561, -2, -101, 6, '', 1, 'rsaPath', '2', NULL, 'auth', '2', NULL, '2022-10-24 15:45:53', '2022-10-24 15:45:53', 0);
+INSERT INTO `console_component_config` VALUES (563, -2, -101, 6, 'input', 1, 'rsaPath', '', NULL, 'auth$rsaPath', '', NULL, '2022-10-24 15:45:53', '2022-10-24 15:45:53', 0);
+INSERT INTO `console_component_config` VALUES (565, -2, -101, 6, 'INPUT', 1, 'fileTimeout', '300000', NULL, NULL, NULL, NULL, '2022-10-24 15:45:53', '2022-10-24 15:45:53', 0);
+INSERT INTO `console_component_config` VALUES (567, -2, -101, 6, 'INPUT', 1, 'isUsePool', 'true', NULL, NULL, NULL, NULL, '2022-10-24 15:45:53', '2022-10-24 15:45:53', 0);
+INSERT INTO `console_component_config` VALUES (569, -2, -101, 6, 'INPUT', 1, 'maxIdle', '16', NULL, NULL, NULL, NULL, '2022-10-24 15:45:53', '2022-10-24 15:45:53', 0);
+INSERT INTO `console_component_config` VALUES (571, -2, -101, 6, 'INPUT', 1, 'maxTotal', '16', NULL, NULL, NULL, NULL, '2022-10-24 15:45:53', '2022-10-24 15:45:53', 0);
+INSERT INTO `console_component_config` VALUES (573, -2, -101, 6, 'INPUT', 1, 'maxWaitMillis', '3600000', NULL, NULL, NULL, NULL, '2022-10-24 15:45:53', '2022-10-24 15:45:53', 0);
+INSERT INTO `console_component_config` VALUES (575, -2, -101, 6, 'INPUT', 1, 'minIdle', '16', NULL, NULL, NULL, NULL, '2022-10-24 15:45:53', '2022-10-24 15:45:53', 0);
+INSERT INTO `console_component_config` VALUES (577, -2, -101, 6, 'INPUT', 1, 'timeout', '10000', NULL, NULL, NULL, NULL, '2022-10-24 15:45:53', '2022-10-24 15:45:53', 0);
+INSERT INTO `console_component_config` VALUES (579, -2, -118, 5, 'INPUT', 1, 'jdbcUrl', '', NULL, NULL, NULL, NULL, '2022-10-24 15:45:53', '2022-10-24 15:45:53', 0);
+INSERT INTO `console_component_config` VALUES (581, -2, -118, 5, 'INPUT', 0, 'username', '', NULL, NULL, NULL, NULL, '2022-10-24 15:45:53', '2022-10-24 15:45:53', 0);
+INSERT INTO `console_component_config` VALUES (583, -2, -118, 5, 'PASSWORD', 0, 'password', '', NULL, NULL, NULL, NULL, '2022-10-24 15:45:53', '2022-10-24 15:45:53', 0);
+INSERT INTO `console_component_config` VALUES (585, -2, -118, 5, 'INPUT', 0, 'maxJobPoolSize', '', NULL, NULL, NULL, NULL, '2022-10-24 15:45:53', '2022-10-24 15:45:53', 0);
+INSERT INTO `console_component_config` VALUES (587, -2, -118, 5, 'INPUT', 0, 'minJobPoolSize', '', NULL, NULL, NULL, NULL, '2022-10-24 15:45:53', '2022-10-24 15:45:53', 0);
 INSERT INTO `console_component_config` VALUES (589, -2, -115, 0, 'CHECKBOX', 1, 'deploymode', '[\"perjob\",\"session\"]', NULL, '', '', NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
 INSERT INTO `console_component_config` VALUES (591, -2, -115, 0, 'GROUP', 1, 'perjob', 'perjob', NULL, 'deploymode', 'perjob', NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
 INSERT INTO `console_component_config` VALUES (593, -2, -115, 0, 'INPUT', 1, 'akka.ask.timeout', '60 s', NULL, 'deploymode$perjob', NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
@@ -232,6 +248,43 @@ INSERT INTO `console_component_config` VALUES (811, -2, -108, 1, 'INPUT', 1, 'sp
 INSERT INTO `console_component_config` VALUES (813, -2, -108, 1, 'INPUT', 1, 'sparkSqlProxyPath', 'hdfs://ns1/dtInsight/spark/spark-sql-proxy.jar', NULL, 'deploymode$perjob', NULL, NULL, '2021-02-25 18:12:53', '2021-02-25 18:12:53', 0);
 INSERT INTO `console_component_config` VALUES (815, -2, -108, 1, 'INPUT', 1, 'sparkYarnArchive', 'hdfs://ns1/dtInsight/sparkjars/jars', NULL, 'deploymode$perjob', NULL, NULL, '2021-02-25 18:12:53', '2021-02-25 18:12:53', 0);
 INSERT INTO `console_component_config` VALUES (817, -2, -108, 1, 'INPUT', 0, 'yarnAccepterTaskNumber', '3', NULL, 'deploymode$perjob', NULL, NULL, '2021-02-25 18:12:53', '2021-02-25 18:12:53', 0);
+INSERT INTO `console_component_config` VALUES (819, -2, -120, 0, 'INPUT', 0, 'jobmanager.rpc.address', '', NULL, NULL, NULL, NULL, '2022-10-11 14:04:45', '2022-10-11 14:04:45', 0);
+INSERT INTO `console_component_config` VALUES (821, -2, -120, 0, 'INPUT', 0, 'jobmanager.rpc.port', '', NULL, NULL, NULL, NULL, '2022-10-11 14:04:45', '2022-10-11 14:04:45', 0);
+INSERT INTO `console_component_config` VALUES (823, -2, -120, 0, 'INPUT', 1, 'prometheusHost', '', NULL, NULL, NULL, NULL, '2022-10-11 14:04:45', '2022-10-11 14:04:45', 0);
+INSERT INTO `console_component_config` VALUES (825, -2, -120, 0, 'INPUT', 1, 'prometheusPort', '', NULL, NULL, NULL, NULL, '2022-10-11 14:04:45', '2022-10-11 14:04:45', 0);
+INSERT INTO `console_component_config` VALUES (827, -2, -120, 0, 'INPUT', 0, 'high-availability', '', NULL, NULL, NULL, NULL, '2022-10-11 14:04:45', '2022-10-11 14:04:45', 0);
+INSERT INTO `console_component_config` VALUES (829, -2, -120, 0, 'INPUT', 0, 'high-availability.zookeeper.quorum', '', NULL, NULL, NULL, NULL, '2022-10-11 14:04:45', '2022-10-11 14:04:45', 0);
+INSERT INTO `console_component_config` VALUES (831, -2, -120, 0, 'INPUT', 0, 'high-availability.zookeeper.path.root', '', NULL, NULL, NULL, NULL, '2022-10-11 14:04:45', '2022-10-11 14:04:45', 0);
+INSERT INTO `console_component_config` VALUES (833, -2, -120, 0, 'INPUT', 0, 'high-availability.storageDir', '', NULL, NULL, NULL, NULL, '2022-10-11 14:04:45', '2022-10-11 14:04:45', 0);
+INSERT INTO `console_component_config` VALUES (835, -2, -120, 0, 'INPUT', 0, 'high-availability.cluster-id', '', NULL, NULL, NULL, NULL, '2022-10-11 14:04:45', '2022-10-11 14:04:45', 0);
+INSERT INTO `console_component_config` VALUES (837, -2, -120, 0, 'INPUT', 1, 'flinkLibDir', '/data/insight_plugin/flink112_lib', NULL, NULL, NULL, NULL, '2022-10-11 14:04:45', '2022-10-11 14:04:45', 0);
+INSERT INTO `console_component_config` VALUES (839, -2, -120, 0, 'INPUT', 1, 'chunjunDistDir', '/data/insight_plugin112/chunjunplugin', NULL, NULL, NULL, NULL, '2022-10-11 14:04:45', '2022-10-11 14:04:45', 0);
+INSERT INTO `console_component_config` VALUES (841, -2, -120, 0, 'INPUT', 1, 'remoteChunjunDistDir', '/data/insight_plugin112/chunjunplugin', NULL, NULL, NULL, NULL, '2022-10-11 14:04:45', '2022-10-11 14:04:45', 0);
+INSERT INTO `console_component_config` VALUES (843, -2, -120, 0, 'INPUT', 1, 'clusterMode', 'standalone', NULL, NULL, NULL, NULL, '2022-10-11 14:04:45', '2022-10-11 14:04:45', 0);
+INSERT INTO `console_component_config` VALUES (845, -2, -120, 0, 'SELECT', 1, 'metrics.reporter.promgateway.deleteOnShutdown', 'true', NULL, NULL, NULL, NULL, '2022-10-11 14:04:45', '2022-10-11 14:04:45', 0);
+INSERT INTO `console_component_config` VALUES (847, -2, -120, 0, '', 0, 'false', 'false', NULL, 'metrics.reporter.promgateway.deleteOnShutdown', NULL, NULL, '2022-10-11 14:04:45', '2022-10-11 14:04:45', 0);
+INSERT INTO `console_component_config` VALUES (849, -2, -120, 0, '', 0, 'true', 'true', NULL, 'metrics.reporter.promgateway.deleteOnShutdown', NULL, NULL, '2022-10-11 14:04:45', '2022-10-11 14:04:45', 0);
+INSERT INTO `console_component_config` VALUES (851, -2, -120, 0, 'SELECT', 1, 'metrics.reporter.promgateway.randomJobNameSuffix', 'true', NULL, NULL, NULL, NULL, '2022-10-11 14:04:45', '2022-10-11 14:04:45', 0);
+INSERT INTO `console_component_config` VALUES (853, -2, -120, 0, '', 0, 'false', 'false', NULL, 'metrics.reporter.promgateway.randomJobNameSuffix', NULL, NULL, '2022-10-11 14:04:45', '2022-10-11 14:04:45', 0);
+INSERT INTO `console_component_config` VALUES (855, -2, -120, 0, '', 0, 'true', 'true', NULL, 'metrics.reporter.promgateway.randomJobNameSuffix', NULL, NULL, '2022-10-11 14:04:45', '2022-10-11 14:04:45', 0);
+INSERT INTO `console_component_config` VALUES (857, -2, -120, 0, 'INPUT', 0, 'rest.port', '8081', NULL, NULL, NULL, NULL, '2022-10-11 14:04:45', '2022-10-11 14:04:45', 0);
+INSERT INTO `console_component_config` VALUES (859, -2, -120, 0, 'INPUT', 1, 'metrics.reporter.promgateway.class', 'org.apache.flink.metrics.prometheus.PrometheusPushGatewayReporter', NULL, NULL, NULL, NULL, '2022-10-11 14:04:45', '2022-10-11 14:04:45', 0);
+INSERT INTO `console_component_config` VALUES (861, -2, -120, 0, 'INPUT', 1, 'metrics.reporter.promgateway.host', '', NULL, NULL, NULL, NULL, '2022-10-11 14:04:45', '2022-10-11 14:04:45', 0);
+INSERT INTO `console_component_config` VALUES (863, -2, -120, 0, 'INPUT', 1, 'metrics.reporter.promgateway.jobName', '112job', NULL, NULL, NULL, NULL, '2022-10-11 14:04:45', '2022-10-11 14:04:45', 0);
+INSERT INTO `console_component_config` VALUES (865, -2, -120, 0, 'INPUT', 1, 'metrics.reporter.promgateway.port', '9091', NULL, NULL, NULL, NULL, '2022-10-11 14:04:45', '2022-10-11 14:04:45', 0);
+INSERT INTO `console_component_config` VALUES (867, -2, -120, 0, 'INPUT', 0, 'state.backend', 'jobmanager', NULL, NULL, NULL, NULL, '2022-10-11 14:04:45', '2022-10-11 14:04:45', 0);
+INSERT INTO `console_component_config` VALUES (869, -2, -120, 0, 'INPUT', 0, 'pluginLoadMode', 'classpath', NULL, NULL, NULL, NULL, '2022-10-11 14:04:45', '2022-10-11 14:04:45', 0);
+INSERT INTO `console_component_config` VALUES (871, -2, -100, 8, 'INPUT', 1, 'script.java.opts', '-Dfile.encoding=UTF-8', NULL, NULL, NULL, NULL, '2022-10-24 15:46:51', '2022-10-24 15:46:51', 0);
+INSERT INTO `console_component_config` VALUES (873, -2, -100, 8, 'INPUT', 1, 'script.am.memory', '512m', NULL, NULL, NULL, NULL, '2022-10-24 15:46:51', '2022-10-24 15:46:51', 0);
+INSERT INTO `console_component_config` VALUES (875, -2, -100, 8, 'INPUT', 1, 'script.am.cores', '1', NULL, NULL, NULL, NULL, '2022-10-24 15:46:51', '2022-10-24 15:46:51', 0);
+INSERT INTO `console_component_config` VALUES (877, -2, -100, 8, 'INPUT', 1, 'script.worker.memory', '512m', NULL, NULL, NULL, NULL, '2022-10-24 15:46:51', '2022-10-24 15:46:51', 0);
+INSERT INTO `console_component_config` VALUES (879, -2, -100, 8, 'INPUT', 1, 'script.worker.cores', '1', NULL, NULL, NULL, NULL, '2022-10-24 15:46:52', '2022-10-24 15:46:52', 0);
+INSERT INTO `console_component_config` VALUES (881, -2, -100, 8, 'INPUT', 1, 'script.worker.num', '1', NULL, NULL, NULL, NULL, '2022-10-24 15:46:52', '2022-10-24 15:46:52', 0);
+INSERT INTO `console_component_config` VALUES (883, -2, -100, 8, 'INPUT', 1, 'container.staging.dir', '/insight/script/staging', NULL, NULL, NULL, NULL, '2022-10-24 15:46:52', '2022-10-24 15:46:52', 0);
+INSERT INTO `console_component_config` VALUES (885, -2, -100, 8, 'INPUT', 1, 'script.container.heartbeat.interval', '10000', NULL, NULL, NULL, NULL, '2022-10-24 15:46:52', '2022-10-24 15:46:52', 0);
+INSERT INTO `console_component_config` VALUES (887, -2, -100, 8, 'INPUT', 1, 'script.container.heartbeat.timeout', '120000', NULL, NULL, NULL, NULL, '2022-10-24 15:46:52', '2022-10-24 15:46:52', 0);
+INSERT INTO `console_component_config` VALUES (889, -2, -100, 8, 'INPUT', 1, 'script.python2.path', '/data/miniconda2/bin/python2', NULL, NULL, NULL, NULL, '2022-10-24 15:46:52', '2022-10-24 15:46:52', 0);
+INSERT INTO `console_component_config` VALUES (891, -2, -100, 8, 'INPUT', 1, 'script.python3.path', '/data/miniconda3/bin/python3', NULL, NULL, NULL, NULL, '2022-10-24 15:46:52', '2022-10-24 15:46:52', 0);
 COMMIT;
 
 -- ----------------------------
@@ -292,7 +345,7 @@ CREATE TABLE `datasource_classify` (
   `modify_user_id` int(11) DEFAULT '0',
   PRIMARY KEY (`id`),
   UNIQUE KEY `classify_code` (`classify_code`)
-) ENGINE=InnoDB AUTO_INCREMENT=23 DEFAULT CHARSET=utf8 COLLATE=utf8_bin COMMENT='数据源分类表';
+) ENGINE=InnoDB AUTO_INCREMENT=13 DEFAULT CHARSET=utf8 COLLATE=utf8_bin COMMENT='数据源分类表';
 
 -- ----------------------------
 -- Records of datasource_classify
@@ -306,7 +359,7 @@ INSERT INTO `datasource_classify` VALUES (5, 'mpp', 60, 'MPP', 0, '2021-03-15 17
 INSERT INTO `datasource_classify` VALUES (6, 'semiStruct', 50, '半结构化', 0, '2021-03-15 17:49:27', '2021-03-15 17:50:43', 0, 0);
 INSERT INTO `datasource_classify` VALUES (7, 'analytic', 40, '分析型', 0, '2021-03-15 17:49:27', '2021-03-15 17:50:44', 0, 0);
 INSERT INTO `datasource_classify` VALUES (8, 'NoSQL', 30, 'NoSQL', 0, '2021-03-15 17:49:27', '2021-03-15 17:50:44', 0, 0);
-INSERT INTO `datasource_classify` VALUES (0, 'actualTime', 20, '实时', 0, '2021-03-15 17:49:27', '2021-03-15 17:50:44', 0, 0);
+INSERT INTO `datasource_classify` VALUES (9, 'actualTime', 20, '实时', 0, '2021-03-15 17:49:27', '2021-03-15 17:50:44', 0, 0);
 INSERT INTO `datasource_classify` VALUES (10, 'api', 0, '接口', 0, '2021-03-15 17:49:27', '2021-03-15 17:50:44', 0, 0);
 INSERT INTO `datasource_classify` VALUES (11, 'sequential', 10, '时序', 0, '2021-06-09 17:19:27', '2021-06-09 17:19:27', 0, 0);
 COMMIT;
@@ -339,7 +392,7 @@ CREATE TABLE `datasource_form_field` (
   `options` varchar(256) COLLATE utf8_bin DEFAULT '' COMMENT 'select组件下拉内容',
   PRIMARY KEY (`id`),
   UNIQUE KEY `name` (`name`,`type_version`)
-) ENGINE=InnoDB AUTO_INCREMENT=389 DEFAULT CHARSET=utf8 COLLATE=utf8_bin COMMENT='数据源表单属性表';
+) ENGINE=InnoDB AUTO_INCREMENT=397 DEFAULT CHARSET=utf8 COLLATE=utf8_bin COMMENT='数据源表单属性表';
 
 -- ----------------------------
 -- Records of datasource_form_field
@@ -522,7 +575,7 @@ INSERT INTO `datasource_form_field` VALUES (347, 'jdbcUrl', 'JDBC URL', 'Input',
 INSERT INTO `datasource_form_field` VALUES (349, 'username', '用户名', 'Input', 1, 0, NULL, NULL, NULL, 1, '', NULL, NULL, NULL, 'Vertica', 0, '2021-06-01 12:22:10', '2021-06-01 12:22:10', 0, 0, '');
 INSERT INTO `datasource_form_field` VALUES (351, 'password', '密码', 'Password', 1, 0, NULL, NULL, NULL, 0, '', NULL, NULL, NULL, 'Vertica', 0, '2021-06-01 12:22:10', '2021-06-01 12:22:10', 0, 0, '');
 INSERT INTO `datasource_form_field` VALUES (353, 'url', 'URL', 'Input', 1, 0, NULL, 'http://localhost:4242', NULL, 1, '{\"regex\":{\"message\":\"URL格式不符合规则!\"}}', NULL, NULL, '/http:\\/\\/([\\w, .])+:(.)+/', 'OpenTSDB-2.x', 0, '2021-07-06 10:37:27', '2021-07-06 10:37:42', 0, 0, '');
-INSERT INTO `datasource_form_field` VALUES (355, 'jdbcUrl', 'JDBC URL', 'Input', 1, 0, NULL, NULL, NULL, 1, '{\"regex\":{\"message\":\"JDBC URL格式不符合规则!\"}}', '示例：jdbc:mysql://host:3306/dbName', NULL, '/jdbc:mysql:\\/\\/(.)+/', 'Doris-0.14.x', 0, '2021-07-06 09:35:57', '2021-07-06 16:07:17', 0, 0, '');
+INSERT INTO `datasource_form_field` VALUES (355, 'url', 'url', 'Input', 1, 0, NULL, 'http://localhost:8030', NULL, 1, '{\"regex\":{\"message\":\"URL格式不符合规则!\"}}', '', NULL, '', 'Doris-0.14.x', 0, '2021-07-06 09:35:57', '2022-10-24 15:46:53', 0, 0, '');
 INSERT INTO `datasource_form_field` VALUES (357, 'username', '用户名', 'Input', 0, 0, NULL, NULL, NULL, 1, '', NULL, NULL, NULL, 'Doris-0.14.x', 0, '2021-07-06 09:35:57', '2021-07-06 10:08:08', 0, 0, '');
 INSERT INTO `datasource_form_field` VALUES (359, 'password', '密码', 'Password', 0, 0, NULL, NULL, NULL, 0, '', NULL, NULL, NULL, 'Doris-0.14.x', 0, '2021-07-06 09:35:57', '2021-07-06 10:08:12', 0, 0, '');
 INSERT INTO `datasource_form_field` VALUES (361, 'jdbcUrl', 'JDBC URL', 'Input', 1, 0, NULL, NULL, NULL, 1, '{\"regex\":{\"message\":\"JDBC URL格式不符合规则!\"}}', '示例：jdbc:kylin://host:7070/project_name', NULL, '/jdbc:kylin:\\/\\/(.)+/', 'Kylin JDBC-3.x', 0, '2021-07-06 09:35:57', '2021-07-06 16:07:17', 0, 0, '');
@@ -539,6 +592,10 @@ INSERT INTO `datasource_form_field` VALUES (381, 'hadoopConfig', '高可用配�
 INSERT INTO `datasource_form_field` VALUES (383, 'tbds_id', 'ID', 'Input', 1, 0, NULL, '请输入ID', NULL, 0, '', NULL, NULL, NULL, 'HDFS-TBDS', 0, '2021-09-17 10:38:27', '2021-09-17 10:38:27', 0, 0, '');
 INSERT INTO `datasource_form_field` VALUES (385, 'tbds_key', 'KEY', 'Input', 1, 0, NULL, '请输入KEY', NULL, 0, '', NULL, NULL, NULL, 'HDFS-TBDS', 0, '2021-09-17 10:38:27', '2021-09-17 10:38:27', 0, 0, '');
 INSERT INTO `datasource_form_field` VALUES (387, 'tbds_username', 'USERNAME', 'Input', 1, 0, NULL, '请输入username', NULL, 0, '', NULL, NULL, NULL, 'HDFS-TBDS', 0, '2021-10-15 10:38:27', '2021-10-15 10:38:27', 0, 0, '');
+INSERT INTO `datasource_form_field` VALUES (389, 'jdbcUrl', 'JDBC URL', 'Input', 1, 0, NULL, NULL, NULL, 1, '{\"regex\":{\"message\":\"JDBC URL格式不符合规则!\"}}', '示例：jdbc:oceanbase://host:port/dbName', NULL, '/jdbc:oceanbase:\\/\\/(.)+/', 'OceanBase', 0, '2021-08-05 09:35:57', '2021-08-05 16:07:17', 0, 0, '');
+INSERT INTO `datasource_form_field` VALUES (391, 'username', '用户名', 'Input', 0, 0, NULL, NULL, NULL, 1, '', NULL, NULL, NULL, 'OceanBase', 0, '2021-08-05 09:35:57', '2021-08-05 10:08:08', 0, 0, '');
+INSERT INTO `datasource_form_field` VALUES (393, 'password', '密码', 'Password', 0, 0, NULL, NULL, NULL, 0, '', NULL, NULL, NULL, 'OceanBase', 0, '2021-08-05 09:35:57', '2021-08-05 10:08:12', 0, 0, '');
+INSERT INTO `datasource_form_field` VALUES (395, 'schema', 'schema', 'Input', 1, 0, NULL, NULL, NULL, 0, NULL, NULL, NULL, NULL, 'Doris-0.14.x', 0, '2022-10-24 15:46:53', '2022-10-24 15:46:53', 0, 0, '');
 COMMIT;
 
 -- ----------------------------
@@ -586,7 +643,7 @@ CREATE TABLE `datasource_type` (
   `modify_user_id` int(11) DEFAULT '0',
   PRIMARY KEY (`id`),
   UNIQUE KEY `data_type` (`data_type`)
-) ENGINE=InnoDB AUTO_INCREMENT=89 DEFAULT CHARSET=utf8 COLLATE=utf8_bin COMMENT='数据源类型信息表';
+) ENGINE=InnoDB AUTO_INCREMENT=91 DEFAULT CHARSET=utf8 COLLATE=utf8_bin COMMENT='数据源类型信息表';
 
 -- ----------------------------
 -- Records of datasource_type
@@ -636,6 +693,7 @@ INSERT INTO `datasource_type` VALUES (81, 'OpenTSDB', 11, 0.0, 'OpenTSDB.png', 8
 INSERT INTO `datasource_type` VALUES (83, 'Doris', 7, 0.0, 'Doris.png', 1200, 0, 0, '2021-07-06 12:22:10', '2021-07-06 15:49:09', 0, 0);
 INSERT INTO `datasource_type` VALUES (85, 'Kylin JDBC', 7, 0.0, 'Kylin.png', 1300, 0, 0, '2021-07-06 12:22:10', '2021-07-06 15:49:09', 0, 0);
 INSERT INTO `datasource_type` VALUES (87, 'SQLServer JDBC', 3, 0.0, 'SQLServer.png', 1200, 0, 0, '2021-07-06 12:22:10', '2021-07-06 15:49:09', 0, 0);
+INSERT INTO `datasource_type` VALUES (89, 'OceanBase', 5, 1.0, 'OceanBase.png', 1200, 0, 0, '2021-08-05 10:22:10', '2021-08-17 11:53:29', 0, 0);
 COMMIT;
 
 -- ----------------------------
@@ -717,7 +775,7 @@ INSERT INTO `develop_catalogue` VALUES (9, -1, '其它函数', 1, NULL, 2, '2022
 INSERT INTO `develop_catalogue` VALUES (11, -1, '字符函数', 1, NULL, 2, '2022-02-12 23:33:10', '2022-02-12 23:33:10', -1, 0, 0);
 INSERT INTO `develop_catalogue` VALUES (13, -1, '聚合函数', 1, NULL, 2, '2022-02-12 23:33:10', '2022-02-12 23:33:10', -1, 0, 0);
 INSERT INTO `develop_catalogue` VALUES (15, -1, '表生成函数', 1, NULL, 2, '2022-02-12 23:33:10', '2022-02-12 23:33:10', -1, 0, 0);
-INSERT INTO `develop_catalogue` VALUES (17, -1, 'Flink系统函数', 0, 3, 1, '2022-05-03 22:20:58', '2022-05-03 22:20:58', -1, 0, 0);
+INSERT INTO `develop_catalogue` VALUES (17, -1, 'Flink系统函数', 0, 3, 1, '2022-10-24 15:45:34', '2022-10-24 15:45:34', -1, 0, 0);
 INSERT INTO `develop_catalogue` VALUES (19, -1, '数学函数', 17, 3, 1, '2022-04-12 23:33:10', '2022-04-12 23:33:10', -1, 0, 0);
 INSERT INTO `develop_catalogue` VALUES (21, -1, '日期函数', 17, 3, 1, '2022-04-12 23:33:10', '2022-04-12 23:33:10', -1, 0, 0);
 INSERT INTO `develop_catalogue` VALUES (23, -1, '字符函数', 17, 3, 1, '2022-04-12 23:33:10', '2022-04-12 23:33:10', -1, 0, 0);
@@ -890,62 +948,62 @@ INSERT INTO `develop_function` VALUES (263, 'stack', '', '把M列转换成N行',
 INSERT INTO `develop_function` VALUES (265, 'json_tuple', '', '从一个JSON字符串中获取多个键并作为一个元组返回', 'tuple  json_tuple(jsonStr, k1, k2, ...)', '从一个JSON字符串中获取多个键并作为一个元组返回，与get_json_object不同的是此函数能一次获取多个键值', 15, -1, -1, -1, 1, NULL, 0, '2022-02-12 23:33:10', '2022-02-12 23:33:10', 0, NULL);
 INSERT INTO `develop_function` VALUES (267, 'parse_url_tuple', '', '返回从URL中抽取指定N部分的内容', 'tuple  parse_url_tuple(url, p1, p2, ...)', '返回从URL中抽取指定N部分的内容，参数url是URL字符串，而参数p1,p2,....是要抽取的部分，这个参数包含HOST, PATH, QUERY, REF, PROTOCOL, AUTHORITY, FILE, USERINFO, QUERY:<KEY>', 15, -1, -1, -1, 1, NULL, 0, '2022-02-12 23:33:10', '2022-02-12 23:33:10', 0, NULL);
 INSERT INTO `develop_function` VALUES (269, 'inline', '', '将结构体数组提取出来并插入到表中', 'inline(ARRAY<STRUCT[,STRUCT]>)', '将结构体数组提取出来并插入到表中', 15, -1, -1, -1, 1, NULL, 0, '2022-02-12 23:33:10', '2022-02-12 23:33:10', 0, NULL);
-INSERT INTO `develop_function` VALUES (271, 'POWER', '', '计算次幂', 'POWER(numeric1, numeric2)', '返回 numeric1 的 numeric2 次幂.', 19, -1, -1, -1, 1, 0, 5, '2022-05-03 22:21:03', '2022-05-03 22:21:03', 0, NULL);
-INSERT INTO `develop_function` VALUES (273, 'ABS', '', '计算numeric的绝对值', 'ABS(numeric)', '计算numeric的绝对值.', 19, -1, -1, -1, 1, 0, 5, '2022-05-03 22:21:03', '2022-05-03 22:21:03', 0, NULL);
-INSERT INTO `develop_function` VALUES (275, 'MOD', '', 'numeric1 对 numeric2 取模', 'MOD(numeric1, numeric2)', '返回numeric1除以numeric2的余数(模数). 仅当numeric1为负时结果为负.', 19, -1, -1, -1, 1, 0, 5, '2022-05-03 22:21:03', '2022-05-03 22:21:03', 0, NULL);
-INSERT INTO `develop_function` VALUES (277, 'SQRT', '', '计算平方根', 'SQRT(numeric)', '计算numeric平方根.', 19, -1, -1, -1, 1, 0, 5, '2022-05-03 22:21:03', '2022-05-03 22:21:03', 0, NULL);
-INSERT INTO `develop_function` VALUES (279, 'LN', '', '	计算自然数的对数', 'LN(numeric)', '返回numeric的自然对数(以e为底)', 19, -1, -1, -1, 1, 0, 5, '2022-05-03 22:21:03', '2022-05-03 22:21:03', 0, NULL);
-INSERT INTO `develop_function` VALUES (281, 'LOG10', '', '	返回数字10的对数', 'LOG10(numeric) ', '返回numeric的对数(以10为底)', 19, -1, -1, -1, 1, 0, 5, '2022-05-03 22:21:03', '2022-05-03 22:21:03', 0, NULL);
-INSERT INTO `develop_function` VALUES (283, 'EXP', '', '	计算自然指数的指数', 'EXP(numeric)', '返回自然对数e的numeric幂次方', 19, -1, -1, -1, 1, 0, 5, '2022-05-03 22:21:03', '2022-05-03 22:21:03', 0, NULL);
-INSERT INTO `develop_function` VALUES (285, 'CEIL', '', '向上取整', 'CEIL(numeric) or CEILING(numeric)', '求其不小于小给定实数的最小整数如：ceil(6.1)= ceil(6.9) = 7', 19, -1, -1, -1, 1, 0, 5, '2022-05-03 22:21:03', '2022-05-03 22:21:03', 0, NULL);
-INSERT INTO `develop_function` VALUES (287, 'FLOOR', '', '向下取整', 'FLOOR(numeric)', '求其不大于给定实数的最小整数如：FLOOR(6.1)= FLOOR(6.9) = 6', 19, -1, -1, -1, 1, 0, 5, '2022-05-03 22:21:03', '2022-05-03 22:21:03', 0, NULL);
-INSERT INTO `develop_function` VALUES (289, 'SIN', '', '计算正弦值', 'SIN(numeric)', '计算正弦值', 19, -1, -1, -1, 1, 0, 5, '2022-05-03 22:21:03', '2022-05-03 22:21:03', 0, NULL);
-INSERT INTO `develop_function` VALUES (291, 'COS', '', '计算余弦值', 'COS(numeric)', '计算余弦值', 19, -1, -1, -1, 1, 0, 5, '2022-05-03 22:21:03', '2022-05-03 22:21:03', 0, NULL);
-INSERT INTO `develop_function` VALUES (293, 'TAN', '', '计算正切值', 'TAN(numeric)', '计算正切值', 19, -1, -1, -1, 1, 0, 5, '2022-05-03 22:21:03', '2022-05-03 22:21:03', 0, NULL);
-INSERT INTO `develop_function` VALUES (295, 'COT', '', '计算余切值', 'COT(numeric)', '计算余切值', 19, -1, -1, -1, 1, 0, 5, '2022-05-03 22:21:03', '2022-05-03 22:21:03', 0, NULL);
-INSERT INTO `develop_function` VALUES (297, 'ASIN', '', '计算反正弦值', 'ASIN(numeric)', '计算反正弦值', 19, -1, -1, -1, 1, 0, 5, '2022-05-03 22:21:03', '2022-05-03 22:21:03', 0, NULL);
-INSERT INTO `develop_function` VALUES (299, 'ACOS', '', '计算反余弦值', 'ACOS(numeric)', '计算反余弦值', 19, -1, -1, -1, 1, 0, 5, '2022-05-03 22:21:03', '2022-05-03 22:21:03', 0, NULL);
-INSERT INTO `develop_function` VALUES (301, 'ATAN', '', '计算反正切值', 'ATAN(numeric)', '计算反正切值', 19, -1, -1, -1, 1, 0, 5, '2022-05-03 22:21:03', '2022-05-03 22:21:03', 0, NULL);
-INSERT INTO `develop_function` VALUES (303, 'DEGREES', '', '弧度值转换角度值', 'DEGREES(numeric)', '弧度值转换角度值', 19, -1, -1, -1, 1, 0, 5, '2022-05-03 22:21:03', '2022-05-03 22:21:03', 0, NULL);
-INSERT INTO `develop_function` VALUES (305, 'RADIANS', '', '将角度值转换成弧度值', 'RADIANS(numeric)', '将角度值转换成弧度值', 19, -1, -1, -1, 1, 0, 5, '2022-05-03 22:21:03', '2022-05-03 22:21:03', 0, NULL);
-INSERT INTO `develop_function` VALUES (307, 'SIGN', '', '计算数字的标志', 'SIGN(numeric)', '如果numeric是正数则返回1.0, 是负数则返回-1.0, 否则返回0.0 ', 19, -1, -1, -1, 1, 0, 5, '2022-05-03 22:21:03', '2022-05-03 22:21:03', 0, NULL);
-INSERT INTO `develop_function` VALUES (309, 'ROUND', '', '取近似值', 'ROUND(numeric, int)', '返回numeric的保留int位小数的近似值', 19, -1, -1, -1, 1, 0, 5, '2022-05-03 22:21:03', '2022-05-03 22:21:03', 0, NULL);
-INSERT INTO `develop_function` VALUES (311, 'PI', '', '取数学常数pi', 'PI()', '取数学常数pi', 19, -1, -1, -1, 1, 0, 5, '2022-05-03 22:21:03', '2022-05-03 22:21:03', 0, NULL);
-INSERT INTO `develop_function` VALUES (313, 'E', '', '取数学常数e', 'E()', '取数学常数e', 19, -1, -1, -1, 1, 0, 5, '2022-05-03 22:21:03', '2022-05-03 22:21:03', 0, NULL);
-INSERT INTO `develop_function` VALUES (315, 'RAND', '', '取随机数', 'RAND() or RAND(seed integer)', '返回一个0到1范围内的随机数,如果指定种子seed，则会等到一个稳定的随机数序列.', 19, -1, -1, -1, 1, 0, 5, '2022-05-03 22:21:03', '2022-05-03 22:21:03', 0, NULL);
-INSERT INTO `develop_function` VALUES (317, 'RAND_INTEGER', '', '取随机数', 'RAND_INTEGER(bound integer) or RAND_INTEGER(seed integer, bound integer) ', '返回0.0(包含)和指定值(不包括)之间的伪随机整数值, 如果指定种子seed，则会等到一个稳定的随机数序列 ', 19, -1, -1, -1, 1, 0, 5, '2022-05-03 22:21:03', '2022-05-03 22:21:03', 0, NULL);
-INSERT INTO `develop_function` VALUES (319, 'LOG', '', '计算对数', 'LOG(x numeric) or LOG(base numeric, x numeric)', '未指定base 则以自然数e为底', 19, -1, -1, -1, 1, 0, 5, '2022-05-03 22:21:03', '2022-05-03 22:21:03', 0, NULL);
-INSERT INTO `develop_function` VALUES (321, 'EXTRACT', '', '提取指定单位的时间数值', 'EXTRACT(timeintervalunit FROM temporal)', '提取部分的时间数值,并返回长整形, 比如 EXTRACT(DAY FROM DATE \'2006-06-05\') 返回 5.', 21, -1, -1, -1, 1, 0, 5, '2022-05-03 22:21:04', '2022-05-03 22:21:04', 0, NULL);
-INSERT INTO `develop_function` VALUES (323, 'QUARTER', '', '计算季节', 'QUARTER(date)', '返回当前时间属性哪个季度 如QUARTER(DATE \'1994-09-27\') 返回 3', 21, -1, -1, -1, 1, 0, 5, '2022-05-03 22:21:04', '2022-05-03 22:21:04', 0, NULL);
-INSERT INTO `develop_function` VALUES (325, 'DATE_FORMAT', '', '时间格式化', 'DATE_FORMAT(timestamp, format)', '根据指定format 格式化timestamp 并返回字符串, format 必须和mysql的格式化语法兼容(date_parse), 比如:DATE_FORMAT(ts, \'%Y, %d %M\') results in strings formatted as \'2017, 05 May\'', 21, -1, -1, -1, 1, 0, 5, '2022-05-03 22:21:04', '2022-05-03 22:21:04', 0, NULL);
-INSERT INTO `develop_function` VALUES (327, 'TIMESTAMPADD', '', '时间加减操作', 'TIMESTAMPADD(unit, interval, timestamp)', '将(有符号)整数interval添加到timestamp. interval的单位由unit参数给出, 它应该是以下值之一：SECOND, MINUTE, HOUR, DAY, WEEK, MONTH, QUARTER, or YEAR. 比如：TIMESTAMPADD(WEEK, 1, \'2003-01-02\') 返回 2003-01-09', 21, -1, -1, -1, 1, 0, 5, '2022-05-03 22:21:04', '2022-05-03 22:21:04', 0, NULL);
-INSERT INTO `develop_function` VALUES (329, 'CHAR_LENGTH', '', '计算字符串长度', 'CHAR_LENGTH(string)', '返回字符串的长度', 23, -1, -1, -1, 1, 0, 5, '2022-05-03 22:21:06', '2022-05-03 22:21:06', 0, NULL);
-INSERT INTO `develop_function` VALUES (331, 'CHARACTER_LENGTH', '', '计算字符串长度', 'CHARACTER_LENGTH(string)', '返回字符串的长度', 23, -1, -1, -1, 1, 0, 5, '2022-05-03 22:21:06', '2022-05-03 22:21:06', 0, NULL);
-INSERT INTO `develop_function` VALUES (333, 'UPPER', '', '将字符串的字母转换成大写字母', 'UPPER(string)', '将字符串的字母转换成大写字母', 23, -1, -1, -1, 1, 0, 5, '2022-05-03 22:21:06', '2022-05-03 22:21:06', 0, NULL);
-INSERT INTO `develop_function` VALUES (335, 'LOWER', '', '将字符串的字母转换成小写字母', 'LOWER(string)', '将字符串的字母转换成小写字母', 23, -1, -1, -1, 1, 0, 5, '2022-05-03 22:21:06', '2022-05-03 22:21:06', 0, NULL);
-INSERT INTO `develop_function` VALUES (337, 'POSITION', '', '返回string2中第一次出现string1的位置', 'POSITION(string1 IN string2)', '返回string2中第一次出现string1的位置', 23, -1, -1, -1, 1, 0, 5, '2022-05-03 22:21:06', '2022-05-03 22:21:06', 0, NULL);
-INSERT INTO `develop_function` VALUES (339, 'TRIM', '', '删除指定字符', 'TRIM( { BOTH | LEADING | TRAILING } string1 FROM string2)', '从string2 中删除指定位置的String1, 默认是删除前后的空格', 23, -1, -1, -1, 1, 0, 5, '2022-05-03 22:21:06', '2022-05-03 22:21:06', 0, NULL);
-INSERT INTO `develop_function` VALUES (341, 'OVERLAY', '', '替换字符串', 'OVERLAY(string1 PLACING string2 FROM integer [ FOR integer2 ])', '用string2替换string1的子字符串', 23, -1, -1, -1, 1, 0, 5, '2022-05-03 22:21:06', '2022-05-03 22:21:06', 0, NULL);
-INSERT INTO `develop_function` VALUES (343, 'SUBSTRING', '', '截取字符串', 'SUBSTRING(string FROM integer) or SUBSTRING(string FROM integer FOR integer)', '截取字符串中start位置之后的字符串并返回 截取字符串中start位置之后的长度为length的字符串', 23, -1, -1, -1, 1, 0, 5, '2022-05-03 22:21:06', '2022-05-03 22:21:06', 0, NULL);
-INSERT INTO `develop_function` VALUES (345, 'INITCAP', '', '字符串中的单词首字母大写', 'INITCAP(string)', '返回字符串，每个单词的第一个字母大写, 所有其他字母以小写形式显示. 单词由空格分割.', 23, -1, -1, -1, 1, 0, 5, '2022-05-03 22:21:06', '2022-05-03 22:21:06', 0, NULL);
-INSERT INTO `develop_function` VALUES (347, 'CONCAT', '', '字符串和字节拼接', 'CONCAT(string1, string2,...)', '将字符串或字节拼接，如：concat(\'foo\', \'bar\') = \'foobar\', 函数可以拼接任意数量的字符串或字节。', 23, -1, -1, -1, 1, 0, 5, '2022-05-03 22:21:06', '2022-05-03 22:21:06', 0, NULL);
-INSERT INTO `develop_function` VALUES (349, 'CONCAT_WS', '', '使用指定的分隔符拼接字符串', 'CONCAT_WS(separator, string1, string2,...)', '使用指定的分隔符拼接字符串', 23, -1, -1, -1, 1, 0, 5, '2022-05-03 22:21:06', '2022-05-03 22:21:06', 0, NULL);
-INSERT INTO `develop_function` VALUES (351, 'COUNT', '', '统计总行数', 'COUNT(*) or COUNT(value [, value]* )', '统计总行数，包括含有NULL值的行, 统计提供非NULL的expr表达式值的行数.', 25, -1, -1, -1, 1, 0, 5, '2022-05-03 22:21:07', '2022-05-03 22:21:07', 0, NULL);
-INSERT INTO `develop_function` VALUES (353, 'AVG', '', '求指定列的平均值', 'AVG(numeric)', '求指定列的平均值.', 25, -1, -1, -1, 1, 0, 5, '2022-05-03 22:21:07', '2022-05-03 22:21:07', 0, NULL);
-INSERT INTO `develop_function` VALUES (355, 'SUM', '', '求指定列的和', 'SUM(numeric)', '求指定列的和.', 25, -1, -1, -1, 1, 0, 5, '2022-05-03 22:21:07', '2022-05-03 22:21:07', 0, NULL);
-INSERT INTO `develop_function` VALUES (357, 'MAX', '', '求指定列的最大值', 'MAX(value)', '求指定列的最大值.', 25, -1, -1, -1, 1, 0, 5, '2022-05-03 22:21:07', '2022-05-03 22:21:07', 0, NULL);
-INSERT INTO `develop_function` VALUES (359, 'MIN', '', '求指定列的最小值', 'MIN(value)', '求指定列的最小值.', 25, -1, -1, -1, 1, 0, 5, '2022-05-03 22:21:07', '2022-05-03 22:21:07', 0, NULL);
-INSERT INTO `develop_function` VALUES (361, 'STDDEV_POP', '', '求指定列数值的标准偏差', 'STDDEV_POP(value)', '求指定列数值的标准偏差.', 25, -1, -1, -1, 1, 0, 5, '2022-05-03 22:21:07', '2022-05-03 22:21:07', 0, NULL);
-INSERT INTO `develop_function` VALUES (363, 'STDDEV_SAMP', '', '求指定列数值的样本标准偏差', 'STDDEV_SAMP(value)', '求指定列数值的样本标准偏差.', 25, -1, -1, -1, 1, 0, 5, '2022-05-03 22:21:07', '2022-05-03 22:21:07', 0, NULL);
-INSERT INTO `develop_function` VALUES (365, 'VAR_POP', '', '求指定列数值的方差', 'VAR_POP(value)', '求指定列数值的方差.', 25, -1, -1, -1, 1, 0, 5, '2022-05-03 22:21:07', '2022-05-03 22:21:07', 0, NULL);
-INSERT INTO `develop_function` VALUES (367, 'VAR_SAMP', '', '求指定列数值的样本方差', 'VAR_POP(value)', '求指定列数值的样本方差.', 25, -1, -1, -1, 1, 0, 5, '2022-05-03 22:21:07', '2022-05-03 22:21:07', 0, NULL);
-INSERT INTO `develop_function` VALUES (369, 'COLLECT', '', '返回包含值的multiset', 'COLLECT(value)', '返回包含值的multiset. null将被忽略.如果仅添加null,则返回一个空multiset.', 25, -1, -1, -1, 1, 0, 5, '2022-05-03 22:21:07', '2022-05-03 22:21:07', 0, NULL);
-INSERT INTO `develop_function` VALUES (371, 'NULLIF', '', '如果值相同着返回null', 'NULLIF(value, value)', '如果值相同着返回null, 比如 NULLIF(5, 5) 返回 NULL; NULLIF(5, 0) 返回 5.', 27, -1, -1, -1, 1, 0, 5, '2022-05-03 22:21:09', '2022-05-03 22:21:09', 0, NULL);
-INSERT INTO `develop_function` VALUES (373, 'COALESCE', '', '返回第一非null的值', 'COALESCE(value, value [, value ]* )', '返回第一非null的值, 比如: COALESCE(NULL, 5) 返回 5.', 27, -1, -1, -1, 1, 0, 5, '2022-05-03 22:21:09', '2022-05-03 22:21:09', 0, NULL);
-INSERT INTO `develop_function` VALUES (375, 'CAST', '', '类型转换', 'CAST(value AS type)', '将value 转换为指定type', 27, -1, -1, -1, 1, 0, 5, '2022-05-03 22:21:09', '2022-05-03 22:21:09', 0, NULL);
-INSERT INTO `develop_function` VALUES (377, 'GROUP_ID', '', '返回一个唯一标识分组键的整数', 'GROUP_ID()', '返回一个唯一标识分组键的整数.', 27, -1, -1, -1, 1, 0, 5, '2022-05-03 22:21:09', '2022-05-03 22:21:09', 0, NULL);
-INSERT INTO `develop_function` VALUES (379, 'GROUPING', '', '如果表达式在当前行的分组集合中返回1, 否则返回0', 'GROUPING(expression)', '如果表达式在当前行的分组集合中返回1, 否则返回0.', 27, -1, -1, -1, 1, 0, 5, '2022-05-03 22:21:09', '2022-05-03 22:21:09', 0, NULL);
-INSERT INTO `develop_function` VALUES (381, 'GROUPING_ID', '', '返回给定分组表达式的位向量', 'GROUPING_ID(expression [, expression]* )', '返回给定分组表达式的位向量.', 27, -1, -1, -1, 1, 0, 5, '2022-05-03 22:21:09', '2022-05-03 22:21:09', 0, NULL);
+INSERT INTO `develop_function` VALUES (271, 'POWER', '', '计算次幂', 'POWER(numeric1, numeric2)', '返回 numeric1 的 numeric2 次幂.', 19, -1, -1, -1, 1, 0, 5, '2022-10-24 15:45:34', '2022-10-24 15:45:34', 0, NULL);
+INSERT INTO `develop_function` VALUES (273, 'ABS', '', '计算numeric的绝对值', 'ABS(numeric)', '计算numeric的绝对值.', 19, -1, -1, -1, 1, 0, 5, '2022-10-24 15:45:34', '2022-10-24 15:45:34', 0, NULL);
+INSERT INTO `develop_function` VALUES (275, 'MOD', '', 'numeric1 对 numeric2 取模', 'MOD(numeric1, numeric2)', '返回numeric1除以numeric2的余数(模数). 仅当numeric1为负时结果为负.', 19, -1, -1, -1, 1, 0, 5, '2022-10-24 15:45:34', '2022-10-24 15:45:34', 0, NULL);
+INSERT INTO `develop_function` VALUES (277, 'SQRT', '', '计算平方根', 'SQRT(numeric)', '计算numeric平方根.', 19, -1, -1, -1, 1, 0, 5, '2022-10-24 15:45:34', '2022-10-24 15:45:34', 0, NULL);
+INSERT INTO `develop_function` VALUES (279, 'LN', '', '	计算自然数的对数', 'LN(numeric)', '返回numeric的自然对数(以e为底)', 19, -1, -1, -1, 1, 0, 5, '2022-10-24 15:45:34', '2022-10-24 15:45:34', 0, NULL);
+INSERT INTO `develop_function` VALUES (281, 'LOG10', '', '	返回数字10的对数', 'LOG10(numeric) ', '返回numeric的对数(以10为底)', 19, -1, -1, -1, 1, 0, 5, '2022-10-24 15:45:34', '2022-10-24 15:45:34', 0, NULL);
+INSERT INTO `develop_function` VALUES (283, 'EXP', '', '	计算自然指数的指数', 'EXP(numeric)', '返回自然对数e的numeric幂次方', 19, -1, -1, -1, 1, 0, 5, '2022-10-24 15:45:34', '2022-10-24 15:45:34', 0, NULL);
+INSERT INTO `develop_function` VALUES (285, 'CEIL', '', '向上取整', 'CEIL(numeric) or CEILING(numeric)', '求其不小于小给定实数的最小整数如：ceil(6.1)= ceil(6.9) = 7', 19, -1, -1, -1, 1, 0, 5, '2022-10-24 15:45:34', '2022-10-24 15:45:34', 0, NULL);
+INSERT INTO `develop_function` VALUES (287, 'FLOOR', '', '向下取整', 'FLOOR(numeric)', '求其不大于给定实数的最小整数如：FLOOR(6.1)= FLOOR(6.9) = 6', 19, -1, -1, -1, 1, 0, 5, '2022-10-24 15:45:34', '2022-10-24 15:45:34', 0, NULL);
+INSERT INTO `develop_function` VALUES (289, 'SIN', '', '计算正弦值', 'SIN(numeric)', '计算正弦值', 19, -1, -1, -1, 1, 0, 5, '2022-10-24 15:45:34', '2022-10-24 15:45:34', 0, NULL);
+INSERT INTO `develop_function` VALUES (291, 'COS', '', '计算余弦值', 'COS(numeric)', '计算余弦值', 19, -1, -1, -1, 1, 0, 5, '2022-10-24 15:45:34', '2022-10-24 15:45:34', 0, NULL);
+INSERT INTO `develop_function` VALUES (293, 'TAN', '', '计算正切值', 'TAN(numeric)', '计算正切值', 19, -1, -1, -1, 1, 0, 5, '2022-10-24 15:45:34', '2022-10-24 15:45:34', 0, NULL);
+INSERT INTO `develop_function` VALUES (295, 'COT', '', '计算余切值', 'COT(numeric)', '计算余切值', 19, -1, -1, -1, 1, 0, 5, '2022-10-24 15:45:34', '2022-10-24 15:45:34', 0, NULL);
+INSERT INTO `develop_function` VALUES (297, 'ASIN', '', '计算反正弦值', 'ASIN(numeric)', '计算反正弦值', 19, -1, -1, -1, 1, 0, 5, '2022-10-24 15:45:34', '2022-10-24 15:45:34', 0, NULL);
+INSERT INTO `develop_function` VALUES (299, 'ACOS', '', '计算反余弦值', 'ACOS(numeric)', '计算反余弦值', 19, -1, -1, -1, 1, 0, 5, '2022-10-24 15:45:34', '2022-10-24 15:45:34', 0, NULL);
+INSERT INTO `develop_function` VALUES (301, 'ATAN', '', '计算反正切值', 'ATAN(numeric)', '计算反正切值', 19, -1, -1, -1, 1, 0, 5, '2022-10-24 15:45:34', '2022-10-24 15:45:34', 0, NULL);
+INSERT INTO `develop_function` VALUES (303, 'DEGREES', '', '弧度值转换角度值', 'DEGREES(numeric)', '弧度值转换角度值', 19, -1, -1, -1, 1, 0, 5, '2022-10-24 15:45:34', '2022-10-24 15:45:34', 0, NULL);
+INSERT INTO `develop_function` VALUES (305, 'RADIANS', '', '将角度值转换成弧度值', 'RADIANS(numeric)', '将角度值转换成弧度值', 19, -1, -1, -1, 1, 0, 5, '2022-10-24 15:45:34', '2022-10-24 15:45:34', 0, NULL);
+INSERT INTO `develop_function` VALUES (307, 'SIGN', '', '计算数字的标志', 'SIGN(numeric)', '如果numeric是正数则返回1.0, 是负数则返回-1.0, 否则返回0.0 ', 19, -1, -1, -1, 1, 0, 5, '2022-10-24 15:45:34', '2022-10-24 15:45:34', 0, NULL);
+INSERT INTO `develop_function` VALUES (309, 'ROUND', '', '取近似值', 'ROUND(numeric, int)', '返回numeric的保留int位小数的近似值', 19, -1, -1, -1, 1, 0, 5, '2022-10-24 15:45:34', '2022-10-24 15:45:34', 0, NULL);
+INSERT INTO `develop_function` VALUES (311, 'PI', '', '取数学常数pi', 'PI()', '取数学常数pi', 19, -1, -1, -1, 1, 0, 5, '2022-10-24 15:45:34', '2022-10-24 15:45:34', 0, NULL);
+INSERT INTO `develop_function` VALUES (313, 'E', '', '取数学常数e', 'E()', '取数学常数e', 19, -1, -1, -1, 1, 0, 5, '2022-10-24 15:45:34', '2022-10-24 15:45:34', 0, NULL);
+INSERT INTO `develop_function` VALUES (315, 'RAND', '', '取随机数', 'RAND() or RAND(seed integer)', '返回一个0到1范围内的随机数,如果指定种子seed，则会等到一个稳定的随机数序列.', 19, -1, -1, -1, 1, 0, 5, '2022-10-24 15:45:34', '2022-10-24 15:45:34', 0, NULL);
+INSERT INTO `develop_function` VALUES (317, 'RAND_INTEGER', '', '取随机数', 'RAND_INTEGER(bound integer) or RAND_INTEGER(seed integer, bound integer) ', '返回0.0(包含)和指定值(不包括)之间的伪随机整数值, 如果指定种子seed，则会等到一个稳定的随机数序列 ', 19, -1, -1, -1, 1, 0, 5, '2022-10-24 15:45:34', '2022-10-24 15:45:34', 0, NULL);
+INSERT INTO `develop_function` VALUES (319, 'LOG', '', '计算对数', 'LOG(x numeric) or LOG(base numeric, x numeric)', '未指定base 则以自然数e为底', 19, -1, -1, -1, 1, 0, 5, '2022-10-24 15:45:34', '2022-10-24 15:45:34', 0, NULL);
+INSERT INTO `develop_function` VALUES (321, 'EXTRACT', '', '提取指定单位的时间数值', 'EXTRACT(timeintervalunit FROM temporal)', '提取部分的时间数值,并返回长整形, 比如 EXTRACT(DAY FROM DATE \'2006-06-05\') 返回 5.', 21, -1, -1, -1, 1, 0, 5, '2022-10-24 15:45:34', '2022-10-24 15:45:34', 0, NULL);
+INSERT INTO `develop_function` VALUES (323, 'QUARTER', '', '计算季节', 'QUARTER(date)', '返回当前时间属性哪个季度 如QUARTER(DATE \'1994-09-27\') 返回 3', 21, -1, -1, -1, 1, 0, 5, '2022-10-24 15:45:34', '2022-10-24 15:45:34', 0, NULL);
+INSERT INTO `develop_function` VALUES (325, 'DATE_FORMAT', '', '时间格式化', 'DATE_FORMAT(timestamp, format)', '根据指定format 格式化timestamp 并返回字符串, format 必须和mysql的格式化语法兼容(date_parse), 比如:DATE_FORMAT(ts, \'%Y, %d %M\') results in strings formatted as \'2017, 05 May\'', 21, -1, -1, -1, 1, 0, 5, '2022-10-24 15:45:34', '2022-10-24 15:45:34', 0, NULL);
+INSERT INTO `develop_function` VALUES (327, 'TIMESTAMPADD', '', '时间加减操作', 'TIMESTAMPADD(unit, interval, timestamp)', '将(有符号)整数interval添加到timestamp. interval的单位由unit参数给出, 它应该是以下值之一：SECOND, MINUTE, HOUR, DAY, WEEK, MONTH, QUARTER, or YEAR. 比如：TIMESTAMPADD(WEEK, 1, \'2003-01-02\') 返回 2003-01-09', 21, -1, -1, -1, 1, 0, 5, '2022-10-24 15:45:34', '2022-10-24 15:45:34', 0, NULL);
+INSERT INTO `develop_function` VALUES (329, 'CHAR_LENGTH', '', '计算字符串长度', 'CHAR_LENGTH(string)', '返回字符串的长度', 23, -1, -1, -1, 1, 0, 5, '2022-10-24 15:45:35', '2022-10-24 15:45:35', 0, NULL);
+INSERT INTO `develop_function` VALUES (331, 'CHARACTER_LENGTH', '', '计算字符串长度', 'CHARACTER_LENGTH(string)', '返回字符串的长度', 23, -1, -1, -1, 1, 0, 5, '2022-10-24 15:45:35', '2022-10-24 15:45:35', 0, NULL);
+INSERT INTO `develop_function` VALUES (333, 'UPPER', '', '将字符串的字母转换成大写字母', 'UPPER(string)', '将字符串的字母转换成大写字母', 23, -1, -1, -1, 1, 0, 5, '2022-10-24 15:45:35', '2022-10-24 15:45:35', 0, NULL);
+INSERT INTO `develop_function` VALUES (335, 'LOWER', '', '将字符串的字母转换成小写字母', 'LOWER(string)', '将字符串的字母转换成小写字母', 23, -1, -1, -1, 1, 0, 5, '2022-10-24 15:45:35', '2022-10-24 15:45:35', 0, NULL);
+INSERT INTO `develop_function` VALUES (337, 'POSITION', '', '返回string2中第一次出现string1的位置', 'POSITION(string1 IN string2)', '返回string2中第一次出现string1的位置', 23, -1, -1, -1, 1, 0, 5, '2022-10-24 15:45:35', '2022-10-24 15:45:35', 0, NULL);
+INSERT INTO `develop_function` VALUES (339, 'TRIM', '', '删除指定字符', 'TRIM( { BOTH | LEADING | TRAILING } string1 FROM string2)', '从string2 中删除指定位置的String1, 默认是删除前后的空格', 23, -1, -1, -1, 1, 0, 5, '2022-10-24 15:45:35', '2022-10-24 15:45:35', 0, NULL);
+INSERT INTO `develop_function` VALUES (341, 'OVERLAY', '', '替换字符串', 'OVERLAY(string1 PLACING string2 FROM integer [ FOR integer2 ])', '用string2替换string1的子字符串', 23, -1, -1, -1, 1, 0, 5, '2022-10-24 15:45:35', '2022-10-24 15:45:35', 0, NULL);
+INSERT INTO `develop_function` VALUES (343, 'SUBSTRING', '', '截取字符串', 'SUBSTRING(string FROM integer) or SUBSTRING(string FROM integer FOR integer)', '截取字符串中start位置之后的字符串并返回 截取字符串中start位置之后的长度为length的字符串', 23, -1, -1, -1, 1, 0, 5, '2022-10-24 15:45:35', '2022-10-24 15:45:35', 0, NULL);
+INSERT INTO `develop_function` VALUES (345, 'INITCAP', '', '字符串中的单词首字母大写', 'INITCAP(string)', '返回字符串，每个单词的第一个字母大写, 所有其他字母以小写形式显示. 单词由空格分割.', 23, -1, -1, -1, 1, 0, 5, '2022-10-24 15:45:35', '2022-10-24 15:45:35', 0, NULL);
+INSERT INTO `develop_function` VALUES (347, 'CONCAT', '', '字符串和字节拼接', 'CONCAT(string1, string2,...)', '将字符串或字节拼接，如：concat(\'foo\', \'bar\') = \'foobar\', 函数可以拼接任意数量的字符串或字节。', 23, -1, -1, -1, 1, 0, 5, '2022-10-24 15:45:35', '2022-10-24 15:45:35', 0, NULL);
+INSERT INTO `develop_function` VALUES (349, 'CONCAT_WS', '', '使用指定的分隔符拼接字符串', 'CONCAT_WS(separator, string1, string2,...)', '使用指定的分隔符拼接字符串', 23, -1, -1, -1, 1, 0, 5, '2022-10-24 15:45:35', '2022-10-24 15:45:35', 0, NULL);
+INSERT INTO `develop_function` VALUES (351, 'COUNT', '', '统计总行数', 'COUNT(*) or COUNT(value [, value]* )', '统计总行数，包括含有NULL值的行, 统计提供非NULL的expr表达式值的行数.', 25, -1, -1, -1, 1, 0, 5, '2022-10-24 15:45:35', '2022-10-24 15:45:35', 0, NULL);
+INSERT INTO `develop_function` VALUES (353, 'AVG', '', '求指定列的平均值', 'AVG(numeric)', '求指定列的平均值.', 25, -1, -1, -1, 1, 0, 5, '2022-10-24 15:45:35', '2022-10-24 15:45:35', 0, NULL);
+INSERT INTO `develop_function` VALUES (355, 'SUM', '', '求指定列的和', 'SUM(numeric)', '求指定列的和.', 25, -1, -1, -1, 1, 0, 5, '2022-10-24 15:45:35', '2022-10-24 15:45:35', 0, NULL);
+INSERT INTO `develop_function` VALUES (357, 'MAX', '', '求指定列的最大值', 'MAX(value)', '求指定列的最大值.', 25, -1, -1, -1, 1, 0, 5, '2022-10-24 15:45:35', '2022-10-24 15:45:35', 0, NULL);
+INSERT INTO `develop_function` VALUES (359, 'MIN', '', '求指定列的最小值', 'MIN(value)', '求指定列的最小值.', 25, -1, -1, -1, 1, 0, 5, '2022-10-24 15:45:35', '2022-10-24 15:45:35', 0, NULL);
+INSERT INTO `develop_function` VALUES (361, 'STDDEV_POP', '', '求指定列数值的标准偏差', 'STDDEV_POP(value)', '求指定列数值的标准偏差.', 25, -1, -1, -1, 1, 0, 5, '2022-10-24 15:45:35', '2022-10-24 15:45:35', 0, NULL);
+INSERT INTO `develop_function` VALUES (363, 'STDDEV_SAMP', '', '求指定列数值的样本标准偏差', 'STDDEV_SAMP(value)', '求指定列数值的样本标准偏差.', 25, -1, -1, -1, 1, 0, 5, '2022-10-24 15:45:35', '2022-10-24 15:45:35', 0, NULL);
+INSERT INTO `develop_function` VALUES (365, 'VAR_POP', '', '求指定列数值的方差', 'VAR_POP(value)', '求指定列数值的方差.', 25, -1, -1, -1, 1, 0, 5, '2022-10-24 15:45:35', '2022-10-24 15:45:35', 0, NULL);
+INSERT INTO `develop_function` VALUES (367, 'VAR_SAMP', '', '求指定列数值的样本方差', 'VAR_POP(value)', '求指定列数值的样本方差.', 25, -1, -1, -1, 1, 0, 5, '2022-10-24 15:45:35', '2022-10-24 15:45:35', 0, NULL);
+INSERT INTO `develop_function` VALUES (369, 'COLLECT', '', '返回包含值的multiset', 'COLLECT(value)', '返回包含值的multiset. null将被忽略.如果仅添加null,则返回一个空multiset.', 25, -1, -1, -1, 1, 0, 5, '2022-10-24 15:45:35', '2022-10-24 15:45:35', 0, NULL);
+INSERT INTO `develop_function` VALUES (371, 'NULLIF', '', '如果值相同着返回null', 'NULLIF(value, value)', '如果值相同着返回null, 比如 NULLIF(5, 5) 返回 NULL; NULLIF(5, 0) 返回 5.', 27, -1, -1, -1, 1, 0, 5, '2022-10-24 15:45:35', '2022-10-24 15:45:35', 0, NULL);
+INSERT INTO `develop_function` VALUES (373, 'COALESCE', '', '返回第一非null的值', 'COALESCE(value, value [, value ]* )', '返回第一非null的值, 比如: COALESCE(NULL, 5) 返回 5.', 27, -1, -1, -1, 1, 0, 5, '2022-10-24 15:45:35', '2022-10-24 15:45:35', 0, NULL);
+INSERT INTO `develop_function` VALUES (375, 'CAST', '', '类型转换', 'CAST(value AS type)', '将value 转换为指定type', 27, -1, -1, -1, 1, 0, 5, '2022-10-24 15:45:35', '2022-10-24 15:45:35', 0, NULL);
+INSERT INTO `develop_function` VALUES (377, 'GROUP_ID', '', '返回一个唯一标识分组键的整数', 'GROUP_ID()', '返回一个唯一标识分组键的整数.', 27, -1, -1, -1, 1, 0, 5, '2022-10-24 15:45:35', '2022-10-24 15:45:35', 0, NULL);
+INSERT INTO `develop_function` VALUES (379, 'GROUPING', '', '如果表达式在当前行的分组集合中返回1, 否则返回0', 'GROUPING(expression)', '如果表达式在当前行的分组集合中返回1, 否则返回0.', 27, -1, -1, -1, 1, 0, 5, '2022-10-24 15:45:35', '2022-10-24 15:45:35', 0, NULL);
+INSERT INTO `develop_function` VALUES (381, 'GROUPING_ID', '', '返回给定分组表达式的位向量', 'GROUPING_ID(expression [, expression]* )', '返回给定分组表达式的位向量.', 27, -1, -1, -1, 1, 0, 5, '2022-10-24 15:45:35', '2022-10-24 15:45:35', 0, NULL);
 COMMIT;
 
 -- ----------------------------
@@ -986,6 +1044,27 @@ CREATE TABLE `develop_hive_select_sql` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin COMMENT='sql查询临时表';
 
 -- ----------------------------
+-- Table structure for develop_read_write_lock
+-- ----------------------------
+DROP TABLE IF EXISTS `develop_read_write_lock`;
+CREATE TABLE `develop_read_write_lock` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `lock_name` varchar(128) COLLATE utf8_bin NOT NULL COMMENT '锁名称',
+  `tenant_id` int(11) DEFAULT NULL COMMENT '租户Id',
+  `relation_id` int(11) NOT NULL COMMENT 'Id',
+  `type` varchar(64) COLLATE utf8_bin NOT NULL COMMENT '任务类型 ',
+  `create_user_id` int(11) DEFAULT NULL COMMENT '创建人Id',
+  `modify_user_id` int(11) NOT NULL COMMENT '修改的用户',
+  `version` int(11) NOT NULL DEFAULT '1' COMMENT '乐观锁,0是特殊含义',
+  `gmt_create` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '新增时间',
+  `gmt_modified` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
+  `is_deleted` tinyint(1) NOT NULL DEFAULT '0' COMMENT '0正常 1逻辑删除',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `index_lock` (`relation_id`,`type`),
+  UNIQUE KEY `index_read_write_lock` (`lock_name`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin COMMENT='读写锁记录表';
+
+-- ----------------------------
 -- Table structure for develop_resource
 -- ----------------------------
 DROP TABLE IF EXISTS `develop_resource`;
@@ -1002,9 +1081,9 @@ CREATE TABLE `develop_resource` (
   `gmt_modified` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
   `create_user_id` int(11) NOT NULL COMMENT '新建资源的用户',
   `modify_user_id` int(11) NOT NULL COMMENT '修改人',
-  `compute_type` int(11) NOT NULL DEFAULT '0' COMMENT '上传组建类型',
   `is_deleted` tinyint(1) NOT NULL DEFAULT '0' COMMENT '0正常 1逻辑删除',
   `node_id` bigint(20) DEFAULT NULL,
+  `compute_type` int(11) DEFAULT '0' COMMENT '上传组建类型',
   PRIMARY KEY (`id`),
   KEY `index_resource_name` (`resource_name`(128)),
   KEY `index_resource_type` (`resource_type`,`is_deleted`)
@@ -1067,9 +1146,11 @@ CREATE TABLE `develop_task` (
   `source_str` longtext COLLATE utf8_bin COMMENT '输入源',
   `target_str` longtext COLLATE utf8_bin COMMENT '输出源',
   `side_str` longtext COLLATE utf8_bin COMMENT '维表',
+  `job_id` varchar(64) COLLATE utf8_bin DEFAULT NULL,
   `setting_str` longtext COLLATE utf8_bin COMMENT '设置',
   `create_model` tinyint(4) DEFAULT NULL COMMENT '任务模式 0 向导模式  1 脚本模式',
-  `job_id` varchar(64) COLLATE utf8_bin DEFAULT NULL,
+  `queue_name` varchar(64) COLLATE utf8_bin DEFAULT NULL COMMENT 'yarn队列名称',
+  `datasource_id` int(11) DEFAULT NULL COMMENT '数据源id',
   PRIMARY KEY (`id`),
   KEY `index_name` (`name`(128))
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin COMMENT='任务表';
@@ -1221,7 +1302,7 @@ CREATE TABLE `dict` (
   PRIMARY KEY (`id`),
   KEY `index_dict_code` (`dict_code`),
   KEY `index_type` (`type`)
-) ENGINE=InnoDB AUTO_INCREMENT=301 DEFAULT CHARSET=utf8 COLLATE=utf8_bin COMMENT='通用数据字典';
+) ENGINE=InnoDB AUTO_INCREMENT=363 DEFAULT CHARSET=utf8 COLLATE=utf8_bin COMMENT='通用数据字典';
 
 -- ----------------------------
 -- Records of dict
@@ -1233,148 +1314,168 @@ INSERT INTO `dict` VALUES (5, 'spark_thrift_version', '2.x', '2.x', NULL, 3, 2, 
 INSERT INTO `dict` VALUES (7, 'hadoop_config', 'HDP 3.1.x', '-200', '', 5, 0, 'LONG', 'SPARK', 0, '2021-02-05 11:53:21', '2021-02-05 11:53:21', 0);
 INSERT INTO `dict` VALUES (9, 'typename_mapping', 'yarn3-hdfs3-spark210', '-108', NULL, 6, 0, 'LONG', '', 0, '2021-03-04 17:50:23', '2021-03-04 17:50:23', 0);
 INSERT INTO `dict` VALUES (11, 'typename_mapping', 'yarn2-hdfs2-spark210', '-108', NULL, 6, 0, 'LONG', '', 0, '2021-03-04 17:50:24', '2021-03-04 17:50:24', 0);
-INSERT INTO `dict` VALUES (15, 'typename_mapping', 'dummy', '-101', NULL, 6, 0, 'LONG', '', 0, '2021-03-04 17:50:24', '2021-03-04 17:50:24', 0);
-INSERT INTO `dict` VALUES (19, 'typename_mapping', 'hive', '-117', NULL, 6, 0, 'LONG', '', 0, '2021-03-04 17:50:24', '2021-03-04 17:50:24', 0);
-INSERT INTO `dict` VALUES (21, 'typename_mapping', 'hive2', '-117', NULL, 6, 0, 'LONG', '', 0, '2021-03-04 17:50:24', '2021-03-04 17:50:24', 0);
-INSERT INTO `dict` VALUES (23, 'typename_mapping', 'hive3', '-117', NULL, 6, 0, 'LONG', '', 0, '2021-03-04 17:50:24', '2021-03-04 17:50:24', 0);
-INSERT INTO `dict` VALUES (25, 'hadoop_version', 'Apache Hadoop 2.x', '2.7.6', NULL, 0, 1, 'STRING', 'Apache Hadoop', 0, '2021-12-28 10:18:58', '2021-12-28 10:18:58', 0);
-INSERT INTO `dict` VALUES (27, 'hadoop_version', 'Apache Hadoop 3.x', '3.0.0', NULL, 0, 2, 'STRING', 'Apache Hadoop', 0, '2021-12-28 10:18:58', '2021-12-28 10:18:58', 0);
-INSERT INTO `dict` VALUES (29, 'hadoop_version', 'HDP 2.6.x', '2.7.3', NULL, 0, 1, 'STRING', 'HDP', 0, '2021-12-28 10:18:59', '2021-12-28 10:18:59', 0);
-INSERT INTO `dict` VALUES (31, 'hadoop_version', 'HDP 3.x', '3.1.1', NULL, 0, 2, 'STRING', 'HDP', 0, '2021-12-28 10:18:59', '2021-12-28 10:18:59', 0);
-INSERT INTO `dict` VALUES (33, 'hadoop_version', 'CDH 5.x', '2.3.0', NULL, 0, 1, 'STRING', 'CDH', 0, '2021-12-28 10:19:00', '2021-12-28 10:19:00', 0);
-INSERT INTO `dict` VALUES (35, 'hadoop_version', 'CDH 6.0.x', '3.0.0', NULL, 0, 11, 'STRING', 'CDH', 0, '2021-12-28 10:19:01', '2021-12-28 10:19:01', 0);
-INSERT INTO `dict` VALUES (37, 'hadoop_version', 'CDH 6.1.x', '3.0.0', NULL, 0, 12, 'STRING', 'CDH', 0, '2021-12-28 10:19:01', '2021-12-28 10:19:01', 0);
-INSERT INTO `dict` VALUES (39, 'hadoop_version', 'CDH 6.2.x', '3.0.0', NULL, 0, 13, 'STRING', 'CDH', 0, '2021-12-28 10:19:01', '2021-12-28 10:19:01', 0);
-INSERT INTO `dict` VALUES (41, 'hadoop_version', 'CDP 7.x', '3.1.1', NULL, 0, 15, 'STRING', 'CDH', 0, '2021-12-28 10:19:02', '2021-12-28 10:19:02', 0);
-INSERT INTO `dict` VALUES (43, 'hadoop_version', 'TDH 5.2.x', '2.7.0', NULL, 0, 1, 'STRING', 'TDH', 0, '2021-12-28 10:19:02', '2021-12-28 10:19:02', 0);
-INSERT INTO `dict` VALUES (45, 'hadoop_version', 'TDH 7.x', '2.7.0', NULL, 0, 2, 'STRING', 'TDH', 0, '2021-12-28 10:19:02', '2021-12-28 10:19:02', 0);
-INSERT INTO `dict` VALUES (47, 'hadoop_version', 'TDH 6.x', '2.7.0', NULL, 0, 1, 'STRING', 'TDH', 0, '2021-12-28 11:44:02', '2021-12-28 11:44:02', 0);
-INSERT INTO `dict` VALUES (49, 'component_model', 'HDFS', '{\"owner\": \"STORAGE\", \"dependsOn\": [\"RESOURCE\"], \"allowKerberos\": \"true\", \"allowCoexistence\": false, \"uploadConfigType\": \"1\", \"versionDictionary\": \"HADOOP_VERSION\"}', NULL, 12, 0, 'STRING', '', 0, '2021-12-07 11:26:57', '2021-12-07 11:26:57', 0);
-INSERT INTO `dict` VALUES (51, 'component_model', 'FLINK', '{\"owner\": \"COMPUTE\", \"dependsOn\": [\"RESOURCE\", \"STORAGE\"], \"allowKerberos\": \"true\", \"allowCoexistence\": true, \"uploadConfigType\": \"0\", \"versionDictionary\": \"FLINK_VERSION\"}', NULL, 12, 0, 'STRING', '', 0, '2021-12-07 11:26:57', '2021-12-07 11:26:57', 0);
-INSERT INTO `dict` VALUES (53, 'component_model', 'SPARK', '{\"owner\": \"COMPUTE\", \"dependsOn\": [\"RESOURCE\", \"STORAGE\"], \"allowKerberos\": \"true\", \"allowCoexistence\": true, \"uploadConfigType\": \"0\", \"versionDictionary\": \"SPARK_VERSION\"}', NULL, 12, 0, 'STRING', '', 0, '2021-12-07 11:26:57', '2021-12-28 16:54:54', 0);
-INSERT INTO `dict` VALUES (55, 'component_model', 'SPARK_THRIFT', '{\"owner\": \"COMPUTE\", \"dependsOn\": [\"RESOURCE\", \"STORAGE\"], \"allowKerberos\": \"true\", \"allowCoexistence\": false, \"uploadConfigType\": \"0\", \"versionDictionary\": \"SPARK_THRIFT_VERSION\"}', NULL, 12, 0, 'STRING', '', 0, '2021-12-07 11:26:57', '2021-12-07 11:26:57', 0);
-INSERT INTO `dict` VALUES (57, 'component_model', 'HIVE_SERVER', '{\"owner\": \"COMPUTE\", \"dependsOn\": [\"RESOURCE\", \"STORAGE\"], \"allowKerberos\": \"true\", \"allowCoexistence\": false, \"uploadConfigType\": \"0\", \"versionDictionary\": \"HIVE_VERSION\"}', NULL, 12, 0, 'STRING', '', 0, '2021-12-07 11:26:57', '2021-12-07 11:26:57', 0);
-INSERT INTO `dict` VALUES (59, 'component_model', 'SFTP', '{\"owner\": \"COMMON\", \"dependsOn\": [], \"nameTemplate\": \"dummy\", \"allowKerberos\": \"false\", \"allowCoexistence\": false, \"uploadConfigType\": \"0\"}', NULL, 12, 0, 'STRING', '', 0, '2021-12-07 11:26:57', '2021-12-07 11:26:57', 0);
-INSERT INTO `dict` VALUES (61, 'component_model', 'YARN', '{\"owner\": \"RESOURCE\", \"dependsOn\": [], \"allowKerberos\": \"true\", \"allowCoexistence\": false, \"uploadConfigType\": \"1\", \"versionDictionary\": \"HADOOP_VERSION\"}', NULL, 12, 0, 'STRING', '', 0, '2021-12-07 11:26:57', '2021-12-07 11:26:57', 0);
-INSERT INTO `dict` VALUES (63, 'component_model_config', '1.x', '{\"1.x\": \"hive\"}', NULL, 14, 1, 'STRING', 'HIVE_SERVER', 0, '2021-12-31 14:53:44', '2021-12-31 14:53:44', 0);
-INSERT INTO `dict` VALUES (65, 'component_model_config', '2.x', '{\"2.x\": \"hive2\"}', NULL, 14, 1, 'STRING', 'HIVE_SERVER', 0, '2021-12-31 14:53:44', '2021-12-31 14:53:44', 0);
-INSERT INTO `dict` VALUES (67, 'component_model_config', '3.x-apache', '{\"3.x-apache\": \"hive3\"}', NULL, 14, 1, 'STRING', 'HIVE_SERVER', 0, '2021-12-31 14:53:44', '2021-12-31 14:53:44', 0);
-INSERT INTO `dict` VALUES (69, 'component_model_config', '3.x-cdp', '{\"3.x-cdp\": \"hive3\"}', NULL, 14, 1, 'STRING', 'HIVE_SERVER', 0, '2021-12-31 14:53:44', '2021-12-31 14:53:44', 0);
-INSERT INTO `dict` VALUES (71, 'component_model_config', '1.x', '{\"1.x\": \"hive\"}', NULL, 14, 1, 'STRING', 'SPARK_THRIFT', 0, '2021-12-31 15:00:16', '2021-12-31 15:00:16', 0);
-INSERT INTO `dict` VALUES (73, 'component_model_config', '2.x', '{\"2.x\": \"hive2\"}', NULL, 14, 1, 'STRING', 'SPARK_THRIFT', 0, '2021-12-31 15:00:16', '2021-12-31 15:00:16', 0);
-INSERT INTO `dict` VALUES (75, 'SPARK_SQL', 'SPARK_SQL', '0', 'SparkSQL', 30, 1, 'STRING', '', 1, '2022-02-11 10:28:45', '2022-02-11 10:28:45', 0);
-INSERT INTO `dict` VALUES (77, 'SYNC', '数据同步', '2', '数据同步', 30, 5, 'STRING', '', 1, '2022-02-11 10:28:45', '2022-02-11 10:28:45', 0);
-INSERT INTO `dict` VALUES (79, 'VIRTUAL', '虚节点', '-1', '虚节点', 30, 11, 'STRING', '', 1, '2022-02-11 10:28:45', '2022-02-11 10:28:45', 0);
-INSERT INTO `dict` VALUES (81, 'ResourceManager', 'ResourceManager', '3', '资源管理', 31, 3, 'STRING', '', 1, '2022-02-11 10:40:14', '2022-02-11 10:40:14', 0);
-INSERT INTO `dict` VALUES (83, 'SparkSQLFunction', 'SparkSQLFunction', '4', 'SparkSQL', 31, 4, 'STRING', '', 1, '2022-02-11 10:40:14', '2022-07-05 14:54:37', 1);
-INSERT INTO `dict` VALUES (85, 'TableQuery', 'TableQuery', '5', '表查询', 31, 5, 'STRING', '', 1, '2022-02-11 10:40:14', '2022-07-05 14:54:37', 1);
-INSERT INTO `dict` VALUES (87, 'TaskDevelop', 'TaskDevelop', '1', '任务开发', 31, 1, 'STRING', '', 1, '2022-02-11 10:40:14', '2022-02-11 10:40:14', 0);
-INSERT INTO `dict` VALUES (89, 'ResourceManager', 'ResourceManager', '3', '资源管理', 32, 3, 'STRING', '', 1, '2022-02-11 10:42:19', '2022-02-11 10:42:19', 0);
-INSERT INTO `dict` VALUES (91, 'TaskManager', 'TaskManager', '1', '任务管理', 32, 1, 'STRING', '', 1, '2022-02-11 10:42:19', '2022-02-11 10:42:19', 0);
-INSERT INTO `dict` VALUES (93, 'CustomFunction', 'CustomFunction', '6', '自定义函数', 33, 4, 'STRING', '', 1, '2022-02-11 10:42:57', '2022-02-11 10:42:57', 0);
-INSERT INTO `dict` VALUES (95, 'SystemFunction', 'SystemFunction', '6', '系统函数', 33, 2, 'STRING', '', 1, '2022-02-11 10:42:57', '2022-02-11 10:42:57', 0);
-INSERT INTO `dict` VALUES (97, 'flink_version', '1.12', '112', NULL, 1, 2, 'INTEGER', '', 0, '2022-05-03 22:13:12', '2022-05-03 22:13:12', 0);
-INSERT INTO `dict` VALUES (99, 'component_model_config', 'Apache Hadoop 2.x', '{\"HDFS\": {\"HDFS\": \"yarn2-hdfs2-hadoop2\", \"FLINK\": [{\"1.12\": \"yarn2-hdfs2-flink112\"}], \"SPARK\": [{\"2.1\": \"yarn2-hdfs2-spark210\", \"2.4\": \"yarn2-hdfs2-spark240\"}], \"DT_SCRIPT\": \"yarn2-hdfs2-dtscript\"}, \"YARN\": \"yarn2\"}', NULL, 14, 1, 'STRING', 'YARN', 0, '2021-12-28 11:01:55', '2021-12-28 11:01:55', 0);
-INSERT INTO `dict` VALUES (101, 'component_model_config', 'Apache Hadoop 3.x', '{\"HDFS\": {\"HDFS\": \"yarn3-hdfs3-hadoop3\", \"FLINK\": [{\"1.12\": \"yarn3-hdfs3-flink112\"}], \"SPARK\": [{\"2.1\": \"yarn3-hdfs3-spark210\", \"2.4\": \"yarn3-hdfs3-spark240\"}], \"DT_SCRIPT\": \"yarn3-hdfs3-dtscript\"}, \"YARN\": \"yarn3\"}', NULL, 14, 1, 'STRING', 'YARN', 0, '2021-12-28 11:03:45', '2021-12-28 11:03:45', 0);
-INSERT INTO `dict` VALUES (103, 'component_model_config', 'HDP 3.0.x', '{\"HDFS\": {\"HDFS\": \"yarn3-hdfs3-hadoop3\", \"FLINK\": [{\"1.12\": \"yarn3-hdfs3-flink112\"}], \"SPARK\": [{\"2.1\": \"yarn3-hdfs3-spark210\", \"2.4\": \"yarn3-hdfs3-spark240\"}], \"DT_SCRIPT\": \"yarn3-hdfs3-dtscript\"}, \"YARN\": \"yarn3\"}', NULL, 14, 1, 'STRING', 'YARN', 0, '2021-12-28 11:04:23', '2021-12-28 11:04:23', 0);
-INSERT INTO `dict` VALUES (105, 'component_model_config', 'CDH 6.0.x', '{\"HDFS\": {\"HDFS\": \"yarn3-hdfs3-hadoop3\", \"FLINK\": [{\"1.8\": \"yarn3-hdfs3-flink180\"}, {\"1.10\": \"yarn3-hdfs3-flink110\"}, {\"1.12\": \"yarn3-hdfs3-flink112\"}], \"SPARK\": [{\"2.1\": \"yarn3-hdfs3-spark210\", \"2.4\": \"yarn3-hdfs3-spark240\"}], \"DT_SCRIPT\": \"yarn3-hdfs3-dtscript\"}, \"YARN\": \"yarn3\"}', NULL, 14, 1, 'STRING', 'YARN', 0, '2021-12-28 11:04:40', '2021-12-28 11:04:40', 0);
-INSERT INTO `dict` VALUES (107, 'component_model_config', 'CDH 6.1.x', '{\"HDFS\": {\"HDFS\": \"yarn3-hdfs3-hadoop3\", \"FLINK\": [{\"1.12\": \"yarn3-hdfs3-flink112\"}], \"SPARK\": [{\"2.1\": \"yarn3-hdfs3-spark210\", \"2.4\": \"yarn3-hdfs3-spark240\"}], \"DT_SCRIPT\": \"yarn3-hdfs3-dtscript\"}, \"YARN\": \"yarn3\"}', NULL, 14, 1, 'STRING', 'YARN', 0, '2021-12-28 11:04:55', '2021-12-28 11:04:55', 0);
-INSERT INTO `dict` VALUES (109, 'component_model_config', 'CDH 6.2.x', '{\"HDFS\": {\"HDFS\": \"yarn3-hdfs3-hadoop3\", \"TONY\": \"yarn3-hdfs3-tony\", \"FLINK\": [{\"1.8\": \"yarn3-hdfs3-flink180\"}, {\"1.10\": \"yarn3-hdfs3-flink110\"}, {\"1.12\": \"yarn3-hdfs3-flink112\"}], \"SPARK\": [{\"2.1\": \"yarn3-hdfs3-spark210\", \"2.4(CDH 6.2)\": \"yarn3-hdfs3-spark240cdh620\"}], \"LEARNING\": \"yarn3-hdfs3-learning\", \"DT_SCRIPT\": \"yarn3-hdfs3-dtscript\"}, \"YARN\": \"yarn3\"}', NULL, 14, 1, 'STRING', 'YARN', 0, '2021-12-28 11:05:06', '2021-12-28 11:05:06', 0);
-INSERT INTO `dict` VALUES (111, 'component_model_config', 'HDP 2.6.x', '{\"HDFS\": {\"HDFS\": \"yarn2-hdfs2-hadoop2\", \"FLINK\": [{\"1.12\": \"yarn2-hdfs2-flink112\"}], \"SPARK\": [{\"2.1\": \"yarn2-hdfs2-spark210\", \"2.4\": \"yarn2-hdfs2-spark240\"}], \"DT_SCRIPT\": \"yarn2-hdfs2-dtscript\"}, \"YARN\": \"yarn2\"}', NULL, 14, 1, 'STRING', 'YARN', 0, '2021-12-28 11:06:38', '2021-12-28 11:06:38', 0);
-INSERT INTO `dict` VALUES (113, 'component_model_config', 'CDH 5.x', '{\"HDFS\": {\"HDFS\": \"yarn2-hdfs2-hadoop2\", \"FLINK\": [{\"1.12\": \"yarn2-hdfs2-flink112\"}], \"SPARK\": [{\"2.1\": \"yarn2-hdfs2-spark210\", \"2.4\": \"yarn2-hdfs2-spark240\"}], \"DT_SCRIPT\": \"yarn2-hdfs2-dtscript\"}, \"YARN\": \"yarn2\"}', NULL, 14, 1, 'STRING', 'YARN', 0, '2021-12-28 11:07:19', '2021-12-28 11:07:19', 0);
-INSERT INTO `dict` VALUES (115, 'component_model_config', 'HDP 3.x', '{\"HDFS\": {\"HDFS\": \"yarn3-hdfs3-hadoop3\", \"FLINK\": [{\"1.12\": \"yarn3-hdfs3-flink112\"}], \"SPARK\": [{\"2.1\": \"yarn3-hdfs3-spark210\", \"2.4\": \"yarn3-hdfs3-spark240\"}], \"DT_SCRIPT\": \"yarn3-hdfs3-dtscript\"}, \"YARN\": \"yarn3\"}', NULL, 14, 1, 'STRING', 'YARN', 0, '2021-12-28 11:43:05', '2021-12-28 11:43:05', 0);
-INSERT INTO `dict` VALUES (117, 'component_model_config', 'TDH 5.2.x', '{\"HDFS\": {\"HDFS\": \"yarn2-hdfs2-hadoop2\", \"FLINK\": [{\"1.12\": \"yarn2-hdfs2-flink112\"}], \"SPARK\": [{\"2.1\": \"yarn2-hdfs2-spark210\", \"2.4\": \"yarn2-hdfs2-spark240\"}], \"DT_SCRIPT\": \"yarn2-hdfs2-dtscript\"}, \"YARN\": \"yarn2\"}', NULL, 14, 1, 'STRING', 'YARN', 0, '2021-12-28 11:44:33', '2021-12-28 11:44:33', 0);
-INSERT INTO `dict` VALUES (119, 'component_model_config', 'TDH 6.x', '{\"HDFS\": {\"HDFS\": \"yarn2-hdfs2-hadoop2\", \"FLINK\": [{\"1.12\": \"yarn2-hdfs2-flink112\"}], \"SPARK\": [{\"2.1\": \"yarn2-hdfs2-spark210\", \"2.4\": \"yarn2-hdfs2-spark240\"}], \"DT_SCRIPT\": \"yarn2-hdfs2-dtscript\"}, \"YARN\": \"yarn2\"}', NULL, 14, 1, 'STRING', 'YARN', 0, '2021-12-28 11:44:43', '2021-12-28 11:44:43', 0);
-INSERT INTO `dict` VALUES (121, 'component_model_config', 'TDH 7.x', '{\"HDFS\": {\"HDFS\": \"yarn2-hdfs2-hadoop2\", \"FLINK\": [{\"1.12\": \"yarn2-hdfs2-flink112\"}], \"SPARK\": [{\"2.1\": \"yarn2-hdfs2-spark210\", \"2.4\": \"yarn2-hdfs2-spark240\"}], \"DT_SCRIPT\": \"yarn2-hdfs2-dtscript\"}, \"YARN\": \"yarn2\"}', NULL, 14, 1, 'STRING', 'YARN', 0, '2021-12-28 11:45:02', '2021-12-28 11:45:02', 0);
-INSERT INTO `dict` VALUES (123, 'component_model_config', 'CDP 7.x', '{\"HDFS\": {\"HDFS\": \"yarn3-hdfs3-hadoop3\", \"FLINK\": [{\"1.12\": \"yarn3-hdfs3-flink112\"}], \"SPARK\": [{\"2.1\": \"yarn3-hdfs3-spark210\", \"2.4\": \"yarn3-hdfs3-spark240\"}], \"DT_SCRIPT\": \"yarn3-hdfs3-dtscript\"}, \"YARN\": \"yarn3\"}', NULL, 14, 1, 'STRING', 'YARN', 0, '2021-12-28 11:45:02', '2021-12-28 11:45:02', 0);
-INSERT INTO `dict` VALUES (125, 'typename_mapping', 'yarn2-hdfs2-flink112', '-115', NULL, 6, 0, 'LONG', '', 0, '2021-05-18 11:29:00', '2021-05-18 11:29:00', 0);
-INSERT INTO `dict` VALUES (127, 'typename_mapping', 'yarn3-hdfs3-flink112', '-115', NULL, 6, 0, 'LONG', '', 0, '2021-05-18 11:29:00', '2021-05-18 11:29:00', 0);
-INSERT INTO `dict` VALUES (129, 'hive_version', '1.x', '1.x', NULL, 4, 1, 'STRING', '', 0, '2022-05-03 22:20:53', '2022-05-03 22:20:53', 0);
-INSERT INTO `dict` VALUES (131, 'hive_version', '2.x', '2.x', NULL, 4, 2, 'STRING', '', 1, '2022-05-03 22:20:54', '2022-05-03 22:20:54', 0);
-INSERT INTO `dict` VALUES (133, 'hive_version', '3.x-apache', '3.x-apache', NULL, 4, 3, 'STRING', '', 1, '2022-05-03 22:20:54', '2022-05-03 22:20:54', 0);
-INSERT INTO `dict` VALUES (135, 'hive_version', '3.x-cdp', '3.x-cdp', NULL, 4, 3, 'STRING', '', 1, '2022-05-03 22:20:55', '2022-05-03 22:20:55', 0);
-INSERT INTO `dict` VALUES (137, 'FlinkSQLFunction', 'FlinkSQLFunction', '4', 'FlinkSQL', 31, 4, 'STRING', '', 1, '2022-05-03 22:21:10', '2022-07-05 14:54:37', 1);
-INSERT INTO `dict` VALUES (139, 'tips', 'spark.submit.deployMode', 'spark driver的jvm扩展参数', '1', 25, 0, 'STRING', '主要', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
-INSERT INTO `dict` VALUES (141, 'tips', 'sparkPythonExtLibPath', '远程存储系统上pyspark.zip和py4j-0.10.7-src.zip的路径\n注：pyspark.zip和py4j-0.10.7-src.zip在$SPARK_HOME/python/lib路径下获取', '1', 25, 0, 'STRING', '主要', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
-INSERT INTO `dict` VALUES (143, 'tips', 'sparkSqlProxyPath', '远程存储系统上spark-sql-proxy.jar路径\n注：spark-sql-proxy.jar是用来执行spark sql的jar包', '1', 25, 0, 'STRING', '主要', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
-INSERT INTO `dict` VALUES (145, 'tips', 'spark.yarn.maxAppAttempts', 'spark driver最大尝试次数, 默认为yarn上yarn.resourcemanager.am.max-attempts配置的值\n注：如果spark.yarn.maxAppAttempts配置的大于yarn.resourcemanager.am.max-attempts则无效', '1', 25, 0, 'STRING', '主要', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
-INSERT INTO `dict` VALUES (147, 'tips', 'sparkYarnArchive', '远程存储系统上spark jars的路径', '1', 25, 0, 'STRING', '主要', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
-INSERT INTO `dict` VALUES (149, 'tips', 'yarnAccepterTaskNumber', '允许yarn上同时存在状态为accepter的任务数量，当达到这个值后会禁止任务提交', '1', 25, 0, 'STRING', '主要', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
-INSERT INTO `dict` VALUES (151, 'tips', 'spark.speculation', 'spark任务推测行为', '1', 25, 0, 'STRING', '主要', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
-INSERT INTO `dict` VALUES (153, 'tips', 'spark.executor.cores', '每个executor可以使用的cpu核数', '1', 25, 0, 'STRING', '资源', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
-INSERT INTO `dict` VALUES (155, 'tips', 'spark.executor.memory', '每个executor可以使用的内存量', '1', 25, 0, 'STRING', '资源', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
-INSERT INTO `dict` VALUES (157, 'tips', 'spark.executor.instances', 'executor实例数', '1', 25, 0, 'STRING', '资源', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
-INSERT INTO `dict` VALUES (159, 'tips', 'spark.cores.max', ' standalone模式下任务最大能申请的cpu核数', '1', 25, 0, 'STRING', '资源', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
-INSERT INTO `dict` VALUES (161, 'tips', 'spark.network.timeout', 'spark中所有网络交互的最大超时时间', '1', 25, 0, 'STRING', '网络', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
-INSERT INTO `dict` VALUES (163, 'tips', 'spark.rpc.askTimeout', 'RPC 请求操作在超时之前等待的持续时间', '1', 25, 0, 'STRING', '网络', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
-INSERT INTO `dict` VALUES (165, 'tips', 'spark.executor.heartbeatInterval', 'driver和executor之间心跳时间间隔', '1', 25, 0, 'STRING', '网络', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
-INSERT INTO `dict` VALUES (167, 'tips', 'spark.eventLog.compress', '是否对spark事件日志进行压缩', '1', 25, 0, 'STRING', '事件日志', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
-INSERT INTO `dict` VALUES (169, 'tips', 'spark.eventLog.dir', 'spark事件日志存放路径', '1', 25, 0, 'STRING', '事件日志', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
-INSERT INTO `dict` VALUES (171, 'tips', 'spark.eventLog.enabled', '是否记录 spark 事件日志', '1', 25, 0, 'STRING', '事件日志', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
-INSERT INTO `dict` VALUES (173, 'tips', 'spark.driver.extraJavaOptions', 'spark driver的jvm扩展参数', '1', 25, 0, 'STRING', 'JVM', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
-INSERT INTO `dict` VALUES (175, 'tips', 'spark.executor.extraJavaOptions', 'spark executor的jvm扩展参数', '1', 25, 0, 'STRING', 'JVM', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
-INSERT INTO `dict` VALUES (177, 'tips', 'spark.yarn.appMasterEnv.PYSPARK_DRIVER_PYTHON', 'driver中用于执行pyspark任务的python二进制可执行文件路径', '1', 25, 0, 'STRING', '环境变量', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
-INSERT INTO `dict` VALUES (179, 'tips', 'spark.yarn.appMasterEnv.PYSPARK_PYTHON', '用于执行pyspark任务的python二进制可执行文件路径', '1', 25, 0, 'STRING', '环境变量', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
-INSERT INTO `dict` VALUES (181, 'tips', 'jobmanager.memory.process.size', 'JobManager 总内存(master)', '0', 25, 0, 'STRING', '公共参数', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
-INSERT INTO `dict` VALUES (183, 'tips', 'taskmanager.memory.process.size', 'TaskManager 总内存(slaves)', '0', 25, 0, 'STRING', '公共参数', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
-INSERT INTO `dict` VALUES (185, 'tips', 'taskmanager.numberOfTaskSlots', '单个 TaskManager 可以运行的并行算子或用户函数实例的数量。', '0', 25, 0, 'STRING', '公共参数', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
-INSERT INTO `dict` VALUES (187, 'tips', 'high-availability', 'flink ha类型', '0', 25, 0, 'STRING', '高可用', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
-INSERT INTO `dict` VALUES (189, 'tips', 'high-availability.zookeeper.quorum', 'zookeeper地址，当ha选择是zookeeper时必填', '0', 25, 0, 'STRING', '高可用', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
-INSERT INTO `dict` VALUES (191, 'tips', 'high-availability.zookeeper.path.root', 'ha节点路径', '0', 25, 0, 'STRING', '高可用', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
-INSERT INTO `dict` VALUES (193, 'tips', 'high-availability.storageDir', 'ha元数据存储路径', '0', 25, 0, 'STRING', '高可用', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
-INSERT INTO `dict` VALUES (195, 'tips', 'prometheusHost', 'prometheus地址，平台端使用', '0', 25, 0, 'STRING', '数栈平台参数', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
-INSERT INTO `dict` VALUES (197, 'tips', 'prometheusPort', 'prometheus，平台端使用', '0', 25, 0, 'STRING', '数栈平台参数', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
-INSERT INTO `dict` VALUES (199, 'tips', 'metrics.reporter.promgateway.class', '用来推送指标类', '0', 25, 0, 'STRING', 'metric监控', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
-INSERT INTO `dict` VALUES (201, 'tips', 'metrics.reporter.promgateway.host', 'promgateway地址', '0', 25, 0, 'STRING', 'metric监控', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
-INSERT INTO `dict` VALUES (203, 'tips', 'metrics.reporter.promgateway.port', 'promgateway端口', '0', 25, 0, 'STRING', 'metric监控', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
-INSERT INTO `dict` VALUES (205, 'tips', 'metrics.reporter.promgateway.deleteOnShutdown', '任务结束后是否删除指标', '0', 25, 0, 'STRING', 'metric监控', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
-INSERT INTO `dict` VALUES (207, 'tips', 'metrics.reporter.promgateway.jobName', '指标任务名', '0', 25, 0, 'STRING', 'metric监控', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
-INSERT INTO `dict` VALUES (209, 'tips', 'metrics.reporter.promgateway.randomJobNameSuffix', '是否在任务名上添加随机值', '0', 25, 0, 'STRING', 'metric监控', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
-INSERT INTO `dict` VALUES (211, 'tips', 'state.backend', '状态后端', '0', 25, 0, 'STRING', '容错和checkpointing', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
-INSERT INTO `dict` VALUES (213, 'tips', 'state.backend.incremental', '是否开启增量', '0', 25, 0, 'STRING', '容错和checkpointing', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
-INSERT INTO `dict` VALUES (215, 'tips', 'state.checkpoints.dir', 'checkpoint路径地址', '0', 25, 0, 'STRING', '容错和checkpointing', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
-INSERT INTO `dict` VALUES (217, 'tips', 'state.checkpoints.num-retained', 'checkpoint保存个数', '0', 25, 0, 'STRING', '容错和checkpointing', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
-INSERT INTO `dict` VALUES (219, 'tips', 'state.savepoints.dir', 'savepoint路径', '0', 25, 0, 'STRING', '容错和checkpointing', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
-INSERT INTO `dict` VALUES (221, 'tips', 'checkpoint.retain.time', '检查点保留时间', '0', 25, 0, 'STRING', '容错和checkpointing', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
-INSERT INTO `dict` VALUES (223, 'tips', 'classloader.resolve-order', '类加载模式', '0', 25, 0, 'STRING', '高级', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
-INSERT INTO `dict` VALUES (225, 'tips', 'jobmanager.archive.fs.dir', '任务结束后任务信息存储路径', '0', 25, 0, 'STRING', '高级', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
-INSERT INTO `dict` VALUES (227, 'tips', 'akka.ask.timeout', 'akka通讯超时时间', '0', 25, 0, 'STRING', '高级', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
-INSERT INTO `dict` VALUES (229, 'tips', 'akka.tcp.timeout', 'tcp 连接的超时时间', '0', 25, 0, 'STRING', '高级', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
-INSERT INTO `dict` VALUES (231, 'tips', 'env.java.opts', 'jvm参数', '0', 25, 0, 'STRING', 'JVM参数', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
-INSERT INTO `dict` VALUES (233, 'tips', 'yarn.application-attempt-failures-validity-interval', '以毫秒为单位的时间窗口，它定义了重新启动 AM 时应用程序尝试失败的次数。不在此窗口范围内的故障不予考虑。将此值设置为 -1 以便全局计数。', '0', 25, 0, 'STRING', 'Yarn', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
-INSERT INTO `dict` VALUES (235, 'tips', 'yarn.application-attempts', 'ApplicationMaster 重新启动的次数。默认情况下，该值将设置为 1。如果启用了高可用性，则默认值为 2。重启次数也受 YARN 限制（通过 yarn.resourcemanager.am.max-attempts 配置）。注意整个 Flink 集群会重启，YARN Client 会失去连接。', '0', 25, 0, 'STRING', 'Yarn', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
-INSERT INTO `dict` VALUES (237, 'tips', 'pluginLoadMode', '插件加载类型', '0', 25, 0, 'STRING', '数栈平台参数', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
-INSERT INTO `dict` VALUES (239, 'tips', 'classloader.dtstack-cache', '是否缓存classloader', '0', 25, 0, 'STRING', '数栈平台参数', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
-INSERT INTO `dict` VALUES (241, 'tips', 'sessionStartAuto', '是否允许engine启动flink session', '0', 25, 0, 'STRING', '数栈平台参数', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
-INSERT INTO `dict` VALUES (243, 'tips', 'checkSubmitJobGraphInterval', 'session check间隔（60 * 10s）', '0', 25, 0, 'STRING', '数栈平台参数', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
-INSERT INTO `dict` VALUES (245, 'tips', 'flinkLibDir', 'session check间隔（60 * 10s）', '0', 25, 0, 'STRING', '数栈平台参数', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
-INSERT INTO `dict` VALUES (247, 'tips', 'chunjunDistDir', 'flinkx plugins父级本地目录', '0', 25, 0, 'STRING', '数栈平台参数', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
-INSERT INTO `dict` VALUES (249, 'tips', 'remoteFlinkLibDir', 'flink lib 远程路径', '0', 25, 0, 'STRING', '数栈平台参数', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
-INSERT INTO `dict` VALUES (251, 'tips', 'remoteChunjunDistDir', 'flinkx plugins父级远程目录', '0', 25, 0, 'STRING', '数栈平台参数', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
-INSERT INTO `dict` VALUES (253, 'tips', 'flinkSessionName', 'yarn session名称', '0', 25, 0, 'STRING', '数栈平台参数', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
-INSERT INTO `dict` VALUES (255, 'tips', 'monitorAcceptedApp', '是否监控yarn accepted状态任务', '0', 25, 0, 'STRING', '数栈平台参数', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
-INSERT INTO `dict` VALUES (257, 'tips', 'yarnAccepterTaskNumber', '允许yarn accepter任务数量，达到这个值后不允许任务提交', '0', 25, 0, 'STRING', '数栈平台参数', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
-INSERT INTO `dict` VALUES (259, 'tips', 'slotmanager.number-of-slots.max', 'flink session允许的最大slot数', '0', 25, 0, 'STRING', '公共参数', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
-INSERT INTO `dict` VALUES (261, 'tips', 'sessionRetryNum', 'session重试次数，达到后会放缓重试的频率', '0', 25, 0, 'STRING', '数栈平台参数', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
-INSERT INTO `dict` VALUES (263, 'tips', 'restart-strategy', 'none, off, disable:无重启策略。Fixed -delay, Fixed -delay:固定延迟重启策略。更多细节可以在这里找到。Failure -rate:故障率重启策略。更多细节可以在这里找到。如果检查点被禁用，默认值为none。如果检查点启用，默认值是fixed-delay with Integer。MAX_VALUE重启尝试和\'1 s\'延迟。', '0', 25, 0, 'STRING', '容错和checkpointing', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
-INSERT INTO `dict` VALUES (265, 'tips', 'restart-strategy.failure-rate.delay', '如果restart-strategy设置为根据失败率重试，则两次连续重启尝试之间的延迟。可以用“1分钟”、“20秒”来表示', '0', 25, 0, 'STRING', '容错和checkpointing', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
-INSERT INTO `dict` VALUES (267, 'tips', 'clusterMode', '任务执行模式：perjob,session', '0', 25, 0, 'STRING', '数栈平台参数', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
-INSERT INTO `dict` VALUES (269, 'tips', 'restart-strategy.failure-rate.failure-rate-interval', '如果重启策略设置为故障率，测量故障率的时间间隔。可以用“1分钟”、“20秒”来表示。', '0', 25, 0, 'STRING', '容错和checkpointing', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
-INSERT INTO `dict` VALUES (271, 'tips', 'restart-strategy.failure-rate.max-failures-per-interval', '如果restart-strategy设置为根据失败率重试，在给定的时间间隔内，任务失败前的最大重启次数。', '0', 25, 0, 'STRING', '容错和checkpointing', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
-INSERT INTO `dict` VALUES (273, 'tips', 'jdbcUrl', 'jdbc url地址', '4', 25, 0, 'STRING', '', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
-INSERT INTO `dict` VALUES (275, 'tips', 'jdbcUrl', 'jdbc url地址', '5', 25, 0, 'STRING', '', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
-INSERT INTO `dict` VALUES (277, 'tips', 'username', 'jdbc连接用户名', '4', 25, 0, 'STRING', '', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
-INSERT INTO `dict` VALUES (279, 'tips', 'username', 'jdbc连接用户名', '5', 25, 0, 'STRING', '', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
-INSERT INTO `dict` VALUES (281, 'tips', 'password', 'jdbc连接密码', '4', 25, 0, 'STRING', '', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
-INSERT INTO `dict` VALUES (283, 'tips', 'password', 'jdbc连接密码', '5', 25, 0, 'STRING', '', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
-INSERT INTO `dict` VALUES (285, 'tips', 'maxJobPoolSize', '任务最大线程数', '4', 25, 0, 'STRING', '', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
-INSERT INTO `dict` VALUES (287, 'tips', 'maxJobPoolSize', '任务最大线程数', '5', 25, 0, 'STRING', '', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
-INSERT INTO `dict` VALUES (289, 'tips', 'minJobPoolSize', '任务最小线程数', '4', 25, 0, 'STRING', '', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
-INSERT INTO `dict` VALUES (291, 'tips', 'minJobPoolSize', '任务最小线程数', '5', 25, 0, 'STRING', '', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
-INSERT INTO `dict` VALUES (293, 'FunctionManager', 'FunctionManager', '4', '函数管理', 31, 2, 'STRING', '', 1, '2022-07-05 14:56:43', '2022-07-05 14:56:43', 0);
-INSERT INTO `dict` VALUES (295, 'FunctionManager', 'FunctionManager', '4', '函数管理', 32, 4, 'STRING', '', 1, '2022-07-05 15:11:21', '2022-07-05 15:11:21', 0);
-INSERT INTO `dict` VALUES (297, 'component_model', 'OCEAN_BASE', '{\"owner\": \"COMPUTE\", \"dependsOn\": [], \"allowKerberos\": \"false\", \"allowCoexistence\": false, \"uploadConfigType\": \"0\", \"versionDictionary\": \"\",\"nameTemplate\":\"oceanBase\"}', NULL, 12, 0, 'STRING', '', 0, '2022-07-06 17:17:03', '2022-07-06 17:17:03', 0);
-INSERT INTO `dict` VALUES (299, 'typename_mapping', 'oceanBase', '-118', NULL, 6, 0, 'LONG', '', 0, '2022-07-06 19:32:06', '2022-07-06 19:32:06', 0);
+INSERT INTO `dict` VALUES (13, 'typename_mapping', 'dummy', '-101', NULL, 6, 0, 'LONG', '', 0, '2021-03-04 17:50:24', '2021-03-04 17:50:24', 0);
+INSERT INTO `dict` VALUES (15, 'typename_mapping', 'hive', '-117', NULL, 6, 0, 'LONG', '', 0, '2021-03-04 17:50:24', '2021-03-04 17:50:24', 0);
+INSERT INTO `dict` VALUES (17, 'typename_mapping', 'hive2', '-117', NULL, 6, 0, 'LONG', '', 0, '2021-03-04 17:50:24', '2021-03-04 17:50:24', 0);
+INSERT INTO `dict` VALUES (19, 'typename_mapping', 'hive3', '-117', NULL, 6, 0, 'LONG', '', 0, '2021-03-04 17:50:24', '2021-03-04 17:50:24', 0);
+INSERT INTO `dict` VALUES (21, 'hadoop_version', 'Apache Hadoop 2.x', '2.7.6', NULL, 0, 1, 'STRING', 'Apache Hadoop', 0, '2021-12-28 10:18:58', '2021-12-28 10:18:58', 0);
+INSERT INTO `dict` VALUES (23, 'hadoop_version', 'Apache Hadoop 3.x', '3.0.0', NULL, 0, 2, 'STRING', 'Apache Hadoop', 0, '2021-12-28 10:18:58', '2021-12-28 10:18:58', 0);
+INSERT INTO `dict` VALUES (25, 'hadoop_version', 'HDP 2.6.x', '2.7.3', NULL, 0, 1, 'STRING', 'HDP', 0, '2021-12-28 10:18:59', '2021-12-28 10:18:59', 0);
+INSERT INTO `dict` VALUES (27, 'hadoop_version', 'HDP 3.x', '3.1.1', NULL, 0, 2, 'STRING', 'HDP', 0, '2021-12-28 10:18:59', '2021-12-28 10:18:59', 0);
+INSERT INTO `dict` VALUES (29, 'hadoop_version', 'CDH 5.x', '2.3.0', NULL, 0, 1, 'STRING', 'CDH', 0, '2021-12-28 10:19:00', '2021-12-28 10:19:00', 0);
+INSERT INTO `dict` VALUES (31, 'hadoop_version', 'CDH 6.0.x', '3.0.0', NULL, 0, 11, 'STRING', 'CDH', 0, '2021-12-28 10:19:01', '2021-12-28 10:19:01', 0);
+INSERT INTO `dict` VALUES (33, 'hadoop_version', 'CDH 6.1.x', '3.0.0', NULL, 0, 12, 'STRING', 'CDH', 0, '2021-12-28 10:19:01', '2021-12-28 10:19:01', 0);
+INSERT INTO `dict` VALUES (35, 'hadoop_version', 'CDH 6.2.x', '3.0.0', NULL, 0, 13, 'STRING', 'CDH', 0, '2021-12-28 10:19:01', '2021-12-28 10:19:01', 0);
+INSERT INTO `dict` VALUES (37, 'hadoop_version', 'CDP 7.x', '3.1.1', NULL, 0, 15, 'STRING', 'CDH', 0, '2021-12-28 10:19:02', '2021-12-28 10:19:02', 0);
+INSERT INTO `dict` VALUES (39, 'hadoop_version', 'TDH 5.2.x', '2.7.0', NULL, 0, 1, 'STRING', 'TDH', 0, '2021-12-28 10:19:02', '2021-12-28 10:19:02', 0);
+INSERT INTO `dict` VALUES (41, 'hadoop_version', 'TDH 7.x', '2.7.0', NULL, 0, 2, 'STRING', 'TDH', 0, '2021-12-28 10:19:02', '2021-12-28 10:19:02', 0);
+INSERT INTO `dict` VALUES (43, 'hadoop_version', 'TDH 6.x', '2.7.0', NULL, 0, 1, 'STRING', 'TDH', 0, '2021-12-28 11:44:02', '2021-12-28 11:44:02', 0);
+INSERT INTO `dict` VALUES (45, 'component_model', 'HDFS', '{\"owner\": \"STORAGE\", \"dependsOn\": [\"RESOURCE\"], \"allowKerberos\": \"true\", \"allowCoexistence\": false, \"uploadConfigType\": \"1\", \"versionDictionary\": \"HADOOP_VERSION\"}', NULL, 12, 0, 'STRING', '', 0, '2021-12-07 11:26:57', '2021-12-07 11:26:57', 0);
+INSERT INTO `dict` VALUES (47, 'component_model', 'FLINK', '{\"owner\": \"COMPUTE\", \"dependsOn\": [\"RESOURCE\", \"STORAGE\"], \"allowKerberos\": \"true\", \"allowCoexistence\": true, \"uploadConfigType\": \"0\", \"versionDictionary\": \"FLINK_VERSION\"}', NULL, 12, 0, 'STRING', '', 0, '2021-12-07 11:26:57', '2021-12-07 11:26:57', 0);
+INSERT INTO `dict` VALUES (49, 'component_model', 'SPARK', '{\"owner\": \"COMPUTE\", \"dependsOn\": [\"RESOURCE\", \"STORAGE\"], \"allowKerberos\": \"true\", \"allowCoexistence\": true, \"uploadConfigType\": \"0\", \"versionDictionary\": \"SPARK_VERSION\"}', NULL, 12, 0, 'STRING', '', 0, '2021-12-07 11:26:57', '2021-12-28 16:54:54', 0);
+INSERT INTO `dict` VALUES (55, 'component_model', 'SFTP', '{\"owner\": \"COMMON\", \"dependsOn\": [], \"nameTemplate\": \"dummy\", \"allowKerberos\": \"false\", \"allowCoexistence\": false, \"uploadConfigType\": \"0\"}', NULL, 12, 0, 'STRING', '', 0, '2021-12-07 11:26:57', '2021-12-07 11:26:57', 0);
+INSERT INTO `dict` VALUES (57, 'component_model', 'YARN', '{\"owner\": \"RESOURCE\", \"dependsOn\": [], \"allowKerberos\": \"true\", \"allowCoexistence\": false, \"uploadConfigType\": \"1\", \"versionDictionary\": \"HADOOP_VERSION\"}', NULL, 12, 0, 'STRING', '', 0, '2021-12-07 11:26:57', '2021-12-07 11:26:57', 0);
+INSERT INTO `dict` VALUES (77, 'ResourceManager', 'ResourceManager', '3', '资源管理', 31, 3, 'STRING', '', 1, '2022-02-11 10:40:14', '2022-02-11 10:40:14', 0);
+INSERT INTO `dict` VALUES (79, 'SparkSQLFunction', 'SparkSQLFunction', '4', 'SparkSQL', 31, 4, 'STRING', '', 1, '2022-02-11 10:40:14', '2022-07-05 14:54:37', 1);
+INSERT INTO `dict` VALUES (81, 'TableQuery', 'TableQuery', '5', '表查询', 31, 5, 'STRING', '', 1, '2022-02-11 10:40:14', '2022-07-05 14:54:37', 1);
+INSERT INTO `dict` VALUES (83, 'TaskDevelop', 'TaskDevelop', '1', '任务开发', 31, 1, 'STRING', '', 1, '2022-02-11 10:40:14', '2022-02-11 10:40:14', 0);
+INSERT INTO `dict` VALUES (85, 'ResourceManager', 'ResourceManager', '3', '资源管理', 32, 3, 'STRING', '', 1, '2022-02-11 10:42:19', '2022-02-11 10:42:19', 0);
+INSERT INTO `dict` VALUES (87, 'TaskManager', 'TaskManager', '1', '任务管理', 32, 1, 'STRING', '', 1, '2022-02-11 10:42:19', '2022-02-11 10:42:19', 0);
+INSERT INTO `dict` VALUES (89, 'CustomFunction', 'CustomFunction', '6', '自定义函数', 33, 4, 'STRING', '', 1, '2022-02-11 10:42:57', '2022-02-11 10:42:57', 0);
+INSERT INTO `dict` VALUES (91, 'SystemFunction', 'SystemFunction', '6', '系统函数', 33, 2, 'STRING', '', 1, '2022-02-11 10:42:57', '2022-02-11 10:42:57', 0);
+INSERT INTO `dict` VALUES (95, 'component_model_config', 'Apache Hadoop 2.x', '{\"HDFS\": {\"HDFS\": \"yarn2-hdfs2-hadoop2\", \"FLINK\": [{\"112\": \"yarn2-hdfs2-flink112\"}], \"SPARK\": [{\"210\": \"yarn2-hdfs2-spark210\", \"240\": \"yarn2-hdfs2-spark240\"}], \"SCRIPT\": \"yarn2-hdfs2-script\"}, \"YARN\": \"yarn2\"}', NULL, 14, 1, 'STRING', 'YARN', 0, '2021-12-28 11:01:55', '2021-12-28 11:01:55', 0);
+INSERT INTO `dict` VALUES (97, 'component_model_config', 'Apache Hadoop 3.x', '{\"HDFS\": {\"HDFS\": \"yarn3-hdfs3-hadoop3\", \"FLINK\": [{\"112\": \"yarn3-hdfs3-flink112\"}], \"SPARK\": [{\"210\": \"yarn3-hdfs3-spark210\", \"240\": \"yarn3-hdfs3-spark240\"}], \"SCRIPT\": \"yarn3-hdfs3-script\"}, \"YARN\": \"yarn3\"}', NULL, 14, 1, 'STRING', 'YARN', 0, '2021-12-28 11:03:45', '2021-12-28 11:03:45', 0);
+INSERT INTO `dict` VALUES (99, 'component_model_config', 'HDP 3.0.x', '{\"HDFS\": {\"HDFS\": \"yarn3-hdfs3-hadoop3\", \"FLINK\": [{\"112\": \"yarn3-hdfs3-flink112\"}], \"SPARK\": [{\"210\": \"yarn3-hdfs3-spark210\", \"240\": \"yarn3-hdfs3-spark240\"}], \"SCRIPT\": \"yarn3-hdfs3-script\"}, \"YARN\": \"yarn3\"}', NULL, 14, 1, 'STRING', 'YARN', 0, '2021-12-28 11:04:23', '2021-12-28 11:04:23', 0);
+INSERT INTO `dict` VALUES (101, 'component_model_config', 'CDH 6.0.x', '{\"HDFS\": {\"HDFS\": \"yarn3-hdfs3-hadoop3\", \"FLINK\": [{\"1.8\": \"yarn3-hdfs3-flink180\"}, {\"1.10\": \"yarn3-hdfs3-flink110\"}, {\"112\": \"yarn3-hdfs3-flink112\"}], \"SPARK\": [{\"210\": \"yarn3-hdfs3-spark210\", \"240\": \"yarn3-hdfs3-spark240\"}], \"SCRIPT\": \"yarn3-hdfs3-script\"}, \"YARN\": \"yarn3\"}', NULL, 14, 1, 'STRING', 'YARN', 0, '2021-12-28 11:04:40', '2021-12-28 11:04:40', 0);
+INSERT INTO `dict` VALUES (103, 'component_model_config', 'CDH 6.1.x', '{\"HDFS\": {\"HDFS\": \"yarn3-hdfs3-hadoop3\", \"FLINK\": [{\"112\": \"yarn3-hdfs3-flink112\"}], \"SPARK\": [{\"210\": \"yarn3-hdfs3-spark210\", \"240\": \"yarn3-hdfs3-spark240\"}], \"SCRIPT\": \"yarn3-hdfs3-script\"}, \"YARN\": \"yarn3\"}', NULL, 14, 1, 'STRING', 'YARN', 0, '2021-12-28 11:04:55', '2021-12-28 11:04:55', 0);
+INSERT INTO `dict` VALUES (105, 'component_model_config', 'CDH 6.2.x', '{\"HDFS\": {\"HDFS\": \"yarn3-hdfs3-hadoop3\", \"TONY\": \"yarn3-hdfs3-tony\", \"FLINK\": [{\"1.8\": \"yarn3-hdfs3-flink180\"}, {\"1.10\": \"yarn3-hdfs3-flink110\"}, {\"112\": \"yarn3-hdfs3-flink112\"}], \"SPARK\": [{\"210\": \"yarn3-hdfs3-spark210\", \"240(CDH 6.2)\": \"yarn3-hdfs3-spark240cdh620\"}], \"LEARNING\": \"yarn3-hdfs3-learning\", \"SCRIPT\": \"yarn3-hdfs3-script\"}, \"YARN\": \"yarn3\"}', NULL, 14, 1, 'STRING', 'YARN', 0, '2021-12-28 11:05:06', '2021-12-28 11:05:06', 0);
+INSERT INTO `dict` VALUES (107, 'component_model_config', 'HDP 2.6.x', '{\"HDFS\": {\"HDFS\": \"yarn2-hdfs2-hadoop2\", \"FLINK\": [{\"112\": \"yarn2-hdfs2-flink112\"}], \"SPARK\": [{\"210\": \"yarn2-hdfs2-spark210\", \"240\": \"yarn2-hdfs2-spark240\"}], \"SCRIPT\": \"yarn2-hdfs2-script\"}, \"YARN\": \"yarn2\"}', NULL, 14, 1, 'STRING', 'YARN', 0, '2021-12-28 11:06:38', '2021-12-28 11:06:38', 0);
+INSERT INTO `dict` VALUES (109, 'component_model_config', 'CDH 5.x', '{\"HDFS\": {\"HDFS\": \"yarn2-hdfs2-hadoop2\", \"FLINK\": [{\"112\": \"yarn2-hdfs2-flink112\"}], \"SPARK\": [{\"210\": \"yarn2-hdfs2-spark210\", \"240\": \"yarn2-hdfs2-spark240\"}], \"SCRIPT\": \"yarn2-hdfs2-script\"}, \"YARN\": \"yarn2\"}', NULL, 14, 1, 'STRING', 'YARN', 0, '2021-12-28 11:07:19', '2021-12-28 11:07:19', 0);
+INSERT INTO `dict` VALUES (111, 'component_model_config', 'HDP 3.x', '{\"HDFS\": {\"HDFS\": \"yarn3-hdfs3-hadoop3\", \"FLINK\": [{\"112\": \"yarn3-hdfs3-flink112\"}], \"SPARK\": [{\"210\": \"yarn3-hdfs3-spark210\", \"240\": \"yarn3-hdfs3-spark240\"}], \"SCRIPT\": \"yarn3-hdfs3-script\"}, \"YARN\": \"yarn3\"}', NULL, 14, 1, 'STRING', 'YARN', 0, '2021-12-28 11:43:05', '2021-12-28 11:43:05', 0);
+INSERT INTO `dict` VALUES (113, 'component_model_config', 'TDH 5.2.x', '{\"HDFS\": {\"HDFS\": \"yarn2-hdfs2-hadoop2\", \"FLINK\": [{\"112\": \"yarn2-hdfs2-flink112\"}], \"SPARK\": [{\"210\": \"yarn2-hdfs2-spark210\", \"240\": \"yarn2-hdfs2-spark240\"}], \"SCRIPT\": \"yarn2-hdfs2-script\"}, \"YARN\": \"yarn2\"}', NULL, 14, 1, 'STRING', 'YARN', 0, '2021-12-28 11:44:33', '2021-12-28 11:44:33', 0);
+INSERT INTO `dict` VALUES (115, 'component_model_config', 'TDH 6.x', '{\"HDFS\": {\"HDFS\": \"yarn2-hdfs2-hadoop2\", \"FLINK\": [{\"112\": \"yarn2-hdfs2-flink112\"}], \"SPARK\": [{\"210\": \"yarn2-hdfs2-spark210\", \"240\": \"yarn2-hdfs2-spark240\"}], \"SCRIPT\": \"yarn2-hdfs2-script\"}, \"YARN\": \"yarn2\"}', NULL, 14, 1, 'STRING', 'YARN', 0, '2021-12-28 11:44:43', '2021-12-28 11:44:43', 0);
+INSERT INTO `dict` VALUES (117, 'component_model_config', 'TDH 7.x', '{\"HDFS\": {\"HDFS\": \"yarn2-hdfs2-hadoop2\", \"FLINK\": [{\"112\": \"yarn2-hdfs2-flink112\"}], \"SPARK\": [{\"210\": \"yarn2-hdfs2-spark210\", \"240\": \"yarn2-hdfs2-spark240\"}], \"SCRIPT\": \"yarn2-hdfs2-script\"}, \"YARN\": \"yarn2\"}', NULL, 14, 1, 'STRING', 'YARN', 0, '2021-12-28 11:45:02', '2021-12-28 11:45:02', 0);
+INSERT INTO `dict` VALUES (119, 'component_model_config', 'CDP 7.x', '{\"HDFS\": {\"HDFS\": \"yarn3-hdfs3-hadoop3\", \"FLINK\": [{\"112\": \"yarn3-hdfs3-flink112\"}], \"SPARK\": [{\"210\": \"yarn3-hdfs3-spark210\", \"240\": \"yarn3-hdfs3-spark240\"}], \"SCRIPT\": \"yarn3-hdfs3-script\"}, \"YARN\": \"yarn3\"}', NULL, 14, 1, 'STRING', 'YARN', 0, '2021-12-28 11:45:02', '2021-12-28 11:45:02', 0);
+INSERT INTO `dict` VALUES (121, 'typename_mapping', 'yarn2-hdfs2-flink112', '-115', NULL, 6, 0, 'LONG', '', 0, '2021-05-18 11:29:00', '2021-05-18 11:29:00', 0);
+INSERT INTO `dict` VALUES (123, 'typename_mapping', 'yarn3-hdfs3-flink112', '-115', NULL, 6, 0, 'LONG', '', 0, '2021-05-18 11:29:00', '2021-05-18 11:29:00', 0);
+INSERT INTO `dict` VALUES (125, 'hive_version', '1.x', '1.x', NULL, 4, 1, 'STRING', '', 0, '2022-05-03 22:20:53', '2022-05-03 22:20:53', 0);
+INSERT INTO `dict` VALUES (127, 'hive_version', '2.x', '2.x', NULL, 4, 2, 'STRING', '', 1, '2022-05-03 22:20:54', '2022-05-03 22:20:54', 0);
+INSERT INTO `dict` VALUES (129, 'hive_version', '3.x-apache', '3.x-apache', NULL, 4, 3, 'STRING', '', 1, '2022-05-03 22:20:54', '2022-05-03 22:20:54', 0);
+INSERT INTO `dict` VALUES (131, 'hive_version', '3.x-cdp', '3.x-cdp', NULL, 4, 3, 'STRING', '', 1, '2022-05-03 22:20:55', '2022-05-03 22:20:55', 0);
+INSERT INTO `dict` VALUES (133, 'FlinkSQLFunction', 'FlinkSQLFunction', '4', 'FlinkSQL', 31, 4, 'STRING', '', 1, '2022-05-03 22:21:10', '2022-07-05 14:54:37', 1);
+INSERT INTO `dict` VALUES (135, 'tips', 'spark.submit.deployMode', 'spark driver的jvm扩展参数', '1', 25, 0, 'STRING', '主要', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
+INSERT INTO `dict` VALUES (137, 'tips', 'sparkPythonExtLibPath', '远程存储系统上pyspark.zip和py4j-0.10.7-src.zip的路径\n注：pyspark.zip和py4j-0.10.7-src.zip在$SPARK_HOME/python/lib路径下获取', '1', 25, 0, 'STRING', '主要', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
+INSERT INTO `dict` VALUES (139, 'tips', 'sparkSqlProxyPath', '远程存储系统上spark-sql-proxy.jar路径\n注：spark-sql-proxy.jar是用来执行spark sql的jar包', '1', 25, 0, 'STRING', '主要', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
+INSERT INTO `dict` VALUES (141, 'tips', 'spark.yarn.maxAppAttempts', 'spark driver最大尝试次数, 默认为yarn上yarn.resourcemanager.am.max-attempts配置的值\n注：如果spark.yarn.maxAppAttempts配置的大于yarn.resourcemanager.am.max-attempts则无效', '1', 25, 0, 'STRING', '主要', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
+INSERT INTO `dict` VALUES (143, 'tips', 'sparkYarnArchive', '远程存储系统上spark jars的路径', '1', 25, 0, 'STRING', '主要', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
+INSERT INTO `dict` VALUES (145, 'tips', 'yarnAccepterTaskNumber', '允许yarn上同时存在状态为accepter的任务数量，当达到这个值后会禁止任务提交', '1', 25, 0, 'STRING', '主要', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
+INSERT INTO `dict` VALUES (147, 'tips', 'spark.speculation', 'spark任务推测行为', '1', 25, 0, 'STRING', '主要', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
+INSERT INTO `dict` VALUES (149, 'tips', 'spark.executor.cores', '每个executor可以使用的cpu核数', '1', 25, 0, 'STRING', '资源', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
+INSERT INTO `dict` VALUES (151, 'tips', 'spark.executor.memory', '每个executor可以使用的内存量', '1', 25, 0, 'STRING', '资源', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
+INSERT INTO `dict` VALUES (153, 'tips', 'spark.executor.instances', 'executor实例数', '1', 25, 0, 'STRING', '资源', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
+INSERT INTO `dict` VALUES (155, 'tips', 'spark.cores.max', ' standalone模式下任务最大能申请的cpu核数', '1', 25, 0, 'STRING', '资源', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
+INSERT INTO `dict` VALUES (157, 'tips', 'spark.network.timeout', 'spark中所有网络交互的最大超时时间', '1', 25, 0, 'STRING', '网络', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
+INSERT INTO `dict` VALUES (159, 'tips', 'spark.rpc.askTimeout', 'RPC 请求操作在超时之前等待的持续时间', '1', 25, 0, 'STRING', '网络', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
+INSERT INTO `dict` VALUES (161, 'tips', 'spark.executor.heartbeatInterval', 'driver和executor之间心跳时间间隔', '1', 25, 0, 'STRING', '网络', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
+INSERT INTO `dict` VALUES (163, 'tips', 'spark.eventLog.compress', '是否对spark事件日志进行压缩', '1', 25, 0, 'STRING', '事件日志', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
+INSERT INTO `dict` VALUES (165, 'tips', 'spark.eventLog.dir', 'spark事件日志存放路径', '1', 25, 0, 'STRING', '事件日志', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
+INSERT INTO `dict` VALUES (167, 'tips', 'spark.eventLog.enabled', '是否记录 spark 事件日志', '1', 25, 0, 'STRING', '事件日志', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
+INSERT INTO `dict` VALUES (169, 'tips', 'spark.driver.extraJavaOptions', 'spark driver的jvm扩展参数', '1', 25, 0, 'STRING', 'JVM', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
+INSERT INTO `dict` VALUES (171, 'tips', 'spark.executor.extraJavaOptions', 'spark executor的jvm扩展参数', '1', 25, 0, 'STRING', 'JVM', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
+INSERT INTO `dict` VALUES (173, 'tips', 'spark.yarn.appMasterEnv.PYSPARK_DRIVER_PYTHON', 'driver中用于执行pyspark任务的python二进制可执行文件路径', '1', 25, 0, 'STRING', '环境变量', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
+INSERT INTO `dict` VALUES (175, 'tips', 'spark.yarn.appMasterEnv.PYSPARK_PYTHON', '用于执行pyspark任务的python二进制可执行文件路径', '1', 25, 0, 'STRING', '环境变量', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
+INSERT INTO `dict` VALUES (177, 'tips', 'jobmanager.memory.process.size', 'JobManager 总内存(master)', '0', 25, 0, 'STRING', '公共参数', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
+INSERT INTO `dict` VALUES (179, 'tips', 'taskmanager.memory.process.size', 'TaskManager 总内存(slaves)', '0', 25, 0, 'STRING', '公共参数', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
+INSERT INTO `dict` VALUES (181, 'tips', 'taskmanager.numberOfTaskSlots', '单个 TaskManager 可以运行的并行算子或用户函数实例的数量。', '0', 25, 0, 'STRING', '公共参数', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
+INSERT INTO `dict` VALUES (183, 'tips', 'high-availability', 'flink ha类型', '0', 25, 0, 'STRING', '高可用', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
+INSERT INTO `dict` VALUES (185, 'tips', 'high-availability.zookeeper.quorum', 'zookeeper地址，当ha选择是zookeeper时必填', '0', 25, 0, 'STRING', '高可用', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
+INSERT INTO `dict` VALUES (187, 'tips', 'high-availability.zookeeper.path.root', 'ha节点路径', '0', 25, 0, 'STRING', '高可用', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
+INSERT INTO `dict` VALUES (189, 'tips', 'high-availability.storageDir', 'ha元数据存储路径', '0', 25, 0, 'STRING', '高可用', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
+INSERT INTO `dict` VALUES (191, 'tips', 'prometheusHost', 'prometheus地址，平台端使用', '0', 25, 0, 'STRING', '数栈平台参数', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
+INSERT INTO `dict` VALUES (193, 'tips', 'prometheusPort', 'prometheus，平台端使用', '0', 25, 0, 'STRING', '数栈平台参数', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
+INSERT INTO `dict` VALUES (195, 'tips', 'metrics.reporter.promgateway.class', '用来推送指标类', '0', 25, 0, 'STRING', 'metric监控', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
+INSERT INTO `dict` VALUES (197, 'tips', 'metrics.reporter.promgateway.host', 'promgateway地址', '0', 25, 0, 'STRING', 'metric监控', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
+INSERT INTO `dict` VALUES (199, 'tips', 'metrics.reporter.promgateway.port', 'promgateway端口', '0', 25, 0, 'STRING', 'metric监控', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
+INSERT INTO `dict` VALUES (201, 'tips', 'metrics.reporter.promgateway.deleteOnShutdown', '任务结束后是否删除指标', '0', 25, 0, 'STRING', 'metric监控', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
+INSERT INTO `dict` VALUES (203, 'tips', 'metrics.reporter.promgateway.jobName', '指标任务名', '0', 25, 0, 'STRING', 'metric监控', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
+INSERT INTO `dict` VALUES (205, 'tips', 'metrics.reporter.promgateway.randomJobNameSuffix', '是否在任务名上添加随机值', '0', 25, 0, 'STRING', 'metric监控', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
+INSERT INTO `dict` VALUES (207, 'tips', 'state.backend', '状态后端', '0', 25, 0, 'STRING', '容错和checkpointing', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
+INSERT INTO `dict` VALUES (209, 'tips', 'state.backend.incremental', '是否开启增量', '0', 25, 0, 'STRING', '容错和checkpointing', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
+INSERT INTO `dict` VALUES (211, 'tips', 'state.checkpoints.dir', 'checkpoint路径地址', '0', 25, 0, 'STRING', '容错和checkpointing', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
+INSERT INTO `dict` VALUES (213, 'tips', 'state.checkpoints.num-retained', 'checkpoint保存个数', '0', 25, 0, 'STRING', '容错和checkpointing', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
+INSERT INTO `dict` VALUES (215, 'tips', 'state.savepoints.dir', 'savepoint路径', '0', 25, 0, 'STRING', '容错和checkpointing', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
+INSERT INTO `dict` VALUES (217, 'tips', 'checkpoint.retain.time', '检查点保留时间', '0', 25, 0, 'STRING', '容错和checkpointing', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
+INSERT INTO `dict` VALUES (219, 'tips', 'classloader.resolve-order', '类加载模式', '0', 25, 0, 'STRING', '高级', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
+INSERT INTO `dict` VALUES (221, 'tips', 'jobmanager.archive.fs.dir', '任务结束后任务信息存储路径', '0', 25, 0, 'STRING', '高级', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
+INSERT INTO `dict` VALUES (223, 'tips', 'akka.ask.timeout', 'akka通讯超时时间', '0', 25, 0, 'STRING', '高级', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
+INSERT INTO `dict` VALUES (225, 'tips', 'akka.tcp.timeout', 'tcp 连接的超时时间', '0', 25, 0, 'STRING', '高级', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
+INSERT INTO `dict` VALUES (227, 'tips', 'env.java.opts', 'jvm参数', '0', 25, 0, 'STRING', 'JVM参数', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
+INSERT INTO `dict` VALUES (229, 'tips', 'yarn.application-attempt-failures-validity-interval', '以毫秒为单位的时间窗口，它定义了重新启动 AM 时应用程序尝试失败的次数。不在此窗口范围内的故障不予考虑。将此值设置为 -1 以便全局计数。', '0', 25, 0, 'STRING', 'Yarn', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
+INSERT INTO `dict` VALUES (231, 'tips', 'yarn.application-attempts', 'ApplicationMaster 重新启动的次数。默认情况下，该值将设置为 1。如果启用了高可用性，则默认值为 2。重启次数也受 YARN 限制（通过 yarn.resourcemanager.am.max-attempts 配置）。注意整个 Flink 集群会重启，YARN Client 会失去连接。', '0', 25, 0, 'STRING', 'Yarn', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
+INSERT INTO `dict` VALUES (233, 'tips', 'pluginLoadMode', '插件加载类型', '0', 25, 0, 'STRING', '数栈平台参数', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
+INSERT INTO `dict` VALUES (235, 'tips', 'classloader.dtstack-cache', '是否缓存classloader', '0', 25, 0, 'STRING', '数栈平台参数', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
+INSERT INTO `dict` VALUES (237, 'tips', 'sessionStartAuto', '是否允许engine启动flink session', '0', 25, 0, 'STRING', '数栈平台参数', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
+INSERT INTO `dict` VALUES (239, 'tips', 'checkSubmitJobGraphInterval', 'session check间隔（60 * 10s）', '0', 25, 0, 'STRING', '数栈平台参数', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
+INSERT INTO `dict` VALUES (241, 'tips', 'flinkLibDir', 'session check间隔（60 * 10s）', '0', 25, 0, 'STRING', '数栈平台参数', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
+INSERT INTO `dict` VALUES (243, 'tips', 'chunjunDistDir', 'flinkx plugins父级本地目录', '0', 25, 0, 'STRING', '数栈平台参数', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
+INSERT INTO `dict` VALUES (245, 'tips', 'remoteFlinkLibDir', 'flink lib 远程路径', '0', 25, 0, 'STRING', '数栈平台参数', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
+INSERT INTO `dict` VALUES (247, 'tips', 'remoteChunjunDistDir', 'flinkx plugins父级远程目录', '0', 25, 0, 'STRING', '数栈平台参数', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
+INSERT INTO `dict` VALUES (249, 'tips', 'flinkSessionName', 'yarn session名称', '0', 25, 0, 'STRING', '数栈平台参数', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
+INSERT INTO `dict` VALUES (251, 'tips', 'monitorAcceptedApp', '是否监控yarn accepted状态任务', '0', 25, 0, 'STRING', '数栈平台参数', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
+INSERT INTO `dict` VALUES (253, 'tips', 'yarnAccepterTaskNumber', '允许yarn accepter任务数量，达到这个值后不允许任务提交', '0', 25, 0, 'STRING', '数栈平台参数', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
+INSERT INTO `dict` VALUES (255, 'tips', 'slotmanager.number-of-slots.max', 'flink session允许的最大slot数', '0', 25, 0, 'STRING', '公共参数', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
+INSERT INTO `dict` VALUES (257, 'tips', 'sessionRetryNum', 'session重试次数，达到后会放缓重试的频率', '0', 25, 0, 'STRING', '数栈平台参数', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
+INSERT INTO `dict` VALUES (259, 'tips', 'restart-strategy', 'none, off, disable:无重启策略。Fixed -delay, Fixed -delay:固定延迟重启策略。更多细节可以在这里找到。Failure -rate:故障率重启策略。更多细节可以在这里找到。如果检查点被禁用，默认值为none。如果检查点启用，默认值是fixed-delay with Integer。MAX_VALUE重启尝试和\'1 s\'延迟。', '0', 25, 0, 'STRING', '容错和checkpointing', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
+INSERT INTO `dict` VALUES (261, 'tips', 'restart-strategy.failure-rate.delay', '如果restart-strategy设置为根据失败率重试，则两次连续重启尝试之间的延迟。可以用“1分钟”、“20秒”来表示', '0', 25, 0, 'STRING', '容错和checkpointing', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
+INSERT INTO `dict` VALUES (263, 'tips', 'clusterMode', '任务执行模式：perjob,session', '0', 25, 0, 'STRING', '数栈平台参数', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
+INSERT INTO `dict` VALUES (265, 'tips', 'restart-strategy.failure-rate.failure-rate-interval', '如果重启策略设置为故障率，测量故障率的时间间隔。可以用“1分钟”、“20秒”来表示。', '0', 25, 0, 'STRING', '容错和checkpointing', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
+INSERT INTO `dict` VALUES (267, 'tips', 'restart-strategy.failure-rate.max-failures-per-interval', '如果restart-strategy设置为根据失败率重试，在给定的时间间隔内，任务失败前的最大重启次数。', '0', 25, 0, 'STRING', '容错和checkpointing', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
+INSERT INTO `dict` VALUES (269, 'tips', 'jdbcUrl', 'jdbc url地址', '4', 25, 0, 'STRING', '', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
+INSERT INTO `dict` VALUES (271, 'tips', 'jdbcUrl', 'jdbc url地址', '5', 25, 0, 'STRING', '', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
+INSERT INTO `dict` VALUES (273, 'tips', 'username', 'jdbc连接用户名', '4', 25, 0, 'STRING', '', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
+INSERT INTO `dict` VALUES (275, 'tips', 'username', 'jdbc连接用户名', '5', 25, 0, 'STRING', '', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
+INSERT INTO `dict` VALUES (277, 'tips', 'password', 'jdbc连接密码', '4', 25, 0, 'STRING', '', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
+INSERT INTO `dict` VALUES (279, 'tips', 'password', 'jdbc连接密码', '5', 25, 0, 'STRING', '', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
+INSERT INTO `dict` VALUES (281, 'tips', 'maxJobPoolSize', '任务最大线程数', '4', 25, 0, 'STRING', '', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
+INSERT INTO `dict` VALUES (283, 'tips', 'maxJobPoolSize', '任务最大线程数', '5', 25, 0, 'STRING', '', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
+INSERT INTO `dict` VALUES (285, 'tips', 'minJobPoolSize', '任务最小线程数', '4', 25, 0, 'STRING', '', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
+INSERT INTO `dict` VALUES (287, 'tips', 'minJobPoolSize', '任务最小线程数', '5', 25, 0, 'STRING', '', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
+INSERT INTO `dict` VALUES (289, 'FunctionManager', 'FunctionManager', '4', '函数管理', 31, 2, 'STRING', '', 1, '2022-07-05 14:56:43', '2022-07-05 14:56:43', 0);
+INSERT INTO `dict` VALUES (291, 'FunctionManager', 'FunctionManager', '4', '函数管理', 32, 4, 'STRING', '', 1, '2022-07-05 15:11:21', '2022-07-05 15:11:21', 0);
+INSERT INTO `dict` VALUES (295, 'typename_mapping', 'oceanBase', '-118', NULL, 6, 0, 'LONG', '', 0, '2022-07-06 19:32:06', '2022-07-06 19:32:06', 0);
+INSERT INTO `dict` VALUES (297, 'component_model_config', '1.12-standalone', '{\"1.12-standalone\":\"flink112-standalone\"}', NULL, 14, 1, 'STRING', 'FLINK', 0, '2022-10-24 15:46:49', '2022-10-24 15:46:49', 0);
+INSERT INTO `dict` VALUES (299, 'typename_mapping', 'flink112-standalone', '-120', NULL, 6, 0, 'LONG', '', 0, '2022-10-24 15:46:49', '2022-10-24 15:46:49', 0);
+INSERT INTO `dict` VALUES (301, 'flink_version', '1.12-on-yarn', '112', NULL, 1, 2, 'INTEGER', '', 0, '2022-05-03 22:13:12', '2022-05-03 22:13:12', 0);
+INSERT INTO `dict` VALUES (303, 'flink_version', '1.12-standalone', '112_standalone', NULL, 1, 2, 'INTEGER', '', 0, '2022-09-20 14:57:48', '2022-09-20 14:57:48', 0);
+INSERT INTO `dict` VALUES (305, '-1', '虚节点', '{\"actions\": [\"SAVE_TASK\", \"SUBMIT_TASK\", \"OPERATOR_TASK\"], \"barItem\":[ \"dependency\"],\"formField\": [], \"renderKind\": \"virtual\"}', NULL, 30, -1, 'STRING', '', 1, '2022-02-11 10:28:45', '2022-02-11 10:28:45', 0);
+INSERT INTO `dict` VALUES (307, '0', 'SparkSQL', '{\"actions\": [\"SAVE_TASK\", \"RUN_TASK\", \"STOP_TASK\", \"SUBMIT_TASK\", \"OPERATOR_TASK\"], \"barItem\": [\"task\", \"dependency\", \"task_params\", \"env_params\"], \"formField\": [\"datasource\",\"queue\"], \"renderKind\": \"editor\",\"dataTypeCodes\":[\"45\"]}', NULL, 30, 0, 'STRING', '', 1, '2022-02-11 10:28:45', '2022-02-11 10:28:45', 0);
+INSERT INTO `dict` VALUES (309, '1', 'Spark', '{\"actions\": [\"SAVE_TASK\", \"SUBMIT_TASK\", \"OPERATOR_TASK\"], \"formField\": [\"resourceIdList\", \"mainClass\", \"exeArgs\", \"componentVersion\"],\"barItem\":[ \"dependency\"], \"renderKind\": \"spark\"}', NULL, 30, 0, 'STRING', '', 0, '2022-09-03 07:27:25', '2022-09-03 07:27:25', 0);
+INSERT INTO `dict` VALUES (311, '2', 'SYNC', '{\"actions\": [\"SAVE_TASK\", \"RUN_TASK\", \"STOP_TASK\", \"SUBMIT_TASK\", \"OPERATOR_TASK\"], \"barItem\": [\"task\", \"dependency\", \"task_config\", \"task_params\", \"env_params\"], \"formField\": [\"createModel\", \"syncModel\"], \"renderKind\": \"dataSync\", \"renderCondition\": {\"key\": \"createModel\", \"value\": 0, \"renderKind\": \"editor\"}, \"actionsCondition\": {\"key\": \"createModel\", \"value\": 0, \"actions\": [\"CONVERT_TASK\", \"SAVE_TASK\", \"RUN_TASK\", \"STOP_TASK\", \"SUBMIT_TASK\", \"OPERATOR_TASK\"]}}', NULL, 30, 2, 'STRING', '', 1, '2022-02-11 10:28:45', '2022-02-11 10:28:45', 0);
+INSERT INTO `dict` VALUES (313, '5', 'FlinkSQL', '{\"actions\": [\"GRAMMAR_TASK\", \"SAVE_TASK\", \"OPERATOR_TASK\"], \"barItem\": [\"task\", \"env_params\"], \"formField\": [\"componentVersion\"], \"renderKind\": \"editor\", \"actionsCondition\": {\"key\": \"createModel\", \"value\": 0, \"actions\": [\"CONVERT_TASK\", \"FORMAT_TASK\", \"GRAMMAR_TASK\", \"SAVE_TASK\", \"OPERATOR_TASK\"]}, \"barItemCondition\": {\"key\": \"createModel\", \"value\": 0, \"barItem\": [\"task\", \"flinksql_source\", \"flinksql_result\", \"flinksql_dimension\", \"env_params\"]}}', NULL, 30, 5, 'STRING', '', 0, '2022-09-03 07:25:04', '2022-09-03 07:25:04', 0);
+INSERT INTO `dict` VALUES (315, '6', '实时采集', '{\"actions\": [\"SAVE_TASK\", \"OPERATOR_TASK\"], \"barItem\": [\"task\", \"task_config\", \"env_params\"], \"formField\": [\"createModel\", \"componentVersion\"], \"renderKind\": \"streamCollection\", \"renderCondition\": {\"key\": \"createModel\", \"value\": 0}, \"actionsCondition\": {\"key\": \"createModel\", \"value\": 0, \"actions\": [\"CONVERT_TASK\", \"SAVE_TASK\", \"OPERATOR_TASK\"]}}', NULL, 30, 6, 'STRING', '', 0, '2022-09-03 07:25:04', '2022-09-03 07:25:04', 0);
+INSERT INTO `dict` VALUES (317, '7', 'HiveSQL', '{\"actions\": [\"SAVE_TASK\", \"RUN_TASK\", \"STOP_TASK\", \"SUBMIT_TASK\", \"OPERATOR_TASK\"], \"barItem\": [\"task\", \"dependency\", \"task_params\", \"env_params\"], \"formField\": [\"datasource\"], \"renderKind\": \"editor\",\"dataTypeCodes\":[\"27\",\"7\",\"50\"]}', NULL, 30, 0, 'STRING', '', 0, '2022-09-03 07:27:25', '2022-09-03 07:27:25', 0);
+INSERT INTO `dict` VALUES (319, '8', 'OceanBaseSQL', '{\"actions\":[\"SAVE_TASK\",\"RUN_TASK\",\"STOP_TASK\",\"SUBMIT_TASK\",\"OPERATOR_TASK\"],\"barItem\":[\"task\",\"dependency\",\"task_params\",\"env_params\"],\"formField\":[\"datasource\"],\"renderKind\":\"editor\",\"dataTypeCodes\":[\"49\"]}', NULL, 30, 0, 'STRING', '', 0, '2022-09-03 07:27:25', '2022-09-03 07:27:25', 0);
+INSERT INTO `dict` VALUES (321, '10', '工作流', '{\"actions\": [\"SAVE_TASK\", \"SUBMIT_TASK\", \"OPERATOR_TASK\"], \"barItem\": [\"task\", \"dependency\"], \"formField\": [], \"renderKind\": \"workflow\"}', NULL, 30, 0, 'STRING', '', 0, '2022-09-03 07:27:25', '2022-09-03 07:27:25', 0);
+INSERT INTO `dict` VALUES (323, '11', 'Flink', '{\"actions\": [\"SAVE_TASK\", \"SUBMIT_TASK\", \"OPERATOR_TASK\"], \"formField\": [\"resourceIdList\", \"mainClass\", \"exeArgs\", \"componentVersion\"],\"barItem\":[ \"dependency\"], \"renderKind\": \"flink\"}', NULL, 30, 0, 'STRING', '', 0, '2022-09-03 07:27:25', '2022-09-03 07:27:25', 0);
+INSERT INTO `dict` VALUES (325, 'SYNC', '', '{\"children\":[{\"children\":[{\"name\":\"syncModel\",\"type\":\"number\",\"title\":\"同步模式\",\"noStyle\":true},{\"bind\":{\"field\":\"sourceMap.sourceId\",\"transformer\":\"{{optionCollections.sourceMap_sourceId#find.type}}\"},\"name\":\"type\",\"type\":\"number\",\"title\":\"类型\",\"noStyle\":true},{\"widget\":\"select\",\"name\":\"sourceId\",\"type\":\"number\",\"title\":\"数据源\",\"required\":true,\"props\":{\"method\":\"get\",\"name\":\"sourceMap_sourceId\",\"transformer\":\"sourceIdOnReader\",\"optionsFromRequest\":true,\"placeholder\":\"请选择数据源\",\"url\":\"/taier/api/dataSource/manager/queryByTenantId\"}},{\"widget\":\"select\",\"hidden\":[{\"field\":\"form.sourceMap.type\",\"isNot\":true,\"value\":\"2,4\"}],\"depends\":[\"sourceMap.sourceId\"],\"name\":\"schema\",\"type\":\"number\",\"title\":\"schema\",\"props\":{\"method\":\"post\",\"name\":\"sourcemap_schema\",\"transformer\":\"table\",\"optionsFromRequest\":true,\"placeholder\":\"请选择 schema\",\"params\":{\"sourceId\":\"{{form#sourceMap.sourceId}}\"},\"url\":\"/taier/api/dataSource/addDs/getAllSchemas\",\"required\":[\"sourceId\"]}},{\"widget\":\"SelectWithPreviewer\",\"hidden\":[{\"field\":\"form.sourceMap.type\",\"isNot\":true,\"value\":\"1,2,3,4,7,8,25,27,45,50\"}],\"depends\":[\"sourceMap.sourceId\",\"sourceMap.schema\"],\"name\":\"table\",\"type\":\"string\",\"title\":\"表名\",\"required\":true,\"props\":{\"method\":\"post\",\"name\":\"sourcemap_table\",\"transformer\":\"table\",\"optionsFromRequest\":true,\"placeholder\":\"请选择表名\",\"params\":{\"sourceId\":\"{{form#sourceMap.sourceId}}\",\"schema\":\"{{form#sourceMap.schema}}\",\"isRead\":true,\"isSys\":false},\"url\":\"/taier/api/dataSource/addDs/tablelist\",\"required\":[\"sourceId\"]}},{\"widget\":\"select\",\"hidden\":[{\"field\":\"form.sourceMap.type\",\"isNot\":true,\"value\":\"1,2,3,4,25\"},{\"field\":\"form.sourceMap.syncModel\",\"isNot\":true,\"value\":\"1\"}],\"depends\":[\"sourceMap.table\"],\"name\":\"increColumn\",\"type\":\"string\",\"title\":\"增量标识字段\",\"required\":true,\"props\":{\"method\":\"post\",\"name\":\"sourcemap_increColumn\",\"transformer\":\"incrementColumn\",\"optionsFromRequest\":true,\"placeholder\":\"请选择增量标识字段\",\"params\":{\"sourceId\":\"{{form#sourceMap.sourceId}}\",\"schema\":\"{{form#sourceMap.schema}}\",\"tableName\":\"{{form#sourceMap.table}}\"},\"url\":\"/taier/api/task/getIncreColumn\",\"required\":[\"sourceId\",\"tableName\"]}},{\"widget\":\"select\",\"hidden\":[{\"field\":\"form.sourceMap.type\",\"isNot\":true,\"value\":\"8\"}],\"name\":\"encoding\",\"type\":\"string\",\"title\":\"编码\",\"initialValue\":\"utf-8\",\"required\":true,\"props\":{\"options\":[{\"label\":\"utf-8\",\"value\":\"utf-8\"},{\"label\":\"gdb\",\"value\":\"gdb\"}],\"placeholder\":\"请选择编码\"}},{\"hidden\":[{\"field\":\"form.sourceMap.type\",\"isNot\":true,\"value\":\"8\"}],\"name\":\"startRowkey\",\"type\":\"string\",\"title\":\"开始行健\",\"props\":{\"placeholder\":\"请输入开始行健\"}},{\"hidden\":[{\"field\":\"form.sourceMap.type\",\"isNot\":true,\"value\":\"8\"}],\"name\":\"endRowkey\",\"type\":\"string\",\"title\":\"结束行健\",\"props\":{\"placeholder\":\"请输入结束行健\"}},{\"widget\":\"radio\",\"hidden\":[{\"field\":\"form.sourceMap.type\",\"isNot\":true,\"value\":\"8\"}],\"name\":\"isBinaryRowkey\",\"type\":\"string\",\"title\":\"行健二进制转换\",\"initialValue\":\"0\",\"props\":{\"options\":[{\"label\":\"FALSE\",\"value\":\"0\"},{\"label\":\"TRUE\",\"value\":\"1\"}]}},{\"widget\":\"inputNumber\",\"hidden\":[{\"field\":\"form.sourceMap.t ype\",\"isNot\":true,\"value\":\"8\"}],\"name\":\"scanCacheSize\",\"type\":\"string\",\"title\":\"每次RPC请求获取行数\",\"props\":{\"min\":0,\"placeholder\":\"请输入大小, 默认为256\",\"suffix\":\"行\"}},{\"widget\":\"inputNumber\",\"hidden\":[{\"field\":\"form.sourceMap.type\",\"isNot\":true,\"value\":\"8\"}],\"name\":\"scanBatchSize\",\"type\":\"string\",\"title\":\"每次RPC请求获取列数\",\"props\":{\"min\":0,\"placeholder\":\"请输入大小, 默认为100\",\"suffix\":\"列\"}},{\"widget\":\"textarea\",\"hidden\":[{\"field\":\"form.sourceMap.type\",\"isNot\":true,\"value\":\"1,2,3,4,25\"}],\"name\":\"where\",\"rules\":[{\"max\":1000,\"message\":\"过滤语句不可超过1000个字符!\"}],\"type\":\"string\",\"title\":\"数据过滤\",\"props\":{\"autoSize\":{\"minRows\":2,\"maxRows\":6},\"placeholder\":\"请参考相关SQL语法填写where过滤语句（不要填写where关键字）。该过滤语句通常用作增量同步\"}},{\"widget\":\"select\",\"hidden\":[{\"field\":\"form.sourceMap.type\",\"isNot\":true,\"value\":\"1,2,3,4,25\"}],\"depends\":[\"sourceMap.table\"],\"name\":\"split\",\"type\":\"string\",\"title\":\"切分键\",\"props\":{\"method\":\"post\",\"name\":\"sourcemap_split\",\"transformer\":\"split\",\"optionsFromRequest\":true,\"placeholder\":\"请选择切分键\",\"params\":{\"sourceId\":\"{{form#sourceMap.sourceId}}\",\"schema\":\"{{form#sourceMap.schema}}\",\"tableName\":\"{{form#sourceMap.table}}\"},\"url\":\"/taier/api/dataSource/addDs/columnForSyncopate\",\"required\":[\"sourceId\",\"tableName\"]}},{\"hidden\":[{\"field\":\"form.sourceMap.type\",\"isNot\":true,\"value\":\"6\"}],\"name\":\"path\",\"rules\":[{\"max\":200,\"message\":\"路径不得超过200个字符！\"}],\"type\":\"string\",\"title\":\"路径\",\"required\":true,\"props\":{\"placeholder\":\"例如: /rdos/batch\"}},{\"widget\":\"select\",\"hidden\":[{\"field\":\"form.sourceMap.type\",\"isNot\":true,\"value\":\"6\"}],\"name\":\"fileType\",\"type\":\"string\",\"title\":\"文件类型\",\"initialValue\":\"text\",\"required\":true,\"props\":{\"options\":[{\"label\":\"orc\",\"value\":\"orc\"},{\"label\":\"text\",\"value\":\"text\"},{\"label\":\"parquet\",\"value\":\"parquet\"}],\"placeholder\":\"请选择文件类型\"}},{\"hidden\":[{\"field\":\"form.sourceMap.type\",\"isNot\":true,\"value\":\"6\"},{\"field\":\"form.sourceMap.fileType\",\"isNot\":true,\"value\":\"text\"}],\"name\":\"fieldDelimiter\",\"type\":\"string\",\"title\":\"列分隔符\",\"props\":{\"placeholder\":\"若不填写，则默认为\\\\\\\\001\"}},{\"widget\":\"autoComplete\",\"hidden\":[{\"field\":\"form.sourceMap.type\",\"isNot\":true,\"value\":\"7,27,45,50\"}],\"depends\":[\"sourceMap.table\"],\"name\":\"partition\",\"type\":\"string\",\"title\":\"分区\",\"props\":{\"method\":\"post\",\"name\":\"sourcemap_partition\",\"transformer\":\"table\",\"optionsFromRequest\":true,\"placeholder\":\"请填写分区信息\",\"params\":{\"sourceId\":\"{{form#sourceMap.sourceId}}\",\"tableName\":\"{{form#sourceMap.table}}\"},\"url\":\"/taier/api/dataSource/addDs/getHivePartitions\",\"required\":[\"sourceId\",\"tableName\"]}},{\"widget\":\"select\",\"hidden\":[{\"field\":\"form.sourceMap.type\",\"isNot\":true,\"value\":\"11,33,46\"}],\"depends\":[\"sourceMap.sourceId\"],\"name\":\"index\",\"type\":\"string\",\"title\":\"index\",\"required\":true,\"props\":{\"method\":\"post\",\"name\":\"sourcemap_schema\",\"transformer\":\"table\",\"optionsFromRequest\":true,\"placeholder\":\"请选择index\",\"params\":{\"sourceId\":\"{{form#sourceMap.sourceId}}\"},\"url\":\"/taier/api/dataSource/addDs/getAllSchemas\",\"required\":[\"sourceId\"]}},{\"widget\":\"select\",\"hidden\":[{\"field\":\"form.sourceMap.type\",\"isNot\":true,\"value\":\"11,33\"}],\"depends\":[\"sourceMap.index\"],\"name\":\"indexType\",\"type\":\"string\",\"title\":\"type\",\"required\":true,\"props\":{\"method\":\"post\",\"name\":\"sourcemap_table\",\"transformer\":\"table\",\"optionsFromRequest\":true,\"placeholder\":\"请选择indexType！\",\"params\":{\"sourceId\":\"{{form#sourceMap.sourceId}}\",\"schema\":\"{{form#sourceMap.schema}}\",\"isRead\":true,\"isSys\":false},\"url\":\"/taier/api/dataSource/addDs/tablelist\",\"required\":[\"sourceId\",\"schema\"]}},{\"widget\":\"textarea\",\"hidden\":[{\"field\":\"form.sourceMap.type\",\"isNot\":true,\"value\":\"11,33,46\"}],\"name\":\"query\",\"rules\":[{\"max\":1024,\"message\":\"仅支持1-1024个任意字符\"}],\"type\":\"string\",\"title\":\"query\",\"props\":{\"autoSize\":{\"minRows\":2,\"maxRows\":6},\"placeholder\":\"\\\"match_all\\\":{}\\\"\"}},{\"widget\":\"textarea\",\"hidden\":[{\"field\":\"form.sourceMap.sourceId\",\"value\":\"undefined\"}],\"name\":\"extralConfig\",\"validator\":\"json\",\"type\":\"string\",\"title\":\"高级配置\",\"props\":{\"autoSize\":{\"minRows\":2,\"maxRows\":6},\"placeholder\":\"以JSON格式添加高级参数，例如对关系型数据库可配置fetchSize\"}},{\"hidden\":true,\"name\":\"column\",\"type\":\"string\",\"title\":\"列\"}],\"name\":\"sourceMap\",\"type\":\"object\",\"title\":\"数据来源\"},{\"children\":[{\"bind\":{\"field\":\"targetMap.sourceId\",\"transformer\":\"{{optionCollections.targetmap_sourceId#find.type}}\"},\"name\":\"type\",\"type\":\"number\",\"title\":\"类型\",\"noStyle\":true},{\"widget\":\"select\",\"name\":\"sourceId\",\"type\":\"number\",\"title\":\"数据源\",\"required\":true,\"props\":{\"method\":\"get\",\"name\":\"targetmap_sourceId\",\"transformer\":\"sourceIdOnWriter\",\"optionsFromRequest\":true,\"placeholder\":\"请选择数据源\",\"url\":\"/taier/api/dataSource/manager/queryByTenantId\"}},{\"widget\":\"select\",\"hidden\":[{\"field\":\"form.targetMap.type\",\"isNot\":true,\"value\":\"2,4,64\"}],\"depends\":[\"targetMap.sourceId\"],\"name\":\"schema\",\"type\":\"number\",\"title\":\"schema\",\"props\":{\"method\":\"post\",\"name\":\"targetmap_schema\",\"transformer\":\"table\",\"optionsFromRequest\":true,\"placeholder\":\"请选择 schema\",\"params\":{\"sourceId\":\"{{form#targetMap.sourceId}}\"},\"url\":\"/taier/api/dataSource/addDs/getAllSchemas\",\"required\":[\"sourceId\"]}},{\"widget\":\"SelectWithCreate\",\"hidden\":[{\"field\":\"form.targetMap.type\",\"isNot\":true,\"value\":\"1,2,3,4,7,8,25,27,45,50,64\"}],\"depends\":[\"targetMap.sourceId\",\"targetMap.schema\"],\"name\":\"table\",\"type\":\"string\",\"title\":\"表名\",\"required\":true,\"props\":{\"method\":\"post\",\"name\":\"targetmap_table\",\"transformer\":\"table\",\"optionsFromRequest\":true,\"placeholder\":\"请选择表名\",\"params\":{\"sourceId\":\"{{form#targetMap.sourceId}}\",\"schema\":\"{{form#targetMap.schema}}\",\"isRead\":true,\"isSys\":false},\"url\":\"/taier/api/dataSource/addDs/tablelist\",\"required\":[\"sourceId\"]}},{\"widget\":\"autoComplete\",\"hidden\":[{\"field\":\"form.targetMap.type\",\"isNot\":true,\"value\":\"7,27,45,50\"}],\"depends\":[\"targetMap.table\"],\"name\":\"partition\",\"type\":\"string\",\"title\":\"分区\",\"props\":{\"method\":\"post\",\"name\":\"targetmap_partition\",\"transformer\":\"table\",\"optionsFromRequest\":true,\"placeholder\":\"请填写分区信息\",\"params\":{\"sourceId\":\"{{form#targetMap.sourceId}}\",\"tableName\":\"{{form#targetMap.table}}\"},\"url\":\"/taier/api/dataSource/addDs/getHivePartitions\",\"required\":[\"sourceId\",\"tableName\"]}},{\"widget\":\"textarea\",\"hidden\":[{\"field\":\"form.targetMap.type\",\"isNot\":true,\"value\":\"1,2,3,4,25,64\"}],\"depends\":[\"targetMap.type\"],\"name\":\"preSql\",\"type\":\"string\",\"title\":\"导入前准备语句\",\"props\":{\"autoSize\":{\"minRows\":2,\"maxRows\":6},\"placeholder\":\"请输入导入数据前执行的 SQL 脚本\"}},{\"widget\":\"textarea\",\"hidden\":[{\"field\":\"form.targetMap.type\",\"isNot\":true,\"value\":\"1,2,3,4,25,64\"}],\"depends\":[\"targetMap.type\"],\"name\":\"postSql\",\"type\":\"string\",\"title\":\"导入后准备语句\",\"props\":{\"autoSize\":{\"minRows\":2,\"maxRows\":6},\"placeholder\":\"请输入导入数据后执行的 SQL 脚本\"}},{\"hidden\":[{\"field\":\"form.targetMap.type\",\"isNot\":true,\"value\":\"6\"}],\"name\":\"path\",\"rules\":[{\"max\":200,\"message\":\"路径不得超过200个字符！\"}],\"type\":\"string\",\"title\":\"路径\",\"required\":true,\"props\":{\"placeholder\":\"例如: /app/batch\"}},{\"hidden\":[{\"field\":\"form.targetMap.type\",\"isNot\":true,\"value\":\"6\"}],\"name\":\"fileName\",\"type\":\"string\",\"title\":\"文件名\",\"required\":true,\"props\":{\"placeholder\":\"请输入文件名\"}},{\"widget\":\"select\",\"hidden\":[{\"field\":\"form.targetMap.type\",\"isNot\":true,\"value\":\"6\"}],\"name\":\"fileType\",\"type\":\"string\",\"title\":\"文件类型\",\"initialValue\":\"orc\",\"required\":true,\"props\":{\"options\":[{\"label\":\"orc\",\"value\":\"orc\"},{\"label\":\"text\",\"value\":\"text\"},{\"label\":\"parquet\",\"value\":\"parquet\"}],\"placeholder\":\"请选择文件类型\"}},{\"hidden\":[{\"field\":\"form.targetMap.type\",\"isNot\":true,\"value\":\"6\"}],\"name\":\"fieldDelimiter\",\"type\":\"string\",\"title\":\"列分隔符\",\"initialValue\":\",\",\"props\":{\"placeholder\":\"例如: 目标为 hive 则分隔符为\\\\\\\\001\"}},{\"widget\":\"select\",\"hidden\":[{\"field\":\"form.targetMap.type\",\"isNot\":true,\"value\":\"6,8\"}],\"name\":\"encoding\",\"type\":\"string\",\"title\":\"编码\",\"initialValue\":\"utf-8\",\"required\":true,\"props\":{\"options\":[{\"label\":\"utf-8\",\"value\":\"utf-8\"},{\"label\":\"gdb\",\"value\":\"gdb\"}],\"placeholder\":\"请选择编码\"}},{\"widget\":\"radio\",\"hidden\":[{\"field\":\"form.targetMap.type\",\"isNot\":true,\"value\":\"2,4,6,7,25,27,45,50\"}],\"depends\":[\"targetMap.sourceId\"],\"name\":\"writeMode\",\"type\":\"string\",\"title\":\"写入模式\",\"required\":true,\"props\":{\"options\":[{\"label\":\"覆盖（Insert Overwrite）\",\"value\":\"replace\"},{\"label\":\"追加（Insert Into）\",\"value\":\"insert\"}]}},{\"widget\":\"radio\",\"hidden\":[{\"field\":\"form.targetMap.type\",\"isNot\":true,\"value\":\"8\"}],\"name\":\"nullMode\",\"type\":\"string\",\"title\":\"读取为空时的处理方式\",\"initialValue\":\"skip\",\"props\":{\"options\":[{\"label\":\"SKIP\",\"value\":\"skip\"},{\"label\":\"EMPTY\",\"value\":\"empty\"}]}},{\"widget\":\"inputNumber\",\"hidden\":[{\"field\":\"form.targetMap.type\",\"isNot\":true,\"value\":\"8\"}],\"name\":\"writeBufferSize\",\"type\":\"string\",\"title\":\"写入缓存大小\",\"props\":{\"placeholder\":\"请输入缓存大小\",\"suffix\":\"KB\"}},{\"widget\":\"select\",\"hidden\":[{\"field\":\"form.targetMap.type\",\"isNot\":true,\"value\":\"11,33,46\"}],\"depends\":[\"targetMap.sourceId\"],\"name\":\"index\",\"type\":\"string\",\"title\":\"index\",\"required\":true,\"props\":{\"method\":\"post\",\"name\":\"targetmap_schema\",\"transformer\":\"table\",\"optionsFromRequest\":true,\"placeholder\":\"请选择index\",\"params\":{\"sourceId\":\"{{form#targetMap.sourceId}}\"},\"url\":\"/taier/api/dataSource/addDs/getAllSchemas\",\"required\":[\"sourceId\"]}},{\"widget\":\"select\",\"hidden\":[{\"field\":\"form.targetMap.type\",\"isNot\":true,\"value\":\"11,33\"}],\"depends\":[\"targetMap.index\"],\"name\":\"indexType\",\"type\":\"string\",\"title\":\"type\",\"required\":true,\"props\":{\"method\":\"post\",\"name\":\"targetmap_table\",\"transformer\":\"table\",\"optionsFromRequest\":true,\"placeholder\":\"请选择indexType！\",\"params\":{\"sourceId\":\"{{form#targetMap.sourceId}}\",\"schema\":\"{{form#targetMap.schema}}\",\"isRead\":true,\"isSys\":false},\"url\":\"/taier/api/dataSource/addDs/tablelist\",\"required\":[\"sourceId\",\"schema\"]}},{\"widget\":\"inputNumber\",\"hidden\":[{\"field\":\"form.targetMap.type\",\"isNot\":true,\"value\":\"11,33,46\"}],\"name\":\"bulkAction\",\"type\":\"number\",\"title\":\"bulkAction\",\"initialValue\":100,\"required\":true,\"props\":{\"min\":1,\"max\":200000,\"precision\":0,\"placeholder\":\"请输入 bulkAction\"}},{\"widget\":\"textarea\",\"hidden\":[{\"field\":\"form.targetMap.sourceId\",\"value\":\"undefined\"}],\"name\":\"extralConfig\",\"validator\":\"json\",\"type\":\"string\",\"title\":\"高级配置\",\"props\":{\"autoSize\":{\"minRows\":2,\"maxRows\":6},\"placeholder\":\"以JSON格式添加高级参数，例如对关系型数据库可配置fetchSize\"}},{\"hidden\":true,\"name\":\"column\",\"type\":\"string\",\"title\":\"列\"}],\"name\":\"targetMap\",\"type\":\"object\",\"title\":\"选择目标\"},{\"children\":[{\"widget\":\"KeyMap\",\"type\":\"any\"}],\"name\":\"mapping\",\"type\":\"object\",\"title\":\"字段映射\"},{\"children\":[{\"widget\":\"autoComplete\",\"name\":\"speed\",\"type\":\"string\",\"title\":\"作业速率上限\",\"initialValue\":\"不限制传输速率\",\"required\":true,\"props\":{\"options\":[{\"value\":\"不限制传输速率\"},{\"value\":\"1\"},{\"value\":\"2\"},{\"value\":\"3\"},{\"value\":\"4\"},{\"value\":\"5\"},{\"value\":\"6\"},{\"value\":\"7\"},{\"value\":\"8\"},{\"value\":\"9\"},{\"value\":\"10\"}],\"placeholder\":\"请选择作业速率上限\",\"suffix\":\"MB/s\"}},{\"widget\":\"autoComplete\",\"name\":\"channel\",\"type\":\"string\",\"title\":\"作业并发数\",\"initialValue\":\"1\",\"required\":true,\"props\":{\"options\":[{\"value\":\"1\"},{\"value\":\"2\"},{\"value\":\"3\"},{\"value\":\"4\"},{\"value\":\"5\"}],\"placeholder\":\"请选择作业并发数\"}},{\"hidden\":[{\"field\":\"form.sourceMap.type\",\"isNot\":true,\"value\":\"1,2,3,4,8,19,22,24,25,28,29,31,32,35,36,40,53,54,61,71,73\"},{\"field\":\"form.targetMap.type\",\"isNot\":true,\"value\":\"1,2,3,4,7,8,10,19,22,24,25,27,28,29,31,32,35,36,40,53,54,61,71,73\"}],\"name\":\"isRestore\",\"type\":\"boolean\",\"title\":\"断点续传\"},{\"widget\":\"select\",\"hidden\":[{\"field\":\"form.settingMap.isRestore\",\"value\":\"false,undefined\"}],\"name\":\"restoreColumnName\",\"type\":\"string\",\"title\":\"标识字段\",\"required\":true,\"props\":{\"method\":\"post\",\"name\":\"settingmap_restore\",\"transformer\":\"restore\",\"optionsFromRequest\":true,\"placeholder\":\"请选择标识字段\",\"params\":{\"sourceId\":\"{{form#sourceMap.sourceId}}\",\"schema\":\"{{form#sourceMap.schema}}\",\"tableName\":\"{{form#sourceMap.table}}\"},\"url\":\"/taier/api/task/getIncreColumn\",\"required\":[\"sourceId\",\"tableName\"]}}],\"name\":\"settingMap\",\"type\":\"object\",\"title\":\"通道控制\"}],\"type\":\"object\"}', NULL, 17, 1, 'STRING', '', 1, '2022-02-11 10:28:45', '2022-02-11 10:28:45', 0);
+INSERT INTO `dict` VALUES (327, 'component_model', 'SCRIPT', '{\"owner\": \"COMPUTE\", \"dependsOn\": [\"RESOURCE\", \"STORAGE\"], \"allowKerberos\": \"true\", \"allowCoexistence\": false, \"uploadConfigType\": \"0\", \"versionDictionary\": \"\"}', NULL, 12, 0, 'STRING', '', 0, '2022-10-24 15:46:51', '2022-10-24 15:46:51', 0);
+INSERT INTO `dict` VALUES (329, 'typename_mapping', 'yarn2-hdfs2-script', '-100', NULL, 6, 0, 'LONG', '', 0, '2022-10-24 15:46:51', '2022-10-24 15:46:51', 0);
+INSERT INTO `dict` VALUES (331, 'typename_mapping', 'yarn3-hdfs3-script', '-100', NULL, 6, 0, 'LONG', '', 0, '2022-10-24 15:46:51', '2022-10-24 15:46:51', 0);
+INSERT INTO `dict` VALUES (333, '12', 'Python', '{\"actions\": [\"SAVE_TASK\", \"RUN_TASK\", \"STOP_TASK\", \"SUBMIT_TASK\", \"OPERATOR_TASK\"], \"barItem\": [\"task\", \"dependency\", \"task_params\", \"env_params\"], \"formField\": [\"pythonVersion\"], \"renderKind\": \"editor\"}', NULL, 30, 0, 'STRING', '', 1, '2022-02-11 10:28:45', '2022-02-11 10:28:45', 0);
+INSERT INTO `dict` VALUES (335, '13', 'Shell', '{\"actions\": [\"SAVE_TASK\", \"RUN_TASK\", \"STOP_TASK\", \"SUBMIT_TASK\", \"OPERATOR_TASK\"], \"barItem\": [\"task\", \"dependency\", \"task_params\", \"env_params\"], \"formField\": [], \"renderKind\": \"editor\"}', NULL, 30, 0, 'STRING', '', 1, '2022-02-11 10:28:45', '2022-02-11 10:28:45', 0);
+INSERT INTO `dict` VALUES (337, 'tips', 'script.java.opts', 'script container jvm 扩展参数', '8', 25, 0, 'STRING', '', 0, '2022-10-24 15:46:52', '2022-10-24 15:46:52', 0);
+INSERT INTO `dict` VALUES (339, 'tips', 'script.am.memory', 'am container 使用的内存量', '8', 25, 0, 'STRING', '', 0, '2022-10-24 15:46:52', '2022-10-24 15:46:52', 0);
+INSERT INTO `dict` VALUES (341, 'tips', 'script.am.cores', 'am container 使用的 cpu 核数', '8', 25, 0, 'STRING', '', 0, '2022-10-24 15:46:52', '2022-10-24 15:46:52', 0);
+INSERT INTO `dict` VALUES (343, 'tips', 'script.worker.memory', 'work container 使用的内存量', '8', 25, 0, 'STRING', '', 0, '2022-10-24 15:46:52', '2022-10-24 15:46:52', 0);
+INSERT INTO `dict` VALUES (345, 'tips', 'script.worker.cores', 'work container 使用的 cpu 核数', '8', 25, 0, 'STRING', '', 0, '2022-10-24 15:46:52', '2022-10-24 15:46:52', 0);
+INSERT INTO `dict` VALUES (347, 'tips', 'script.worker.num', 'work container 实例数量', '8', 25, 0, 'STRING', '', 0, '2022-10-24 15:46:52', '2022-10-24 15:46:52', 0);
+INSERT INTO `dict` VALUES (349, 'tips', 'container.staging.dir', '任务临时文件路径', '8', 25, 0, 'STRING', '', 0, '2022-10-24 15:46:52', '2022-10-24 15:46:52', 0);
+INSERT INTO `dict` VALUES (351, 'tips', 'script.container.heartbeat.interval', 'am 和 work 之间的心跳间隔，单位毫秒', '8', 25, 0, 'STRING', '', 0, '2022-10-24 15:46:52', '2022-10-24 15:46:52', 0);
+INSERT INTO `dict` VALUES (353, 'tips', 'script.container.heartbeat.timeout', 'am 和 work 之间的心跳超时时间，单位毫秒', '8', 25, 0, 'STRING', '', 0, '2022-10-24 15:46:52', '2022-10-24 15:46:52', 0);
+INSERT INTO `dict` VALUES (355, 'tips', 'script.python2.path', 'python2.x 二进制可执行文件地址', '8', 25, 0, 'STRING', '', 0, '2022-10-24 15:46:52', '2022-10-24 15:46:52', 0);
+INSERT INTO `dict` VALUES (357, 'tips', 'script.python3.path', 'python3.x 二进制可执行文件地址', '8', 25, 0, 'STRING', '', 0, '2022-10-24 15:46:52', '2022-10-24 15:46:52', 0);
+INSERT INTO `dict` VALUES (359, '14', 'ClickHouseSQL', '{\"actions\":[\"SAVE_TASK\",\"RUN_TASK\",\"STOP_TASK\",\"SUBMIT_TASK\",\"OPERATOR_TASK\"],\"barItem\":[\"task\",\"dependency\",\"task_params\",\"env_params\"],\"formField\":[\"datasource\"],\"renderKind\":\"editor\",\"dataTypeCodes\":[25]}', NULL, 30, 0, 'STRING', '', 0, '2022-10-24 15:46:53', '2022-10-24 15:46:53', 0);
+INSERT INTO `dict` VALUES (361, '15', 'DorisSQL', '{\"actions\":[\"SAVE_TASK\",\"RUN_TASK\",\"STOP_TASK\",\"SUBMIT_TASK\",\"OPERATOR_TASK\"],\"barItem\":[\"task\",\"dependency\",\"task_params\",\"env_params\"],\"formField\":[\"datasource\"],\"renderKind\":\"editor\",\"dataTypeCodes\":[64]}', NULL, 30, 0, 'STRING', '', 0, '2022-10-24 15:46:53', '2022-10-24 15:46:53', 0);
 COMMIT;
 
 -- ----------------------------
@@ -1634,6 +1735,8 @@ CREATE TABLE `schedule_task_shade` (
   `exe_args` text COLLATE utf8_bin COMMENT '额外参数',
   `flow_id` int(11) NOT NULL DEFAULT '0' COMMENT '工作流id',
   `component_version` varchar(25) COLLATE utf8_bin DEFAULT NULL,
+  `queue_name` varchar(64) COLLATE utf8_bin DEFAULT NULL COMMENT 'yarn队列名称',
+  `datasource_id` int(11) DEFAULT NULL COMMENT '数据源id',
   PRIMARY KEY (`id`),
   UNIQUE KEY `index_task_id` (`task_id`),
   KEY `index_name` (`name`(128))
@@ -1754,6 +1857,33 @@ CREATE TABLE `task_dirty_data_manage` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- ----------------------------
+-- Table structure for task_param_template
+-- ----------------------------
+DROP TABLE IF EXISTS `task_param_template`;
+CREATE TABLE `task_param_template` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `task_type` int(11) DEFAULT '0' COMMENT '任务类型',
+  `task_name` varchar(20) COLLATE utf8_bin DEFAULT NULL COMMENT '任务名称',
+  `task_version` varchar(20) COLLATE utf8_bin DEFAULT NULL COMMENT '任务版本',
+  `params` text COLLATE utf8_bin COMMENT '参数模版',
+  `gmt_create` datetime DEFAULT CURRENT_TIMESTAMP,
+  `gmt_modified` datetime DEFAULT CURRENT_TIMESTAMP,
+  `is_deleted` tinyint(1) NOT NULL DEFAULT '0' COMMENT '0正常 1逻辑删除',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+
+-- ----------------------------
+-- Records of task_param_template
+-- ----------------------------
+BEGIN;
+INSERT INTO `task_param_template` VALUES (1, 0, 'SPARK_SQL', '2.1', '## Driver程序使用的CPU核数,默认为1\n# driver.cores=1\n\n## Driver程序使用内存大小,默认512m\n# driver.memory=512m\n\n## 对Spark每个action结果集大小的限制，最少是1M，若设为0则不限制大小。\n## 若Job结果超过限制则会异常退出，若结果集限制过大也可能造成OOM问题，默认1g\n# driver.maxResultSize=1g\n\n## 启动的executor的数量，默认为1\nexecutor.instances=1\n\n## 每个executor使用的CPU核数，默认为1\nexecutor.cores=1\n\n## 每个executor内存大小,默认512m\nexecutor.memory=512m\n\n## 任务优先级, 值越小，优先级越高，范围:1-1000\njob.priority=10\n\n## spark 日志级别可选ALL, DEBUG, ERROR, FATAL, INFO, OFF, TRACE, WARN\n# logLevel = INFO\n\n## spark中所有网络交互的最大超时时间\n# spark.network.timeout=120s\n\n## executor的OffHeap内存，和spark.executor.memory配置使用\n# spark.yarn.executor.memoryOverhead', '2021-11-18 10:36:13', '2021-11-18 10:36:13', 0);
+INSERT INTO `task_param_template` VALUES (3, 2, 'SYNC', '1.10', '## 任务运行方式：\n## per_job:单独为任务创建flink yarn session，适用于低频率，大数据量同步\n## session：多个任务共用一个flink yarn session，适用于高频率、小数据量同步，默认per_job\n## flinkTaskRunMode=per_job\n## per_job模式下jobManager配置的内存大小，默认1024（单位M)\n## jobmanager.memory.mb=1024\n## per_job模式下taskManager配置的内存大小，默认1024（单位M）\n## taskmanager.memory.mb=1024\n## per_job模式下每个taskManager 对应 slot的数量\n## slots=1\n## checkpoint保存时间间隔\n## flink.checkpoint.interval=300000\n## 任务优先级, 范围:1-1000\n## job.priority=10', '2021-11-18 10:37:24', '2021-11-18 10:37:24', 0);
+INSERT INTO `task_param_template` VALUES (5, 11, 'Flink', '1.12', '## 资源相关\nparallelism.default=1\ntaskmanager.numberOfTaskSlots=1\njobmanager.memory.process.size=1g\ntaskmanager.memory.process.size=2g', '2022-10-24 15:45:58', '2022-10-24 15:45:58', 0);
+INSERT INTO `task_param_template` VALUES (7, 12, 'PYTHON', '', '## 每个worker所占内存，比如512m\n# script.worker.memory=512m\n\n## 每个worker所占的cpu核的数量\n# script.worker.cores=1\n\n## worker数量\n# script.worker.num=1\n\n## 是否独占机器节点\n# script.worker.exclusive=false\n\n## 任务优先级, 值越小，优先级越高，范围:1-1000\njob.priority=10\n\n## 指定work运行节点，需要注意不要写ip应填写对应的hostname\n# script.worker.nodes=\n\n## 指定work运行机架\n# script.worker.racks=\n\n## 日志级别可选ALL, DEBUG, ERROR, FATAL, INFO, OFF, TRACE, WARN\nlogLevel=INFO', '2022-10-24 15:46:52', '2022-10-24 15:46:52', 0);
+INSERT INTO `task_param_template` VALUES (9, 13, 'SHELL', '', '## 每个worker所占内存，比如512m\n# script.worker.memory=512m\n\n## 每个worker所占的cpu核的数量\n# script.worker.cores=1\n\n## worker数量\n# script.worker.num=1\n\n## 是否独占机器节点\n# script.worker.exclusive=false\n\n## 任务优先级, 值越小，优先级越高，范围:1-1000\njob.priority=10\n\n## 指定work运行节点，需要注意不要写ip应填写对应的hostname\n# script.worker.nodes=\n\n## 指定work运行机架\n# script.worker.racks=\n\n## 日志级别可选ALL, DEBUG, ERROR, FATAL, INFO, OFF, TRACE, WARN\nlogLevel=INFO', '2022-10-24 15:46:52', '2022-10-24 15:46:52', 0);
+COMMIT;
+
+-- ----------------------------
 -- Table structure for task_template
 -- ----------------------------
 DROP TABLE IF EXISTS `task_template`;
@@ -1767,7 +1897,7 @@ CREATE TABLE `task_template` (
   `gmt_modified` datetime DEFAULT CURRENT_TIMESTAMP,
   `is_deleted` tinyint(1) NOT NULL DEFAULT '0' COMMENT '0正常 1逻辑删除',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=65 DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+) ENGINE=InnoDB AUTO_INCREMENT=61 DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 -- ----------------------------
 -- Records of task_template
@@ -1789,8 +1919,7 @@ INSERT INTO `task_template` VALUES (33, 2, 0, '1.12', '## 任务运行方式：\
 INSERT INTO `task_template` VALUES (35, 5, 0, '1.12', '## 资源相关\nparallelism.default=1\ntaskmanager.numberOfTaskSlots=1\njobmanager.memory.process.size=1g\ntaskmanager.memory.process.size=2g\n\n## 时间相关\n## 设置Flink时间选项，有ProcessingTime,EventTime,IngestionTime可选\n## 非脚本模式会根据Kafka自动设置。脚本模式默认为ProcessingTime\n# pipeline.time-characteristic=EventTime\n\n## Checkpoint相关\n## 生成checkpoint时间间隔（以毫秒为单位），默认:5分钟,注释掉该选项会关闭checkpoint生成\nexecution.checkpointing.interval=5min\n## 状态恢复语义,可选参数EXACTLY_ONCE,AT_LEAST_ONCE；默认为EXACTLY_ONCE\n# execution.checkpointing.mode=EXACTLY_ONCE\n##任务取消后保留hdfs上的checkpoint文件\nexecution.checkpointing.externalized-checkpoint-retention=RETAIN_ON_CANCELLATION\n\n# Flink SQL独有，状态过期时间\ntable.exec.state.ttl=1d\n\nlog.level=INFO\n\n## 使用Iceberg和Hive维表开启\n# table.dynamic-table-options.enabled=true\n\n## Kerberos相关\n# security.kerberos.login.contexts=Client,KafkaClient\n\n\n## 高阶参数\n## 窗口提前触发时间\n# table.exec.emit.early-fire.enabled=true\n# table.exec.emit.early-fire.delay=1s\n\n## 当一个源在超时时间内没有收到任何元素时，它将被标记为临时空闲\n# table.exec.source.idle-timeout=10ms\n\n## 是否开启minibatch\n## 可以减少状态开销。这可能会增加一些延迟，因为它会缓冲一些记录而不是立即处理它们。这是吞吐量和延迟之间的权衡\n# table.exec.mini-batch.enabled=true\n## 状态缓存时间\n# table.exec.mini-batch.allow-latency=5s\n## 状态最大缓存条数\n# table.exec.mini-batch.size=5000\n\n## 是否开启Local-Global 聚合。前提需要开启minibatch\n## 聚合是为解决数据倾斜问题提出的，类似于 MapReduce 中的 Combine + Reduce 模式\n# table.optimizer.agg-phase-strategy=TWO_PHASE\n\n## 是否开启拆分 distinct 聚合\n## Local-Global 可以解决数据倾斜，但是在处理 distinct 聚合时，其性能并不令人满意。\n## 如：SELECT day, COUNT(DISTINCT user_id) FROM T GROUP BY day 如果 distinct key （即 user_id）的值分布稀疏，建议开启\n# table.optimizer.distinct-agg.split.enabled=true\n\n\n## Flink算子chaining开关。默认为true。排查性能问题时会暂时设置成false，但降低性能。\n# pipeline.operator-chaining=true', '2022-04-13 14:30:53', '2022-04-13 14:30:53', 0);
 INSERT INTO `task_template` VALUES (36, 6, 0, '1.12', '## 资源相关\nparallelism.default=1\ntaskmanager.numberOfTaskSlots=1\njobmanager.memory.process.size=1g\ntaskmanager.memory.process.size=2g\n\n## 时间相关\n## 设置Flink时间选项，有ProcessingTime,EventTime,IngestionTime可选\n## 非脚本模式会根据Kafka自动设置。脚本模式默认为ProcessingTime\n# pipeline.time-characteristic=EventTime\n\n## Checkpoint相关\n## 生成checkpoint时间间隔（以毫秒为单位），默认:5分钟,注释掉该选项会关闭checkpoint生成\nexecution.checkpointing.interval=5min\n## 状态恢复语义,可选参数EXACTLY_ONCE,AT_LEAST_ONCE；默认为EXACTLY_ONCE\n# execution.checkpointing.mode=EXACTLY_ONCE\n##任务取消后保留hdfs上的checkpoint文件\nexecution.checkpointing.externalized-checkpoint-retention=RETAIN_ON_CANCELLATION\n\n# Flink SQL独有，状态过期时间\ntable.exec.state.ttl=1d\n\nlog.level=INFO\n\n## 使用Iceberg和Hive维表开启\n# table.dynamic-table-options.enabled=true\n\n## Kerberos相关\n# security.kerberos.login.contexts=Client,KafkaClient\n\n\n## 高阶参数\n## 窗口提前触发时间\n# table.exec.emit.early-fire.enabled=true\n# table.exec.emit.early-fire.delay=1s\n\n## 当一个源在超时时间内没有收到任何元素时，它将被标记为临时空闲\n# table.exec.source.idle-timeout=10ms\n\n## 是否开启minibatch\n## 可以减少状态开销。这可能会增加一些延迟，因为它会缓冲一些记录而不是立即处理它们。这是吞吐量和延迟之间的权衡\n# table.exec.mini-batch.enabled=true\n## 状态缓存时间\n# table.exec.mini-batch.allow-latency=5s\n## 状态最大缓存条数\n# table.exec.mini-batch.size=5000\n\n## 是否开启Local-Global 聚合。前提需要开启minibatch\n## 聚合是为解决数据倾斜问题提出的，类似于 MapReduce 中的 Combine + Reduce 模式\n# table.optimizer.agg-phase-strategy=TWO_PHASE\n\n## 是否开启拆分 distinct 聚合\n## Local-Global 可以解决数据倾斜，但是在处理 distinct 聚合时，其性能并不令人满意。\n## 如：SELECT day, COUNT(DISTINCT user_id) FROM T GROUP BY day 如果 distinct key （即 user_id）的值分布稀疏，建议开启\n# table.optimizer.distinct-agg.split.enabled=true\n\n\n## Flink算子chaining开关。默认为true。排查性能问题时会暂时设置成false，但降低性能。\n# pipeline.operator-chaining=true', '2022-04-13 14:30:53', '2022-04-13 14:30:53', 0);
 INSERT INTO `task_template` VALUES (37, 17, 0, '', '## 指定mapreduce在yarn上的任务名称，默认为任务名称，可以重复\n#hiveconf:mapreduce.job.name=\n\n## 指定mapreduce运行的队列，默认走控制台配置的queue\n# hiveconf:mapreduce.job.queuename=default_queue_name\n\n## hivevar配置,用户自定义变量\n#hivevar:ageParams=30## 指定mapreduce在yarn上的任务名称，默认为任务名称，可以重复\n#hiveconf:mapreduce.job.name=\n\n## 指定mapreduce运行的队列，默认走控制台配置的queue\n# hiveconf:mapreduce.job.queuename=default_queue_name\n\n## hivevar配置,用户自定义变量\n#hivevar:ageParams=30', '2022-04-13 14:30:53', '2022-04-13 14:30:53', 0);
-INSERT INTO `task_template` VALUES (61, 7, 0, '', '## 指定mapreduce在yarn上的任务名称，默认为任务名称，可以重复\n#hiveconf:mapreduce.job.name=\n\n## 指定mapreduce运行的队列，默认走控制台配置的queue\n# hiveconf:mapreduce.job.queuename=default_queue_name\n\n## hivevar配置,用户自定义变量\n#hivevar:ageParams=30## 指定mapreduce在yarn上的任务名称，默认为任务名称，可以重复\n#hiveconf:mapreduce.job.name=\n\n## 指定mapreduce运行的队列，默认走控制台配置的queue\n# hiveconf:mapreduce.job.queuename=default_queue_name\n\n## hivevar配置,用户自定义变量\n#hivevar:ageParams=30', '2021-11-18 10:36:13', '2021-11-18 10:36:13', 0);
-INSERT INTO `task_template` VALUES (63, 11, 0, '1.12', '## 资源相关\nparallelism.default=1\ntaskmanager.numberOfTaskSlots=1\njobmanager.memory.process.size=1g\ntaskmanager.memory.process.size=2g', '2022-07-19 14:47:31', '2022-07-19 14:47:31', 0);
+INSERT INTO `task_template` VALUES (59, 7, 0, '', '## 指定mapreduce在yarn上的任务名称，默认为任务名称，可以重复\n#hiveconf:mapreduce.job.name=\n\n## 指定mapreduce运行的队列，默认走控制台配置的queue\n# hiveconf:mapreduce.job.queuename=default_queue_name\n\n## hivevar配置,用户自定义变量\n#hivevar:ageParams=30## 指定mapreduce在yarn上的任务名称，默认为任务名称，可以重复\n#hiveconf:mapreduce.job.name=\n\n## 指定mapreduce运行的队列，默认走控制台配置的queue\n# hiveconf:mapreduce.job.queuename=default_queue_name\n\n## hivevar配置,用户自定义变量\n#hivevar:ageParams=30', '2021-11-18 10:36:13', '2021-11-18 10:36:13', 0);
 COMMIT;
 
 -- ----------------------------
@@ -1813,7 +1942,7 @@ CREATE TABLE `tenant` (
 -- Records of tenant
 -- ----------------------------
 BEGIN;
-INSERT INTO `tenant` VALUES (1, 'taier', NULL, '2021-08-13 16:39:40', '2021-08-13 16:39:40', 1, 0, 'taier');
+INSERT INTO `tenant` VALUES (1, 'taier', NULL, '2021-08-13 16:39:40', '2021-08-13 16:39:40', 1, 0, '');
 COMMIT;
 
 -- ----------------------------
@@ -1842,178 +1971,3 @@ INSERT INTO `user` VALUES (1, 'admin@dtstack.com', '0192023A7BBD73250516F069DF18
 COMMIT;
 
 SET FOREIGN_KEY_CHECKS = 1;
-
-
--- ----------------------------
--- add script component_model
--- ----------------------------
-BEGIN;
-DELETE FROM dict WHERE dict_code = 'component_model' AND dict_name = 'SCRIPT';
-INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default, gmt_create, gmt_modified, is_deleted) VALUES
-    ('component_model', 'SCRIPT', '{"owner": "COMPUTE", "dependsOn": ["RESOURCE", "STORAGE"], "allowKerberos": "true", "allowCoexistence": false, "uploadConfigType": "0", "versionDictionary": ""}', null, 12, 0, 'STRING', '', 0, now(), now(), 0);
-
-DELETE FROM dict WHERE dict_code = 'typename_mapping' AND dict_name = 'yarn2-hdfs2-script';
-INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default, gmt_create, gmt_modified, is_deleted) VALUES
-    ('typename_mapping', 'yarn2-hdfs2-script', '-100', null, 6, 0, 'LONG', '', 0, now(), now(), 0);
-
-DELETE FROM dict WHERE dict_code = 'typename_mapping' AND dict_name = 'yarn3-hdfs3-script';
-INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default, gmt_create, gmt_modified, is_deleted) VALUES
-    ('typename_mapping', 'yarn3-hdfs3-script', '-100', null, 6, 0, 'LONG', '', 0, now(), now(), 0);
-
-DELETE FROM `console_component_config` WHERE `cluster_id` = -2 AND `component_id` = -100 AND `component_type_code` = 8;
-INSERT INTO `console_component_config`(`cluster_id`, `component_id`, `component_type_code`, `type`, `required`, `key`, `value`, `values`, `dependencyKey`, `dependencyValue`, `desc`, `gmt_create`, `gmt_modified`, `is_deleted`) VALUES (-2, -100, 8, 'INPUT', 1, 'script.java.opts', '-Dfile.encoding=UTF-8', NULL, NULL, NULL, NULL, now(), now(), 0);
-INSERT INTO `console_component_config`(`cluster_id`, `component_id`, `component_type_code`, `type`, `required`, `key`, `value`, `values`, `dependencyKey`, `dependencyValue`, `desc`, `gmt_create`, `gmt_modified`, `is_deleted`) VALUES (-2, -100, 8, 'INPUT', 1, 'script.am.memory', '512m', NULL, NULL, NULL, NULL, now(), now(), 0);
-INSERT INTO `console_component_config`(`cluster_id`, `component_id`, `component_type_code`, `type`, `required`, `key`, `value`, `values`, `dependencyKey`, `dependencyValue`, `desc`, `gmt_create`, `gmt_modified`, `is_deleted`) VALUES (-2, -100, 8, 'INPUT', 1, 'script.am.cores', '1', NULL, NULL, NULL, NULL, now(), now(), 0);
-INSERT INTO `console_component_config`(`cluster_id`, `component_id`, `component_type_code`, `type`, `required`, `key`, `value`, `values`, `dependencyKey`, `dependencyValue`, `desc`, `gmt_create`, `gmt_modified`, `is_deleted`) VALUES (-2, -100, 8, 'INPUT', 1, 'script.worker.memory', '512m', NULL, NULL, NULL, NULL, now(), now(), 0);
-INSERT INTO `console_component_config`(`cluster_id`, `component_id`, `component_type_code`, `type`, `required`, `key`, `value`, `values`, `dependencyKey`, `dependencyValue`, `desc`, `gmt_create`, `gmt_modified`, `is_deleted`) VALUES (-2, -100, 8, 'INPUT', 1, 'script.worker.cores', '1', NULL, NULL, NULL, NULL, now(), now(), 0);
-INSERT INTO `console_component_config`(`cluster_id`, `component_id`, `component_type_code`, `type`, `required`, `key`, `value`, `values`, `dependencyKey`, `dependencyValue`, `desc`, `gmt_create`, `gmt_modified`, `is_deleted`) VALUES (-2, -100, 8, 'INPUT', 1, 'script.worker.num', '1', NULL, NULL, NULL, NULL, now(), now(), 0);
-INSERT INTO `console_component_config`(`cluster_id`, `component_id`, `component_type_code`, `type`, `required`, `key`, `value`, `values`, `dependencyKey`, `dependencyValue`, `desc`, `gmt_create`, `gmt_modified`, `is_deleted`) VALUES (-2, -100, 8, 'INPUT', 1, 'container.staging.dir', '/insight/script/staging', NULL, NULL, NULL, NULL, now(), now(), 0);
-INSERT INTO `console_component_config`(`cluster_id`, `component_id`, `component_type_code`, `type`, `required`, `key`, `value`, `values`, `dependencyKey`, `dependencyValue`, `desc`, `gmt_create`, `gmt_modified`, `is_deleted`) VALUES (-2, -100, 8, 'INPUT', 1, 'script.container.heartbeat.interval', '10000', NULL, NULL, NULL, NULL, now(), now(), 0);
-INSERT INTO `console_component_config`(`cluster_id`, `component_id`, `component_type_code`, `type`, `required`, `key`, `value`, `values`, `dependencyKey`, `dependencyValue`, `desc`, `gmt_create`, `gmt_modified`, `is_deleted`) VALUES (-2, -100, 8, 'INPUT', 1, 'script.container.heartbeat.timeout', '120000', NULL, NULL, NULL, NULL, now(), now(), 0);
-INSERT INTO `console_component_config`(`cluster_id`, `component_id`, `component_type_code`, `type`, `required`, `key`, `value`, `values`, `dependencyKey`, `dependencyValue`, `desc`, `gmt_create`, `gmt_modified`, `is_deleted`) VALUES (-2, -100, 8, 'INPUT', 1, 'script.python2.path', '/data/miniconda2/bin/python2', NULL, NULL, NULL, NULL, now(), now(), 0);
-INSERT INTO `console_component_config`(`cluster_id`, `component_id`, `component_type_code`, `type`, `required`, `key`, `value`, `values`, `dependencyKey`, `dependencyValue`, `desc`, `gmt_create`, `gmt_modified`, `is_deleted`) VALUES (-2, -100, 8, 'INPUT', 1, 'script.python3.path', '/data/miniconda3/bin/python3', NULL, NULL, NULL, NULL, now(), now(), 0);
-
--- task template
--- python
-DELETE FROM task_template WHERE task_type = 12 AND type = 0;
-INSERT INTO task_template (task_type, type, value_type, content, gmt_create, gmt_modified, is_deleted) VALUES
-    (12, 0, '', '## 每个worker所占内存，比如512m
-# script.worker.memory=512m
-
-## 每个worker所占的cpu核的数量
-# script.worker.cores=1
-
-## worker数量
-# script.worker.num=1
-
-## 是否独占机器节点
-# script.worker.exclusive=false
-
-## 任务优先级, 值越小，优先级越高，范围:1-1000
-job.priority=10
-
-## 指定work运行节点，需要注意不要写ip应填写对应的hostname
-# script.worker.nodes=
-
-## 指定work运行机架
-# script.worker.racks=
-
-## 日志级别可选ALL, DEBUG, ERROR, FATAL, INFO, OFF, TRACE, WARN
-logLevel=INFO',now(),now(), 0);
-
--- shell
-DELETE FROM task_template WHERE task_type = 13 AND type = 0;
-INSERT INTO task_template (task_type, type, value_type, content, gmt_create, gmt_modified, is_deleted) VALUES
-    (13, 0, '', '## 每个worker所占内存，比如512m
-# script.worker.memory=512m
-
-## 每个worker所占的cpu核的数量
-# script.worker.cores=1
-
-## worker数量
-# script.worker.num=1
-
-## 是否独占机器节点
-# script.worker.exclusive=false
-
-## 任务优先级, 值越小，优先级越高，范围:1-1000
-job.priority=10
-
-## 指定work运行节点，需要注意不要写ip应填写对应的hostname
-# script.worker.nodes=
-
-## 指定work运行机架
-# script.worker.racks=
-
-## 日志级别可选ALL, DEBUG, ERROR, FATAL, INFO, OFF, TRACE, WARN
-logLevel=INFO',now(),now(), 0);
-
--- change old name
-update dict set dict_value = REPLACE(dict_value, '-dtscript', '-script') where `type` = 14 and depend_name = 'YARN' and dict_value like '%dtscript%';
-update dict set dict_value = REPLACE(dict_value, 'DT_SCRIPT', 'SCRIPT') where `type` = 14 and depend_name = 'YARN' and dict_value like '%DT_SCRIPT%';
-
-delete from dict where `type` = 30 and dict_code in ('12', '13');
-INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default, gmt_create, gmt_modified, is_deleted) VALUES ('12', 'Python', '{"actions": ["SAVE_TASK", "RUN_TASK", "STOP_TASK", "SUBMIT_TASK", "OPERATOR_TASK"], "barItem": ["task", "dependency", "task_params", "env_params"], "formField": ["pythonVersion"], "renderKind": "editor"}', null, 30, 0, 'STRING', '', 1, '2022-02-11 10:28:45', '2022-02-11 10:28:45', 0);
-INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default, gmt_create, gmt_modified, is_deleted) VALUES ('13', 'Shell', '{"actions": ["SAVE_TASK", "RUN_TASK", "STOP_TASK", "SUBMIT_TASK", "OPERATOR_TASK"], "barItem": ["task", "dependency", "task_params", "env_params"], "formField": [], "renderKind": "editor"}', null, 30, 0, 'STRING', '', 1, '2022-02-11 10:28:45', '2022-02-11 10:28:45', 0);
-
-delete from dict where `type` = 25 and dict_desc = '8';
-INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default, gmt_create, gmt_modified, is_deleted) VALUES ('tips', 'script.java.opts', 'script container jvm 扩展参数', '8', 25, 0, 'STRING', '', 0, now(), now(), 0);
-INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default, gmt_create, gmt_modified, is_deleted) VALUES ('tips', 'script.am.memory', 'am container 使用的内存量', '8', 25, 0, 'STRING', '', 0, now(), now(), 0);
-INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default, gmt_create, gmt_modified, is_deleted) VALUES ('tips', 'script.am.cores', 'am container 使用的 cpu 核数', '8', 25, 0, 'STRING', '', 0, now(), now(), 0);
-INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default, gmt_create, gmt_modified, is_deleted) VALUES ('tips', 'script.worker.memory', 'work container 使用的内存量', '8', 25, 0, 'STRING', '', 0, now(), now(), 0);
-INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default, gmt_create, gmt_modified, is_deleted) VALUES ('tips', 'script.worker.cores', 'work container 使用的 cpu 核数', '8', 25, 0, 'STRING', '', 0, now(), now(), 0);
-INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default, gmt_create, gmt_modified, is_deleted) VALUES ('tips', 'script.worker.num', 'work container 实例数量', '8', 25, 0, 'STRING', '', 0, now(), now(), 0);
-INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default, gmt_create, gmt_modified, is_deleted) VALUES ('tips', 'container.staging.dir', '任务临时文件路径', '8', 25, 0, 'STRING', '', 0, now(), now(), 0);
-INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default, gmt_create, gmt_modified, is_deleted) VALUES ('tips', 'script.container.heartbeat.interval', 'am 和 work 之间的心跳间隔，单位毫秒', '8', 25, 0, 'STRING', '', 0, now(), now(), 0);
-INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default, gmt_create, gmt_modified, is_deleted) VALUES ('tips', 'script.container.heartbeat.timeout', 'am 和 work 之间的心跳超时时间，单位毫秒', '8', 25, 0, 'STRING', '', 0, now(), now(), 0);
-INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default, gmt_create, gmt_modified, is_deleted) VALUES ('tips', 'script.python2.path', 'python2.x 二进制可执行文件地址', '8', 25, 0, 'STRING', '', 0, now(), now(), 0);
-INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default, gmt_create, gmt_modified, is_deleted) VALUES ('tips', 'script.python3.path', 'python3.x 二进制可执行文件地址', '8', 25, 0, 'STRING', '', 0, now(), now(), 0);
-
-
-
--- ----------------------------
--- 增加 clickhouse
--- ----------------------------
-DELETE FROM dict WHERE type = 30 AND dict_code = '26' ;
-INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default, gmt_create, gmt_modified, is_deleted) VALUES ('26', 'ClickHouseSQL', '{
-    "actions":[
-        "SAVE_TASK",
-        "RUN_TASK",
-        "STOP_TASK",
-        "SUBMIT_TASK",
-        "OPERATOR_TASK"
-    ],
-    "barItem":[
-        "task",
-        "dependency",
-        "task_params",
-        "env_params"
-    ],
-    "formField":[
-        "datasource"
-    ],
-    "renderKind":"editor",
-    "dataTypeCodes":[25]
-}', null, 30, 0, 'STRING', '', 0, now(), now(), 0);
-
-
--- ----------------------------
--- 增加 doris
--- ----------------------------
-
--- 修改 doris 数据源模板
-UPDATE datasource_form_field SET `name` = 'url', `label` = 'url' ,`place_hold` = 'http://localhost:8030', `valid_info` = '{"regex":{"message":"URL格式不符合规则!"}}',`tooltip` = '',`regex`='' WHERE `type_version` = 'Doris-0.14.x' AND name = 'jdbcUrl';
-INSERT INTO `datasource_form_field` (`name`, `label`, `widget`, `required`, `invisible`, `default_value`, `place_hold`, `request_api`, `is_link`, `valid_info`, `tooltip`, `style`, `regex`, `type_version`, `is_deleted`, `gmt_create`, `gmt_modified`, `create_user_id`, `modify_user_id`, `options`) VALUES
-    ('schema', 'schema', 'Input', '1', '0', NULL, NULL, NULL, '0', NULL, NULL, NULL, NULL, 'Doris-0.14.x', '0', now(), now(), '0', '0', '');
-
-DELETE FROM dict WHERE type = 30 AND dict_code = '27' ;
-INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default, gmt_create, gmt_modified, is_deleted) VALUES ('27', 'DorisSQL',
- '{
-     "actions":[
-         "SAVE_TASK",
-         "RUN_TASK",
-         "STOP_TASK",
-         "SUBMIT_TASK",
-         "OPERATOR_TASK"
-     ],
-     "barItem":[
-         "task",
-         "dependency",
-         "task_params",
-         "env_params"
-     ],
-     "formField":[
-         "datasource"
-     ],
-     "renderKind":"editor",
-     "dataTypeCodes":[64]
- }', null, 30, 0, 'STRING', '', 0, now(), now(), 0);
-
--- 数据同步向导模式增加 clickhouse 和 doris
-UPDATE dict SET dict_value = '{"children":[{"children":[{"name":"syncModel","type":"number","title":"同步模式","noStyle":true},{"bind":{"field":"sourceMap.sourceId","transformer":"{{optionCollections.sourceMap_sourceId#find.type}}"},"name":"type","type":"number","title":"类型","noStyle":true},{"widget":"select","name":"sourceId","type":"number","title":"数据源","required":true,"props":{"method":"get","name":"sourceMap_sourceId","transformer":"sourceIdOnReader","optionsFromRequest":true,"placeholder":"请选择数据源","url":"/taier/api/dataSource/manager/queryByTenantId"}},{"widget":"select","hidden":[{"field":"form.sourceMap.type","isNot":true,"value":"2,4"}],"depends":["sourceMap.sourceId"],"name":"schema","type":"number","title":"schema","props":{"method":"post","name":"sourcemap_schema","transformer":"table","optionsFromRequest":true,"placeholder":"请选择 schema","params":{"sourceId":"{{form#sourceMap.sourceId}}"},"url":"/taier/api/dataSource/addDs/getAllSchemas","required":["sourceId"]}},{"widget":"SelectWithPreviewer","hidden":[{"field":"form.sourceMap.type","isNot":true,"value":"1,2,3,4,7,8,25,27,45,50"}],"depends":["sourceMap.sourceId","sourceMap.schema"],"name":"table","type":"string","title":"表名","required":true,"props":{"method":"post","name":"sourcemap_table","transformer":"table","optionsFromRequest":true,"placeholder":"请选择表名","params":{"sourceId":"{{form#sourceMap.sourceId}}","schema":"{{form#sourceMap.schema}}","isRead":true,"isSys":false},"url":"/taier/api/dataSource/addDs/tablelist","required":["sourceId"]}},{"widget":"select","hidden":[{"field":"form.sourceMap.type","isNot":true,"value":"1,2,3,4,25"},{"field":"form.sourceMap.syncModel","isNot":true,"value":"1"}],"depends":["sourceMap.table"],"name":"increColumn","type":"string","title":"增量标识字段","required":true,"props":{"method":"post","name":"sourcemap_increColumn","transformer":"incrementColumn","optionsFromRequest":true,"placeholder":"请选择增量标识字段","params":{"sourceId":"{{form#sourceMap.sourceId}}","schema":"{{form#sourceMap.schema}}","tableName":"{{form#sourceMap.table}}"},"url":"/taier/api/task/getIncreColumn","required":["sourceId","tableName"]}},{"widget":"select","hidden":[{"field":"form.sourceMap.type","isNot":true,"value":"8"}],"name":"encoding","type":"string","title":"编码","initialValue":"utf-8","required":true,"props":{"options":[{"label":"utf-8","value":"utf-8"},{"label":"gdb","value":"gdb"}],"placeholder":"请选择编码"}},{"hidden":[{"field":"form.sourceMap.type","isNot":true,"value":"8"}],"name":"startRowkey","type":"string","title":"开始行健","props":{"placeholder":"请输入开始行健"}},{"hidden":[{"field":"form.sourceMap.type","isNot":true,"value":"8"}],"name":"endRowkey","type":"string","title":"结束行健","props":{"placeholder":"请输入结束行健"}},{"widget":"radio","hidden":[{"field":"form.sourceMap.type","isNot":true,"value":"8"}],"name":"isBinaryRowkey","type":"string","title":"行健二进制转换","initialValue":"0","props":{"options":[{"label":"FALSE","value":"0"},{"label":"TRUE","value":"1"}]}},{"widget":"inputNumber","hidden":[{"field":"form.sourceMap.t ype","isNot":true,"value":"8"}],"name":"scanCacheSize","type":"string","title":"每次RPC请求获取行数","props":{"min":0,"placeholder":"请输入大小, 默认为256","suffix":"行"}},{"widget":"inputNumber","hidden":[{"field":"form.sourceMap.type","isNot":true,"value":"8"}],"name":"scanBatchSize","type":"string","title":"每次RPC请求获取列数","props":{"min":0,"placeholder":"请输入大小, 默认为100","suffix":"列"}},{"widget":"textarea","hidden":[{"field":"form.sourceMap.type","isNot":true,"value":"1,2,3,4,25"}],"name":"where","rules":[{"max":1000,"message":"过滤语句不可超过1000个字符!"}],"type":"string","title":"数据过滤","props":{"autoSize":{"minRows":2,"maxRows":6},"placeholder":"请参考相关SQL语法填写where过滤语句（不要填写where关键字）。该过滤语句通常用作增量同步"}},{"widget":"select","hidden":[{"field":"form.sourceMap.type","isNot":true,"value":"1,2,3,4,25"}],"depends":["sourceMap.table"],"name":"split","type":"string","title":"切分键","props":{"method":"post","name":"sourcemap_split","transformer":"split","optionsFromRequest":true,"placeholder":"请选择切分键","params":{"sourceId":"{{form#sourceMap.sourceId}}","schema":"{{form#sourceMap.schema}}","tableName":"{{form#sourceMap.table}}"},"url":"/taier/api/dataSource/addDs/columnForSyncopate","required":["sourceId","tableName"]}},{"hidden":[{"field":"form.sourceMap.type","isNot":true,"value":"6"}],"name":"path","rules":[{"max":200,"message":"路径不得超过200个字符！"}],"type":"string","title":"路径","required":true,"props":{"placeholder":"例如: /rdos/batch"}},{"widget":"select","hidden":[{"field":"form.sourceMap.type","isNot":true,"value":"6"}],"name":"fileType","type":"string","title":"文件类型","initialValue":"text","required":true,"props":{"options":[{"label":"orc","value":"orc"},{"label":"text","value":"text"},{"label":"parquet","value":"parquet"}],"placeholder":"请选择文件类型"}},{"hidden":[{"field":"form.sourceMap.type","isNot":true,"value":"6"},{"field":"form.sourceMap.fileType","isNot":true,"value":"text"}],"name":"fieldDelimiter","type":"string","title":"列分隔符","props":{"placeholder":"若不填写，则默认为\\\\\\\\001"}},{"widget":"autoComplete","hidden":[{"field":"form.sourceMap.type","isNot":true,"value":"7,27,45,50"}],"depends":["sourceMap.table"],"name":"partition","type":"string","title":"分区","props":{"method":"post","name":"sourcemap_partition","transformer":"table","optionsFromRequest":true,"placeholder":"请填写分区信息","params":{"sourceId":"{{form#sourceMap.sourceId}}","tableName":"{{form#sourceMap.table}}"},"url":"/taier/api/dataSource/addDs/getHivePartitions","required":["sourceId","tableName"]}},{"widget":"select","hidden":[{"field":"form.sourceMap.type","isNot":true,"value":"11,33,46"}],"depends":["sourceMap.sourceId"],"name":"index","type":"string","title":"index","required":true,"props":{"method":"post","name":"sourcemap_schema","transformer":"table","optionsFromRequest":true,"placeholder":"请选择index","params":{"sourceId":"{{form#sourceMap.sourceId}}"},"url":"/taier/api/dataSource/addDs/getAllSchemas","required":["sourceId"]}},{"widget":"select","hidden":[{"field":"form.sourceMap.type","isNot":true,"value":"11,33"}],"depends":["sourceMap.index"],"name":"indexType","type":"string","title":"type","required":true,"props":{"method":"post","name":"sourcemap_table","transformer":"table","optionsFromRequest":true,"placeholder":"请选择indexType！","params":{"sourceId":"{{form#sourceMap.sourceId}}","schema":"{{form#sourceMap.schema}}","isRead":true,"isSys":false},"url":"/taier/api/dataSource/addDs/tablelist","required":["sourceId","schema"]}},{"widget":"textarea","hidden":[{"field":"form.sourceMap.type","isNot":true,"value":"11,33,46"}],"name":"query","rules":[{"max":1024,"message":"仅支持1-1024个任意字符"}],"type":"string","title":"query","props":{"autoSize":{"minRows":2,"maxRows":6},"placeholder":"\\"match_all\\":{}\\""}},{"widget":"textarea","hidden":[{"field":"form.sourceMap.sourceId","value":"undefined"}],"name":"extralConfig","validator":"json","type":"string","title":"高级配置","props":{"autoSize":{"minRows":2,"maxRows":6},"placeholder":"以JSON格式添加高级参数，例如对关系型数据库可配置fetchSize"}},{"hidden":true,"name":"column","type":"string","title":"列"}],"name":"sourceMap","type":"object","title":"数据来源"},{"children":[{"bind":{"field":"targetMap.sourceId","transformer":"{{optionCollections.targetmap_sourceId#find.type}}"},"name":"type","type":"number","title":"类型","noStyle":true},{"widget":"select","name":"sourceId","type":"number","title":"数据源","required":true,"props":{"method":"get","name":"targetmap_sourceId","transformer":"sourceIdOnWriter","optionsFromRequest":true,"placeholder":"请选择数据源","url":"/taier/api/dataSource/manager/queryByTenantId"}},{"widget":"select","hidden":[{"field":"form.targetMap.type","isNot":true,"value":"2,4,64"}],"depends":["targetMap.sourceId"],"name":"schema","type":"number","title":"schema","props":{"method":"post","name":"targetmap_schema","transformer":"table","optionsFromRequest":true,"placeholder":"请选择 schema","params":{"sourceId":"{{form#targetMap.sourceId}}"},"url":"/taier/api/dataSource/addDs/getAllSchemas","required":["sourceId"]}},{"widget":"SelectWithCreate","hidden":[{"field":"form.targetMap.type","isNot":true,"value":"1,2,3,4,7,8,25,27,45,50,64"}],"depends":["targetMap.sourceId","targetMap.schema"],"name":"table","type":"string","title":"表名","required":true,"props":{"method":"post","name":"targetmap_table","transformer":"table","optionsFromRequest":true,"placeholder":"请选择表名","params":{"sourceId":"{{form#targetMap.sourceId}}","schema":"{{form#targetMap.schema}}","isRead":true,"isSys":false},"url":"/taier/api/dataSource/addDs/tablelist","required":["sourceId"]}},{"widget":"autoComplete","hidden":[{"field":"form.targetMap.type","isNot":true,"value":"7,27,45,50"}],"depends":["targetMap.table"],"name":"partition","type":"string","title":"分区","props":{"method":"post","name":"targetmap_partition","transformer":"table","optionsFromRequest":true,"placeholder":"请填写分区信息","params":{"sourceId":"{{form#targetMap.sourceId}}","tableName":"{{form#targetMap.table}}"},"url":"/taier/api/dataSource/addDs/getHivePartitions","required":["sourceId","tableName"]}},{"widget":"textarea","hidden":[{"field":"form.targetMap.type","isNot":true,"value":"1,2,3,4,25,64"}],"depends":["targetMap.type"],"name":"preSql","type":"string","title":"导入前准备语句","props":{"autoSize":{"minRows":2,"maxRows":6},"placeholder":"请输入导入数据前执行的 SQL 脚本"}},{"widget":"textarea","hidden":[{"field":"form.targetMap.type","isNot":true,"value":"1,2,3,4,25,64"}],"depends":["targetMap.type"],"name":"postSql","type":"string","title":"导入后准备语句","props":{"autoSize":{"minRows":2,"maxRows":6},"placeholder":"请输入导入数据后执行的 SQL 脚本"}},{"hidden":[{"field":"form.targetMap.type","isNot":true,"value":"6"}],"name":"path","rules":[{"max":200,"message":"路径不得超过200个字符！"}],"type":"string","title":"路径","required":true,"props":{"placeholder":"例如: /app/batch"}},{"hidden":[{"field":"form.targetMap.type","isNot":true,"value":"6"}],"name":"fileName","type":"string","title":"文件名","required":true,"props":{"placeholder":"请输入文件名"}},{"widget":"select","hidden":[{"field":"form.targetMap.type","isNot":true,"value":"6"}],"name":"fileType","type":"string","title":"文件类型","initialValue":"orc","required":true,"props":{"options":[{"label":"orc","value":"orc"},{"label":"text","value":"text"},{"label":"parquet","value":"parquet"}],"placeholder":"请选择文件类型"}},{"hidden":[{"field":"form.targetMap.type","isNot":true,"value":"6"}],"name":"fieldDelimiter","type":"string","title":"列分隔符","initialValue":",","props":{"placeholder":"例如: 目标为 hive 则分隔符为\\\\\\\\001"}},{"widget":"select","hidden":[{"field":"form.targetMap.type","isNot":true,"value":"6,8"}],"name":"encoding","type":"string","title":"编码","initialValue":"utf-8","required":true,"props":{"options":[{"label":"utf-8","value":"utf-8"},{"label":"gdb","value":"gdb"}],"placeholder":"请选择编码"}},{"widget":"radio","hidden":[{"field":"form.targetMap.type","isNot":true,"value":"2,4,6,7,25,27,45,50"}],"depends":["targetMap.sourceId"],"name":"writeMode","type":"string","title":"写入模式","required":true,"props":{"options":[{"label":"覆盖（Insert Overwrite）","value":"replace"},{"label":"追加（Insert Into）","value":"insert"}]}},{"widget":"radio","hidden":[{"field":"form.targetMap.type","isNot":true,"value":"8"}],"name":"nullMode","type":"string","title":"读取为空时的处理方式","initialValue":"skip","props":{"options":[{"label":"SKIP","value":"skip"},{"label":"EMPTY","value":"empty"}]}},{"widget":"inputNumber","hidden":[{"field":"form.targetMap.type","isNot":true,"value":"8"}],"name":"writeBufferSize","type":"string","title":"写入缓存大小","props":{"placeholder":"请输入缓存大小","suffix":"KB"}},{"widget":"select","hidden":[{"field":"form.targetMap.type","isNot":true,"value":"11,33,46"}],"depends":["targetMap.sourceId"],"name":"index","type":"string","title":"index","required":true,"props":{"method":"post","name":"targetmap_schema","transformer":"table","optionsFromRequest":true,"placeholder":"请选择index","params":{"sourceId":"{{form#targetMap.sourceId}}"},"url":"/taier/api/dataSource/addDs/getAllSchemas","required":["sourceId"]}},{"widget":"select","hidden":[{"field":"form.targetMap.type","isNot":true,"value":"11,33"}],"depends":["targetMap.index"],"name":"indexType","type":"string","title":"type","required":true,"props":{"method":"post","name":"targetmap_table","transformer":"table","optionsFromRequest":true,"placeholder":"请选择indexType！","params":{"sourceId":"{{form#targetMap.sourceId}}","schema":"{{form#targetMap.schema}}","isRead":true,"isSys":false},"url":"/taier/api/dataSource/addDs/tablelist","required":["sourceId","schema"]}},{"widget":"inputNumber","hidden":[{"field":"form.targetMap.type","isNot":true,"value":"11,33,46"}],"name":"bulkAction","type":"number","title":"bulkAction","initialValue":100,"required":true,"props":{"min":1,"max":200000,"precision":0,"placeholder":"请输入 bulkAction"}},{"widget":"textarea","hidden":[{"field":"form.targetMap.sourceId","value":"undefined"}],"name":"extralConfig","validator":"json","type":"string","title":"高级配置","props":{"autoSize":{"minRows":2,"maxRows":6},"placeholder":"以JSON格式添加高级参数，例如对关系型数据库可配置fetchSize"}},{"hidden":true,"name":"column","type":"string","title":"列"}],"name":"targetMap","type":"object","title":"选择目标"},{"children":[{"widget":"KeyMap","type":"any"}],"name":"mapping","type":"object","title":"字段映射"},{"children":[{"widget":"autoComplete","name":"speed","type":"string","title":"作业速率上限","initialValue":"不限制传输速率","required":true,"props":{"options":[{"value":"不限制传输速率"},{"value":"1"},{"value":"2"},{"value":"3"},{"value":"4"},{"value":"5"},{"value":"6"},{"value":"7"},{"value":"8"},{"value":"9"},{"value":"10"}],"placeholder":"请选择作业速率上限","suffix":"MB/s"}},{"widget":"autoComplete","name":"channel","type":"string","title":"作业并发数","initialValue":"1","required":true,"props":{"options":[{"value":"1"},{"value":"2"},{"value":"3"},{"value":"4"},{"value":"5"}],"placeholder":"请选择作业并发数"}},{"hidden":[{"field":"form.sourceMap.type","isNot":true,"value":"1,2,3,4,8,19,22,24,25,28,29,31,32,35,36,40,53,54,61,71,73"},{"field":"form.targetMap.type","isNot":true,"value":"1,2,3,4,7,8,10,19,22,24,25,27,28,29,31,32,35,36,40,53,54,61,71,73"}],"name":"isRestore","type":"boolean","title":"断点续传"},{"widget":"select","hidden":[{"field":"form.settingMap.isRestore","value":"false,undefined"}],"name":"restoreColumnName","type":"string","title":"标识字段","required":true,"props":{"method":"post","name":"settingmap_restore","transformer":"restore","optionsFromRequest":true,"placeholder":"请选择标识字段","params":{"sourceId":"{{form#sourceMap.sourceId}}","schema":"{{form#sourceMap.schema}}","tableName":"{{form#sourceMap.table}}"},"url":"/taier/api/task/getIncreColumn","required":["sourceId","tableName"]}}],"name":"settingMap","type":"object","title":"通道控制"}],"type":"object"}'
-WHERE `type` = 17 and dict_code = 'SYNC';
-delete  from dict where dict_code in ('SPARK_THRIFT',
-                                      'HIVE_SERVER',
-                                      'OCEAN_BASE'
-    );
-COMMIT;
