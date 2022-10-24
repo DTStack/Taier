@@ -22,7 +22,7 @@ import {
 } from '@/components/icon';
 import scaffolds from '@/components/scaffolds/create';
 import editorActionsScaffolds from '@/components/scaffolds/editorActions';
-import { IComputeType, RightBarKind } from '@/interface';
+import { RightBarKind } from '@/interface';
 import { mappingTaskTypeToLanguage } from '@/utils/enums';
 import { prettierJSONstring } from '@/utils';
 import notification from '@/components/notification';
@@ -32,6 +32,7 @@ import { breadcrumbService, editorActionBarService } from '.';
 import type { IOfflineTaskProps } from '@/interface';
 import { isTaskTab } from '@/utils/is';
 import { Component } from '@dtinsight/molecule/esm/react';
+import http from '@/api/http';
 
 export interface ITaskRenderState {
 	supportTaskList: ISupportJobTypes[];
@@ -92,19 +93,28 @@ export default class TaskRenderService extends Component<ITaskRenderState> {
 	}
 
 	// 获取当前支持的任务类型
-	public getTaskTypes() {
-		api.getTaskTypes({}).then((res) => {
-			if (res.code === 1) {
-				this.setState({
-					supportTaskList: res.data || [],
-				});
-			} else {
-				notification.error({
-					key: 'FailedJob',
-					message: `获取支持的类型失败，将无法创建新的任务！`,
-				});
-			}
-		});
+	public getTaskTypes(silent: boolean = false) {
+		if (silent) {
+			http.verbose = false;
+		}
+		api.getTaskTypes({})
+			.then((res) => {
+				if (res.code === 1) {
+					this.setState({
+						supportTaskList: res.data || [],
+					});
+				} else {
+					if (!silent) {
+						notification.error({
+							key: 'FailedJob',
+							message: `获取支持的类型失败，将无法创建新的任务！`,
+						});
+					}
+				}
+			})
+			.finally(() => {
+				http.verbose = true;
+			});
 	}
 
 	public getSupportSource() {

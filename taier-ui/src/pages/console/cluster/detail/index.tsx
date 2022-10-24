@@ -150,9 +150,12 @@ export default function ClusterDetail() {
 	/**
 	 * 获取当前集群某一组件的具体详情
 	 */
-	const getDetailValue = async (target: IClusterDetailProps['componentVOS'][number]) => {
-		if (!requestedList.current.has(target.id!)) {
-			const res = await api.getComponentInfo({ componentId: target.id });
+	const getDetailValue = async (
+		target: IClusterDetailProps['componentVOS'][number],
+		id: number,
+	) => {
+		if (!requestedList.current.has(id)) {
+			const res = await api.getComponentInfo({ componentId: id });
 			if (res.code === 1) {
 				setCurrent((current) => {
 					if (current) {
@@ -164,7 +167,7 @@ export default function ClusterDetail() {
 
 				setPrincipals(res.data.principals?.split(',') || []);
 
-				requestedList.current.add(target.id!);
+				requestedList.current.add(id);
 				return res.data;
 			}
 		}
@@ -290,7 +293,7 @@ export default function ClusterDetail() {
 		try {
 			// 如果是已经保存过的组件信息，则获取组件信息详情
 			if (typeof target?.id === 'number') {
-				const detailVal = await getDetailValue(target);
+				const detailVal = await getDetailValue(target, target.id);
 
 				// 根据组件详细信息加载当前组件的界面信息
 				if (detailVal) {
@@ -349,7 +352,6 @@ export default function ClusterDetail() {
 			}
 		});
 
-		console.log('next:', nextCurrent);
 		setCurrent(nextCurrent);
 
 		// 自动选择第一个
@@ -442,7 +444,9 @@ export default function ClusterDetail() {
 				setEdited((p) => ({ ...p, [selectedKey!]: false }));
 
 				// 更新当前节点
-				getDetailValue({ ...res.data });
+				// 如果是新建的节点，则数据里面不携带 id 字段，所以需要额外赋值
+				// 同时由于函数内部需要进行 immutable 的对比，所以需要进行一个不改变引用地址的赋值操作
+				getDetailValue(currentComponent, res.data.id);
 
 				// 当前更新的节点所属组件
 				const currentComponentOwner = componentsData.find(
@@ -451,7 +455,7 @@ export default function ClusterDetail() {
 
 				// 如果是计算组件的变更，会引起当前应用支持的任务类型的变动
 				if (currentComponentOwner === ComponentScheduleKind.Compute) {
-					taskRenderService.getTaskTypes();
+					taskRenderService.getTaskTypes(true);
 				}
 			}
 		} finally {
