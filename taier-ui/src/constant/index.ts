@@ -147,10 +147,6 @@ export enum ID_COLLECTIONS {
 	 * 新增租户
 	 */
 	ADD_TENANT = 'add.tenant',
-	/**
-	 * 配置 Schema
-	 */
-	ADD_SCHEMA = 'add.schema',
 }
 
 export const OFFSET_RESET_FORMAT = 'YYYY-MM-DD HH:mm:ss';

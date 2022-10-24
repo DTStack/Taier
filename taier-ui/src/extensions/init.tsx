@@ -46,7 +46,6 @@ import { Button, message } from 'antd';
 import { Logo } from '@/components/icon';
 import Language from '@/components/language';
 import AddTenantModal from '@/components/addTenantModal';
-import SchemaModal from '@/pages/account/schemaModal';
 
 function loadStyles(url: string) {
 	const link = document.createElement('link');
@@ -368,18 +367,6 @@ function initLogin() {
 							document.getElementById('molecule')!.appendChild(node);
 							const root = createRoot(node);
 							root.render(<AddTenantModal />);
-						},
-					},
-					{
-						id: ID_COLLECTIONS.ADD_SCHEMA,
-						name: '配置 Schema',
-						icon: 'combine',
-						onClick: () => {
-							const node = document.createElement('div');
-							node.id = 'add-tenant-modal';
-							document.getElementById('molecule')!.appendChild(node);
-							const root = createRoot(node);
-							root.render(<SchemaModal />);
 						},
 					},
 					{
