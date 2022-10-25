@@ -81,7 +81,7 @@ public abstract class AbstractTaskSaver implements ITaskSaver {
 
     private static final String ADD_FILE_FORMAT = "ADD JAR WITH %s AS %s;";
 
-    private static final List<Integer> ADD_JAR_JOB_TYPE = Arrays.asList(EScheduleJobType.SPARK.getVal(), EScheduleJobType.SPARK_PYTHON.getVal());
+    private static final List<Integer> ADD_JAR_JOB_TYPE = Arrays.asList(EScheduleJobType.SPARK.getVal());
 
     @Autowired
     public DevelopTaskService developTaskService;

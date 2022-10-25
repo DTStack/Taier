@@ -325,7 +325,7 @@ public class JobSubmitDealer implements Runnable {
             case DATASOURCE_PLUGIN:
                 submitRdbJob(jobClient);
                 return;
-            case ENGINE_PLUGIN:
+            case WORKER_PLUGIN:
                 submitEngineJob(jobClient);
                 return;
             default:

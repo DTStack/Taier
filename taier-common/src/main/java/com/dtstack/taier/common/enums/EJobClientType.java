@@ -28,9 +28,9 @@ package com.dtstack.taier.common.enums;
 public enum EJobClientType {
 
     /**
-     * engine-plugin 任务
+     * worker-plugin 任务
      */
-    ENGINE_PLUGIN(0),
+    WORKER_PLUGIN(0),
 
     /**
      * datasource-plugin 任务, 用于执行 rdb 类型的任务
