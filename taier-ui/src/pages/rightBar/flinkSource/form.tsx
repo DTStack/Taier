@@ -234,13 +234,13 @@ export default function SourceForm({
 						<Editor
 							style={{ minHeight: 202 }}
 							className="bd"
-							sync
 							options={{
 								fontSize: 12,
 								minimap: {
 									enabled: false,
 								},
 							}}
+							language="plaintext"
 							placeholder={`字段 类型, 比如 id int 一行一个字段${
 								getFieldValue(NAME_FIELD)?.[index].type !==
 								DATA_SOURCE_ENUM.KAFKA_CONFLUENT
@@ -311,7 +311,7 @@ export default function SourceForm({
 							<Editor
 								style={{ minHeight: 202, height: '100%' }}
 								className="bd"
-								sync
+								language='plaintext'
 								placeholder="分区 偏移量，比如pt 2 一行一对值"
 							/>
 						</FormItem>

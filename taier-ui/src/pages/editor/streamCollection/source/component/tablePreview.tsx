@@ -55,7 +55,11 @@ export class CollapsePreview extends React.Component<CollaProps, any> {
 					const jsonStr = Utils.isJSONStr(item) ? Utils.jsonFormat(item, 4) : item;
 					return (
 						<Panel
-							header={<div className={defaultClass}>{jsonStr || '无数据'}</div>}
+							header={
+								<div className={defaultClass} style={{ width: 500 }}>
+									{jsonStr || '无数据'}
+								</div>
+							}
 							key={`data-preview-${index}`}
 						>
 							<TextArea style={defaultStyle} value={jsonStr} />

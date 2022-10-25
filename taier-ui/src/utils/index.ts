@@ -675,14 +675,22 @@ export function getColumnsByColumnsText(text: string = '') {
 	if (text) {
 		text.split('\n')
 			.filter(Boolean)
-			.forEach((v) => {
-				const asCase = /^\s*(.+)\s+(.+)\s*$/i.exec(v?.trim());
-				if (asCase && !tmpMap[asCase[1]]) {
-					tmpMap[asCase[1]] = true;
-					columns.push({
-						field: asCase[1],
-						type: asCase[2],
-					});
+			.forEach((v = '') => {
+				const asCase = /^.*\w.*\s+as\s+(\w+)$/i.exec(v.trim());
+				if (asCase) {
+					if (!tmpMap[asCase[1]]) {
+						tmpMap[asCase[1]] = true;
+						columns.push({
+							field: asCase[1],
+							type: asCase[2],
+						});
+					}
+				} else {
+					const [field, type] = v.trim().split(' ');
+					if (!tmpMap[field]) {
+						tmpMap[field] = true;
+						columns.push({ field, type });
+					}
 				}
 			});
 	}
