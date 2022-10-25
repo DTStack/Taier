@@ -40,9 +40,9 @@ export default function PreviewTable({
 	}, [data?.dataList, data?.columnList]);
 
 	return (
-		<div className='p-4'>
+		<div className="p-4 h-full">
 			<Table
-				className="taier__preview__table"
+				className="taier__preview__table h-full"
 				columns={columns}
 				dataSource={dataSource}
 				scroll={scroll}

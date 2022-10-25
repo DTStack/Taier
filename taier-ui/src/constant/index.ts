@@ -252,6 +252,10 @@ export enum TASK_TYPE_ENUM {
 	SHELL = 13,
 	CLICKHOUSE = 14,
 	DORIS = 15,
+	/**
+	 * Python Spark
+	 */
+	PY_SPARK = 16
 }
 
 /**

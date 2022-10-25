@@ -472,7 +472,10 @@ class TaskSaveService extends GlobalEvent {
 					const componentForm = rightBarService.getForm();
 					if (componentForm) {
 						// 如果 componentForm 存在表示当前 rightBar 处于展开状态并且存在 form 表单，需要先校验表单的值
-						await componentForm.validateFields();
+						// 后面会对校验结果做抛出，这里只需要 Form 组件里面把错误信息的状态展示出来
+						try {
+							await componentForm.validateFields();
+						} catch {}
 					}
 
 					// errors 的二维数组，第一维区分源表结果表维表，第二维区分具体表中的某一个源
@@ -485,8 +488,7 @@ class TaskSaveService extends GlobalEvent {
 
 					const err = this.checkSide(side, componentVersion);
 					if (err) {
-						message.error(err);
-						return Promise.reject();
+						return Promise.reject(new Error(err));
 					}
 
 					params.preSave = true;
