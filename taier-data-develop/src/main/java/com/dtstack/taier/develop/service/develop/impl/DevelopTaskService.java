@@ -32,7 +32,6 @@ import com.dtstack.taier.common.enums.EScheduleJobType;
 import com.dtstack.taier.common.enums.EScheduleStatus;
 import com.dtstack.taier.common.enums.ResourceRefType;
 import com.dtstack.taier.common.enums.TaskTemplateType;
-import com.dtstack.taier.common.env.EnvironmentContext;
 import com.dtstack.taier.common.exception.DtCenterDefException;
 import com.dtstack.taier.common.exception.ErrorCode;
 import com.dtstack.taier.common.exception.RdosDefineException;
@@ -181,9 +180,6 @@ public class DevelopTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
 
     @Autowired
     private HadoopJobExeService hadoopJobExeService;
-
-    @Autowired
-    private EnvironmentContext environmentContext;
 
     @Autowired
     private ComponentService componentService;
@@ -1245,11 +1241,12 @@ public class DevelopTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
             throw new DtCenterDefException("该租户对应集群未配置任何组件");
         }
         List<Integer> tenantSupportMultiEngine = engineSupportVOS.stream().map(Component::getComponentTypeCode).collect(Collectors.toList());
-        List<EScheduleJobType> eScheduleJobTypes = Arrays.stream(EScheduleJobType.values())
-                .filter(a -> a.getComponentType() == null || (tenantSupportMultiEngine.contains(a.getComponentType().getTypeCode())))
-                .collect(Collectors.toList());
         List<Dict> dicts = scheduleDictService.listByDictType(DictType.TASK_TYPE_PROPERTIES);
         Map<Integer, String> taskProperties = dicts.stream().collect(Collectors.toMap(d -> Integer.parseInt(d.getDictCode()), Dict::getDictValue));
+        List<EScheduleJobType> eScheduleJobTypes = Arrays.stream(EScheduleJobType.values())
+                .filter(a -> a.getComponentType() == null || (tenantSupportMultiEngine.contains(a.getComponentType().getTypeCode())))
+                .filter(a -> taskProperties.containsKey(a.getType()))
+                .collect(Collectors.toList());
         return eScheduleJobTypes.stream()
                 .map(j -> {
                     DevelopTaskTypeVO taskTypeVO = new DevelopTaskTypeVO(j.getType(), j.getName(), j.getComputeType().getType());

@@ -29,32 +29,32 @@ public enum EScheduleJobType {
     /**
      * 虚节点
      */
-    VIRTUAL(-1, "虚节点", -1, 0, null, EComputeType.BATCH, EJobClientType.ENGINE_PLUGIN),
+    VIRTUAL(-1, "虚节点", -1, 0, null, EComputeType.BATCH, EJobClientType.WORKER_PLUGIN),
 
     /**
      * SparkSQL
      */
-    SPARK_SQL(0, "SparkSQL", EJobType.SQL.getType(), 1, EComponentType.SPARK, EComputeType.BATCH, EJobClientType.ENGINE_PLUGIN),
+    SPARK_SQL(0, "SparkSQL", EJobType.SQL.getType(), 1, EComponentType.SPARK, EComputeType.BATCH, EJobClientType.WORKER_PLUGIN),
 
     /**
      * Spark jar
      */
-    SPARK(1, "Spark", EJobType.MR.getType(), 2, EComponentType.SPARK, EComputeType.BATCH, EJobClientType.ENGINE_PLUGIN),
+    SPARK(1, "Spark", EJobType.MR.getType(), 2, EComponentType.SPARK, EComputeType.BATCH, EJobClientType.WORKER_PLUGIN),
 
     /**
      * 数据同步
      */
-    SYNC(2, "数据同步", EJobType.SYNC.getType(), 3, EComponentType.FLINK, EComputeType.BATCH, EJobClientType.ENGINE_PLUGIN),
+    SYNC(2, "数据同步", EJobType.SYNC.getType(), 3, EComponentType.FLINK, EComputeType.BATCH, EJobClientType.WORKER_PLUGIN),
 
     /**
      * FlinkSQL
      */
-    FLINK_SQL(5, "FlinkSQL", EJobType.SQL.getType(), 5, EComponentType.FLINK, EComputeType.STREAM, EJobClientType.ENGINE_PLUGIN),
+    FLINK_SQL(5, "FlinkSQL", EJobType.SQL.getType(), 5, EComponentType.FLINK, EComputeType.STREAM, EJobClientType.WORKER_PLUGIN),
 
     /**
      * 实时采集
      */
-    DATA_ACQUISITION(6, "实时采集", EJobType.SYNC.getType(), 4, EComponentType.FLINK, EComputeType.STREAM, EJobClientType.ENGINE_PLUGIN),
+    DATA_ACQUISITION(6, "实时采集", EJobType.SYNC.getType(), 4, EComponentType.FLINK, EComputeType.STREAM, EJobClientType.WORKER_PLUGIN),
 
     /**
      * HiveSQL
@@ -69,22 +69,22 @@ public enum EScheduleJobType {
     /**
      * 工作流
      */
-    WORK_FLOW(10, "工作流", -1, 9, null, EComputeType.BATCH, EJobClientType.ENGINE_PLUGIN),
+    WORK_FLOW(10, "工作流", -1, 9, null, EComputeType.BATCH, EJobClientType.WORKER_PLUGIN),
 
     /**
      * Flink
      */
-    FLINK_MR(11, "Flink", EJobType.MR.getType(), 11, EComponentType.FLINK, EComputeType.STREAM, EJobClientType.ENGINE_PLUGIN),
+    FLINK_MR(11, "Flink", EJobType.MR.getType(), 11, EComponentType.FLINK, EComputeType.STREAM, EJobClientType.WORKER_PLUGIN),
 
     /**
      * Python
      */
-    PYTHON(12, "Python", EJobType.PYTHON.getType(), 12, EComponentType.SCRIPT, EComputeType.BATCH, EJobClientType.ENGINE_PLUGIN),
+    PYTHON(12, "Python", EJobType.PYTHON.getType(), 12, EComponentType.SCRIPT, EComputeType.BATCH, EJobClientType.WORKER_PLUGIN),
 
     /**
      * Shell
      */
-    SHELL(13, "Shell", EJobType.PYTHON.getType(), 13, EComponentType.SCRIPT, EComputeType.BATCH, EJobClientType.ENGINE_PLUGIN),
+    SHELL(13, "Shell", EJobType.PYTHON.getType(), 13, EComponentType.SCRIPT, EComputeType.BATCH, EJobClientType.WORKER_PLUGIN),
 
     /**
      * ClickHouseSQL
@@ -100,7 +100,7 @@ public enum EScheduleJobType {
     /**
      * PySpark
      */
-    SPARK_PYTHON(12, "PySpark", EJobType.PYTHON.getType(), 12, EComponentType.SPARK, EComputeType.BATCH, EJobClientType.ENGINE_PLUGIN),
+    SPARK_PYTHON(16, "PySpark", EJobType.PYTHON.getType(), 12, EComponentType.SPARK, EComputeType.BATCH, EJobClientType.WORKER_PLUGIN),
     ;
 
     private final Integer type;
