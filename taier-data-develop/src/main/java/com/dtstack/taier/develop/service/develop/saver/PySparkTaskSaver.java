@@ -2,7 +2,6 @@ package com.dtstack.taier.develop.service.develop.saver;
 
 import com.dtstack.taier.common.enums.EScheduleJobType;
 import com.dtstack.taier.common.enums.ResourceType;
-import com.dtstack.taier.common.enums.TaskTemplateType;
 import com.dtstack.taier.dao.domain.DevelopResource;
 import com.dtstack.taier.dao.domain.Task;
 import com.dtstack.taier.develop.dto.devlop.TaskResourceParam;
@@ -39,7 +38,7 @@ public class PySparkTaskSaver extends AbstractTaskSaver {
     public TaskResourceParam beforeProcessing(TaskResourceParam taskResourceParam) {
         //校验资源类型和任务类型是否匹配
         developResourceService.checkResourceType(taskResourceParam.getResourceIdList(), taskResourceParam.getTaskType());
-        taskResourceParam.setTaskParams(taskResourceParam.getTaskParams() == null ? taskTemplateService.getTaskTemplate(TaskTemplateType.TASK_PARAMS.getType(), taskResourceParam.getTaskType(), taskResourceParam.getComponentVersion()).getContent() : taskResourceParam.getTaskParams());
+        taskResourceParam.setTaskParams(taskResourceParam.getTaskParams() == null ? taskTemplateService.getTaskTemplate( taskResourceParam.getTaskType(), taskResourceParam.getComponentVersion()).getParams() : taskResourceParam.getTaskParams());
         return taskResourceParam;
     }
 

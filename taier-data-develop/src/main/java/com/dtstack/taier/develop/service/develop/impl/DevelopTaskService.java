@@ -31,7 +31,6 @@ import com.dtstack.taier.common.enums.EComputeType;
 import com.dtstack.taier.common.enums.EScheduleJobType;
 import com.dtstack.taier.common.enums.EScheduleStatus;
 import com.dtstack.taier.common.enums.ResourceRefType;
-import com.dtstack.taier.common.enums.TaskTemplateType;
 import com.dtstack.taier.common.exception.DtCenterDefException;
 import com.dtstack.taier.common.exception.ErrorCode;
 import com.dtstack.taier.common.exception.RdosDefineException;
@@ -48,7 +47,7 @@ import com.dtstack.taier.dao.domain.ScheduleTaskShade;
 import com.dtstack.taier.dao.domain.ScheduleTaskTaskShade;
 import com.dtstack.taier.dao.domain.Task;
 import com.dtstack.taier.dao.domain.TaskDirtyDataManage;
-import com.dtstack.taier.dao.domain.TaskTemplate;
+import com.dtstack.taier.dao.domain.TaskParamTemplate;
 import com.dtstack.taier.dao.domain.Tenant;
 import com.dtstack.taier.dao.mapper.DevelopTaskMapper;
 import com.dtstack.taier.datasource.api.base.ClientCache;
@@ -717,8 +716,8 @@ public class DevelopTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
         taskVO.setGmtCreate(Timestamp.valueOf(LocalDateTime.now()));
 
         if (StringUtils.isBlank(taskVO.getTaskParams())) {
-            TaskTemplate taskTemplate = taskTemplateService.getTaskTemplate(TaskTemplateType.TASK_PARAMS.getType(), taskVO.getTaskType(), taskVO.getComponentVersion());
-            String content = taskTemplate == null ? "" : taskTemplate.getContent();
+            TaskParamTemplate taskParamTemplate = taskTemplateService.getTaskTemplate(taskVO.getTaskType(), taskVO.getComponentVersion());
+            String content = taskParamTemplate == null ? "" : taskParamTemplate.getParams();
             taskVO.setTaskParams(content);
         }
         taskVO.setTenantId(taskVO.getTenantId());
@@ -745,7 +744,7 @@ public class DevelopTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
         if (before.equals(after)) {
             return paramsBefore;
         }
-        return taskTemplateService.getTaskTemplate(TaskTemplateType.TASK_PARAMS.getType(), taskType, after.getType()).getContent();
+        return taskTemplateService.getTaskTemplate(taskType, after.getType()).getParams();
     }
 
     /**
