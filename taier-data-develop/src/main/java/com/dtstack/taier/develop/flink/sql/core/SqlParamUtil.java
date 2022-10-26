@@ -36,12 +36,6 @@ public class SqlParamUtil {
                     MapUtil.putIfValueNotBlank(frontFlinkXKeyMap, paramEnumBase.getFront(), paramEnumBase.getFlink112());
                 }
                 break;
-            case FLINK_110:
-            case FLINK_180:
-                for (ISqlParamEnum paramEnumBase : sqlParamEnumBases) {
-                    MapUtil.putIfValueNotBlank(frontFlinkXKeyMap, paramEnumBase.getFront(), paramEnumBase.getFlink110());
-                }
-                break;
             default:
                 throw new DtCenterDefException(String.format("不支持flink版本: %s", flinkVersion.getType()));
         }
@@ -67,10 +61,6 @@ public class SqlParamUtil {
             if (sqlParamEnumBase.getFront().equals(value)) {
                 String defaultValue;
                 switch (flinkVersion) {
-                    case FLINK_180:
-                    case FLINK_110:
-                        defaultValue = sqlParamEnumBase.getFlink110();
-                        break;
                     default:
                         defaultValue = sqlParamEnumBase.getFlink112();
                         break;

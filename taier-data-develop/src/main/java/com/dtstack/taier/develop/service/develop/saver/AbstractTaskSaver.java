@@ -6,14 +6,13 @@ import com.dtstack.taier.common.enums.EComponentType;
 import com.dtstack.taier.common.enums.EScheduleJobType;
 import com.dtstack.taier.common.enums.EScheduleStatus;
 import com.dtstack.taier.common.enums.ESubmitStatus;
-import com.dtstack.taier.common.enums.TaskTemplateType;
 import com.dtstack.taier.common.env.EnvironmentContext;
 import com.dtstack.taier.common.exception.ErrorCode;
 import com.dtstack.taier.common.exception.RdosDefineException;
 import com.dtstack.taier.common.util.SqlFormatUtil;
 import com.dtstack.taier.dao.domain.DevelopResource;
 import com.dtstack.taier.dao.domain.Task;
-import com.dtstack.taier.dao.domain.TaskTemplate;
+import com.dtstack.taier.dao.domain.TaskParamTemplate;
 import com.dtstack.taier.dao.mapper.DevelopTaskMapper;
 import com.dtstack.taier.develop.dto.devlop.TaskResourceParam;
 import com.dtstack.taier.develop.dto.devlop.TaskVO;
@@ -266,8 +265,8 @@ public abstract class AbstractTaskSaver implements ITaskSaver {
         task.setJobId(actionService.generateUniqueSign());
         task.setGmtCreate(Timestamp.valueOf(LocalDateTime.now()));
         if (StringUtils.isBlank(task.getTaskParams())) {
-            TaskTemplate taskTemplate = taskTemplateService.getTaskTemplate(TaskTemplateType.TASK_PARAMS.getType(), task.getTaskType(), task.getComponentVersion());
-            String content = taskTemplate == null ? "" : taskTemplate.getContent();
+            TaskParamTemplate taskTemplate = taskTemplateService.getTaskTemplate(task.getTaskType(), task.getComponentVersion());
+            String content = taskTemplate == null ? "" : taskTemplate.getParams();
             task.setTaskParams(content);
         }
         task.setScheduleStatus(EScheduleStatus.NORMAL.getVal());
@@ -295,7 +294,7 @@ public abstract class AbstractTaskSaver implements ITaskSaver {
         if (before.equals(after)) {
             return paramsBefore;
         }
-        return taskTemplateService.getTaskTemplate(TaskTemplateType.TASK_PARAMS.getType(), taskType, after.getType()).getContent();
+        return taskTemplateService.getTaskTemplate( taskType, after.getType()).getParams();
     }
 
     public List<TaskVO> getTaskByIds(List<Long> taskIdArray) {

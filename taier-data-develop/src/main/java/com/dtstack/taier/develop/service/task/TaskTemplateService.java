@@ -21,7 +21,7 @@ package com.dtstack.taier.develop.service.task;
 
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
-import com.dtstack.taier.dao.domain.TaskTemplate;
+import com.dtstack.taier.dao.domain.TaskParamTemplate;
 import com.dtstack.taier.dao.mapper.TaskTemplateMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -41,11 +41,10 @@ public class TaskTemplateService {
     @Autowired
     private TaskTemplateMapper taskTemplateMapper;
 
-    public TaskTemplate getTaskTemplate(Integer type, Integer taskType, String valueType) {
-        return taskTemplateMapper.selectOne(Wrappers.lambdaQuery(TaskTemplate.class)
-                .eq(TaskTemplate::getType, type)
-                .eq(TaskTemplate::getTaskType, taskType)
-                .eq(StringUtils.isNotBlank(valueType), TaskTemplate::getValueType, valueType));
+    public TaskParamTemplate getTaskTemplate(Integer taskType, String valueType) {
+        return taskTemplateMapper.selectOne(Wrappers.lambdaQuery(TaskParamTemplate.class)
+                .eq(TaskParamTemplate::getTaskType, taskType)
+                .eq(StringUtils.isNotBlank(valueType), TaskParamTemplate::getTaskVersion, valueType));
     }
 
     /**
