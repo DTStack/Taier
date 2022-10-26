@@ -148,7 +148,6 @@ const FunctionManagerView = ({ headerToolBar, panel, entry }: IFunctionViewProps
 						if (res.code === 1) {
 							setMenuData({
 								...res.data,
-								taskType: res.data.type,
 								nodePid: treeNode!.data.parentId,
 							});
 							setModalShow(true);
