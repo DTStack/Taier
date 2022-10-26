@@ -88,6 +88,29 @@ public class DevelopFunctionQueryResultVO {
     @ApiModelProperty(value = "关联资源的id")
     private Long resources = 0L;
 
+    @ApiModelProperty(value = "任务类型")
+    private Integer taskType;
+
+    @ApiModelProperty(value = "flink udf 类型")
+    private Integer udfType;
+
+
+    public Integer getTaskType() {
+        return taskType;
+    }
+
+    public void setTaskType(Integer taskType) {
+        this.taskType = taskType;
+    }
+
+    public Integer getUdfType() {
+        return udfType;
+    }
+
+    public void setUdfType(Integer udfType) {
+        this.udfType = udfType;
+    }
+
     public DevelopFunctionUserVO getCreateUser() {
         return createUser;
     }
