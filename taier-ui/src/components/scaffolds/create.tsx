@@ -67,7 +67,6 @@ const SyncModel = ({ disabled }: ICreateFormProps) => (
 const ComponentVersion = ({ onChange }: ICreateFormProps) => {
 	const form = Form.useFormInstance();
 	const taskType = Form.useWatch('taskType');
-	const prevTaskType = usePrevious(taskType);
 	const [versions, setVersions] = useState<{ label: string; value: string }[]>([]);
 
 	useEffect(() => {
@@ -80,7 +79,7 @@ const ComponentVersion = ({ onChange }: ICreateFormProps) => {
 				if (res.code === 1) {
 					setVersions(
 						res.data?.map((v) => ({
-							label: v.componentName,
+							label: `${v.componentName}-${v.componentVersion}`,
 							value: v.componentVersion,
 						})) || [],
 					);
@@ -99,7 +98,7 @@ const ComponentVersion = ({ onChange }: ICreateFormProps) => {
 				}
 			});
 		}
-	}, [taskType, prevTaskType]);
+	}, [taskType]);
 
 	return (
 		<Form.Item label="引擎版本" name="componentVersion">
