@@ -21,7 +21,7 @@ package com.dtstack.taier.scheduler.server.pipeline.operator;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.JSONPath;
 import com.dtstack.taier.common.constant.CommonConstant;
-import com.dtstack.taier.common.enums.DataSourceType;
+import com.dtstack.taier.common.enums.DataSourceTypeEnum;
 import com.dtstack.taier.common.enums.EComponentType;
 import com.dtstack.taier.common.enums.EScheduleType;
 import com.dtstack.taier.common.env.EnvironmentContext;
@@ -224,7 +224,7 @@ public class SyncOperatorPipeline extends IPipeline.AbstractPipeline {
         Integer dirtySourceType = confObj.getInteger(CommonConstant.DATASOURCE_TYPE);
         Long dirtyDatasourceId = confObj.getLong(CommonConstant.DATASOURCE_ID);
         //需要建分区
-        if (!DataSourceType.hadoopDirtyDataSource.contains(dirtySourceType)) {
+        if (!DataSourceTypeEnum.hadoopDirtyDataSource.contains(dirtySourceType)) {
             return sqlText;
         }
         JSONObject sqlObject = JSONObject.parseObject(sqlText);
