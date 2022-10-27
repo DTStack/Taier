@@ -4,11 +4,13 @@ import com.dtstack.taier.common.exception.ErrorCode;
 import com.dtstack.taier.common.exception.PubSvcDefineException;
 import com.dtstack.taier.common.util.Strings;
 import com.google.common.collect.HashBasedTable;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Table;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -89,6 +91,12 @@ public enum DataSourceTypeEnum {
     DORIS_HTTP(64,"Doris","0.14.x"),
     DMDB_FOR_ORACLE(67, "DMDB", "For Oracle")
     ;
+
+    public static List<Integer> hadoopDirtyDataSource = Lists.newArrayList(
+            DataSourceTypeEnum.HIVE1X.getVal(),
+            DataSourceTypeEnum.HIVE2X.getVal(),
+            DataSourceTypeEnum.HIVE3X.getVal(),
+            DataSourceTypeEnum.SparkThrift2_1.getVal());
 
     private static final Table<String ,String ,DataSourceTypeEnum> CACHE = HashBasedTable.create();
     static {
