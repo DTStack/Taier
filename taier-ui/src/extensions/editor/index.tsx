@@ -340,7 +340,7 @@ function registerCompletion() {
 	] as const;
 	COMPLETION_SQL.forEach((sql) =>
 		languages.registerCompletionItemProvider(sql, {
-			provideCompletionItems(model, position) {
+			async provideCompletionItems(model, position) {
 				const word = model.getWordUntilPosition(position);
 				const range = {
 					startLineNumber: position.lineNumber,
@@ -348,8 +348,10 @@ function registerCompletion() {
 					startColumn: word.startColumn,
 					endColumn: word.endColumn,
 				};
+
+				const suggestions = await createSQLProposals(range);
 				return {
-					suggestions: createSQLProposals(range),
+					suggestions,
 				};
 			},
 		}),
