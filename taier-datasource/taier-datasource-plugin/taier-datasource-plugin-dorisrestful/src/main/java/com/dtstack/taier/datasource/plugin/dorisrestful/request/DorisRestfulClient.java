@@ -3,15 +3,15 @@ package com.dtstack.taier.datasource.plugin.dorisrestful.request;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.JSONPath;
-import com.dtstack.taier.datasource.plugin.common.utils.CommonUtil;
-import com.dtstack.taier.datasource.plugin.restful.core.http.HttpClient;
-import com.dtstack.taier.datasource.plugin.restful.core.http.HttpClientFactory;
 import com.dtstack.taier.datasource.api.dto.ColumnMetaDTO;
 import com.dtstack.taier.datasource.api.dto.SqlQueryDTO;
 import com.dtstack.taier.datasource.api.dto.restful.Response;
 import com.dtstack.taier.datasource.api.dto.source.DorisRestfulSourceDTO;
 import com.dtstack.taier.datasource.api.exception.SourceException;
 import com.dtstack.taier.datasource.api.utils.AssertUtils;
+import com.dtstack.taier.datasource.plugin.common.utils.CommonUtil;
+import com.dtstack.taier.datasource.plugin.restful.core.http.HttpClient;
+import com.dtstack.taier.datasource.plugin.restful.core.http.HttpClientFactory;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -170,6 +170,9 @@ public class DorisRestfulClient implements Closeable {
 
             JSONArray data = (JSONArray) JSONPath.eval(JSONObject.parse(result.getContent()), DATA_JSON_PATH);
             JSONArray metaObj = (JSONArray) JSONPath.eval(JSONObject.parse(result.getContent()), META_JSON_PATH);
+            if (null == metaObj) {
+                return new ArrayList<>(0);
+            }
             List<String> meta = metaObj.stream().map(obj -> ((JSONObject) obj).getString("name")).collect(Collectors.toList());
             List<Map<String, Object>> resultList = new ArrayList<>();
             for (int i = 0; i < data.size(); i++) {

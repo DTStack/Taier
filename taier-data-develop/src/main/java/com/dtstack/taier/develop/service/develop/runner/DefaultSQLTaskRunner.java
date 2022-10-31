@@ -18,25 +18,21 @@
 
 package com.dtstack.taier.develop.service.develop.runner;
 
-import com.dtstack.taier.datasource.api.dto.source.ISourceDTO;
-import com.dtstack.taier.datasource.api.dto.source.OceanBaseSourceDTO;
-import com.dtstack.taier.datasource.api.source.DataSourceType;
-import com.dtstack.taier.common.engine.JdbcInfo;
 import com.dtstack.taier.common.enums.EScheduleJobType;
 import com.google.common.collect.Lists;
-import org.springframework.stereotype.Component;
 
 import java.util.List;
 
 /**
  * @author yuebai
- * @date 2022/7/12
+ * @date 2022/7/13
  */
-@Component
-public class OceanBaseSQLTaskRunner extends JdbcTaskRunner {
+@org.springframework.stereotype.Component
+public class DefaultSQLTaskRunner extends HadoopJdbcTaskRunner {
 
     @Override
     public List<EScheduleJobType> support() {
-        return Lists.newArrayList(EScheduleJobType.OCEANBASE_SQL);
+        return Lists.newArrayList(EScheduleJobType.HIVE_SQL, EScheduleJobType.OCEANBASE_SQL,
+                EScheduleJobType.DORIS_SQL, EScheduleJobType.CLICK_HOUSE_SQL);
     }
 }

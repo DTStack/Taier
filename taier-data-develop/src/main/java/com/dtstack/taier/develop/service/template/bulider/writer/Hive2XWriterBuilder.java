@@ -274,6 +274,7 @@ public class Hive2XWriterBuilder implements DaWriterBuilder {
             hdfsWriter.setExtralConfig(writerParam.getExtralConfig());
             hdfsWriter.setSftpConf(writerParam.getSftpConf());
             hdfsWriter.setRemoteDir(writerParam.getRemoteDir());
+            hdfsWriter.setSourceIds(writerParam.getSourceIds());
             return hdfsWriter;
         }
         return new HdfsWriter();

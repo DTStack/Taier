@@ -18,6 +18,7 @@
 
 package com.dtstack.taier.scheduler.server.pipeline.operator;
 
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.JSONPath;
 import com.dtstack.taier.common.constant.CommonConstant;
@@ -40,13 +41,10 @@ import com.dtstack.taier.datasource.api.base.ClientCache;
 import com.dtstack.taier.datasource.api.client.IClient;
 import com.dtstack.taier.datasource.api.dto.SqlQueryDTO;
 import com.dtstack.taier.datasource.api.dto.source.ISourceDTO;
-import com.dtstack.taier.pluginapi.constrant.ConfigConstant;
 import com.dtstack.taier.pluginapi.enums.EDeployMode;
 import com.dtstack.taier.pluginapi.enums.TaskStatus;
 import com.dtstack.taier.pluginapi.exception.ExceptionUtil;
 import com.dtstack.taier.pluginapi.util.RetryUtil;
-import com.dtstack.taier.scheduler.datasource.convert.engine.PluginInfoToSourceDTO;
-import com.dtstack.taier.scheduler.executor.DatasourceOperator;
 import com.dtstack.taier.scheduler.server.pipeline.IPipeline;
 import com.dtstack.taier.scheduler.server.pipeline.JobParamReplace;
 import com.dtstack.taier.scheduler.service.ComponentConfigService;
@@ -189,9 +187,8 @@ public class SyncOperatorPipeline extends IPipeline.AbstractPipeline {
         }
 
         try {
-            Integer sourceType = (Integer) actionParam.get("sourceType");
             // 创建数据同步目标表分区
-            job = createPartition(taskShade.getTenantId(), job, sourceType);
+            job = createPartition(taskShade.getTenantId(), job, scheduleJob.getType());
         } catch (Exception e) {
             LOGGER.error("create partition error {}", scheduleJob.getJobId(), e);
             throw e;
@@ -290,17 +287,21 @@ public class SyncOperatorPipeline extends IPipeline.AbstractPipeline {
     /**
      * 创建分区
      */
-    public String createPartition(Long tenantId, String job, Integer sourceType) {
+    public String createPartition(Long tenantId, String job, Integer scheduleType) {
         JSONObject jobJSON = JSONObject.parseObject(job);
         JSONObject jobObj = jobJSON.getJSONObject("job");
         JSONObject parameter = jobObj.getJSONArray("content").getJSONObject(0)
                 .getJSONObject("writer").getJSONObject("parameter");
 
+        JSONArray sourceIds = jobJSON.getJSONArray("sourceIds");
+        if (CollectionUtils.isEmpty(sourceIds)) {
+            return jobJSON.toJSONString();
+        }
+        Long sourceId = sourceIds.getLong(0);
+        ISourceDTO sourceDTO = sourceDTOLoader.buildSourceDTO(sourceId);
+
         if (parameter.containsKey("partition") && parameter.containsKey("connection")) {
             JSONObject connection = parameter.getJSONArray("connection").getJSONObject(0);
-            String username = parameter.containsKey(ConfigConstant.USERNAME) ? parameter.getString(ConfigConstant.USERNAME) : "";
-            String password = parameter.containsKey(ConfigConstant.PASSWORD) ? parameter.getString(ConfigConstant.PASSWORD) : "";
-            String jdbcUrl = connection.getString(ConfigConstant.JDBCURL);
             String table = connection.getJSONArray("table").getString(0);
 
             String partition = parameter.getString("partition");
@@ -331,94 +332,21 @@ public class SyncOperatorPipeline extends IPipeline.AbstractPipeline {
             String join = Joiner.on("',").withKeyValueSeparator("='").join(formattedMap);
             partition = join + "'";
             String sql = String.format("alter table %s add if not exists partition (%s)", table, partition);
+            int retryFrequency = EScheduleType.TEMP_JOB.getType().equals(scheduleType) ? 0 : environmentContext.getRetryFrequency();
             try {
                 RetryUtil.executeWithRetry(() -> {
                     LOGGER.info("create partition tenantId {} {}", tenantId, sql);
-                    JSONObject pluginInfo = buildDataSourcePluginInfo(parameter.getJSONObject("hadoopConfig"), username, password, jdbcUrl);
-                    pluginInfo.put(DatasourceOperator.DATA_SOURCE_TYPE, sourceType);
-                    // 以脚本中的 schema 为主
-                    String schema = parameter.getString("schema");
-                    pluginInfo.put("schema", schema);
-                    IClient client = ClientCache.getClient(sourceType);
-                    ISourceDTO sourceDTO = PluginInfoToSourceDTO.getSourceDTO(pluginInfo.toJSONString());
+                    IClient client = ClientCache.getClient(sourceDTO.getSourceType());
                     client.executeQuery(sourceDTO, SqlQueryDTO.builder().sql(sql).build());
                     cleanFileName(parameter);
                     return null;
-                }, environmentContext.getRetryFrequency(), environmentContext.getRetryInterval(), false, null);
+                }, retryFrequency, environmentContext.getRetryInterval(), false, null);
             } catch (Exception e) {
                 LOGGER.error("create partition error:", e);
                 throw new RdosDefineException("create partition error:" + ExceptionUtil.getErrorMessage(e));
             }
         }
         return jobJSON.toJSONString();
-    }
-
-    /**
-     * 拼接数据源的连接信息
-     * hive 需要判断是否开启了kerberos
-     *
-     * @param username
-     * @param password
-     * @param jdbcUrl
-     * @return
-     */
-    private JSONObject buildDataSourcePluginInfo(JSONObject hadoopConfig, String username, String password, String jdbcUrl) {
-        JSONObject pluginInfo = new JSONObject();
-        //解析jdbcUrl中的database,将数据库名称替换成default，防止数据库不存在报 NoSuchDatabaseException
-        try {
-            String jdbcUrlStr = jdbcUrl;
-            if (jdbcUrl.contains(";")) {
-                //是开启了kerberos的url
-                jdbcUrlStr = jdbcUrl.substring(0, jdbcUrl.indexOf(";"));
-            }
-            String realDataBase = jdbcUrlStr.substring(jdbcUrlStr.lastIndexOf("/") + 1);
-            String newJdbcUrl = jdbcUrl.replaceFirst(realDataBase, "default");
-            pluginInfo.put("realDataBase", realDataBase);
-            pluginInfo.put(ConfigConstant.JDBCURL, newJdbcUrl);
-        } catch (Exception e) {
-            //替换database异常，则走原来逻辑
-            pluginInfo.put(ConfigConstant.JDBCURL, jdbcUrl);
-        }
-        pluginInfo.put(ConfigConstant.USERNAME, username);
-        pluginInfo.put(ConfigConstant.PASSWORD, password);
-        if (null == hadoopConfig) {
-            return pluginInfo;
-        }
-        boolean isOpenKerberos = ConfigConstant.KERBEROS.equalsIgnoreCase(hadoopConfig.getString("hadoop.security.authentication"))
-                || ConfigConstant.KERBEROS.equalsIgnoreCase(hadoopConfig.getString("hive.server2.authentication"))
-                || ConfigConstant.KERBEROS.equalsIgnoreCase(hadoopConfig.getString("hive.server.authentication"));
-        if (isOpenKerberos) {
-            //开启了kerberos 用数据同步中job 中配置项
-            pluginInfo.put(ConfigConstant.OPEN_KERBEROS, Boolean.TRUE.toString());
-            String remoteDir = hadoopConfig.getString(ConfigConstant.REMOTE_DIR);
-            if (StringUtils.isBlank(remoteDir)) {
-                throw new RdosDefineException(" data synchronization task hadoopConfig remoteDir field cannot be empty");
-            }
-            pluginInfo.put(ConfigConstant.REMOTE_DIR, remoteDir);
-
-            String principalFile = hadoopConfig.getString(ConfigConstant.PRINCIPAL_FILE);
-            if (StringUtils.isBlank(principalFile)) {
-                throw new RdosDefineException(" data synchronization hadoopConfig principalFile field cannot be empty");
-            }
-            pluginInfo.put(ConfigConstant.PRINCIPAL_FILE, principalFile);
-            pluginInfo.putIfAbsent(ConfigConstant.PRINCIPAL, hadoopConfig.getString(ConfigConstant.PRINCIPAL));
-
-            JSONObject sftpConf = hadoopConfig.getJSONObject(EComponentType.SFTP.getConfName());
-            if (null == sftpConf || sftpConf.size() <= 0) {
-                throw new RdosDefineException(" data synchronization hadoopConfig sftpConf field cannot be empty");
-            }
-            pluginInfo.put(EComponentType.SFTP.getConfName(), sftpConf);
-            //krb5.conf的文件名
-            String krb5Conf = hadoopConfig.getString(ConfigConstant.JAVA_SECURITY_KRB5_CONF);
-            if (StringUtils.isBlank(krb5Conf)) {
-                //平台不传 暂时设置默认值
-                krb5Conf = ConfigConstant.KRB5_CONF;
-            }
-            pluginInfo.put(ConfigConstant.KRB_NAME, krb5Conf);
-            pluginInfo.put(EComponentType.YARN.getConfName(), hadoopConfig);
-
-        }
-        return pluginInfo;
     }
 
 

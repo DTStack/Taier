@@ -107,6 +107,11 @@ public class DorisClient extends AbsNoSqlClient {
     }
 
     @Override
+    public Boolean executeBatchQuery(ISourceDTO source, SqlQueryDTO queryDTO) {
+        return executeSqlWithoutResultSet(source,queryDTO);
+    }
+
+    @Override
     public Boolean executeSqlWithoutResultSet(ISourceDTO source, SqlQueryDTO queryDTO) {
         DorisRestfulSourceDTO sourceDTO = buildSourceDTO(source);
         sourceDTO.setUrl(getConnectedUrl(sourceDTO));
