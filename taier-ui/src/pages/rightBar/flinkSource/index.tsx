@@ -132,25 +132,20 @@ export default function FlinkSourcePanel({ current }: IRightBarComponentProps) {
 	 * @param panelKey 删除的时候需要带上 panelKey
 	 */
 	const handlePanelChanged = (type: 'add' | 'delete', panelKey?: string) => {
-		return new Promise<void>((resolve) => {
-			if (type === 'add') {
-				getTypeOriginData(DEFAULT_INPUT_VALUE.type);
-				getTopicType(DEFAULT_INPUT_VALUE.sourceId);
-			} else {
-				const nextPanelActiveKey = panelActiveKey.filter((key) => {
-					return panelKey !== key;
-				});
-				setPanelActiveKey(nextPanelActiveKey);
-			}
+		if (type === 'add') {
+			getTypeOriginData(DEFAULT_INPUT_VALUE.type);
+			getTopicType(DEFAULT_INPUT_VALUE.sourceId);
+		} else {
+			setPanelActiveKey((keys) => keys.filter((key) => panelKey !== key));
+		}
 
-			// 记录下是否触发了添加或删除方法，用来在 handleFormValuesChange 进行标记
-			isAddOrRemove.current = true;
-			resolve();
-		});
+		// 记录下是否触发了添加或删除方法，用来在 handleFormValuesChange 进行标记
+		isAddOrRemove.current = true;
 	};
 
 	const handleSyncFormToTab = () => {
 		const source = form?.getFieldsValue()[NAME_FIELD];
+		console.log('source:', source);
 		// 需要额外处理部分字段
 		const nextSource = source?.map((s) => {
 			const next: Partial<IFlinkSourceProps> = {
@@ -340,14 +335,13 @@ export default function FlinkSourcePanel({ current }: IRightBarComponentProps) {
 													<Popconfirm
 														placement="topLeft"
 														title="你确定要删除此源表吗？"
-														onConfirm={() =>
+														onConfirm={() => {
 															handlePanelChanged(
 																'delete',
 																field.key.toString(),
-															).then(() => {
-																remove(field.name);
-															})
-														}
+															);
+															remove(field.name);
+														}}
 														{...{
 															onClick: (e: any) => {
 																e.stopPropagation();
@@ -380,11 +374,10 @@ export default function FlinkSourcePanel({ current }: IRightBarComponentProps) {
 								<Button
 									size="large"
 									block
-									onClick={() =>
-										handlePanelChanged('add').then(() =>
-											add({ ...DEFAULT_INPUT_VALUE }),
-										)
-									}
+									onClick={() => {
+										handlePanelChanged('add');
+										add({ ...DEFAULT_INPUT_VALUE });
+									}}
 									icon={<PlusOutlined />}
 								>
 									<span>添加源表</span>
