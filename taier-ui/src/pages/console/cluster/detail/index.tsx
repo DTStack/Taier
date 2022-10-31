@@ -652,7 +652,7 @@ export default function ClusterDetail() {
 				<Form
 					form={form}
 					className="detail-container"
-					autoComplete="new-password"
+					autoComplete="off"
 					onValuesChange={handleFormChanged}
 				>
 					<Layout key={currentTreeNode?.componentCode}>
