@@ -35,7 +35,7 @@ import { Utils } from '@dtinsight/dt-utils';
 import { history } from 'umi';
 import { updateDrawer } from '@/components/customDrawer';
 import type { languages } from '@dtinsight/molecule/esm/monaco';
-import { Keywords, Snippets } from './competion';
+import { Keywords, Snippets } from './completion';
 import { taskRenderService } from '@/services';
 
 /**
@@ -561,10 +561,10 @@ export function prettierJSONstring(str: string) {
 /**
  * 生成 SQL 关键字
  */
-export function createSQLProposals(
+export async function createSQLProposals(
 	range: languages.CompletionItem['range'],
-): languages.CompletionItem[] {
-	return Keywords(range).concat(Snippets(range));
+): Promise<languages.CompletionItem[]> {
+	return (await Keywords(range)).concat(Snippets(range));
 }
 
 /**
