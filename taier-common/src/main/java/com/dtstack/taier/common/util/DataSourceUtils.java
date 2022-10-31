@@ -148,7 +148,7 @@ public class DataSourceUtils {
                 return JSONObject.parseObject(Base64Util.baseDecode(base64Str));
             }
         } catch (Exception e) {
-            LOGGER.error("数据源信息解码异常", e);
+            LOGGER.error("parse datasource error", e);
             throw new RdosDefineException("数据源信息解码异常", e);
         }
     }
@@ -417,10 +417,10 @@ public class DataSourceUtils {
                 delFile(f);
             }
         }
-        LOGGER.info("正在删除本地文件，文件路径：{}", file.getAbsolutePath());
+        LOGGER.info("delete local file path ：{}", file.getAbsolutePath());
         boolean delete = file.delete();
         if (!delete) {
-            LOGGER.warn("本地文件删除失败，文件路径：{}", file.getAbsolutePath());
+            LOGGER.warn("delete local file path fail：{}", file.getAbsolutePath());
         }
     }
 

@@ -168,7 +168,7 @@ public class SftpUtil {
                 delFile(f);
             }
         }
-        log.info("正在删除本地文件，文件路径：{}", file.getAbsolutePath());
+        log.info("delete file path：{}", file.getAbsolutePath());
         return file.delete();
     }
 

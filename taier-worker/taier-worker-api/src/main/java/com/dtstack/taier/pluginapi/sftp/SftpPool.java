@@ -51,7 +51,7 @@ public class SftpPool {
     public ChannelSftp borrowObject() {
         try {
             ChannelSftp channelSftp = pool.borrowObject();
-            LOGGER.info("从Sfpt连接池中获取一个连接channelSftp : " + channelSftp);
+            LOGGER.info("get Sfpt pool channelSftp : " + channelSftp);
             return channelSftp;
         } catch (Exception e) {
             throw new RuntimeException("从Sfpt连接池中获取连接失败", e);
@@ -64,7 +64,7 @@ public class SftpPool {
     public void returnObject(ChannelSftp channelSftp) {
         if (channelSftp != null) {
             pool.returnObject(channelSftp);
-            LOGGER.info("归还channelSftp到Sfpt连接池中 : " + channelSftp);
+            LOGGER.info("retunre object : " + channelSftp);
         }
     }
 

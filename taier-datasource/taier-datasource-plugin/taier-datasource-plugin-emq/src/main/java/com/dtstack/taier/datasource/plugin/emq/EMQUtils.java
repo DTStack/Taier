@@ -17,7 +17,7 @@ import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
 @Slf4j
 public class EMQUtils {
     public static Boolean checkConnection(String address, String userName, String password) {
-        log.info("获取 EMQ 数据源连接, address : {}, userName : {}", address, userName);
+        log.info("get EMQ , address : {}, userName : {}", address, userName);
         String clientId = "DTSTACK_" + System.currentTimeMillis();
         try (MemoryPersistence persistence = new MemoryPersistence();
              MqttClient sampleClient = new MqttClient(address, clientId, persistence);

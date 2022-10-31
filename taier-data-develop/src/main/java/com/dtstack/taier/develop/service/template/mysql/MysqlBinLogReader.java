@@ -178,7 +178,7 @@ public class MysqlBinLogReader extends BaseReaderPlugin implements Reader {
         try {
             tableArray = data.getJSONArray("table");
         } catch (Exception e) {
-            logger.error("table字段应为数据形式, error message ={}", e.getMessage(), e);
+            logger.error("table field must be array, error message ={}", e.getMessage(), e);
             throw new RdosDefineException("table字段应为数组形式", e);
         }
         if (tableArray == null) {

@@ -246,7 +246,6 @@ public class ColumnLineageParser {
             }
 
             if(parentColumn == null){
-                logger.info("通过index查找血缘");
                 //通过ind查找
                 if (CollectionUtils.isEmpty(leafNode.getColumns())){
                     return  null;

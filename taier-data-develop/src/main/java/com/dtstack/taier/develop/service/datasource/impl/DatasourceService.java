@@ -284,7 +284,7 @@ public class DatasourceService {
         try {
             source.setDataJson(DataSourceUtils.getDataSourceJson(source.getDataJsonString()));
         } catch (Exception e) {
-            LOGGER.error("检查数据源连接，DataJsonString 转化异常", e);
+            LOGGER.error("check datasource error", e);
             throw new PubSvcDefineException("JSONObject 转化异常", e);
         }
         // 设置前台传入的principals
@@ -395,7 +395,7 @@ public class DatasourceService {
                 try {
                     FileUtils.deleteDirectory(newConfDir);
                 } catch (IOException e) {
-                    LOGGER.error("删除历史的kerberos文件失败", e);
+                    LOGGER.error("delete old kerberos file error", e);
                 }
                 // 目录转换, temp路径转换成新路径
                 localKerberosConfDir.renameTo(newConfDir);
@@ -1118,7 +1118,6 @@ public class DatasourceService {
 
         DevelopDataSource source = getOne(sourceId);
         if (Objects.isNull(RDBMSSourceType.getByDataSourceType(source.getType())) && !DataSourceType.INFLUXDB.getVal().equals(source.getType())) {
-            LOGGER.error("切分键只支关系型数据库");
             throw new RdosDefineException("切分键只支持关系型数据库");
         }
         if (StringUtils.isEmpty(tableName)) {
