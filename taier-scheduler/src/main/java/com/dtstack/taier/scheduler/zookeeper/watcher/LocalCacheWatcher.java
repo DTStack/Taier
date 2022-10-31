@@ -36,6 +36,9 @@ public class LocalCacheWatcher implements CuratorWatcher {
     @Override
     public void process(WatchedEvent watchedEvent) throws Exception {
         LOGGER.info("receive event:【{}】", watchedEvent.toString());
+        if(null == localCacheUtil){
+            return;
+        }
         // 空事件不处理，只做监控
         if (Watcher.Event.EventType.None.equals(watchedEvent.getType())) {
             if (Watcher.Event.KeeperState.Expired.equals(watchedEvent.getState())) {
