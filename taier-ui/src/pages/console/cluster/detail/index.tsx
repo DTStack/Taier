@@ -379,16 +379,16 @@ export default function ClusterDetail() {
 		}
 	};
 
-	const handleTestConnectable = async () => {
+	const handleTestConnectable = async (): Promise<true | string> => {
 		const currentComponent = findComponentVOS(selectedKey);
 		if (!currentComponent) {
 			message.error('请选择组件');
-			return Promise.resolve();
+			return Promise.reject();
 		}
 
 		if (editedComponents[selectedKey!]) {
 			message.error('当前组件参数变更未保存，请先保存再测试组件连通性');
-			return Promise.resolve();
+			return Promise.reject();
 		}
 
 		const res = await api.testConnect({
@@ -399,10 +399,14 @@ export default function ClusterDetail() {
 		if (res.code === 1) {
 			if (res.data.result) {
 				setConnectable((c) => ({ ...c, [selectedKey!]: true }));
+				return Promise.resolve(true);
 			} else {
 				setConnectable((c) => ({ ...c, [selectedKey!]: res.data.errorMsg }));
+				return Promise.resolve(res.data.errorMsg);
 			}
 		}
+
+		return Promise.reject();
 	};
 
 	const handleSaveComponent = async () => {
@@ -648,7 +652,7 @@ export default function ClusterDetail() {
 				<Form
 					form={form}
 					className="detail-container"
-					autoComplete="off"
+					autoComplete="new-password"
 					onValuesChange={handleFormChanged}
 				>
 					<Layout key={currentTreeNode?.componentCode}>
@@ -670,6 +674,7 @@ export default function ClusterDetail() {
 						</Content>
 						<Footer>
 							<Toolbar
+								current={selectedKey}
 								disabled={!selectedKey}
 								onConnection={handleTestConnectable}
 								onSave={handleSaveComponent}
