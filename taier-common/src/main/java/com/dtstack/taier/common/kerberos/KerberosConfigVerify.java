@@ -196,7 +196,7 @@ public class KerberosConfigVerify {
                 delFile(f);
             }
         }
-        logger.info("正在删除本地文件，文件路径：{}", file.getAbsolutePath());
+        logger.info("delete local file path：{}", file.getAbsolutePath());
         return file.delete();
     }
 

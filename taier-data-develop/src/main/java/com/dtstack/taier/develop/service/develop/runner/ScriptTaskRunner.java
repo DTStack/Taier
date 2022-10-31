@@ -94,7 +94,7 @@ public class ScriptTaskRunner implements ITaskRunner {
         StringBuilder log = new StringBuilder();
         IDownload download = logDownLoad(tenantId, jobId, Objects.isNull(limitNum) ? environmentContext.getLogsLimitNum() : limitNum);
         if (Objects.nonNull(download)) {
-            LOGGER.error("-----日志文件导出失败-----");
+            LOGGER.error("-----download log file error-----");
             while (!download.reachedEnd()) {
                 Object row = download.readNext();
                 log.append(row);
@@ -197,7 +197,7 @@ public class ScriptTaskRunner implements ITaskRunner {
             JSON.parse(str);
             return true;
         } catch (Exception ex) {
-            LOGGER.error("字符串解析失败");
+            LOGGER.error("parse error",ex);
         }
         return false;
     }

@@ -134,7 +134,7 @@ public class SftpFileManage implements IFileManage {
                 sftpPoolConfig.setTestOnBorrow(true);
                 sftpPool1 = new SftpPool(sftpFactory, sftpPoolConfig);
             } else {
-                LOGGER.info("SFTPHandler连接sftp失败, host:{} username:{} .", sftpConfig.getHost(), sftpConfig.getUsername());
+                LOGGER.info("SFTPHandler connect fail, host:{} username:{} .", sftpConfig.getHost(), sftpConfig.getUsername());
             }
             return sftpPool1;
         });
@@ -337,23 +337,23 @@ public class SftpFileManage implements IFileManage {
 
 
     public boolean uploadFile(String remotePath, String localPath, String fileName) {
-        LOGGER.info("路径：localPath=" + localPath);
+        LOGGER.info("path：localPath=" + localPath);
         ChannelSftp channelSftp = null;
         try {
             //检查路径
             if (!this.mkdir(remotePath)) {
-                LOGGER.error("创建sftp服务器路径失败:" + remotePath);
+                LOGGER.error("create sftp path error:" + remotePath);
                 return false;
             }
             channelSftp = getChannelSftp();
             String dst = remotePath + "/" + fileName;
             String src = localPath + "/" + fileName;
-            LOGGER.info("开始上传，本地服务器路径：[" + src + "]目标服务器路径：[" + dst + "]");
+            LOGGER.info("begin upload local path：[" + src + "]  target path：[" + dst + "]");
             channelSftp.put(src, dst);
-            LOGGER.info("上传成功");
+            LOGGER.info("upload success");
             return true;
         } catch (Exception e) {
-            LOGGER.error("上传失败", e);
+            LOGGER.error("upload fail", e);
             return false;
         } finally {
             close(channelSftp);

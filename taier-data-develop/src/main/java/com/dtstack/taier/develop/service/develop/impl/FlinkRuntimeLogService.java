@@ -170,10 +170,9 @@ public class FlinkRuntimeLogService {
             return runtimeLog;
         } catch (Exception e) {
             //记录日志，不做其他处理
-            logger.error("获取taskManager日志异常,{}", e.getMessage(), e);
+            logger.error("get taskManager log error,{}", e.getMessage(), e);
         }
         try {
-            logger.info("再次从engine获取日志，调用接口/node/action/log jobId :{}", task.getJobId());
             ActionLogVO log = actionService.log(task.getJobId());
             if (log != null) {
                 runtimeLog.setEngineLog(log.getEngineLog());
@@ -181,7 +180,7 @@ public class FlinkRuntimeLogService {
             }
         } catch (Exception e) {
             //记录日志，不做其他处理
-            logger.error("再次从engine获取日志报错,{}", e.getMessage(), e);
+            logger.error("get log error {}", e.getMessage(), e);
         }
         return runtimeLog;
     }
@@ -244,7 +243,7 @@ public class FlinkRuntimeLogService {
         AssertUtils.isTrue(ClusterMode.YARN.getVal().equals(clusterMode), "暂不支持" + clusterMode + "调度引擎类型的日志获取");
         //最终url
         String logUrl = String.format("%s?start=%s&end=%s", url, start, end);
-        logger.info("获取日志的最终Url{}", logUrl);
+        logger.info("get log Url{}", logUrl);
         IRestful restful = ClientCache.getRestful(DataSourceType.RESTFUL.getVal());
         RestfulSourceDTO sourceDTO = RestfulSourceDTO.builder().url(logUrl).build();
         Response restResponse = restful.get(sourceDTO, null, null, null);
@@ -438,7 +437,7 @@ public class FlinkRuntimeLogService {
 
     private String readJobLog(IDownloader downloader) {
         if (downloader == null) {
-            logger.error("-----日志文件导出失败-----");
+            logger.error("-----log download is null -----");
             return "";
         }
         StringBuilder result = new StringBuilder();

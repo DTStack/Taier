@@ -358,25 +358,6 @@ public class DevelopTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
     }
 
 
-    /**
-     * 根据任务状态
-     * 判断当前任务是否可以启动
-     *
-     * @param task
-     * @return
-     */
-    public boolean checkTaskCanRunByStatus(Task task) {
-        Integer taskStatus;
-        try {
-            //todo 有问题
-            taskStatus = task.getScheduleStatus();
-        } catch (Exception e) {
-            LOGGER.error("从Engine查询任务状态异常,{}", e.getMessage(), e);
-            throw new RdosDefineException(String.format("从Engine查询任务状态异常,Caused by: %s", e.getMessage()), e);
-        }
-        return taskStatus == null || TaskStatus.CAN_RUN_STATUS.contains(taskStatus);
-    }
-
     @Transactional(rollbackFor = Exception.class)
     public TaskCheckResultVO publishTask(Long id, Long userId) {
         Task task = getOne(id);
@@ -493,7 +474,6 @@ public class DevelopTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
                         LOGGER.error("send task error {} ", subTask.getName(), e);
                         throw new RdosDefineException(String.format("任务提交异常：%s", e.getMessage()), e);
                     }
-                    LOGGER.info("待发布任务参数提交完毕");
                 }
             }
 
@@ -511,7 +491,6 @@ public class DevelopTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
                 throw new RdosDefineException(String.format("任务提交异常：%s", e.getMessage()), e);
             }
 
-            LOGGER.info("待发布任务参数提交完毕");
             return checkResultVO;
         }
         return checkResultVO;
@@ -1102,7 +1081,7 @@ public class DevelopTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
                             continue;
                         }
                     } catch (Exception e) {
-                        LOGGER.info("hadoop版本号：{}, {}", o1, o2, e);
+                        LOGGER.info("hadoop version：{}, {}", o1, o2, e);
                     }
                 }
             }

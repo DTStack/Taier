@@ -202,7 +202,7 @@ public abstract class HadoopJdbcTaskRunner extends JdbcTaskRunner {
         try {
             parseResult = sqlParser.parseSql(executeContent.getSql(), executeContent.getDatabase(), new HashMap<>());
         } catch (final Exception e) {
-            LOGGER.error("解析sql异常，sql：{}", executeContent.getSql(), e);
+            LOGGER.error("get sql error，sql：{}", executeContent.getSql(), e);
             parseResult = new ParseResult();
             parseResult.setFailedMsg(ExceptionUtils.getStackTrace(e));
             parseResult.setStandardSql(SqlFormatUtil.getStandardSql(executeContent.getSql()));
@@ -249,7 +249,7 @@ public abstract class HadoopJdbcTaskRunner extends JdbcTaskRunner {
         StringBuilder log = new StringBuilder();
         IDownload download = logDownLoad(tenantId, jobId, Objects.isNull(limitNum) ? environmentContext.getLogsLimitNum() : limitNum);
         if (Objects.nonNull(download)) {
-            LOGGER.error("-----日志文件导出失败-----");
+            LOGGER.error("-----log download fail-----");
             while (!download.reachedEnd()) {
                 Object row = download.readNext();
                 log.append(row);
