@@ -77,7 +77,7 @@ public class DevelopDownloadService {
         try {
             downFileName = URLEncoder.encode(downFileName, "UTF8");
         } catch (UnsupportedEncodingException e) {
-            LOGGER.error("解码失败：{}", e);
+            LOGGER.error("download error，{}", jobId, e);
         }
         response.setHeader("content-type", "application/octet-stream;charset=UTF-8");
         response.setHeader("Content-Disposition", String.format("attachment;filename=%s", downFileName));
@@ -186,7 +186,7 @@ public class DevelopDownloadService {
                     .replace("\\n\"","\n").replace("\\n\\t","\n");
             bos.write(logInfo.getBytes());
         } catch (Exception e) {
-            LOGGER.error("下载数据同步任务运行日志异常，{}", e);
+            LOGGER.error("download sync log error", e);
         }
     }
 

@@ -95,7 +95,6 @@ public class SelectNodeParser extends NodeParser {
                 parseSqlTable(comboList, tables);
             }
         } else {
-            logger.info("该类型未解析");
         }
     }
 

@@ -136,7 +136,7 @@ public class FtpUtil {
                 ftpClient.setControlEncoding("UTF-8");
             }
         } catch (IOException e) {
-            log.error("设置utf-8编码异常:{}", e.getMessage());
+            log.error("set unicode error :{}", e.getMessage());
         }
         // SFTP 文件夹队列
         LinkedList<String> dirQueue = Lists.newLinkedList();

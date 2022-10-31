@@ -92,7 +92,7 @@ public class FlinkTaskVertexGraphService {
         try {
             metricMap = queryAllMetrics(flinkTask.getJobId(), dagPrometheusMetricQuery);
         } catch (Exception e) {
-            LOGGER.error("获取metricMap异常:{}", e.getMessage(), e);
+            LOGGER.error("get metricMap error:{}", e.getMessage(), e);
             throw new DtCenterDefException("获取metricMap异常", e);
         }
         LOGGER.info("flink job jobId {}, metric num is {}", flinkTask.getJobId(), metricMap.size());

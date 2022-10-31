@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.dtstack.taier.common.enums.EScheduleJobType;
 import com.dtstack.taier.common.exception.DtCenterDefException;
+import com.dtstack.taier.common.util.Strings;
 import com.dtstack.taier.dao.domain.ScheduleJob;
 import com.dtstack.taier.dao.domain.ScheduleJobExpand;
 import com.dtstack.taier.dao.domain.Task;
@@ -23,6 +24,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Created by qianyi on 2022/3/16.
@@ -79,8 +81,8 @@ public class FlinkServerLogService {
             scheduleJob = flinkRuntimeLogService.getByJobId(task.getJobId());
             scheduleJobExpand = scheduleJobExpandService.getByJobId(task.getJobId());
         } catch (Exception e) {
-            logger.error("任务{}从Engine获取任务失败{}", task.getJobId(), e.getMessage(), e);
-            throw new DtCenterDefException(String.format("从Engine获取任务失败,Caused by: %s", e.getMessage()), e);
+            logger.error("get task {}  fail {}", task.getJobId(), e.getMessage(), e);
+            throw new DtCenterDefException(String.format("获取任务失败,Caused by: %s", e.getMessage()), e);
         }
         if (scheduleJobExpand == null) {
             return null;
@@ -128,8 +130,11 @@ public class FlinkServerLogService {
 
     public String getFailoverLogsByTaskId(ServerLogsVO logsVO) {
         Task task = developTaskMapper.selectById(logsVO.getTaskId());
-        ScheduleJobExpand  scheduleJobExpand = scheduleJobExpandService.getByJobId(task.getJobId());
-        return scheduleJobExpand.getEngineLog();
+        ScheduleJobExpand scheduleJobExpand = scheduleJobExpandService.getByJobId(task.getJobId());
+        if (scheduleJobExpand != null) {
+            return scheduleJobExpand.getEngineLog();
+        }
+        return Strings.EMPTY;
     }
 
 }

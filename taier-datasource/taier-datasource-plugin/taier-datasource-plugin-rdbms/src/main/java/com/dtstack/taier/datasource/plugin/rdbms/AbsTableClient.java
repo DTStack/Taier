@@ -76,7 +76,7 @@ public abstract class AbsTableClient implements ITable {
 
     @Override
     public List<String> showPartitions(ISourceDTO source, String tableName) {
-        log.info("获取表所有分区，表名：{}", tableName);
+        log.info("get table ：{} partition", tableName);
         if (StringUtils.isBlank(tableName)) {
             throw new SourceException("Table name cannot be empty！");
         }
@@ -90,7 +90,7 @@ public abstract class AbsTableClient implements ITable {
 
     @Override
     public Boolean dropTable(ISourceDTO source, String tableName) {
-        log.info("删除表，表名：{}", tableName);
+        log.info("drop table：{}", tableName);
         if (StringUtils.isBlank(tableName)) {
             throw new SourceException("Table name cannot be empty！");
         }
@@ -109,7 +109,7 @@ public abstract class AbsTableClient implements ITable {
 
     @Override
     public Boolean renameTable(ISourceDTO source, String oldTableName, String newTableName) {
-        log.info("重命名表，旧表名：{}，新表名：{}", oldTableName, newTableName);
+        log.info("rename table：{} to {}", oldTableName, newTableName);
         if (StringUtils.isBlank(oldTableName) || StringUtils.isBlank(newTableName)) {
             throw new SourceException("Table name cannot be empty！");
         }
@@ -119,7 +119,7 @@ public abstract class AbsTableClient implements ITable {
 
     @Override
     public Boolean alterTableParams(ISourceDTO source, String tableName, Map<String, String> params) {
-        log.info("更改表参数，表名：{}，参数：{}", tableName, params);
+        log.info("alter table：{} params：{}", tableName, params);
         if (StringUtils.isBlank(tableName)) {
             throw new SourceException("Table name cannot be empty！");
         }
@@ -134,12 +134,12 @@ public abstract class AbsTableClient implements ITable {
 
     @Override
     public Long getTableSize(ISourceDTO source, String schema, String tableName) {
-        log.info("获取表占用存储，schema：{}，表名：{}", schema, tableName);
+        log.info("get ，schema：{}，table size：{}", schema, tableName);
         if (StringUtils.isBlank(tableName)) {
             throw new SourceException("Table name cannot be empty！");
         }
         String tableSizeSql = getTableSizeSql(schema, tableName);
-        log.info("获取占用存储的sql：{}", tableSizeSql);
+        log.info("get table size sql：{}", tableSizeSql);
         List<Map<String, Object>> result = executeQuery(source, tableSizeSql);
         if (CollectionUtils.isEmpty(result) || MapUtils.isEmpty(result.get(0))) {
             throw new SourceException("Obtaining Table Occupied Storage Information exception");

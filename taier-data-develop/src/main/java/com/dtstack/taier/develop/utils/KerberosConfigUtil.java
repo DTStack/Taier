@@ -96,10 +96,10 @@ public class KerberosConfigUtil {
                 delFile(f);
             }
         }
-        logger.info("正在删除本地文件，文件路径：{}", file.getAbsolutePath());
+        logger.info("delete local file：{}", file.getAbsolutePath());
         boolean delete = file.delete();
         if (!delete) {
-            logger.warn("本地文件删除失败，文件路径：{}", file.getAbsolutePath());
+            logger.warn("delete local file fail：{}", file.getAbsolutePath());
         }
     }
 
