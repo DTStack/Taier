@@ -74,7 +74,7 @@ public class Launcher {
         properties.setProperty("md5sum", md5plugin);
 
         // create client
-        String pluginParentPath = PlUGIN_DIR + SP + "pluginLibs";
+        String pluginParentPath = PlUGIN_DIR + SP + "worker-plugins";
         IClient client = ClientFactory.buildPluginClient(pluginInfo, pluginParentPath);
 
         // client init

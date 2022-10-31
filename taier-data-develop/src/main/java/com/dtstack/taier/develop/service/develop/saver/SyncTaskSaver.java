@@ -206,8 +206,7 @@ public class SyncTaskSaver extends AbstractTaskSaver {
 
             //转脚本模式直接返回
             if (CREATE_MODEL_TEMPLATE == param.getCreateModel()) {
-                String jobText = getJobText(reader, writer, setting, nameMappingJson, restoration, param);
-                return jobText;
+                return getJobText(reader, writer, setting, nameMappingJson, restoration, param);
             }
 
             //获得数据同步job.xml的配置

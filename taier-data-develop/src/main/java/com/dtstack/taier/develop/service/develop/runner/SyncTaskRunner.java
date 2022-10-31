@@ -16,7 +16,6 @@ import com.dtstack.taier.develop.service.develop.impl.DevelopTaskParamService;
 import com.dtstack.taier.develop.service.develop.impl.TaskDirtyDataManageService;
 import com.dtstack.taier.develop.sql.ParseResult;
 import com.dtstack.taier.develop.utils.develop.common.IDownload;
-import com.dtstack.taier.develop.utils.develop.sync.job.SourceType;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -103,7 +102,6 @@ public class SyncTaskRunner implements ITaskRunner {
             actionParam.put("computeType", task.getComputeType());
             actionParam.put("sqlText", "");
             actionParam.put("tenantId", tenantId);
-            actionParam.put("sourceType", SourceType.TEMP_QUERY.getType());
             actionParam.put("isFailRetry", false);
             actionParam.put("maxRetryNum", 0);
             //临时运行不做重试

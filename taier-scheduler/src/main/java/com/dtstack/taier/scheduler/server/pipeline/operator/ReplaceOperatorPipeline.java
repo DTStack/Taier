@@ -38,7 +38,7 @@ public class ReplaceOperatorPipeline extends IPipeline.AbstractPipeline {
     public void pipeline(Map<String, Object> actionParam, Map<String, Object> pipelineParam) throws Exception {
         String replaceString = (String) super.getExecuteValue(actionParam, pipelineParam);
         if (StringUtils.isBlank(replaceString)) {
-            throw new RdosDefineException(String.format("replace operator key %s is null", pipelineKey));
+            return;
         }
         for (String paramKey : pipelineParam.keySet()) {
             Object paramValue = pipelineParam.get(paramKey);
