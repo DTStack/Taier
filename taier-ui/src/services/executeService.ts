@@ -434,7 +434,7 @@ export default class ExecuteService extends Component<IExecuteStates> implements
 
 		if (res.data?.result) {
 			taskResultService.setResult(
-				`${currentTabId.toString()}-${md5(res.data.sqlText)}`,
+				`${currentTabId.toString()}-${md5(res.data.sqlText || 'sync')}`,
 				res.data.result,
 			);
 		}
@@ -579,8 +579,7 @@ export default class ExecuteService extends Component<IExecuteStates> implements
 								createLog('获取结果成功', 'info'),
 							);
 							taskResultService.setResult(
-								// 数据同步任务不存在 sqltext
-								`${currentTabId.toString()}-${md5('sync')}`,
+								`${currentTabId.toString()}-${md5(res.data.sqlText || 'sync')}`,
 								res.data.result,
 							);
 						}
