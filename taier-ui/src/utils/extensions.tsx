@@ -158,9 +158,12 @@ export function runTask(current: molecule.model.IEditorGroup) {
 					}
 				});
 
-				molecule.panel.setActive(
-					nextActivePanel || `${currentTabData.id}-${md5(sqls.at(-1) || 'sync')}`,
-				);
+				const nextKey =
+					nextActivePanel || `${currentTabData.id}-${md5(sqls.at(-1) || 'sync')}`;
+
+				if (molecule.panel.getPanel(nextKey)) {
+					molecule.panel.setActive(nextKey);
+				}
 			});
 		}
 	}
