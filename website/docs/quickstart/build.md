@@ -28,7 +28,19 @@ $ build/mvn-build.sh
   - lib/taier-data-develop-with-dependencies.jar   
   - worker-plugins  
   - datasource-plugins 
+  
 
+
+- 前端编译  
+  
+   安装npm 并设置npm国内镜像地址  
+   在taier-ui目录 执行
+   ```shell
+   $ npm run build
+   ```
+   
+   通过脚本编译taier-ui后会生成对应的前端文件 dist
+   - taier-ui/dist
 
 :::tip
 源码中包含部分scala的代码，通过idea源码启动需要添加scala的sdk 建议scala版本为`2.11.1`

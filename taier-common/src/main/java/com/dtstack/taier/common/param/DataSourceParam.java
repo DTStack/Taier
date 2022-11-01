@@ -23,7 +23,6 @@ import io.swagger.annotations.ApiModelProperty;
 import java.io.Serializable;
 
 /**
- * @author <a href="mailto:qianyi@dtstack.com">千一 At 袋鼠云</a>.
  * @description Common parameters
  * @date 2020/2/20-17:39
  */

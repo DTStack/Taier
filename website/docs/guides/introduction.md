@@ -12,11 +12,11 @@ sidebar_position: 1
 
 > **Taier**  太阿，是中国古代十大名剑之一
 
-**Taier** 是一个分布式可视化的 DAG 任务调度系统。旨在降低 **ETL 开发**成本、提高大数据平台稳定性，大数据开发人员可以在 **Taier** 直接进行业务逻辑的开发，而不用关心任务错综复杂的依赖关系与底层的大数据平台的架构实现，将工作的重心更多地聚焦在业务之中
+**Taier** 是一个开源的分布式 DAG 调度系统，专注不同任务的提交和调度。旨在降低 ETL 开发成本，解决任务之间复杂的依赖关系和提交、调度、运维带来的上手成本
 
-**Taier** 脱胎于 [袋鼠云](https://www.dtstack.com/) - [数栈](https://www.dtstack.com/dtinsight/) （一站式大数据开发平台），技术实现来源于数栈分布式调度引擎 **DAGScheduleX**
+在 **Taier** 上进行 ETL 开发，不用关心任务错综复杂的依赖关系与底层的大数据平台的架构实现，将工作的重心更多地聚焦在业务之中
 
-**DAGScheduleX** 是 [数栈](https://www.dtstack.com/dtinsight/) 产品的重要基础设施之一，负责大数据平台所有任务实例的调度运行
+**Taier** 提供了一个提交、调度、运维、指标信息展示的一站式大数据开发平台
 
 ## 功能特征
 
@@ -70,9 +70,6 @@ $ docker-compose up -d
     <ul>
       <li>SparkMR</li>
       <li>PySpark</li>
-      <li>FlinkMR</li>
-      <li>Python</li>
-      <li>Shell</li>
       <li>Jupyter</li>
       <li>TersorFlow</li>
       <li>Pytorch</li>
@@ -88,10 +85,10 @@ $ docker-compose up -d
       <li>Oracle</li>
       <li>SQLServer</li>
       <li>TiDB</li>
-      <li>greenplum</li>
-      <li>inceptor</li>
-      <li>kingbase</li>
-      <li>presto</li>
+      <li>Greenplum</li>
+      <li>Inceptor</li>
+      <li>Kingbase</li>
+      <li>Trino</li>
     </ul>
   </div>
 </details>

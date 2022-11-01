@@ -21,5 +21,5 @@ select * from table_test;
 :::
 
 :::caution
-Spark SQL 依赖控制台 Spark 和 Spark Thrift组件 运行Spark SQL前请确保对应组件配置正确
+Spark SQL 依赖控制台 Spark 和 Spark Thrift组件 运行Spark SQL前请确保对应组件和Spark Thrift数据源配置正确
 :::

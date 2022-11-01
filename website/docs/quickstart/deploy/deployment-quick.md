@@ -30,13 +30,12 @@ $ unzip taier.tar.gz
 nodeZkAddress=127.0.0.1:2181/taier
 jdbc.driverClassName=com.mysql.jdbc.Driver
 jdbc.url=jdbc:mysql://127.0.0.1:3306/taier?charset=utf8&autoReconnect=true&tinyInt1isBit=false&serverTimezone=Asia/Shanghai
-jdbc.username=
+jdbc.username=root
 jdbc.password=
 
 server.tomcat.uri-encoding = UTF-8
 server.port = 8090
 server.tomcat.basedir = ./tmpSave
-datasource.plugin.path=/opt/dtstack/DTCommon/InsightPlugin/dataSourcePlugin
 ```
 
 * 启动:

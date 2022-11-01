@@ -58,4 +58,5 @@ A 任务成功的执行完成后，B、C 任务才可以执行，这种行为称
 - [taier-data-develop](https://github.com/DTStack/Taier/tree/master/taier-data-develop): 任务开发，运维中心，控制台等逻辑处理等功能模块
 - [taier-scheduler](https://github.com/DTStack/Taier/tree/master/taier-scheduler): 处理任务实例生成，实例调度，DAG 图的维护模块
 - [taier-worker](https://github.com/DTStack/Taier/tree/master/taier-worker): 任务提交模块
+- [taier-datasource](https://github.com/DTStack/Taier/tree/master/taier-datasource): 数据源插件模块
 - [taier-ui](https://github.com/DTStack/Taier/tree/master/taier-ui): 前端模块
