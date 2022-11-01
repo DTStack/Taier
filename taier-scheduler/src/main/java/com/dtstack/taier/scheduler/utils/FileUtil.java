@@ -22,7 +22,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.dtstack.taier.common.constant.CommonConstant;
 import com.dtstack.taier.common.enums.EScheduleJobType;
 import com.dtstack.taier.common.exception.ErrorCode;
-import com.dtstack.taier.common.exception.RdosDefineException;
+import com.dtstack.taier.common.exception.TaierDefineException;
 import com.dtstack.taier.common.util.Xml2JsonUtil;
 import com.dtstack.taier.common.util.ZipUtil;
 import org.apache.commons.collections.CollectionUtils;
@@ -69,7 +69,7 @@ public class FileUtil {
                 try {
                     fileMap = Xml2JsonUtil.xml2map(file);
                 } catch (Exception e) {
-                    throw new RdosDefineException(CommonConstant.XML_SUFFIX + ErrorCode.FILE_PARSE_ERROR.getMsg(), e);
+                    throw new TaierDefineException(CommonConstant.XML_SUFFIX + ErrorCode.FILE_PARSE_ERROR.getMsg(), e);
                 }
             } else if (file.getName().endsWith(CommonConstant.JSON_SUFFIX)) {
                 // json文件
@@ -77,14 +77,14 @@ public class FileUtil {
                 try {
                     jsonStr = Xml2JsonUtil.readFile(file);
                 } catch (IOException e) {
-                    throw new RdosDefineException(CommonConstant.JSON_SUFFIX + ErrorCode.FILE_PARSE_ERROR.getMsg(), e);
+                    throw new TaierDefineException(CommonConstant.JSON_SUFFIX + ErrorCode.FILE_PARSE_ERROR.getMsg(), e);
                 }
                 if (StringUtils.isBlank(jsonStr)) {
                     continue;
                 }
                 fileMap = (Map<String, Object>) JSONObject.parseObject(jsonStr, Map.class);
             } else {
-                throw new RdosDefineException(ErrorCode.FILE_TYPE_NOT_SUPPORTED);
+                throw new TaierDefineException(ErrorCode.FILE_TYPE_NOT_SUPPORTED);
             }
             if (null != fileMap) {
                 confMap.put(file.getName(), fileMap);
@@ -107,7 +107,7 @@ public class FileUtil {
      */
     public static List<File> getFileWithSuffix(String dir, String suffix) {
         if (StringUtils.isBlank(dir) || StringUtils.isBlank(suffix)) {
-            throw new RdosDefineException(ErrorCode.PARAM_NULL);
+            throw new TaierDefineException(ErrorCode.PARAM_NULL);
         }
         File dirFile = new File(dir);
         if (dirFile.exists() && dirFile.isDirectory()) {
@@ -130,7 +130,7 @@ public class FileUtil {
      */
     public static List<File> getXmlFileFromZip(String targetPath, String srcZip) {
         if (StringUtils.isBlank(targetPath) || StringUtils.isBlank(srcZip)) {
-            throw new RdosDefineException(ErrorCode.PARAM_NULL);
+            throw new TaierDefineException(ErrorCode.PARAM_NULL);
         }
         File targetPathFile = new File(targetPath);
         if (targetPathFile.exists()) {
@@ -144,7 +144,7 @@ public class FileUtil {
         // 解压到本地
         FileUtil.unzip2TargetPath(targetPath, srcZip);
         if (!targetPathFile.isDirectory()) {
-            throw new RdosDefineException("path not directory");
+            throw new TaierDefineException("path not directory");
         }
 
         File oneFileWithSuffix = getOneFileWithSuffix(targetPathFile.getPath(), CommonConstant.XML_SUFFIX);
@@ -180,7 +180,7 @@ public class FileUtil {
     public static File newFile(String path) {
         File file = new File(path);
         if (!file.exists()) {
-            throw new RdosDefineException("file does not exist");
+            throw new TaierDefineException("file does not exist");
         }
         return file;
     }

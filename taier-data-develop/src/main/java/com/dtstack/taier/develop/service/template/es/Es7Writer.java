@@ -19,7 +19,7 @@
 package com.dtstack.taier.develop.service.template.es;
 
 import com.alibaba.fastjson.JSONObject;
-import com.dtstack.taier.common.exception.RdosDefineException;
+import com.dtstack.taier.common.exception.TaierDefineException;
 import com.dtstack.taier.develop.service.template.BaseWriterPlugin;
 import com.dtstack.taier.develop.service.template.PluginName;
 import org.apache.commons.lang.StringUtils;
@@ -49,29 +49,29 @@ public class Es7Writer extends BaseWriterPlugin {
     public void checkFormat(JSONObject data) {
 
         if (StringUtils.isBlank(data.getString("name"))){
-            throw new RdosDefineException("name 不能为空");
+            throw new TaierDefineException("name 不能为空");
         }
 
         JSONObject parameter = data.getJSONObject("parameter");
 
         if (StringUtils.isBlank(parameter.getString("address"))){
-            throw new RdosDefineException("address 不能为空");
+            throw new TaierDefineException("address 不能为空");
         }
 
         if (StringUtils.isBlank(parameter.getString("index"))){
-            throw new RdosDefineException("index 不能为空");
+            throw new TaierDefineException("index 不能为空");
         }
 
         if (StringUtils.isBlank(parameter.getString("bulkAction"))){
-            throw new RdosDefineException("bulkAction 不能为空");
+            throw new TaierDefineException("bulkAction 不能为空");
         }
 
         if (StringUtils.isBlank(parameter.getString("username"))) {
-            throw new RdosDefineException("username 不能为空");
+            throw new TaierDefineException("username 不能为空");
         }
 
         if (StringUtils.isBlank(parameter.getString("password"))) {
-            throw new RdosDefineException("password 不能为空");
+            throw new TaierDefineException("password 不能为空");
         }
     }
 

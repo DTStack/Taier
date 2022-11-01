@@ -38,8 +38,7 @@ import com.dtstack.taier.common.enums.EComponentType;
 import com.dtstack.taier.common.env.EnvironmentContext;
 import com.dtstack.taier.common.exception.DtCenterDefException;
 import com.dtstack.taier.common.exception.ErrorCode;
-import com.dtstack.taier.common.exception.PubSvcDefineException;
-import com.dtstack.taier.common.exception.RdosDefineException;
+import com.dtstack.taier.common.exception.TaierDefineException;
 import com.dtstack.taier.common.util.DataSourceUtils;
 import com.dtstack.taier.common.util.JsonUtils;
 import com.dtstack.taier.common.util.PublicUtil;
@@ -263,7 +262,7 @@ public class DatasourceService {
                 // 解析Zip文件获取配置对象, 不设置 sftp 配置, 因为此时一定是本地路径, 不需要从 sftp 下载
                 kerberosConfig = kerberos.parseKerberosFromUpload(resource.getRight(), localKerberosPath);
             } catch (IOException e) {
-                throw new PubSvcDefineException(String.format("kerberos 配置解析异常: %s", e.getMessage()), e);
+                throw new TaierDefineException(String.format("kerberos 配置解析异常: %s", e.getMessage()), e);
             }
         } else {
             kerberosConfig = ((AbstractSourceDTO) sourceLoaderService.buildSourceDTO(source.getId())).getKerberosConfig();
@@ -285,7 +284,7 @@ public class DatasourceService {
             source.setDataJson(DataSourceUtils.getDataSourceJson(source.getDataJsonString()));
         } catch (Exception e) {
             LOGGER.error("check datasource error", e);
-            throw new PubSvcDefineException("JSONObject 转化异常", e);
+            throw new TaierDefineException("JSONObject 转化异常", e);
         }
         // 设置前台传入的principals
         setPrincipals(source.getDataJson(), kerberosConfig);
@@ -370,7 +369,7 @@ public class DatasourceService {
         // 检查链接
         Boolean connValue = checkConnectionWithConf(dataSourceVO, kerberosConfig);
         if (BooleanUtils.isFalse(connValue)) {
-            throw new PubSvcDefineException("不能添加连接失败的数据源", ErrorCode.CONFIG_ERROR);
+            throw new TaierDefineException("不能添加连接失败的数据源", ErrorCode.CONFIG_ERROR);
         }
         Long dataSourceId = dataSourceVO.getId();
         String localKerberosDir = MapUtils.getString(kerberosConfig, KerberosConstants.LOCAL_KERBEROS_DIR);
@@ -410,7 +409,7 @@ public class DatasourceService {
             id = addOrUpdate(dataSourceVO, userId);
         } catch (Exception e) {
             LOGGER.error("addOrUpdateSourceWithKerberos error", e);
-            throw new PubSvcDefineException(e.getMessage());
+            throw new TaierDefineException(e.getMessage());
         }
         return id;
     }
@@ -424,7 +423,7 @@ public class DatasourceService {
      */
     public Long addOrUpdateSource(DataSourceVO dataSourceVO, Long userId) {
         if (!checkConnectionWithConf(dataSourceVO, null, dataSourceVO::setSchemaName)) {
-            throw new PubSvcDefineException("不能添加连接失败的数据源" + ErrorCode.CONFIG_ERROR);
+            throw new TaierDefineException("不能添加连接失败的数据源" + ErrorCode.CONFIG_ERROR);
         }
         return addOrUpdate(dataSourceVO, userId);
     }
@@ -449,7 +448,7 @@ public class DatasourceService {
             dsInfo.setId(dataSourceVO.getId());
             dsInfo.setModifyUserId(dataSourceVO.getUserId());
             if (dsInfoService.checkDataNameDup(dsInfo)) {
-                throw new PubSvcDefineException(ErrorCode.DATASOURCE_DUP_NAME);
+                throw new TaierDefineException(ErrorCode.DATASOURCE_DUP_NAME);
             }
             dsInfo.setGmtCreate(DateTime.now().toDate());
             dsInfoService.updateById(dsInfo);
@@ -458,7 +457,7 @@ public class DatasourceService {
             dsInfo.setCreateUserId(dataSourceVO.getUserId());
             dsInfo.setModifyUserId(dataSourceVO.getUserId());
             if (dsInfoService.checkDataNameDup(dsInfo)) {
-                throw new PubSvcDefineException(ErrorCode.DATASOURCE_DUP_NAME);
+                throw new TaierDefineException(ErrorCode.DATASOURCE_DUP_NAME);
             }
             dsInfoService.save(dsInfo);
             // 保存数据源类型权重
@@ -521,7 +520,7 @@ public class DatasourceService {
             String linkInfo = getDataSourceLinkInfo(dataSourceVO.getDataType(), dataSourceVO.getDataVersion(), dataSourceJson);
             dsInfo.setLinkJson(DataSourceUtils.getEncodeDataSource(linkInfo, true));
         } else {
-            throw new PubSvcDefineException(ErrorCode.DATASOURCE_CONF_ERROR);
+            throw new TaierDefineException(ErrorCode.DATASOURCE_CONF_ERROR);
         }
         return dsInfo;
     }
@@ -562,7 +561,7 @@ public class DatasourceService {
             try {
                 brokersAddress = ClientCache.getKafka(sourceDTO.getSourceType()).getAllBrokersAddress(sourceDTO);
             } catch (Exception e) {
-                throw new PubSvcDefineException("获取 kafka brokersAddress 异常", e);
+                throw new TaierDefineException("获取 kafka brokersAddress 异常", e);
             }
             dataSourceVO.getDataJson().put("bootstrapServers", brokersAddress);
         }
@@ -893,7 +892,7 @@ public class DatasourceService {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        throw new PubSvcDefineException(ErrorCode.SFTP_NOT_FOUND);
+        throw new TaierDefineException(ErrorCode.SFTP_NOT_FOUND);
     }
 
 
@@ -974,7 +973,7 @@ public class DatasourceService {
         try {
             return this.getTableColumnIncludePart(source, tableName, false, schema);
         } catch (final Exception e) {
-            throw new RdosDefineException("获取表字段异常", e);
+            throw new TaierDefineException("获取表字段异常", e);
         }
 
     }
@@ -991,7 +990,7 @@ public class DatasourceService {
     private List<JSONObject> getTableColumnIncludePart(DevelopDataSource source, String tableName, Boolean part, String schema) {
         try {
             if (source == null) {
-                throw new RdosDefineException(ErrorCode.CAN_NOT_FIND_DATA_SOURCE);
+                throw new TaierDefineException(ErrorCode.CAN_NOT_FIND_DATA_SOURCE);
             }
             if (part == null) {
                 part = false;
@@ -1017,7 +1016,7 @@ public class DatasourceService {
         } catch (DtCenterDefException e) {
             throw e;
         } catch (Exception e) {
-            throw new RdosDefineException(ErrorCode.GET_COLUMN_ERROR, e);
+            throw new TaierDefineException(ErrorCode.GET_COLUMN_ERROR, e);
         }
     }
 
@@ -1118,7 +1117,7 @@ public class DatasourceService {
 
         DevelopDataSource source = getOne(sourceId);
         if (Objects.isNull(RDBMSSourceType.getByDataSourceType(source.getType())) && !DataSourceType.INFLUXDB.getVal().equals(source.getType())) {
-            throw new RdosDefineException("切分键只支持关系型数据库");
+            throw new TaierDefineException("切分键只支持关系型数据库");
         }
         if (StringUtils.isEmpty(tableName)) {
             return new HashSet<>();
@@ -1152,7 +1151,7 @@ public class DatasourceService {
             } else if (DataSourceType.INFLUXDB.getVal().equals(source.getType())) {
                 numbers = INFLUXDB_NUMBERS;
             } else {
-                throw new RdosDefineException("切分键只支持关系型数据库");
+                throw new TaierDefineException("切分键只支持关系型数据库");
             }
             Map<JSONObject, String> twinsMap = new LinkedHashMap<>(tableColumn.size() + 1);
             for (JSONObject twins : tableColumn) {
@@ -1256,7 +1255,7 @@ public class DatasourceService {
             }
         } catch (Exception e) {
             LOGGER.error("datasource preview end with error.", e);
-            throw new RdosDefineException(String.format("%s获取预览数据失败", source.getDataName()), e);
+            throw new TaierDefineException(String.format("%s获取预览数据失败", source.getDataName()), e);
         }
 
         JSONObject preview = new JSONObject(2);
@@ -1303,7 +1302,7 @@ public class DatasourceService {
             DevelopDataSource originSource = getOne(originSourceId);
             JSONObject reader = JSON.parseObject(originSource.getDataJson());
             if (!ORIGIN_TABLE_ALLOW_TYPES.contains(originSource.getType())) {
-                throw new RdosDefineException("一键生成目标表，只支持关系型数据库、hive和maxCompute类型");
+                throw new TaierDefineException("一键生成目标表，只支持关系型数据库、hive和maxCompute类型");
             }
             List<JSONObject> columnMetaData = new ArrayList<>();
             ISourceDTO sourceDTO = sourceLoaderService.buildSourceDTO(originSourceId);
@@ -1360,7 +1359,7 @@ public class DatasourceService {
             }
             return sqlFormat(sql);
         } catch (Exception e) {
-            throw new RdosDefineException("一键生成目标表失败", e);
+            throw new TaierDefineException("一键生成目标表失败", e);
         }
     }
 
@@ -1605,7 +1604,7 @@ public class DatasourceService {
         if (StringUtils.isNotBlank(sql)) {
             sql = sql.trim();
         } else {
-            throw new RdosDefineException("Sql不能为空");
+            throw new TaierDefineException("Sql不能为空");
         }
         DevelopDataSource developDataSource = datasourceService.getOne(sourceId);
         if (DataSourceType.Oracle.getVal().equals(developDataSource.getType())) {
@@ -1613,7 +1612,7 @@ public class DatasourceService {
         }
         onlyNeedOneSql(sql);
         if (!SqlFormatUtil.isCreateSql(sql)) {
-            throw new RdosDefineException(ErrorCode.ONLY_EXECUTE_CREATE_TABLE_SQL);
+            throw new TaierDefineException(ErrorCode.ONLY_EXECUTE_CREATE_TABLE_SQL);
         }
         sql = SqlFormatUtil.init(sql).removeEndChar().getSql();
         String tableName = CreateTableSqlParseUtil.parseTableName(sql);
@@ -1634,7 +1633,7 @@ public class DatasourceService {
         }
         List<String> sqlList = SqlFormatUtil.splitSqlText(sql);
         if (CollectionUtils.isNotEmpty(sqlList) && !SqlFormatUtil.isCreateSql(sqlList.get(0))) {
-            throw new RdosDefineException(ErrorCode.ONLY_EXECUTE_CREATE_TABLE_SQL);
+            throw new TaierDefineException(ErrorCode.ONLY_EXECUTE_CREATE_TABLE_SQL);
         }
         String tableName = CreateTableSqlParseUtil.parseTableName(sqlList.get(0));
         executeOnSpecifySourceWithOutResult(sourceId, sqlList);
@@ -1649,7 +1648,7 @@ public class DatasourceService {
         DevelopDataSource source = getOne(sourceId);
         DataSourceType dataSourceType = DataSourceType.getSourceType(source.getType());
         if (!SUPPORT_CREATE_TABLE_DATASOURCES.contains(dataSourceType)) {
-            throw new RdosDefineException(String.format("只支持创建%s数据源表", SUPPORT_CREATE_TABLE_DATASOURCES_NAMES));
+            throw new TaierDefineException(String.format("只支持创建%s数据源表", SUPPORT_CREATE_TABLE_DATASOURCES_NAMES));
         }
         try {
             ISourceDTO sourceDTO = sourceLoaderService.buildSourceDTO(sourceId);
@@ -1661,7 +1660,7 @@ public class DatasourceService {
                 }
             }
         } catch (Exception e) {
-            throw new RdosDefineException(String.format("执行sql：%s 异常", StringUtils.join(sqlList, ",")), e);
+            throw new TaierDefineException(String.format("执行sql：%s 异常", StringUtils.join(sqlList, ",")), e);
         }
     }
 
@@ -1674,9 +1673,9 @@ public class DatasourceService {
             }
         }
         if (unEmptySqlNum == 0) {
-            throw new RdosDefineException("Sql不能为空");
+            throw new TaierDefineException("Sql不能为空");
         } else if (unEmptySqlNum > 1) {
-            throw new RdosDefineException("仅支持执行一条sql语句");
+            throw new TaierDefineException("仅支持执行一条sql语句");
         }
     }
 

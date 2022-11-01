@@ -29,7 +29,7 @@ import com.dtstack.taier.datasource.api.source.DataSourceType;
 import com.dtstack.taier.common.enums.EComponentType;
 import com.dtstack.taier.common.exception.DtCenterDefException;
 import com.dtstack.taier.common.exception.ErrorCode;
-import com.dtstack.taier.common.exception.RdosDefineException;
+import com.dtstack.taier.common.exception.TaierDefineException;
 import com.dtstack.taier.common.util.AssertUtils;
 import com.dtstack.taier.dao.domain.ScheduleEngineJobCache;
 import com.dtstack.taier.dao.domain.ScheduleJob;
@@ -415,18 +415,18 @@ public class FlinkRuntimeLogService {
         //只获取运行中的任务的log—url
         Integer status = scheduleJob.getStatus();
         if (!TaskStatus.RUNNING.getStatus().equals(status)) {
-            throw new RdosDefineException(String.format("job:%s not running status ", jobId), ErrorCode.INVALID_TASK_STATUS);
+            throw new TaierDefineException(String.format("job:%s not running status ", jobId), ErrorCode.INVALID_TASK_STATUS);
         }
 
         String applicationId = scheduleJob.getApplicationId();
 
         if (org.apache.commons.lang3.StringUtils.isEmpty(applicationId)) {
-            throw new RdosDefineException(String.format("job %s not running in perjob", jobId), ErrorCode.INVALID_TASK_RUN_MODE);
+            throw new TaierDefineException(String.format("job %s not running in perjob", jobId), ErrorCode.INVALID_TASK_RUN_MODE);
         }
         try {
             ScheduleEngineJobCache engineJobCache = ScheduleJobCacheService.getByJobId(jobId);
             if (engineJobCache == null) {
-                throw new RdosDefineException(String.format("job:%s not exist in job cache table ", jobId), ErrorCode.JOB_CACHE_NOT_EXIST);
+                throw new TaierDefineException(String.format("job:%s not exist in job cache table ", jobId), ErrorCode.JOB_CACHE_NOT_EXIST);
             }
             String jobInfo = engineJobCache.getJobInfo();
             ParamAction paramAction = PublicUtil.jsonStrToObject(jobInfo, ParamAction.class);
@@ -436,7 +436,7 @@ public class FlinkRuntimeLogService {
                     EDeployMode.PERJOB.getType(), scheduleJob.getCreateUserId(), null, paramAction.getComponentVersion(), paramAction.getQueueName());
             return workerOperator.getRollingLogBaseInfo(jobIdentifier);
         } catch (Exception e) {
-            throw new RdosDefineException(String.format("get job:%s ref application url error..", jobId), ErrorCode.UNKNOWN_ERROR, e);
+            throw new TaierDefineException(String.format("get job:%s ref application url error..", jobId), ErrorCode.UNKNOWN_ERROR, e);
         }
     }
 

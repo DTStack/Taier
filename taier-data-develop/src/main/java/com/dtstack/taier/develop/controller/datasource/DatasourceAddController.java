@@ -19,8 +19,7 @@
 package com.dtstack.taier.develop.controller.datasource;
 
 import com.alibaba.fastjson.JSONObject;
-import com.dtstack.taier.common.exception.PubSvcDefineException;
-import com.dtstack.taier.common.exception.RdosDefineException;
+import com.dtstack.taier.common.exception.TaierDefineException;
 import com.dtstack.taier.common.lang.coc.APITemplate;
 import com.dtstack.taier.common.lang.web.R;
 import com.dtstack.taier.common.util.DataSourceUtils;
@@ -125,7 +124,7 @@ public class DatasourceAddController {
             }
 
             @Override
-            protected Boolean process() throws RdosDefineException {
+            protected Boolean process() throws TaierDefineException {
                 DataSourceVO dataSourceVO = new DataSourceParam2SourceVOConverter().convert(addDataSourceParam);
                 return datasourceService.checkConnectionWithConf(dataSourceVO, null);
             }
@@ -148,7 +147,7 @@ public class DatasourceAddController {
             }
 
             @Override
-            protected Boolean process() throws RdosDefineException {
+            protected Boolean process() throws TaierDefineException {
                 Pair<String, String> resource = (Pair<String, String>) params.get("resource");
                 params.remove(RESOURCE);
                 DataSourceVO dataSourceVo = PublicUtil.mapToObject(params, DataSourceVO.class);
@@ -167,12 +166,12 @@ public class DatasourceAddController {
             protected void checkParams() throws IllegalArgumentException {
                 if (addDataSourceParam == null ||
                         StringUtils.isBlank(addDataSourceParam.getDataName())) {
-                    throw new PubSvcDefineException("dataSource name empty");
+                    throw new TaierDefineException("dataSource name empty");
                 }
             }
 
             @Override
-            protected Long process() throws RdosDefineException {
+            protected Long process() throws TaierDefineException {
                 DataSourceVO dataSourceVO = new DataSourceParam2SourceVOConverter().convert(addDataSourceParam);
                 return datasourceService.addOrUpdateSource(dataSourceVO, dataSourceVO.getUserId());
             }
@@ -194,13 +193,13 @@ public class DatasourceAddController {
             }
 
             @Override
-            protected Long process() throws RdosDefineException {
+            protected Long process() throws TaierDefineException {
                 Pair<String, String> resource = (Pair<String, String>) params.get("resource");
                 params.remove(RESOURCE);
                 DataSourceVO dataSourceVo = PublicUtil.mapToObject(params, DataSourceVO.class);
                 if (dataSourceVo == null ||
                         StringUtils.isBlank(dataSourceVo.getDataName())) {
-                    throw new PubSvcDefineException("dataSource name empty");
+                    throw new TaierDefineException("dataSource name empty");
                 }
                 params.put(RESOURCE, resource);
                 return datasourceService.addOrUpdateSourceWithKerberos(dataSourceVo, resource, dataSourceVo.getUserId(), dataSourceVo.getTenantId());
@@ -249,7 +248,7 @@ public class DatasourceAddController {
             @Override
             protected void checkParams() throws IllegalArgumentException {
                 if (CollectionUtils.isEmpty(vo.getTableName())) {
-                    throw new RdosDefineException("table can not be null");
+                    throw new TaierDefineException("table can not be null");
                 }
             }
 

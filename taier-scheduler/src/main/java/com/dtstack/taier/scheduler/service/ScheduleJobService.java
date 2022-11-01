@@ -27,7 +27,7 @@ import com.dtstack.taier.common.enums.EScheduleType;
 import com.dtstack.taier.common.enums.ForceCancelFlag;
 import com.dtstack.taier.common.enums.OperatorType;
 import com.dtstack.taier.common.env.EnvironmentContext;
-import com.dtstack.taier.common.exception.RdosDefineException;
+import com.dtstack.taier.common.exception.TaierDefineException;
 import com.dtstack.taier.common.util.GenerateErrorMsgUtil;
 import com.dtstack.taier.dao.domain.ScheduleJob;
 import com.dtstack.taier.dao.domain.ScheduleJobExpand;
@@ -292,7 +292,7 @@ public class ScheduleJobService extends ServiceImpl<ScheduleJobMapper, ScheduleJ
             }, environmentContext.getBuildJobErrorRetry(), 200, false);
         } catch (Exception e) {
             LOGGER.error("!!!!! persistJobs job error !!!! job {} jobjob {}", jobWaitForSave, jobJobWaitForSave, e);
-            throw new RdosDefineException(e);
+            throw new TaierDefineException(e);
         } finally {
             if (jobWaitForSave.size() > 0) {
                 jobWaitForSave.clear();

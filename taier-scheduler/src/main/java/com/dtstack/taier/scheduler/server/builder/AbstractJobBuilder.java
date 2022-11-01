@@ -22,7 +22,7 @@ import com.dtstack.taier.common.enums.EScheduleJobType;
 import com.dtstack.taier.common.enums.Deleted;
 import com.dtstack.taier.common.enums.Restarted;
 import com.dtstack.taier.common.env.EnvironmentContext;
-import com.dtstack.taier.common.exception.RdosDefineException;
+import com.dtstack.taier.common.exception.TaierDefineException;
 import com.dtstack.taier.dao.domain.ScheduleJob;
 import com.dtstack.taier.dao.domain.ScheduleJobJob;
 import com.dtstack.taier.dao.domain.ScheduleTaskShade;
@@ -249,7 +249,7 @@ public abstract class AbstractJobBuilder implements JobBuilder, InitializingBean
      */
     private Pair<Date, Date> getTriggerRange(String triggerDay, String beginTime, String endTime) {
         if (StringUtils.isBlank(triggerDay)) {
-            throw new RdosDefineException("triggerDay is not null");
+            throw new TaierDefineException("triggerDay is not null");
         }
 
         if (StringUtils.isBlank(beginTime)) {
@@ -266,7 +266,7 @@ public abstract class AbstractJobBuilder implements JobBuilder, InitializingBean
         Date startDate = DateUtil.parseDate(start, DateUtil.STANDARD_DATETIME_FORMAT, Locale.CHINA);
         Date endDate = DateUtil.parseDate(end, DateUtil.STANDARD_DATETIME_FORMAT, Locale.CHINA);
         if (startDate == null || endDate == null) {
-            throw new RdosDefineException("triggerDay or beginTime or endTime invalid");
+            throw new TaierDefineException("triggerDay or beginTime or endTime invalid");
         }
 
         return new ImmutablePair<>(startDate, endDate);
@@ -291,7 +291,7 @@ public abstract class AbstractJobBuilder implements JobBuilder, InitializingBean
             return compareAndReplaceMinuteAndHour(dateTime, beginHour, beginMin, true).toDate();
         }
 
-        throw new RdosDefineException("task:" + taskId + " out of time range");
+        throw new TaierDefineException("task:" + taskId + " out of time range");
     }
 
     /**
@@ -311,7 +311,7 @@ public abstract class AbstractJobBuilder implements JobBuilder, InitializingBean
             return compareAndReplaceMinuteAndHour(dateTime, endHour, endMin, false).toDate();
         }
 
-        throw new RdosDefineException("task:" + taskId + " out of time range");
+        throw new TaierDefineException("task:" + taskId + " out of time range");
     }
 
     /**

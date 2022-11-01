@@ -29,7 +29,7 @@ import com.dtstack.taier.common.enums.EComponentType;
 import com.dtstack.taier.common.enums.EFrontType;
 import com.dtstack.taier.common.env.EnvironmentContext;
 import com.dtstack.taier.common.exception.ErrorCode;
-import com.dtstack.taier.common.exception.RdosDefineException;
+import com.dtstack.taier.common.exception.TaierDefineException;
 import com.dtstack.taier.common.thread.RdosThreadFactory;
 import com.dtstack.taier.common.util.ComponentVersionUtil;
 import com.dtstack.taier.common.util.Pair;
@@ -353,10 +353,10 @@ public class ConsoleComponentService {
                 }
             } catch (Exception e) {
                 LOGGER.error("update component resource {}  error", resource.getUploadedFileName(), e);
-                if (e instanceof RdosDefineException) {
-                    throw (RdosDefineException) e;
+                if (e instanceof TaierDefineException) {
+                    throw (TaierDefineException) e;
                 } else {
-                    throw new RdosDefineException("Failed to update component");
+                    throw new TaierDefineException("Failed to update component");
                 }
             } finally {
                 try {
@@ -378,10 +378,10 @@ public class ConsoleComponentService {
                     Map<String, Object> configMap = ComponentConfigUtils.convertClientTemplateToMap(JSONArray.parseArray(componentTemplate, ClientTemplate.class));
                     return PublicUtil.mapToObject(configMap, SftpConfig.class);
                 } catch (IOException e) {
-                    throw new RdosDefineException("sftp配置信息不正确");
+                    throw new TaierDefineException("sftp配置信息不正确");
                 }
             } else {
-                throw new RdosDefineException("Please configure the sftp server to upload files!");
+                throw new TaierDefineException("Please configure the sftp server to upload files!");
             }
         } else {
             return JSONObject.parseObject(sftpConfigStr, SftpConfig.class);
@@ -493,17 +493,17 @@ public class ConsoleComponentService {
             //解压到本地
             List<File> files = ZipUtil.upzipFile(resource.getUploadedFileName(), kerberosPath);
             if (CollectionUtils.isEmpty(files)) {
-                throw new RdosDefineException("Hadoop-Kerberos file decompression error");
+                throw new TaierDefineException("Hadoop-Kerberos file decompression error");
             }
 
             keyTabFile = files.stream().filter(f -> f.getName().endsWith(KEYTAB_SUFFIX)).findFirst().orElse(null);
             krb5ConfFile = files.stream().filter(f -> f.getName().equalsIgnoreCase(KRB5_CONF)).findFirst().orElse(null);
             if (keyTabFile == null) {
-                throw new RdosDefineException("There must be a keytab file in the zip file of the uploaded Hadoop-Kerberos file, please add the keytab file");
+                throw new TaierDefineException("There must be a keytab file in the zip file of the uploaded Hadoop-Kerberos file, please add the keytab file");
             }
             LOGGER.info("fileKeyTab Unzip fileName:{}", keyTabFile.getAbsolutePath());
             if (krb5ConfFile == null) {
-                throw new RdosDefineException("There must be a krb5.conf file in the zip file of the uploaded Hadoop-Kerberos file, please add the krb5.conf file");
+                throw new TaierDefineException("There must be a krb5.conf file in the zip file of the uploaded Hadoop-Kerberos file, please add the krb5.conf file");
             }
             LOGGER.info("conf Unzip fileName:{}", krb5ConfFile.getAbsolutePath());
 
@@ -580,7 +580,7 @@ public class ConsoleComponentService {
 
     private String parsePrincipal(String principal, List<PrincipalName> principalLists) {
         if (CollectionUtils.isEmpty(principalLists)) {
-            throw new RdosDefineException("The keytab file does not contain principal");
+            throw new TaierDefineException("The keytab file does not contain principal");
         }
         if (StringUtils.isBlank(principal)) {
             //不传默认取第一个
@@ -591,7 +591,7 @@ public class ConsoleComponentService {
                     .stream()
                     .anyMatch(p -> p.getName().equalsIgnoreCase(finalPrincipal));
             if (!isContainsPrincipal) {
-                throw new RdosDefineException(String.format("The uploaded Hadoop-Kerberos file does not contain the corresponding %s", principal));
+                throw new TaierDefineException(String.format("The uploaded Hadoop-Kerberos file does not contain the corresponding %s", principal));
             }
         }
         return principal;
@@ -607,7 +607,7 @@ public class ConsoleComponentService {
     public String getLocalKerberosPath(Long clusterId, Integer componentCode) {
         Cluster one = clusterMapper.getOne(clusterId);
         if (null == one) {
-            throw new RdosDefineException(ErrorCode.CANT_NOT_FIND_CLUSTER);
+            throw new TaierDefineException(ErrorCode.CANT_NOT_FIND_CLUSTER);
         }
         return env.getTempDir() + File.separator + one.getClusterName() + File.separator + EComponentType.getByCode(componentCode).name() + File.separator + KERBEROS;
     }
@@ -630,7 +630,7 @@ public class ConsoleComponentService {
             List<File> files = ZipUtil.upzipFile(resource.getUploadedFileName(), unzipLocation);
 
             if (CollectionUtils.isEmpty(files)) {
-                throw new RdosDefineException("Hadoop-Kerberos file decompression error");
+                throw new TaierDefineException("Hadoop-Kerberos file decompression error");
             }
 
             File fileKeyTab = files
@@ -639,7 +639,7 @@ public class ConsoleComponentService {
                     .findFirst()
                     .orElse(null);
             if (fileKeyTab == null) {
-                throw new RdosDefineException("There must be a keytab file in the zip file of the uploaded Hadoop-Kerberos file, please add the keytab file");
+                throw new TaierDefineException("There must be a keytab file in the zip file of the uploaded Hadoop-Kerberos file, please add the keytab file");
             }
 
             //获取principal
@@ -668,17 +668,17 @@ public class ConsoleComponentService {
                 keytab = Keytab.loadKeytab(file);
             } catch (IOException e) {
                 LOGGER.error("Keytab loadKeytab error ", e);
-                throw new RdosDefineException("Failed to parse keytab file");
+                throw new TaierDefineException("Failed to parse keytab file");
             }
             return keytab.getPrincipals();
         }
-        throw new RdosDefineException("The current keytab file does not contain principal information");
+        throw new TaierDefineException("The current keytab file does not contain principal information");
     }
 
     public String buildSftpPath(Long clusterId, Integer componentCode) {
         Cluster one = clusterMapper.getOne(clusterId);
         if (null == one) {
-            throw new RdosDefineException(ErrorCode.CANT_NOT_FIND_CLUSTER);
+            throw new TaierDefineException(ErrorCode.CANT_NOT_FIND_CLUSTER);
         }
         return ConfigConstant.CONSOLE + "_" + one.getClusterName() + File.separator + EComponentType.getByCode(componentCode).name();
     }
@@ -709,7 +709,7 @@ public class ConsoleComponentService {
 
     private File getFileWithSuffix(String dir, String suffix) {
         if (StringUtils.isBlank(suffix)) {
-            throw new RdosDefineException("File suffix cannot be empty");
+            throw new TaierDefineException("File suffix cannot be empty");
         }
         File file = null;
         File dirFile = new File(dir);
@@ -739,13 +739,13 @@ public class ConsoleComponentService {
     public String uploadKerberos(List<Resource> resources, Long clusterId, Integer componentCode, String versionName) {
 
         if (CollectionUtils.isEmpty(resources)) {
-            throw new RdosDefineException("Please upload a kerberos file!");
+            throw new TaierDefineException("Please upload a kerberos file!");
         }
 
         Resource resource = resources.get(0);
         String kerberosFileName = resource.getFileName();
         if (!kerberosFileName.endsWith(ZIP_SUFFIX)) {
-            throw new RdosDefineException("Kerberos upload files are not in zip format");
+            throw new TaierDefineException("Kerberos upload files are not in zip format");
         }
         String sftpComponent = componentService.getComponentByClusterId(clusterId, EComponentType.SFTP.getTypeCode(), false, String.class, null);
         SftpConfig sftpConfig = getSFTPConfig(sftpComponent, componentCode, "");
@@ -843,7 +843,7 @@ public class ConsoleComponentService {
             }
         } catch (Exception e) {
             LOGGER.error("Update krb5 error! {}", e.getMessage());
-            throw new RdosDefineException(e);
+            throw new TaierDefineException(e);
         }
     }
 
@@ -905,7 +905,7 @@ public class ConsoleComponentService {
         boolean isLostXmlFile = xmlConfigMap.keySet().containsAll(xmlName);
         if (!isLostXmlFile) {
             LOGGER.error("Missing necessary configuration file, maybe the Zip file corrupt, please retry zip files.");
-            throw new RdosDefineException("Missing necessary configuration file, maybe the Zip file corrupt, please retry zip files.");
+            throw new TaierDefineException("Missing necessary configuration file, maybe the Zip file corrupt, please retry zip files.");
         }
         //多个配置文件合并为一个map
         if (MapUtils.isNotEmpty(xmlConfigMap)) {
@@ -943,7 +943,7 @@ public class ConsoleComponentService {
     public List<Component> getComponentStore(String clusterName, Integer componentType) {
         Cluster cluster = clusterMapper.getByClusterName(clusterName);
         if (null == cluster) {
-            throw new RdosDefineException("Cluster does not exist");
+            throw new TaierDefineException("Cluster does not exist");
         }
         List<Component> components = new ArrayList<>();
         Component hdfs = componentMapper.getByClusterIdAndComponentType(cluster.getId(), EComponentType.HDFS.getTypeCode(), null, null);
@@ -956,11 +956,11 @@ public class ConsoleComponentService {
     public ComponentTestResult testConnect(Long clusterId, Integer componentType, String versionName) {
         Cluster cluster = clusterMapper.getOne(clusterId);
         if (null == cluster) {
-            throw new RdosDefineException(ErrorCode.CANT_NOT_FIND_CLUSTER);
+            throw new TaierDefineException(ErrorCode.CANT_NOT_FIND_CLUSTER);
         }
         Component testComponent = componentMapper.getByVersionName(cluster.getId(), componentType, versionName, null);
         if (null == testComponent) {
-            throw new RdosDefineException(ErrorCode.COMPONENT_INVALID);
+            throw new TaierDefineException(ErrorCode.COMPONENT_INVALID);
         }
         Map sftpMap = componentService.getComponentByClusterId(cluster.getId(), EComponentType.SFTP.getTypeCode(), false, Map.class, null);
         return testComponentWithResult(cluster, sftpMap, testComponent);
@@ -1031,7 +1031,7 @@ public class ConsoleComponentService {
     private List<Component> getComponents(Cluster cluster) {
 
         if (null == cluster) {
-            throw new RdosDefineException("Cluster does not exist");
+            throw new TaierDefineException("Cluster does not exist");
         }
 
         List<Component> components = componentMapper.listByClusterId(cluster.getId(), null, false);
@@ -1045,12 +1045,12 @@ public class ConsoleComponentService {
     private Map<String, Map<String, Object>> parseUploadFileToMap(List<Resource> resources) {
 
         if (CollectionUtils.isEmpty(resources)) {
-            throw new RdosDefineException("The uploaded file cannot be empty");
+            throw new TaierDefineException("The uploaded file cannot be empty");
         }
 
         Resource resource = resources.get(0);
         if (!resource.getFileName().endsWith(ZIP_SUFFIX)) {
-            throw new RdosDefineException("The compressed package format only supports ZIP format");
+            throw new TaierDefineException("The compressed package format only supports ZIP format");
         }
 
         String upzipLocation = USER_DIR_UNZIP + File.separator + resource.getFileName();
@@ -1060,7 +1060,7 @@ public class ConsoleComponentService {
             String xmlZipLocation = resource.getUploadedFileName();
             List<File> xmlFiles = XmlFileUtil.getFilesFromZip(xmlZipLocation, upzipLocation, null);
             if (CollectionUtils.isEmpty(xmlFiles)) {
-                throw new RdosDefineException("The configuration file cannot be empty");
+                throw new TaierDefineException("The configuration file cannot be empty");
             }
             for (File file : xmlFiles) {
                 Map<String, Object> fileMap = null;
@@ -1086,7 +1086,7 @@ public class ConsoleComponentService {
             return confMap;
         } catch (Exception e) {
             LOGGER.error("parseAndUploadXmlFile file error ", e);
-            throw new RdosDefineException(ExceptionUtil.getErrorMessage(e));
+            throw new TaierDefineException(ExceptionUtil.getErrorMessage(e));
         } finally {
             if (StringUtils.isNotBlank(upzipLocation)) {
                 ZipUtil.deletefile(upzipLocation);
@@ -1103,7 +1103,7 @@ public class ConsoleComponentService {
                 data.add(PublicUtil.strToMap(fileInfo));
             } catch (Exception e) {
                 LOGGER.error("parse json config resource error {} ", resource.getUploadedFileName());
-                throw new RdosDefineException("JSON file format error");
+                throw new TaierDefineException("JSON file format error");
             }
         }
         return data;
@@ -1190,17 +1190,17 @@ public class ConsoleComponentService {
                 try {
                     FileUtils.write(new File(localDownLoadPath), JSONObject.toJSONString(fileMap));
                 } catch (Exception e) {
-                    throw new RdosDefineException("file does not exist");
+                    throw new TaierDefineException("file does not exist");
                 }
             }
         } else {
             Component component = componentMapper.selectById(componentId);
             if (null == component) {
-                throw new RdosDefineException("Component does not exist");
+                throw new TaierDefineException("Component does not exist");
             }
             SftpConfig sftpConfig = componentService.getComponentByClusterId(clusterId, EComponentType.SFTP.getTypeCode(), false, SftpConfig.class, null);
             if (null == sftpConfig) {
-                throw new RdosDefineException("sftp component does not exist");
+                throw new TaierDefineException("sftp component does not exist");
             }
 
             localDownLoadPath = USER_DIR_DOWNLOAD + File.separator + component.getComponentName();
@@ -1233,7 +1233,7 @@ public class ConsoleComponentService {
 
         File file = new File(localDownLoadPath);
         if (!file.exists()) {
-            throw new RdosDefineException("file does not exist");
+            throw new TaierDefineException("file does not exist");
         }
         String zipFilename = StringUtils.isBlank(uploadFileName) ? "download.zip" : uploadFileName;
         if (file.isDirectory()) {
@@ -1289,7 +1289,7 @@ public class ConsoleComponentService {
     public void delete(Long componentId) {
         Component component = componentMapper.selectById(componentId);
         if (component == null) {
-            throw new RdosDefineException(ErrorCode.DATA_NOT_FIND);
+            throw new TaierDefineException(ErrorCode.DATA_NOT_FIND);
         }
         componentMapper.deleteById(componentId);
         consoleKerberosMapper.deleteByComponentId(component.getId());
@@ -1374,7 +1374,7 @@ public class ConsoleComponentService {
     public ComponentVO getComponentInfo(Long componentId) {
         Component component = componentMapper.selectById(componentId);
         if (null == component) {
-            throw new RdosDefineException(ErrorCode.COMPONENT_INVALID);
+            throw new TaierDefineException(ErrorCode.COMPONENT_INVALID);
         }
         ComponentVO componentVO = ComponentVO.toVO(component);
         List<ComponentConfig> componentConfigs = componentConfigService.listByComponentIds(Lists.newArrayList(componentId), false);

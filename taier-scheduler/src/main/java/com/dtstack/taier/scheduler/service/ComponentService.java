@@ -24,7 +24,7 @@ import com.dtstack.taier.common.enums.Deleted;
 import com.dtstack.taier.common.enums.DictType;
 import com.dtstack.taier.common.enums.EComponentType;
 import com.dtstack.taier.common.enums.EScheduleJobType;
-import com.dtstack.taier.common.exception.RdosDefineException;
+import com.dtstack.taier.common.exception.TaierDefineException;
 import com.dtstack.taier.common.util.ComponentVersionUtil;
 import com.dtstack.taier.dao.domain.Cluster;
 import com.dtstack.taier.dao.domain.Component;
@@ -203,7 +203,7 @@ public class ComponentService {
     public String buildConfRemoteDir(Long clusterId) {
         Cluster one = clusterMapper.getOne(clusterId);
         if (null == one) {
-            throw new RdosDefineException("Cluster does not exist");
+            throw new TaierDefineException("Cluster does not exist");
         }
         return "confPath" + File.separator + one.getClusterName();
     }

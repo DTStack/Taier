@@ -18,7 +18,7 @@
 
 package com.dtstack.taier.scheduler.server.pipeline.operator;
 
-import com.dtstack.taier.common.exception.RdosDefineException;
+import com.dtstack.taier.common.exception.TaierDefineException;
 import com.dtstack.taier.dao.domain.ScheduleJob;
 import com.dtstack.taier.dao.dto.ScheduleTaskParamShade;
 import com.dtstack.taier.scheduler.server.pipeline.IPipeline;
@@ -46,7 +46,7 @@ public class JobParamOperatorPipeline extends IPipeline.AbstractPipeline {
             List<ScheduleTaskParamShade> taskParamShades = (List) pipelineParam.get(taskParamsToReplaceKey);
             ScheduleJob scheduleJob = (ScheduleJob) pipelineParam.get(scheduleJobKey);
             if (null == scheduleJob) {
-                throw new RdosDefineException("upload param pipeline schedule job can not be null");
+                throw new TaierDefineException("upload param pipeline schedule job can not be null");
             }
             pipelineParam.put(pipelineKey,JobParamReplace.paramReplace(urlKey,taskParamShades,scheduleJob.getCycTime()));
         }

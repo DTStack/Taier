@@ -19,7 +19,7 @@
 
         <kubernetes.client.version>4.9.0</kubernetes.client.version>
         <jar.package.name>kubernetes</jar.package.name>
-        <jar.name>dtKubernetes</jar.name>
+        <jar.name>Kubernetes</jar.name>
     </properties>
 
     <dependencies>

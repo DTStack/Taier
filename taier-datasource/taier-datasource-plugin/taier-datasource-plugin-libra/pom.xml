@@ -17,7 +17,7 @@
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
         <jar.package.name>libra</jar.package.name>
-        <jar.name>dtLibra</jar.name>
+        <jar.name>Libra</jar.name>
 
         <postgresql.version>42.2.2</postgresql.version>
     </properties>

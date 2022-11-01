@@ -17,7 +17,7 @@
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
         <jar.package.name>ftp</jar.package.name>
-        <jar.name>dtFtp</jar.name>
+        <jar.name>Ftp</jar.name>
 
         <jcraft.version>0.1.55</jcraft.version>
     </properties>

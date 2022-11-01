@@ -18,7 +18,7 @@
 
 package com.dtstack.taier.common.metric.stream.prometheus;
 
-import com.dtstack.taier.common.exception.RdosDefineException;
+import com.dtstack.taier.common.exception.TaierDefineException;
 import com.dtstack.taier.common.http.PoolHttpClient;
 import com.dtstack.taier.common.metric.QueryInfo;
 import com.dtstack.taier.common.metric.prometheus.HttpQueryRangeParamBuilder;
@@ -54,7 +54,7 @@ public class CustomPrometheusMetricQuery<T> implements ICustomMetricQuery<T> {
         try {
             urlParam = HttpQueryRangeParamBuilder.builder(metricName, startTime, endTime, queryInfo);
         } catch (Exception e) {
-            throw new RdosDefineException("failed to build prometheus request param...", e);
+            throw new TaierDefineException("failed to build prometheus request param...", e);
         }
         String reqUrl = queryRange + urlParam;
         String result = PoolHttpClient.get(reqUrl, null);

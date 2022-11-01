@@ -28,7 +28,7 @@ import com.dtstack.taier.datasource.api.dto.Table;
 import com.dtstack.taier.datasource.api.source.DataSourceType;
 import com.dtstack.taier.common.enums.EScheduleJobType;
 import com.dtstack.taier.common.exception.ErrorCode;
-import com.dtstack.taier.common.exception.RdosDefineException;
+import com.dtstack.taier.common.exception.TaierDefineException;
 import com.dtstack.taier.dao.domain.DsInfo;
 import com.dtstack.taier.develop.common.template.Writer;
 import com.dtstack.taier.develop.dto.devlop.TaskResourceParam;
@@ -77,7 +77,7 @@ public class Hive2XWriterBuilder implements DaWriterBuilder {
     public void setWriterJson(TaskResourceParam param) {
         Map<String, Object> map = param.getTargetMap();
         if (!map.containsKey("sourceId")) {
-            throw new RdosDefineException(ErrorCode.DATA_SOURCE_NOT_SET);
+            throw new TaierDefineException(ErrorCode.DATA_SOURCE_NOT_SET);
         }
 
         Long sourceId = Long.parseLong(map.get("sourceId").toString());
@@ -171,7 +171,7 @@ public class Hive2XWriterBuilder implements DaWriterBuilder {
                         writerParam.setFieldDelimiter(tableInfo.getDelim());
                     }
                 } catch (Exception e) {
-                    throw new RdosDefineException(String.format("inferHdfsParams error,Caused by: %s", e.getMessage()), e);
+                    throw new TaierDefineException(String.format("inferHdfsParams error,Caused by: %s", e.getMessage()), e);
                 }
             }
 
@@ -253,7 +253,7 @@ public class Hive2XWriterBuilder implements DaWriterBuilder {
                         writerParam.setFieldDelimiter(tableInfo.getDelim());
                     }
                 } catch (Exception e) {
-                    throw new RdosDefineException(String.format("inferHdfsParams error,Caused by: %s", e.getMessage()), e);
+                    throw new TaierDefineException(String.format("inferHdfsParams error,Caused by: %s", e.getMessage()), e);
                 }
             }
 

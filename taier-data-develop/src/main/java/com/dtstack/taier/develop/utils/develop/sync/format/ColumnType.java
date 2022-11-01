@@ -18,7 +18,7 @@
 
 package com.dtstack.taier.develop.utils.develop.sync.format;
 
-import com.dtstack.taier.common.exception.RdosDefineException;
+import com.dtstack.taier.common.exception.TaierDefineException;
 
 import java.util.Arrays;
 import java.util.List;
@@ -111,7 +111,7 @@ public enum ColumnType {
 
     public static ColumnType fromString(String type) {
         if (type == null) {
-            throw new RdosDefineException("null ColumnType!");
+            throw new TaierDefineException("null ColumnType!");
         }
 
         String[] split = type.split(" ");

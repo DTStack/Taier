@@ -20,7 +20,7 @@ package com.dtstack.taier.develop.service.develop.impl;
 
 import com.dtstack.taier.common.enums.Deleted;
 import com.dtstack.taier.common.exception.ErrorCode;
-import com.dtstack.taier.common.exception.RdosDefineException;
+import com.dtstack.taier.common.exception.TaierDefineException;
 import com.dtstack.taier.dao.domain.DevelopResource;
 import com.dtstack.taier.dao.domain.DevelopTaskResource;
 import com.dtstack.taier.dao.domain.Task;
@@ -114,7 +114,7 @@ public class DevelopTaskResourceService {
             //检查资源是否存在
             if (developResourceService.getResource(resourceId) == null) {
                 logger.warn("can't find resource from DevelopResource table by id:{}", resourceId);
-                throw new RdosDefineException(ErrorCode.CAN_NOT_FIND_RESOURCE);
+                throw new TaierDefineException(ErrorCode.CAN_NOT_FIND_RESOURCE);
             }
 
             //存储

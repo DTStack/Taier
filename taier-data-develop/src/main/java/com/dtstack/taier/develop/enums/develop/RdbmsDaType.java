@@ -19,7 +19,7 @@
 package com.dtstack.taier.develop.enums.develop;
 
 
-import com.dtstack.taier.common.exception.RdosDefineException;
+import com.dtstack.taier.common.exception.TaierDefineException;
 
 /**
  * Date: 2020/1/8
@@ -74,6 +74,6 @@ public enum RdbmsDaType {
                 return rdbmsDaType;
             }
         }
-        throw new RdosDefineException("not support RdbmsDaType");
+        throw new TaierDefineException("not support RdbmsDaType");
     }
 }

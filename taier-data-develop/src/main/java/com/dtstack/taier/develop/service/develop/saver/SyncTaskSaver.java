@@ -23,7 +23,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.dtstack.taier.datasource.api.source.DataSourceType;
 import com.dtstack.taier.common.enums.EScheduleJobType;
 import com.dtstack.taier.common.exception.ErrorCode;
-import com.dtstack.taier.common.exception.RdosDefineException;
+import com.dtstack.taier.common.exception.TaierDefineException;
 import com.dtstack.taier.common.util.PublicUtil;
 import com.dtstack.taier.dao.domain.Task;
 import com.dtstack.taier.develop.common.template.Reader;
@@ -137,7 +137,7 @@ public class SyncTaskSaver extends AbstractTaskSaver {
                         sqlText = sql.toJSONString();
                     }
                 } catch (Exception e) {
-                    throw new RdosDefineException("Job是不是JSON格式,异常: " + e.getMessage());
+                    throw new TaierDefineException("Job是不是JSON格式,异常: " + e.getMessage());
                 }
                 if (Objects.equals(taskResourceParam.getTaskType(), EScheduleJobType.SYNC.getVal())) {
                     developTaskParamService.checkParams(sqlText, taskResourceParam.getTaskVariables());
@@ -158,7 +158,7 @@ public class SyncTaskSaver extends AbstractTaskSaver {
                 taskResourceParam.setSqlText(daSqlText);
             }
         } else {
-            throw new RdosDefineException("createModel incorrect parameter", ErrorCode.INVALID_PARAMETERS);
+            throw new TaierDefineException("createModel incorrect parameter", ErrorCode.INVALID_PARAMETERS);
         }
     }
 
@@ -194,7 +194,7 @@ public class SyncTaskSaver extends AbstractTaskSaver {
             DataSourceType dataSourceType = DataSourceType.getSourceType(sourceType);
             DaReaderBuilder daReaderBuilder = syncBuilderFactory.getReadBuilder(dataSourceType);
             if (daReaderBuilder == null) {
-                throw new RdosDefineException(ErrorCode.SOURCE_CAN_NOT_AS_INPUT);
+                throw new TaierDefineException(ErrorCode.SOURCE_CAN_NOT_AS_INPUT);
             }
             //来源集合
             Map<String, Object> sourceMap = daReaderBuilder.getParserSourceMap(param.getSourceMap());
@@ -238,7 +238,7 @@ public class SyncTaskSaver extends AbstractTaskSaver {
             return sql.toJSONString();
         } catch (Exception e) {
             LOGGER.error("解析任务失败: " + e.getMessage(), ErrorCode.SERVER_EXCEPTION, e);
-            throw new RdosDefineException("解析任务失败: " + e.getMessage(), ErrorCode.SERVER_EXCEPTION, e);
+            throw new TaierDefineException("解析任务失败: " + e.getMessage(), ErrorCode.SERVER_EXCEPTION, e);
         }
     }
 

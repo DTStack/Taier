@@ -16,7 +16,7 @@
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
         <jar.package.name>tdengine</jar.package.name>
-        <jar.name>dtTDengine</jar.name>
+        <jar.name>TDengine</jar.name>
     </properties>
 
     <dependencies>

@@ -28,7 +28,7 @@ import com.dtstack.taier.common.enums.ResourceType;
 import com.dtstack.taier.common.env.EnvironmentContext;
 import com.dtstack.taier.common.exception.DtCenterDefException;
 import com.dtstack.taier.common.exception.ErrorCode;
-import com.dtstack.taier.common.exception.RdosDefineException;
+import com.dtstack.taier.common.exception.TaierDefineException;
 import com.dtstack.taier.common.sftp.SFTPHandler;
 import com.dtstack.taier.common.util.AssertUtils;
 import com.dtstack.taier.common.util.PublicUtil;
@@ -115,7 +115,7 @@ public class DevelopResourceService {
             resourceType = resourceDB.getResourceType();
         } else {
             if (StringUtils.isEmpty(DevelopResourceAddDTO.getResourceName())) {
-                throw new RdosDefineException("需要设置参数 resourceName.", ErrorCode.INVALID_PARAMETERS);
+                throw new TaierDefineException("需要设置参数 resourceName.", ErrorCode.INVALID_PARAMETERS);
             }
             resourceName = DevelopResourceAddDTO.getResourceName();
             resourceType = DevelopResourceAddDTO.getResourceType() == null ? ResourceType.OTHER.getType() : DevelopResourceAddDTO.getResourceType();
@@ -130,7 +130,7 @@ public class DevelopResourceService {
         if (Objects.nonNull(resourceId)) {
             DevelopResource = resourceDB;
             if (Deleted.DELETED.getStatus().equals(DevelopResource.getIsDeleted())) {
-                throw new RdosDefineException(ErrorCode.CAN_NOT_FIND_RESOURCE);
+                throw new TaierDefineException(ErrorCode.CAN_NOT_FIND_RESOURCE);
             }
             DevelopResource.setResourceDesc(DevelopResourceAddDTO.getResourceDesc());
             DevelopResource.setOriginFileName(DevelopResourceAddDTO.getOriginalFilename());
@@ -143,7 +143,7 @@ public class DevelopResourceService {
             DevelopResourceAddDTO.setCreateUserId(userId);
             DevelopResource = PublicUtil.objectToObject(DevelopResourceAddDTO, com.dtstack.taier.dao.domain.DevelopResource.class);
             if (Objects.isNull(DevelopResource)) {
-                throw new RdosDefineException(ErrorCode.CAN_NOT_FIND_RESOURCE);
+                throw new TaierDefineException(ErrorCode.CAN_NOT_FIND_RESOURCE);
             }
             DevelopResource.setOriginFileName(DevelopResourceAddDTO.getOriginalFilename());
         }
@@ -191,11 +191,11 @@ public class DevelopResourceService {
     public Long deleteResource(Long tenantId, Long resourceId) {
         List<DevelopTaskResource> taskResources = this.developTaskResourceService.getUseableResources(resourceId);
         if (!CollectionUtils.isEmpty(taskResources)) {
-            throw new RdosDefineException(ErrorCode.CAN_NOT_DELETE_RESOURCE);
+            throw new TaierDefineException(ErrorCode.CAN_NOT_DELETE_RESOURCE);
         }
         List<DevelopFunctionResource> functionResources = developFunctionResourceService.listByResourceId(resourceId);
         if (!CollectionUtils.isEmpty(functionResources)) {
-            throw new RdosDefineException(ErrorCode.CAN_NOT_DELETE_RESOURCE);
+            throw new TaierDefineException(ErrorCode.CAN_NOT_DELETE_RESOURCE);
         }
         //删除资源在hdfs的实际存储文件
         DevelopResource resource = getResource(resourceId);
@@ -269,7 +269,7 @@ public class DevelopResourceService {
 
         DevelopResource resourceDb = developResourceMapper.getOne(resourceId);
         if (Objects.isNull(resourceDb)) {
-            throw new RdosDefineException("替换字段不存在");
+            throw new TaierDefineException("替换字段不存在");
         }
 
         String resourceName = resourceDb.getResourceName();
@@ -296,7 +296,7 @@ public class DevelopResourceService {
      */
     private String uploadHDFSFileWithResource(Long tenantId, String resourceName, String originalFilename, String tmpPath) {
         if (StringUtils.isBlank(originalFilename) || StringUtils.isBlank(tmpPath)) {
-            throw new RdosDefineException(ErrorCode.DATA_NOT_FIND);
+            throw new TaierDefineException(ErrorCode.DATA_NOT_FIND);
         }
 
         String hdfsFileName = String.format("%s_%s_%s", tenantId, resourceName, originalFilename);
@@ -307,7 +307,7 @@ public class DevelopResourceService {
                     .getHdfs(hdfsSource.getSourceType())
                     .uploadLocalFileToHdfs(hdfsSource, tmpPath, hdfsPath);
         } catch (Exception e) {
-            throw new RdosDefineException(ErrorCode.SERVER_EXCEPTION, e);
+            throw new TaierDefineException(ErrorCode.SERVER_EXCEPTION, e);
         } finally {
             File tmpFile = new File(tmpPath);
             if (tmpFile.exists()) {
@@ -396,7 +396,7 @@ public class DevelopResourceService {
         List<DevelopResource> resources = getResourceList(resourceIds);
         EScheduleJobType eScheduleJobType = EScheduleJobType.getByTaskType(taskType);
         if (CollectionUtils.isEmpty(resources)) {
-            throw new RdosDefineException(ErrorCode.CAN_NOT_FIND_RESOURCE);
+            throw new TaierDefineException(ErrorCode.CAN_NOT_FIND_RESOURCE);
         }
         for (DevelopResource resource : resources) {
             //STREAM 任务资源上传到sftp ,Batch 任务资源上传到HDFS

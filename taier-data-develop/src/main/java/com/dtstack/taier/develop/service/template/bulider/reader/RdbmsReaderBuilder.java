@@ -24,7 +24,7 @@ import com.dtstack.taier.datasource.api.client.IClient;
 import com.dtstack.taier.datasource.api.dto.ColumnMetaDTO;
 import com.dtstack.taier.datasource.api.dto.SqlQueryDTO;
 import com.dtstack.taier.datasource.api.dto.source.RdbmsSourceDTO;
-import com.dtstack.taier.common.exception.RdosDefineException;
+import com.dtstack.taier.common.exception.TaierDefineException;
 import com.dtstack.taier.common.util.DataSourceUtils;
 import com.dtstack.taier.dao.domain.DsInfo;
 import com.dtstack.taier.develop.common.template.Reader;
@@ -150,7 +150,7 @@ public abstract class RdbmsReaderBuilder implements DaReaderBuilder {
                 String arrayJson = JSON.toJSONString(list);
                 columns = JSON.parseArray(arrayJson, ColumnDTO.class);
             } catch (Exception e) {
-                throw new RdosDefineException(String.format("获取%s字段信息异常,Caused by: %s", tableName, e.getMessage()), e);
+                throw new TaierDefineException(String.format("获取%s字段信息异常,Caused by: %s", tableName, e.getMessage()), e);
             }
         }
         String increColumn = readerParam.getIncreColumn();
@@ -177,7 +177,7 @@ public abstract class RdbmsReaderBuilder implements DaReaderBuilder {
             RdbmsPollReaderParam param = JsonUtils.objectToObject(sourceMap, RdbmsPollReaderParam.class);
             return JsonUtils.objectToMap(param);
         } catch (Exception e) {
-            throw new RdosDefineException(String.format("getParserSourceMap error,Caused by: %s", e.getMessage()), e);
+            throw new TaierDefineException(String.format("getParserSourceMap error,Caused by: %s", e.getMessage()), e);
         }
     }
 

@@ -28,7 +28,7 @@ import com.dtstack.taier.common.enums.EScheduleType;
 import com.dtstack.taier.common.enums.ForceCancelFlag;
 import com.dtstack.taier.common.env.EnvironmentContext;
 import com.dtstack.taier.common.exception.ErrorCode;
-import com.dtstack.taier.common.exception.RdosDefineException;
+import com.dtstack.taier.common.exception.TaierDefineException;
 import com.dtstack.taier.common.util.AddressUtil;
 import com.dtstack.taier.common.util.DtJobIdWorker;
 import com.dtstack.taier.common.util.GenerateErrorMsgUtil;
@@ -185,7 +185,7 @@ public class ScheduleActionService {
         ScheduleJob scheduleJob = buildScheduleJob(task, jobId, flowJobId);
         ParamActionExt paramActionExt = paramActionExt(task, scheduleJob, JSONObject.parseObject(task.getExtraInfo()));
         if (Objects.isNull(paramActionExt)) {
-            throw new RdosDefineException("extraInfo can't null or empty string");
+            throw new TaierDefineException("extraInfo can't null or empty string");
         }
         paramActionExt.setCycTime(scheduleJob.getCycTime());
         paramActionExt.setTaskId(task.getTaskId());
@@ -239,7 +239,7 @@ public class ScheduleActionService {
 
     public ParamActionExt parseParamActionExt(ScheduleJob scheduleJob, ScheduleTaskShade task, JSONObject info) throws Exception {
         if (info == null) {
-            throw new RdosDefineException("extraInfo can't null or empty string");
+            throw new TaierDefineException("extraInfo can't null or empty string");
         }
         Map<String, Object> actionParam = PublicUtil.strToMap(info.toJSONString());
         dealActionParam(actionParam, task, scheduleJob);
@@ -315,7 +315,7 @@ public class ScheduleActionService {
     public Boolean stop(List<String> jobIds) {
 
         if (CollectionUtils.isEmpty(jobIds)) {
-            throw new RdosDefineException("jobIds不能为空");
+            throw new TaierDefineException("jobIds不能为空");
         }
         return stop(jobIds, ForceCancelFlag.NO.getFlag());
     }
@@ -391,7 +391,7 @@ public class ScheduleActionService {
     public ActionLogVO log(String jobId) {
 
         if (StringUtils.isBlank(jobId)) {
-            throw new RdosDefineException("jobId is not allow null", ErrorCode.INVALID_PARAMETERS);
+            throw new TaierDefineException("jobId is not allow null", ErrorCode.INVALID_PARAMETERS);
         }
 
         ActionLogVO vo = new ActionLogVO();
@@ -421,7 +421,7 @@ public class ScheduleActionService {
      */
     public List<ActionRetryLogVO> retryLog(String jobId) {
         if (StringUtils.isBlank(jobId)) {
-            throw new RdosDefineException("jobId is not allow null", ErrorCode.INVALID_PARAMETERS);
+            throw new TaierDefineException("jobId is not allow null", ErrorCode.INVALID_PARAMETERS);
         }
         List<ActionRetryLogVO> logs = new ArrayList<>(5);
         List<ScheduleEngineJobRetry> jobRetries = engineJobRetryMapper.selectList(Wrappers.lambdaQuery(ScheduleEngineJobRetry.class)
@@ -444,7 +444,7 @@ public class ScheduleActionService {
     public ActionRetryLogVO retryLogDetail(String jobId, Integer retryNum) {
 
         if (StringUtils.isBlank(jobId)) {
-            throw new RdosDefineException("jobId  is not allow null", ErrorCode.INVALID_PARAMETERS);
+            throw new TaierDefineException("jobId  is not allow null", ErrorCode.INVALID_PARAMETERS);
         }
         if (retryNum == null || retryNum <= 0) {
             retryNum = 1;
@@ -483,7 +483,7 @@ public class ScheduleActionService {
     public List<ActionJobEntityVO> entitys(List<String> jobIds) {
 
         if (CollectionUtils.isEmpty(jobIds)) {
-            throw new RdosDefineException("jobId  is not allow null", ErrorCode.INVALID_PARAMETERS);
+            throw new TaierDefineException("jobId  is not allow null", ErrorCode.INVALID_PARAMETERS);
         }
 
         List<ActionJobEntityVO> result = null;
@@ -539,7 +539,7 @@ public class ScheduleActionService {
         Integer taskType = task.getTaskType();
         String sqlText = Objects.toString(actionParam.get("sqlText"), "");
         if (StringUtils.isEmpty(sqlText)) {
-            throw new RdosDefineException("sqlText can't null or empty string");
+            throw new TaierDefineException("sqlText can't null or empty string");
         }
         if (CollectionUtils.isNotEmpty(taskParamsToReplace)) {
             sqlText = JobParamReplace.paramReplace(sqlText, taskParamsToReplace, scheduleJob.getCycTime());

@@ -19,7 +19,7 @@
 package com.dtstack.taier.scheduler.server.builder.cron;
 
 import com.alibaba.fastjson.JSON;
-import com.dtstack.taier.common.exception.RdosDefineException;
+import com.dtstack.taier.common.exception.TaierDefineException;
 import com.dtstack.taier.scheduler.enums.ESchedulePeriodType;
 import com.dtstack.taier.scheduler.server.builder.ScheduleConf;
 
@@ -56,7 +56,7 @@ public class ScheduleConfManager {
         }else if (periodType == ESchedulePeriodType.CRON.getVal()){
             scheduleCron = new ScheduleCronCustomParser();
         } else{
-            throw new RdosDefineException("not support period type!");
+            throw new TaierDefineException("not support period type!");
         }
         String cron = scheduleCron.parse(scheduleConfBean);
 
@@ -75,19 +75,19 @@ public class ScheduleConfManager {
      */
     private static void checkConf(String scheduleConf, ScheduleConf scheduleConfBean) {
         if (scheduleConfBean == null) {
-            throw new RdosDefineException("scheduleConf illegal:"+ scheduleConf +",Please check the json pass");
+            throw new TaierDefineException("scheduleConf illegal:"+ scheduleConf +",Please check the json pass");
         }
 
         if (scheduleConfBean.getPeriodType() == null) {
-            throw new RdosDefineException("schedule param must contain: periodType");
+            throw new TaierDefineException("schedule param must contain: periodType");
         }
 
         if (scheduleConfBean.getBeginDate() == null) {
-            throw new RdosDefineException("schedule param must contain: beginDate");
+            throw new TaierDefineException("schedule param must contain: beginDate");
         }
 
         if (scheduleConfBean.getEndDate() == null) {
-            throw new RdosDefineException("schedule param must contain: endDate");
+            throw new TaierDefineException("schedule param must contain: endDate");
         }
     }
 

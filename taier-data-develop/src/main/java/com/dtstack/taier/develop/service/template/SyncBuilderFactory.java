@@ -19,7 +19,7 @@
 package com.dtstack.taier.develop.service.template;
 
 import com.dtstack.taier.datasource.api.source.DataSourceType;
-import com.dtstack.taier.common.exception.RdosDefineException;
+import com.dtstack.taier.common.exception.TaierDefineException;
 import com.dtstack.taier.develop.service.template.bulider.reader.DaReaderBuilder;
 import com.dtstack.taier.develop.service.template.bulider.writer.DaWriterBuilder;
 import org.springframework.beans.BeansException;
@@ -65,7 +65,7 @@ public class SyncBuilderFactory implements ApplicationContextAware {
         }
         DaWriterBuilder daWriterBuilder = writerBuilderMap.get(dataSourceType);
         if (daWriterBuilder == null) {
-            throw new RdosDefineException(String.format("not support datasourceType %s writer ", dataSourceType.getName()));
+            throw new TaierDefineException(String.format("not support datasourceType %s writer ", dataSourceType.getName()));
         }
         return daWriterBuilder;
     }
@@ -76,7 +76,7 @@ public class SyncBuilderFactory implements ApplicationContextAware {
         }
         DaReaderBuilder readerBuilder = readBuilderMap.get(dataSourceType);
         if (readerBuilder == null) {
-            throw new RdosDefineException(String.format("not support datasourceType %s reader ", dataSourceType.getName()));
+            throw new TaierDefineException(String.format("not support datasourceType %s reader ", dataSourceType.getName()));
         }
         return readerBuilder;
     }

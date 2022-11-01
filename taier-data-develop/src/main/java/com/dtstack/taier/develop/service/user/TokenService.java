@@ -23,7 +23,7 @@ import com.auth0.jwt.JWTCreator;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.TokenExpiredException;
 import com.auth0.jwt.interfaces.DecodedJWT;
-import com.dtstack.taier.common.exception.RdosDefineException;
+import com.dtstack.taier.common.exception.TaierDefineException;
 import com.dtstack.taier.develop.dto.user.DTToken;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
@@ -76,12 +76,12 @@ public class TokenService{
             if (log.isErrorEnabled()) {
                 log.error("JWT Token decode Error.", e);
             }
-            throw new RdosDefineException("DT Token解码异常.");
+            throw new TaierDefineException("DT Token解码异常.");
         } catch (TokenExpiredException e) {
             if (log.isErrorEnabled()) {
                 log.error("JWT Token expire.", e);
             }
-            throw new RdosDefineException("DT Token已过期");
+            throw new TaierDefineException("DT Token已过期");
         }
     }
 
@@ -99,7 +99,7 @@ public class TokenService{
             }
             return token;
         } catch (UnsupportedEncodingException e) {
-            throw new RdosDefineException("DT Token解码异常.");
+            throw new TaierDefineException("DT Token解码异常.");
         }
     }
 
@@ -126,7 +126,7 @@ public class TokenService{
 
             return builder.sign(algorithm);
         } catch (UnsupportedEncodingException e) {
-            throw new RdosDefineException("dtToken生成异常.", e);
+            throw new TaierDefineException("dtToken生成异常.", e);
         }
     }
 
@@ -162,7 +162,7 @@ public class TokenService{
             }
             return builder.sign(algorithm);
         } catch (UnsupportedEncodingException e) {
-            throw new RdosDefineException("dtToken生成异常.", e);
+            throw new TaierDefineException("dtToken生成异常.", e);
         }
     }
 }

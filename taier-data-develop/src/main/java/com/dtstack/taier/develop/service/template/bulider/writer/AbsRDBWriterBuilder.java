@@ -20,7 +20,7 @@ package com.dtstack.taier.develop.service.template.bulider.writer;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
-import com.dtstack.taier.common.exception.RdosDefineException;
+import com.dtstack.taier.common.exception.TaierDefineException;
 import com.dtstack.taier.dao.domain.DsInfo;
 import com.dtstack.taier.develop.common.template.Writer;
 import com.dtstack.taier.develop.dto.devlop.TaskResourceParam;
@@ -90,7 +90,7 @@ public abstract class AbsRDBWriterBuilder implements DaWriterBuilder{
             RDBWriterParam param = JsonUtils.objectToObject(targetMap, RDBWriterParam.class);
             return JsonUtils.objectToMap(param);
         } catch (Exception e) {
-            throw new RdosDefineException(String.format("getParserTargetMap error,Caused by: %s", e.getMessage()), e);
+            throw new TaierDefineException(String.format("getParserTargetMap error,Caused by: %s", e.getMessage()), e);
         }
     }
 

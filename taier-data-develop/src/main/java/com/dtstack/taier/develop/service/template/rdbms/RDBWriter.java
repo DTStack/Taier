@@ -21,7 +21,7 @@ package com.dtstack.taier.develop.service.template.rdbms;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.dtstack.taier.datasource.api.source.DataSourceType;
-import com.dtstack.taier.common.exception.RdosDefineException;
+import com.dtstack.taier.common.exception.TaierDefineException;
 import com.dtstack.taier.develop.service.template.BaseWriterPlugin;
 import org.apache.commons.lang.StringUtils;
 
@@ -179,58 +179,58 @@ public abstract class RDBWriter extends BaseWriterPlugin {
         data = data.getJSONObject("parameter");
 
         if (data.get("column") == null){
-            throw new RdosDefineException("column 不能为空，需要匹配映射");
+            throw new TaierDefineException("column 不能为空，需要匹配映射");
         }
         if (!(data.get("column") instanceof JSONArray)) {
-            throw new RdosDefineException("column 必须为数组格式");
+            throw new TaierDefineException("column 必须为数组格式");
         }
 
         JSONArray column = data.getJSONArray("column");
         if (column.isEmpty()) {
-            throw new RdosDefineException("需要匹配映射");
+            throw new TaierDefineException("需要匹配映射");
         }
 
         if (data.get("connection") == null) {
-            throw new RdosDefineException("connection 不能为空");
+            throw new TaierDefineException("connection 不能为空");
         }
 
         if (!(data.get("connection") instanceof JSONArray)) {
-            throw new RdosDefineException("connection 必须为数组格式");
+            throw new TaierDefineException("connection 必须为数组格式");
         }
 
         JSONArray connections = data.getJSONArray("connection");
         if (connections.isEmpty()) {
-            throw new RdosDefineException("connection 不能为空");
+            throw new TaierDefineException("connection 不能为空");
         }
 
         if (connections.size() > 1) {
-            throw new RdosDefineException("暂不支持多个数据源写入");
+            throw new TaierDefineException("暂不支持多个数据源写入");
         }
 
         if (StringUtils.isEmpty(connections.getJSONObject(0).getString("jdbcUrl"))) {
-            throw new RdosDefineException("jdbcUrl 不能为空");
+            throw new TaierDefineException("jdbcUrl 不能为空");
         }
 
         if (connections.getJSONObject(0).get("table") == null) {
-            throw new RdosDefineException("table 不能为空");
+            throw new TaierDefineException("table 不能为空");
         }
 
         if (!(connections.getJSONObject(0).get("table") instanceof JSONArray)) {
-            throw new RdosDefineException("table 必须为数组格式");
+            throw new TaierDefineException("table 必须为数组格式");
         }
 
         JSONArray tables = connections.getJSONObject(0).getJSONArray("table");
         if (tables.isEmpty()) {
-            throw new RdosDefineException("table 不能为空");
+            throw new TaierDefineException("table 不能为空");
         }
 
         if (tables.size() > 1) {
-            throw new RdosDefineException("暂不支持多张表写入");
+            throw new TaierDefineException("暂不支持多张表写入");
         }
 
         for (Object table : tables) {
             if (!(table instanceof String)) {
-                throw new RdosDefineException("table 必须为字符串数组格式");
+                throw new TaierDefineException("table 必须为字符串数组格式");
             }
         }
     }

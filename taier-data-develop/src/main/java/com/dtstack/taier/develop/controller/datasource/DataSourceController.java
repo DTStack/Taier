@@ -19,7 +19,7 @@
 package com.dtstack.taier.develop.controller.datasource;
 
 import com.alibaba.fastjson.JSONObject;
-import com.dtstack.taier.common.exception.RdosDefineException;
+import com.dtstack.taier.common.exception.TaierDefineException;
 import com.dtstack.taier.common.lang.coc.APITemplate;
 import com.dtstack.taier.common.lang.web.R;
 import com.dtstack.taier.dao.domain.DsInfo;
@@ -100,7 +100,7 @@ public class DataSourceController {
     public R<DsDetailVO> dsDetail(@RequestBody DsInfoIdParam dsInfoIdParam) {
         return new APITemplate<DsDetailVO>() {
             @Override
-            protected DsDetailVO process() throws RdosDefineException {
+            protected DsDetailVO process() throws TaierDefineException {
                 Asserts.notNull(dsInfoIdParam.getDataInfoId(), "数据源Id不能为空");
                 DsInfo dsInfo = dsInfoService.dsInfoDetail(dsInfoIdParam.getDataInfoId());
                 return DsDetailTransfer.INSTANCE.toInfoVO(dsInfo);
@@ -113,7 +113,7 @@ public class DataSourceController {
     public R<Boolean> deleteById(@RequestBody DsInfoIdParam dsInfoIdParam) {
         return new APITemplate<Boolean>() {
             @Override
-            protected Boolean process() throws RdosDefineException {
+            protected Boolean process() throws TaierDefineException {
                 Asserts.notNull(dsInfoIdParam.getDataInfoId(), "数据源Id不能为空");
                 return dsInfoService.delDsInfo(dsInfoIdParam.getDataInfoId());
             }

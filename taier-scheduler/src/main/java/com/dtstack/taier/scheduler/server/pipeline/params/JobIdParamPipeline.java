@@ -18,7 +18,7 @@
 
 package com.dtstack.taier.scheduler.server.pipeline.params;
 
-import com.dtstack.taier.common.exception.RdosDefineException;
+import com.dtstack.taier.common.exception.TaierDefineException;
 import com.dtstack.taier.dao.domain.ScheduleJob;
 import com.dtstack.taier.scheduler.server.pipeline.IPipeline;
 
@@ -38,7 +38,7 @@ public class JobIdParamPipeline extends IPipeline.AbstractPipeline {
     public void pipeline(Map<String, Object> actionParam, Map<String, Object> pipelineParam) {
         ScheduleJob scheduleJob = (ScheduleJob) pipelineParam.get(scheduleJobKey);
         if (null == scheduleJob) {
-            throw new RdosDefineException("jobId param pipeline schedule job can not be null");
+            throw new TaierDefineException("jobId param pipeline schedule job can not be null");
         }
         pipelineParam.put(pipelineKey, scheduleJob.getJobId());
     }

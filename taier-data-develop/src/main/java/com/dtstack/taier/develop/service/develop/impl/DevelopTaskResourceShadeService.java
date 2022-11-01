@@ -20,7 +20,7 @@ package com.dtstack.taier.develop.service.develop.impl;
 
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.dtstack.taier.common.enums.Deleted;
-import com.dtstack.taier.common.exception.RdosDefineException;
+import com.dtstack.taier.common.exception.TaierDefineException;
 import com.dtstack.taier.dao.domain.DevelopTaskResourceShade;
 import com.dtstack.taier.dao.mapper.DevelopTaskResourceShadeMapper;
 import org.slf4j.Logger;
@@ -42,7 +42,7 @@ public class DevelopTaskResourceShadeService {
             //查询是否传入参数有问题
             DevelopTaskResourceShade one = developTaskResourceShadeDao.selectById(developTaskResourceShade.getId());
             if (one == null){
-                throw new RdosDefineException(String.format("未查询到id = %s对应的记录", developTaskResourceShade.getId()));
+                throw new TaierDefineException(String.format("未查询到id = %s对应的记录", developTaskResourceShade.getId()));
             }
             developTaskResourceShadeDao.updateById(developTaskResourceShade);
         } else {

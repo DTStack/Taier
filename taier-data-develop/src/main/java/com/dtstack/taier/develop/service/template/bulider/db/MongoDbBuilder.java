@@ -21,11 +21,9 @@ package com.dtstack.taier.develop.service.template.bulider.db;
 import com.alibaba.fastjson.JSONObject;
 import com.dtstack.taier.datasource.api.base.ClientCache;
 import com.dtstack.taier.datasource.api.client.IClient;
-import com.dtstack.taier.datasource.api.dto.SqlQueryDTO;
 import com.dtstack.taier.datasource.api.dto.source.ISourceDTO;
-import com.dtstack.taier.datasource.api.dto.source.MongoSourceDTO;
 import com.dtstack.taier.datasource.api.source.DataSourceType;
-import com.dtstack.taier.common.exception.RdosDefineException;
+import com.dtstack.taier.common.exception.TaierDefineException;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -57,7 +55,7 @@ public class MongoDbBuilder implements DbBuilder{
 
     @Override
     public List<JSONObject> listPollTableColumn(ISourceDTO sourceDTO, String tableName) {
-        throw new RdosDefineException("暂不支持的数据源类型");
+        throw new TaierDefineException("暂不支持的数据源类型");
     }
 
     @Override

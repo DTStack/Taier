@@ -20,7 +20,7 @@ package com.dtstack.taier.scheduler.server.pluginInfo;
 
 import com.alibaba.fastjson.JSONObject;
 import com.dtstack.taier.common.enums.EComponentType;
-import com.dtstack.taier.common.exception.RdosDefineException;
+import com.dtstack.taier.common.exception.TaierDefineException;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.Objects;
@@ -38,7 +38,7 @@ public class ScriptPluginInfoStrategy implements ComponentPluginInfoStrategy {
             clusterConfigJson.put(TYPE_NAME_KEY, typeName);
         }
         if (Objects.isNull(confConfig)) {
-            throw new RdosDefineException(String.format("scriptConf is not configured"));
+            throw new TaierDefineException(String.format("scriptConf is not configured"));
         }
         clusterConfigJson.remove(EComponentType.SCRIPT.getConfName());
         // put flat all script config

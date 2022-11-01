@@ -33,7 +33,7 @@ import com.dtstack.taier.common.enums.EScheduleStatus;
 import com.dtstack.taier.common.enums.ResourceRefType;
 import com.dtstack.taier.common.exception.DtCenterDefException;
 import com.dtstack.taier.common.exception.ErrorCode;
-import com.dtstack.taier.common.exception.RdosDefineException;
+import com.dtstack.taier.common.exception.TaierDefineException;
 import com.dtstack.taier.common.util.AssertUtils;
 import com.dtstack.taier.common.util.PublicUtil;
 import com.dtstack.taier.dao.domain.Component;
@@ -85,7 +85,6 @@ import com.dtstack.taier.develop.vo.develop.result.DevelopTaskGetComponentVersio
 import com.dtstack.taier.develop.vo.develop.result.DevelopTaskTypeVO;
 import com.dtstack.taier.develop.vo.develop.result.job.TaskProperties;
 import com.dtstack.taier.pluginapi.constrant.ConfigConstant;
-import com.dtstack.taier.pluginapi.enums.TaskStatus;
 import com.dtstack.taier.scheduler.dto.schedule.SavaTaskDTO;
 import com.dtstack.taier.scheduler.dto.schedule.ScheduleTaskShadeDTO;
 import com.dtstack.taier.scheduler.service.ComponentService;
@@ -223,7 +222,7 @@ public class DevelopTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
     public TaskVO getTaskById(TaskVO taskVO) {
         Task task = getOne(taskVO.getId());
         if (null == task) {
-            throw new RdosDefineException(ErrorCode.CAN_NOT_FIND_TASK);
+            throw new TaierDefineException(ErrorCode.CAN_NOT_FIND_TASK);
         }
         TaskMapstructTransfer.INSTANCE.taskToTaskVO(task, taskVO);
         if (EScheduleJobType.FLINK_SQL.getType().equals(task.getTaskType())) {
@@ -378,7 +377,7 @@ public class DevelopTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
                 }
             }
             if (noParents.size() >= 2) {
-                throw new RdosDefineException("工作流中包含多个根节点:" + StringUtils.join(noParents, ","));
+                throw new TaierDefineException("工作流中包含多个根节点:" + StringUtils.join(noParents, ","));
             }
             // 判断工作流任务是否成环
             if (MapUtils.isNotEmpty(relations)) {
@@ -419,7 +418,7 @@ public class DevelopTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
         if (set.contains(taskId)) {
             Task task = developTaskMapper.selectById(taskId);
             if (Objects.nonNull(task)) {
-                throw new RdosDefineException(String.format("%s任务发生依赖闭环", task.getName()));
+                throw new TaierDefineException(String.format("%s任务发生依赖闭环", task.getName()));
             }
         }
         node.add(taskId);
@@ -472,7 +471,7 @@ public class DevelopTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
                         }
                     } catch (Exception e) {
                         LOGGER.error("send task error {} ", subTask.getName(), e);
-                        throw new RdosDefineException(String.format("任务提交异常：%s", e.getMessage()), e);
+                        throw new TaierDefineException(String.format("任务提交异常：%s", e.getMessage()), e);
                     }
                 }
             }
@@ -488,7 +487,7 @@ public class DevelopTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
 
             } catch (Exception e) {
                 LOGGER.error("send task error {} ", task.getName(), e);
-                throw new RdosDefineException(String.format("任务提交异常：%s", e.getMessage()), e);
+                throw new TaierDefineException(String.format("任务提交异常：%s", e.getMessage()), e);
             }
 
             return checkResultVO;
@@ -502,7 +501,7 @@ public class DevelopTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
     public void sendTaskStartTrigger(Long taskId, Long userId, ScheduleTaskShade scheduleTasks) throws Exception {
         Task task = developTaskMapper.selectById(taskId);
         if (task == null) {
-            throw new RdosDefineException("can not find task by id:" + taskId);
+            throw new TaierDefineException("can not find task by id:" + taskId);
         }
         String extraInfo = getExtraInfo(task, userId);
         AssertUtils.isTrue(EComputeType.BATCH == EScheduleJobType.getByTaskType(task.getTaskType()).getComputeType(), "unsupported STREAM type task");
@@ -579,7 +578,7 @@ public class DevelopTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
     private ScheduleTaskShade buildScheduleTaskShadeDTO(final Task task, List<ScheduleTaskTaskShade> allTaskTaskList) {
         if (task.getId() <= 0) {
             //只有异常情况才会走到该逻辑
-            throw new RdosDefineException("task id can't be 0", ErrorCode.SERVER_EXCEPTION);
+            throw new TaierDefineException("task id can't be 0", ErrorCode.SERVER_EXCEPTION);
         }
 
         //查询关联任务
@@ -629,14 +628,14 @@ public class DevelopTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
      */
     public Boolean checkTaskNameRepeat(String taskName, Long tenantId) {
         if (StringUtils.isBlank(taskName)) {
-            throw new RdosDefineException("名称不能为空", ErrorCode.INVALID_PARAMETERS);
+            throw new TaierDefineException("名称不能为空", ErrorCode.INVALID_PARAMETERS);
         }
         Task task = developTaskMapper.selectOne(Wrappers.lambdaQuery(Task.class)
                 .eq(Task::getName, taskName)
                 .eq(Task::getTenantId, tenantId)
                 .last("limit 1"));
         if (ObjectUtils.isNotEmpty(task)) {
-            throw new RdosDefineException(ErrorCode.NAME_ALREADY_EXIST);
+            throw new TaierDefineException(ErrorCode.NAME_ALREADY_EXIST);
         }
         return true;
     }
@@ -651,7 +650,7 @@ public class DevelopTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
     @Transactional(rollbackFor = Exception.class)
     public Task updateTask(TaskVO taskVO, Boolean taskParam) {
         if (StringUtils.isBlank(taskVO.getName())) {
-            throw new RdosDefineException("名称不能为空", ErrorCode.INVALID_PARAMETERS);
+            throw new TaierDefineException("名称不能为空", ErrorCode.INVALID_PARAMETERS);
         }
 
         taskVO.setGmtModified(Timestamp.valueOf(LocalDateTime.now()));
@@ -662,13 +661,13 @@ public class DevelopTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
 
         if (taskVO.getId() != null && taskVO.getId() > 0) {//update
             if (task != null && task.getName().equals(taskVO.getName()) && !task.getId().equals(taskVO.getId())) {
-                throw new RdosDefineException(ErrorCode.NAME_ALREADY_EXIST);
+                throw new TaierDefineException(ErrorCode.NAME_ALREADY_EXIST);
             }
             developTaskParamService.checkParams(taskVO.getSqlText(), taskVO.getTaskVariables());
             updateTask(taskVO);
         } else {
             if (task != null) {
-                throw new RdosDefineException(ErrorCode.NAME_ALREADY_EXIST);
+                throw new TaierDefineException(ErrorCode.NAME_ALREADY_EXIST);
             }
             addTask(taskVO);
         }
@@ -734,7 +733,7 @@ public class DevelopTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
     private void updateTask(TaskVO taskVO) {
         Task specialTask = developTaskMapper.selectById(taskVO.getId());
         if (specialTask == null) {
-            throw new RdosDefineException(ErrorCode.CAN_NOT_FIND_TASK);
+            throw new TaierDefineException(ErrorCode.CAN_NOT_FIND_TASK);
         }
         // 转换环境参数
         String convertParams = convertParams(FlinkVersion.getVersion(specialTask.getComponentVersion()),
@@ -837,20 +836,20 @@ public class DevelopTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
 
         final Task task = this.developTaskMapper.selectById(taskId);
         if (task == null) {
-            throw new RdosDefineException(ErrorCode.CAN_NOT_FIND_TASK);
+            throw new TaierDefineException(ErrorCode.CAN_NOT_FIND_TASK);
         }
         // 判断该任务是否有子任务(调用engine接口) 工作流不需要判断
         if (task.getFlowId() == 0) {
             List<TaskGetNotDeleteVO> notDeleteTaskVOS = getChildTasks(taskId);
             if (CollectionUtils.isNotEmpty(notDeleteTaskVOS)) {
-                throw new RdosDefineException("(当前任务被其他任务依赖)", ErrorCode.CAN_NOT_DELETE_TASK);
+                throw new TaierDefineException("(当前任务被其他任务依赖)", ErrorCode.CAN_NOT_DELETE_TASK);
             }
         }
 
         final ScheduleTaskShade dbTask = this.taskService.findTaskByTaskId(taskId);
         if (task.getFlowId() == 0 && Objects.nonNull(dbTask) &&
                 task.getScheduleStatus().intValue() == EScheduleStatus.NORMAL.getVal().intValue()) {
-            throw new RdosDefineException("(当前任务未被冻结)", ErrorCode.CAN_NOT_DELETE_TASK);
+            throw new TaierDefineException("(当前任务未被冻结)", ErrorCode.CAN_NOT_DELETE_TASK);
         }
 
         if (task.getTaskType().intValue() == EScheduleJobType.WORK_FLOW.getVal()) {
@@ -918,7 +917,7 @@ public class DevelopTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
         if (!isFile.equals(IS_FILE)) {
             DevelopCatalogue developCatalogue = developCatalogueService.getByPidAndName(tenantId, pid.longValue(), name);
             if (developCatalogue != null) {
-                throw new RdosDefineException("文件夹已存在", ErrorCode.NAME_ALREADY_EXIST);
+                throw new TaierDefineException("文件夹已存在", ErrorCode.NAME_ALREADY_EXIST);
             }
         } else {
             final Object obj;
@@ -932,16 +931,16 @@ public class DevelopTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
             } else if (type.equals(CatalogueType.FUNCTION_MANAGER.name())) {
                 obj = developFunctionService.listByNameAndTenantId(tenantId, name);
             } else {
-                throw new RdosDefineException(ErrorCode.INVALID_PARAMETERS);
+                throw new TaierDefineException(ErrorCode.INVALID_PARAMETERS);
             }
 
             if (obj instanceof Task) {
                 if (obj != null) {
-                    throw new RdosDefineException(ErrorCode.NAME_ALREADY_EXIST);
+                    throw new TaierDefineException(ErrorCode.NAME_ALREADY_EXIST);
                 }
             } else if (obj instanceof List) {
                 if (CollectionUtils.isNotEmpty((List) obj)) {
-                    throw new RdosDefineException(ErrorCode.NAME_ALREADY_EXIST);
+                    throw new TaierDefineException(ErrorCode.NAME_ALREADY_EXIST);
                 }
             }
         }
@@ -987,7 +986,7 @@ public class DevelopTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
     public Task getOneWithError(final Long taskId) {
         Task one = getOne(taskId);
         if (Objects.isNull(one)) {
-            throw new RdosDefineException(ErrorCode.CAN_NOT_FIND_TASK);
+            throw new TaierDefineException(ErrorCode.CAN_NOT_FIND_TASK);
         }
         return one;
     }
@@ -1128,7 +1127,7 @@ public class DevelopTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
     private List<JSONObject> getTableColumnIncludePart(DevelopDataSource source, String tableName, Boolean part, String schema) {
         try {
             if (source == null) {
-                throw new RdosDefineException(ErrorCode.CAN_NOT_FIND_DATA_SOURCE);
+                throw new TaierDefineException(ErrorCode.CAN_NOT_FIND_DATA_SOURCE);
             }
             if (part == null) {
                 part = false;
@@ -1153,7 +1152,7 @@ public class DevelopTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
         } catch (DtCenterDefException e) {
             throw e;
         } catch (Exception e) {
-            throw new RdosDefineException(ErrorCode.GET_COLUMN_ERROR, e);
+            throw new TaierDefineException(ErrorCode.GET_COLUMN_ERROR, e);
         }
     }
 
@@ -1258,7 +1257,7 @@ public class DevelopTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
             }
             tableName = String.valueOf(tableList.get(0));
         } else {
-            throw new RdosDefineException(ErrorCode.INVALID_PARAMETERS);
+            throw new TaierDefineException(ErrorCode.INVALID_PARAMETERS);
         }
         DevelopDataSource developDataSource = dataSourceService.getOne(sourceId);
         List<JSONObject> allColumn = getTableColumnIncludePart(developDataSource, tableName, false, schema);
@@ -1304,7 +1303,7 @@ public class DevelopTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
             return;
         }
         if (!taskId.equals(taskInfo.getId())) {
-            throw new RdosDefineException(ErrorCode.NAME_ALREADY_EXIST);
+            throw new TaierDefineException(ErrorCode.NAME_ALREADY_EXIST);
         }
         updateInfo.setGmtModified(Timestamp.valueOf(LocalDateTime.now()));
         updateInfo.setName(taskName);
@@ -1332,7 +1331,7 @@ public class DevelopTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
     public void updateSubTaskScheduleConf(final Long flowWorkId, final JSONObject newScheduleConf) {
         Task task = developTaskMapper.selectById(flowWorkId);
         if (task == null) {
-            throw new RdosDefineException(ErrorCode.CAN_NOT_FIND_TASK);
+            throw new TaierDefineException(ErrorCode.CAN_NOT_FIND_TASK);
         }
         final List<Task> batchTasks = this.getFlowWorkSubTasks(flowWorkId);
         if (CollectionUtils.isEmpty(batchTasks)) {

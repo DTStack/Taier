@@ -19,7 +19,7 @@
 package com.dtstack.taier.common.lang.coc;
 
 import com.dtstack.taier.common.exception.DtCenterDefException;
-import com.dtstack.taier.common.exception.RdosDefineException;
+import com.dtstack.taier.common.exception.TaierDefineException;
 import com.dtstack.taier.common.lang.web.R;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -53,9 +53,9 @@ public abstract class APITemplate<T> {
      * 业务方法执行入口,业务异常时抛出BizException
      *
      * @return 业务执行结果信息返回
-     * @throws RdosDefineException 业务执行异常
+     * @throws TaierDefineException 业务执行异常
      */
-    protected abstract T process() throws RdosDefineException;
+    protected abstract T process() throws TaierDefineException;
 
     /**
      * 后置处理器
@@ -95,7 +95,7 @@ public abstract class APITemplate<T> {
                 log.info("param check error:", e);
             }
             throw e;
-        } catch (RdosDefineException e) {
+        } catch (TaierDefineException e) {
             onError(e);
             return R.fail(e.getErrorCode().getCode(), e.getMessage());
         } catch (DtCenterDefException ex) {
@@ -107,7 +107,7 @@ public abstract class APITemplate<T> {
             T r = process();
             onSuccess();
             return R.ok(r);
-        } catch (RdosDefineException be) {
+        } catch (TaierDefineException be) {
             onError(be);
             return R.fail(be.getErrorCode().getCode(), be.getMessage());
         } catch (DtCenterDefException ex) {

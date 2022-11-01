@@ -26,7 +26,7 @@ import com.dtstack.taier.common.constant.CommonConstant;
 import com.dtstack.taier.common.enums.EComponentType;
 import com.dtstack.taier.common.enums.EScheduleJobType;
 import com.dtstack.taier.common.env.EnvironmentContext;
-import com.dtstack.taier.common.exception.RdosDefineException;
+import com.dtstack.taier.common.exception.TaierDefineException;
 import com.dtstack.taier.dao.domain.DevelopSelectSql;
 import com.dtstack.taier.dao.domain.ScheduleJob;
 import com.dtstack.taier.dao.domain.ScheduleJobExpand;
@@ -151,22 +151,22 @@ public class ScriptTaskRunner implements ITaskRunner {
 
     @Override
     public List<String> getAllSchema(Long tenantId, Integer taskType) {
-        throw new RdosDefineException("not support");
+        throw new TaierDefineException("not support");
     }
 
     @Override
     public ISourceDTO getSourceDTO(Long tenantId, Long userId, Integer taskType, boolean useSchema, Long datasourceId) {
-        throw new RdosDefineException("not support");
+        throw new TaierDefineException("not support");
     }
 
     @Override
     public BuildSqlVO buildSql(ParseResult parseResult, Long userId, Task task) {
-        throw new RdosDefineException("not support");
+        throw new TaierDefineException("not support");
     }
 
     @Override
     public Map<String, Object> readyForSyncImmediatelyJob(Task task, Long tenantId, Boolean isRoot) {
-        throw new RdosDefineException("not support");
+        throw new TaierDefineException("not support");
     }
 
     private Integer getSchedulerStatus(DevelopSelectSql selectSql) {

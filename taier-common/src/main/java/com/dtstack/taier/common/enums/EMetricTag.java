@@ -19,7 +19,7 @@
 package com.dtstack.taier.common.enums;
 
 
-import com.dtstack.taier.common.exception.RdosDefineException;
+import com.dtstack.taier.common.exception.TaierDefineException;
 
 /**
  * metric 指标过滤 key
@@ -87,6 +87,6 @@ public enum EMetricTag {
                 return metricTag;
             }
         }
-        throw new RdosDefineException(String.format("no matching metricTag was found based on '%s'", tagVal));
+        throw new TaierDefineException(String.format("no matching metricTag was found based on '%s'", tagVal));
     }
 }

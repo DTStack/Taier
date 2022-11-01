@@ -18,7 +18,7 @@
 
 package com.dtstack.taier.scheduler.utils;
 
-import com.dtstack.taier.common.exception.RdosDefineException;
+import com.dtstack.taier.common.exception.TaierDefineException;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -130,7 +130,7 @@ public class Krb5FileUtil {
             }
         } catch (Exception e) {
             LOGGER.error("krb5.conf read error:", e);
-            throw new RdosDefineException("krb5.conf read error");
+            throw new TaierDefineException("krb5.conf read error");
         }
         return convertKrb5ToMap(lines);
     }
@@ -193,7 +193,7 @@ public class Krb5FileUtil {
     public static boolean checkKrb5Content(String content) {
 
         if (StringUtils.isEmpty(content)) {
-            throw new RdosDefineException("merge krb5.conf content is null");
+            throw new TaierDefineException("merge krb5.conf content is null");
         }
         String[] krb5Lines = content.split("[\\r\\n|\\r|\\n]");
         String var6 = null;
@@ -202,18 +202,18 @@ public class Krb5FileUtil {
             if (!krb5Line.isEmpty() && !krb5Line.startsWith("#") && !krb5Line.startsWith(";")) {
                 if (krb5Line.startsWith("[")) {
                     if (!krb5Line.endsWith("]")) {
-                        throw new RdosDefineException("Illegal config content:" + krb5Line);
+                        throw new TaierDefineException("Illegal config content:" + krb5Line);
                     }
 
                     String configContent = krb5Line.substring(1, krb5Line.length() - 1).trim();
                     if (configContent.isEmpty()) {
-                        throw new RdosDefineException("Illegal config content:" + krb5Line);
+                        throw new TaierDefineException("Illegal config content:" + krb5Line);
                     }
 
                     var6 = configContent + " = {";
                 } else if (krb5Line.startsWith("{")) {
                     if (var6 == null) {
-                        throw new RdosDefineException("Config file should not start with \"{\"");
+                        throw new TaierDefineException("Config file should not start with \"{\"");
                     }
 
                     var6 = var6 + " {";

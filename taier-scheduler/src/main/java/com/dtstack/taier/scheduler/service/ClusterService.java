@@ -24,8 +24,7 @@ import com.dtstack.taier.common.enums.EComponentType;
 import com.dtstack.taier.common.enums.EDeployType;
 import com.dtstack.taier.common.enums.EScheduleJobType;
 import com.dtstack.taier.common.exception.ErrorCode;
-import com.dtstack.taier.common.exception.PubSvcDefineException;
-import com.dtstack.taier.common.exception.RdosDefineException;
+import com.dtstack.taier.common.exception.TaierDefineException;
 import com.dtstack.taier.common.util.ComponentVersionUtil;
 import com.dtstack.taier.dao.domain.Cluster;
 import com.dtstack.taier.dao.domain.Component;
@@ -117,7 +116,7 @@ public class ClusterService {
     public JSONObject buildClusterConfig(Long clusterId, String componentVersion, EComponentType computeComponentType) {
         Cluster cluster = clusterMapper.getOne(clusterId);
         if (null == cluster) {
-            throw new RdosDefineException(ErrorCode.CANT_NOT_FIND_CLUSTER);
+            throw new TaierDefineException(ErrorCode.CANT_NOT_FIND_CLUSTER);
         }
         JSONObject config = new JSONObject();
         List<Component> components = componentService.listAllComponents(clusterId);
@@ -155,7 +154,7 @@ public class ClusterService {
         // 解析SFTP配置信息
         JSONObject sftpConfig = getConfigByKey(tenantId, EComponentType.SFTP.getConfName(), null);
         if (Objects.isNull(sftpConfig)) {
-            throw new PubSvcDefineException(ErrorCode.CAN_NOT_FIND_SFTP);
+            throw new TaierDefineException(ErrorCode.CAN_NOT_FIND_SFTP);
         } else {
             for (String key : sftpConfig.keySet()) {
                 map.put(key, sftpConfig.getString(key));

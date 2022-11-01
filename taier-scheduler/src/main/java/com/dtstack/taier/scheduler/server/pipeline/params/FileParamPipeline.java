@@ -18,7 +18,7 @@
 
 package com.dtstack.taier.scheduler.server.pipeline.params;
 
-import com.dtstack.taier.common.exception.RdosDefineException;
+import com.dtstack.taier.common.exception.TaierDefineException;
 import com.dtstack.taier.scheduler.server.pipeline.IPipeline;
 import org.apache.commons.lang.StringUtils;
 
@@ -37,10 +37,10 @@ public class FileParamPipeline extends IPipeline.AbstractPipeline {
     }
 
     @Override
-    public void pipeline(Map<String, Object> actionParam, Map<String, Object> pipelineParam) throws RdosDefineException {
+    public void pipeline(Map<String, Object> actionParam, Map<String, Object> pipelineParam) throws TaierDefineException {
        String uploadPath = (String) pipelineParam.get(uploadFilePath);
        if(StringUtils.isBlank(uploadPath) && !actionParam.containsKey(fileKey)){
-           throw new RdosDefineException("file param pipe line must after uploadPath pipe line");
+           throw new TaierDefineException("file param pipe line must after uploadPath pipe line");
        }
        pipelineParam.computeIfAbsent(fileKey,k-> uploadPath.substring(StringUtils.lastIndexOf(uploadPath, "/") + 1));
     }

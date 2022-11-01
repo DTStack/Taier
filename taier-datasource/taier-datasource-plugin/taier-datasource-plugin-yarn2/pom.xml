@@ -18,7 +18,7 @@
         <maven.compiler.target>1.8</maven.compiler.target>
 
         <jar.package.name>yarn2</jar.package.name>
-        <jar.name>dtYarn2</jar.name>
+        <jar.name>Yarn2</jar.name>
         <hadoop2.version>2.7.3</hadoop2.version>
     </properties>
 

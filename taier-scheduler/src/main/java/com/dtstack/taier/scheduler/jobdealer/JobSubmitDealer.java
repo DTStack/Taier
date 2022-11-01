@@ -26,7 +26,7 @@ import com.dtstack.taier.common.enums.EScheduleJobType;
 import com.dtstack.taier.common.env.EnvironmentContext;
 import com.dtstack.taier.common.exception.ClientAccessException;
 import com.dtstack.taier.common.exception.DtCenterDefException;
-import com.dtstack.taier.common.exception.RdosDefineException;
+import com.dtstack.taier.common.exception.TaierDefineException;
 import com.dtstack.taier.common.exception.WorkerAccessException;
 import com.dtstack.taier.common.queue.DelayBlockingQueue;
 import com.dtstack.taier.common.util.SleepUtil;
@@ -110,7 +110,7 @@ public class JobSubmitDealer implements Runnable {
         this.applicationContext = applicationContext;
         EnvironmentContext environmentContext = applicationContext.getBean(EnvironmentContext.class);
         if (null == priorityQueue) {
-            throw new RdosDefineException("priorityQueue must not null.");
+            throw new TaierDefineException("priorityQueue must not null.");
         }
 
         jobRestartDelay = environmentContext.getJobRestartDelay();

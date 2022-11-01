@@ -25,7 +25,7 @@ import com.dtstack.taier.common.enums.Deleted;
 import com.dtstack.taier.common.enums.EComponentType;
 import com.dtstack.taier.common.enums.MultiEngineType;
 import com.dtstack.taier.common.exception.ErrorCode;
-import com.dtstack.taier.common.exception.RdosDefineException;
+import com.dtstack.taier.common.exception.TaierDefineException;
 import com.dtstack.taier.dao.domain.Cluster;
 import com.dtstack.taier.dao.mapper.ClusterMapper;
 import com.dtstack.taier.dao.mapper.ClusterTenantMapper;
@@ -66,7 +66,7 @@ public class ConsoleClusterService {
 
     public Long addCluster(String clusterName) {
         if (clusterMapper.getByClusterName(clusterName) != null) {
-            throw new RdosDefineException(ErrorCode.NAME_ALREADY_EXIST.getDescription());
+            throw new TaierDefineException(ErrorCode.NAME_ALREADY_EXIST.getDescription());
         }
         Cluster cluster = new Cluster();
         cluster.setClusterName(clusterName);
@@ -89,14 +89,14 @@ public class ConsoleClusterService {
      */
     public boolean deleteCluster(Long clusterId) {
         if (null == clusterId) {
-            throw new RdosDefineException("Cluster cannot be empty");
+            throw new TaierDefineException("Cluster cannot be empty");
         }
         Cluster cluster = clusterMapper.getOne(clusterId);
         if (null == cluster) {
-            throw new RdosDefineException("Cluster does not exist");
+            throw new TaierDefineException("Cluster does not exist");
         }
         if (DEFAULT_CLUSTER_ID.equals(clusterId)) {
-            throw new RdosDefineException("The default cluster cannot be deleted");
+            throw new TaierDefineException("The default cluster cannot be deleted");
         }
         return clusterMapper.deleteById(clusterId) > 0;
     }

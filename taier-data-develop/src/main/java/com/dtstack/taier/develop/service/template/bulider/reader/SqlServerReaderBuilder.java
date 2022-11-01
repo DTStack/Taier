@@ -27,7 +27,7 @@ import com.dtstack.taier.datasource.api.dto.source.ISourceDTO;
 import com.dtstack.taier.datasource.api.dto.source.RdbmsSourceDTO;
 import com.dtstack.taier.datasource.api.source.DataSourceType;
 import com.dtstack.taier.common.enums.EScheduleJobType;
-import com.dtstack.taier.common.exception.RdosDefineException;
+import com.dtstack.taier.common.exception.TaierDefineException;
 import com.dtstack.taier.common.util.DataSourceUtils;
 import com.dtstack.taier.dao.domain.DsInfo;
 import com.dtstack.taier.develop.common.template.Reader;
@@ -50,7 +50,6 @@ import com.google.common.collect.Lists;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang.BooleanUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -190,7 +189,7 @@ public class SqlServerReaderBuilder implements DaReaderBuilder {
                 SqlServerCdcReaderParam param = JsonUtils.objectToObject(sourceMap, SqlServerCdcReaderParam.class);
                 return JsonUtils.objectToMap(param);
             } catch (Exception e) {
-                throw new RdosDefineException(String.format("getParserSourceMap error,Caused by: %s", e.getMessage()), e);
+                throw new TaierDefineException(String.format("getParserSourceMap error,Caused by: %s", e.getMessage()), e);
             }
         }
 
@@ -206,7 +205,7 @@ public class SqlServerReaderBuilder implements DaReaderBuilder {
             if (matcher.find()) {
                 return matcher.group("db");
             }
-            throw new RdosDefineException("jdbcUrl中必须指定使用的库");
+            throw new TaierDefineException("jdbcUrl中必须指定使用的库");
         }
 
         /**
