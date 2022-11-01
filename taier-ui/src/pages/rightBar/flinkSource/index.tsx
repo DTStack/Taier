@@ -145,7 +145,6 @@ export default function FlinkSourcePanel({ current }: IRightBarComponentProps) {
 
 	const handleSyncFormToTab = () => {
 		const source = form?.getFieldsValue()[NAME_FIELD];
-		console.log('source:', source);
 		// 需要额外处理部分字段
 		const nextSource = source?.map((s) => {
 			const next: Partial<IFlinkSourceProps> = {
