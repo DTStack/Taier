@@ -20,5 +20,5 @@ select * from table_test;
 查询结果最多只展示5000条数据
 :::
 :::caution
-Hive SQL 依赖控制台 Hive组件 运行Hive SQL前请确保对应组件配置正确
+Hive SQL 依赖Hive SQL数据源 运行Hive SQL前请确保对应Hive数据源已配置
 :::

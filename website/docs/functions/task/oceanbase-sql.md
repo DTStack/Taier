@@ -20,5 +20,5 @@ select * from table_test;
 查询结果最多只展示5000条数据
 :::
 :::caution
-OceanBase SQL 依赖控制台 Ocean组件 运行OceanBase SQL前请确保对应组件配置正确
+OceanBase SQL 依赖OceanBase数据源 运行OceanBase SQL前请确保对应OceanBase数据源已配置
 :::
