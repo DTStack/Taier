@@ -364,6 +364,10 @@ public class FlinkRuntimeLogService {
      * @throws Exception
      */
     private List<FlinkSqlRuntimeLogDTO> getTaskLogList(String jobId, Long tenantId) {
+        if (clusterService.hasStandalone(tenantId, EComponentType.FLINK.getTypeCode())) {
+            //todo standalone 暂不支持
+            return Lists.newArrayList();
+        }
         ScheduleJob scheduleJob = getByJobId(jobId);
         AssertUtils.notNull(scheduleJob, "任务不存在");
         Integer status = scheduleJob.getStatus();
@@ -448,6 +452,10 @@ public class FlinkRuntimeLogService {
 
 
     public String loadJobLogWithEngineJob(Long tenantId, Integer taskType, String applicationId, Integer byteNum, String taskManagerId) {
+        if (clusterService.hasStandalone(tenantId, EComponentType.FLINK.getTypeCode())) {
+            //todo standalone 暂不支持
+            return "";
+        }
         IDownloader downloader = this.downloadJobLogWithEngineJob(applicationId, taskType, tenantId, byteNum == null ? DEFAULT_LOG_PREVIEW_BYTES : byteNum, taskManagerId);
 
         return readJobLog(downloader);
