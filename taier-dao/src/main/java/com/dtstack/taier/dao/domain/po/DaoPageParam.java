@@ -23,7 +23,6 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import java.util.Objects;
 
 /**
- * Created by 袋鼠云-数栈产研部-应用研发中心.
  *
  * @author <a href="mailto:linfeng@dtstack.com">林丰</a>
  * @date 2021/3/17

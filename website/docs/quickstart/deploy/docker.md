@@ -16,8 +16,8 @@ docker run -itd -p 8090:8090 --env ZK_HOST=${ZK_HOST} \
 --env ZK_PORT=2181 \
 --env DB_HOST=${MYSQL_HOST} \
 --env DB_PORT=3306 \
---env DB_ROOT=root  \
---env DB_PASSWORD=123456 \
+--env DB_ROOT=${DB_ROOT}  \
+--env DB_PASSWORD=${DB_PASSWORD} \
 dtopensource/taier:latest
 ```
 
@@ -32,6 +32,9 @@ services:
     environment:
       MYSQL_DATABASE: taier
       MYSQL_ROOT_PASSWORD: 123456
+      TZ: Asia/Shanghai
+    ports:
+      - 3306:3306
   taier-zk:
     image: zookeeper:3.4.9
   taier:
@@ -43,6 +46,9 @@ services:
       DB_PORT: 3306
       DB_ROOT: root
       DB_PASSWORD: 123456
+      TZ: Asia/Shanghai
+    ports:
+      - 8090:8090
 ```
 
 进入docker-compose目录，执行
