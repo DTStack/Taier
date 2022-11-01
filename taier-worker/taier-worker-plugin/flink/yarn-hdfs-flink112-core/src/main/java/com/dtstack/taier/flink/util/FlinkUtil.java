@@ -163,7 +163,8 @@ public class FlinkUtil {
         // 指定采用parent ClassLoader优先加载的类
         String append = flinkConfig.getString(CoreOptions.ALWAYS_PARENT_FIRST_LOADER_PATTERNS_ADDITIONAL);
         if (jobType == EJobType.SQL || jobType == EJobType.SYNC) {
-            String dtstackAppend = "com.fasterxml.jackson.";
+            //String dtstackAppend = "com.fasterxml.jackson.";
+            String dtstackAppend = ConfigConstant.PARENT_FIRST_LOADER_PATTERNS_DEFAULT;
             if (StringUtils.isNotEmpty(append)) {
                 dtstackAppend = dtstackAppend + ";" + append;
             }
