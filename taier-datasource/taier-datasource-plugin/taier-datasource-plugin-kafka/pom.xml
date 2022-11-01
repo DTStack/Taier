@@ -17,7 +17,7 @@
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
         <jar.package.name>kafka</jar.package.name>
-        <jar.name>dtKafka</jar.name>
+        <jar.name>Kafka</jar.name>
     </properties>
 
     <dependencies>

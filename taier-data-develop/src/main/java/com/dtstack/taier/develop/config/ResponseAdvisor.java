@@ -21,7 +21,7 @@ package com.dtstack.taier.develop.config;
 import com.dtstack.taier.common.exception.DtCenterDefException;
 import com.dtstack.taier.common.exception.ErrorCode;
 import com.dtstack.taier.common.exception.ExceptionEnums;
-import com.dtstack.taier.common.exception.RdosDefineException;
+import com.dtstack.taier.common.exception.TaierDefineException;
 import com.dtstack.taier.common.lang.web.R;
 import com.dtstack.taier.pluginapi.constrant.ConfigConstant;
 import com.dtstack.taier.pluginapi.exception.ExceptionUtil;
@@ -102,22 +102,22 @@ public class ResponseAdvisor implements ResponseBodyAdvice<Object> {
     public R exceptionHandler(Throwable e) {
         ExceptionEnums errorCode = ErrorCode.UNKNOWN_ERROR;
         String errorMsg = null;
-        RdosDefineException rdosDefineException = null;
+        TaierDefineException taierDefineException = null;
         if (e.getCause() instanceof DtCenterDefException) {
-            rdosDefineException = (RdosDefineException) e.getCause();
-            if (rdosDefineException.getErrorCode() != null) {
-                errorCode = rdosDefineException.getErrorCode();
+            taierDefineException = (TaierDefineException) e.getCause();
+            if (taierDefineException.getErrorCode() != null) {
+                errorCode = taierDefineException.getErrorCode();
             }
-            errorMsg = rdosDefineException.getErrorMsg();
+            errorMsg = taierDefineException.getErrorMsg();
             if (e.getCause().getCause() != null) {
                 LOGGER.error("", e.getCause().getCause());
             }
-        } else if (e instanceof RdosDefineException) {
-            rdosDefineException = (RdosDefineException) e;
-            if (rdosDefineException.getErrorCode() != null) {
-                errorCode = rdosDefineException.getErrorCode();
+        } else if (e instanceof TaierDefineException) {
+            taierDefineException = (TaierDefineException) e;
+            if (taierDefineException.getErrorCode() != null) {
+                errorCode = taierDefineException.getErrorCode();
             }
-            errorMsg = rdosDefineException.getErrorMsg();
+            errorMsg = taierDefineException.getErrorMsg();
             if (e.getCause() != null) {
                 LOGGER.error("", e.getCause());
             }

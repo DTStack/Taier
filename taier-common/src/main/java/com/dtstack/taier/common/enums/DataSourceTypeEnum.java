@@ -19,7 +19,7 @@
 package com.dtstack.taier.common.enums;
 
 import com.dtstack.taier.common.exception.ErrorCode;
-import com.dtstack.taier.common.exception.PubSvcDefineException;
+import com.dtstack.taier.common.exception.TaierDefineException;
 import com.dtstack.taier.common.util.Strings;
 import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Lists;
@@ -144,7 +144,7 @@ public enum DataSourceTypeEnum {
         DataSourceTypeEnum value;
         if ((value=CACHE.get(dataType,dataVersion))==null){
             LOGGER.error("this dataType cannot find,dataType:{},dataVersion:{}",dataType,dataVersion);
-            throw new PubSvcDefineException(ErrorCode.CAN_NOT_FITABLE_SOURCE_TYPE);
+            throw new TaierDefineException(ErrorCode.CAN_NOT_FITABLE_SOURCE_TYPE);
         }
         return value;
     }
@@ -162,7 +162,7 @@ public enum DataSourceTypeEnum {
             }
         }
         LOGGER.error("can not find this dataTypeCode:{}",val);
-        throw new PubSvcDefineException(ErrorCode.CAN_NOT_FITABLE_SOURCE_TYPE);
+        throw new TaierDefineException(ErrorCode.CAN_NOT_FITABLE_SOURCE_TYPE);
     }
 
     /**

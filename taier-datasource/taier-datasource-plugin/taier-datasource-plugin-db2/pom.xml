@@ -17,7 +17,7 @@
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
         <jar.package.name>db2</jar.package.name>
-        <jar.name>dtDb2</jar.name>
+        <jar.name>Db2</jar.name>
         <db2.version>11.5.0.0</db2.version>
     </properties>
 

@@ -17,7 +17,7 @@
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
         <jar.package.name>presto</jar.package.name>
-        <jar.name>dtPresto</jar.name>
+        <jar.name>Presto</jar.name>
 
         <presto-jdbc.version>0.237.1</presto-jdbc.version>
     </properties>

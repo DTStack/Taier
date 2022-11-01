@@ -19,8 +19,7 @@
 package com.dtstack.taier.scheduler.jobdealer.resource;
 
 import com.dtstack.taier.common.enums.EComponentType;
-import com.dtstack.taier.common.enums.EDeployType;
-import com.dtstack.taier.common.exception.RdosDefineException;
+import com.dtstack.taier.common.exception.TaierDefineException;
 import com.dtstack.taier.dao.domain.Component;
 import com.dtstack.taier.pluginapi.JobClient;
 import com.dtstack.taier.pluginapi.enums.ComputeType;
@@ -75,7 +74,7 @@ public class FlinkResource extends CommonResource {
             }
         }
 
-        throw new RdosDefineException("not support mode: " + modeStr);
+        throw new TaierDefineException("not support mode: " + modeStr);
     }
 
     public EComponentType getResourceEComponentType(JobClient jobClient) {
@@ -86,6 +85,6 @@ public class FlinkResource extends CommonResource {
         if (null != flinkComponent) {
             return EComponentType.YARN;
         }
-        throw new RdosDefineException("No found resource EComponentType");
+        throw new TaierDefineException("No found resource EComponentType");
     }
 }

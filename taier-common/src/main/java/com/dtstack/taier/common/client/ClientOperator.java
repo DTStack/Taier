@@ -19,7 +19,7 @@
 package com.dtstack.taier.common.client;
 
 import com.dtstack.taier.common.exception.ClientAccessException;
-import com.dtstack.taier.common.exception.RdosDefineException;
+import com.dtstack.taier.common.exception.TaierDefineException;
 import com.dtstack.taier.pluginapi.JobClient;
 import com.dtstack.taier.pluginapi.JobIdentifier;
 import com.dtstack.taier.pluginapi.client.IClient;
@@ -73,7 +73,7 @@ public class ClientOperator {
 
         String jobId = jobIdentifier.getEngineJobId();
         if (Strings.isNullOrEmpty(jobId) && Strings.isNullOrEmpty(jobIdentifier.getApplicationId())) {
-            throw new RdosDefineException("can't get job of jobId is empty or null!");
+            throw new TaierDefineException("can't get job of jobId is empty or null!");
         }
 
         try {
@@ -112,7 +112,7 @@ public class ClientOperator {
             IClient client = clientCache.getClient(pluginInfo);
             return client.getCheckpoints(jobIdentifier);
         } catch (Exception e) {
-            throw new RdosDefineException("get job checkpoints:" + jobIdentifier.getEngineJobId() + " exception:" + ExceptionUtil.getErrorMessage(e));
+            throw new TaierDefineException("get job checkpoints:" + jobIdentifier.getEngineJobId() + " exception:" + ExceptionUtil.getErrorMessage(e));
         }
     }
 
@@ -173,7 +173,7 @@ public class ClientOperator {
             IClient client = clientCache.getClient(pluginInfo);
             return client.getRollingLogBaseInfo(jobIdentifier);
         } catch (Exception e) {
-            throw new RdosDefineException("get job rollingLogBaseInfo:" + jobIdentifier.getEngineJobId() + " exception:" + ExceptionUtil.getErrorMessage(e));
+            throw new TaierDefineException("get job rollingLogBaseInfo:" + jobIdentifier.getEngineJobId() + " exception:" + ExceptionUtil.getErrorMessage(e));
         }
     }
 

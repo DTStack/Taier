@@ -20,7 +20,7 @@ package com.dtstack.taier.develop.service.template.mysql;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import com.dtstack.taier.common.exception.RdosDefineException;
+import com.dtstack.taier.common.exception.TaierDefineException;
 import com.dtstack.taier.develop.common.template.Reader;
 import com.dtstack.taier.develop.service.template.BaseReaderPlugin;
 import com.dtstack.taier.develop.service.template.PluginName;
@@ -178,16 +178,16 @@ public class MysqlBinLogReader extends BaseReaderPlugin implements Reader {
 
         data = data.getJSONObject("parameter");
         if (StringUtils.isEmpty(data.getString("username"))) {
-            throw new RdosDefineException("MySql数据源username 不能为空");
+            throw new TaierDefineException("MySql数据源username 不能为空");
         }
         if (StringUtils.isEmpty(data.getString("password"))) {
-            throw new RdosDefineException("MySql数据源password 不能为空");
+            throw new TaierDefineException("MySql数据源password 不能为空");
         }
         if (StringUtils.isEmpty(data.getString("jdbcUrl"))) {
-            throw new RdosDefineException("MySql数据源jdbcUrl 不能为空");
+            throw new TaierDefineException("MySql数据源jdbcUrl 不能为空");
         }
         if (StringUtils.isEmpty(data.getString("cat"))) {
-            throw new RdosDefineException("MySql数据源cat字段 不能为空 例：update,insert,delete");
+            throw new TaierDefineException("MySql数据源cat字段 不能为空 例：update,insert,delete");
         } else {
             String cat = data.getString("cat");
             checkCat(cat);
@@ -197,21 +197,21 @@ public class MysqlBinLogReader extends BaseReaderPlugin implements Reader {
             tableArray = data.getJSONArray("table");
         } catch (Exception e) {
             logger.error("table field must be array, error message ={}", e.getMessage(), e);
-            throw new RdosDefineException("table字段应为数组形式", e);
+            throw new TaierDefineException("table字段应为数组形式", e);
         }
         if (tableArray == null) {
-            throw new RdosDefineException("table数组不能为空");
+            throw new TaierDefineException("table数组不能为空");
         }
         JSONObject start = data.getJSONObject("start");
         if (start != null && start.size() > 0) {
             String timestamp = start.getString("timestamp");
             String journalName = start.getString("journalName");
             if (timestamp != null && journalName != null) {
-                throw new RdosDefineException("采集起点不能同时配置按时间和按文件选择");
+                throw new TaierDefineException("采集起点不能同时配置按时间和按文件选择");
             }
             if (journalName != null) {
                 if (StringUtils.isBlank(journalName)) {
-                    throw new RdosDefineException("采集起点配置失败，采集起点文件名不存在");
+                    throw new TaierDefineException("采集起点配置失败，采集起点文件名不存在");
                 }
 
             }
@@ -222,24 +222,24 @@ public class MysqlBinLogReader extends BaseReaderPlugin implements Reader {
         try {
             String[] split = cat.split(",");
             if (cat.startsWith(",")) {
-                throw new RdosDefineException("不能用逗号开头\n");
+                throw new TaierDefineException("不能用逗号开头\n");
             }
             if (cat.endsWith(",")) {
-                throw new RdosDefineException("不能用逗号结尾\n");
+                throw new TaierDefineException("不能用逗号结尾\n");
             }
             if (split.length > 3) {
-                throw new RdosDefineException("");
+                throw new TaierDefineException("");
             }
             List<String> strings = new ArrayList<>(Arrays.asList(split));
             for (String s : CAT_LIST) {
                 if (strings.indexOf(s) == strings.lastIndexOf(s)) {
                     strings.remove(s);
                 } else {
-                    throw new RdosDefineException("参数不能重复\n");
+                    throw new TaierDefineException("参数不能重复\n");
                 }
             }
-        } catch (RdosDefineException e) {
-            throw new RdosDefineException("Binlog中cat字段填写格式错误，" + e.getMessage() + "正确应为：\"update,insert,delete\"", e);
+        } catch (TaierDefineException e) {
+            throw new TaierDefineException("Binlog中cat字段填写格式错误，" + e.getMessage() + "正确应为：\"update,insert,delete\"", e);
         }
     }
 

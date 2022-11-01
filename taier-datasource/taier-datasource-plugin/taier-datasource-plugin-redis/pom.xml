@@ -17,7 +17,7 @@
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
         <jar.package.name>redis</jar.package.name>
-        <jar.name>dtRedis</jar.name>
+        <jar.name>Redis</jar.name>
 
         <redis.clients.version>2.9.0</redis.clients.version>
     </properties>

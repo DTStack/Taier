@@ -34,7 +34,7 @@ import com.dtstack.taier.common.enums.ResourceType;
 import com.dtstack.taier.common.enums.TableType;
 import com.dtstack.taier.common.env.EnvironmentContext;
 import com.dtstack.taier.common.exception.DtCenterDefException;
-import com.dtstack.taier.common.exception.RdosDefineException;
+import com.dtstack.taier.common.exception.TaierDefineException;
 import com.dtstack.taier.common.util.GenerateErrorMsgUtil;
 import com.dtstack.taier.common.util.JobClientUtil;
 import com.dtstack.taier.dao.domain.DevelopResource;
@@ -313,7 +313,7 @@ public class FlinkTaskService {
         try {
             properties.load(new ByteArrayInputStream(taskParams.getBytes(StandardCharsets.UTF_8)));
         } catch (IOException e) {
-            throw new RdosDefineException(String.format("task parameter resolution exception:%s", e.getMessage()), e);
+            throw new TaierDefineException(String.format("task parameter resolution exception:%s", e.getMessage()), e);
         }
         String interval = properties.getProperty(KEY_CHECKPOINT_INTERVAL, DEFAULT_VAL_CHECKPOINT_INTERVAL);
         confProp.put(KEY_CHECKPOINT_STATE_BACKEND, savepointPath);
@@ -366,11 +366,11 @@ public class FlinkTaskService {
         if (status != null) {
             //续跑或重跑
             if (!TaskStatus.isStopped(status)) {
-                throw new RdosDefineException("(任务状态不匹配)");
+                throw new TaierDefineException("(任务状态不匹配)");
             }
             boolean reset = jobService.resetTaskStatus(scheduleJob.getJobId(), status, environmentContext.getLocalAddress());
             if (!reset) {
-                throw new RdosDefineException("fail to reset task status");
+                throw new TaierDefineException("fail to reset task status");
             }
         }
     }

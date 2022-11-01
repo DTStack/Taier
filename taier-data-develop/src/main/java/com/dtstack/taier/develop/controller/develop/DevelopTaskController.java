@@ -21,7 +21,7 @@ package com.dtstack.taier.develop.controller.develop;
 import com.alibaba.fastjson.JSONObject;
 import com.dtstack.taier.common.enums.EScheduleStatus;
 import com.dtstack.taier.common.exception.ErrorCode;
-import com.dtstack.taier.common.exception.RdosDefineException;
+import com.dtstack.taier.common.exception.TaierDefineException;
 import com.dtstack.taier.common.lang.coc.APITemplate;
 import com.dtstack.taier.common.lang.web.R;
 import com.dtstack.taier.dao.domain.ScheduleTaskShade;
@@ -225,10 +225,10 @@ public class DevelopTaskController {
             protected void checkParams() throws IllegalArgumentException {
                 EScheduleStatus targetStatus = EScheduleStatus.getStatus(vo.getScheduleStatus());
                 if (Objects.isNull(targetStatus)) {
-                    throw new RdosDefineException(ErrorCode.INVALID_PARAMETERS);
+                    throw new TaierDefineException(ErrorCode.INVALID_PARAMETERS);
                 }
                 if (CollectionUtils.isEmpty(vo.getTaskIds())) {
-                    throw new RdosDefineException(ErrorCode.CAN_NOT_FIND_TASK);
+                    throw new TaierDefineException(ErrorCode.CAN_NOT_FIND_TASK);
                 }
             }
 

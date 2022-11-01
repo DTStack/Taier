@@ -30,7 +30,7 @@ import com.dtstack.taier.datasource.api.dto.source.Mysql5SourceDTO;
 import com.dtstack.taier.datasource.api.source.DataSourceType;
 import com.dtstack.taier.common.enums.EScheduleJobType;
 import com.dtstack.taier.common.exception.ErrorCode;
-import com.dtstack.taier.common.exception.RdosDefineException;
+import com.dtstack.taier.common.exception.TaierDefineException;
 import com.dtstack.taier.common.util.DataSourceUtils;
 import com.dtstack.taier.common.util.PublicUtil;
 import com.dtstack.taier.dao.domain.DsInfo;
@@ -89,7 +89,7 @@ public class MysqlReaderBuilder implements DaReaderBuilder {
     @PostConstruct
     private void init() {
         if (dsInfoService == null) {
-            throw new RdosDefineException("streamDataSourceService should not be null");
+            throw new TaierDefineException("streamDataSourceService should not be null");
         }
         builderMap.put(RdbmsDaType.Binlog.getCode(), new MysqlBinLogDaBuilder(dsInfoService));
         builderMap.put(RdbmsDaType.Poll.getCode(), new MysqlPollDaBuilder(dsInfoService));
@@ -140,7 +140,7 @@ public class MysqlReaderBuilder implements DaReaderBuilder {
                     List<String> tableList = dsInfoService.tableList(sourceId, null, true);
                     map.put("table", tableList);//塞入sourceMap hiveWriter中使用
                 } catch (Exception e) {
-                    throw new RdosDefineException("获取mysql tableList异常", e);
+                    throw new TaierDefineException("获取mysql tableList异常", e);
                 }
             }
 
@@ -167,7 +167,7 @@ public class MysqlReaderBuilder implements DaReaderBuilder {
                         )
                 );
                 if (CollectionUtils.isEmpty(binLogList) || !binLogList.contains(readerParam.getJournalName())) {
-                    throw new RdosDefineException("采集起点配置失败，采集起点文件名不存在");
+                    throw new TaierDefineException("采集起点配置失败，采集起点文件名不存在");
                 }
                 readerParam.setTimestamp(null);
             }
@@ -201,7 +201,7 @@ public class MysqlReaderBuilder implements DaReaderBuilder {
                     port = ipv6Matcher.group("port");
                 }
             } else {
-                throw new RdosDefineException("MySql数据源jdbc格式错误", ErrorCode.INVALID_PARAMETERS);
+                throw new TaierDefineException("MySql数据源jdbc格式错误", ErrorCode.INVALID_PARAMETERS);
             }
             mysqlBinLogReader.setJdbcUrl(jdbc);
             mysqlBinLogReader.setPassword(DataSourceUtils.getJdbcPassword(dataJson));
@@ -239,7 +239,7 @@ public class MysqlReaderBuilder implements DaReaderBuilder {
                 MysqlBinLogReaderParam param = JSONObject.parseObject(JSONObject.toJSONString(sourceMap), MysqlBinLogReaderParam.class, Feature.OrderedField);
                 return JSONObject.parseObject(JSONObject.toJSONString(param), Feature.OrderedField);
             } catch (Exception e) {
-                throw new RdosDefineException(String.format("getParserSourceMap error,Caused by: %s", e.getMessage()), e);
+                throw new TaierDefineException(String.format("getParserSourceMap error,Caused by: %s", e.getMessage()), e);
             }
         }
 
@@ -406,7 +406,7 @@ public class MysqlReaderBuilder implements DaReaderBuilder {
                     String arrayJson = JSON.toJSONString(list);
                     columns = JSON.parseArray(arrayJson, ColumnDTO.class);
                 } catch (Exception e) {
-                    throw new RdosDefineException("获取" + readerParam.getTableName() + "字段信息异常" + e.getMessage(), e);
+                    throw new TaierDefineException("获取" + readerParam.getTableName() + "字段信息异常" + e.getMessage(), e);
                 }
                 String increColumn = readerParam.getIncreColumn();
                 int index = -1;
@@ -491,7 +491,7 @@ public class MysqlReaderBuilder implements DaReaderBuilder {
                 MysqlPollReaderParam param = JsonUtils.objectToObject(sourceMap, MysqlPollReaderParam.class);
                 return JsonUtils.objectToMap(param);
             } catch (Exception e) {
-                throw new RdosDefineException("getParserSourceMap error", e);
+                throw new TaierDefineException("getParserSourceMap error", e);
             }
         }
 

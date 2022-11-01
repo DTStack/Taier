@@ -22,7 +22,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.dtstack.taier.common.enums.EScheduleJobType;
 import com.dtstack.taier.common.enums.TempJobType;
-import com.dtstack.taier.common.exception.RdosDefineException;
+import com.dtstack.taier.common.exception.TaierDefineException;
 import com.dtstack.taier.common.util.JsonUtils;
 import com.dtstack.taier.common.util.MathUtil;
 import com.dtstack.taier.dao.domain.DevelopSelectSql;
@@ -99,7 +99,7 @@ public class DevelopJobService {
         developStartSyncResultVO.setStatus(TaskStatus.SUBMITTING.getStatus());
         Task task = developTaskService.getOneWithError(taskId);
         if (!EScheduleJobType.SYNC.getVal().equals(task.getTaskType())) {
-            throw new RdosDefineException("只支持同步任务直接运行");
+            throw new TaierDefineException("只支持同步任务直接运行");
         }
         try {
             ITaskRunner taskRunner = taskConfiguration.get(EScheduleJobType.SYNC.getType());

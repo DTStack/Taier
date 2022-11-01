@@ -18,7 +18,7 @@
 
 package com.dtstack.taier.scheduler.server.builder.cron;
 
-import com.dtstack.taier.common.exception.RdosDefineException;
+import com.dtstack.taier.common.exception.TaierDefineException;
 import com.dtstack.taier.scheduler.server.builder.ScheduleConf;
 import org.apache.commons.lang3.StringUtils;
 
@@ -32,7 +32,7 @@ public class ScheduleCronCustomParser implements IScheduleConfParser {
     public String parse(ScheduleConf scheduleConf) {
         String cron =scheduleConf.getCorn();
         if (StringUtils.isBlank(cron)) {
-            throw new RdosDefineException(String.format(ScheduleConfManager.CustomError.ERROR_INFO,scheduleConf.getPeriodType(),"cron"));
+            throw new TaierDefineException(String.format(ScheduleConfManager.CustomError.ERROR_INFO,scheduleConf.getPeriodType(),"cron"));
         }
         return cron;
     }

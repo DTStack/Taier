@@ -18,7 +18,6 @@
 
 package com.dtstack.taier.scheduler.server.pipeline.operator;
 
-import com.dtstack.taier.common.exception.RdosDefineException;
 import com.dtstack.taier.scheduler.server.pipeline.IPipeline;
 import org.apache.commons.lang.StringUtils;
 

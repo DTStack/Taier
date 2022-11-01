@@ -16,7 +16,7 @@
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
         <jar.package.name>solr</jar.package.name>
-        <jar.name>dtSolr</jar.name>
+        <jar.name>Solr</jar.name>
 
         <solr-solrj.version>7.4.0</solr-solrj.version>
         <commons-codec.version>1.6</commons-codec.version>

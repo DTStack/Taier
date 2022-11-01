@@ -27,7 +27,7 @@ import com.dtstack.taier.datasource.api.dto.source.ISourceDTO;
 import com.dtstack.taier.datasource.api.dto.source.PostgresqlSourceDTO;
 import com.dtstack.taier.datasource.api.source.DataSourceType;
 import com.dtstack.taier.common.enums.EScheduleJobType;
-import com.dtstack.taier.common.exception.RdosDefineException;
+import com.dtstack.taier.common.exception.TaierDefineException;
 import com.dtstack.taier.common.util.DataSourceUtils;
 import com.dtstack.taier.dao.domain.DsInfo;
 import com.dtstack.taier.develop.common.template.Reader;
@@ -87,7 +87,7 @@ public class PostGreSqlDaBuilder implements DaReaderBuilder {
     @PostConstruct
     private void init() {
         if (dataSourceCenterService == null) {
-            throw new RdosDefineException("streamDataSourceService should not be null");
+            throw new TaierDefineException("streamDataSourceService should not be null");
         }
         builderMap.put(RdbmsDaType.CDC.getCode(), new PostGreSqlDaCDCBuilder(dataSourceCenterService));
         builderMap.put(RdbmsDaType.Poll.getCode(), new PostGreSqlDaPollInnerBuilder(dataSourceCenterService));
@@ -212,7 +212,7 @@ public class PostGreSqlDaBuilder implements DaReaderBuilder {
                 OraclePollReaderParam param = JsonUtils.objectToObject(sourceMap, OraclePollReaderParam.class);
                 return JsonUtils.objectToMap(param);
             } catch (Exception e) {
-                throw new RdosDefineException("getParserSourceMap error", e);
+                throw new TaierDefineException("getParserSourceMap error", e);
             }
         }
 
@@ -340,7 +340,7 @@ public class PostGreSqlDaBuilder implements DaReaderBuilder {
                 PostGreSqlCdcReaderParam param = JsonUtils.objectToObject(sourceMap, PostGreSqlCdcReaderParam.class);
                 return JsonUtils.objectToMap(param);
             } catch (Exception e) {
-                throw new RdosDefineException(String.format("getParserSourceMap error,Caused by: %s", e.getMessage()), e);
+                throw new TaierDefineException(String.format("getParserSourceMap error,Caused by: %s", e.getMessage()), e);
             }
         }
 

@@ -24,7 +24,7 @@ import com.dtstack.taier.common.constant.CommonConstant;
 import com.dtstack.taier.common.enums.Deleted;
 import com.dtstack.taier.common.enums.EScheduleJobType;
 import com.dtstack.taier.common.env.EnvironmentContext;
-import com.dtstack.taier.common.exception.RdosDefineException;
+import com.dtstack.taier.common.exception.TaierDefineException;
 import com.dtstack.taier.common.util.DataFilter;
 import com.dtstack.taier.dao.domain.ScheduleEngineJobRetry;
 import com.dtstack.taier.dao.domain.ScheduleJob;
@@ -167,7 +167,7 @@ public class ActionService {
                 .one();
 
         if (scheduleJob == null) {
-            throw new RdosDefineException("not find job,please contact the administrator");
+            throw new TaierDefineException("not find job,please contact the administrator");
         }
 
         //取最新

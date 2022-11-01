@@ -28,7 +28,7 @@ import com.dtstack.taier.common.enums.EScheduleJobType;
 import com.dtstack.taier.common.enums.EngineCatalogueType;
 import com.dtstack.taier.common.exception.DtCenterDefException;
 import com.dtstack.taier.common.exception.ErrorCode;
-import com.dtstack.taier.common.exception.RdosDefineException;
+import com.dtstack.taier.common.exception.TaierDefineException;
 import com.dtstack.taier.dao.domain.DevelopCatalogue;
 import com.dtstack.taier.dao.domain.DevelopFunction;
 import com.dtstack.taier.dao.domain.DevelopResource;
@@ -226,15 +226,15 @@ public class DevelopCatalogueService {
      */
     public CatalogueVO addCatalogue(DevelopCatalogue catalogue) {
         if (Objects.isNull(catalogue)) {
-            throw new RdosDefineException(ErrorCode.CATALOGUE_NOT_EMPTY);
+            throw new TaierDefineException(ErrorCode.CATALOGUE_NOT_EMPTY);
         }
         if (StringUtils.isBlank(catalogue.getNodeName())) {
-            throw new RdosDefineException(ErrorCode.CATALOGUE_NAME_NOT_EMPTY);
+            throw new TaierDefineException(ErrorCode.CATALOGUE_NAME_NOT_EMPTY);
         }
         catalogue.setNodeName(catalogue.getNodeName().trim());
         // 校验文件夹中是否含有空格
         if (catalogue.getNodeName().contains(" ")) {
-            throw new RdosDefineException(ErrorCode.CATALOGUE_NAME_CANNOT_CONTAIN_SPACES);
+            throw new TaierDefineException(ErrorCode.CATALOGUE_NAME_CANNOT_CONTAIN_SPACES);
         }
         DevelopCatalogue dbCatalogue = developCatalogueMapper.selectOne(Wrappers.lambdaQuery(DevelopCatalogue.class)
                 .eq(DevelopCatalogue::getTenantId, catalogue.getTenantId())
@@ -242,7 +242,7 @@ public class DevelopCatalogueService {
                 .eq(DevelopCatalogue::getNodeName, catalogue.getNodeName())
                 .last("limit 1"));
         if (dbCatalogue != null) {
-            throw new RdosDefineException(ErrorCode.CATALOGUE_EXISTS);
+            throw new TaierDefineException(ErrorCode.CATALOGUE_EXISTS);
         }
 
         // 校验当前父级直接一层的子目录或者任务的个数总数不可超过SUB_AMOUNTS_LIMIT(2000)
@@ -251,7 +251,7 @@ public class DevelopCatalogueService {
                         .eq(DevelopCatalogue::getNodePid, catalogue.getNodePid())
                         .eq(DevelopCatalogue::getTenantId, catalogue.getTenantId()));
         if (subAmountsByNodePid >= SUB_AMOUNTS_LIMIT) {
-            throw new RdosDefineException(ErrorCode.SUBDIRECTORY_OR_FILE_AMOUNT_RESTRICTIONS);
+            throw new TaierDefineException(ErrorCode.SUBDIRECTORY_OR_FILE_AMOUNT_RESTRICTIONS);
         }
 
         int parentCatalogueLevel = catalogue.getNodePid() == 0L ? 0 : this.isOverLevelLimit(catalogue.getNodePid());
@@ -266,7 +266,7 @@ public class DevelopCatalogueService {
         }
         if (RdosBatchCatalogueTypeEnum.TENANT.getType().equals(catalogue.getCatalogueType())) {
             if (catalogue.getLevel() > 3) {
-                throw new RdosDefineException(ErrorCode.CREATE_TENANT_CATALOGUE_LEVE);
+                throw new TaierDefineException(ErrorCode.CREATE_TENANT_CATALOGUE_LEVE);
             }
         }
         addOrUpdate(catalogue);
@@ -393,11 +393,11 @@ public class DevelopCatalogueService {
      */
     public void beforeGetCatalogue(Long tenantId) {
         if (Objects.isNull(tenantId)) {
-            throw new RdosDefineException(ErrorCode.TENANT_ID_NOT_NULL);
+            throw new TaierDefineException(ErrorCode.TENANT_ID_NOT_NULL);
         }
         Long clusterId = clusterTenantService.getClusterIdByTenantId(tenantId);
         if (Objects.isNull(clusterId)) {
-            throw new RdosDefineException(ErrorCode.CLUSTER_NOT_CONFIG);
+            throw new TaierDefineException(ErrorCode.CLUSTER_NOT_CONFIG);
         }
     }
 
@@ -410,11 +410,11 @@ public class DevelopCatalogueService {
         DevelopCatalogue catalogue = developCatalogueMapper.selectById(catalogueInput.getId());
         catalogueOneNotUpdate(catalogue);
         if (catalogue.getIsDeleted() == 1) {
-            throw new RdosDefineException(ErrorCode.CAN_NOT_FIND_CATALOGUE);
+            throw new TaierDefineException(ErrorCode.CAN_NOT_FIND_CATALOGUE);
         }
 
         if (canNotMoveCatalogue(catalogueInput.getId(), catalogueInput.getNodePid())) {
-            throw new RdosDefineException(ErrorCode.CAN_NOT_MOVE_CATALOGUE);
+            throw new TaierDefineException(ErrorCode.CAN_NOT_MOVE_CATALOGUE);
         }
         DevelopCatalogue updateCatalogue = new DevelopCatalogue();
         updateCatalogue.setId(catalogueInput.getId());
@@ -437,7 +437,7 @@ public class DevelopCatalogueService {
                 .eq(DevelopCatalogue::getNodePid, updateCatalogue.getNodePid())
                 .last("limit 1"));
         if (byLevelAndPIdAndTenantIdAndName != null && (!byLevelAndPIdAndTenantIdAndName.getId().equals(catalogue.getId()))) {
-            throw new RdosDefineException(ErrorCode.FILE_NAME_REPETITION);
+            throw new TaierDefineException(ErrorCode.FILE_NAME_REPETITION);
         }
         updateCatalogue.setGmtModified(Timestamp.valueOf(LocalDateTime.now()));
         addOrUpdate(updateCatalogue);
@@ -452,7 +452,7 @@ public class DevelopCatalogueService {
     public void deleteCatalogue(DevelopCatalogue catalogueInput) {
         DevelopCatalogue catalogue = developCatalogueMapper.selectById(catalogueInput.getId());
         if (Objects.isNull(catalogue) || catalogue.getIsDeleted() == 1) {
-            throw new RdosDefineException(ErrorCode.CAN_NOT_FIND_CATALOGUE);
+            throw new TaierDefineException(ErrorCode.CAN_NOT_FIND_CATALOGUE);
         }
 
         catalogueOneNotUpdate(catalogue);
@@ -462,7 +462,7 @@ public class DevelopCatalogueService {
         List<DevelopResource> resourceList = developResourceService.listByPidAndTenantId(catalogueInput.getTenantId(), catalogue.getId());
 
         if (taskList.size() > 0 || resourceList.size() > 0) {
-            throw new RdosDefineException(ErrorCode.CATALOGUE_NO_EMPTY);
+            throw new TaierDefineException(ErrorCode.CATALOGUE_NO_EMPTY);
         }
 
         //判断文件夹下子目录
@@ -471,7 +471,7 @@ public class DevelopCatalogueService {
                 .eq(DevelopCatalogue::getNodePid, catalogue.getId())
                 .orderByDesc(DevelopCatalogue::getGmtCreate));
         if (CollectionUtils.isNotEmpty(developCatalogues)) {
-            throw new RdosDefineException(ErrorCode.CATALOGUE_NO_EMPTY);
+            throw new TaierDefineException(ErrorCode.CATALOGUE_NO_EMPTY);
         }
 
         catalogue.setIsDeleted(Deleted.DELETED.getStatus());
@@ -488,11 +488,11 @@ public class DevelopCatalogueService {
     private void catalogueOneNotUpdate(DevelopCatalogue catalogue) {
         if (catalogue.getCatalogueType().equals(RdosBatchCatalogueTypeEnum.TENANT.getType())) {
             if (catalogue.getLevel() == 0) {
-                throw new RdosDefineException(ErrorCode.PERMISSION_LIMIT);
+                throw new TaierDefineException(ErrorCode.PERMISSION_LIMIT);
             }
         } else {
             if (catalogue.getLevel() == 0 || catalogue.getLevel() == 1) {
-                throw new RdosDefineException(ErrorCode.PERMISSION_LIMIT);
+                throw new TaierDefineException(ErrorCode.PERMISSION_LIMIT);
             }
         }
     }
@@ -583,7 +583,7 @@ public class DevelopCatalogueService {
     private CatalogueVO getChildNode(CatalogueVO currentCatalogueVO, Boolean isGetFile, Long tenantId) {
         DevelopCatalogue currentCatalogue = developCatalogueMapper.selectById(currentCatalogueVO.getId());
         if (Objects.isNull(currentCatalogue)) {
-            throw new RdosDefineException(ErrorCode.CAN_NOT_FIND_CATALOGUE);
+            throw new TaierDefineException(ErrorCode.CAN_NOT_FIND_CATALOGUE);
         }
         currentCatalogueVO.setTenantId(currentCatalogue.getTenantId());
         currentCatalogueVO.setName(currentCatalogue.getNodeName());
@@ -734,7 +734,7 @@ public class DevelopCatalogueService {
     public DevelopCatalogue getOneWithError(Long nodeId) {
         DevelopCatalogue catalogue = getOne(nodeId);
         if (Objects.isNull(catalogue)) {
-            throw new RdosDefineException(ErrorCode.CAN_NOT_FIND_CATALOGUE);
+            throw new TaierDefineException(ErrorCode.CAN_NOT_FIND_CATALOGUE);
         }
         return catalogue;
     }

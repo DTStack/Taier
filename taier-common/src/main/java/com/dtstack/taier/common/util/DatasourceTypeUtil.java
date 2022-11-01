@@ -21,7 +21,7 @@ package com.dtstack.taier.common.util;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.dtstack.taier.common.exception.DtCenterDefException;
-import com.dtstack.taier.common.exception.RdosDefineException;
+import com.dtstack.taier.common.exception.TaierDefineException;
 import com.google.common.collect.Maps;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.io.FileUtils;
@@ -110,7 +110,7 @@ public class DatasourceTypeUtil {
                 if (!localMappingFile.exists()) {
                     URL mappingResourceUrl = DatasourceTypeUtil.class.getResource(File.separator + MAPPING_FILE_NAME);
                     if (Objects.isNull(mappingResourceUrl)) {
-                        throw new RdosDefineException(errMsgSupplier.get());
+                        throw new TaierDefineException(errMsgSupplier.get());
                     }
                     // 写出一份到本地临时目录
                     try {
@@ -125,7 +125,7 @@ public class DatasourceTypeUtil {
             }
         }
         if (!localMappingFile.exists()) {
-            throw new RdosDefineException(errMsgSupplier.get());
+            throw new TaierDefineException(errMsgSupplier.get());
         }
         String mappingContent;
         try {
@@ -134,7 +134,7 @@ public class DatasourceTypeUtil {
             throw new DtCenterDefException(String.format("读取本地文件: [%s]失败", localMappingFile.getAbsolutePath()), e);
         }
         if (StringUtils.isBlank(mappingContent)) {
-            throw new RdosDefineException(errMsgSupplier.get());
+            throw new TaierDefineException(errMsgSupplier.get());
         }
         return mappingContent;
     }

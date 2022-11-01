@@ -22,7 +22,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.dtstack.taier.common.enums.EComponentScheduleType;
 import com.dtstack.taier.common.enums.EComponentType;
 import com.dtstack.taier.common.exception.ErrorCode;
-import com.dtstack.taier.common.exception.RdosDefineException;
+import com.dtstack.taier.common.exception.TaierDefineException;
 import com.dtstack.taier.common.util.Strings;
 import com.dtstack.taier.dao.domain.Component;
 import com.dtstack.taier.develop.model.DataSource;
@@ -44,14 +44,14 @@ public class StoragePart extends PartImpl {
     public String getPluginName() {
         List<Component> components = componentScheduleGroup.get(EComponentScheduleType.RESOURCE);
         if (CollectionUtils.isEmpty(components)) {
-            throw new RdosDefineException(ErrorCode.RESOURCE_COMPONENT_NOT_CONFIG);
+            throw new TaierDefineException(ErrorCode.RESOURCE_COMPONENT_NOT_CONFIG);
         }
         Component resourceComponent = components.get(0);
         String resourceVersion = resourceComponent.getVersionName();
         EComponentType resourceType = EComponentType.getByCode(resourceComponent.getComponentTypeCode());
         Optional<JSONObject> resourceModelConfig = context.getModelConfig(resourceType, resourceVersion);
         JSONObject storageModelConfig = resourceModelConfig.map(res -> res.getJSONObject(type.name())).orElseThrow(() ->
-                new RdosDefineException(Strings.format(ErrorCode.RESOURCE_NOT_SUPPORT_COMPONENT_VERSION.getMsg(), resourceComponent.getComponentName(), type.name(), versionName))
+                new TaierDefineException(Strings.format(ErrorCode.RESOURCE_NOT_SUPPORT_COMPONENT_VERSION.getMsg(), resourceComponent.getComponentName(), type.name(), versionName))
         );
         return storageModelConfig.getString(type.name());
     }
@@ -70,7 +70,7 @@ public class StoragePart extends PartImpl {
     public Long getExtraVersionParameters() {
         Component resourceComponent = componentScheduleGroup.get(EComponentScheduleType.RESOURCE).get(0);
         if(null == resourceComponent){
-            throw new RdosDefineException(ErrorCode.RESOURCE_COMPONENT_NOT_CONFIG);
+            throw new TaierDefineException(ErrorCode.RESOURCE_COMPONENT_NOT_CONFIG);
         }
         String resourceVersion = resourceComponent.getVersionName();
         EComponentType resourceType = EComponentType.getByCode(resourceComponent.getComponentTypeCode());

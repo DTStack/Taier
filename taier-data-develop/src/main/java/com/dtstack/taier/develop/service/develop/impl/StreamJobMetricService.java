@@ -23,7 +23,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.dtstack.taier.common.enums.EMetricTag;
 import com.dtstack.taier.common.enums.EScheduleJobType;
 import com.dtstack.taier.common.enums.ETimeCarry;
-import com.dtstack.taier.common.exception.RdosDefineException;
+import com.dtstack.taier.common.exception.TaierDefineException;
 import com.dtstack.taier.common.metric.batch.IMetric;
 import com.dtstack.taier.common.metric.prometheus.PrometheusMetricQuery;
 import com.dtstack.taier.common.metric.stream.CustomMetric;
@@ -80,7 +80,7 @@ public class StreamJobMetricService {
     public PrometheusMetricQuery buildPrometheusMetric(Long dtUicTenantId, String componentVersion) {
         Pair<String, String> prometheusHostAndPort = serverLogService.getPrometheusHostAndPort(dtUicTenantId, null, ComputeType.STREAM);
         if (prometheusHostAndPort == null){
-            throw new RdosDefineException("promethues配置为空");
+            throw new TaierDefineException("promethues配置为空");
         }
         return new PrometheusMetricQuery(String.format("%s:%s", prometheusHostAndPort.getKey(), prometheusHostAndPort.getValue()));
     }
@@ -107,14 +107,14 @@ public class StreamJobMetricService {
      */
     public JSONArray getTaskMetrics(StreamTaskMetricDTO metricDTO){
         if (CollectionUtils.isEmpty(metricDTO.getChartNames())) {
-            throw new RdosDefineException("chartName不能为空");
+            throw new TaierDefineException("chartName不能为空");
         }
 
         Task task = taskService.getDevelopTaskById(metricDTO.getTaskId());
 
         TimespanVO formatTimespan = formatTimespan(metricDTO.getTimespan());
         if (!formatTimespan.getCorrect()) {
-            throw new RdosDefineException(String.format("timespan format error: %s", formatTimespan.getMsg()));
+            throw new TaierDefineException(String.format("timespan format error: %s", formatTimespan.getMsg()));
         }
         Long span = formatTimespan.getSpan();
         long endTime = metricDTO.getEnd().getTime();
@@ -201,12 +201,12 @@ public class StreamJobMetricService {
         }
         Pair<String, String> prometheusHostAndPort = serverLogService.getPrometheusHostAndPort(dtUicTenantId, null, ComputeType.STREAM);
         if (prometheusHostAndPort == null){
-            throw new RdosDefineException("promethues配置为空");
+            throw new TaierDefineException("promethues配置为空");
         }
         ICustomMetricQuery<List<MetricResultVO>> prometheusMetricQuery = new CustomPrometheusMetricQuery<>(String.format("%s:%s", prometheusHostAndPort.getKey(), prometheusHostAndPort.getValue()));
         TimespanVO formatTimespan = formatTimespan(timespan);
         if (!formatTimespan.getCorrect()) {
-            throw new RdosDefineException(String.format("timespan format error: %s", formatTimespan.getMsg()));
+            throw new TaierDefineException(String.format("timespan format error: %s", formatTimespan.getMsg()));
         }
         Long span = formatTimespan.getSpan();
         long startTime = end - span;

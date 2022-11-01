@@ -16,7 +16,7 @@
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
         <jar.package.name>restful</jar.package.name>
-        <jar.name>dtRestful</jar.name>
+        <jar.name>Restful</jar.name>
 
         <hadoop-common.version>2.7.3</hadoop-common.version>
     </properties>

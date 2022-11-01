@@ -20,7 +20,7 @@ package com.dtstack.taier.develop.controller.console;
 
 import com.alibaba.fastjson.JSONObject;
 import com.dtstack.taier.common.enums.EComponentType;
-import com.dtstack.taier.common.exception.RdosDefineException;
+import com.dtstack.taier.common.exception.TaierDefineException;
 import com.dtstack.taier.common.lang.coc.APITemplate;
 import com.dtstack.taier.common.lang.web.R;
 import com.dtstack.taier.dao.domain.Component;
@@ -81,19 +81,19 @@ public class UploadController {
             @Override
             protected void checkParams() throws IllegalArgumentException {
                 if (null == componentCode) {
-                    throw new RdosDefineException("Component type cannot be empty");
+                    throw new TaierDefineException("Component type cannot be empty");
                 }
                 if (null == clusterId) {
-                    throw new RdosDefineException("Cluster Id cannot be empty");
+                    throw new TaierDefineException("Cluster Id cannot be empty");
                 }
                 if (CollectionUtils.isNotEmpty(resources) && resources.size() >= 2 && StringUtils.isBlank(kerberosFileName)) {
                     //上传二份文件 需要kerberosFileName文件名字段
-                    throw new RdosDefineException("kerberosFileName不能为空");
+                    throw new TaierDefineException("kerberosFileName不能为空");
                 }
             }
 
             @Override
-            protected ComponentVO process() throws RdosDefineException {
+            protected ComponentVO process() throws TaierDefineException {
                 //校验引擎是否添加
                 String finalVersionName = versionName;
                 EComponentType componentType = EComponentType.getByCode(componentCode);
@@ -145,7 +145,7 @@ public class UploadController {
                 file.transferTo(saveFile);
             } catch (Exception e) {
                 LOGGER.error("" , e);
-                throw new RdosDefineException("An error occurred while storing the file");
+                throw new TaierDefineException("An error occurred while storing the file");
             }
             resources.add(new Resource(fileOriginalName, path, (int) file.getSize(), file.getContentType(), file.getName()));
         }

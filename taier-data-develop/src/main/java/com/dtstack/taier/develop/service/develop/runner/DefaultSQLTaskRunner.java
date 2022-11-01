@@ -28,7 +28,7 @@ import java.util.List;
  * @date 2022/7/13
  */
 @org.springframework.stereotype.Component
-public class DefaultSQLTaskRunner extends HadoopJdbcTaskRunner {
+public class DefaultSQLTaskRunner extends JdbcTaskRunner {
 
     @Override
     public List<EScheduleJobType> support() {

@@ -30,7 +30,7 @@ import com.dtstack.taier.common.enums.ForceCancelFlag;
 import com.dtstack.taier.common.enums.OperatorType;
 import com.dtstack.taier.common.enums.StoppedStatus;
 import com.dtstack.taier.common.env.EnvironmentContext;
-import com.dtstack.taier.common.exception.RdosDefineException;
+import com.dtstack.taier.common.exception.TaierDefineException;
 import com.dtstack.taier.common.queue.DelayBlockingQueue;
 import com.dtstack.taier.dao.domain.ScheduleEngineJobCache;
 import com.dtstack.taier.dao.domain.ScheduleJob;
@@ -140,7 +140,7 @@ public class JobStopDealer implements InitializingBean, DisposableBean {
         }
 
         if (scheduleJobList.size() > environmentContext.getStopLimit()) {
-            throw new RdosDefineException("please don't stop too many tasks at once, limit:" + environmentContext.getStopLimit());
+            throw new TaierDefineException("please don't stop too many tasks at once, limit:" + environmentContext.getStopLimit());
         }
 
         // 分离实例是否提交到yarn上，如果提交到yarn上，需要发送请求stop，如果未提交，直接更新db

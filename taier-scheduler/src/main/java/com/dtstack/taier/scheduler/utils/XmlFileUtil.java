@@ -18,7 +18,7 @@
 
 package com.dtstack.taier.scheduler.utils;
 
-import com.dtstack.taier.common.exception.RdosDefineException;
+import com.dtstack.taier.common.exception.TaierDefineException;
 import com.dtstack.taier.common.util.ZipUtil;
 import com.google.common.collect.Lists;
 import org.apache.commons.collections.CollectionUtils;
@@ -45,7 +45,7 @@ public class XmlFileUtil {
 
     public static List<File> filterXml(List<File> xmlFiles, List<String> validXml) {
         if (xmlFiles == null) {
-            throw new RdosDefineException("The necessary configuration file is missing：" + StringUtils.join(BASE_XML, ","));
+            throw new TaierDefineException("The necessary configuration file is missing：" + StringUtils.join(BASE_XML, ","));
         }
         if(null == validXml){
             validXml = Collections.emptyList();
@@ -64,7 +64,7 @@ public class XmlFileUtil {
             }
         }
         if (!checkFiles.isEmpty() || !validXml.isEmpty()) {
-            throw new RdosDefineException("The necessary profile is missing：" + StringUtils.join(checkFiles, ",")+StringUtils.join(validXml, ","));
+            throw new TaierDefineException("The necessary profile is missing：" + StringUtils.join(checkFiles, ",")+StringUtils.join(validXml, ","));
         }
         return xmlFiles;
     }
@@ -75,7 +75,7 @@ public class XmlFileUtil {
             return CollectionUtils.isEmpty(validXml)? xmlFiles : filterXml(xmlFiles, validXml);
         } catch (Exception e) {
             LOGGER.error(e.getMessage(), e);
-            throw new RdosDefineException("Failed to decompress the compressed package");
+            throw new TaierDefineException("Failed to decompress the compressed package");
         }
     }
 

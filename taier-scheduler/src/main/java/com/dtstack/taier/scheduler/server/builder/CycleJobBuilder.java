@@ -21,7 +21,7 @@ package com.dtstack.taier.scheduler.server.builder;
 import com.dtstack.taier.common.enums.Deleted;
 import com.dtstack.taier.common.enums.EScheduleStatus;
 import com.dtstack.taier.common.enums.EScheduleType;
-import com.dtstack.taier.common.exception.RdosDefineException;
+import com.dtstack.taier.common.exception.TaierDefineException;
 import com.dtstack.taier.dao.domain.ScheduleTaskShade;
 import com.dtstack.taier.pluginapi.util.DateUtil;
 import com.dtstack.taier.pluginapi.util.RetryUtil;
@@ -138,7 +138,7 @@ public class CycleJobBuilder extends AbstractJobBuilder {
                     });
                 } catch (Throwable e) {
                     LOGGER.error("[acquire pool error]:", e);
-                    throw new RdosDefineException(e);
+                    throw new TaierDefineException(e);
                 }
             }
             ctl.await();
@@ -198,7 +198,7 @@ public class CycleJobBuilder extends AbstractJobBuilder {
             }, environmentContext.getBuildJobErrorRetry(), 200, false);
         } catch (Exception e) {
             LOGGER.error("addJobTrigger triggerTimeStr {} error ", triggerTimeStr, e);
-            throw new RdosDefineException(e);
+            throw new TaierDefineException(e);
         }
         return true;
     }

@@ -19,7 +19,7 @@
 package com.dtstack.taier.develop.controller.user;
 
 import com.dtstack.taier.common.exception.ErrorCode;
-import com.dtstack.taier.common.exception.RdosDefineException;
+import com.dtstack.taier.common.exception.TaierDefineException;
 import com.dtstack.taier.common.lang.web.R;
 import com.dtstack.taier.dao.domain.Tenant;
 import com.dtstack.taier.dao.domain.User;
@@ -72,19 +72,19 @@ public class UserController {
     @PostMapping(value = "/login")
     public R<String> login(@RequestParam(value = "username") String userName, @RequestParam(value = "password") String password, HttpServletRequest request, HttpServletResponse response) {
         if (StringUtils.isBlank(userName)) {
-            throw new RdosDefineException("userName can not null");
+            throw new TaierDefineException("userName can not null");
         }
         if (StringUtils.isBlank(password)) {
-            throw new RdosDefineException("password can not null");
+            throw new TaierDefineException("password can not null");
         }
 
         User user = userService.getByUserName(userName.trim());
         if (null == user) {
-            throw new RdosDefineException(ErrorCode.USER_IS_NULL);
+            throw new TaierDefineException(ErrorCode.USER_IS_NULL);
         }
         String md5Password = MD5Util.getMd5String(password);
         if (!md5Password.equalsIgnoreCase(user.getPassword())) {
-            throw new RdosDefineException("password not correct");
+            throw new TaierDefineException("password not correct");
         }
         DtUser dtUser = new DtUser();
         dtUser.setUserId(user.getId());
@@ -105,17 +105,17 @@ public class UserController {
     public R<String> switchTenant(@RequestParam(value = "tenantId") Long tenantId, HttpServletRequest request, HttpServletResponse response) {
         String token = cookieService.token(request);
         if (StringUtils.isBlank(token)) {
-            throw new RdosDefineException(ErrorCode.TOKEN_IS_NULL);
+            throw new TaierDefineException(ErrorCode.TOKEN_IS_NULL);
         }
         DTToken decryption = tokenService.decryption(token);
         Long userId = decryption.getUserId();
         User user = userService.getById(userId);
         if (null == user) {
-            throw new RdosDefineException(ErrorCode.USER_IS_NULL);
+            throw new TaierDefineException(ErrorCode.USER_IS_NULL);
         }
         Tenant tenant = tenantService.getTenantById(tenantId);
         if (null == tenant) {
-            throw new RdosDefineException(ErrorCode.TENANT_IS_NULL);
+            throw new TaierDefineException(ErrorCode.TENANT_IS_NULL);
         }
         DtUser dtUser = new DtUser();
         dtUser.setUserId(user.getId());

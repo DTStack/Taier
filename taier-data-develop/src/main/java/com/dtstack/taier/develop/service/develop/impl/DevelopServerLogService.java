@@ -27,7 +27,7 @@ import com.dtstack.taier.common.enums.EScheduleJobType;
 import com.dtstack.taier.common.enums.EScheduleType;
 import com.dtstack.taier.common.env.EnvironmentContext;
 import com.dtstack.taier.common.exception.ErrorCode;
-import com.dtstack.taier.common.exception.RdosDefineException;
+import com.dtstack.taier.common.exception.TaierDefineException;
 import com.dtstack.taier.common.metric.batch.IMetric;
 import com.dtstack.taier.common.metric.batch.MetricBuilder;
 import com.dtstack.taier.common.metric.prometheus.PrometheusMetricQuery;
@@ -132,14 +132,14 @@ public class DevelopServerLogService {
         final ScheduleJob job = scheduleJobService.getByJobId(jobId);
         if (Objects.isNull(job)) {
             LOGGER.info("can not find job by id:{}.", jobId);
-            throw new RdosDefineException(ErrorCode.CAN_NOT_FIND_JOB);
+            throw new TaierDefineException(ErrorCode.CAN_NOT_FIND_JOB);
         }
         final Long tenantId = job.getTenantId();
 
         final ScheduleTaskShade scheduleTaskShade = this.taskService.findTaskByTaskId(job.getTaskId());
         if (Objects.isNull(scheduleTaskShade)) {
             LOGGER.info("can not find task shade  by jobId:{}.", jobId);
-            throw new RdosDefineException(ErrorCode.SERVER_EXCEPTION);
+            throw new TaierDefineException(ErrorCode.SERVER_EXCEPTION);
         }
 
         final DevelopServerLogVO developServerLogVO = new DevelopServerLogVO();
@@ -294,7 +294,7 @@ public class DevelopServerLogService {
             pageInfo = actionRetryLogVOs.size();
         }
         if (pageInfo > actionRetryLogVOs.size()) {
-            throw new RdosDefineException(ErrorCode.INVALID_PARAMETERS);
+            throw new TaierDefineException(ErrorCode.INVALID_PARAMETERS);
         }
         retryParamsMap.put("retryNum", pageInfo);
         //获取对应的日志
@@ -608,10 +608,10 @@ public class DevelopServerLogService {
         final ScheduleJob job = scheduleJobService.getByJobId(jobId);
         if (Objects.isNull(job)) {
             LOGGER.info("can not find job by id:{}.", jobId);
-            throw new RdosDefineException(ErrorCode.CAN_NOT_FIND_JOB);
+            throw new TaierDefineException(ErrorCode.CAN_NOT_FIND_JOB);
         }
         if (job.getTaskId() == null || job.getTaskId() == -1){
-            throw new RdosDefineException(ErrorCode.CAN_NOT_FIND_TASK);
+            throw new TaierDefineException(ErrorCode.CAN_NOT_FIND_TASK);
         }
         Task developTaskById = developTaskService.getDevelopTaskById(job.getTaskId());
         //prometheus的配置信息 从控制台获取
@@ -708,7 +708,7 @@ public class DevelopServerLogService {
         if (EScheduleJobType.SYNC.getVal().equals(taskType)
                 || EScheduleJobType.VIRTUAL.getVal().equals(taskType)
                 || EScheduleJobType.WORK_FLOW.getVal().equals(taskType)) {
-            throw new RdosDefineException("数据同步、虚节点、工作流的任务日志不支持下载");
+            throw new TaierDefineException("数据同步、虚节点、工作流的任务日志不支持下载");
         }
         final JSONObject result = new JSONObject(YarnAppLogType.values().length);
         for (final YarnAppLogType type : YarnAppLogType.values()) {
@@ -727,11 +727,11 @@ public class DevelopServerLogService {
         if (EScheduleJobType.SYNC.getVal().equals(taskType)
                 || EScheduleJobType.VIRTUAL.getVal().equals(taskType)
                 || EScheduleJobType.WORK_FLOW.getVal().equals(taskType)) {
-            throw new RdosDefineException("数据同步、虚节点、工作流的任务日志不支持下载");
+            throw new TaierDefineException("数据同步、虚节点、工作流的任务日志不支持下载");
         }
 
         if (YarnAppLogType.getType(logType) == null) {
-            throw new RdosDefineException("not support the logType:" + logType);
+            throw new TaierDefineException("not support the logType:" + logType);
         }
         ExecuteResultVO executeResultVO = taskConfiguration.get(taskType).runLog(jobId, taskType, tenantId, environmentContext.getLogsLimitNum());
         DevelopServerLogByAppLogTypeResultVO resultVO = new DevelopServerLogByAppLogTypeResultVO();

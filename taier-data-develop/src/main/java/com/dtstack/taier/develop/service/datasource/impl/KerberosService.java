@@ -22,7 +22,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.dtstack.taier.common.enums.EComponentType;
 import com.dtstack.taier.common.env.EnvironmentContext;
 import com.dtstack.taier.common.exception.ErrorCode;
-import com.dtstack.taier.common.exception.PubSvcDefineException;
+import com.dtstack.taier.common.exception.TaierDefineException;
 import com.dtstack.taier.common.kerberos.KerberosConfigVerify;
 import com.dtstack.taier.common.sftp.SFTPHandler;
 import com.dtstack.taier.scheduler.service.ClusterService;
@@ -137,7 +137,7 @@ public class KerberosService {
         // 解析SFTP配置信息
         JSONObject sftpConfig = clusterService.getConfigByKey(tenantId, EComponentType.SFTP.getConfName(), null);
         if (Objects.isNull(sftpConfig)) {
-            throw new PubSvcDefineException(ErrorCode.CAN_NOT_FIND_SFTP);
+            throw new TaierDefineException(ErrorCode.CAN_NOT_FIND_SFTP);
         } else {
             for (String key : sftpConfig.keySet()) {
                 map.put(key, sftpConfig.getString(key));

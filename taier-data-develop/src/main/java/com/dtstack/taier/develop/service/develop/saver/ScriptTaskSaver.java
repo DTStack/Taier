@@ -21,7 +21,7 @@ package com.dtstack.taier.develop.service.develop.saver;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.dtstack.taier.common.enums.EScheduleJobType;
-import com.dtstack.taier.common.exception.RdosDefineException;
+import com.dtstack.taier.common.exception.TaierDefineException;
 import com.dtstack.taier.dao.domain.Task;
 import com.dtstack.taier.develop.dto.devlop.TaskResourceParam;
 import com.dtstack.taier.develop.dto.devlop.TaskVO;
@@ -100,6 +100,6 @@ public class ScriptTaskSaver extends AbstractTaskSaver {
                     return "python3";
             }
         }
-        throw new RdosDefineException("not support pythonVersion:" + pythonVersion);
+        throw new TaierDefineException("not support pythonVersion:" + pythonVersion);
     }
 }

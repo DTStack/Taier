@@ -19,7 +19,7 @@
 package com.dtstack.taier.common.util;
 
 import com.alibaba.fastjson.JSONObject;
-import com.dtstack.taier.common.exception.PubSvcDefineException;
+import com.dtstack.taier.common.exception.TaierDefineException;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Sets;
 import org.apache.commons.lang3.ArrayUtils;
@@ -117,7 +117,7 @@ public class PublicUtil {
         try {
             return objectMapper.readValue(objectMapper.writeValueAsBytes(params), clazz);
         } catch (IOException e) {
-            throw new PubSvcDefineException(String.format("对象转换异常:%s", e.getMessage()), e);
+            throw new TaierDefineException(String.format("对象转换异常:%s", e.getMessage()), e);
         }
     }
 
@@ -125,7 +125,7 @@ public class PublicUtil {
         try {
             return params == null ? null : objectMapper.readValue(objectMapper.writeValueAsBytes(params), clazz);
         } catch (IOException e) {
-            throw new PubSvcDefineException(String.format("对象转换异常:%s", e.getMessage()), e);
+            throw new TaierDefineException(String.format("对象转换异常:%s", e.getMessage()), e);
         }
     }
 

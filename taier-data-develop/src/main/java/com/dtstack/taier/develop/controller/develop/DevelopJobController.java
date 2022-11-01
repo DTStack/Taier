@@ -18,7 +18,7 @@
 
 package com.dtstack.taier.develop.controller.develop;
 
-import com.dtstack.taier.common.exception.RdosDefineException;
+import com.dtstack.taier.common.exception.TaierDefineException;
 import com.dtstack.taier.common.lang.coc.APITemplate;
 import com.dtstack.taier.common.lang.web.R;
 import com.dtstack.taier.develop.dto.devlop.ExecuteResultVO;
@@ -54,7 +54,7 @@ public class DevelopJobController {
         return new APITemplate<DevelopStartSyncResultVO>() {
 
             @Override
-            protected DevelopStartSyncResultVO process() throws RdosDefineException {
+            protected DevelopStartSyncResultVO process() throws TaierDefineException {
                 return batchJobService.startSyncImmediately(vo.getTaskId(), vo.getUserId(), vo.getIsRoot(), vo.getTenantId());
             }
         }.execute();
@@ -66,7 +66,7 @@ public class DevelopJobController {
 
         return new APITemplate<DevelopGetSyncTaskStatusInnerResultVO>() {
             @Override
-            protected DevelopGetSyncTaskStatusInnerResultVO process() throws RdosDefineException {
+            protected DevelopGetSyncTaskStatusInnerResultVO process() throws TaierDefineException {
                 return batchJobService.getSyncTaskStatus(vo.getTenantId(), vo.getJobId());
             }
         }.execute();
@@ -78,7 +78,7 @@ public class DevelopJobController {
 
         return new APITemplate<Void>() {
             @Override
-            protected Void process() throws RdosDefineException {
+            protected Void process() throws TaierDefineException {
                 batchJobService.stopSyncJob(vo.getJobId());
                 return null;
             }
@@ -91,7 +91,7 @@ public class DevelopJobController {
 
         return new APITemplate<DevelopExecuteResultVO>() {
             @Override
-            protected DevelopExecuteResultVO process() throws RdosDefineException {
+            protected DevelopExecuteResultVO process() throws TaierDefineException {
                 ExecuteResultVO executeResultVO = batchJobService.startSqlImmediately(vo.getUserId(), vo.getTenantId(), vo.getTaskId(), vo.getSql(), vo.getTaskVariables());
                 return DevelopJobMapstructTransfer.INSTANCE.executeResultVOToDevelopExecuteResultVO(executeResultVO);
             }
@@ -105,7 +105,7 @@ public class DevelopJobController {
 
         return new APITemplate<Void>() {
             @Override
-            protected Void process() throws RdosDefineException {
+            protected Void process() throws TaierDefineException {
                 batchJobService.stopSqlImmediately(vo.getJobId(), vo.getTenantId());
                 return null;
             }

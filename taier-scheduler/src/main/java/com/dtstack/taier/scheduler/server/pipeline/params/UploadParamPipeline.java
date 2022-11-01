@@ -19,7 +19,7 @@
 package com.dtstack.taier.scheduler.server.pipeline.params;
 
 import com.alibaba.fastjson.JSONObject;
-import com.dtstack.taier.common.exception.RdosDefineException;
+import com.dtstack.taier.common.exception.TaierDefineException;
 import com.dtstack.taier.dao.domain.ScheduleJob;
 import com.dtstack.taier.dao.domain.ScheduleTaskShade;
 import com.dtstack.taier.dao.dto.ScheduleTaskParamShade;
@@ -50,29 +50,29 @@ public class UploadParamPipeline extends IPipeline.AbstractPipeline {
     }
 
     @Override
-    public void pipeline(Map<String, Object> actionParam, Map<String, Object> pipelineParam) throws RdosDefineException {
+    public void pipeline(Map<String, Object> actionParam, Map<String, Object> pipelineParam) throws TaierDefineException {
         if (pipelineParam.containsKey(pipelineKey)) {
             return;
         }
         ScheduleTaskShade taskShade = (ScheduleTaskShade) pipelineParam.get(taskShadeKey);
         if (null == taskShade) {
-            throw new RdosDefineException("upload param pipeline task shade can not be null");
+            throw new TaierDefineException("upload param pipeline task shade can not be null");
         }
         ScheduleJob scheduleJob = (ScheduleJob) pipelineParam.get(scheduleJobKey);
         if (null == scheduleJob) {
-            throw new RdosDefineException("upload param pipeline schedule job can not be null");
+            throw new TaierDefineException("upload param pipeline schedule job can not be null");
         }
         String fileUploadPath = (String) pipelineParam.get(fileUploadPathKey);
         if (StringUtils.isBlank(fileUploadPath)) {
-            throw new RdosDefineException("upload param pipeline fileUploadPath can not be null");
+            throw new TaierDefineException("upload param pipeline fileUploadPath can not be null");
         }
         WorkerOperator workerOperator = (WorkerOperator) pipelineParam.get(workOperatorKey);
         if (null == workerOperator) {
-            throw new RdosDefineException("upload param pipeline workerOperator can not be null");
+            throw new TaierDefineException("upload param pipeline workerOperator can not be null");
         }
         JSONObject pluginInfo = (JSONObject) pipelineParam.get(pluginInfoKey);
         if (null == pluginInfo) {
-            throw new RdosDefineException("upload param pipeline pluginInfo can not be null");
+            throw new TaierDefineException("upload param pipeline pluginInfo can not be null");
         }
         @SuppressWarnings("unchecked")
         List<ScheduleTaskParamShade> taskParamShades = (List) pipelineParam.get(taskParamsToReplaceKey);

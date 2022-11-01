@@ -18,7 +18,7 @@
 
 package com.dtstack.taier.common.enums;
 
-import com.dtstack.taier.common.exception.RdosDefineException;
+import com.dtstack.taier.common.exception.TaierDefineException;
 import com.dtstack.taier.pluginapi.enums.EJobType;
 
 import java.util.ArrayList;
@@ -162,7 +162,7 @@ public enum EScheduleJobType {
                 return eJobType;
             }
         }
-        throw new RdosDefineException("不支持的任务类型");
+        throw new TaierDefineException("不支持的任务类型");
     }
 
     public Integer getValue() {

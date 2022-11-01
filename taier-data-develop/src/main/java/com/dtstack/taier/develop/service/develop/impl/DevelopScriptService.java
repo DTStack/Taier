@@ -25,7 +25,7 @@ import com.dtstack.taier.common.enums.EComponentType;
 import com.dtstack.taier.common.enums.EScheduleJobType;
 import com.dtstack.taier.common.enums.TempJobType;
 import com.dtstack.taier.common.env.EnvironmentContext;
-import com.dtstack.taier.common.exception.RdosDefineException;
+import com.dtstack.taier.common.exception.TaierDefineException;
 import com.dtstack.taier.common.util.MathUtil;
 import com.dtstack.taier.dao.domain.DevelopTaskParam;
 import com.dtstack.taier.dao.domain.ScheduleTaskShade;
@@ -171,7 +171,7 @@ public class DevelopScriptService {
             datasourceOperator.uploadInputStreamToHdfs(hdfsConf, tenantId, sqlText.getBytes(), hdfsPath);
         } catch (Exception e) {
             LOG.error("Update task to HDFS failure", e);
-            throw new RdosDefineException("Update task to HDFS failure:" + e.getMessage());
+            throw new TaierDefineException("Update task to HDFS failure:" + e.getMessage());
         }
 
         return hdfsPath;

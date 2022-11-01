@@ -22,7 +22,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.dtstack.taier.datasource.api.dto.source.ISourceDTO;
 import com.dtstack.taier.common.enums.EScheduleJobType;
-import com.dtstack.taier.common.exception.RdosDefineException;
+import com.dtstack.taier.common.exception.TaierDefineException;
 import com.dtstack.taier.dao.domain.DevelopSelectSql;
 import com.dtstack.taier.dao.domain.DevelopTaskParam;
 import com.dtstack.taier.dao.domain.Task;
@@ -125,7 +125,7 @@ public class SyncTaskRunner implements ITaskRunner {
             //临时运行不做重试
             actionParam.put("taskParamsToReplace", JSON.toJSONString(taskParamsToReplace));
         } catch (Exception e) {
-            throw new RdosDefineException(String.format("创建数据同步job失败: %s", e.getMessage()), e);
+            throw new TaierDefineException(String.format("创建数据同步job失败: %s", e.getMessage()), e);
         }
 
         return actionParam;

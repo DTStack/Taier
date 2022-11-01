@@ -18,7 +18,7 @@
 
 package com.dtstack.taier.scheduler.server.builder.cron;
 
-import com.dtstack.taier.common.exception.RdosDefineException;
+import com.dtstack.taier.common.exception.TaierDefineException;
 import com.dtstack.taier.scheduler.server.builder.ScheduleConf;
 
 /**
@@ -35,11 +35,11 @@ public class ScheduleCronDayParser implements IScheduleConfParser {
     @Override
     public String parse(ScheduleConf scheduleConf) {
         if (scheduleConf.getMin() == null) {
-            throw new RdosDefineException(String.format(ScheduleConfManager.CustomError.ERROR_INFO,scheduleConf.getPeriodType(),"min"));
+            throw new TaierDefineException(String.format(ScheduleConfManager.CustomError.ERROR_INFO,scheduleConf.getPeriodType(),"min"));
         }
 
         if (scheduleConf.getHour() == null) {
-            throw new RdosDefineException(String.format(ScheduleConfManager.CustomError.ERROR_INFO,scheduleConf.getPeriodType(),"hour"));
+            throw new TaierDefineException(String.format(ScheduleConfManager.CustomError.ERROR_INFO,scheduleConf.getPeriodType(),"hour"));
         }
 
         Integer minute =scheduleConf.getMin();

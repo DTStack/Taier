@@ -17,7 +17,7 @@
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
         <jar.package.name>sap_hana</jar.package.name>
-        <jar.name>dtSap_hana</jar.name>
+        <jar.name>Sap_hana</jar.name>
 
         <ngdbc.version>2.4.51</ngdbc.version>
     </properties>

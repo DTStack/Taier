@@ -18,7 +18,7 @@
 
 package com.dtstack.taier.develop.controller.develop;
 
-import com.dtstack.taier.common.exception.RdosDefineException;
+import com.dtstack.taier.common.exception.TaierDefineException;
 import com.dtstack.taier.common.lang.coc.APITemplate;
 import com.dtstack.taier.common.lang.web.R;
 import com.dtstack.taier.dao.domain.DevelopSelectSql;
@@ -65,7 +65,7 @@ public class DevelopSelectSqlController {
                     Task task = developTaskService.getOneWithError(sqlVO.getTaskId());
                     return taskRunner.selectData(task, selectSql, task.getTenantId(), sqlVO.getUserId(), sqlVO.getIsRoot(), selectSql.getTaskType());
                 } catch (Exception e) {
-                    throw new RdosDefineException(e.getMessage());
+                    throw new TaierDefineException(e.getMessage());
                 }
             }
         }.execute();
@@ -84,7 +84,7 @@ public class DevelopSelectSqlController {
                     Task task = developTaskService.getOneWithError(sqlVO.getTaskId());
                     return taskRunner.selectStatus(task, selectSql, task.getTenantId(), sqlVO.getUserId(), sqlVO.getIsRoot(), selectSql.getTaskType());
                 } catch (Exception e) {
-                    throw new RdosDefineException(e.getMessage());
+                    throw new TaierDefineException(e.getMessage());
                 }
             }
         }.execute();
@@ -103,7 +103,7 @@ public class DevelopSelectSqlController {
                     Task task = developTaskService.getOneWithError(sqlVO.getTaskId());
                     return taskRunner.runLog(selectSql.getJobId(), task.getTaskType(), task.getTenantId(), sqlVO.getLimitNum());
                 } catch (Exception e) {
-                    throw new RdosDefineException(e.getMessage());
+                    throw new TaierDefineException(e.getMessage());
                 }
             }
         }.execute();

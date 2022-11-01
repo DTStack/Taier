@@ -18,7 +18,7 @@
 
 package com.dtstack.taier.develop.controller.operation;
 
-import com.dtstack.taier.common.exception.RdosDefineException;
+import com.dtstack.taier.common.exception.TaierDefineException;
 import com.dtstack.taier.common.lang.web.R;
 import com.dtstack.taier.dao.domain.ScheduleJob;
 import com.dtstack.taier.develop.mapstruct.job.ActionMapStructTransfer;
@@ -77,7 +77,7 @@ public class OperationActionController {
         RestartType byCode = RestartType.getByCode(restartType);
 
         if (byCode == null) {
-            throw new RdosDefineException("请选择正确的重跑模式");
+            throw new TaierDefineException("请选择正确的重跑模式");
         }
 
         return R.ok(actionService.restartJob(byCode, jobIds));

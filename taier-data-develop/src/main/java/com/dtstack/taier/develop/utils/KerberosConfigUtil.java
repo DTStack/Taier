@@ -19,7 +19,7 @@
 package com.dtstack.taier.develop.utils;
 
 import com.dtstack.taier.common.exception.DtCenterDefException;
-import com.dtstack.taier.common.exception.RdosDefineException;
+import com.dtstack.taier.common.exception.TaierDefineException;
 import com.dtstack.taier.common.sftp.SFTPHandler;
 import com.google.common.collect.Lists;
 import com.jcraft.jsch.ChannelSftp;
@@ -85,7 +85,7 @@ public class KerberosConfigUtil {
                 }
             }
         } catch (Exception e) {
-            throw new RdosDefineException(String.format("从 SFTP 下载配置文件异常: %s", e.getMessage()), e);
+            throw new TaierDefineException(String.format("从 SFTP 下载配置文件异常: %s", e.getMessage()), e);
         } finally {
             if (handler != null) {
                 handler.close();

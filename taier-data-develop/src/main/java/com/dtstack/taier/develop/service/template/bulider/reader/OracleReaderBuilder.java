@@ -29,7 +29,7 @@ import com.dtstack.taier.datasource.api.dto.source.ISourceDTO;
 import com.dtstack.taier.datasource.api.dto.source.OracleSourceDTO;
 import com.dtstack.taier.datasource.api.source.DataSourceType;
 import com.dtstack.taier.common.enums.EScheduleJobType;
-import com.dtstack.taier.common.exception.RdosDefineException;
+import com.dtstack.taier.common.exception.TaierDefineException;
 import com.dtstack.taier.common.util.DataSourceUtils;
 import com.dtstack.taier.dao.domain.DsInfo;
 import com.dtstack.taier.develop.common.template.Reader;
@@ -87,7 +87,7 @@ public class OracleReaderBuilder implements DaReaderBuilder {
     @PostConstruct
     private void init() {
         if (dataSourceCenterService == null) {
-            throw new RdosDefineException("streamDataSourceService should not be null");
+            throw new TaierDefineException("streamDataSourceService should not be null");
         }
         builderMap.put(RdbmsDaType.LOGMINER.getCode(), new OracleDABinlogInnerBuilder(dataSourceCenterService));
         builderMap.put(RdbmsDaType.Poll.getCode(), new OracleDAPollInnerBuilder(dataSourceCenterService));
@@ -198,7 +198,7 @@ public class OracleReaderBuilder implements DaReaderBuilder {
                     }
                     sourceMap.put("tableFields", fields);
                 } catch (Exception e) {
-                    throw new RdosDefineException("获取" + tableName + "字段信息异常", e);
+                    throw new TaierDefineException("获取" + tableName + "字段信息异常", e);
                 }
                 String increColumn = MapUtils.getString(sourceMap, "increColumn");
                 int index = -1;
@@ -265,7 +265,7 @@ public class OracleReaderBuilder implements DaReaderBuilder {
                 OraclePollReaderParam param = JsonUtils.objectToObject(sourceMap, OraclePollReaderParam.class);
                 return JsonUtils.objectToMap(param);
             } catch (Exception e) {
-                throw new RdosDefineException("getParserSourceMap error", e);
+                throw new TaierDefineException("getParserSourceMap error", e);
             }
         }
 
@@ -354,7 +354,7 @@ public class OracleReaderBuilder implements DaReaderBuilder {
                 OracleBinLogReaderParam param = JsonUtils.objectToObject(sourceMap, OracleBinLogReaderParam.class);
                 return JsonUtils.objectToMap(param);
             } catch (Exception e) {
-                throw new RdosDefineException("getParserSourceMap error", e);
+                throw new TaierDefineException("getParserSourceMap error", e);
             }
         }
 
@@ -371,7 +371,7 @@ public class OracleReaderBuilder implements DaReaderBuilder {
                     return "scn";
                 case 1://
                 default:
-                    throw new RdosDefineException("Oracle binlog实时采集暂不支持此采集方式");
+                    throw new TaierDefineException("Oracle binlog实时采集暂不支持此采集方式");
             }
         }
     }

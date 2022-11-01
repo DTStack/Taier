@@ -17,7 +17,7 @@
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
         <jar.package.name>maxcompute</jar.package.name>
-        <jar.name>dtMaxcompute</jar.name>
+        <jar.name>Maxcompute</jar.name>
     </properties>
 
     <dependencies>

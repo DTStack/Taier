@@ -17,7 +17,7 @@
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
         <jar.package.name>kudu</jar.package.name>
-        <jar.name>dtKudu</jar.name>
+        <jar.name>Kudu</jar.name>
 
         <kudu-client.version>1.14.0</kudu-client.version>
         <hadoop-common.version>2.7.3</hadoop-common.version>

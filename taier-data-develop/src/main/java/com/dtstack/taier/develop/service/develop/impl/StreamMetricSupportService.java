@@ -18,7 +18,7 @@
 
 package com.dtstack.taier.develop.service.develop.impl;
 
-import com.dtstack.taier.common.exception.RdosDefineException;
+import com.dtstack.taier.common.exception.TaierDefineException;
 import com.dtstack.taier.dao.domain.StreamMetricSupport;
 import com.dtstack.taier.dao.mapper.StreamMetricSupportMapper;
 import org.apache.commons.lang.StringUtils;
@@ -61,11 +61,11 @@ public class StreamMetricSupportService {
      */
     public StreamMetricSupport getMetricByValue(String value, String componentVersion) {
         if (StringUtils.isBlank(value)) {
-            throw new RdosDefineException("metric value is not null...");
+            throw new TaierDefineException("metric value is not null...");
         }
         StreamMetricSupport metric = streamMetricSupportDao.getMetricByValue(value, componentVersion);
         if (Objects.isNull(metric)) {
-            throw new RdosDefineException(String.format("metric not found by value '%s'...", value));
+            throw new TaierDefineException(String.format("metric not found by value '%s'...", value));
         }
         return metric;
     }

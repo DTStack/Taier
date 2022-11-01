@@ -19,7 +19,7 @@
 package com.dtstack.taier.common.client;
 
 import com.dtstack.taier.common.exception.LimitResourceException;
-import com.dtstack.taier.common.exception.RdosDefineException;
+import com.dtstack.taier.common.exception.TaierDefineException;
 import com.dtstack.taier.pluginapi.CustomThreadFactory;
 import com.dtstack.taier.pluginapi.JobClient;
 import com.dtstack.taier.pluginapi.JobIdentifier;
@@ -30,7 +30,6 @@ import com.dtstack.taier.pluginapi.enums.TaskStatus;
 import com.dtstack.taier.pluginapi.exception.ClientArgumentException;
 import com.dtstack.taier.pluginapi.exception.ExceptionUtil;
 import com.dtstack.taier.pluginapi.pojo.CheckResult;
-import com.dtstack.taier.pluginapi.pojo.ClusterResource;
 import com.dtstack.taier.pluginapi.pojo.ComponentTestResult;
 import com.dtstack.taier.pluginapi.pojo.FileResult;
 import com.dtstack.taier.pluginapi.pojo.JobResult;
@@ -82,13 +81,13 @@ public class ClientProxy implements IClient {
                         }
                     }, targetClient.getClass().getClassLoader(), true);
                 } catch (Exception e) {
-                    throw new RdosDefineException(e);
+                    throw new TaierDefineException(e);
                 }
             }, executorService).get(timeout, TimeUnit.MILLISECONDS);
         } catch (Exception e) {
             // 初始化失败,关闭线程池
             executorService.shutdown();
-            throw new RdosDefineException(e);
+            throw new TaierDefineException(e);
         }
     }
 
@@ -105,11 +104,11 @@ public class ClientProxy implements IClient {
                         }
                     }, targetClient.getClass().getClassLoader(), true);
                 } catch (Exception e) {
-                    throw new RdosDefineException(e);
+                    throw new TaierDefineException(e);
                 }
             }, executorService).get(timeout, TimeUnit.MILLISECONDS);
         } catch (InterruptedException | ExecutionException | TimeoutException e) {
-            throw new RdosDefineException(e);
+            throw new TaierDefineException(e);
         }
     }
 
@@ -126,11 +125,11 @@ public class ClientProxy implements IClient {
                         }
                     }, targetClient.getClass().getClassLoader(), true);
                 } catch (Exception e) {
-                    throw new RdosDefineException(e);
+                    throw new TaierDefineException(e);
                 }
             }, executorService).get(timeout, TimeUnit.MILLISECONDS);
         } catch (InterruptedException | ExecutionException | TimeoutException e) {
-            throw new RdosDefineException(e);
+            throw new TaierDefineException(e);
         }
     }
 
@@ -147,11 +146,11 @@ public class ClientProxy implements IClient {
                         }
                     }, targetClient.getClass().getClassLoader(), true);
                 } catch (Exception e) {
-                    throw new RdosDefineException(e);
+                    throw new TaierDefineException(e);
                 }
             }, executorService).get(timeout, TimeUnit.MILLISECONDS);
         } catch (InterruptedException | ExecutionException | TimeoutException e) {
-            throw new RdosDefineException(e);
+            throw new TaierDefineException(e);
         }
     }
 
@@ -168,11 +167,11 @@ public class ClientProxy implements IClient {
                         }
                     }, targetClient.getClass().getClassLoader(), true);
                 } catch (Exception e) {
-                    throw new RdosDefineException(e);
+                    throw new TaierDefineException(e);
                 }
             }, executorService).get(timeout, TimeUnit.MILLISECONDS);
         } catch (InterruptedException | ExecutionException | TimeoutException e) {
-            throw new RdosDefineException(e);
+            throw new TaierDefineException(e);
         }
     }
 
@@ -189,11 +188,11 @@ public class ClientProxy implements IClient {
                         }
                     }, targetClient.getClass().getClassLoader(), true);
                 } catch (Exception e) {
-                    throw new RdosDefineException(e);
+                    throw new TaierDefineException(e);
                 }
             }, executorService).get(timeout, TimeUnit.MILLISECONDS);
         } catch (InterruptedException | ExecutionException | TimeoutException e) {
-            throw new RdosDefineException(e);
+            throw new TaierDefineException(e);
         }
     }
 
@@ -210,11 +209,11 @@ public class ClientProxy implements IClient {
                         }
                     }, targetClient.getClass().getClassLoader(), true);
                 } catch (Exception e) {
-                    throw new RdosDefineException(e);
+                    throw new TaierDefineException(e);
                 }
             }, executorService).get(timeout, TimeUnit.MILLISECONDS);
         } catch (InterruptedException | ExecutionException | TimeoutException e) {
-            throw new RdosDefineException(e);
+            throw new TaierDefineException(e);
         }
     }
 
@@ -244,10 +243,10 @@ public class ClientProxy implements IClient {
             throw new ClientArgumentException(e);
         } else if (throwable instanceof LimitResourceException) {
             throw new LimitResourceException(e.getMessage());
-        } else if (throwable instanceof RdosDefineException) {
+        } else if (throwable instanceof TaierDefineException) {
             return JudgeResult.exception("judgeSlots error" + ExceptionUtil.getErrorMessage(e));
         }
-        throw new RdosDefineException(e);
+        throw new TaierDefineException(e);
     }
 
 
@@ -264,11 +263,11 @@ public class ClientProxy implements IClient {
                         }
                     }, targetClient.getClass().getClassLoader(), true);
                 } catch (Exception e) {
-                    throw new RdosDefineException(e);
+                    throw new TaierDefineException(e);
                 }
             }, executorService).get(timeout, TimeUnit.MILLISECONDS);
         } catch (InterruptedException | ExecutionException | TimeoutException e) {
-            throw new RdosDefineException(e);
+            throw new TaierDefineException(e);
         }
     }
 
@@ -280,11 +279,11 @@ public class ClientProxy implements IClient {
                     return ClassLoaderCallBackMethod.callbackAndReset(() -> targetClient.testConnect(pluginInfo),
                             targetClient.getClass().getClassLoader(), true);
                 } catch (Exception e) {
-                    throw new RdosDefineException(e);
+                    throw new TaierDefineException(e);
                 }
             }, executorService).get(timeout, TimeUnit.MILLISECONDS);
         } catch (InterruptedException | ExecutionException | TimeoutException e) {
-            throw new RdosDefineException(e);
+            throw new TaierDefineException(e);
         }
     }
 
@@ -293,7 +292,7 @@ public class ClientProxy implements IClient {
         try {
             return ClassLoaderCallBackMethod.callbackAndReset(() -> targetClient.getRollingLogBaseInfo(jobIdentifier), targetClient.getClass().getClassLoader(), true);
         } catch (Exception e) {
-            throw new RdosDefineException(e.getMessage());
+            throw new TaierDefineException(e.getMessage());
         }
     }
 
@@ -305,11 +304,11 @@ public class ClientProxy implements IClient {
                 try {
                     return ClassLoaderCallBackMethod.callbackAndReset(() -> targetClient.grammarCheck(jobClient), targetClient.getClass().getClassLoader(), true);
                 } catch (Exception e) {
-                    throw new RdosDefineException(e);
+                    throw new TaierDefineException(e);
                 }
             }, executorService).get(timeout, TimeUnit.MILLISECONDS);
         } catch (InterruptedException | ExecutionException | TimeoutException e) {
-            throw new RdosDefineException(e);
+            throw new TaierDefineException(e);
         }
     }
 
@@ -320,11 +319,11 @@ public class ClientProxy implements IClient {
                 try {
                     return ClassLoaderCallBackMethod.callbackAndReset(() -> targetClient.listFile(path, isPathPattern), targetClient.getClass().getClassLoader(), true);
                 } catch (Exception e) {
-                    throw new RdosDefineException(e);
+                    throw new TaierDefineException(e);
                 }
             }, executorService).get(timeout, TimeUnit.MILLISECONDS);
         } catch (InterruptedException | ExecutionException | TimeoutException e) {
-            throw new RdosDefineException(e);
+            throw new TaierDefineException(e);
         }
     }
 

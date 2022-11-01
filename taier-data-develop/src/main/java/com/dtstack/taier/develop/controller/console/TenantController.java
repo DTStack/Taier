@@ -20,7 +20,7 @@ package com.dtstack.taier.develop.controller.console;
 
 import com.dtstack.taier.common.constant.Cookies;
 import com.dtstack.taier.common.exception.ErrorCode;
-import com.dtstack.taier.common.exception.RdosDefineException;
+import com.dtstack.taier.common.exception.TaierDefineException;
 import com.dtstack.taier.common.lang.web.R;
 import com.dtstack.taier.common.util.RegexUtils;
 import com.dtstack.taier.dao.domain.Cluster;
@@ -63,7 +63,7 @@ public class TenantController {
                                                           @RequestParam("currentPage") int currentPage) {
         Cluster cluster = clusterService.getCluster(clusterId);
         if (cluster == null) {
-            throw new RdosDefineException(ErrorCode.CANT_NOT_FIND_CLUSTER);
+            throw new TaierDefineException(ErrorCode.CANT_NOT_FIND_CLUSTER);
         }
         tenantName = tenantName == null ? "" : tenantName;
         return R.ok(tenantService.pageQuery(clusterId, tenantName, pageSize, currentPage));
@@ -74,7 +74,7 @@ public class TenantController {
     public R<Void> bindingTenant(@RequestBody ComponentBindTenantVO vo) throws Exception {
         Cluster cluster = clusterService.getCluster(vo.getClusterId());
         if (cluster == null) {
-            throw new RdosDefineException(ErrorCode.CANT_NOT_FIND_CLUSTER);
+            throw new TaierDefineException(ErrorCode.CANT_NOT_FIND_CLUSTER);
         }
         tenantService.bindingTenant(vo.getTenantId(), vo.getClusterId(), vo.getQueueName());
         return R.empty();
@@ -95,16 +95,16 @@ public class TenantController {
     @PostMapping(value = "/addTenant")
     public R<Void> addTenant(@RequestParam("tenantName") String tenantName, @RequestParam("tenantIdentity") String tenantIdentity, @CookieValue(Cookies.USER_ID) Long userId) throws Exception {
         if (StringUtils.isBlank(tenantName)) {
-            throw new RdosDefineException(ErrorCode.INVALID_PARAMETERS);
+            throw new TaierDefineException(ErrorCode.INVALID_PARAMETERS);
         }
         if (StringUtils.isBlank(tenantIdentity)) {
-            throw new RdosDefineException(ErrorCode.INVALID_PARAMETERS);
+            throw new TaierDefineException(ErrorCode.INVALID_PARAMETERS);
         }
         if (!RegexUtils.tenantName(tenantIdentity))
-            throw new RdosDefineException(ErrorCode.TENANT_NAME_VERIFICATION_ERROR);
+            throw new TaierDefineException(ErrorCode.TENANT_NAME_VERIFICATION_ERROR);
         Tenant tenant = tenantService.findByName(tenantName.trim());
         if (null != tenant) {
-            throw new RdosDefineException("tenant has exist");
+            throw new TaierDefineException("tenant has exist");
         }
         tenantService.addTenant(tenantName, userId, tenantIdentity);
         return R.empty();

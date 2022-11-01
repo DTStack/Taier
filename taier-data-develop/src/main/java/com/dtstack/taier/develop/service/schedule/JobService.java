@@ -25,7 +25,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.dtstack.taier.common.enums.Deleted;
 import com.dtstack.taier.common.enums.EScheduleType;
 import com.dtstack.taier.common.exception.ErrorCode;
-import com.dtstack.taier.common.exception.RdosDefineException;
+import com.dtstack.taier.common.exception.TaierDefineException;
 import com.dtstack.taier.dao.domain.ScheduleFillDataJob;
 import com.dtstack.taier.dao.domain.ScheduleJob;
 import com.dtstack.taier.dao.domain.ScheduleTaskShade;
@@ -212,7 +212,7 @@ public class JobService extends ServiceImpl<ScheduleJobMapper, ScheduleJob> {
                 .eq(ScheduleJob::getIsDeleted, Deleted.NORMAL.getStatus())
                 .one();
         if (scheduleJob == null) {
-            throw new RdosDefineException(ErrorCode.CAN_NOT_FIND_JOB);
+            throw new TaierDefineException(ErrorCode.CAN_NOT_FIND_JOB);
         }
 
         //需要根据查询的job的类型来
@@ -495,28 +495,28 @@ public class JobService extends ServiceImpl<ScheduleJobMapper, ScheduleJob> {
         DateTime endTime = new DateTime(DateUtil.getDateMilliSecondTOFormat(endDay, DateUtil.DATE_FORMAT));
 
         if (fillName == null) {
-            throw new RdosDefineException("(fillName 参数不能为空)", ErrorCode.INVALID_PARAMETERS);
+            throw new TaierDefineException("(fillName 参数不能为空)", ErrorCode.INVALID_PARAMETERS);
         }
 
         //补数据的名称中-作为分割名称和后缀信息的分隔符,故不允许使用
         if (fillName.contains("-")) {
-            throw new RdosDefineException("(fillName 参数不能包含字符 '-')", ErrorCode.INVALID_PARAMETERS);
+            throw new TaierDefineException("(fillName 参数不能包含字符 '-')", ErrorCode.INVALID_PARAMETERS);
         }
 
         if (!startTime.isBefore(DateTime.now())) {
-            throw new RdosDefineException("(补数据业务日期开始时间不能晚于结束时间)", ErrorCode.INVALID_PARAMETERS);
+            throw new TaierDefineException("(补数据业务日期开始时间不能晚于结束时间)", ErrorCode.INVALID_PARAMETERS);
         }
 
         if (fillDataInfo == null) {
-            throw new RdosDefineException("fillDataInfo is not null", ErrorCode.INVALID_PARAMETERS);
+            throw new TaierDefineException("fillDataInfo is not null", ErrorCode.INVALID_PARAMETERS);
         }
 
         if (FillDataTypeEnum.PROJECT.getType().equals(fillDataInfo.getFillDataType()) && (endTime.getMillis() - startTime.getMillis()) / (1000 * 3600 * 24) > 7) {
-            throw new RdosDefineException("The difference between the start and end days cannot exceed 7 days", ErrorCode.INVALID_PARAMETERS);
+            throw new TaierDefineException("The difference between the start and end days cannot exceed 7 days", ErrorCode.INVALID_PARAMETERS);
         }
 
         if (fillDataJobService.checkExistsName(fillName)) {
-            throw new RdosDefineException("补数据任务名称已存在", ErrorCode.NAME_ALREADY_EXIST);
+            throw new TaierDefineException("补数据任务名称已存在", ErrorCode.NAME_ALREADY_EXIST);
         }
     }
 
@@ -666,7 +666,7 @@ public class JobService extends ServiceImpl<ScheduleJobMapper, ScheduleJob> {
         //check job status can reset
         if (!TaskStatus.canReset(currStatus)) {
             LOGGER.error("jobId:{} can not update status current status is :{} ", jobId, currStatus);
-            throw new RdosDefineException(String.format(" taskId(%s) can't reset status, current status(%d)", jobId, currStatus));
+            throw new TaierDefineException(String.format(" taskId(%s) can't reset status, current status(%d)", jobId, currStatus));
         }
         ScheduleJob updateScheduleJob = new ScheduleJob();
         updateScheduleJob.setApplicationId("");

@@ -20,7 +20,7 @@ package com.dtstack.taier.develop.aspect;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
-import com.dtstack.taier.common.exception.RdosDefineException;
+import com.dtstack.taier.common.exception.TaierDefineException;
 import com.dtstack.taier.common.util.PublicUtil;
 import com.dtstack.taier.develop.filter.DtRequestWrapperFilter;
 import org.aspectj.lang.JoinPoint;
@@ -64,10 +64,10 @@ public class FileUploadAspect {
     public void before(JoinPoint joinPoint) throws Throwable {
         Object[] args = joinPoint.getArgs();
         if (args.length < 2) {
-            throw new RdosDefineException("upload method args less than 2.");
+            throw new TaierDefineException("upload method args less than 2.");
         }
         if (!MultipartFile.class.isAssignableFrom(args[1].getClass())){
-            throw new RdosDefineException("upload method args[1] not AssignableFrom MultipartFile.");
+            throw new TaierDefineException("upload method args[1] not AssignableFrom MultipartFile.");
         }
 
         MultipartFile file = (MultipartFile) args[1];

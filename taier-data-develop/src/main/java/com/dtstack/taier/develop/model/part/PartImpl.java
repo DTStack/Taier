@@ -23,7 +23,7 @@ import com.dtstack.taier.common.enums.EComponentScheduleType;
 import com.dtstack.taier.common.enums.EComponentType;
 import com.dtstack.taier.common.enums.EDeployType;
 import com.dtstack.taier.common.exception.ErrorCode;
-import com.dtstack.taier.common.exception.RdosDefineException;
+import com.dtstack.taier.common.exception.TaierDefineException;
 import com.dtstack.taier.dao.domain.Component;
 import com.dtstack.taier.dao.domain.ComponentConfig;
 import com.dtstack.taier.develop.model.DataSource;
@@ -80,7 +80,7 @@ public class PartImpl implements Part {
         List<Long> allTemplateIds = new ArrayList<>();
         String pluginName = getPluginName();
         if (StringUtils.isBlank(pluginName)) {
-            throw new RdosDefineException(String.format(ErrorCode.NOT_SUPPORT_COMPONENT.getMsg(), type.name(), versionName));
+            throw new TaierDefineException(String.format(ErrorCode.NOT_SUPPORT_COMPONENT.getMsg(), type.name(), versionName));
         }
         Long extraVersionParameters = getExtraVersionParameters();
         if (extraVersionParameters != null) {
@@ -95,7 +95,7 @@ public class PartImpl implements Part {
         if (CollectionUtils.isNotEmpty(dependsOn) && !EDeployType.STANDALONE.equals(deployType)) {
             for (EComponentScheduleType componentScheduleType : dependsOn) {
                 if (!componentScheduleGroup.containsKey(componentScheduleType)) {
-                    throw new RdosDefineException(ErrorCode.DEPEND_ON_COMPONENT_NOT_CONFIG);
+                    throw new TaierDefineException(ErrorCode.DEPEND_ON_COMPONENT_NOT_CONFIG);
                 }
             }
         }
@@ -104,7 +104,7 @@ public class PartImpl implements Part {
 
     protected void validDeployType(EDeployType deployType) {
         if (EDeployType.YARN.equals(deployType) && !EComponentType.YARN.equals(getResourceType())) {
-            throw new RdosDefineException(String.format(ErrorCode.RESOURCE_COMPONENT_NOT_SUPPORT_DEPLOY_TYPE.getMsg(), type, deployType));
+            throw new TaierDefineException(String.format(ErrorCode.RESOURCE_COMPONENT_NOT_SUPPORT_DEPLOY_TYPE.getMsg(), type, deployType));
         }
     }
 
@@ -142,7 +142,7 @@ public class PartImpl implements Part {
                 }
                 break;
             default:
-                throw new RdosDefineException(ErrorCode.COMPONENT_INVALID);
+                throw new TaierDefineException(ErrorCode.COMPONENT_INVALID);
         }
     }
 
@@ -150,7 +150,7 @@ public class PartImpl implements Part {
     public EComponentType getResourceType() {
         List<Component> components = componentScheduleGroup.get(EComponentScheduleType.RESOURCE);
         if (CollectionUtils.isEmpty(components)) {
-            throw new RdosDefineException(ErrorCode.RESOURCE_COMPONENT_NOT_CONFIG);
+            throw new TaierDefineException(ErrorCode.RESOURCE_COMPONENT_NOT_CONFIG);
         }
         Integer componentTypeCode = components.get(0).getComponentTypeCode();
         return EComponentType.getByCode(componentTypeCode);
@@ -175,7 +175,7 @@ public class PartImpl implements Part {
         //依赖resource 但是不依赖resource的类型拼接pluginName 如hive2
         Optional<JSONObject> modelConfig = context.getModelConfig(type, versionName);
         return modelConfig.map(model -> model.getString(versionName)).orElseThrow(() ->
-                new RdosDefineException(String.format(ErrorCode.COMPONENT_CONFIG_NOT_SUPPORT_VERSION.getMsg(), type.name(), versionName))
+                new TaierDefineException(String.format(ErrorCode.COMPONENT_CONFIG_NOT_SUPPORT_VERSION.getMsg(), type.name(), versionName))
         );
     }
 }

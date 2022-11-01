@@ -21,7 +21,7 @@ package com.dtstack.taier.develop.controller.develop;
 import com.alibaba.fastjson.JSONObject;
 import com.dtstack.taier.common.enums.EComponentType;
 import com.dtstack.taier.common.exception.ErrorCode;
-import com.dtstack.taier.common.exception.RdosDefineException;
+import com.dtstack.taier.common.exception.TaierDefineException;
 import com.dtstack.taier.common.lang.web.R;
 import com.dtstack.taier.dao.domain.ScheduleJob;
 import com.dtstack.taier.develop.mapstruct.vo.FileMapstructTransfer;
@@ -74,7 +74,7 @@ public class DevelopCheckpointController {
         String jobId = checkPointVO.getJobId();
         ScheduleJob scheduleJob = scheduleJobService.getByJobId(jobId);
         if (null == scheduleJob) {
-            throw new RdosDefineException(ErrorCode.CAN_NOT_FIND_JOB);
+            throw new TaierDefineException(ErrorCode.CAN_NOT_FIND_JOB);
         }
         String applicationId = checkPointVO.getApplicationId();
         String engineId = jobHistoryService.getEngineIdByApplicationId(applicationId);
@@ -91,7 +91,7 @@ public class DevelopCheckpointController {
             pointPathDir = deployConfig.getString(ConfigConstant.CHECK_POINTS_DIR) + File.separator + engineId;
         }
         if (StringUtils.isBlank(pointPathDir)) {
-            throw new RdosDefineException(ErrorCode.CONFIG_ERROR);
+            throw new TaierDefineException(ErrorCode.CONFIG_ERROR);
         }
         Long clusterId = clusterService.getClusterIdByTenantId(scheduleJob.getTenantId());
         JSONObject pluginInfo = componentService.wrapperConfig(clusterId, EComponentType.HDFS.getTypeCode(), null, null);

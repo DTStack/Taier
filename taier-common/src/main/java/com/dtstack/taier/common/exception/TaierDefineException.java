@@ -24,57 +24,57 @@ import org.apache.commons.lang3.StringUtils;
 /**
  * @author sishu.yss
  */
-public class RdosDefineException extends RuntimeException {
+public class TaierDefineException extends RuntimeException {
 
 
     private String errorMessage;
 
     private ErrorCode errorCode;
 
-    public RdosDefineException() {
+    public TaierDefineException() {
     }
 
-    public RdosDefineException(Throwable cause) {
+    public TaierDefineException(Throwable cause) {
         super(cause);
         this.errorCode = ErrorCode.UNKNOWN_ERROR;
     }
 
-    public RdosDefineException(String errorMessage) {
+    public TaierDefineException(String errorMessage) {
         super(errorMessage);
         this.errorMessage = errorMessage;
         this.errorCode = ErrorCode.UNKNOWN_ERROR;
     }
 
-    public RdosDefineException(String errorMessage, Throwable cause) {
+    public TaierDefineException(String errorMessage, Throwable cause) {
         super(errorMessage, cause);
         this.errorMessage = errorMessage;
         this.errorCode = ErrorCode.UNKNOWN_ERROR;
     }
 
-    public RdosDefineException(ErrorCode errorCode) {
+    public TaierDefineException(ErrorCode errorCode) {
         super(buildErrorInfo(errorCode, errorCode.getDescription()));
         this.errorCode = errorCode;
         setErrorMessage("");
     }
 
-    public RdosDefineException(String message, ErrorCode errorCode) {
+    public TaierDefineException(String message, ErrorCode errorCode) {
         super(buildErrorInfo(errorCode, message));
         this.errorCode = errorCode;
         setErrorMessage(message);
     }
 
-    public RdosDefineException(String message, ErrorCode errorCode, String url) {
+    public TaierDefineException(String message, ErrorCode errorCode, String url) {
         super(buildErrorInfo(errorCode, message, url));
         this.errorCode = errorCode;
         setErrorMessage(message);
     }
 
-    public RdosDefineException(ErrorCode errorCode, Throwable cause) {
+    public TaierDefineException(ErrorCode errorCode, Throwable cause) {
         super(buildErrorInfo(errorCode, errorCode.getDescription()), cause);
         this.errorCode = errorCode;
     }
 
-    public RdosDefineException(String message, ErrorCode errorCode, Throwable cause) {
+    public TaierDefineException(String message, ErrorCode errorCode, Throwable cause) {
         super(buildErrorInfo(errorCode, message), cause);
         this.errorCode = errorCode;
         setErrorMessage(message);

@@ -19,7 +19,7 @@
 package com.dtstack.taier.develop.utils;
 
 import com.alibaba.fastjson.JSONObject;
-import com.dtstack.taier.common.exception.RdosDefineException;
+import com.dtstack.taier.common.exception.TaierDefineException;
 import org.codehaus.jackson.map.DeserializationConfig;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.slf4j.Logger;
@@ -79,7 +79,7 @@ public class JsonUtils {
             String formatJson = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(json);
             return formatJson;
         } catch (Exception var3) {
-            throw new RdosDefineException("JOSN解析失败", var3);
+            throw new TaierDefineException("JOSN解析失败", var3);
         }
     }
 

@@ -17,7 +17,7 @@
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
         <jar.package.name>es</jar.package.name>
-        <jar.name>dtEs</jar.name>
+        <jar.name>Es</jar.name>
 
         <elasticsearch.version>6.8.10</elasticsearch.version>
         <elasticsearch.client.version>6.8.10</elasticsearch.client.version>
