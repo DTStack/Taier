@@ -24,7 +24,7 @@ import com.dtstack.taier.datasource.api.base.ClientCache;
 import com.dtstack.taier.datasource.api.dto.source.ISourceDTO;
 import com.dtstack.taier.datasource.api.source.DataSourceType;
 import com.dtstack.taier.common.exception.ErrorCode;
-import com.dtstack.taier.common.exception.RdosDefineException;
+import com.dtstack.taier.common.exception.TaierDefineException;
 import com.dtstack.taier.common.util.DataSourceUtils;
 import com.dtstack.taier.dao.domain.DsInfo;
 import com.dtstack.taier.develop.common.template.Writer;
@@ -60,7 +60,7 @@ public abstract class KafkaBaseWriterBuilder implements DaWriterBuilder {
     public void setWriterJson(TaskResourceParam param) {
         Map<String, Object> map = param.getTargetMap();
         if (!map.containsKey("sourceId")) {
-            throw new RdosDefineException(ErrorCode.DATA_SOURCE_NOT_SET);
+            throw new TaierDefineException(ErrorCode.DATA_SOURCE_NOT_SET);
         }
 
         Long sourceId = Long.parseLong(map.get("sourceId").toString());

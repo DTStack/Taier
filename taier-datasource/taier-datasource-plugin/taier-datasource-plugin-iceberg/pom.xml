@@ -17,7 +17,7 @@
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
         <jar.package.name>iceberg</jar.package.name>
-        <jar.name>dtIceberg</jar.name>
+        <jar.name>Iceberg</jar.name>
 
         <iceberg.version>0.12.0</iceberg.version>
         <iceberg-hive.version>0.12.0</iceberg-hive.version>

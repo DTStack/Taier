@@ -25,7 +25,7 @@ import com.dtstack.taier.common.enums.DisplayDirect;
 import com.dtstack.taier.common.enums.EScheduleJobType;
 import com.dtstack.taier.common.env.EnvironmentContext;
 import com.dtstack.taier.common.exception.ErrorCode;
-import com.dtstack.taier.common.exception.RdosDefineException;
+import com.dtstack.taier.common.exception.TaierDefineException;
 import com.dtstack.taier.dao.domain.ScheduleTaskShade;
 import com.dtstack.taier.dao.domain.ScheduleTaskTaskShade;
 import com.dtstack.taier.dao.domain.Tenant;
@@ -253,7 +253,7 @@ public class TaskTaskService extends ServiceImpl<ScheduleTaskTaskShadeMapper, Sc
     public List<Long> getWorkFlowTopTask(Long taskId) {
         ScheduleTaskShade workFlowTask = taskService.findTaskByTaskId(taskId);
         if (null == workFlowTask || !Objects.equals(EScheduleJobType.WORK_FLOW.getType(), workFlowTask.getTaskType())) {
-            throw new RdosDefineException(ErrorCode.CAN_NOT_FIND_TASK);
+            throw new TaierDefineException(ErrorCode.CAN_NOT_FIND_TASK);
         }
         JSONObject workFlowSql = JSONObject.parseObject(workFlowTask.getSqlText());
         List<Long> topTasks = new ArrayList<>();

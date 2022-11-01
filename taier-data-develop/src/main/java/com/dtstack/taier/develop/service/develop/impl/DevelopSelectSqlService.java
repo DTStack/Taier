@@ -19,7 +19,7 @@
 package com.dtstack.taier.develop.service.develop.impl;
 
 import com.dtstack.taier.common.enums.EComputeType;
-import com.dtstack.taier.common.exception.RdosDefineException;
+import com.dtstack.taier.common.exception.TaierDefineException;
 import com.dtstack.taier.dao.domain.DevelopSelectSql;
 import com.dtstack.taier.dao.domain.Task;
 import com.dtstack.taier.dao.mapper.DevelopHiveSelectSqlMapper;
@@ -67,7 +67,7 @@ public class DevelopSelectSqlService {
     public DevelopSelectSql getByJobId(String jobId, Long tenantId, Integer isDeleted) {
         DevelopSelectSql selectSql = getSelectSql(tenantId, jobId, isDeleted);
         if (selectSql == null) {
-            throw new RdosDefineException("select job not exists");
+            throw new TaierDefineException("select job not exists");
         }
         return selectSql;
     }
@@ -122,7 +122,7 @@ public class DevelopSelectSqlService {
                     parseResult.getOriginSql(), userId, buildSqlVO.getParsedColumns(), taskType);
             return preJobId;
         } catch (Exception e) {
-            throw new RdosDefineException("任务执行sql失败", e);
+            throw new TaierDefineException("任务执行sql失败", e);
         }
     }
 

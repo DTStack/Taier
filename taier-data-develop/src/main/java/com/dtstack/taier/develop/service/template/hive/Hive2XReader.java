@@ -19,7 +19,7 @@
 package com.dtstack.taier.develop.service.template.hive;
 
 import com.alibaba.fastjson.JSONObject;
-import com.dtstack.taier.common.exception.RdosDefineException;
+import com.dtstack.taier.common.exception.TaierDefineException;
 import com.dtstack.taier.develop.service.template.PluginName;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.util.StringUtils;
@@ -45,7 +45,7 @@ public class Hive2XReader extends HiveReaderBase {
     public void checkFormat(JSONObject data) {
         data = data.getJSONObject("parameter");
         if (StringUtils.isEmpty(data.getString("jdbcUrl"))) {
-            throw new RdosDefineException("jdbcUrl 不能为空");
+            throw new TaierDefineException("jdbcUrl 不能为空");
         }
     }
 

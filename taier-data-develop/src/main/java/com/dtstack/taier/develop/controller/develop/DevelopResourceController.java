@@ -19,7 +19,7 @@
 package com.dtstack.taier.develop.controller.develop;
 
 import com.dtstack.taier.common.annotation.FileUpload;
-import com.dtstack.taier.common.exception.RdosDefineException;
+import com.dtstack.taier.common.exception.TaierDefineException;
 import com.dtstack.taier.common.lang.coc.APITemplate;
 import com.dtstack.taier.common.lang.web.R;
 import com.dtstack.taier.develop.dto.devlop.DevelopResourceVO;
@@ -54,7 +54,7 @@ public class DevelopResourceController {
     public R<DevelopCatalogueResultVO> addResource(DevelopResourceAddVO DevelopResourceAddVO, MultipartFile file) {
         return new APITemplate<DevelopCatalogueResultVO>() {
             @Override
-            protected DevelopCatalogueResultVO process() throws RdosDefineException {
+            protected DevelopCatalogueResultVO process() throws TaierDefineException {
                 CatalogueVO catalogue = DevelopResourceService.addResource(DevelopResourceMapstructTransfer.INSTANCE.resourceVOToResourceAddDTO(DevelopResourceAddVO));
                 return DevelopCatalogueMapstructTransfer.INSTANCE.newCatalogueVoToCatalogueResultVo(catalogue);
             }
@@ -67,7 +67,7 @@ public class DevelopResourceController {
     public R<Void> replaceResource(DevelopResourceAddVO DevelopResourceAddVO, MultipartFile file) {
         return new APITemplate<Void>() {
             @Override
-            protected Void process() throws RdosDefineException {
+            protected Void process() throws TaierDefineException {
                 DevelopResourceService.replaceResource(DevelopResourceMapstructTransfer.INSTANCE.resourceVOToResourceAddDTO(DevelopResourceAddVO));
                 return null;
             }
@@ -80,7 +80,7 @@ public class DevelopResourceController {
     public R<DevelopGetResourceByIdResultVO> getResourceById(@RequestBody DevelopResourceBaseVO DevelopResourceBaseVO) {
         return new APITemplate<DevelopGetResourceByIdResultVO>() {
             @Override
-            protected DevelopGetResourceByIdResultVO process() throws RdosDefineException {
+            protected DevelopGetResourceByIdResultVO process() throws TaierDefineException {
                 DevelopResourceVO resourceById = DevelopResourceService.getResourceById(DevelopResourceBaseVO.getResourceId());
                 return DevelopResourceMapstructTransfer.INSTANCE.DevelopResourceVOToDevelopGetResourceByIdResultVO(resourceById);
             }
@@ -92,7 +92,7 @@ public class DevelopResourceController {
     public R<Long> deleteResource(@RequestBody(required = false) DevelopResourceBaseVO DevelopResourceBaseVO) {
         return new APITemplate<Long>() {
             @Override
-            protected Long process() throws RdosDefineException {
+            protected Long process() throws TaierDefineException {
                 return DevelopResourceService.deleteResource(DevelopResourceBaseVO.getTenantId(), DevelopResourceBaseVO.getResourceId());
             }
         }.execute();

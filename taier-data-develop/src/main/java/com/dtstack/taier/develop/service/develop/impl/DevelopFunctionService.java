@@ -25,7 +25,7 @@ import com.dtstack.taier.common.enums.Deleted;
 import com.dtstack.taier.common.enums.EScheduleJobType;
 import com.dtstack.taier.common.enums.ETableType;
 import com.dtstack.taier.common.exception.ErrorCode;
-import com.dtstack.taier.common.exception.RdosDefineException;
+import com.dtstack.taier.common.exception.TaierDefineException;
 import com.dtstack.taier.common.util.AssertUtils;
 import com.dtstack.taier.common.util.PublicUtil;
 import com.dtstack.taier.common.util.SqlFormatUtil;
@@ -121,7 +121,7 @@ public class DevelopFunctionService {
     @Transactional(rollbackFor = Exception.class)
     public TaskCatalogueVO addOrUpdateFunction(DevelopFunction developFunction, Long resourceId, Long userId) {
         if (!PublicUtil.matcher(developFunction.getName(), PatternConstant.FUNCTION_PATTERN)) {
-            throw new RdosDefineException("注意名称只允许存在字母、数字、下划线、横线，hive函数不支持大写字母", ErrorCode.NAME_FORMAT_ERROR);
+            throw new TaierDefineException("注意名称只允许存在字母、数字、下划线、横线，hive函数不支持大写字母", ErrorCode.NAME_FORMAT_ERROR);
         }
         AssertUtils.notNull(resourceId, "新增函数必须添加资源");
         developResourceService.checkResourceType(Collections.singletonList(resourceId), developFunction.getTaskType());
@@ -210,7 +210,7 @@ public class DevelopFunctionService {
                 .eq(DevelopFunction::getId,functionId)
                 .eq(DevelopFunction::getIsDeleted,Deleted.NORMAL.getStatus()));
         if (Objects.isNull(bf)) {
-            throw new RdosDefineException(ErrorCode.FUNCTION_CAN_NOT_FIND);
+            throw new TaierDefineException(ErrorCode.FUNCTION_CAN_NOT_FIND);
         }
         bf = new DevelopFunction();
         bf.setId(functionId);
@@ -230,7 +230,7 @@ public class DevelopFunctionService {
                 .eq(DevelopFunction::getId,functionId)
                 .eq(DevelopFunction::getIsDeleted,Deleted.NORMAL.getStatus()));
         if (Objects.isNull(developFunction)) {
-            throw new RdosDefineException(ErrorCode.FUNCTION_CAN_NOT_FIND);
+            throw new TaierDefineException(ErrorCode.FUNCTION_CAN_NOT_FIND);
         }
         developFunctionResourceService.deleteByFunctionId(functionId);
         developFunction = new DevelopFunction();

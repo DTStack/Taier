@@ -27,8 +27,7 @@ import com.dtstack.taier.common.constant.FormNames;
 import com.dtstack.taier.common.enums.DataSourceTypeEnum;
 import com.dtstack.taier.common.exception.DtCenterDefException;
 import com.dtstack.taier.common.exception.ErrorCode;
-import com.dtstack.taier.common.exception.PubSvcDefineException;
-import com.dtstack.taier.common.exception.RdosDefineException;
+import com.dtstack.taier.common.exception.TaierDefineException;
 import com.dtstack.taier.common.thread.RdosThreadFactory;
 import com.dtstack.taier.common.util.DataSourceUtils;
 import com.dtstack.taier.dao.domain.DsInfo;
@@ -176,7 +175,7 @@ public class DsInfoService extends ServiceImpl<DsInfoMapper, DsInfo> {
     public Boolean delDsInfo(Long dataInfoId) {
         DsInfo dsInfo = this.getOneById(dataInfoId);
         if (Objects.equals(dsInfo.getIsMeta(), 1)) {
-            throw new PubSvcDefineException(ErrorCode.CAN_NOT_DEL_META_DS);
+            throw new TaierDefineException(ErrorCode.CAN_NOT_DEL_META_DS);
         }
         return this.getBaseMapper().deleteById(dataInfoId) > 0;
     }
@@ -365,7 +364,7 @@ public class DsInfoService extends ServiceImpl<DsInfoMapper, DsInfo> {
         JSONObject columnMetaData = new JSONObject();
         try {
             if (source == null || tableName == null) {
-                throw new RdosDefineException(ErrorCode.CAN_NOT_FIND_DATA_SOURCE);
+                throw new TaierDefineException(ErrorCode.CAN_NOT_FIND_DATA_SOURCE);
             }
             ISourceDTO sourceDTO = sourceLoaderService.buildSourceDTO(source.getId());
             if (isPartition) {
@@ -413,7 +412,7 @@ public class DsInfoService extends ServiceImpl<DsInfoMapper, DsInfo> {
             }
             return columnMetaData;
         } catch (Exception e) {
-            throw new RdosDefineException(String.format("getTablesColumn 异常 tableName=%s,Caused by: %s", tableName, e.getMessage()), e);
+            throw new TaierDefineException(String.format("getTablesColumn 异常 tableName=%s,Caused by: %s", tableName, e.getMessage()), e);
         }
     }
 
@@ -431,7 +430,7 @@ public class DsInfoService extends ServiceImpl<DsInfoMapper, DsInfo> {
             }
             return tables;
         } catch (Exception e) {
-            throw new RdosDefineException("数据源出错，错误信息：" + e.getMessage(), e);
+            throw new TaierDefineException("数据源出错，错误信息：" + e.getMessage(), e);
         }
     }
 
@@ -460,7 +459,7 @@ public class DsInfoService extends ServiceImpl<DsInfoMapper, DsInfo> {
             try {
                 mapList = client.executeQuery(oracleSourceDTO, SqlQueryDTO.builder().sql(SHOW_ORACLE_BINLOG_SQL).build());
             } catch (Exception e) {
-                throw new RdosDefineException(String.format("获取数据库log文件失败,Caused by: %s", e.getMessage()), e);
+                throw new TaierDefineException(String.format("获取数据库log文件失败,Caused by: %s", e.getMessage()), e);
             }
             for (Map<String, Object> map : mapList) {
                 if (StringUtils.isNotBlank(MapUtils.getString(map, "FIRST_TIME")) && StringUtils.isNotBlank(MapUtils.getString(map, "FIRST_CHANGE#"))) {
@@ -511,7 +510,7 @@ public class DsInfoService extends ServiceImpl<DsInfoMapper, DsInfo> {
                 if (e.getCause() instanceof SQLException) {
                     SQLException cause = (SQLException) e.getCause();
                     if ("HY000".equalsIgnoreCase(cause.getSQLState())) {
-                        throw new RdosDefineException("数据库未开启binlog日志");
+                        throw new TaierDefineException("数据库未开启binlog日志");
                     }
                 }
             }
@@ -534,7 +533,7 @@ public class DsInfoService extends ServiceImpl<DsInfoMapper, DsInfo> {
     public DsInfo getOneById(Long dsInfoId) {
         DsInfo dataSource = this.getById(dsInfoId);
         if (Objects.isNull(dataSource) || Objects.isNull(dataSource.getId())) {
-            throw new PubSvcDefineException(ErrorCode.CAN_NOT_FIND_DATA_SOURCE);
+            throw new TaierDefineException(ErrorCode.CAN_NOT_FIND_DATA_SOURCE);
         }
         //查询引入表判断是否是迁移的数据源
         JSONObject dataSourceJson = DataSourceUtils.getDataSourceJson(dataSource.getDataJson());

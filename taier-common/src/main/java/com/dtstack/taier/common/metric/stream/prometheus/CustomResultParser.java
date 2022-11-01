@@ -22,7 +22,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.TypeReference;
-import com.dtstack.taier.common.exception.RdosDefineException;
+import com.dtstack.taier.common.exception.TaierDefineException;
 import com.dtstack.taier.common.metric.prometheus.MetricResultType;
 import com.dtstack.taier.common.metric.prometheus.PrometheusConstants;
 import com.dtstack.taier.common.param.MetricResultVO;
@@ -56,11 +56,11 @@ public class CustomResultParser {
         try {
             jsonResult = JSON.parseObject(result);
         } catch (Exception e) {
-            throw new RdosDefineException("prometheus response is not json format...");
+            throw new TaierDefineException("prometheus response is not json format...");
         }
         String queryStatus = jsonResult.getString("status");
         if (PrometheusConstants.RESPONSE_ERROR_STATUS.equalsIgnoreCase(queryStatus)) {
-            throw new RdosDefineException(String.format("prometheus response error: %s", jsonResult.getString("error")));
+            throw new TaierDefineException(String.format("prometheus response error: %s", jsonResult.getString("error")));
         }
         JSONObject dataNode = jsonResult.getJSONObject("data");
         String resultType = dataNode.getString("resultType");
@@ -109,7 +109,7 @@ public class CustomResultParser {
             }
             return metricResultVOS;
         } else {
-            throw new RdosDefineException("not support MetricResultType:" + resultType);
+            throw new TaierDefineException("not support MetricResultType:" + resultType);
         }
     }
 

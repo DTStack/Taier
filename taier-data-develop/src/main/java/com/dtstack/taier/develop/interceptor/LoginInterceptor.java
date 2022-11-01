@@ -20,7 +20,7 @@ package com.dtstack.taier.develop.interceptor;
 
 import com.dtstack.taier.common.constant.CommonConstant;
 import com.dtstack.taier.common.exception.ErrorCode;
-import com.dtstack.taier.common.exception.RdosDefineException;
+import com.dtstack.taier.common.exception.TaierDefineException;
 import com.dtstack.taier.develop.utils.CookieUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -45,7 +45,7 @@ public class LoginInterceptor extends HandlerInterceptorAdapter {
         }
         String token = CookieUtil.getToken(request.getCookies());
         if (StringUtils.isBlank(token)) {
-            throw new RdosDefineException(ErrorCode.NOT_LOGIN);
+            throw new TaierDefineException(ErrorCode.NOT_LOGIN);
         }
         return true;
     }

@@ -19,7 +19,7 @@
 package com.dtstack.taier.scheduler.server.builder.dependency;
 
 import com.dtstack.taier.common.enums.Deleted;
-import com.dtstack.taier.common.exception.RdosDefineException;
+import com.dtstack.taier.common.exception.TaierDefineException;
 import com.dtstack.taier.dao.domain.ScheduleJobJob;
 import com.dtstack.taier.dao.domain.ScheduleTaskShade;
 import com.dtstack.taier.pluginapi.util.DateUtil;
@@ -113,7 +113,7 @@ public class UpstreamDependencyHandler extends AbstractJobDependency {
         String lastDateStr = DateUtil.getDate(corn.isMatch(currentDate) ? currentDate : corn.last(currentDate), DateUtil.STANDARD_DATETIME_FORMAT);
 
         if (StringUtils.isBlank(lastDateStr)) {
-            throw new RdosDefineException("no find upstream task of last cycle");
+            throw new TaierDefineException("no find upstream task of last cycle");
         }
         String jobKey = JobKeyUtils.generateJobKey(keyPreStr, scheduleTaskShade.getTaskId(), lastDateStr);
         return needCreateKey(lastDate, currentDate, jobKey);

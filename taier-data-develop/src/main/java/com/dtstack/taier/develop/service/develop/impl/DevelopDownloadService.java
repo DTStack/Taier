@@ -19,7 +19,7 @@
 package com.dtstack.taier.develop.service.develop.impl;
 
 import com.dtstack.taier.common.enums.DownloadType;
-import com.dtstack.taier.common.exception.RdosDefineException;
+import com.dtstack.taier.common.exception.TaierDefineException;
 import com.dtstack.taier.dao.domain.ScheduleJobExpand;
 import com.dtstack.taier.develop.dto.devlop.ExecuteResultVO;
 import com.dtstack.taier.develop.service.develop.ITaskRunner;
@@ -200,7 +200,7 @@ public class DevelopDownloadService {
         if (downloadType == DownloadType.DEVELOP_LOG) {
             downFileNameSuf = ".log";
         } else {
-            throw new RdosDefineException("未知的文件下载类型");
+            throw new TaierDefineException("未知的文件下载类型");
         }
         return String.format("taier_%s%s", UUID.randomUUID(), downFileNameSuf);
     }

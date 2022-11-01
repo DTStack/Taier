@@ -22,7 +22,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.JSONValidator;
 import com.dtstack.taier.common.constant.FormNames;
 import com.dtstack.taier.common.exception.DtCenterDefException;
-import com.dtstack.taier.common.exception.RdosDefineException;
+import com.dtstack.taier.common.exception.TaierDefineException;
 import com.dtstack.taier.common.sftp.SFTPHandler;
 import com.google.common.collect.Maps;
 import com.jcraft.jsch.ChannelSftp;
@@ -167,7 +167,7 @@ public class DataSourceUtils {
             }
         } catch (Exception e) {
             LOGGER.error("parse datasource error", e);
-            throw new RdosDefineException("数据源信息解码异常", e);
+            throw new TaierDefineException("数据源信息解码异常", e);
         }
     }
 
@@ -237,7 +237,7 @@ public class DataSourceUtils {
     public static JSONObject getOriginKerberosConfig(JSONObject dataJson, boolean check) {
         JSONObject kerberosConfig = dataJson.getJSONObject(KERBEROS_CONFIG);
         if (check && kerberosConfig == null) {
-            throw new RdosDefineException("kerberos配置缺失");
+            throw new TaierDefineException("kerberos配置缺失");
         }
         return kerberosConfig;
     }

@@ -20,7 +20,7 @@ package com.dtstack.taier.develop.enums.develop;
 
 
 import com.dtstack.taier.common.exception.ErrorCode;
-import com.dtstack.taier.common.exception.RdosDefineException;
+import com.dtstack.taier.common.exception.TaierDefineException;
 
 /**
  * 实时采集任务 操作类型
@@ -62,6 +62,6 @@ public enum DAoperators {
                 return value;
             }
         }
-        throw new RdosDefineException("实时采集任务操作类型选择错误", ErrorCode.INVALID_PARAMETERS);
+        throw new TaierDefineException("实时采集任务操作类型选择错误", ErrorCode.INVALID_PARAMETERS);
     }
 }

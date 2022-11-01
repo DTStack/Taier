@@ -20,7 +20,7 @@ package com.dtstack.taier.develop.service.template.kafka;
 
 import com.alibaba.fastjson.JSONObject;
 import com.dtstack.taier.datasource.api.source.DataSourceType;
-import com.dtstack.taier.common.exception.RdosDefineException;
+import com.dtstack.taier.common.exception.TaierDefineException;
 import com.dtstack.taier.develop.service.template.BaseWriterPlugin;
 import org.apache.commons.lang.StringUtils;
 
@@ -132,14 +132,14 @@ public abstract class KafkaBaseWriter  extends BaseWriterPlugin {
         Boolean isKafka9 = DataSourceType.KAFKA_09.getVal().equals(data.getInteger("type"));
         data = data.getJSONObject("parameter");
         if (StringUtils.isBlank(data.getString("topic"))){
-            throw new RdosDefineException("kafka数据源 topic 不能为空");
+            throw new TaierDefineException("kafka数据源 topic 不能为空");
         }
         JSONObject producerSettings = data.getJSONObject("producerSettings");
         if (isKafka9 && StringUtils.isEmpty(data.getString("brokerList"))) {
-            throw new RdosDefineException("kafka数据源 bootstrapServers 不能为空");
+            throw new TaierDefineException("kafka数据源 bootstrapServers 不能为空");
         }
         if (!isKafka9 && StringUtils.isEmpty(producerSettings.getString("bootstrap.servers"))) {
-            throw new RdosDefineException("kafka数据源 bootstrap.servers 不能为空");
+            throw new TaierDefineException("kafka数据源 bootstrap.servers 不能为空");
         }
     }
 

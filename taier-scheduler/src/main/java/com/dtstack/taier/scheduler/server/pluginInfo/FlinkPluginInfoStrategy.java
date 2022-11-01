@@ -20,7 +20,7 @@ package com.dtstack.taier.scheduler.server.pluginInfo;
 
 import com.alibaba.fastjson.JSONObject;
 import com.dtstack.taier.common.enums.EComponentType;
-import com.dtstack.taier.common.exception.RdosDefineException;
+import com.dtstack.taier.common.exception.TaierDefineException;
 import com.dtstack.taier.pluginapi.enums.EDeployMode;
 import org.apache.commons.lang3.StringUtils;
 
@@ -45,7 +45,7 @@ public class FlinkPluginInfoStrategy implements ComponentPluginInfoStrategy {
         }
         confConfig = confConfig.getJSONObject(deploy.getMode());
         if (Objects.isNull(confConfig)) {
-            throw new RdosDefineException(String.format("Flink Corresponding mode [%s] no information is configured", deploy.name()));
+            throw new TaierDefineException(String.format("Flink Corresponding mode [%s] no information is configured", deploy.name()));
         }
         clusterConfigJson.putAll(confConfig);
         clusterConfigJson.remove(EComponentType.FLINK.getConfName());

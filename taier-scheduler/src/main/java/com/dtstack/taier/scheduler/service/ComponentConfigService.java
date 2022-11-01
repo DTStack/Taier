@@ -18,7 +18,7 @@
 
 package com.dtstack.taier.scheduler.service;
 
-import com.dtstack.taier.common.exception.RdosDefineException;
+import com.dtstack.taier.common.exception.TaierDefineException;
 import com.dtstack.taier.dao.domain.Component;
 import com.dtstack.taier.dao.domain.ComponentConfig;
 import com.dtstack.taier.dao.mapper.ComponentConfigMapper;
@@ -69,7 +69,7 @@ public class ComponentConfigService {
     @Transactional(rollbackFor = Exception.class)
     public void addOrUpdateComponentConfig(Long componentId, Long clusterId, Integer componentTypeCode ,List<ComponentConfig> componentConfigs) {
         if (null == clusterId || null == componentId || null == componentTypeCode || CollectionUtils.isEmpty(componentConfigs)) {
-            throw new RdosDefineException("参数不能为空");
+            throw new TaierDefineException("参数不能为空");
         }
         componentConfigMapper.deleteByComponentId(componentId);
         batchSaveComponentConfig(componentConfigs);

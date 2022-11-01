@@ -7,7 +7,7 @@
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,24 +16,22 @@
  * limitations under the License.
  */
 
-package com.dtstack.taier.common.exception;
+package com.dtstack.taier.develop.service.develop.runner;
 
-public class PubSvcDefineException extends RdosDefineException {
+import com.dtstack.taier.common.enums.EScheduleJobType;
+import com.google.common.collect.Lists;
 
-    public PubSvcDefineException(String message) {
-        super(message);
+import java.util.List;
+
+/**
+ * @author yuebai
+ * @date 2022/7/13
+ */
+@org.springframework.stereotype.Component
+public class HiveSQLTaskRunner extends HadoopJdbcTaskRunner {
+
+    @Override
+    public List<EScheduleJobType> support() {
+        return Lists.newArrayList(EScheduleJobType.HIVE_SQL);
     }
-
-    public PubSvcDefineException(String message, Throwable cause) {
-        super(message,cause);
-    }
-
-    public PubSvcDefineException(ExceptionEnums errorCode) {
-        super(errorCode.getDescription());
-    }
-
-    public PubSvcDefineException(String message, ExceptionEnums errorCode) {
-        super(errorCode.getDescription());
-    }
-
 }

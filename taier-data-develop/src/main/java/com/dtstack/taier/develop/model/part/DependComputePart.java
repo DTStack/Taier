@@ -24,7 +24,7 @@ import com.dtstack.taier.common.enums.EComponentScheduleType;
 import com.dtstack.taier.common.enums.EComponentType;
 import com.dtstack.taier.common.enums.EDeployType;
 import com.dtstack.taier.common.exception.ErrorCode;
-import com.dtstack.taier.common.exception.RdosDefineException;
+import com.dtstack.taier.common.exception.TaierDefineException;
 import com.dtstack.taier.common.util.Strings;
 import com.dtstack.taier.dao.domain.Component;
 import com.dtstack.taier.develop.model.DataSource;
@@ -49,18 +49,18 @@ public class DependComputePart extends PartImpl {
     public String getPluginName() {
         validDeployType(deployType);
         if (null == storageType) {
-            throw new RdosDefineException(ErrorCode.STORE_COMPONENT_NOT_CONFIG);
+            throw new TaierDefineException(ErrorCode.STORE_COMPONENT_NOT_CONFIG);
         }
         List<Component> components = componentScheduleGroup.get(EComponentScheduleType.RESOURCE);
         if (CollectionUtils.isEmpty(components)) {
-            throw new RdosDefineException(ErrorCode.RESOURCE_COMPONENT_NOT_CONFIG);
+            throw new TaierDefineException(ErrorCode.RESOURCE_COMPONENT_NOT_CONFIG);
         }
         Component resourceComponent = components.get(0);
         String resourceVersion = resourceComponent.getVersionName();
         EComponentType resourceType = EComponentType.getByCode(resourceComponent.getComponentTypeCode());
         Optional<JSONObject> resourceModelConfig = context.getModelConfig(resourceType, resourceVersion);
         if (!resourceModelConfig.isPresent()) {
-            throw new RdosDefineException(Strings.format(ErrorCode.RESOURCE_NOT_SUPPORT_COMPONENT_VERSION.getMsg(), resourceType, type, versionName));
+            throw new TaierDefineException(Strings.format(ErrorCode.RESOURCE_NOT_SUPPORT_COMPONENT_VERSION.getMsg(), resourceType, type, versionName));
         }
         //唯一的pluginName
         return getValueInConfigWithResourceStore(resourceModelConfig.get(), resourceComponent, this::getPluginNameInModelOrByConfigVersion);
@@ -91,13 +91,13 @@ public class DependComputePart extends PartImpl {
     private String getValueInConfigWithResourceStore(JSONObject resourceConfig, Component resourceComponent, Supplier<String> specialSupplier) {
         JSONObject storageConfig = resourceConfig.getJSONObject(storageType.name());
         if (storageConfig == null) {
-            throw new RdosDefineException(ErrorCode.STORE_COMPONENT_CONFIG_NULL);
+            throw new TaierDefineException(ErrorCode.STORE_COMPONENT_CONFIG_NULL);
         }
         if (StringUtils.isNotBlank(storageConfig.getString(type.name().toUpperCase()))) {
             //model config 已经定义了pluginName
             if (storageConfig.get(type.name().toUpperCase()) instanceof List) {
                 return getValueWithKey(storageConfig.getJSONArray(type.name().toUpperCase()))
-                        .orElseThrow(() -> new RdosDefineException(Strings.format(ErrorCode.RESOURCE_NOT_SUPPORT_COMPONENT_VERSION.getMsg(),
+                        .orElseThrow(() -> new TaierDefineException(Strings.format(ErrorCode.RESOURCE_NOT_SUPPORT_COMPONENT_VERSION.getMsg(),
                                 resourceComponent.getComponentName(), type.name(), versionName)));
             }
             return storageConfig.getString(type.name().toUpperCase());

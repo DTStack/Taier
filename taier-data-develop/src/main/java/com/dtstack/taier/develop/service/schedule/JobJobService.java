@@ -25,7 +25,7 @@ import com.dtstack.taier.common.enums.DisplayDirect;
 import com.dtstack.taier.common.enums.EScheduleJobType;
 import com.dtstack.taier.common.env.EnvironmentContext;
 import com.dtstack.taier.common.exception.ErrorCode;
-import com.dtstack.taier.common.exception.RdosDefineException;
+import com.dtstack.taier.common.exception.TaierDefineException;
 import com.dtstack.taier.dao.domain.ScheduleJob;
 import com.dtstack.taier.dao.domain.ScheduleJobJob;
 import com.dtstack.taier.dao.domain.ScheduleTaskShade;
@@ -86,7 +86,7 @@ public class JobJobService extends ServiceImpl<ScheduleJobJobMapper, ScheduleJob
                 .one();
 
         if (scheduleJob == null) {
-            throw new RdosDefineException("job does not exist");
+            throw new TaierDefineException("job does not exist");
         }
 
         ReturnJobDisplayVO vo = new ReturnJobDisplayVO();
@@ -284,7 +284,7 @@ public class JobJobService extends ServiceImpl<ScheduleJobJobMapper, ScheduleJob
     public List<String> getWorkFlowTopTask(String jobId) {
         ScheduleJob workFlowJob = jobService.getScheduleJob(jobId);
         if (null == workFlowJob || !Objects.equals(EScheduleJobType.WORK_FLOW.getType(), workFlowJob.getTaskType())) {
-            throw new RdosDefineException(ErrorCode.CAN_NOT_FIND_TASK);
+            throw new TaierDefineException(ErrorCode.CAN_NOT_FIND_TASK);
         }
         List<Long> workFlowTopTaskId = taskTaskService.getWorkFlowTopTask(workFlowJob.getTaskId());
         List<ScheduleJob> workFlowTopJobs = jobService.getBaseMapper().selectList(Wrappers.lambdaQuery(ScheduleJob.class)

@@ -19,7 +19,7 @@
 package com.dtstack.taier.develop.utils.develop.sync.util;
 
 import com.alibaba.fastjson.JSONObject;
-import com.dtstack.taier.common.exception.RdosDefineException;
+import com.dtstack.taier.common.exception.TaierDefineException;
 import com.dtstack.taier.develop.utils.develop.sync.job.PluginName;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.math.NumberUtils;
@@ -84,7 +84,7 @@ public class ColumnUtil {
                         col.remove("name");
                     }
                 } else if(!column.containsKey("index")){
-                    throw new RdosDefineException("column必须填写名称[key]或索引[index]");
+                    throw new TaierDefineException("column必须填写名称[key]或索引[index]");
                 }
             }
 

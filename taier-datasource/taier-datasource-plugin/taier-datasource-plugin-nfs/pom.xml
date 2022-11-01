@@ -19,7 +19,7 @@
 
         <nfs.version>1.0.3</nfs.version>
         <jar.package.name>nfs</jar.package.name>
-        <jar.name>dtNfs</jar.name>
+        <jar.name>Nfs</jar.name>
     </properties>
 
     <dependencies>

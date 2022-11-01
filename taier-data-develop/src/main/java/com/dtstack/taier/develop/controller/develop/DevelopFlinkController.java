@@ -19,7 +19,7 @@
 package com.dtstack.taier.develop.controller.develop;
 
 import com.dtstack.taier.common.exception.ErrorCode;
-import com.dtstack.taier.common.exception.RdosDefineException;
+import com.dtstack.taier.common.exception.TaierDefineException;
 import com.dtstack.taier.common.lang.coc.APITemplate;
 import com.dtstack.taier.common.lang.web.R;
 import com.dtstack.taier.dao.domain.ScheduleJobHistory;
@@ -85,12 +85,12 @@ public class DevelopFlinkController {
             @Override
             protected void checkParams() throws IllegalArgumentException {
                 if (null == vo.getTaskId()) {
-                    throw new RdosDefineException(ErrorCode.CAN_NOT_FIND_TASK);
+                    throw new TaierDefineException(ErrorCode.CAN_NOT_FIND_TASK);
                 }
             }
 
             @Override
-            protected StartFlinkResultVO process() throws RdosDefineException {
+            protected StartFlinkResultVO process() throws TaierDefineException {
                 return flinkTaskService.startFlinkTask(vo.getTaskId(), vo.getExternalPath());
             }
         }.execute();
@@ -225,12 +225,12 @@ public class DevelopFlinkController {
             @Override
             protected void checkParams() throws IllegalArgumentException {
                 if (null == operateTaskVO.getTaskId()) {
-                    throw new RdosDefineException(ErrorCode.CAN_NOT_FIND_TASK);
+                    throw new TaierDefineException(ErrorCode.CAN_NOT_FIND_TASK);
                 }
             }
 
             @Override
-            protected Boolean process() throws RdosDefineException {
+            protected Boolean process() throws TaierDefineException {
                 return flinkTaskService.stopStreamTask(operateTaskVO.getTaskId(), operateTaskVO.getIsForce());
             }
         }.execute();

@@ -17,7 +17,7 @@
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
         <jar.package.name>hive3</jar.package.name>
-        <jar.name>dtHive3</jar.name>
+        <jar.name>Hive3</jar.name>
 
         <hive-exec.version>3.1.2</hive-exec.version>
         <hive-jdbc.version>3.1.2</hive-jdbc.version>

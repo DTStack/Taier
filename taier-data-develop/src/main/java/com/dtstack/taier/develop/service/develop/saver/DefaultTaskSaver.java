@@ -21,7 +21,7 @@ package com.dtstack.taier.develop.service.develop.saver;
 import com.dtstack.taier.common.enums.EComputeType;
 import com.dtstack.taier.common.enums.EScheduleJobType;
 import com.dtstack.taier.common.exception.ErrorCode;
-import com.dtstack.taier.common.exception.RdosDefineException;
+import com.dtstack.taier.common.exception.TaierDefineException;
 import com.dtstack.taier.develop.dto.devlop.TaskResourceParam;
 import com.dtstack.taier.develop.dto.devlop.TaskVO;
 import com.dtstack.taier.develop.service.develop.impl.DevelopTaskTaskService;
@@ -59,7 +59,7 @@ public class DefaultTaskSaver extends AbstractTaskSaver {
         EScheduleJobType scheduleJobType = EScheduleJobType.getByTaskType(taskResourceParam.getTaskType());
         if (EComputeType.BATCH.getType() == scheduleJobType.getComputeType().getType() && EJobType.SQL.getType() == scheduleJobType.getEngineJobType()) {
             if (null == taskResourceParam.getDatasourceId()) {
-                throw new RdosDefineException(ErrorCode.DATA_SOURCE_NOT_SET);
+                throw new TaierDefineException(ErrorCode.DATA_SOURCE_NOT_SET);
             }
         }
         // 如果是修改任务的基本属性（目录、名称），禁止处理任务信息

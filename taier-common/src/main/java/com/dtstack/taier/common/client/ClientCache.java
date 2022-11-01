@@ -20,7 +20,7 @@ package com.dtstack.taier.common.client;
 
 import com.alibaba.fastjson.JSONObject;
 import com.dtstack.taier.common.exception.ClientAccessException;
-import com.dtstack.taier.common.exception.RdosDefineException;
+import com.dtstack.taier.common.exception.TaierDefineException;
 import com.dtstack.taier.pluginapi.client.IClient;
 import com.dtstack.taier.pluginapi.constrant.ConfigConstant;
 import com.dtstack.taier.pluginapi.util.MD5Util;
@@ -73,13 +73,13 @@ public class ClientCache {
         String typeName = "";
         try {
             if (StringUtils.isBlank(pluginInfo)) {
-                throw new RdosDefineException("plugin info is empty");
+                throw new TaierDefineException("plugin info is empty");
             }
 
             Properties properties = PublicUtil.jsonStrToObjectWithOutNull(pluginInfo, Properties.class);
             typeName = properties.getProperty(ConfigConstant.TYPE_NAME_KEY);
             if (StringUtils.isBlank(typeName)) {
-                throw new RdosDefineException("typeName  is empty");
+                throw new TaierDefineException("typeName  is empty");
             }
             String md5plugin = MD5Util.getMd5String(pluginInfo);
             String md5sum = null;

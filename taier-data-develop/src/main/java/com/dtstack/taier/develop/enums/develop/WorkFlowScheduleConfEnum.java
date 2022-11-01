@@ -20,7 +20,7 @@ package com.dtstack.taier.develop.enums.develop;
 
 import com.alibaba.fastjson.JSONObject;
 import com.dtstack.taier.common.exception.ErrorCode;
-import com.dtstack.taier.common.exception.RdosDefineException;
+import com.dtstack.taier.common.exception.TaierDefineException;
 import com.dtstack.taier.dao.domain.Task;
 import com.dtstack.taier.scheduler.enums.ESchedulePeriodType;
 import org.apache.commons.lang.ArrayUtils;
@@ -206,7 +206,7 @@ public enum WorkFlowScheduleConfEnum {
      */
     public static String getCurrentPeriodType(String periodType) {
         if (StringUtils.isEmpty(periodType)) {
-            throw new RdosDefineException(ErrorCode.INVALID_PARAMETERS);
+            throw new TaierDefineException(ErrorCode.INVALID_PARAMETERS);
         }
         for (WorkFlowScheduleConfEnum workFlowScheduleConfEnum : WorkFlowScheduleConfEnum.values()) {
             if (!workFlowScheduleConfEnum.getPeriodType().equals(periodType)) {
@@ -214,7 +214,7 @@ public enum WorkFlowScheduleConfEnum {
             }
             return workFlowScheduleConfEnum.name();
         }
-        throw new RdosDefineException("未知的调度周期");
+        throw new TaierDefineException("未知的调度周期");
     }
 
     private static void validate(JSONObject oldJsonObject, JSONObject newJsonObject, String... keyNameArray) {
@@ -223,7 +223,7 @@ public enum WorkFlowScheduleConfEnum {
         }
         for (String keyName : keyNameArray) {
             if (!String.valueOf(oldJsonObject.getOrDefault(keyName, StringUtils.EMPTY)).equals(newJsonObject.getString(keyName))) {
-                throw new RdosDefineException(ErrorCode.UNSUPPORTED_OPERATION);
+                throw new TaierDefineException(ErrorCode.UNSUPPORTED_OPERATION);
             }
         }
     }

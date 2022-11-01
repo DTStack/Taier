@@ -19,7 +19,7 @@
 package com.dtstack.taier.develop.service.template.kafka;
 
 import com.alibaba.fastjson.JSONObject;
-import com.dtstack.taier.common.exception.RdosDefineException;
+import com.dtstack.taier.common.exception.TaierDefineException;
 import com.dtstack.taier.develop.service.template.BaseReaderPlugin;
 import com.dtstack.taier.develop.service.template.PluginName;
 import org.apache.commons.lang.StringUtils;
@@ -130,18 +130,18 @@ public abstract class KafkaBaseReader extends BaseReaderPlugin {
         data = data.getJSONObject("parameter");
         JSONObject consumerSettings = data.getJSONObject("consumerSettings");
         if ((isKafka9 && StringUtils.isEmpty(consumerSettings.getString("group.id"))) || (!isKafka9 && StringUtils.isEmpty(data.getString("groupId")))) {
-            throw new RdosDefineException("Kafka数据源 groupId不能为空");
+            throw new TaierDefineException("Kafka数据源 groupId不能为空");
         }
         String topic = data.getString("topic");
         String code = data.getString("codec");
         if (StringUtils.isBlank(topic)) {
-            throw new RdosDefineException("Kafka数据源 topic不能为空");
+            throw new TaierDefineException("Kafka数据源 topic不能为空");
         }
         if (!StringUtils.isBlank(code) && !Objects.equals(code, "json") && !Objects.equals(code, "text")) {
-            throw new RdosDefineException("读取类型仅支持json、text, 不支持 " + code);
+            throw new TaierDefineException("读取类型仅支持json、text, 不支持 " + code);
         }
         if (!isKafka9 && StringUtils.isEmpty(consumerSettings.getString("bootstrap.servers"))) {
-            throw new RdosDefineException("Kafka数据源 bootstrap.servers 不能为空");
+            throw new TaierDefineException("Kafka数据源 bootstrap.servers 不能为空");
         }
         if (isKafkaORKafka2X){
             String mode = data.getString("mode");
@@ -149,12 +149,12 @@ public abstract class KafkaBaseReader extends BaseReaderPlugin {
                 switch (mode) {
                     case TIMESTAMP:
                         if (StringUtils.isBlank(data.getString("timestamp"))) {
-                            throw new RdosDefineException("timestamp为空");
+                            throw new TaierDefineException("timestamp为空");
                         }
                         break;
                     case SPECIFIC_OFFSETS:
                         if (StringUtils.isBlank(data.getString("offset"))) {
-                            throw new RdosDefineException("自定义参数为空");
+                            throw new TaierDefineException("自定义参数为空");
                         }
                         break;
                     case LATEST_OFFSET:
@@ -164,7 +164,7 @@ public abstract class KafkaBaseReader extends BaseReaderPlugin {
                     case GROUP_OFFSETS:
                         break;
                     default:
-                        throw new RdosDefineException("输入offset参数错误 " + mode);
+                        throw new TaierDefineException("输入offset参数错误 " + mode);
                 }
             }
         }

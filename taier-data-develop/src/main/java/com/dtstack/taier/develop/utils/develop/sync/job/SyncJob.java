@@ -22,7 +22,7 @@ package com.dtstack.taier.develop.utils.develop.sync.job;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.JSONPath;
 import com.dtstack.taier.common.exception.ErrorCode;
-import com.dtstack.taier.common.exception.RdosDefineException;
+import com.dtstack.taier.common.exception.TaierDefineException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.StringUtils;
@@ -48,7 +48,7 @@ public class SyncJob {
 
     public static SyncJob getSyncJob(String jobText) {
         if (StringUtils.isEmpty(jobText)) {
-            throw new RdosDefineException("同步任务json不能为空", ErrorCode.CAN_NOT_PARSE_SYNC_TASK);
+            throw new TaierDefineException("同步任务json不能为空", ErrorCode.CAN_NOT_PARSE_SYNC_TASK);
         }
 
         JSONObject jobJson;

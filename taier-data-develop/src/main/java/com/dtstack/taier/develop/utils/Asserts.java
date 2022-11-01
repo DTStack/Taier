@@ -20,7 +20,7 @@ package com.dtstack.taier.develop.utils;
 
 
 import com.dtstack.taier.common.exception.ErrorCode;
-import com.dtstack.taier.common.exception.RdosDefineException;
+import com.dtstack.taier.common.exception.TaierDefineException;
 import com.dtstack.taier.common.util.Strings;
 import org.apache.commons.collections.CollectionUtils;
 
@@ -57,7 +57,7 @@ public class Asserts {
      */
     public static void isTrue(boolean expression, String format, Object... args) {
         if (!expression) {
-            throw new RdosDefineException(Strings.format(format, args));
+            throw new TaierDefineException(Strings.format(format, args));
         }
     }
 
@@ -89,7 +89,7 @@ public class Asserts {
      */
     public static void isFalse(boolean expression, String format, Object... args) {
         if (expression) {
-            throw new RdosDefineException(Strings.format(format, args));
+            throw new TaierDefineException(Strings.format(format, args));
         }
     }
 
@@ -116,7 +116,7 @@ public class Asserts {
      */
     public static void notNull(Object object, String format, Object... args) {
         if (null == object) {
-            throw new RdosDefineException(Strings.format(format, args));
+            throw new TaierDefineException(Strings.format(format, args));
         }
     }
 
@@ -131,7 +131,7 @@ public class Asserts {
      */
     public static void between(Integer number, Integer start, Integer end, String format, Object... args) {
         if (number < start || number > end) {
-            throw new RdosDefineException(Strings.format(format, args));
+            throw new TaierDefineException(Strings.format(format, args));
         }
     }
 
@@ -182,7 +182,7 @@ public class Asserts {
      */
     public static final void hasLength(String text, String format, Object... args) {
         if (text == null || Strings.isEmpty(text)) {
-            throw new RdosDefineException(Strings.format(format, args));
+            throw new TaierDefineException(Strings.format(format, args));
         }
     }
 
@@ -203,7 +203,7 @@ public class Asserts {
         if (text == null
                 || text.length() < start
                 || text.length() > end) {
-            throw new RdosDefineException(Strings.format(format, args));
+            throw new TaierDefineException(Strings.format(format, args));
         }
     }
 
@@ -218,7 +218,7 @@ public class Asserts {
     public static final void lengthLessEqual(String text, int limit, String format, Object... args) {
         if (text == null
                 || text.length() > limit) {
-            throw new RdosDefineException(Strings.format(format, args));
+            throw new TaierDefineException(Strings.format(format, args));
         }
     }
 
@@ -238,7 +238,7 @@ public class Asserts {
     public static final void lengthEqual(String text, int limit, String format, Object... args) {
         if (text == null
                 || text.length() != limit) {
-            throw new RdosDefineException(Strings.format(format, args));
+            throw new TaierDefineException(Strings.format(format, args));
         }
     }
 
@@ -264,7 +264,7 @@ public class Asserts {
      */
     public static final void hasText(String text, String format, Object... args) {
         if (text == null || Strings.isBlank(text)) {
-            throw new RdosDefineException(Strings.format(format, args));
+            throw new TaierDefineException(Strings.format(format, args));
         }
     }
 
@@ -277,7 +277,7 @@ public class Asserts {
      */
     public static final void notEmpty(Collection collection, String format, Object... args) {
         if (CollectionUtils.isEmpty(collection)) {
-            throw new RdosDefineException(Strings.format(format, args));
+            throw new TaierDefineException(Strings.format(format, args));
         }
     }
 }

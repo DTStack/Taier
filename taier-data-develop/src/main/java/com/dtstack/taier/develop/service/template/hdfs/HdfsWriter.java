@@ -20,7 +20,7 @@ package com.dtstack.taier.develop.service.template.hdfs;
 
 
 import com.alibaba.fastjson.JSONObject;
-import com.dtstack.taier.common.exception.RdosDefineException;
+import com.dtstack.taier.common.exception.TaierDefineException;
 import com.dtstack.taier.develop.service.template.PluginName;
 import com.dtstack.taier.develop.utils.develop.sync.job.WriteMode;
 import org.apache.commons.lang3.StringUtils;
@@ -164,14 +164,14 @@ public class HdfsWriter extends HdfsWriterBase  {
         data = data.getJSONObject("parameter");
         JSONObject hadoopConfigMap = data.getJSONObject("hadoopConfig");
         if (hadoopConfigMap == null) {
-            throw new RdosDefineException("Hdfs数据源 hadoopConfig不能为空");
+            throw new TaierDefineException("Hdfs数据源 hadoopConfig不能为空");
         }
         if (StringUtils.isEmpty(hadoopConfigMap.getString("fs.defaultFS"))) {
-            throw new RdosDefineException("Hdfs数据源 hadoopConfigMap.fs.defaultFS不能为空");
+            throw new TaierDefineException("Hdfs数据源 hadoopConfigMap.fs.defaultFS不能为空");
         }
         String path = data.getString("path");
         if (path == null) {
-            throw new RdosDefineException("Hdfs数据源 path不能为空");
+            throw new TaierDefineException("Hdfs数据源 path不能为空");
         }
     }
 

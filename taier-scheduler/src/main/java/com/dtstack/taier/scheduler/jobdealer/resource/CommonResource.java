@@ -19,7 +19,6 @@
 package com.dtstack.taier.scheduler.jobdealer.resource;
 
 import com.dtstack.taier.common.enums.EScheduleJobType;
-import com.dtstack.taier.common.exception.RdosDefineException;
 import com.dtstack.taier.dao.mapper.ClusterMapper;
 import com.dtstack.taier.dao.mapper.ClusterTenantMapper;
 import com.dtstack.taier.pluginapi.JobClient;

@@ -25,7 +25,7 @@ import com.dtstack.taier.common.constant.FormNames;
 import com.dtstack.taier.common.enums.Deleted;
 import com.dtstack.taier.common.enums.EParamType;
 import com.dtstack.taier.common.exception.ErrorCode;
-import com.dtstack.taier.common.exception.RdosDefineException;
+import com.dtstack.taier.common.exception.TaierDefineException;
 import com.dtstack.taier.common.util.MathUtil;
 import com.dtstack.taier.common.util.PublicUtil;
 import com.dtstack.taier.dao.domain.DevelopSysParameter;
@@ -92,7 +92,7 @@ public class DevelopTaskParamService {
                 DevelopTaskParam developTaskParam = PublicUtil.objectToObject(paramObj, DevelopTaskParam.class);
                 if (developTaskParam != null) {
                     if (StringUtils.isBlank(developTaskParam.getParamCommand()) || "$[]".equalsIgnoreCase(developTaskParam.getParamCommand())) {
-                        throw new RdosDefineException("自定义参数赋值不能为空");
+                        throw new TaierDefineException("自定义参数赋值不能为空");
                     }
                 }
             }
@@ -119,7 +119,7 @@ public class DevelopTaskParamService {
         if (matcher.find()) {
             if (CollectionUtils.isEmpty(parameterSet)) {
                 LOGGER.error("jobContent:{}", jobContent);
-                throw new RdosDefineException(ErrorCode.TASK_PARAM_CONTENT_NOT_NULL);
+                throw new TaierDefineException(ErrorCode.TASK_PARAM_CONTENT_NOT_NULL);
             }
         }
     }
@@ -248,7 +248,7 @@ public class DevelopTaskParamService {
 
         for (final DevelopParamDTO tmp : developParamDTOS) {
             if (StringUtils.isBlank(tmp.getParamCommand())) {
-                throw new RdosDefineException("自定义参数赋值不能为空");
+                throw new TaierDefineException("自定义参数赋值不能为空");
             }
             DevelopTaskParam developTaskParam = new DevelopTaskParam();
             developTaskParam.setTaskId(taskId);

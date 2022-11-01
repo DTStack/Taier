@@ -18,7 +18,7 @@
 
 package com.dtstack.taier.scheduler.server.builder.cron;
 
-import com.dtstack.taier.common.exception.RdosDefineException;
+import com.dtstack.taier.common.exception.TaierDefineException;
 import com.dtstack.taier.scheduler.server.builder.ScheduleConf;
 
 /**
@@ -35,23 +35,23 @@ public class ScheduleCronMinParser implements IScheduleConfParser {
     @Override
     public String parse(ScheduleConf scheduleConf) {
         if (scheduleConf.getBeginHour() == null) {
-            throw new RdosDefineException(String.format(ScheduleConfManager.CustomError.ERROR_INFO,scheduleConf.getPeriodType(),"beginHour"));
+            throw new TaierDefineException(String.format(ScheduleConfManager.CustomError.ERROR_INFO,scheduleConf.getPeriodType(),"beginHour"));
         }
 
         if (scheduleConf.getEndHour() == null) {
-            throw new RdosDefineException(String.format(ScheduleConfManager.CustomError.ERROR_INFO,scheduleConf.getPeriodType(),"endHour"));
+            throw new TaierDefineException(String.format(ScheduleConfManager.CustomError.ERROR_INFO,scheduleConf.getPeriodType(),"endHour"));
         }
 
         if (scheduleConf.getBeginMin() == null) {
-            throw new RdosDefineException(String.format(ScheduleConfManager.CustomError.ERROR_INFO,scheduleConf.getPeriodType(),"beginMin"));
+            throw new TaierDefineException(String.format(ScheduleConfManager.CustomError.ERROR_INFO,scheduleConf.getPeriodType(),"beginMin"));
         }
 
         if (scheduleConf.getEndMin() == null) {
-            throw new RdosDefineException(String.format(ScheduleConfManager.CustomError.ERROR_INFO,scheduleConf.getPeriodType(),"endMin"));
+            throw new TaierDefineException(String.format(ScheduleConfManager.CustomError.ERROR_INFO,scheduleConf.getPeriodType(),"endMin"));
         }
 
         if (scheduleConf.getGapMin() == null) {
-            throw new RdosDefineException(String.format(ScheduleConfManager.CustomError.ERROR_INFO,scheduleConf.getPeriodType(),"gapMin"));
+            throw new TaierDefineException(String.format(ScheduleConfManager.CustomError.ERROR_INFO,scheduleConf.getPeriodType(),"gapMin"));
         }
 
         int beginHour = scheduleConf.getBeginHour();

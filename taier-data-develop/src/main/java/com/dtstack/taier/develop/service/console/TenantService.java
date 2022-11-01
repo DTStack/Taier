@@ -21,7 +21,7 @@ package com.dtstack.taier.develop.service.console;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.dtstack.taier.common.enums.Deleted;
 import com.dtstack.taier.common.exception.ErrorCode;
-import com.dtstack.taier.common.exception.RdosDefineException;
+import com.dtstack.taier.common.exception.TaierDefineException;
 import com.dtstack.taier.dao.domain.ClusterTenant;
 import com.dtstack.taier.dao.domain.Tenant;
 import com.dtstack.taier.dao.mapper.ClusterTenantMapper;
@@ -96,7 +96,7 @@ public class TenantService {
     private void checkTenantBindStatus(Long tenantId) {
         Long clusterId = clusterTenantMapper.getClusterIdByTenantId(tenantId);
         if (null != clusterId) {
-            throw new RdosDefineException("The tenant has been bound");
+            throw new TaierDefineException("The tenant has been bound");
         }
     }
 
@@ -115,7 +115,7 @@ public class TenantService {
         if (tenant != null) {
             return tenant;
         }
-        throw new RdosDefineException(ErrorCode.TENANT_IS_NULL);
+        throw new TaierDefineException(ErrorCode.TENANT_IS_NULL);
     }
 
     public List<Tenant> getTenants(List<Long> tenantId) {
@@ -138,7 +138,7 @@ public class TenantService {
         LOGGER.info("switch queue, tenantId:{} queueName:{} clusterId:{}", tenantId, queueName, clusterId);
         int result = clusterTenantMapper.updateQueueName(tenantId, clusterId, queueName);
         if (result == 0) {
-            throw new RdosDefineException("The update engine queue failed");
+            throw new TaierDefineException("The update engine queue failed");
         }
     }
 

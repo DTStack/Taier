@@ -25,7 +25,7 @@ import com.dtstack.taier.datasource.api.dto.SqlQueryDTO;
 import com.dtstack.taier.datasource.api.dto.Table;
 import com.dtstack.taier.datasource.api.dto.source.HiveSourceDTO;
 import com.dtstack.taier.datasource.api.source.DataSourceType;
-import com.dtstack.taier.common.exception.RdosDefineException;
+import com.dtstack.taier.common.exception.TaierDefineException;
 import com.dtstack.taier.develop.service.datasource.impl.DsInfoService;
 import com.dtstack.taier.develop.service.template.hdfs.HdfsWriterBase;
 import org.apache.commons.lang.StringUtils;
@@ -223,7 +223,7 @@ public class HiveWriterBase extends HdfsWriterBase {
                     this.fieldDelimiter = tableInfo.getDelim();
                 }
             } catch (Exception e) {
-                throw new RdosDefineException(String.format("inferHdfsParams error,Caused by: %s", e.getMessage()), e);
+                throw new TaierDefineException(String.format("inferHdfsParams error,Caused by: %s", e.getMessage()), e);
             }
         }
     }

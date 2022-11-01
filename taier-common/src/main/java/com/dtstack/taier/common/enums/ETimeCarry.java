@@ -19,7 +19,7 @@
 package com.dtstack.taier.common.enums;
 
 
-import com.dtstack.taier.common.exception.RdosDefineException;
+import com.dtstack.taier.common.exception.TaierDefineException;
 import com.google.common.collect.Lists;
 
 import java.util.Comparator;
@@ -113,7 +113,7 @@ public enum ETimeCarry {
                 return timeCarry;
             }
         }
-        throw new RdosDefineException(String.format("timeCarry not found ,type: %s", type));
+        throw new TaierDefineException(String.format("timeCarry not found ,type: %s", type));
     }
 
     public static List<ETimeCarry> getSortETimeCarryList() {

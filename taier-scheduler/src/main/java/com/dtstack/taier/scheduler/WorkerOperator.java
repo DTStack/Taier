@@ -20,7 +20,7 @@ package com.dtstack.taier.scheduler;
 
 import com.alibaba.fastjson.JSONObject;
 import com.dtstack.taier.common.client.ClientOperator;
-import com.dtstack.taier.common.exception.RdosDefineException;
+import com.dtstack.taier.common.exception.TaierDefineException;
 import com.dtstack.taier.pluginapi.JobClient;
 import com.dtstack.taier.pluginapi.JobIdentifier;
 import com.dtstack.taier.pluginapi.enums.TaskStatus;
@@ -60,7 +60,7 @@ public class WorkerOperator {
             pluginWrapper.wrapperJobClient(jobClient);
         } catch (Exception e) {
             LOGGER.error("{} buildPluginInfo failed!", jobClient.getJobId(), e);
-            throw new RdosDefineException("buildPluginInfo error", e);
+            throw new TaierDefineException("buildPluginInfo error", e);
         }
     }
 
@@ -74,7 +74,7 @@ public class WorkerOperator {
 
         if (null == jobIdentifier || null == jobIdentifier.getTaskType() || null == jobIdentifier.getTenantId()) {
             LOGGER.error("pluginInfo params lost {}", jobIdentifier);
-            throw new RdosDefineException("pluginInfo params lost");
+            throw new TaierDefineException("pluginInfo params lost");
         }
         Map<String, Object> info = pluginWrapper.wrapperPluginInfo(jobIdentifier.getTaskType(), jobIdentifier.getComponentVersion(), jobIdentifier.getTenantId(), jobIdentifier.getDeployMode(), jobIdentifier.getQueueName());
         if (null == info) {

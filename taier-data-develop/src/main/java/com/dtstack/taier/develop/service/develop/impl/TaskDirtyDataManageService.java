@@ -26,7 +26,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.dtstack.taier.common.constant.CommonConstant;
 import com.dtstack.taier.common.enums.Deleted;
 import com.dtstack.taier.common.enums.EScheduleJobType;
-import com.dtstack.taier.common.exception.RdosDefineException;
+import com.dtstack.taier.common.exception.TaierDefineException;
 import com.dtstack.taier.dao.domain.DsInfo;
 import com.dtstack.taier.dao.domain.TaskDirtyDataManage;
 import com.dtstack.taier.dao.mapper.TaskDirtyDataManageMapper;
@@ -157,7 +157,7 @@ public class TaskDirtyDataManageService extends ServiceImpl<TaskDirtyDataManageM
             client.executeQuery(sourceDTO, SqlQueryDTO.builder().sql(createTableSqlParam[1]).build());
             client.executeQuery(sourceDTO, SqlQueryDTO.builder().sql(createTableSqlParam[2]).build());
         } catch (Exception e) {
-            throw new RdosDefineException("创建脏数据表失败", e);
+            throw new TaierDefineException("创建脏数据表失败", e);
         }
     }
 

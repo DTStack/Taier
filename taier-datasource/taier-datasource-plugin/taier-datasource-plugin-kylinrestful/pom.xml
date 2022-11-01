@@ -18,7 +18,7 @@
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
         <jar.package.name>kylinrestful</jar.package.name>
-        <jar.name>dtKylinRestful</jar.name>
+        <jar.name>KylinRestful</jar.name>
 
         <httpasyncclient.version>4.1.3</httpasyncclient.version>
     </properties>

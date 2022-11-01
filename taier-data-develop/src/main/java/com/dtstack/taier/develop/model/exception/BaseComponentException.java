@@ -19,12 +19,12 @@
 package com.dtstack.taier.develop.model.exception;
 
 import com.dtstack.taier.common.enums.EComponentType;
-import com.dtstack.taier.common.exception.RdosDefineException;
+import com.dtstack.taier.common.exception.TaierDefineException;
 import org.springframework.context.i18n.LocaleContextHolder;
 
 import java.util.Locale;
 
-public class BaseComponentException extends RdosDefineException {
+public class BaseComponentException extends TaierDefineException {
 
     private static final String MESSAGE_TEMPLATE = "Error on component of type %s. %s";
     private static final String MESSAGE_TEMPLATE_ZH = "组件 %s 错误 %s";

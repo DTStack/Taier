@@ -26,7 +26,7 @@ import com.dtstack.taier.common.enums.EScheduleStatus;
 import com.dtstack.taier.common.enums.ESubmitStatus;
 import com.dtstack.taier.common.env.EnvironmentContext;
 import com.dtstack.taier.common.exception.ErrorCode;
-import com.dtstack.taier.common.exception.RdosDefineException;
+import com.dtstack.taier.common.exception.TaierDefineException;
 import com.dtstack.taier.common.util.SqlFormatUtil;
 import com.dtstack.taier.dao.domain.DevelopResource;
 import com.dtstack.taier.dao.domain.Task;
@@ -160,7 +160,7 @@ public abstract class AbstractTaskSaver implements ITaskSaver {
         taskVO.setModifyUserId(taskResourceParam.getUserId());
         taskVO.setDatasourceId(taskResourceParam.getDatasourceId());
         if (StringUtils.isBlank(taskVO.getName())) {
-            throw new RdosDefineException("名称不能为空", ErrorCode.INVALID_PARAMETERS);
+            throw new TaierDefineException("名称不能为空", ErrorCode.INVALID_PARAMETERS);
         }
         taskVO.setGmtModified(Timestamp.valueOf(LocalDateTime.now()));
 
@@ -173,14 +173,14 @@ public abstract class AbstractTaskSaver implements ITaskSaver {
             if (Objects.nonNull(task)
                     && task.getName().equals(taskVO.getName())
                     && !task.getId().equals(taskVO.getId())) {
-                throw new RdosDefineException(ErrorCode.NAME_ALREADY_EXIST);
+                throw new TaierDefineException(ErrorCode.NAME_ALREADY_EXIST);
             }
             developTaskParamService.checkParams(taskVO.getSqlText(), taskVO.getTaskVariables());
             updateTask(taskVO);
 
         } else {
             if (Objects.nonNull(task)) {
-                throw new RdosDefineException(ErrorCode.NAME_ALREADY_EXIST);
+                throw new TaierDefineException(ErrorCode.NAME_ALREADY_EXIST);
             }
             addTask(taskVO);
         }
@@ -192,7 +192,7 @@ public abstract class AbstractTaskSaver implements ITaskSaver {
     private void updateTask(TaskVO taskVO) {
         Task specialTask = developTaskService.getOne(taskVO.getId());
         if (specialTask == null) {
-            throw new RdosDefineException(ErrorCode.CAN_NOT_FIND_TASK);
+            throw new TaierDefineException(ErrorCode.CAN_NOT_FIND_TASK);
         }
         Task specialTask1 = new Task();
         // 转换环境参数
@@ -265,7 +265,7 @@ public abstract class AbstractTaskSaver implements ITaskSaver {
         if (set.contains(taskId)) {
             Task task = developTaskMapper.selectById(taskId);
             if (Objects.nonNull(task)) {
-                throw new RdosDefineException(String.format("%s任务发生依赖闭环", task.getName()));
+                throw new TaierDefineException(String.format("%s任务发生依赖闭环", task.getName()));
             }
         }
         node.add(taskId);
@@ -338,7 +338,7 @@ public abstract class AbstractTaskSaver implements ITaskSaver {
         if (EScheduleJobType.SPARK.getVal().equals(taskType)) {
             if (resourceList.size() != 1) {
                 //批处理必须关联一个资源
-                throw new RdosDefineException("spark task ref resource size must be one");
+                throw new TaierDefineException("spark task ref resource size must be one");
             }
         }
         if (ADD_JAR_JOB_TYPE.contains(taskType)) {

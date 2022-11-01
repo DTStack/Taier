@@ -26,7 +26,7 @@ import com.dtstack.taier.common.enums.DataSourceTypeEnum;
 import com.dtstack.taier.common.enums.EComponentType;
 import com.dtstack.taier.common.enums.EScheduleType;
 import com.dtstack.taier.common.env.EnvironmentContext;
-import com.dtstack.taier.common.exception.RdosDefineException;
+import com.dtstack.taier.common.exception.TaierDefineException;
 import com.dtstack.taier.common.metric.batch.IMetric;
 import com.dtstack.taier.common.metric.batch.MetricBuilder;
 import com.dtstack.taier.common.metric.prometheus.PrometheusMetricQuery;
@@ -170,7 +170,7 @@ public class SyncOperatorPipeline extends IPipeline.AbstractPipeline {
     private String replaceSyncJobString(Map<String, Object> actionParam, ScheduleTaskShade taskShade, ScheduleJob scheduleJob, List<ScheduleTaskParamShade> taskParamsToReplace,
                                         String job, EDeployMode deployMode) {
         if (StringUtils.isBlank(job)) {
-            throw new RdosDefineException("Data synchronization information cannot be empty");
+            throw new TaierDefineException("Data synchronization information cannot be empty");
         }
 
         //替换系统参数
@@ -343,7 +343,7 @@ public class SyncOperatorPipeline extends IPipeline.AbstractPipeline {
                 }, retryFrequency, environmentContext.getRetryInterval(), false, null);
             } catch (Exception e) {
                 LOGGER.error("create partition error:", e);
-                throw new RdosDefineException("create partition error:" + ExceptionUtil.getErrorMessage(e));
+                throw new TaierDefineException("create partition error:" + ExceptionUtil.getErrorMessage(e));
             }
         }
         return jobJSON.toJSONString();
@@ -455,7 +455,7 @@ public class SyncOperatorPipeline extends IPipeline.AbstractPipeline {
         String savepointPath = (String) flinkConfig.get(KEY_SAVEPOINT);
         LOGGER.info("savepoint path:{}", savepointPath);
         if (StringUtils.isEmpty(savepointPath)) {
-            throw new RdosDefineException("savepoint path can not be null");
+            throw new TaierDefineException("savepoint path can not be null");
         }
 
         return savepointPath;

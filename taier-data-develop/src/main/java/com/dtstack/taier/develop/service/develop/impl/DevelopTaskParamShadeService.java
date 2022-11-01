@@ -21,7 +21,7 @@ package com.dtstack.taier.develop.service.develop.impl;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.dtstack.taier.common.enums.Deleted;
 import com.dtstack.taier.common.enums.EParamType;
-import com.dtstack.taier.common.exception.RdosDefineException;
+import com.dtstack.taier.common.exception.TaierDefineException;
 import com.dtstack.taier.dao.domain.DevelopSysParameter;
 import com.dtstack.taier.dao.domain.DevelopTaskParamShade;
 import com.dtstack.taier.dao.mapper.DevelopTaskParamShadeMapper;
@@ -52,7 +52,7 @@ public class DevelopTaskParamShadeService {
 
     public void addOrUpdate(DevelopTaskParamShade developTaskParamShade) {
         if (StringUtils.isBlank(developTaskParamShade.getParamCommand())) {
-            throw new RdosDefineException("自定义参数赋值不能为空");
+            throw new TaierDefineException("自定义参数赋值不能为空");
         }
         DevelopTaskParamShade dbTaskParam = developTaskParamShadeDao.selectOne(Wrappers.lambdaQuery(DevelopTaskParamShade.class)
                                     .eq(DevelopTaskParamShade::getTaskId, developTaskParamShade.getTaskId())

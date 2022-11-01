@@ -20,7 +20,7 @@ package com.dtstack.taier.common.util;
 
 import com.alibaba.fastjson.JSONObject;
 import com.dtstack.taier.common.exception.ErrorCode;
-import com.dtstack.taier.common.exception.RdosDefineException;
+import com.dtstack.taier.common.exception.TaierDefineException;
 import org.codehaus.jackson.map.DeserializationConfig;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.slf4j.Logger;
@@ -72,7 +72,7 @@ public class JsonUtils {
             formatJson = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(json);
         } catch (Exception e) {
             e.printStackTrace();
-            throw new RdosDefineException(ErrorCode.INVALID_PARAMETERS);
+            throw new TaierDefineException(ErrorCode.INVALID_PARAMETERS);
         }
         return formatJson;
     }

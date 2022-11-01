@@ -19,7 +19,7 @@
 package com.dtstack.taier.scheduler.server.builder.cron;
 
 import com.alibaba.fastjson.JSON;
-import com.dtstack.taier.common.exception.RdosDefineException;
+import com.dtstack.taier.common.exception.TaierDefineException;
 import com.dtstack.taier.scheduler.server.builder.ScheduleConf;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,19 +40,19 @@ public class ScheduleCronHourParser implements IScheduleConfParser {
     @Override
     public String parse(ScheduleConf scheduleConf) {
         if (scheduleConf.getBeginHour() == null) {
-            throw new RdosDefineException(String.format(ScheduleConfManager.CustomError.ERROR_INFO,scheduleConf.getPeriodType(),"beginHour"));
+            throw new TaierDefineException(String.format(ScheduleConfManager.CustomError.ERROR_INFO,scheduleConf.getPeriodType(),"beginHour"));
         }
 
         if (scheduleConf.getBeginMin() == null) {
-            throw new RdosDefineException(String.format(ScheduleConfManager.CustomError.ERROR_INFO,scheduleConf.getPeriodType(),"beginMin"));
+            throw new TaierDefineException(String.format(ScheduleConfManager.CustomError.ERROR_INFO,scheduleConf.getPeriodType(),"beginMin"));
         }
 
         if (scheduleConf.getEndHour() == null) {
-            throw new RdosDefineException(String.format(ScheduleConfManager.CustomError.ERROR_INFO,scheduleConf.getPeriodType(),"endHour"));
+            throw new TaierDefineException(String.format(ScheduleConfManager.CustomError.ERROR_INFO,scheduleConf.getPeriodType(),"endHour"));
         }
 
         if (scheduleConf.getGapHour() == null) {
-            throw new RdosDefineException(String.format(ScheduleConfManager.CustomError.ERROR_INFO,scheduleConf.getPeriodType(),"gapHour"));
+            throw new TaierDefineException(String.format(ScheduleConfManager.CustomError.ERROR_INFO,scheduleConf.getPeriodType(),"gapHour"));
         }
 
         int beginHour = scheduleConf.getBeginHour();

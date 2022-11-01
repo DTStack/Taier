@@ -21,7 +21,7 @@ package com.dtstack.taier.scheduler.zookeeper;
 import com.dtstack.taier.common.env.EnvironmentContext;
 import com.dtstack.taier.common.exception.LockServiceException;
 import com.dtstack.taier.common.exception.LockTimeoutException;
-import com.dtstack.taier.common.exception.RdosDefineException;
+import com.dtstack.taier.common.exception.TaierDefineException;
 import com.dtstack.taier.pluginapi.leader.LeaderNode;
 import com.dtstack.taier.pluginapi.leader.LockService;
 import com.dtstack.taier.scheduler.server.FailoverStrategy;
@@ -230,14 +230,14 @@ public class ZkService implements InitializingBean, DisposableBean {
     private void checkDistributedConfig() throws Exception {
         if (StringUtils.isBlank(this.zkConfig.getNodeZkAddress())
                 || this.zkConfig.getNodeZkAddress().split("/").length < 2) {
-            throw new RdosDefineException("zkAddress is error, Please enter: for example, localhost:2181/taier");
+            throw new TaierDefineException("zkAddress is error, Please enter: for example, localhost:2181/taier");
         }
         String[] zks = this.zkConfig.getNodeZkAddress().split("/");
         this.zkAddress = zks[0].trim();
         this.distributeRootNode = String.format("/%s", zks[1].trim());
         this.localAddress = zkConfig.getLocalAddress();
         if (StringUtils.isBlank(this.localAddress) || this.localAddress.split(":").length < 2) {
-            throw new RdosDefineException("localAddress is error");
+            throw new TaierDefineException("localAddress is error");
         }
         this.brokersNode = String.format("%s/brokers", this.distributeRootNode);
         this.localNode = String.format("%s/%s", this.brokersNode, this.localAddress);

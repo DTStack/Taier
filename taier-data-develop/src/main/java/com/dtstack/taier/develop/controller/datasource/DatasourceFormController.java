@@ -19,7 +19,7 @@
 package com.dtstack.taier.develop.controller.datasource;
 
 
-import com.dtstack.taier.common.exception.RdosDefineException;
+import com.dtstack.taier.common.exception.TaierDefineException;
 import com.dtstack.taier.common.lang.coc.APITemplate;
 import com.dtstack.taier.common.lang.web.R;
 import com.dtstack.taier.develop.bo.datasource.DsTypeVersionParam;
@@ -57,7 +57,7 @@ public class DatasourceFormController {
                 Asserts.hasText(param.getDataType(), "数据源类型不能为空!");
             }
             @Override
-            protected DsFormTemplateVo process() throws RdosDefineException {
+            protected DsFormTemplateVo process() throws TaierDefineException {
                 return dsFormFieldService.findTemplateByTypeVersion(param);
             }
         }.execute();

@@ -24,7 +24,7 @@ import com.dtstack.taier.common.enums.EJobCacheStage;
 import com.dtstack.taier.common.enums.ForceCancelFlag;
 import com.dtstack.taier.common.enums.OperatorType;
 import com.dtstack.taier.common.exception.ErrorCode;
-import com.dtstack.taier.common.exception.RdosDefineException;
+import com.dtstack.taier.common.exception.TaierDefineException;
 import com.dtstack.taier.common.util.ComponentVersionUtil;
 import com.dtstack.taier.common.util.DatasourceTypeUtil;
 import com.dtstack.taier.dao.domain.Cluster;
@@ -50,13 +50,11 @@ import com.dtstack.taier.develop.mapstruct.vo.DatasourceMapstructTransfer;
 import com.dtstack.taier.develop.vo.console.ConsoleJobInfoVO;
 import com.dtstack.taier.develop.vo.console.ConsoleJobVO;
 import com.dtstack.taier.pluginapi.JobClient;
-import com.dtstack.taier.pluginapi.constrant.ConfigConstant;
 import com.dtstack.taier.pluginapi.enums.TaskStatus;
 import com.dtstack.taier.pluginapi.pojo.ClusterResource;
 import com.dtstack.taier.pluginapi.pojo.ParamAction;
 import com.dtstack.taier.pluginapi.util.DateUtil;
 import com.dtstack.taier.pluginapi.util.PublicUtil;
-import com.dtstack.taier.scheduler.WorkerOperator;
 import com.dtstack.taier.scheduler.datasource.convert.engine.PluginInfoToSourceDTO;
 import com.dtstack.taier.scheduler.executor.DatasourceOperator;
 import com.dtstack.taier.scheduler.jobdealer.JobDealer;
@@ -446,7 +444,7 @@ public class ConsoleService {
     public ClusterResource clusterResources(Long clusterId) {
         Cluster cluster = clusterMapper.getOne(clusterId);
         if (cluster == null) {
-            throw new RdosDefineException(ErrorCode.DATA_NOT_FIND);
+            throw new TaierDefineException(ErrorCode.DATA_NOT_FIND);
         }
 
         Component yarnComponent = componentService.getComponentByClusterId(cluster.getId(),EComponentType.YARN.getTypeCode(),null);
@@ -483,7 +481,7 @@ public class ConsoleService {
             return datasourceMapstructTransfer.yarnResourceDTOtoClusterResource(yarnResource);
         } catch (Exception e) {
             LOGGER.error("getResources error: ", e);
-            throw new RdosDefineException("acquire flink resources error.");
+            throw new TaierDefineException("acquire flink resources error.");
         }
     }
 
