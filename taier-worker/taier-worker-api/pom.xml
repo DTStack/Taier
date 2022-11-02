@@ -9,8 +9,8 @@
         <version>1.0.0</version>
         <relativePath>..</relativePath>
     </parent>
-    <artifactId>taier-plugin-api</artifactId>
-    <name>taier-plugin-api</name>
+    <artifactId>taier-worker-api</artifactId>
+    <name>taier-worker-api</name>
     <packaging>jar</packaging>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

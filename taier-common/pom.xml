@@ -20,7 +20,7 @@
     <dependencies>
         <dependency>
             <groupId>com.dtstack.taier</groupId>
-            <artifactId>taier-plugin-api</artifactId>
+            <artifactId>taier-worker-api</artifactId>
             <version>1.0.0</version>
             <exclusions>
                 <exclusion>
