@@ -137,7 +137,7 @@ const transformerFactory: Record<
 	(value: any, index: number, array: any[]) => any | undefined
 > = {
 	sourceIdOnWriter: (item: IDataSourceUsedInSyncProps) => ({
-		label: `${item.dataName}（${DATA_SOURCE_TEXT[item.dataTypeCode]}）`,
+		label: `${item.dataName}（${item.dataType}）`,
 		value: item.dataInfoId,
 		type: item.dataTypeCode,
 		disabled: !taskRenderService
@@ -145,7 +145,7 @@ const transformerFactory: Record<
 			.supportSourceList.writers.includes(item.dataTypeCode),
 	}),
 	sourceIdOnReader: (item: IDataSourceUsedInSyncProps) => ({
-		label: `${item.dataName}（${DATA_SOURCE_TEXT[item.dataTypeCode]}）`,
+		label: `${item.dataName}（${item.dataType}）`,
 		value: item.dataInfoId,
 		type: item.dataTypeCode,
 		disabled: !taskRenderService
