@@ -267,31 +267,14 @@ export default function FlinkDimensionPanel({ current }: IRightBarComponentProps
 		handleSyncFormToTab();
 	};
 
-	const handlePanelChanged = (type: 'add' | 'delete', index?: string) => {
-		return new Promise<void>((resolve) => {
-			switch (type) {
-				case 'add': {
-					isAddOrRemove.current = true;
-					getTypeOriginData(DEFAULT_INPUT_VALUE.type!);
-					resolve();
-					break;
-				}
-				case 'delete': {
-					isAddOrRemove.current = true;
-					setPanelKey((keys) => {
-						const idx = keys.indexOf(index!);
-						if (idx !== -1) {
-							keys.splice(idx, 1);
-						}
-						return keys.concat();
-					});
-					resolve();
-					break;
-				}
-				default:
-					break;
-			}
-		});
+	const handlePanelChanged = (type: 'add' | 'delete', panelKey?: string) => {
+		if (type === 'add') {
+			getTypeOriginData(DEFAULT_INPUT_VALUE.type!);
+		} else {
+			setPanelKey((keys) => keys.filter((key) => panelKey !== key));
+		}
+
+		isAddOrRemove.current = true;
 	};
 
 	useEffect(() => {
@@ -348,14 +331,13 @@ export default function FlinkDimensionPanel({ current }: IRightBarComponentProps
 													<Popconfirm
 														placement="topLeft"
 														title="你确定要删除此维表吗？"
-														onConfirm={() =>
+														onConfirm={() => {
 															handlePanelChanged(
 																'delete',
 																field.key.toString(),
-															).then(() => {
-																remove(field.name);
-															})
-														}
+															);
+															remove(field.name);
+														}}
 														{...{
 															onClick: (e: any) => {
 																e.stopPropagation();
@@ -395,11 +377,10 @@ export default function FlinkDimensionPanel({ current }: IRightBarComponentProps
 								<Button
 									size="large"
 									block
-									onClick={() =>
-										handlePanelChanged('add').then(() =>
-											add({ ...DEFAULT_INPUT_VALUE }),
-										)
-									}
+									onClick={() => {
+										handlePanelChanged('add');
+										add({ ...DEFAULT_INPUT_VALUE });
+									}}
 									icon={<PlusOutlined />}
 								>
 									<span>添加维表</span>
