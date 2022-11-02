@@ -535,6 +535,7 @@ export interface IDataSourceUsedInSyncProps {
 	dataInfoId: number;
 	dataName: string;
 	dataTypeCode: DATA_SOURCE_ENUM;
+	dataType: string;
 }
 
 /**
