@@ -283,7 +283,7 @@ public abstract class AbstractTaskSaver implements ITaskSaver {
         task.setJobId(actionService.generateUniqueSign());
         task.setGmtCreate(Timestamp.valueOf(LocalDateTime.now()));
         if (StringUtils.isBlank(task.getTaskParams())) {
-            TaskParamTemplate taskTemplate = taskTemplateService.getTaskTemplate(task.getTaskType(), task.getComponentVersion());
+            TaskParamTemplate taskTemplate = taskTemplateService.getTaskTemplate(task.getTaskType(), FlinkVersion.FLINK_112.getType());
             String content = taskTemplate == null ? "" : taskTemplate.getParams();
             task.setTaskParams(content);
         }
