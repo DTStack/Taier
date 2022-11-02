@@ -10,9 +10,11 @@ sidebar_label: Flink-standalone
 
 **2、chunjun的插件**
 * 拉取最新的chunjun [1.12](https://github.com/DTStack/chunjun/releases/tag/v1.12.3) 版本项目，打包 mvn clean package -DskipTests, 将生成的chunjun-dist 拷贝至 $FLINK_HOME/lib
-* chunjun 在chunjun-core中将logback的依赖改为了provided,  需要将以下logback包放到$FLINK_HOME/lib
-  logback-core-1.2.11.jar
-  logback-classic-1.2.11.jar
+* chunjun 有些依赖包依赖是provided，需要将缺省的jar放到$FLINK_HOME/lib
+例如：在chunjun-core最新版本中将logback的依赖改为了provided,  需要将以下logback包放到$FLINK_HOME/lib
+
+  > logback-core-1.2.11.jar
+  > logback-classic-1.2.11.jar
 
 **3、flink1.12 standalone服务参数**
 所有节点都需要配置
