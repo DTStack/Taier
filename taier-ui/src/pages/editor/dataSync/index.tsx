@@ -1,6 +1,6 @@
 import { useEffect, useReducer, useState } from 'react';
 import { debounce, get } from 'lodash';
-import { DATA_SOURCE_TEXT, formItemLayout } from '@/constant';
+import { formItemLayout } from '@/constant';
 import { Form, Collapse, InputNumber, Input, Radio, Switch, Empty } from 'antd';
 import { GlobalEvent } from '@dtinsight/molecule/esm/common/event';
 import KeyMap from './keyMap';
@@ -137,7 +137,7 @@ const transformerFactory: Record<
 	(value: any, index: number, array: any[]) => any | undefined
 > = {
 	sourceIdOnWriter: (item: IDataSourceUsedInSyncProps) => ({
-		label: `${item.dataName}（${DATA_SOURCE_TEXT[item.dataTypeCode]}）`,
+		label: `${item.dataName}（${item.dataType}）`,
 		value: item.dataInfoId,
 		type: item.dataTypeCode,
 		disabled: !taskRenderService
@@ -145,7 +145,7 @@ const transformerFactory: Record<
 			.supportSourceList.writers.includes(item.dataTypeCode),
 	}),
 	sourceIdOnReader: (item: IDataSourceUsedInSyncProps) => ({
-		label: `${item.dataName}（${DATA_SOURCE_TEXT[item.dataTypeCode]}）`,
+		label: `${item.dataName}（${item.dataType}）`,
 		value: item.dataInfoId,
 		type: item.dataTypeCode,
 		disabled: !taskRenderService
