@@ -202,24 +202,14 @@ export default function FlinkResultPanel({ current }: IRightBarComponentProps) {
 		}
 	};
 
-	const handlePanelChanged = (type: 'add' | 'delete', index?: string) => {
-		return new Promise<void>((resolve) => {
-			if (type === 'add') {
-				isAddOrRemove.current = true;
-				getTypeOriginData(DEFAULT_INPUT_VALUE.type);
-				resolve();
-			} else {
-				isAddOrRemove.current = true;
-				const nextPanelAcitveKey = panelActiveKey.concat();
-				const idx = nextPanelAcitveKey.indexOf(index!);
-				if (idx > -1) {
-					nextPanelAcitveKey.splice(idx, 1);
-					setActiveKey(nextPanelAcitveKey);
-				}
+	const handlePanelChanged = (type: 'add' | 'delete', panelKey?: string) => {
+		if (type === 'add') {
+			getTypeOriginData(DEFAULT_INPUT_VALUE.type);
+		} else {
+			setActiveKey((keys) => keys.filter((key) => panelKey !== key));
+		}
 
-				resolve();
-			}
-		});
+		isAddOrRemove.current = true;
 	};
 
 	const handleSyncFormToTab = () => {
@@ -474,14 +464,13 @@ export default function FlinkResultPanel({ current }: IRightBarComponentProps) {
 													<Popconfirm
 														placement="topLeft"
 														title="你确定要删除此结果表吗？"
-														onConfirm={() =>
+														onConfirm={() => {
 															handlePanelChanged(
 																'delete',
 																field.key.toString(),
-															).then(() => {
-																remove(field.name);
-															})
-														}
+															);
+															remove(field.name);
+														}}
 														{...{
 															onClick: (e: any) => {
 																e.stopPropagation();
@@ -521,11 +510,10 @@ export default function FlinkResultPanel({ current }: IRightBarComponentProps) {
 								<Button
 									size="large"
 									block
-									onClick={() =>
-										handlePanelChanged('add').then(() =>
-											add({ ...DEFAULT_INPUT_VALUE }),
-										)
-									}
+									onClick={() => {
+										handlePanelChanged('add');
+										add({ ...DEFAULT_INPUT_VALUE });
+									}}
 									icon={<PlusOutlined />}
 								>
 									<span>添加结果表</span>
