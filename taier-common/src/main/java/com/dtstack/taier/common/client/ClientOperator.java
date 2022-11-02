@@ -161,12 +161,6 @@ public class ClientOperator {
         return clusterClient.submitJob(jobClient);
     }
 
-    public List<FileResult> listFile(String path, boolean isPathPattern, String pluginInfo) throws Exception {
-        IClient client = clientCache.getClient(pluginInfo);
-        return client.listFile(path, isPathPattern);
-    }
-
-
     public List<String> getRollingLogBaseInfo(String pluginInfo, JobIdentifier jobIdentifier) {
         checkoutOperator(pluginInfo, jobIdentifier);
         try {

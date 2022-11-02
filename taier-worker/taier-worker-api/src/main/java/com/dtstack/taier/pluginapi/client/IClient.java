@@ -23,7 +23,6 @@ import com.dtstack.taier.pluginapi.JobIdentifier;
 import com.dtstack.taier.pluginapi.enums.TaskStatus;
 import com.dtstack.taier.pluginapi.pojo.CheckResult;
 import com.dtstack.taier.pluginapi.pojo.ComponentTestResult;
-import com.dtstack.taier.pluginapi.pojo.FileResult;
 import com.dtstack.taier.pluginapi.pojo.JobResult;
 import com.dtstack.taier.pluginapi.pojo.JudgeResult;
 
@@ -61,6 +60,4 @@ public interface IClient {
     List<String> getRollingLogBaseInfo(JobIdentifier jobIdentifier);
 
     CheckResult grammarCheck(JobClient jobClient);
-
-    List<FileResult> listFile(String path, boolean isPathPattern);
 }

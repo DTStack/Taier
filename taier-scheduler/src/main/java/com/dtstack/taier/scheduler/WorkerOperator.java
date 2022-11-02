@@ -135,10 +135,6 @@ public class WorkerOperator {
         return clientOperator.stopJob(jobClient);
     }
 
-    public List<FileResult> listFile(String path, boolean isPathPattern, String pluginInfo) throws Exception {
-        return clientOperator.listFile(path, isPathPattern, pluginInfo);
-    }
-
     public CheckResult grammarCheck(JobClient jobClient) throws Exception {
         this.buildPluginInfo(jobClient);
         return clientOperator.grammarCheck(jobClient);

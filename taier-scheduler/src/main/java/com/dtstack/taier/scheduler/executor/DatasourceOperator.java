@@ -23,15 +23,20 @@ import com.dtstack.taier.common.enums.EComponentType;
 import com.dtstack.taier.common.util.DatasourceTypeUtil;
 import com.dtstack.taier.datasource.api.base.ClientCache;
 import com.dtstack.taier.datasource.api.client.IClient;
+import com.dtstack.taier.datasource.api.dto.FileStatus;
 import com.dtstack.taier.datasource.api.dto.source.ISourceDTO;
 import com.dtstack.taier.pluginapi.exception.ExceptionUtil;
 import com.dtstack.taier.pluginapi.pojo.ComponentTestResult;
+import com.dtstack.taier.pluginapi.pojo.FileResult;
 import com.dtstack.taier.scheduler.datasource.convert.engine.PluginInfoToSourceDTO;
 import com.dtstack.taier.scheduler.service.ClusterService;
 import com.dtstack.taier.scheduler.service.ComponentService;
+import com.google.common.collect.Lists;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import java.util.List;
 
 /**
  * rdb executor
@@ -112,5 +117,30 @@ public class DatasourceOperator {
         // 获取对应的数据源类型
         Integer dataSourceType = DatasourceTypeUtil.getTypeByComponentAndVersion(EComponentType.HDFS.getTypeCode(), component.getVersionName());
         pluginInfo.put(DatasourceOperator.DATA_SOURCE_TYPE, dataSourceType);
+    }
+
+    /**
+     * 上传 string 到 hdfs 路径
+     *
+     * @param pluginInfo pluginInfo
+     * @param tenantId   租户 id
+     * @param hdfsPath   hdfs 路径
+     * @return 路径
+     */
+    public List<FileResult> listFiles(JSONObject pluginInfo, Long tenantId, String hdfsPath, boolean isPathPattern) {
+        handleHdfsPluginInfo(pluginInfo, tenantId);
+        ISourceDTO sourceDTO = PluginInfoToSourceDTO.getSourceDTO(pluginInfo.toJSONString());
+        List<FileStatus> statuses = ClientCache.getHdfs(sourceDTO.getSourceType()).listFiles(sourceDTO, hdfsPath, isPathPattern);
+        List<FileResult> results = Lists.newArrayList();
+        for (FileStatus status : statuses) {
+            FileResult fileResult = new FileResult();
+            fileResult.setBlockSize(status.getBlocksize());
+            fileResult.setName(status.getPath());
+            fileResult.setPath(status.getPath());
+            fileResult.setOwner(status.getOwner());
+            fileResult.setModificationTime(status.getModification_time());
+            results.add(fileResult);
+        }
+        return results;
     }
 }

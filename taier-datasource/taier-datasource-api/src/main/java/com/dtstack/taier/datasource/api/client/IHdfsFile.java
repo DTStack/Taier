@@ -245,6 +245,16 @@ public interface IHdfsFile extends Client {
     List<FileStatus> listStatus(ISourceDTO source, String remotePath);
 
     /**
+     * 获取 hdfs 文件信息
+     *
+     * @param source     数据源信息
+     * @param remotePath hdfs 上路径
+     * @param isPathPattern 是否是正则匹配
+     * @return 文件夹下文件属性
+     */
+    List<FileStatus> listFiles(ISourceDTO source, String remotePath, boolean isPathPattern);
+
+    /**
      * 获取目录下所有文件路径, 递归获取
      *
      * @param source     数据源信息

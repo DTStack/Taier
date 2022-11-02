@@ -311,20 +311,4 @@ public class ClientProxy implements IClient {
             throw new TaierDefineException(e);
         }
     }
-
-    @Override
-    public List<FileResult> listFile(String path, boolean isPathPattern) {
-        try {
-            return CompletableFuture.supplyAsync(() -> {
-                try {
-                    return ClassLoaderCallBackMethod.callbackAndReset(() -> targetClient.listFile(path, isPathPattern), targetClient.getClass().getClassLoader(), true);
-                } catch (Exception e) {
-                    throw new TaierDefineException(e);
-                }
-            }, executorService).get(timeout, TimeUnit.MILLISECONDS);
-        } catch (InterruptedException | ExecutionException | TimeoutException e) {
-            throw new TaierDefineException(e);
-        }
-    }
-
 }

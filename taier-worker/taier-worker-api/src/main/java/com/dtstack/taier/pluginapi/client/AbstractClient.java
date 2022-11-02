@@ -143,9 +143,4 @@ public abstract class AbstractClient implements IClient {
     public CheckResult grammarCheck(JobClient jobClient){
         return null;
     }
-
-    @Override
-    public List<FileResult> listFile(String path,boolean isPathPattern) {
-        return null;
-    }
 }
