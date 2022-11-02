@@ -516,8 +516,6 @@ export default function StreamTask() {
 				dataIndex: 'componentVersion',
 				width: 80,
 				key: 'componentVersion',
-				filters: FLINK_VERSION_TYPE_FILTER,
-				filterMultiple: true,
 			},
 			{
 				title: '任务类型',
