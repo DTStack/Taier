@@ -31,7 +31,7 @@ import com.dtstack.taier.develop.vo.schedule.FileInfoVO;
 import com.dtstack.taier.pluginapi.constrant.ConfigConstant;
 import com.dtstack.taier.pluginapi.enums.EDeployMode;
 import com.dtstack.taier.pluginapi.pojo.FileResult;
-import com.dtstack.taier.scheduler.WorkerOperator;
+import com.dtstack.taier.scheduler.executor.DatasourceOperator;
 import com.dtstack.taier.scheduler.service.ClusterService;
 import com.dtstack.taier.scheduler.service.ComponentService;
 import com.dtstack.taier.scheduler.service.ScheduleJobService;
@@ -58,7 +58,7 @@ public class DevelopCheckpointController {
     private JobHistoryService jobHistoryService;
 
     @Autowired
-    private WorkerOperator workerOperator;
+    private DatasourceOperator datasourceOperator;
 
     @Autowired
     private ScheduleJobService scheduleJobService;
@@ -97,7 +97,7 @@ public class DevelopCheckpointController {
         JSONObject pluginInfo = componentService.wrapperConfig(clusterId, EComponentType.HDFS.getTypeCode(), null, null);
         String typeName = componentService.buildHdfsTypeName(scheduleJob.getTenantId(),clusterId);
         pluginInfo.put(ConfigConstant.TYPE_NAME_KEY, typeName);
-        List<FileResult> fileResults = workerOperator.listFile(pointPathDir,checkPointVO.isGetSavePointPath(), pluginInfo.toJSONString());
+        List<FileResult> fileResults = datasourceOperator.listFiles(pluginInfo, scheduleJob.getTenantId(), pointPathDir, checkPointVO.isGetSavePointPath());
         fileResults = fileResults.stream().filter(file -> !file.getPath().endsWith("shared") && !file.getPath().endsWith("taskowned")).collect(Collectors.toList());
         return R.ok(FileMapstructTransfer.INSTANCE.toInfoVO(fileResults));
     }
