@@ -377,6 +377,24 @@ public class HdfsFileClient implements IHdfsFile {
     }
 
     @Override
+    public List<FileStatus> listFiles(ISourceDTO source, String remotePath, boolean isPathPattern) {
+        HdfsSourceDTO hdfsSourceDTO = (HdfsSourceDTO) source;
+        FileSystem fs = HdfsOperator.getFileSystem(hdfsSourceDTO.getKerberosConfig(), hdfsSourceDTO.getConfig(), hdfsSourceDTO.getDefaultFS());
+        try {
+            Path path = new Path(remotePath);
+            org.apache.hadoop.fs.FileStatus[] fileStatuses;
+            if (isPathPattern) {
+                fileStatuses = fs.globStatus(path);
+            } else {
+                fileStatuses = fs.listStatus(path);
+            }
+            return transferFileStatus(Lists.newArrayList(fileStatuses));
+        } catch (IOException e) {
+            throw new SourceException(String.format("The status of the file or folder under the target path is abnormal : %s", e.getMessage()), e);
+        }
+    }
+
+    @Override
     public List<String> listAllFilePath(ISourceDTO source, String remotePath) {
         HdfsSourceDTO hdfsSourceDTO = (HdfsSourceDTO) source;
         FileSystem fs = HdfsOperator.getFileSystem(hdfsSourceDTO.getKerberosConfig(), hdfsSourceDTO.getConfig(), hdfsSourceDTO.getDefaultFS());
