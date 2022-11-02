@@ -37,8 +37,6 @@ public interface DsTypeTransfer {
     @Mapping(source = "id",target = "typeId")
     DsTypeVO toInfoVO(DsType dsType);
 
-    List<DsTypeVO> toInfoVOs(List<DsType> dsTypeList);
-
     List<DsTypeListVO> toDsTypeListVOs(List<DsType> dsTypeList);
 
 

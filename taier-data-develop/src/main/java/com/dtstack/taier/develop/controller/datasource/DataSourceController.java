@@ -84,14 +84,14 @@ public class DataSourceController {
     @ApiOperation("数据源列表分页信息")
     @PostMapping("page")
     public R<PageResult<List<DsListVO>>> dsPage(@RequestBody DsListParam dsListParam) {
-
+        dsListParam.setTenantId(null);
         return R.ok(dsInfoService.dsPage(dsListParam));
     }
 
     @ApiOperation("数据源列表总信息")
-    @PostMapping("total")
+    @PostMapping(value = "total")
     public R<List<DsListVO>> total(@RequestBody DsListParam dsListParam) {
-
+        dsListParam.setTenantId(null);
         return R.ok(dsInfoService.total(dsListParam));
     }
 
@@ -128,9 +128,10 @@ public class DataSourceController {
 
 
     @ApiOperation("根据租户id查询数据源列表")
-    @GetMapping("queryByTenantId")
-    public R<List<DsInfoVO>> queryByTenantId(@RequestParam("tenantId") Long tenantId) {
-        return R.ok(dsInfoService.queryByTenantId(tenantId));
+    @GetMapping("total")
+    public R<List<DsListVO>> total() {
+        List<DsListVO> total = dsInfoService.total(new DsListParam());
+        return R.ok(total);
     }
 
     @ApiOperation("根据租户id查询数据源列表")

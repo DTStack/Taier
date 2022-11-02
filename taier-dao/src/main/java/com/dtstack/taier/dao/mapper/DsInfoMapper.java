@@ -90,6 +90,4 @@ public interface DsInfoMapper extends com.baomidou.mybatisplus.core.mapper.BaseM
      */
     void updateDataTypeByDataTypeCode(@Param("dataType") String dataType,@Param("dataVersion") String dataVersion, @Param("dataTypeCode") Integer dataTypeCode);
 
-
-    List<DsInfo> queryByTenantId(Long tenantId);
 }

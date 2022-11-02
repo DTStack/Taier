@@ -555,16 +555,6 @@ public class DsInfoService extends ServiceImpl<DsInfoMapper, DsInfo> {
         return CollectionUtils.isNotEmpty(dsInfoList);
     }
 
-    /**
-     * 根据租户查询数据源列表
-     *
-     * @param tenantId
-     * @return
-     */
-    public List<DsInfoVO> queryByTenantId(Long tenantId) {
-        List<DsInfo> dsInfos = dsInfoMapper.queryByTenantId(tenantId);
-        return DsListTransfer.INSTANCE.toDsInfoVOS(dsInfos);
-    }
 
     /**
      * 查询数据源基本信息
