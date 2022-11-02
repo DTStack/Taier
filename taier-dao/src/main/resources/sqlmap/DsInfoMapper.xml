@@ -33,78 +33,12 @@
         a.data_type_code as dataTypeCode
     </sql>
 
-    <sql id="queryImportDsSql">
-        <where>
-            a.is_deleted = 0
-            and b.is_deleted = 0
-            and b.`app_type` = #{listQuery.appType}
-            and a.`tenant_id` = #{listQuery.tenant_id}
-            <if test="listQuery.dataTypeList != null and listQuery.dataTypeList.size() > 0">
-                and a.`data_type` in
-                <foreach collection="listQuery.dataTypeList" item="dataType" open="(" separator="," close=")">
-                    #{dataType}
-                </foreach>
-            </if>
-            <if test="listQuery.dataTypeCodeList != null and listQuery.dataTypeCodeList.size() > 0">
-                and a.data_type_code in
-                <foreach collection="listQuery.dataTypeCodeList" item="dataTypeCode" open="(" separator="," close=")">
-                    #{dataTypeCode}
-                </foreach>
-            </if>
-            <if test="listQuery.search != null and listQuery.search != ''">
-                and (
-                a.data_name like concat('%', #{listQuery.search} ,'%')
-                or a.data_desc like concat('%', #{listQuery.search}, '%')
-                )
-            </if>
-            and not EXISTS (
-                select data_info_id
-                FROM dsc_import_ref t
-                WHERE a.id = t.data_info_id
-                and t.is_deleted = 0
-                and t.app_type = #{listQuery.appType}
-                and t.tenant_id = #{listQuery.tenantId}
-            )
-        </where>
-    </sql>
-
-    <sql id="queryAppDsSql">
-        <where>
-            a.is_deleted = 0
-            and b.is_deleted = 0
-            and b.`app_type` = #{listQuery.appType}
-            and a.`tenant_id` = #{listQuery.tenantId}
-            <if test="listQuery.dataName !=null and listQuery.dataName !=''">
-                and a.data_name = #{listQuery.dataName}
-            </if>
-            <if test="listQuery.isMeta !=null ">
-                and a.is_meta = #{listQuery.isMeta}
-            </if>
-            <if test="listQuery.dataTypeCodeList !=null and listQuery.dataTypeCodeList.size()>0">
-                and a.`data_type_code` in
-                <foreach collection="listQuery.dataTypeCodeList" item="dataTypeCode" open="(" separator="," close=")">
-                    #{dataTypeCode}
-                </foreach>
-            </if>
-            <if test="listQuery.schemaNameList !=null and listQuery.schemaNameList.size()>0 ">
-                and a.`schema_name` in
-                <foreach collection="listQuery.schemaNameList" item="schemaName" open="(" separator="," close=")">
-                    #{schemaName}
-                </foreach>
-            </if>
-            <if test="listQuery.search != null and listQuery.search != ''">
-                and (
-                a.data_name like concat('%', #{listQuery.search} ,'%')
-                or a.data_desc like concat('%', #{listQuery.search}, '%')
-                )
-            </if>
-        </where>
-    </sql>
-
     <sql id="queryDsSql">
         <where>
             a.is_deleted = 0
-            and a.tenant_id = #{listQuery.tenantId}
+            <if test="listQuery.tenantId != null and listQuery.tenantId != ''">
+                and a.tenant_id = #{listQuery.tenantId}
+            </if>
             <if test="listQuery.search != null and listQuery.search != ''">
                 and (
                 a.data_name like concat('%', #{listQuery.search} ,'%')
@@ -240,13 +174,5 @@
         </if>
     </select>
 
-    <select id="queryByTenantId" resultType="com.dtstack.taier.dao.domain.DsInfo">
-        select
-        <include refid="select_content_fragment" />
-        from datasource_info a
-        where a.tenant_id = #{tenantId}
-        and is_deleted = 0
-        and status = 1;
-    </select>
 
 </mapper>
