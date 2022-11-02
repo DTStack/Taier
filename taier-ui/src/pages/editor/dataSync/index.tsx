@@ -1,6 +1,6 @@
 import { useEffect, useReducer, useState } from 'react';
 import { debounce, get } from 'lodash';
-import { DATA_SOURCE_TEXT, formItemLayout } from '@/constant';
+import { formItemLayout } from '@/constant';
 import { Form, Collapse, InputNumber, Input, Radio, Switch, Empty } from 'antd';
 import { GlobalEvent } from '@dtinsight/molecule/esm/common/event';
 import KeyMap from './keyMap';
