@@ -61,6 +61,10 @@ $ docker-compose up -d
 ```
 - [开发任务](https://dtstack.github.io/Taier/docs/quickstart/start)
 
+## 技术交流
+
+我们使用 微信沟通交流，可以扫描下面的二维码进入[微信群](https://github.com/DTStack/Taier/issues/852)
+
 ## 未来规划
 
 - 任务类型：新增其他类型支持
@@ -99,10 +103,3 @@ $ docker-compose up -d
 - 外部系统对接：支持 `Taier` 系统对接外部调度系统（`AZKBAN`、`Control-M`、`DS` 调度）
 
 
-## 技术交流
-
-我们使用 [钉钉](https://www.dingtalk.com/) 沟通交流，可以搜索群号 [**30537511**] 或者扫描下面的二维码进入钉钉群
-
-<div align="center"> 
- <img src="/Taier/img/readme/ding.jpeg" width="300" />
-</div>

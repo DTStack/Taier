@@ -13,10 +13,12 @@ sidebar_label: 单机部署
 - 下载 [taier源码包](https://github.com/DTStack/Taier/releases/download/${current.version}/taier.tar.gz)
 ```shell
 $ wget https://github.com/DTStack/Taier/releases/download/${current.version}/taier.tar.gz
+$ wget https://github.com/DTStack/Taier/releases/download/${current.version}/plugins.tar.gz
 ```
 - 解压taier源码包
 ```shell
 $ unzip taier.tar.gz
+$ unzip plugins.tar.gz
 ```
 
 - 修改配置信息

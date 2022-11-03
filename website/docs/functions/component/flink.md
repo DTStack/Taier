@@ -85,20 +85,35 @@ Flink在自定义参数中添加Flink官方参数来调整任务提交参数信�
 
 ### 文件结构
 :::tip
-FlinkJarPath为Flink jar 需要配置`taier部署机器`上的centos路径
+flinkLibDir为Flink jar 需要配置`taier部署机器`上的centos路径
 :::
 
-如 flinkJarPath 配置为/opt/dtstack/flink110_lib  
+如 flinkLibDir 配置为/opt/dtstack/flink110_lib  
 /opt/dtstack/flink110_lib 目录包含文件为:
 ```shell
-├── flink-dist_2.11-1.10.0.jar
-├── flink-metrics-prometheus-1.10.0.jar
+├── flink-csv-1.12.7.jar
+├── flink-dist_2.12-1.12.7.jar
+├── flink-json-1.12.7.jar
+├── flink-metrics-prometheus-1.12.7.jar
+├── flink-parquet_2.12-1.12.7.jar
+├── flink-python_2.12-1.12.7.jar
 ├── flink-shaded-hadoop-2-uber-2.7.5-10.0.jar
-├── flink-streaming-java_2.11-1.10.0.jar
-├── flink-table_2.11-1.10.0.jar
-├── flink-table-blink_2.11-1.10.0.jar
-└── log4j-1.2.17.jar
+├── flink-shaded-zookeeper-3.4.14.jar
+├── flink-sql-avro-1.12.7.jar
+├── flink-table_2.12-1.12.7.jar
+├── flink-table-blink_2.12-1.12.7.jar
+├── iceberg-flink-runtime-0.12.0.jar
+├── log4j-1.2-api-2.16.0.jar
+├── log4j-api-2.16.0.jar
+├── log4j-core-2.16.0.jar
+├── log4j-slf4j-impl-2.16.0.jar
+├── logback-classic-1.2.11.jar
+└── logback-core-1.2.11.jar
 ```
+
+:::caution
+配置好数据同步任务之后运行，如果提示Could not read ch.qos.logback.classic.Logger 请确认下flinkLibDir下logback包是否放置
+:::
 
 :::tip 
 FlinkPluginRoot配置的是chunjun的插件包目录 需要配置`taier部署机器`上的centos路径
