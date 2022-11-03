@@ -21,7 +21,6 @@ package com.dtstack.taier.develop.config;
 
 import com.dtstack.taier.develop.interceptor.LoginInterceptor;
 import com.dtstack.taier.pluginapi.constrant.ConfigConstant;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.MediaType;
@@ -38,6 +37,7 @@ import org.springframework.web.servlet.config.annotation.PathMatchConfigurer;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.ViewControllerRegistry;
 import org.springframework.web.servlet.view.InternalResourceViewResolver;
+import org.springframework.web.servlet.view.JstlView;
 
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -45,11 +45,6 @@ import java.util.List;
 
 @Configuration
 public class MvcConfig extends DelegatingWebMvcConfiguration {
-
-
-    @Value("${ui.path:file:dist/}")
-    public String uiPath;
-
 
     @Override
     public void addCorsMappings(CorsRegistry registry) {
@@ -90,13 +85,15 @@ public class MvcConfig extends DelegatingWebMvcConfiguration {
 
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
-        registry.addResourceHandler("/static/**").addResourceLocations(uiPath + "/static/");
+        registry.addResourceHandler("/static/**").addResourceLocations("classpath:/static/static/");
+        registry.addResourceHandler("/images/**").addResourceLocations("classpath:/static/images/");
+        registry.addResourceHandler("/assets/**").addResourceLocations("classpath:/static/assets/");
         registry.addResourceHandler("swagger-ui.html").addResourceLocations(
                 "classpath:/META-INF/resources/");
         registry.addResourceHandler("/webjars/**").addResourceLocations(
                 "classpath:/META-INF/resources/webjars/");
-        registry.addResourceHandler("/taier/**").addResourceLocations(uiPath);
-        registry.addResourceHandler("/**").addResourceLocations(uiPath);
+        registry.addResourceHandler("/taier/**").addResourceLocations("classpath:/static/");
+        registry.addResourceHandler("/**").addResourceLocations("classpath:/static/");
         super.addResourceHandlers(registry);
     }
 
@@ -119,7 +116,11 @@ public class MvcConfig extends DelegatingWebMvcConfiguration {
 
     @Bean
     public InternalResourceViewResolver viewResolver() {
-        return new InternalResourceViewResolver();
+        InternalResourceViewResolver viewResolver = new InternalResourceViewResolver();
+        viewResolver.setPrefix("/");
+        viewResolver.setSuffix(".html");
+        viewResolver.setViewClass(JstlView.class);
+        return viewResolver;
     }
 
 }

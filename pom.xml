@@ -25,14 +25,16 @@
         <mybatis-plus.version>3.4.0</mybatis-plus.version>
         <hive.version>2.1.0</hive.version>
         <taier.datasource.version>1.0.0</taier.datasource.version>
+        <frontend-maven-plugin.version>1.12.1</frontend-maven-plugin.version>
+        <maven-antrun-plugin.version>3.1.0</maven-antrun-plugin.version>
     </properties>
 
     <modules>
         <module>taier-common</module>
         <module>taier-dao</module>
         <module>taier-scheduler</module>
-        <module>taier-data-develop</module>
         <module>taier-ui</module>
+        <module>taier-data-develop</module>
         <module>taier-worker</module>
         <module>taier-datasource</module>
     </modules>
