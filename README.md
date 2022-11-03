@@ -42,6 +42,7 @@
 - 上下游依赖调度
 - 支持实时、离线任务
 - 支持对接不同版本的 Hadoop
+- 支持Flink Standalone
 - 对集群环境 0 侵入
 - 多租户多集群隔离
 - 支持 Kerberos 认证
@@ -73,14 +74,24 @@ $ docker-compose up -d
 | 数据同步      | [文档](https://dtstack.github.io/Taier/docs/functions/task/sync)|
 | 实时采集      | [文档](https://dtstack.github.io/Taier/docs/functions/task/data-acquisition)     |
 | Flink SQL   | [文档](https://dtstack.github.io/Taier/docs/functions/task/flink-sql)      |
+| Flink   | [文档](https://dtstack.github.io/Taier/docs/functions/task/flink)     |
 | Spark SQL   | [文档](https://dtstack.github.io/Taier/docs/functions/task/spark-sql)     |
 | Hive SQL   |[文档](https://dtstack.github.io/Taier/docs/functions/task/hive-sql)     |
 | OceanBase SQL   |[文档](https://dtstack.github.io/Taier/docs/functions/task/oceanbase-sql)   |
+| ClickHouse SQL   |[文档](https://dtstack.github.io/Taier/docs/functions/task/clickhouse-sql)   |
+| Doris SQL   |[文档](https://dtstack.github.io/Taier/docs/functions/task/doris-sql)   |
+| Shell   |[文档](https://dtstack.github.io/Taier/docs/functions/task/shell)   |
+| Python   |[文档](https://dtstack.github.io/Taier/docs/functions/task/python)   |
 | 自定义扩展   |[文档](https://dtstack.github.io/Taier/docs/expand/task)   |
 
 ## 问题反馈
 
 在使用上有遇到 bug 或者优化点，强烈建议你提 [issue](https://github.com/DTStack/Taier/issues/new/choose) 我们将及时修复
+
+
+## 联系我们
+- Slack https://join.slack.com/t/slack-p437975/shared_invite/zt-1iw5x1fw7-A6rVolqjP2z8V09~WwFUiA
+
 
 ## 贡献代码
 
