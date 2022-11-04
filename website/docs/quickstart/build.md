@@ -36,7 +36,7 @@ $ build/mvn-build.sh
    安装npm 并设置npm国内镜像地址  
    在taier-ui目录 执行
    ```shell
-   $ npm run install
+   $ npm install
    $ npm run build
    ```
    
