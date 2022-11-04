@@ -9,7 +9,7 @@ sidebar_label: Flink-standalone
 * flink官网下载 [release 1.12.7](https://flink.apache.org/downloads.html)
 
 **2、chunjun的插件**
-* 拉取最新的chunjun [1.12](https://github.com/DTStack/chunjun/releases/tag/v1.12.3) 版本项目，打包 mvn clean package -DskipTests, 将生成的chunjun-dist 拷贝至 $FLINK_HOME/lib
+* 拉取最新的chunjun [master](https://github.com/DTStack/chunjun) 版本项目，打包 mvn clean package -DskipTests, 将生成的chunjun-dist 拷贝至 $FLINK_HOME/lib
 * chunjun 有些依赖包依赖是provided，需要将缺省的jar放到$FLINK_HOME/lib
 例如：在chunjun-core最新版本中将logback的依赖改为了provided,  需要将以下logback包放到$FLINK_HOME/lib
 
@@ -39,7 +39,7 @@ metrics.reporter.promgateway.randomJobNameSuffix: true
 metrics.reporter.promgateway.deleteOnShutdown: false
 ```
 
-## Flink1.12 on Standalone 控制台参数
+## Standalone 控制台参数
 
 | 参数名 | 含义 | 是否必填 * 为必填 | 默认值 |
 | --- | --- | --- | --- |
@@ -48,9 +48,9 @@ metrics.reporter.promgateway.deleteOnShutdown: false
 | chunjunDistDir            | chunjun 插件地址       | * | /data/chunjun/chunjun-dist |
 | remoteChunjunDistDir       | chunjun 插件远端地址    | * | /data/chunjun/chunjun-dist |
 | pluginLoadMode            | 加载文件的方式          | * | classpath |
-| jobmanager.rpc.address     | jobmanager rpc地址     |   |  |
-| jobmanager.rpc.port        | jobmanager rpc端口号   |   |  |
-| rest.port                 | ui端口号	             |   |  |
+| jobmanager.rpc.address     | jobmanager rpc地址     | * |  |
+| jobmanager.rpc.port        | jobmanager rpc端口号   | *  |  |
+| rest.port                 | ui端口号	             |  * |  |
 | high-availability          | 高可用服务类型		    |   | NONE |
 | high-availability.zookeeper.quorum     | zookeeper集群地址	 |  |  |
 | high-availability.zookeeper.path.root  | flink存储状态在zookeeper的根节点路径		 |  |  |

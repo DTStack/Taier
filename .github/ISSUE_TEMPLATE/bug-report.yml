@@ -100,7 +100,8 @@ body:
         - master
         - v1.0
         - v1.1
-        - v.12
+        - v1.2
+        - v1.3
     validations:
       required: true
 
