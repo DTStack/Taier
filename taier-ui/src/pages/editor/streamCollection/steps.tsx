@@ -35,7 +35,7 @@ class CollectionGuide extends React.Component<any, any> {
     }
 
     loadSourceList = () => {
-        API.queryByTenantId({ tenantId: getTenantId() })
+        API.getAllDataSource({})
 			.then((res) => {
 				if (res.code === 1) {
                     this.setState({ sourceList: res.data || [] })
