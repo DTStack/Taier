@@ -1,11 +1,8 @@
 #!/bin/bash
 
-
 ulimit -c unlimited
 
 HO_HEAP_SIZE="${HO_HEAP_SIZE:=2048m}"
-JAVA_HOME=/opt/dtstack/java
-PATH=$JAVA_HOME/bin:$PATH
 
 CMD_PATH=`dirname $0`
 CMD_HOME=`cd "$CMD_PATH"/../; pwd`
