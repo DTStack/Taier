@@ -59,6 +59,7 @@ sidebar_position: 1
 ```shell
 $ docker-compose up -d
 ```
+- [在线预览地址](http://taier.dtstack.cn/)
 - [开发任务](https://dtstack.github.io/Taier/docs/quickstart/start)
 
 ## 技术交流
