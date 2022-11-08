@@ -33,7 +33,6 @@ import type { CatalogueDataProps, IOfflineTaskProps } from '@/interface';
 import { IComputeType } from '@/interface';
 import type { IParamsProps } from '@/services/taskParamsService';
 import taskParamsService from '@/services/taskParamsService';
-import ImportTemplate from '@/components/task/importTemplate';
 import { languages } from '@dtinsight/molecule/esm/monaco';
 import { editorActionBarService, taskRenderService, executeService } from '@/services';
 import notification from '@/components/notification';
@@ -230,31 +229,6 @@ function emitEvent() {
 							}
 						},
 					});
-				}
-				break;
-			}
-			case ID_COLLECTIONS.TASK_IMPORT_ID: {
-				const currentTab = current.tab;
-
-				const target = document.getElementById(CONTAINER_ID);
-				if (target) {
-					target.parentElement?.removeChild(target);
-				}
-				const node = document.createElement('div');
-				node.id = CONTAINER_ID;
-				document.getElementById('molecule')!.appendChild(node);
-
-				const root = createRoot(node);
-				if (currentTab) {
-					const handleSuccess = (data: string) => {
-						// update the editor's content
-						const prettierJSON = JSON.stringify(JSON.parse(data), null, 4);
-						molecule.editor.editorInstance.getModel()?.setValue(prettierJSON);
-					};
-
-					root.render(
-						<ImportTemplate taskId={currentTab.data.id} onSuccess={handleSuccess} />,
-					);
 				}
 				break;
 			}
