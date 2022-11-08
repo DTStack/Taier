@@ -50,5 +50,6 @@ $ ./bin/taier.sh stop
 ```
 
 :::tip
-低版本升级到高版本 执行[高版本目录](https://github.com/DTStack/Taier/tree/master/sql)下的`increment.sql`
+低版本升级到高版本 执行[高版本目录](https://github.com/DTStack/Taier/tree/master/sql)下的`increment.sql`  
+初次部署 直接执行[最新版本](https://github.com/DTStack/Taier/tree/master/sql)下的`init.sql`
 :::

@@ -1,9 +1,5 @@
 #!/bin/bash
 PATH=/sbin:/usr/sbin:/bin:/usr/bin
-JAVA_HOME=/opt/dtstack/java
-PATH=$JAVA_HOME/bin:$PATH
-export JAVA_HOME
-export PATH
 
 CMD_PATH=`dirname $0`
 CMD_HOME=`cd "$CMD_PATH"/../; pwd`

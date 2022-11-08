@@ -64,6 +64,8 @@ $ wget https://github.com/DTStack/Taier/blob/master/docker-compose.yml
 $ docker-compose up -d
 ```
 
+#### [在线预览地址](http://taier.dtstack.cn/)
+
 #### [开发任务](https://dtstack.github.io/Taier/docs/quickstart/start)
 ![main](/website/static/img/readme/main.png)
 
