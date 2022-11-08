@@ -135,7 +135,6 @@ export default {
 	GET_HIVE_PARTITIONS: `${BASE_URI}/dataSource/addDs/getHivePartitions`, // 获取分区信息
 	GET_DATA_SOURCE_PREVIEW: `${BASE_URI}/dataSource/addDs/preview`, // 数据同步任务预览数据
 	GET_ALL_SCHEMAS: `${BASE_URI}/dataSource/addDs/getAllSchemas`, // 数据同步任务获取 schema
-	QUREY_BY_TENANT_ID: `${BASE_URI}/dataSource/manager/queryByTenantId`, // 根据租户查询数据源
 	GET_DATA_SOURCE_PAGE: `${BASE_URI}/dataSource/manager/page`, // 获取数据源表格列表
 	GET_TYPE_LIST: `${BASE_URI}/dataSource/manager/type/list`, // 获取数据源分类列表
 	DELETE_SOURCE: `${BASE_URI}/dataSource/manager/delete`, // 删除数据源

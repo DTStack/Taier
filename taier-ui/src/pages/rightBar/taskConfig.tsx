@@ -11,7 +11,7 @@ import {
 	logPrintTimes,
 } from '@/components/helpDoc/docs';
 import api from '@/api';
-import { getTenantId } from '@/utils';
+import type { IDataSourceProps } from '@/interface';
 import type { IRightBarComponentProps } from '@/services/rightBarService';
 import type { FormInstance } from 'antd';
 
@@ -53,14 +53,12 @@ export default function TaskConfig({ current }: IRightBarComponentProps) {
 	};
 
 	useEffect(() => {
-		api.queryByTenantId<
-			{ dataInfoId: number; dataName: string; dataTypeCode: DATA_SOURCE_ENUM }[]
-		>({
-			tenantId: getTenantId(),
-		}).then((res) => {
+		api.getAllDataSource({}).then((res) => {
 			if (res.code === 1) {
 				const mysqlDataSource =
-					res.data?.filter((d) => d.dataTypeCode === DATA_SOURCE_ENUM.MYSQL) || [];
+					(res.data as IDataSourceProps[])?.filter(
+						(d) => d.dataTypeCode === DATA_SOURCE_ENUM.MYSQL,
+					) || [];
 				setDataSourceList(
 					mysqlDataSource.map((i) => ({ label: i.dataName, value: i.dataInfoId })),
 				);
