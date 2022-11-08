@@ -60,6 +60,12 @@ public class SparkYarnResourceInfo extends AbstractYarnResourceInfo {
 
     public final static int DEFAULT_MEM_OVERHEAD = 384;
 
+    public static final String SPARK_CLEAR_RESOURCED_RATE = "spark.clear.resource.rate";
+
+    public static final String SPARK_RESOURCES_DIR = "spark.resources.dir";
+
+    public static final String DEFAULT_SPARK_RESOURCES_DIR = "hdfs:///dtInsight/spark";
+
     private YarnClient yarnClient;
     private String queueName;
     private Integer yarnAccepterTaskNumber;
