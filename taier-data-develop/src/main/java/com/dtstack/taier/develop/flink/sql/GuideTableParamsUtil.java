@@ -71,7 +71,7 @@ public class GuideTableParamsUtil {
         String[] columns = columnsText.split("\n");
         for (String column : columns) {
             if (StringUtils.isNotBlank(column)) {
-                if (FlinkVersion.FLINK_112.getType().equals(componentVersion) && DataSourceType.HBASE.getVal().equals(dataSourceType)) {
+                if (FlinkVersion.FLINK_112.getVersions().contains(componentVersion) && DataSourceType.HBASE.getVal().equals(dataSourceType)) {
                     // 1. flink 1.12 2. 数据源为 hbase
                     JSONObject obj = new JSONObject();
                     obj.put("column", column);
