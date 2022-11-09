@@ -140,11 +140,11 @@ public abstract class AbstractBaseTable implements IFlinkSqlTable {
      * @param paramJson 参数信息
      * @param version   flink 版本
      */
-    protected final void fillParam(JSONObject dataJson, JSONObject paramJson, String version) {
+    protected final void fillParam(JSONObject dataJson, JSONObject paramJson, FlinkVersion version) {
         JSONObject allParam = new JSONObject(paramJson);
         allParam.putAll(dataJson);
         this.allParam = allParam;
-        this.version = FlinkVersion.getVersion(version);
+        this.version = version;
         convertParamValue();
     }
 

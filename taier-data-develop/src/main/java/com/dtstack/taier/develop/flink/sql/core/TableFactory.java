@@ -21,6 +21,7 @@ package com.dtstack.taier.develop.flink.sql.core;
 import com.alibaba.fastjson.JSONObject;
 import com.dtstack.taier.datasource.api.source.DataSourceType;
 import com.dtstack.taier.common.exception.DtCenterDefException;
+import com.dtstack.taier.develop.enums.develop.FlinkVersion;
 import com.dtstack.taier.develop.flink.sql.side.AbstractSideTable;
 import com.dtstack.taier.develop.flink.sql.side.MySqlSideTable;
 import com.dtstack.taier.develop.flink.sql.sink.AbstractSinkTable;
@@ -48,7 +49,7 @@ public class TableFactory {
      * @param componentVersion 组建版本
      * @return flinkSql 源表 sql
      */
-    public static AbstractSourceTable getSourceTable(Integer dataSourceType, JSONObject dataJson, JSONObject paramJson, String componentVersion) {
+    public static AbstractSourceTable getSourceTable(Integer dataSourceType, JSONObject dataJson, JSONObject paramJson, FlinkVersion componentVersion) {
         DataSourceType sourceType = DataSourceType.getSourceType(dataSourceType);
         AbstractSourceTable sourceTable;
         switch (sourceType) {
@@ -73,7 +74,7 @@ public class TableFactory {
      * @param componentVersion 组建版本
      * @return flinkSql 结果表 sql
      */
-    public static AbstractSinkTable getSinkTable(Integer dataSourceType, JSONObject dataJson, JSONObject paramJson, String componentVersion) {
+    public static AbstractSinkTable getSinkTable(Integer dataSourceType, JSONObject dataJson, JSONObject paramJson, FlinkVersion componentVersion) {
         DataSourceType sourceType = DataSourceType.getSourceType(dataSourceType);
         AbstractSinkTable sinkTable;
         switch (sourceType) {
@@ -103,7 +104,7 @@ public class TableFactory {
      * @param componentVersion 组建版本
      * @return flinkSql 维表 sql
      */
-    public static AbstractSideTable getSideTable(Integer dataSourceType, JSONObject dataJson, JSONObject paramJson, String componentVersion) {
+    public static AbstractSideTable getSideTable(Integer dataSourceType, JSONObject dataJson, JSONObject paramJson, FlinkVersion componentVersion) {
         DataSourceType sourceType = DataSourceType.getSourceType(dataSourceType);
         AbstractSideTable sideTable;
         switch (sourceType) {

@@ -48,16 +48,16 @@ public class SqlGenerateFactory {
         JSONObject dataJson = JSON.parseObject(Base64Util.baseDecode(dataSource.getDataJson()));
         switch (tableType) {
             case SIDE:
-                if (StringUtils.isNotBlank(componentVersion) && StringUtils.equalsIgnoreCase(componentVersion, FlinkVersion.FLINK_112.getType())) {
-                    return TableFactory.getSideTable(dataSource.getDataTypeCode(), dataJson, paramJson, FlinkVersion.FLINK_112.getType()).getCreateSql();
+                if (StringUtils.isNotBlank(componentVersion) && FlinkVersion.FLINK_112.getVersions().contains(componentVersion)) {
+                    return TableFactory.getSideTable(dataSource.getDataTypeCode(), dataJson, paramJson, FlinkVersion.getVersion(componentVersion)).getCreateSql();
                 }
             case SINK:
-                if (StringUtils.isNotBlank(componentVersion) && StringUtils.equalsIgnoreCase(componentVersion, FlinkVersion.FLINK_112.getType())) {
-                    return TableFactory.getSinkTable(dataSource.getDataTypeCode(), dataJson, paramJson, FlinkVersion.FLINK_112.getType()).getCreateSql();
+                if (StringUtils.isNotBlank(componentVersion) &&  FlinkVersion.FLINK_112.getVersions().contains(componentVersion)) {
+                    return TableFactory.getSinkTable(dataSource.getDataTypeCode(), dataJson, paramJson, FlinkVersion.getVersion(componentVersion)).getCreateSql();
                 }
             case SOURCE:
-                if (StringUtils.isNotBlank(componentVersion) && StringUtils.equalsIgnoreCase(componentVersion, FlinkVersion.FLINK_112.getType())) {
-                    return TableFactory.getSourceTable(dataSource.getDataTypeCode(), dataJson, paramJson, FlinkVersion.FLINK_112.getType()).getCreateSql();
+                if (StringUtils.isNotBlank(componentVersion) &&  FlinkVersion.FLINK_112.getVersions().contains(componentVersion)) {
+                    return TableFactory.getSourceTable(dataSource.getDataTypeCode(), dataJson, paramJson, FlinkVersion.getVersion(componentVersion)).getCreateSql();
                 }
             default:
                 throw new DtCenterDefException(String.format("不支持的表类型:%s", tableType.getTableType()));

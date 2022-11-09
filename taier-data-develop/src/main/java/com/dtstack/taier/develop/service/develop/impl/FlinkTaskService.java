@@ -431,7 +431,7 @@ public class FlinkTaskService {
                 String timeColumnFront = sourceJson.getString(KafkaSourceParamEnum.TIME_COLUMN.getFront());
                 if (StringUtils.isNotBlank(timeColumnFront)) {
                     // flink1.12 默认时间语义是事件时间，之前是机器时间
-                    String timeCharKey = FlinkVersion.FLINK_112.getType().equals(componentVersion) ?
+                    String timeCharKey = FlinkVersion.FLINK_112.getVersions().contains(componentVersion) ?
                             PIPELINE_TIME_CHARACTERISTIC : TIME_CHARACTERISTIC;
                     if (!params.contains(timeCharKey)) {
                         if (timeCharacteristic) {
