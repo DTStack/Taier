@@ -41,7 +41,7 @@ public class SparkResourceUploader {
 
     public static final String SP = File.separator;
 
-    // 默认hdfs resource文件清除频率
+    // default hdfs resource cleaner rate
     public static final String SPARK_DEFAULT_CLEAR_RESOURCED_RATE = "30";
 
     private final YarnConfiguration yarnConf;
