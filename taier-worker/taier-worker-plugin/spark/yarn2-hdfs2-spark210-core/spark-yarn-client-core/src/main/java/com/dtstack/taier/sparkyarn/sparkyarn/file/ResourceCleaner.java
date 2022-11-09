@@ -79,7 +79,7 @@ public class ResourceCleaner implements Runnable {
         } catch (IOException e) {
             logger.error("ResourcesDir Exception: ", e);
         } catch (ClassCastException e) {
-            logger.error("spark.clear.resource.rate 请用int类型,单位为天", e);
+            logger.error("spark.clear.resource.rate, use dataType:'int', unit:'day' ", e);
         }
     }
 }
