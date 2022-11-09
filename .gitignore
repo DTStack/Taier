@@ -39,3 +39,10 @@ node_modules
 conf/application.properties
 /dist
 /worker-plugins/
+taier-data-develop/**/static/**/*.html
+taier-data-develop/**/static/**/*.css
+taier-data-develop/**/static/**/*.js
+taier-data-develop/**/static/**/*.json
+taier-data-develop/**/static/**/images/
+taier-data-develop/**/static/**/static/
+taier-data-develop/**/static/**/assets/

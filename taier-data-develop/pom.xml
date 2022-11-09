@@ -107,6 +107,13 @@
             </resource>
             <resource>
                 <directory>src/main/resources/</directory>
+                <includes>
+                    <include>static/**</include>
+                    <include>**/*.html</include>
+                    <include>**/*.js</include>
+                    <include>**/*.css</include>
+                    <include>**/*.json</include>
+                </includes>
             </resource>
         </resources>
         <plugins>

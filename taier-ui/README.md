@@ -11,6 +11,12 @@ Please go to the Taier-ui directory:
 yarn build
 ```
 
+or
+
+```bash
+mvn clean package
+```
+
 ## Running
 
 ```bash
