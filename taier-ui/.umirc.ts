@@ -5,6 +5,8 @@ export default defineConfig({
 	title: 'Taier | DTStack',
 	favicon: 'images/favicon.png',
 	hash: true,
+	publicPath: "./",
+	base: './',
 	ignoreMomentLocale: true,
 	targets: {
 		ios: false,
