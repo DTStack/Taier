@@ -64,11 +64,11 @@ public class SparkResourceUploader {
     }
 
     public void uploadSparkResource() {
-        String sparkResourcesDirProp = sparkExtProp.get(SparkYarnResourceInfo.SPARK_RESOURCES_DIR).toString();
-        if (StringUtils.isBlank(sparkResourcesDirProp)) {
+        Object sparkResourcesDirProp = sparkExtProp.get(SparkYarnResourceInfo.SPARK_RESOURCES_DIR);
+        if (sparkResourcesDirProp == null || StringUtils.isBlank(sparkResourcesDirProp.toString())) {
             sparkResourcesDirProp = SparkYarnResourceInfo.DEFAULT_SPARK_RESOURCES_DIR;
         }
-        final String sparkResourcesDir = sparkResourcesDirProp;
+        final String sparkResourcesDir = sparkResourcesDirProp.toString();
         String md5sum = sparkYarnConfig.getMd5sum();
         String sparkClearResourceRate =
                 sparkExtProp
@@ -125,20 +125,15 @@ public class SparkResourceUploader {
     private String getSqlProxyJarPath() {
         String path = this.getClass().getProtectionDomain().getCodeSource().getLocation().getPath();
 
-        File pluginDir = new File(path).getParentFile().getParentFile();
-        File[] sqlProxyDirs =
+        File pluginDir = new File(path).getParentFile();
+        File[] sqlProxyJars =
                 pluginDir.listFiles(
                         (dir, name) ->
                                 dir.isDirectory()
                                         && name.toLowerCase().startsWith("spark-sql-proxy"));
-        if (sqlProxyDirs != null && sqlProxyDirs.length == 1) {
-            File[] sqlProxyJars =
-                    sqlProxyDirs[0].listFiles(
-                            (dir, name) ->
-                                    name.toLowerCase().startsWith("spark-sql-proxy")
-                                            && name.toLowerCase().endsWith(".jar"));
-
-            if (sqlProxyJars != null && sqlProxyJars.length == 1) {
+        if (sqlProxyJars != null && sqlProxyJars.length == 1) {
+            String sqlProxyJar = sqlProxyJars[0].getName();
+            if (sqlProxyJar.toLowerCase().startsWith("spark-sql-proxy") && sqlProxyJar.toLowerCase().endsWith(".jar")) {
                 return sqlProxyJars[0].getAbsolutePath();
             }
         }
