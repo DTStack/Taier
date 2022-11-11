@@ -37,6 +37,7 @@ public interface DaReaderBuilder {
     String JDBC_PASSWORD = "password";
 
     String RDBMS_DA_TYPE = "rdbmsDaType";
+    String HALF_STRUCTURE_DA_TYPE = "halfStructureDaType";
 
     String JDBC_URL = "jdbcUrl";
 

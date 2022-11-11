@@ -16,30 +16,34 @@
  * limitations under the License.
  */
 
-package com.dtstack.taier.develop.service.develop;
+package com.dtstack.taier.develop.service.develop.saver;
 
 import com.dtstack.taier.common.enums.EScheduleJobType;
-import com.dtstack.taier.dao.domain.Task;
 import com.dtstack.taier.develop.dto.devlop.TaskResourceParam;
 import com.dtstack.taier.develop.dto.devlop.TaskVO;
 
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
- * @author yuebai
- * @date 2022/7/13
+ * @author bnyte
+ * @since 1.3.1
  */
-public interface ITaskSaver {
+public class FtpTaskSaver extends AbstractTaskSaver {
 
-    /**
-     * defines the types of scheduled jobs currently supported by saver
-     * @see EScheduleJobType
-     * @return current task supported schedule job types by saver
-     */
-    List<EScheduleJobType> support();
+    @Override
+    public List<EScheduleJobType> support() {
+        return Stream.of(EScheduleJobType.SYNC).collect(Collectors.toList());
+    }
 
-    TaskVO addOrUpdate(TaskResourceParam taskResourceParam);
+    @Override
+    public TaskResourceParam beforeProcessing(TaskResourceParam taskResourceParam) {
+        return null;
+    }
 
-    String processScheduleRunSqlText(Task task);
+    @Override
+    public void afterProcessing(TaskResourceParam taskResourceParam, TaskVO taskVO) {
 
+    }
 }

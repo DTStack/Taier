@@ -16,30 +16,39 @@
  * limitations under the License.
  */
 
-package com.dtstack.taier.develop.service.develop;
+package com.dtstack.taier.develop.enums.develop;
 
-import com.dtstack.taier.common.enums.EScheduleJobType;
-import com.dtstack.taier.dao.domain.Task;
-import com.dtstack.taier.develop.dto.devlop.TaskResourceParam;
-import com.dtstack.taier.develop.dto.devlop.TaskVO;
-
-import java.util.List;
+import com.dtstack.taier.common.exception.TaierDefineException;
 
 /**
- * @author yuebai
- * @date 2022/7/13
+ * 半结构型数据库实时采集类型
+ * @author bnyte
+ * @since 1.0.0
  */
-public interface ITaskSaver {
+public enum HalfStructureDaType {
+    FILE(0),
+    ;
+    private int code;
 
-    /**
-     * defines the types of scheduled jobs currently supported by saver
-     * @see EScheduleJobType
-     * @return current task supported schedule job types by saver
-     */
-    List<EScheduleJobType> support();
+    HalfStructureDaType(int code) {
+        this.code = code;
+    }
 
-    TaskVO addOrUpdate(TaskResourceParam taskResourceParam);
+    public int getCode() {
+        return code;
+    }
 
-    String processScheduleRunSqlText(Task task);
 
+    public static HalfStructureDaType getRdbmsDaType(Integer code) {
+        //默认为file
+        if (code == null) {
+            return FILE;
+        }
+        for (HalfStructureDaType halfStructureDaType : values()) {
+            if (halfStructureDaType.getCode() == code) {
+                return halfStructureDaType;
+            }
+        }
+        throw new TaierDefineException("not support HalfStructureDaType");
+    }
 }
