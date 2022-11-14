@@ -42,6 +42,7 @@ const sidebars = {
                  },
                   'quickstart/build',
                   'quickstart/start',
+                  'quickstart/precautions',
             ],
         },
         {
