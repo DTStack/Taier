@@ -10,7 +10,7 @@ sidebar_label: 单机部署
 
 ## 服务部署
 
-- 下载 [taier源码包](https://github.com/DTStack/Taier/releases/download/${current.version}/taier.tar.gz)
+- 下载 [taier源码包](https://github.com/DTStack/Taier/releases)
 ```shell
 $ wget https://github.com/DTStack/Taier/releases/download/${current.version}/taier.tar.gz
 $ wget https://github.com/DTStack/Taier/releases/download/${current.version}/plugins.tar.gz
