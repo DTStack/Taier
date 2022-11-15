@@ -124,7 +124,7 @@ public class ResponseAdvisor implements ResponseBodyAdvice<Object> {
         } else {
             errorCode = ErrorCode.SERVER_EXCEPTION;
             errorMsg = ExceptionUtil.getErrorMessage(e);
-            LOGGER.error("", e.getMessage());
+            LOGGER.error("", e.getCause());
         }
 
         if (errorCode.equals(ErrorCode.PERMISSION_LIMIT)) {
