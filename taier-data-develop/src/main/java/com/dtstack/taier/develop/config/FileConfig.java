@@ -18,24 +18,28 @@
 
 package com.dtstack.taier.develop.config;
 
+import com.dtstack.taier.common.env.EnvironmentContext;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.web.servlet.MultipartConfigFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.util.unit.DataSize;
-import org.springframework.util.unit.DataUnit;
 
 import javax.servlet.MultipartConfigElement;
 
 @Configuration
 public class FileConfig {
 
+    @Autowired
+    private EnvironmentContext environmentContext;
+
     @Bean
     public MultipartConfigElement multipartConfigElement() {
         MultipartConfigFactory factory = new MultipartConfigFactory();
-        //文件最大10M,DataUnit提供5中类型B,KB,MB,GB,TB
-        factory.setMaxFileSize(DataSize.of(100, DataUnit.MEGABYTES));
-        /// 设置总上传数据总大小10M
-        factory.setMaxRequestSize(DataSize.of(100, DataUnit.MEGABYTES));
+        // 设置上传数据限制 MB
+        DataSize maxFileSize = DataSize.ofMegabytes(environmentContext.getMaxUploadFileSize());
+        factory.setMaxFileSize(maxFileSize);
+        factory.setMaxRequestSize(maxFileSize);
         return factory.createMultipartConfig();
     }
 }
