@@ -3,7 +3,7 @@
      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 		 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<parent>
-		<artifactId>taier-all</artifactId>
+		<artifactId>taier</artifactId>
 		<groupId>com.dtstack.taier</groupId>
 		<version>1.0.0</version>
 	</parent>
@@ -24,7 +24,7 @@
 					<installDirectory>target</installDirectory>
 				</configuration>
 				<executions>
-					<!-- 安装node和yarn -->
+					<!-- install node and yarn -->
 					<execution>
 						<id>install node and npm</id>
 						<goals>
@@ -33,18 +33,18 @@
 							<goal>install-node-and-npm</goal>
 							-->
 						</goals>
-						<!-- 指定版本 -->
+						<!-- specified version -->
 						<configuration>
 							<nodeVersion>${node.version}</nodeVersion>
 							<yarnVersion>${yarn.version}</yarnVersion>
 
-							<!-- 若不方便访问官网，可使用国内淘宝镜像-->
+							<!-- If it is inconvenient to visit the official website, you can use the domestic Taobao mirror-->
 							<nodeDownloadRoot>https://npm.taobao.org/dist/</nodeDownloadRoot>
 							<yarnDownloadRoot>https://npm.taobao.org/mirrors/yarn/</yarnDownloadRoot>
 						</configuration>
 					</execution>
 
-					<!-- step1. 配置国内yarn镜像代理 -->
+					<!-- step1. configure the domestic yarn mirror proxy -->
 					<execution>
 						<id>yarn config</id>
 						<goals>
@@ -55,7 +55,7 @@
 						</configuration>
 					</execution>
 
-					<!-- step2. 下载依赖 -->
+					<!-- step2. download dependencies -->
 					<execution>
 						<id>yarn install</id>
 						<goals>
@@ -63,7 +63,7 @@
 						</goals>
 					</execution>
 
-					<!-- step2. 构建 -->
+					<!-- step2. build -->
 					<execution>
 						<id>yarn run build</id>
 						<goals>
