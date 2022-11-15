@@ -44,5 +44,6 @@ $ build/mvn-build.sh
    - taier-ui/dist
 
 :::tip
+编译前端代码，建议node版本为`v16.14.0`  
 源码中包含部分scala的代码，通过idea源码启动需要添加scala的sdk 建议scala版本为`2.11.1`
 :::
