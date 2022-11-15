@@ -6,7 +6,6 @@
  <h3>A distributed dispatching system</h3>
 </div>
 
-
 <p align="center">
   <img src="https://img.shields.io/github/release/Dtstack/Taier.svg">
   <img src="https://img.shields.io/github/stars/Dtstack/Taier">
@@ -15,91 +14,90 @@
    <img src="https://img.shields.io/badge/license-Apache%202-4EB1BA.svg">
   </a>
   <p align="center">
-    <a href="https://dtstack.github.io/Taier/">官网</a> |
-    <a href="https://dtstack.github.io/Taier/docs/guides/introduction/">官方文档</a>
+    <a href="https://dtstack.github.io/Taier/">Office Website</a> |
+    <a href="https://dtstack.github.io/Taier/docs/guides/introduction/">Document</a>
   </p>
 </p>
 
-## 介绍
+## Introduction
 
-> **Taier**  太阿，是中国古代十大名剑之一
+> **Taier** , spelling in chinese is 太阿, is one of the ancient chinese celebrated swords.
 
-**Taier** 是一个开源的分布式 DAG 调度系统，专注不同任务的提交和调度。旨在降低 **ETL** 开发成本，解决任务之间复杂的依赖关系和提交、调度、运维带来的上手成本
+**Taier** is distributed dispatching system that focus on different tasks submitted and scheduled. It's aimed at reducing the **ETL**'s cost, making the complex dependencies between tasks clearly and reducing the labor cost about submitting, scheduling and O&M.
 
-在 **Taier** 上进行 ETL 开发，不用关心任务错综复杂的依赖关系与底层的大数据平台的架构实现，将工作的重心更多地聚焦在业务之中
+It's unnecessary to concern about the complex dependencies between tasks and the underlying architecture about the big data platform at **Taier**, so that you can pay more attention into business.
 
-**Taier** 提供了一个提交、调度、运维、指标信息展示的一站式大数据开发平台
+**Taier** provide an one-stop big data platform for submitting tasks, scheduling tasks, O&M, presentation about indicators.
 
-## 功能
+The core features for Taier are as follows:
 
-核心功能如下:
+- Easy to distributed extend
+- Visualization config for DAG
+- With an IDE development platform designed for big-data users
+- Supports to develop your own plugins
+- Multiply task modes including guide mode and script mode
+- Supports to the dependencies between upstream/downstream tasks
+- Supports batch and stream tasks
+- Integrates various different versions of Hadoop
+- Easy to integrate Flink Standalone
+- Completely safe and non-intrusive to the cluster's environment
+- Isolation by tenants and clusters
+- Supports kerberos authentication
+- Different versions for tasks
+- Supports user-defined parameters for task
+- Real-time monitoring about cluster's resources
+- Real-time presented about data indicators
+- Restrict the task's resource
 
-- 分布式扩展
-- 可视化 DAG 配置
-- IDE 式开发平台
-- 自定义扩展任务插件
-- 向导、脚本多种模式
-- 上下游依赖调度
-- 支持实时、离线任务
-- 支持对接不同版本的 Hadoop
-- 支持Flink Standalone
-- 对集群环境 0 侵入
-- 多租户多集群隔离
-- 支持 Kerberos 认证
-- 任务多版本支持
-- 自定义参数替换
-- 集群资源实时监控
-- 数据指标实时获取
-- 任务资源限制
-
-## 架构
+## Architecture
 
 ![architecture](/website/static/img/readme/taier-architecture.png)
 
-## 快速开始
-#### [docker 启动](https://dtstack.github.io/Taier/docs/quickstart/deploy/docker#2-%E4%BD%BF%E7%94%A8docker-compose) 
+## Quick start
+
+#### [In Docker](https://dtstack.github.io/Taier/docs/quickstart/deploy/docker#2-%E4%BD%BF%E7%94%A8docker-compose)
 
 ```shell
 $ wget https://github.com/DTStack/Taier/blob/master/docker-compose.yml
 $ docker-compose up -d
 ```
 
-#### [开发任务](https://dtstack.github.io/Taier/docs/quickstart/start)
+#### [Online Preview](http://taier.dtstack.cn/)
+
+#### [Develop Tasks](https://dtstack.github.io/Taier/docs/quickstart/start)
+
 ![main](/website/static/img/readme/main.png)
 
-## 任务类型
+## Tasks
 
-| 任务类型      | 文档说明 |
-| :---:        |    :----:   |
-| 数据同步      | [文档](https://dtstack.github.io/Taier/docs/functions/task/sync)|
-| 实时采集      | [文档](https://dtstack.github.io/Taier/docs/functions/task/data-acquisition)     |
-| Flink SQL   | [文档](https://dtstack.github.io/Taier/docs/functions/task/flink-sql)      |
-| Flink   | [文档](https://dtstack.github.io/Taier/docs/functions/task/flink)     |
-| Spark SQL   | [文档](https://dtstack.github.io/Taier/docs/functions/task/spark-sql)     |
-| Hive SQL   |[文档](https://dtstack.github.io/Taier/docs/functions/task/hive-sql)     |
-| OceanBase SQL   |[文档](https://dtstack.github.io/Taier/docs/functions/task/oceanbase-sql)   |
-| ClickHouse SQL   |[文档](https://dtstack.github.io/Taier/docs/functions/task/clickhouse-sql)   |
-| Doris SQL   |[文档](https://dtstack.github.io/Taier/docs/functions/task/doris-sql)   |
-| Shell   |[文档](https://dtstack.github.io/Taier/docs/functions/task/shell)   |
-| Python   |[文档](https://dtstack.github.io/Taier/docs/functions/task/python)   |
-| 自定义扩展   |[文档](https://dtstack.github.io/Taier/docs/expand/task)   |
+|       Tasks       |                                     Documentation                                     |
+| :---------------: | :-----------------------------------------------------------------------------------: |
+|     Data Sync     |       [Documentation](https://dtstack.github.io/Taier/docs/functions/task/sync)       |
+| Data Acquisition  | [Documentation](https://dtstack.github.io/Taier/docs/functions/task/data-acquisition) |
+|     Flink SQL     |    [Documentation](https://dtstack.github.io/Taier/docs/functions/task/flink-sql)     |
+|       Flink       |      [Documentation](https://dtstack.github.io/Taier/docs/functions/task/flink)       |
+|     Spark SQL     |    [Documentation](https://dtstack.github.io/Taier/docs/functions/task/spark-sql)     |
+|     Hive SQL      |     [Documentation](https://dtstack.github.io/Taier/docs/functions/task/hive-sql)     |
+|   OceanBase SQL   |  [Documentation](https://dtstack.github.io/Taier/docs/functions/task/oceanbase-sql)   |
+|  ClickHouse SQL   |  [Documentation](https://dtstack.github.io/Taier/docs/functions/task/clickhouse-sql)  |
+|     Doris SQL     |    [Documentation](https://dtstack.github.io/Taier/docs/functions/task/doris-sql)     |
+|       Shell       |      [Documentation](https://dtstack.github.io/Taier/docs/functions/task/shell)       |
+|      Python       |      [Documentation](https://dtstack.github.io/Taier/docs/functions/task/python)      |
+| User-defined Task |           [Documentation](https://dtstack.github.io/Taier/docs/expand/task)           |
 
-## 问题反馈
+## Questions
 
-在使用上有遇到 bug 或者优化点，强烈建议你提 [issue](https://github.com/DTStack/Taier/issues/new/choose) 我们将及时修复
+For questions, bugs and supports please open an [issue](https://github.com/DTStack/Taier/issues/new/choose), we'll reply you in time.
 
+## Stay in touch
 
-## 联系我们
 - Slack https://join.slack.com/t/slack-p437975/shared_invite/zt-1iw5x1fw7-A6rVolqjP2z8V09~WwFUiA
 
+## Contribution
 
-## 贡献代码
+Please make sure to read the [Contributing Guide](https://dtstack.github.io/Taier/docs/contributing) before making a pull request.
 
-我该如何贡献？
-
-[参考文档](https://dtstack.github.io/Taier/docs/contributing)
-
-## 贡献者
+## Contributor
 
 <a href="https://github.com/Dtstack/Taier/graphs/contributors">
   <img src="https://contrib.rocks/image?repo=Dtstack/Taier" />

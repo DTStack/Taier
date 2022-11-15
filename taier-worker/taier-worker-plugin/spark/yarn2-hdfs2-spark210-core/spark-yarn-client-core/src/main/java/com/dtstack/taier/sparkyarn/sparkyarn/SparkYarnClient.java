@@ -45,6 +45,7 @@ import com.dtstack.taier.pluginapi.util.RetryUtil;
 import com.dtstack.taier.sparkyarn.sparkext.ClientExt;
 import com.dtstack.taier.sparkyarn.sparkext.ClientExtFactory;
 import com.dtstack.taier.sparkyarn.sparkyarn.constant.AppEnvConstant;
+import com.dtstack.taier.sparkyarn.sparkyarn.file.SparkResourceUploader;
 import com.dtstack.taier.sparkyarn.sparkyarn.parser.AddJarOperator;
 import com.dtstack.taier.sparkyarn.sparkyarn.util.HadoopConf;
 import com.google.common.base.Charsets;
@@ -164,6 +165,11 @@ public class SparkYarnClient extends AbstractClient {
         if (sparkYarnConfig.getMonitorAcceptedApp()) {
             AcceptedApplicationMonitor.start(yarnConf, sparkYarnConfig.getQueue(), sparkYarnConfig);
         }
+
+        SparkResourceUploader sparkResourceUploader =
+                new SparkResourceUploader(
+                        yarnConf, sparkYarnConfig, sparkExtProp, filesystemManager);
+        sparkResourceUploader.uploadSparkResource();
 
         this.threadPoolExecutor = new ThreadPoolExecutor(sparkYarnConfig.getAsyncCheckYarnClientThreadNum(), sparkYarnConfig.getAsyncCheckYarnClientThreadNum(),
                 0L, TimeUnit.MILLISECONDS,

@@ -12,4 +12,76 @@
     <artifactId>taier-ui</artifactId>
 
 
+	<build>
+		<plugins>
+			<plugin>
+				<!-- https://mvnrepository.com/artifact/com.github.eirslett/frontend-maven-plugin -->
+				<groupId>com.github.eirslett</groupId>
+				<artifactId>frontend-maven-plugin</artifactId>
+				<version>${frontend-maven-plugin.version}</version>
+				<configuration>
+					<workingDirectory>${project.build.directory}</workingDirectory>
+					<installDirectory>target</installDirectory>
+				</configuration>
+				<executions>
+					<!-- 安装node和yarn -->
+					<execution>
+						<id>install node and npm</id>
+						<goals>
+							<goal>install-node-and-yarn</goal>
+							<!--
+							<goal>install-node-and-npm</goal>
+							-->
+						</goals>
+						<!-- 指定版本 -->
+						<configuration>
+							<nodeVersion>v16.16.0</nodeVersion>
+							<yarnVersion>v1.22.19</yarnVersion>
+						</configuration>
+					</execution>
+					<execution>
+						<id>yarn install</id>
+						<goals>
+							<goal>yarn</goal>
+						</goals>
+					</execution>
+					<execution>
+						<id>yarn run build</id>
+						<goals>
+							<goal>yarn</goal>
+						</goals>
+						<configuration>
+							<arguments>run build</arguments>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-antrun-plugin</artifactId>
+				<version>${maven-antrun-plugin.version}</version>
+				<executions>
+					<execution>
+						<id>compile</id>
+						<phase>package</phase>
+						<goals>
+							<goal>run</goal>
+						</goals>
+						<configuration>
+							<target>
+								<copy
+									todir="${project.basedir}/../taier-data-develop/src/main/resources/static">
+									<fileset dir="${project.basedir}/dist" erroronmissingdir="false">
+										<include name="**/*" />
+									</fileset>
+								</copy>
+							</target>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
+
 </project>
