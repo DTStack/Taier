@@ -84,6 +84,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.io.File;
 import java.io.IOException;
 import java.sql.Connection;
+import java.sql.Date;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -442,6 +444,8 @@ public class DatasourceService {
         dataSourceVO.setModifyUserId(userId);
         // 构造数据源元数据
         DsInfo dsInfo = buildDsInfo(dataSourceVO);
+        dsInfo.setGmtModified(Date.from(Instant.now()));
+        dsInfo.setGmtCreate(DateTime.now().toDate());
         if (dataSourceVO.getId() > 0) {
             // edit 不存在授权操作
             dsInfoService.getOneById(dataSourceVO.getId());
@@ -450,7 +454,6 @@ public class DatasourceService {
             if (dsInfoService.checkDataNameDup(dsInfo)) {
                 throw new TaierDefineException(ErrorCode.DATASOURCE_DUP_NAME);
             }
-            dsInfo.setGmtCreate(DateTime.now().toDate());
             dsInfoService.updateById(dsInfo);
         } else {
             // add 存在授权产品操作
