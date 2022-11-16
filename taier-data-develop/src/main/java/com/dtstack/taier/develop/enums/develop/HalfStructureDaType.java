@@ -21,9 +21,9 @@ package com.dtstack.taier.develop.enums.develop;
 import com.dtstack.taier.common.exception.TaierDefineException;
 
 /**
- * 半结构型数据库实时采集类型
+ * Semi-structured database real-time acquisition type
  * @author bnyte
- * @since 1.0.0
+ * @since 1.3.1
  */
 public enum HalfStructureDaType {
     FILE(0),
@@ -40,7 +40,7 @@ public enum HalfStructureDaType {
 
 
     public static HalfStructureDaType getRdbmsDaType(Integer code) {
-        //默认为file
+        //default file
         if (code == null) {
             return FILE;
         }

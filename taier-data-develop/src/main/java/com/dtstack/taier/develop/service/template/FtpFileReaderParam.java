@@ -19,9 +19,9 @@
 package com.dtstack.taier.develop.service.template;
 
 /**
- * ftp文件数据来源参数
+ * ftp file data source parameters
  * @author bnyte
- * @since 1.0.0
+ * @since 1.3.1
  */
 public class FtpFileReaderParam extends DaPluginParam {
 

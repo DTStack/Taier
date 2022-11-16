@@ -18,54 +18,28 @@
 
 package com.dtstack.taier.develop.service.template.bulider.reader;
 
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.parser.Feature;
-import com.dtstack.taier.common.enums.EScheduleJobType;
-import com.dtstack.taier.common.exception.ErrorCode;
 import com.dtstack.taier.common.exception.TaierDefineException;
 import com.dtstack.taier.common.util.DataSourceUtils;
-import com.dtstack.taier.common.util.PublicUtil;
 import com.dtstack.taier.dao.domain.DsInfo;
-import com.dtstack.taier.datasource.api.base.ClientCache;
-import com.dtstack.taier.datasource.api.client.IClient;
-import com.dtstack.taier.datasource.api.dto.ColumnMetaDTO;
-import com.dtstack.taier.datasource.api.dto.SqlQueryDTO;
-import com.dtstack.taier.datasource.api.dto.source.Mysql5SourceDTO;
 import com.dtstack.taier.datasource.api.source.DataSourceType;
 import com.dtstack.taier.develop.common.template.Reader;
-import com.dtstack.taier.develop.dto.devlop.ColumnDTO;
-import com.dtstack.taier.develop.dto.devlop.ConnectionDTO;
 import com.dtstack.taier.develop.dto.devlop.TaskResourceParam;
 import com.dtstack.taier.develop.enums.develop.*;
 import com.dtstack.taier.develop.service.datasource.impl.DsInfoService;
 import com.dtstack.taier.develop.service.template.FtpFileReaderParam;
-import com.dtstack.taier.develop.service.template.PluginName;
 import com.dtstack.taier.develop.service.template.ftp.FtpFileReader;
-import com.dtstack.taier.develop.service.template.mysql.MysqlBinLogReader;
-import com.dtstack.taier.develop.service.template.mysql.MysqlBinLogReaderParam;
-import com.dtstack.taier.develop.service.template.mysql.MysqlPollReader;
-import com.dtstack.taier.develop.service.template.mysql.MysqlPollReaderParam;
 import com.dtstack.taier.develop.utils.JsonUtils;
-import com.dtstack.taier.develop.utils.develop.sync.util.ColumnUtil;
-import com.dtstack.taier.develop.vo.datasource.BinLogFileVO;
-import com.google.common.collect.Lists;
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
-import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
 import java.util.*;
-import java.util.regex.Matcher;
-
-import static com.dtstack.taier.develop.utils.develop.common.enums.Constant.CREATE_MODEL_TEMPLATE;
-
 
 /**
- * @author 1.3.1
+ * @author bnyte
  * @since 1.3.1
  */
 @Component
