@@ -26,24 +26,31 @@ package com.dtstack.taier.develop.service.template;
 public class FtpFileReaderParam extends DaPluginParam {
 
     /**
-     * 文件所在ftp服务器路径
+     * the ftp server path where the file is located
      */
     private String path;
 
     /**
-     * 是文件的第一行为标题
+     * is the header of the first line of the file
      */
     private Boolean isFirstLineHeader;
 
     /**
-     * 列分隔符
+     * column separator
      */
     private String fieldDelimiter;
 
     /**
-     * 编码格式
+     * encoding format
      */
     private String encoding;
+
+    /**
+     * source data file type
+     * currently only csv and Excel are supported see
+     *  {@link <a href="https://github.com/DTStack/chunjun/blob/master/chunjun-connectors/chunjun-connector-ftp/src/main/java/com/dtstack/chunjun/connector/ftp/enums/FileType.java">ChunJun FTP supported</a>}
+     */
+    private String fileType;
 
     public String getPath() {
         return path;
@@ -77,4 +84,11 @@ public class FtpFileReaderParam extends DaPluginParam {
         this.encoding = encoding;
     }
 
+    public String getFileType() {
+        return fileType;
+    }
+
+    public void setFileType(String fileType) {
+        this.fileType = fileType;
+    }
 }

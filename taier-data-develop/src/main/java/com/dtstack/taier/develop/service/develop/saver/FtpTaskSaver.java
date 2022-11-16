@@ -21,6 +21,7 @@ package com.dtstack.taier.develop.service.develop.saver;
 import com.dtstack.taier.common.enums.EScheduleJobType;
 import com.dtstack.taier.develop.dto.devlop.TaskResourceParam;
 import com.dtstack.taier.develop.dto.devlop.TaskVO;
+import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -30,6 +31,7 @@ import java.util.stream.Stream;
  * @author bnyte
  * @since 1.3.1
  */
+@Component
 public class FtpTaskSaver extends AbstractTaskSaver {
 
     @Override

@@ -21,7 +21,6 @@ package com.dtstack.taier.develop.service.template.ftp;
 import com.alibaba.fastjson.JSONObject;
 import com.dtstack.taier.develop.common.template.Reader;
 import com.dtstack.taier.develop.service.template.BaseReaderPlugin;
-import com.dtstack.taier.develop.service.template.FtpFileReaderParam;
 import com.dtstack.taier.develop.service.template.PluginName;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,22 +36,22 @@ public class FtpFileReader extends BaseReaderPlugin implements Reader {
     private static final Logger logger = LoggerFactory.getLogger(FtpFileReader.class);
 
     /**
-     * ftp文件中的列映射列表
+     * list of column mappings in the ftp file
      */
     public static class FtpColumn {
 
         /**
-         * 列索引 0开始
+         * column index starts at 0
          */
         private Integer index;
 
         /**
-         * 列数据类型
+         * column data type
          */
         private String type;
 
         /**
-         * 列名称
+         * column name
          */
         private String name;
 
@@ -91,56 +90,61 @@ public class FtpFileReader extends BaseReaderPlugin implements Reader {
     }
 
     /**
-     * 文件所在ftp服务器路径
+     * the ftp server path where the file is located
      */
     private String path;
 
     /**
-     * 协议
-     *  ftp或sftp, 默认sftp
+     * protocol
+     *  ftp or sftp default sftp
      */
     private String protocol = "sftp";
 
     /**
-     * 端口
-     *  ftp服务器端口,默认22
+     * port
+     *  ftp server port default 22
      */
     private Integer port = 22;
 
     /**
-     * 是文件的第一行为标题
+     * is the header of the first line of the file
      */
     private Boolean isFirstLineHeader;
 
     /**
-     * ftp服务器host
+     * ftp server host
      */
     private String host;
 
     /**
-     * ftp reader文件列映射列表
+     * ftp reader file column mapping list
      */
     private List<FtpColumn> column;
 
     /**
-     * ftp服务器密码
+     * ftp server password
      */
     private String password;
 
     /**
-     * 列分隔符
+     * column separator
      */
     private String fieldDelimiter;
 
     /**
-     * 编码格式
+     * encoding format
      */
     private String encoding;
 
     /**
-     * 用户名
+     * username
      */
     private String username;
+
+    /**
+     * file type of reader source file
+     */
+    private String fileType;
 
 
     @Override
@@ -231,5 +235,13 @@ public class FtpFileReader extends BaseReaderPlugin implements Reader {
 
     public void setUsername(String username) {
         this.username = username;
+    }
+
+    public String getFileType() {
+        return fileType;
+    }
+
+    public void setFileType(String fileType) {
+        this.fileType = fileType;
     }
 }
