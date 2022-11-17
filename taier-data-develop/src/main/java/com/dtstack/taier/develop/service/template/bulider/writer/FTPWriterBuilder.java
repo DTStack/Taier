@@ -79,8 +79,6 @@ public class FTPWriterBuilder implements DaWriterBuilder {
 
         writer.setWriteMode("append");
 
-        writer.setFileType(writeParam.getFileType());
-
         return writer;
     }
 
