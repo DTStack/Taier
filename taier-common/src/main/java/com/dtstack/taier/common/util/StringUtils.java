@@ -18,9 +18,7 @@
 
 package com.dtstack.taier.common.util;
 
-import org.apache.commons.lang3.StringUtils;
-
-public class StringUtil {
+public abstract class StringUtils extends org.springframework.util.StringUtils {
 
     /**
      * 转义正则特殊字符 （$()*+.[]?\^{},|）
@@ -29,7 +27,7 @@ public class StringUtil {
      * @return 特殊字符串转义后的文本
      */
     public static String escapeExprSpecialWord(String keyword) {
-        if (StringUtils.isNotBlank(keyword)) {
+        if (org.apache.commons.lang3.StringUtils.isNotBlank(keyword)) {
             String[] fbsArr = {"\\", "$", "(", ")", "*", "+", ".", "[", "]", "?", "^", "{", "}", "|"};
             for (String key : fbsArr) {
                 if (keyword.contains(key)) {

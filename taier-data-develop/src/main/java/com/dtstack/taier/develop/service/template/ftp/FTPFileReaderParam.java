@@ -16,14 +16,34 @@
  * limitations under the License.
  */
 
-package com.dtstack.taier.develop.service.template;
+package com.dtstack.taier.develop.service.template.ftp;
+
+import com.dtstack.taier.common.exception.TaierDefineException;
+import com.dtstack.taier.common.util.StringUtils;
+import com.dtstack.taier.develop.service.template.DaPluginParam;
+
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * ftp file data source parameters
  * @author bnyte
  * @since 1.3.1
  */
-public class FtpFileReaderParam extends DaPluginParam {
+public class FTPFileReaderParam extends DaPluginParam {
+
+    public static final List<String> EXCEL_FILE_TYPES = Stream.of(
+            ".xls", ".xlsx"
+    ).collect(Collectors.toList());
+
+    public static final List<String> CSV = Stream.of(
+            ".csv"
+    ).collect(Collectors.toList());
+
+    public static final List<String> TXT = Stream.of(
+            ".txt"
+    ).collect(Collectors.toList());
 
     /**
      * the ftp server path where the file is located
@@ -51,6 +71,8 @@ public class FtpFileReaderParam extends DaPluginParam {
      *  {@link <a href="https://github.com/DTStack/chunjun/blob/master/chunjun-connectors/chunjun-connector-ftp/src/main/java/com/dtstack/chunjun/connector/ftp/enums/FileType.java">ChunJun FTP supported</a>}
      */
     private String fileType;
+
+    private List<FTPColumn> column;
 
     public String getPath() {
         return path;
@@ -85,10 +107,45 @@ public class FtpFileReaderParam extends DaPluginParam {
     }
 
     public String getFileType() {
-        return fileType;
+        if (StringUtils.hasText(fileType)) {
+            return this.fileType;
+        }
+        String filePath = getPath();
+        if (!StringUtils.hasText(filePath)) {
+            throw new TaierDefineException("ftp reader source cannot be empty of file path");
+        }
+        int fileSuffixSeparateIndex = filePath.lastIndexOf(".");
+        if (fileSuffixSeparateIndex == -1) {
+            throw new TaierDefineException("ftp read source file type not supported");
+        }
+        String fileSuffix = filePath.substring(fileSuffixSeparateIndex).toLowerCase();
+        if (EXCEL_FILE_TYPES.contains(fileSuffix)) {
+            this.fileType = "excel";
+            return this.fileType;
+        }
+
+        if (CSV.contains(fileSuffix)) {
+            this.fileType = "csv";
+            return this.fileType;
+        }
+
+        if (TXT.contains(fileSuffix)) {
+            this.fileType = "txt";
+            return this.fileType;
+        }
+
+        throw new TaierDefineException("unsupported file type of the" + fileSuffix);
     }
 
     public void setFileType(String fileType) {
         this.fileType = fileType;
+    }
+
+    public List<FTPColumn> getColumn() {
+        return column;
+    }
+
+    public void setColumn(List<FTPColumn> column) {
+        this.column = column;
     }
 }

@@ -28,8 +28,8 @@ import com.dtstack.taier.develop.common.template.Reader;
 import com.dtstack.taier.develop.dto.devlop.TaskResourceParam;
 import com.dtstack.taier.develop.enums.develop.*;
 import com.dtstack.taier.develop.service.datasource.impl.DsInfoService;
-import com.dtstack.taier.develop.service.template.FtpFileReaderParam;
-import com.dtstack.taier.develop.service.template.ftp.FtpFileReader;
+import com.dtstack.taier.develop.service.template.ftp.FTPFileReaderParam;
+import com.dtstack.taier.develop.service.template.ftp.FTPFileReader;
 import com.dtstack.taier.develop.utils.JsonUtils;
 import org.apache.commons.collections.MapUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,7 +43,7 @@ import java.util.*;
  * @since 1.3.1
  */
 @Component
-public class FtpReaderBuilder implements DaReaderBuilder {
+public class FTPReaderBuilder implements DaReaderBuilder {
 
     private Map<Integer, DaReaderBuilder> builderMap = new HashMap<>();
 
@@ -103,16 +103,16 @@ public class FtpReaderBuilder implements DaReaderBuilder {
             setReaderJson(param);
             Map<String, Object> map = param.getSourceMap();
             DsInfo dataSource = (DsInfo) map.get("source");
-            FtpFileReaderParam readerParam = JsonUtils.objectToObject(map, FtpFileReaderParam.class);
+            FTPFileReaderParam readerParam = JsonUtils.objectToObject(map, FTPFileReaderParam.class);
 
-            FtpFileReader ftpFileReader = new FtpFileReader();
+            FTPFileReader ftpFileReader = new FTPFileReader();
 
             ftpFileReader.setEncoding(readerParam.getEncoding());
             ftpFileReader.setPath(readerParam.getPath());
             ftpFileReader.setFieldDelimiter(readerParam.getFieldDelimiter());
             ftpFileReader.setFirstLineHeader(ftpFileReader.getFirstLineHeader());
 
-            //填充数据源参数
+            //populate data source parameters
             JSONObject dataJson = DataSourceUtils.getDataSourceJson(dataSource.getDataJson());
             ftpFileReader.setProtocol(dataJson.getString("protocol"));
             ftpFileReader.setHost(dataJson.getString("host"));
@@ -120,14 +120,20 @@ public class FtpReaderBuilder implements DaReaderBuilder {
             ftpFileReader.setUsername(dataJson.getString("username"));
             ftpFileReader.setPassword(dataJson.getString("password"));
 
-            // TODO: 2022/11/12 明天找修老师帮忙加一下前端字段
+            // param insert on front-end
+            ftpFileReader.setFileType(readerParam.getFileType());
+            ftpFileReader.setEncoding(readerParam.getEncoding());
+            ftpFileReader.setColumn(readerParam.getColumn());
+            ftpFileReader.setFieldDelimiter(readerParam.getFieldDelimiter());
+            ftpFileReader.setFirstLineHeader(readerParam.getFirstLineHeader());
+
             return ftpFileReader;
         }
 
         @Override
         public Map<String, Object> getParserSourceMap(Map<String, Object> sourceMap) {
             try {
-                FtpFileReaderParam param = JSONObject.parseObject(JSONObject.toJSONString(sourceMap), FtpFileReaderParam.class, Feature.OrderedField);
+                FTPFileReaderParam param = JSONObject.parseObject(JSONObject.toJSONString(sourceMap), FTPFileReaderParam.class, Feature.OrderedField);
                 return JSONObject.parseObject(JSONObject.toJSONString(param), Feature.OrderedField);
             } catch (Exception e) {
                 throw new TaierDefineException(String.format("getParserSourceMap error,Caused by: %s", e.getMessage()), e);

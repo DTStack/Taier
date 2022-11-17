@@ -19,11 +19,16 @@
 package com.dtstack.taier.develop.service.develop.saver;
 
 import com.dtstack.taier.common.enums.EScheduleJobType;
+import com.dtstack.taier.common.exception.TaierDefineException;
+import com.dtstack.taier.common.util.CollectionUtils;
+import com.dtstack.taier.common.util.ObjectUtils;
+import com.dtstack.taier.common.util.StringUtils;
 import com.dtstack.taier.develop.dto.devlop.TaskResourceParam;
 import com.dtstack.taier.develop.dto.devlop.TaskVO;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -41,7 +46,25 @@ public class FtpTaskSaver extends AbstractTaskSaver {
 
     @Override
     public TaskResourceParam beforeProcessing(TaskResourceParam taskResourceParam) {
-        return null;
+        Map<String, Object> sourceMap = taskResourceParam.getSourceMap();
+        assertSourceParam(sourceMap);
+
+        assertTargetParam(taskResourceParam.getTargetMap());
+        return taskResourceParam;
+    }
+
+    private void assertTargetParam(Map<String, Object> targetMap) {
+
+    }
+
+    private void assertSourceParam(Map<String, Object> sourceMap) {
+        if (CollectionUtils.isEmpty(sourceMap)) {
+            throw new TaierDefineException("source map cannot be empty");
+        }
+
+        if (ObjectUtils.isNull(sourceMap.get("path")) || !StringUtils.hasText(sourceMap.get("path").toString())) {
+            throw new TaierDefineException("source file path cannot be empty");
+        }
     }
 
     @Override

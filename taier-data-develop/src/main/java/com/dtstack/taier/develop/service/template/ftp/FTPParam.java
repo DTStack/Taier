@@ -18,76 +18,18 @@
 
 package com.dtstack.taier.develop.service.template.ftp;
 
-import com.alibaba.fastjson.JSONObject;
-import com.dtstack.taier.develop.common.template.Reader;
-import com.dtstack.taier.develop.service.template.BaseReaderPlugin;
-import com.dtstack.taier.develop.service.template.PluginName;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.util.List;
 
 /**
  * @author bnyte
  * @since 1.3.1
  */
-public class FtpFileReader extends BaseReaderPlugin implements Reader {
-
-    private static final Logger logger = LoggerFactory.getLogger(FtpFileReader.class);
+public class FTPParam {
 
     /**
-     * list of column mappings in the ftp file
+     * current source id
      */
-    public static class FtpColumn {
-
-        /**
-         * column index starts at 0
-         */
-        private Integer index;
-
-        /**
-         * column data type
-         */
-        private String type;
-
-        /**
-         * column name
-         */
-        private String name;
-
-        public Integer getIndex() {
-            return index;
-        }
-
-        public void setIndex(Integer index) {
-            this.index = index;
-        }
-
-        public String getType() {
-            return type;
-        }
-
-        public void setType(String type) {
-            this.type = type;
-        }
-
-        public String getName() {
-            return name;
-        }
-
-        public void setName(String name) {
-            this.name = name;
-        }
-
-        @Override
-        public String toString() {
-            return "FtpColumn{" +
-                    "index=" + index +
-                    ", type='" + type + '\'' +
-                    ", name='" + name + '\'' +
-                    '}';
-        }
-    }
+    private Integer sourceId;
 
     /**
      * the ftp server path where the file is located
@@ -119,7 +61,7 @@ public class FtpFileReader extends BaseReaderPlugin implements Reader {
     /**
      * ftp reader file column mapping list
      */
-    private List<FtpColumn> column;
+    private List<FTPColumn> column;
 
     /**
      * ftp server password
@@ -141,20 +83,12 @@ public class FtpFileReader extends BaseReaderPlugin implements Reader {
      */
     private String username;
 
-    /**
-     * file type of reader source file
-     */
-    private String fileType;
-
-
-    @Override
-    public String pluginName() {
-        return PluginName.FTP_R;
+    public Integer getSourceId() {
+        return sourceId;
     }
 
-    @Override
-    public void checkFormat(JSONObject data) {
-        logger.info("data info --> {}", data);
+    public void setSourceId(Integer sourceId) {
+        this.sourceId = sourceId;
     }
 
     public String getPath() {
@@ -197,11 +131,11 @@ public class FtpFileReader extends BaseReaderPlugin implements Reader {
         this.host = host;
     }
 
-    public List<FtpColumn> getColumn() {
+    public List<FTPColumn> getColumn() {
         return column;
     }
 
-    public void setColumn(List<FtpColumn> column) {
+    public void setColumn(List<FTPColumn> column) {
         this.column = column;
     }
 
@@ -235,13 +169,5 @@ public class FtpFileReader extends BaseReaderPlugin implements Reader {
 
     public void setUsername(String username) {
         this.username = username;
-    }
-
-    public String getFileType() {
-        return fileType;
-    }
-
-    public void setFileType(String fileType) {
-        this.fileType = fileType;
     }
 }

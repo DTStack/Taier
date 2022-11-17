@@ -20,7 +20,6 @@ package com.dtstack.taier.common.util;
 
 import com.alibaba.fastjson.JSON;
 import org.apache.commons.collections.MapUtils;
-import org.apache.commons.lang3.StringUtils;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -43,10 +42,10 @@ public class MapUtil {
      */
     public static void buildMap(String key, String fieldDelimiter, Object value, Map<String, Object> data) {
         String[] split = new String[1];
-        if (StringUtils.isBlank(fieldDelimiter)) {
+        if (org.apache.commons.lang3.StringUtils.isBlank(fieldDelimiter)) {
             split[0] = key;
         } else {
-            split = key.split(StringUtil.escapeExprSpecialWord(fieldDelimiter));
+            split = key.split(StringUtils.escapeExprSpecialWord(fieldDelimiter));
         }
 
         if (split.length == 1) {
@@ -86,10 +85,10 @@ public class MapUtil {
         }
         Object o = null;
         String[] split = new String[1];
-        if (StringUtils.isBlank(fieldDelimiter)) {
+        if (org.apache.commons.lang3.StringUtils.isBlank(fieldDelimiter)) {
             split[0] = key;
         } else {
-            split = key.split(StringUtil.escapeExprSpecialWord(fieldDelimiter));
+            split = key.split(StringUtils.escapeExprSpecialWord(fieldDelimiter));
         }
 
         Map<String, Object> tempMap = map;
@@ -138,7 +137,7 @@ public class MapUtil {
      * @param value  value
      */
     public static void putIfValueNotEmpty(Map<String, Object> params, String key, String value) {
-        if (Objects.nonNull(params) && StringUtils.isNotEmpty(value)) {
+        if (Objects.nonNull(params) && org.apache.commons.lang3.StringUtils.isNotEmpty(value)) {
             params.put(key, value);
         }
     }
@@ -151,7 +150,7 @@ public class MapUtil {
      * @param value  value
      */
     public static void putIfValueNotBlank(Map<String, String> params, String key, String value) {
-        if (Objects.nonNull(params) && StringUtils.isNotBlank(value)) {
+        if (Objects.nonNull(params) && org.apache.commons.lang3.StringUtils.isNotBlank(value)) {
             params.put(key, value);
         }
     }
