@@ -40,7 +40,6 @@
 
 							<!-- If it is inconvenient to visit the official website, you can use the domestic Taobao mirror-->
 							<nodeDownloadRoot>https://npm.taobao.org/dist/</nodeDownloadRoot>
-							<yarnDownloadRoot>https://npm.taobao.org/mirrors/yarn/</yarnDownloadRoot>
 						</configuration>
 					</execution>
 
