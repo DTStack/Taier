@@ -40,6 +40,7 @@ import { getTodayTime, removePopUpMenu } from '@/utils';
 import { TaskStatus, TaskTimeType } from '@/utils/enums';
 import KillJobForm from './killJobForm';
 import TaskJobFlowView from './taskJobFlowView';
+import { DeletedKind } from '@/interface';
 import './schedule.scss';
 
 const { confirm } = Modal;
@@ -84,6 +85,7 @@ export interface IScheduleTaskProps {
 	taskName: string;
 	taskType: TASK_TYPE_ENUM;
 	status: TASK_STATUS;
+	isDeleted: DeletedKind;
 
 	// 工作流实例具有子实例
 	children?: IScheduleTaskProps[];
@@ -353,7 +355,12 @@ export default () => {
 					} else {
 						showName = <a onClick={() => showTask(record)}>{name}</a>;
 					}
-					return <span title={originText}>{showName}</span>;
+					return (
+						<span title={originText}>
+							{showName}
+							{record.isDeleted === DeletedKind.isDeleted && '(已下线)'}
+						</span>
+					);
 				},
 				fixed: true,
 			},
