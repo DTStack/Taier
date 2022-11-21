@@ -26,7 +26,7 @@
 				<executions>
 					<!-- install node and yarn -->
 					<execution>
-						<id>install node and npm</id>
+						<id>install node and yarn</id>
 						<goals>
 							<goal>install-node-and-yarn</goal>
 							<!--
@@ -40,7 +40,7 @@
 
 							<!-- If it is inconvenient to visit the official website, you can use the domestic Taobao mirror-->
 							<nodeDownloadRoot>https://npm.taobao.org/dist/</nodeDownloadRoot>
-							<yarnDownloadRoot>https://npm.taobao.org/mirrors/yarn/</yarnDownloadRoot>
+							<yarnDownloadRoot>https://mirrors.huaweicloud.com/yarn/</yarnDownloadRoot>
 						</configuration>
 					</execution>
 
