@@ -729,3 +729,8 @@ export enum RightBarKind {
 	 */
 	QUEUE = 'queue',
 }
+
+export enum DeletedKind {
+	notDeleted = 0,
+	isDeleted = 1,
+}
