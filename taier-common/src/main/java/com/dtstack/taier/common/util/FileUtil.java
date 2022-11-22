@@ -20,6 +20,7 @@ package com.dtstack.taier.common.util;
 
 import com.dtstack.taier.common.exception.DtCenterDefException;
 import com.dtstack.taier.common.exception.ErrorCode;
+import com.dtstack.taier.common.exception.TaierDefineException;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 
@@ -47,5 +48,25 @@ public class FileUtil {
                 throw new DtCenterDefException(e.getMessage());
             }
         }
+    }
+
+    public static String getFilename(String filepath) {
+        if (!com.dtstack.taier.common.util.StringUtils.hasLength(filepath)) {
+            throw new TaierDefineException("filepath cannot be empty");
+        }
+        int lastIndexOf = filepath.lastIndexOf(File.separator);
+        if (lastIndexOf == filepath.length() - 1 || lastIndexOf == -1) {
+            throw new TaierDefineException("file does not exist");
+        }
+        return filepath.substring(lastIndexOf);
+    }
+
+    public static String getFiletype(String filepath) {
+        String filename = getFilename(filepath);
+        int lastIndexOf = filename.lastIndexOf(".");
+        if (lastIndexOf == filename.length() -1 || lastIndexOf == -1) {
+            throw new TaierDefineException("file type is undefined");
+        }
+        return filename.substring(lastIndexOf + 1);
     }
 }

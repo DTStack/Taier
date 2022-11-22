@@ -106,12 +106,6 @@ public class FTPReaderBuilder implements DaReaderBuilder {
             FTPFileReaderParam readerParam = JsonUtils.objectToObject(map, FTPFileReaderParam.class);
 
             FTPFileReader ftpFileReader = new FTPFileReader();
-
-            ftpFileReader.setEncoding(readerParam.getEncoding());
-            ftpFileReader.setPath(readerParam.getPath());
-            ftpFileReader.setFieldDelimiter(readerParam.getFieldDelimiter());
-            ftpFileReader.setFirstLineHeader(ftpFileReader.getFirstLineHeader());
-
             //populate data source parameters
             JSONObject dataJson = DataSourceUtils.getDataSourceJson(dataSource.getDataJson());
             ftpFileReader.setProtocol(dataJson.getString("protocol"));
@@ -124,8 +118,10 @@ public class FTPReaderBuilder implements DaReaderBuilder {
             ftpFileReader.setFileType(readerParam.getFileType());
             ftpFileReader.setEncoding(readerParam.getEncoding());
             ftpFileReader.setColumn(readerParam.getColumn());
+            ftpFileReader.setPath(readerParam.getPath());
             ftpFileReader.setFieldDelimiter(readerParam.getFieldDelimiter());
-            ftpFileReader.setFirstLineHeader(readerParam.getFirstLineHeader());
+            ftpFileReader.setFirstLineHeader(ftpFileReader.getFirstLineHeader());
+
 
             return ftpFileReader;
         }

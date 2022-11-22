@@ -24,6 +24,7 @@
         <httpclient.version>4.5.2</httpclient.version>
         <mybatis-plus.version>3.4.0</mybatis-plus.version>
         <hive.version>2.1.0</hive.version>
+        <poi.version>5.0.0</poi.version>
         <taier.datasource.version>1.0.0</taier.datasource.version>
         <frontend-maven-plugin.version>1.12.1</frontend-maven-plugin.version>
         <maven-antrun-plugin.version>3.1.0</maven-antrun-plugin.version>
@@ -113,6 +114,20 @@
                 <artifactId>spring-test</artifactId>
                 <version>${spring.version}</version>
                 <scope>test</scope>
+            </dependency>
+
+            <!-- https://mvnrepository.com/artifact/org.apache.poi/poi -->
+            <dependency>
+                <groupId>org.apache.poi</groupId>
+                <artifactId>poi</artifactId>
+                <version>${poi.version}</version>
+            </dependency>
+
+            <!-- https://mvnrepository.com/artifact/org.apache.poi/poi-ooxml -->
+            <dependency>
+                <groupId>org.apache.poi</groupId>
+                <artifactId>poi-ooxml</artifactId>
+                <version>${poi.version}</version>
             </dependency>
 
             <dependency>

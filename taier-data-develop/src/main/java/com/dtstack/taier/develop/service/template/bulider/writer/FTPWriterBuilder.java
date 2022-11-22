@@ -77,7 +77,7 @@ public class FTPWriterBuilder implements DaWriterBuilder {
         writer.setUsername(dataJson.getString("username"));
         writer.setPassword(dataJson.getString("password"));
 
-        writer.setWriteMode("append");
+        writer.setWriteMode(writeParam.getWriteMode());
 
         return writer;
     }

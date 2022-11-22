@@ -49,12 +49,7 @@ public class FtpTaskSaver extends AbstractTaskSaver {
         Map<String, Object> sourceMap = taskResourceParam.getSourceMap();
         assertSourceParam(sourceMap);
 
-        assertTargetParam(taskResourceParam.getTargetMap());
         return taskResourceParam;
-    }
-
-    private void assertTargetParam(Map<String, Object> targetMap) {
-
     }
 
     private void assertSourceParam(Map<String, Object> sourceMap) {

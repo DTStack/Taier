@@ -18,7 +18,9 @@
 
 package com.dtstack.taier.develop.service.template.ftp;
 
+import com.dtstack.taier.common.enums.EFTPTaskFileType;
 import com.dtstack.taier.common.exception.TaierDefineException;
+import com.dtstack.taier.common.util.FileUtil;
 import com.dtstack.taier.common.util.StringUtils;
 import com.dtstack.taier.develop.service.template.DaPluginParam;
 
@@ -107,34 +109,7 @@ public class FTPFileReaderParam extends DaPluginParam {
     }
 
     public String getFileType() {
-        if (StringUtils.hasText(fileType)) {
-            return this.fileType;
-        }
-        String filePath = getPath();
-        if (!StringUtils.hasText(filePath)) {
-            throw new TaierDefineException("ftp reader source cannot be empty of file path");
-        }
-        int fileSuffixSeparateIndex = filePath.lastIndexOf(".");
-        if (fileSuffixSeparateIndex == -1) {
-            throw new TaierDefineException("ftp read source file type not supported");
-        }
-        String fileSuffix = filePath.substring(fileSuffixSeparateIndex).toLowerCase();
-        if (EXCEL_FILE_TYPES.contains(fileSuffix)) {
-            this.fileType = "excel";
-            return this.fileType;
-        }
-
-        if (CSV.contains(fileSuffix)) {
-            this.fileType = "csv";
-            return this.fileType;
-        }
-
-        if (TXT.contains(fileSuffix)) {
-            this.fileType = "txt";
-            return this.fileType;
-        }
-
-        throw new TaierDefineException("unsupported file type of the" + fileSuffix);
+        return this.fileType;
     }
 
     public void setFileType(String fileType) {

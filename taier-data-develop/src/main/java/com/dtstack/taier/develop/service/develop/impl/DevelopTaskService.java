@@ -24,17 +24,12 @@ import com.alibaba.fastjson.TypeReference;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.dtstack.taier.common.enums.CatalogueType;
-import com.dtstack.taier.common.enums.Deleted;
-import com.dtstack.taier.common.enums.DictType;
-import com.dtstack.taier.common.enums.EComputeType;
-import com.dtstack.taier.common.enums.EScheduleJobType;
-import com.dtstack.taier.common.enums.EScheduleStatus;
-import com.dtstack.taier.common.enums.ResourceRefType;
+import com.dtstack.taier.common.enums.*;
 import com.dtstack.taier.common.exception.DtCenterDefException;
 import com.dtstack.taier.common.exception.ErrorCode;
 import com.dtstack.taier.common.exception.TaierDefineException;
 import com.dtstack.taier.common.util.AssertUtils;
+import com.dtstack.taier.common.util.FileUtil;
 import com.dtstack.taier.common.util.PublicUtil;
 import com.dtstack.taier.dao.domain.Component;
 import com.dtstack.taier.dao.domain.DevelopCatalogue;
@@ -75,16 +70,21 @@ import com.dtstack.taier.develop.service.develop.runner.ScriptTaskRunner;
 import com.dtstack.taier.develop.service.develop.saver.AbstractTaskSaver;
 import com.dtstack.taier.develop.service.schedule.TaskService;
 import com.dtstack.taier.develop.service.task.TaskTemplateService;
+import com.dtstack.taier.develop.service.template.ftp.FTPColumn;
 import com.dtstack.taier.develop.service.user.UserService;
 import com.dtstack.taier.develop.utils.JsonUtils;
 import com.dtstack.taier.develop.utils.develop.sync.format.ColumnType;
 import com.dtstack.taier.develop.vo.develop.query.AllProductGlobalSearchVO;
+import com.dtstack.taier.develop.vo.develop.query.DevelopTaskParsingFTPFileParamVO;
 import com.dtstack.taier.develop.vo.develop.query.TaskDirtyDataManageVO;
 import com.dtstack.taier.develop.vo.develop.result.DevelopAllProductGlobalReturnVO;
 import com.dtstack.taier.develop.vo.develop.result.DevelopTaskGetComponentVersionResultVO;
 import com.dtstack.taier.develop.vo.develop.result.DevelopTaskTypeVO;
+import com.dtstack.taier.develop.vo.develop.result.ParsingFTPFileVO;
 import com.dtstack.taier.develop.vo.develop.result.job.TaskProperties;
 import com.dtstack.taier.pluginapi.constrant.ConfigConstant;
+import com.dtstack.taier.pluginapi.sftp.SftpConfig;
+import com.dtstack.taier.pluginapi.sftp.SftpFileManage;
 import com.dtstack.taier.scheduler.dto.schedule.SavaTaskDTO;
 import com.dtstack.taier.scheduler.dto.schedule.ScheduleTaskShadeDTO;
 import com.dtstack.taier.scheduler.service.ComponentService;
@@ -96,11 +96,14 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+import com.jcraft.jsch.ChannelSftp;
+import com.jcraft.jsch.SftpException;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.ObjectUtils;
+import org.apache.poi.ss.usermodel.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
@@ -108,21 +111,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.*;
 import java.sql.Timestamp;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -196,6 +190,9 @@ public class DevelopTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
 
     @Autowired
     private DevelopFunctionService developFunctionService;
+
+    @Autowired
+    SftpFileManage sftpFileManage;
 
     @Autowired
     private ScheduleDictService scheduleDictService;
@@ -1387,5 +1384,116 @@ public class DevelopTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
         // add place holder
         String fileDir = "${uploadPath}";
         return developScriptService.buildExeArgs(task, fileDir);
+    }
+
+    public ParsingFTPFileVO parsingFtpTaskFile(DevelopTaskParsingFTPFileParamVO payload) throws IOException {
+        ParsingFTPFileVO vo = new ParsingFTPFileVO();
+        // get data source configuration
+        DevelopDataSource ftpSource = dataSourceService.getOne(payload.getSourceId());
+        SftpConfig sftpConfig = JSONObject.parseObject(ftpSource.getDataJson(), SftpConfig.class);
+
+        // TIPS: This configuration must be filled in, otherwise the ftp client cannot be obtained
+        sftpConfig.setPath(payload.getFilepath());
+
+        // get the ftp object through ftp configuration
+        SftpFileManage fileManage = sftpFileManage.retrieveSftpManager(sftpConfig);
+        ChannelSftp channelSftp = fileManage.getChannelSftp();
+
+        // get file type
+        String filetype = FileUtil.getFiletype(payload.getFilepath());
+        EFTPTaskFileType taskFileType = EFTPTaskFileType.filetype("." + filetype);
+
+        // check file exist
+        if (!sftpFileManage.isFileExist(channelSftp, payload.getFilepath())) {
+            LOGGER.error("File not exist on sftp:" + payload.getFilepath());
+            throw new RuntimeException("File not exist on sftp" + payload.getFilepath());
+        }
+        try {
+            switch (taskFileType) {
+                case TXT:
+                    vo.setColumn(getTxtColumns(payload, channelSftp.get(payload.getFilepath())));
+                    break;
+                case EXCEL:
+                    vo.setColumn(getExcelColumns(payload, channelSftp.get(payload.getFilepath())));
+                    break;
+                case CSV:
+                    vo.setColumn(getCsvColumns(payload, channelSftp.get(payload.getFilepath())));
+                    break;
+            }
+        } catch (SftpException e) {
+            throw new RuntimeException(e);
+        } finally {
+            fileManage.close(channelSftp);
+        }
+
+        vo.setFiletype(taskFileType.getTaskFiletype());
+
+        return vo;
+    }
+
+    private List<FTPColumn> getCsvColumns(DevelopTaskParsingFTPFileParamVO payload, InputStream inputStream) {
+        return getTxtColumns(payload, inputStream);
+    }
+
+    private List<FTPColumn> getExcelColumns(DevelopTaskParsingFTPFileParamVO payload, InputStream inputStream) {
+        List<FTPColumn> columns = new ArrayList<>();
+        try {
+            Workbook workbook = WorkbookFactory.create(inputStream);
+            Sheet sheet = workbook.getSheetAt(0);
+            Row titleRow = sheet.getRow(0);
+            int lastCellNum = titleRow.getLastCellNum();
+            for (int i = 0; i < lastCellNum; i++) {
+                FTPColumn ftpColumn = new FTPColumn();
+                if (!payload.getFirstColumnName()) {
+                    ftpColumn.setName("column" + i);
+                } else {
+                    Cell cell = titleRow.getCell(i, Row.MissingCellPolicy.CREATE_NULL_AS_BLANK);
+                    String titleValue = cell.getStringCellValue();
+                    ftpColumn.setName(titleValue);
+                }
+                ftpColumn.setType("string");
+                ftpColumn.setIndex(0);
+                columns.add(ftpColumn);
+            }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        return columns;
+    }
+
+    private List<FTPColumn> getTxtColumns(DevelopTaskParsingFTPFileParamVO payload, InputStream fileInputStream) {
+        List<FTPColumn> columns = new ArrayList<>();
+        try {
+            // sftp特性，当你关闭ChannelSftp时随即你获取到的流对象也会被关闭所以这里要爆漏channelSftp获取流对象
+            // The sftp feature, when you close the ChannelSftp, the stream object you get will also be closed, so here we need to leak the ChannelSftp to get the stream object
+            BufferedReader bis = new BufferedReader(new InputStreamReader(fileInputStream, payload.getEncoding()));
+            // memory to store buffered stream per read
+            int limit = 1;
+            String line = null;
+            while ((line = bis.readLine()) != null && limit <= 1) {
+                String[] split = line.split(payload.getColumnSeparator());
+                if (payload.getFirstColumnName() && limit == 1) {
+                    for (int i = 0; i < split.length; i++) {
+                        FTPColumn ftpColumn = new FTPColumn();
+                        ftpColumn.setName(split[i]);
+                        ftpColumn.setType("string");
+                        ftpColumn.setIndex(i);
+                        columns.add(ftpColumn);
+                    }
+                } else if (!payload.getFirstColumnName() && limit == 1) {
+                    for (int i = 0; i < split.length; i++) {
+                        FTPColumn ftpColumn = new FTPColumn();
+                        ftpColumn.setName("column" + i);
+                        ftpColumn.setType("string");
+                        ftpColumn.setIndex(i);
+                        columns.add(ftpColumn);
+                    }
+                }
+                limit++;
+            }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        return columns;
     }
 }
