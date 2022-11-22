@@ -360,6 +360,7 @@ export interface IDataColumnsProps {
 	part?: boolean;
 	type: string;
 	value?: string;
+	name?: string;
 	index?: string;
 	cf?: string;
 	format?: string;
@@ -368,7 +369,7 @@ export interface IDataColumnsProps {
 /**
  * 前端表单保存的值
  */
-export interface ISourceFormField {
+export interface ISourceFormField extends ISourceFieldWithFTP {
 	sourceId?: number;
 	table?: string | string[];
 	/**
@@ -379,9 +380,6 @@ export interface ISourceFormField {
 	splitPK?: string;
 	extralConfig?: string;
 	increColumn?: string | number;
-	/**
-	 * Only used in HDFS
-	 */
 	path?: string;
 	/**
 	 * Only used in HDFS
@@ -425,6 +423,54 @@ export interface ISourceFormField {
 	 */
 	indexType?: string;
 	query?: string;
+}
+
+export interface ISourceFieldWithFTP {
+	path?: string;
+	/**
+	 * It'll rename to fileType when task submitted
+	 */
+	['fileType|FTP']?: string;
+	/**
+	 * 资源 id
+	 */
+	resourceId?: number;
+	/**
+	 * It'll rename to fieldDelimiter when task submitted
+	 */
+	['fieldDelimiter|FTP']?: string;
+	/**
+	 * 是否压缩
+	 */
+	isCompressed?: boolean;
+	/**
+	 * 压缩方式，目前支持 ZIP
+	 */
+	compressType?: string;
+	/**
+	 * 是否包含表头
+	 */
+	isFirstLineHeader?: boolean;
+	/**
+	 * 是否替换 FTP 的 NULL 值
+	 */
+	isReplaceFTPNull?: boolean;
+	/**
+	 * 若 isReplaceFTPNull 为 true，则需要填写替换值
+	 */
+	nullIsReplacedWithValue?: string;
+	/**
+	 * 同步结束后的任务操作，包括删除，重命名移动等
+	 */
+	action?: string;
+	/**
+	 * 重命名前缀
+	 */
+	renamePrefix?: string;
+	/**
+	 * 移动到指定目录
+	 */
+	targetDir?: string;
 }
 
 /**

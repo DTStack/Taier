@@ -138,6 +138,11 @@ export default class LintTo<T extends object> {
 						size="small"
 						pagination={false}
 						bordered
+						footer={
+							this.options.onRenderFooter?.(false)
+								? () => this.options.onRenderFooter?.(false)
+								: undefined
+						}
 					/>,
 				);
 			}),

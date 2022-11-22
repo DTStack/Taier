@@ -1,9 +1,9 @@
 import { Modal, Form, Input, InputNumber, Select } from 'antd';
-import type { ModalProps } from 'antd';
 import { stringColumnFormat } from '@/components/helpDoc/docs';
 import { DATA_SOURCE_ENUM, formItemLayout, HBASE_FIELD_TYPES, HDFS_FIELD_TYPES } from '@/constant';
-import type { IDataColumnsProps } from '@/interface';
 import { isValidFormatType } from '@/utils';
+import type { ModalProps } from 'antd';
+import type { IDataColumnsProps } from '@/interface';
 
 const FormItem = Form.Item;
 const { Option } = Select;
@@ -122,7 +122,7 @@ export default function KeyModal({
 			];
 		}
 
-		const initialKeyValue = editField?.key || editField?.index;
+		const initialKeyValue = editField?.key ?? editField?.index;
 
 		if (isReader) {
 			// 数据源
@@ -159,11 +159,13 @@ export default function KeyModal({
 									required: true,
 								},
 							]}
-							initialValue={editField?.type}
+							initialValue={editField?.type || 'STRING'}
 						>
 							<Select
 								placeholder="请选择类型"
 								options={HDFS_FIELD_TYPES.map((t) => ({ label: t, value: t }))}
+								optionFilterProp="label"
+								showSearch
 							/>
 						</FormItem>,
 					];
@@ -277,6 +279,8 @@ export default function KeyModal({
 							<Select
 								placeholder="请选择类型"
 								options={HDFS_FIELD_TYPES.map((t) => ({ label: t, value: t }))}
+								optionFilterProp="label"
+								showSearch
 							/>
 						</FormItem>,
 					];
@@ -323,23 +327,33 @@ export default function KeyModal({
 	};
 
 	const { editField, isReader } = keyModal;
-	// 如果源数据类型为字符串，则支持字符串格式化
-	const canFormat = editField && (isValidFormatType(editField.type) || editField.value);
 	const text = editField?.value ? '格式' : '格式化';
 
 	return (
-		<Modal title={title} visible={visible} destroyOnClose onOk={handleSubmit} onCancel={handleCancel}>
+		<Modal
+			title={title}
+			visible={visible}
+			destroyOnClose
+			onOk={handleSubmit}
+			onCancel={handleCancel}
+		>
 			<Form form={form} preserve={false} {...formItemLayout}>
 				{renderFormItems()}
-				{canFormat && isReader && (
-					<FormItem
-						name="format"
-						label={text}
-						key="format"
-						initialValue={editField.format}
-						tooltip={stringColumnFormat}
-					>
-						<Input placeholder="格式化, 例如：yyyy-MM-dd" />
+				{isReader && (
+					<FormItem noStyle dependencies={['type']}>
+						{({ getFieldValue }) =>
+							// 如果源数据类型为字符串，则支持字符串格式化
+							isValidFormatType(getFieldValue('type')) && (
+								<FormItem
+									name="format"
+									label={text}
+									initialValue={editField?.format}
+									tooltip={stringColumnFormat}
+								>
+									<Input placeholder="格式化, 例如：yyyy-MM-dd" />
+								</FormItem>
+							)
+						}
 					</FormItem>
 				)}
 			</Form>
