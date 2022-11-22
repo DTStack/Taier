@@ -262,6 +262,9 @@ public class EnvironmentContext implements InitializingBean {
     @Value("${logs.limit.num:5242880}")
     private Integer logsLimitNum;
 
+    @Value("${upload.file.limit.size:500}")
+    private Long uploadFileLimitSize;
+
     @Override
     public void afterPropertiesSet() throws Exception {
         // 读取全局配置并初始化 datasource
@@ -599,5 +602,9 @@ public class EnvironmentContext implements InitializingBean {
 
     public int getStopLimit() {
         return stopLimit;
+    }
+
+    public long getMaxUploadFileSize() {
+        return uploadFileLimitSize;
     }
 }

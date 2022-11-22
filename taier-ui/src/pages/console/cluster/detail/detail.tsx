@@ -28,6 +28,7 @@ import {
 	RightOutlined,
 	UploadOutlined,
 } from '@ant-design/icons';
+import { COMPONENT_TYPE_VALUE } from '@/constant';
 import type { RcFile } from 'antd/lib/upload';
 import type { IComponentProps } from '.';
 import './detail.scss';
@@ -130,6 +131,15 @@ export default function Detail({
 		}
 	};
 
+	const renderDescription = (code?: COMPONENT_TYPE_VALUE) => {
+		switch (code) {
+			case COMPONENT_TYPE_VALUE.HDFS:
+				return 'zip格式，至少包括yarn-site.xml、hdfs-site.xml和core-site.xml';
+			default:
+				return 'zip格式，至少包括yarn-site.xml和core-site.xml';
+		}
+	};
+
 	const renderVersionPicker = () => {
 		const isCascader = !!currentTreeNode?.versionDictionary?.some((version) =>
 			Array.isArray(version.value),
@@ -179,7 +189,9 @@ export default function Detail({
 				<Button block icon={<UploadOutlined />}>
 					点击上传
 				</Button>
-				<span className="description">zip格式，至少包括yarn-site.xml和core-site.xml</span>
+				<span className="description">
+					{renderDescription(currentTreeNode?.componentCode)}
+				</span>
 			</Upload>
 			<Form.Item noStyle name="uploadFileName">
 				<FileCol actionSlot={['download']} onDownload={onDownloadConfig} />
