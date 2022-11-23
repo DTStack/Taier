@@ -54,6 +54,7 @@
             <groupId>com.github.noraui</groupId>
             <artifactId>ojdbc8</artifactId>
             <version>${ojdbc8.version}</version>
+            <scope>provided</scope>
         </dependency>
 
         <dependency>
