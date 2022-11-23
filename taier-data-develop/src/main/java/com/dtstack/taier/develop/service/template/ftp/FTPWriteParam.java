@@ -21,6 +21,7 @@ package com.dtstack.taier.develop.service.template.ftp;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.dtstack.taier.develop.common.template.Writer;
+import com.dtstack.taier.develop.enums.develop.EWriterMode;
 import com.dtstack.taier.develop.service.template.PluginName;
 
 import java.util.List;
@@ -48,6 +49,10 @@ public class FTPWriteParam extends FTPParam implements Writer {
             param = JSON.parseObject(JSON.toJSON(this).toString());
         }
 
+        // 前端传入是 replace 和 insert
+        param.put("writeMode", EWriterMode
+                .sourceType(param.getInteger("type"))
+                .rewriterWriterMode(param.getString("writeMode")));
 
         dealExtralConfig(param);
         JSONObject res = new JSONObject();
