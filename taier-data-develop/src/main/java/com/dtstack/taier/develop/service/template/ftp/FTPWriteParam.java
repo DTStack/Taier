@@ -38,7 +38,21 @@ public class FTPWriteParam extends FTPParam implements Writer {
 
     protected List<Long> sourceIds;
 
+    /**
+     * write mode
+     *  overwrite append
+     */
     private String writeMode;
+
+    /**
+     * source id
+     */
+    private Integer sourceId;
+
+    /**
+     * source type
+     */
+    private Integer type;
 
     @Override
     public JSONObject toWriterJson() {
@@ -51,7 +65,7 @@ public class FTPWriteParam extends FTPParam implements Writer {
 
         // 前端传入是 replace 和 insert
         param.put("writeMode", EWriterMode
-                .sourceType(param.getInteger("type"))
+                .sourceType(type)
                 .rewriterWriterMode(param.getString("writeMode")));
 
         dealExtralConfig(param);
@@ -99,4 +113,21 @@ public class FTPWriteParam extends FTPParam implements Writer {
         this.writeMode = writeMode;
     }
 
+    @Override
+    public Integer getSourceId() {
+        return sourceId;
+    }
+
+    @Override
+    public void setSourceId(Integer sourceId) {
+        this.sourceId = sourceId;
+    }
+
+    public Integer getType() {
+        return type;
+    }
+
+    public void setType(Integer type) {
+        this.type = type;
+    }
 }
