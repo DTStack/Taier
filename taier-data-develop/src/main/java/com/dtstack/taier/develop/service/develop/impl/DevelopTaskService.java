@@ -1452,7 +1452,7 @@ public class DevelopTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
                     ftpColumn.setName(titleValue);
                 }
                 ftpColumn.setType("string");
-                ftpColumn.setIndex(0);
+                ftpColumn.setIndex(i);
                 columns.add(ftpColumn);
             }
         } catch (IOException e) {
