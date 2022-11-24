@@ -106,11 +106,7 @@ public class JobUpStreamSubmitInterceptor extends SubmitInterceptorAdapter {
                     if (TaskStatus.FAILED.getStatus().equals(status)
                             || TaskStatus.SUBMITFAILD.getStatus().equals(status)
                             || TaskStatus.PARENTFAILED.getStatus().equals(status)) {
-                        scheduleJobService.updateStatusAndLogInfoById(scheduleJob.getJobId(),
-                                TaskStatus.PARENTFAILED.getStatus(),
-                                String.format(JobCheckStatus.FATHER_JOB_EXCEPTION.getMsg(),
-                                        parentScheduleJob.getJobName(),
-                                        parentScheduleJob.getJobId()));
+                        LOGGER.info("jobId:{}, parent job:{} {}, unable put to queue", scheduleJob.getJobId(), parentScheduleJob.getJobId(), status);
                         return Boolean.FALSE;
                     }
 
