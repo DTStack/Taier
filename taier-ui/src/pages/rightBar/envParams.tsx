@@ -16,26 +16,19 @@
  * limitations under the License.
  */
 
-import molecule from '@dtinsight/molecule';
 import Editor from '@/components/editor';
+import { updateValuesInData } from '../editor/dataSync';
 import type { IRightBarComponentProps } from '@/services/rightBarService';
 
 export default function EnvParams({ current }: IRightBarComponentProps) {
 	const handleValueChanged = (value: string) => {
 		if (current?.tab) {
-			molecule.editor.updateTab({
-				...current!.tab!,
-				data: {
-					...current!.tab!.data,
-					taskParams: value,
-				},
-			});
+			updateValuesInData({ taskParams: value });
 		}
 	};
 
 	return (
 		<Editor
-			sync
 			value={current?.tab?.data.taskParams || ''}
 			language="ini"
 			options={{
