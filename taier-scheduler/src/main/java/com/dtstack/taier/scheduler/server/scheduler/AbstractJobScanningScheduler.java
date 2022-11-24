@@ -128,7 +128,7 @@ public abstract class AbstractJobScanningScheduler implements Scheduler, Initial
 
                     if (scheduleTaskShade == null) {
                         String errMsg = JobCheckStatus.NO_TASK.getMsg();
-                        scheduleJobService.updateStatusAndLogInfoById(scheduleJob.getJobId(), TaskStatus.SUBMITFAILD.getStatus(), errMsg);
+                        scheduleJobService.updateStatusAndLogInfoById(scheduleJob.getJobId(), TaskStatus.AUTOCANCELED.getStatus(), errMsg);
                         LOGGER.warn("jobId:{} scheduleType:{} submit failed for taskId:{} already deleted.", scheduleJob.getJobId(), getSchedulerName(), scheduleJob.getTaskId());
                         continue;
                     }

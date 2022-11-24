@@ -106,6 +106,20 @@ public class ReturnJobListVO {
     @ApiModelProperty(value = "责任人名称",example = "1")
     private String operatorName;
 
+    /**
+     * 是否下线
+     */
+    @ApiModelProperty(value = "是否下线，0 正常，1 下线",example = "0")
+    private Integer IsDeleted;
+
+    public Integer getIsDeleted() {
+        return IsDeleted;
+    }
+
+    public void setIsDeleted(Integer isDeleted) {
+        IsDeleted = isDeleted;
+    }
+
     public String getJobId() {
         return jobId;
     }
