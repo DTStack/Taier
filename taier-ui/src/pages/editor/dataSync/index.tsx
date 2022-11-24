@@ -1,6 +1,6 @@
 import { useEffect, useReducer, useState } from 'react';
 import { debounce, get } from 'lodash';
-import { formItemLayout, RESOURCE_TYPE, TASK_PERIOD_ENUM } from '@/constant';
+import { formItemLayout } from '@/constant';
 import { Form, Collapse, InputNumber, Input, Radio, Switch, Empty } from 'antd';
 import { GlobalEvent } from '@dtinsight/molecule/esm/common/event';
 import KeyMap from './keyMap';
@@ -10,7 +10,6 @@ import {
 	SelectWithCreate,
 	AutoCompleteWithRequest,
 	SelectWithRequest,
-	ResourcePicker,
 	InputWithColumns,
 } from '@/components/scaffolds/task';
 import { Context } from '@/context/dataSync';
@@ -23,7 +22,6 @@ import taskSaveService from '@/services/taskSaveService';
 import { Scrollable } from '@dtinsight/molecule/esm/components';
 import api from '@/api';
 import { taskRenderService } from '@/services';
-import resourceManagerTree from '@/services/resourceManagerService';
 import type { Reducer } from 'react';
 import type { IDataColumnsProps, IDataSourceUsedInSyncProps, IOfflineTaskProps } from '@/interface';
 import type { FormItemProps } from 'antd';
@@ -194,14 +192,6 @@ const validatorFactory: Record<string, (rule: any, value: string) => Promise<voi
 		}
 		return Promise.resolve();
 	},
-	checkOnlyJar: (_: any, value: string) => {
-		return resourceManagerTree.checkNotDir(value).then(() => {
-			const node = resourceManagerTree.get(value)!;
-			return node.data.resourceType === RESOURCE_TYPE.JAR
-				? Promise.resolve()
-				: Promise.reject(new Error('请选择 JAR 资源'));
-		});
-	},
 };
 
 /**
@@ -220,7 +210,6 @@ const defaultWidget: Record<string, ((props: any) => JSX.Element) | undefined> =
 	// User-Defined Widget
 	SelectWithCreate: (props: any) => <SelectWithCreate {...props} />,
 	SelectWithPreviewer: (props: any) => <SelectWithPreviewer {...props} />,
-	ResourcePicker: (props: any) => <ResourcePicker {...props} />,
 	InputWithColumns: (props: any) => <InputWithColumns {...props} />,
 };
 
