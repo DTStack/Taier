@@ -19,7 +19,7 @@
         <jar.package.name>oracle</jar.package.name>
         <jar.name>oracle</jar.name>
 
-        <ojdbc8.version>12.2.0.1</ojdbc8.version>
+        <ojdbc8.version>19.3.0.0</ojdbc8.version>
         <xdb.version>19.7.0.0</xdb.version>
         <xmlparserv2.version>19.7.0.0</xmlparserv2.version>
     </properties>
@@ -51,7 +51,7 @@
         </dependency>
 
         <dependency>
-            <groupId>com.github.noraui</groupId>
+            <groupId>com.oracle.database.jdbc</groupId>
             <artifactId>ojdbc8</artifactId>
             <version>${ojdbc8.version}</version>
             <scope>provided</scope>
