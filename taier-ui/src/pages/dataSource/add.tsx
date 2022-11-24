@@ -259,12 +259,7 @@ export default function Add({ record, onSubmit }: IAddProps) {
 						.then((res) => {
 							if (res.success && res.data) {
 								message.success('连接成功');
-							} else {
-								message.error(res.message || '连接失败');
 							}
-						})
-						.catch(() => {
-							message.error('测试连通性请求超时');
 						})
 						.finally(() => {
 							setSubmitBtnStatus(false);
