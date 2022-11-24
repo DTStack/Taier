@@ -630,7 +630,7 @@ public class JobService extends ServiceImpl<ScheduleJobMapper, ScheduleJob> {
      */
     private void buildReturnJobListVO(List<ReturnJobListVO> returnJobListVOS, List<ScheduleJob> records) {
         List<Long> taskIdList = records.stream().map(ScheduleJob::getTaskId).collect(Collectors.toList());
-        List<ScheduleTaskShade> taskShadeList = taskService.lambdaQuery().in(ScheduleTaskShade::getTaskId, taskIdList).eq(ScheduleTaskShade::getIsDeleted, Deleted.NORMAL.getStatus()).list();
+        List<ScheduleTaskShade> taskShadeList = taskService.lambdaQuery().in(ScheduleTaskShade::getTaskId, taskIdList).list();
         Map<Long, ScheduleTaskShade> taskShadeMap = taskShadeList.stream().collect(Collectors.toMap(ScheduleTaskShade::getTaskId, g -> (g)));
         Map<Long, User> userMap = userService.listAll().stream().collect(Collectors.toMap(User::getId, g -> (g)));
 
@@ -646,6 +646,7 @@ public class JobService extends ServiceImpl<ScheduleJobMapper, ScheduleJob> {
             if (scheduleTaskShade != null) {
                 returnJobListVO.setTaskName(scheduleTaskShade.getName());
                 returnJobListVO.setOperatorId(scheduleTaskShade.getCreateUserId());
+                returnJobListVO.setIsDeleted(scheduleTaskShade.getIsDeleted());
                 returnJobListVO.setOperatorName(userMap.get(scheduleTaskShade.getCreateUserId()) != null ? userMap.get(scheduleTaskShade.getCreateUserId()).getUserName() : "");
             }
             returnJobListVOS.add(returnJobListVO);
