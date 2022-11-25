@@ -120,7 +120,7 @@ public class FTPReaderBuilder implements DaReaderBuilder {
             ftpFileReader.setColumn(readerParam.getColumn());
             ftpFileReader.setPath(readerParam.getPath());
             ftpFileReader.setFieldDelimiter(readerParam.getFieldDelimiter());
-            ftpFileReader.setFirstLineHeader(ftpFileReader.getFirstLineHeader());
+            ftpFileReader.setFirstLineHeader(readerParam.getFirstLineHeader());
 
 
             return ftpFileReader;

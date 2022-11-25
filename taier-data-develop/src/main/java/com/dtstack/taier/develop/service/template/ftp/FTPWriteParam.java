@@ -63,10 +63,13 @@ public class FTPWriteParam extends FTPParam implements Writer {
             param = JSON.parseObject(JSON.toJSON(this).toString());
         }
 
-        // 前端传入是 replace 和 insert
-        param.put("writeMode", EWriterMode
-                .sourceType(type)
-                .rewriterWriterMode(param.getString("writeMode")));
+        if (resetWriteMode()) {
+            // 前端传入是 replace 和 insert
+            param.put("writeMode", EWriterMode
+                    .sourceType(type)
+                    .rewriterWriterMode(param.getString("writeMode")));
+        }
+
 
         dealExtralConfig(param);
         JSONObject res = new JSONObject();
@@ -83,6 +86,11 @@ public class FTPWriteParam extends FTPParam implements Writer {
     @Override
     public void checkFormat(JSONObject data) {
 
+    }
+
+    @Override
+    public boolean resetWriteMode() {
+        return true;
     }
 
     public List<Long> getSourceIds() {
