@@ -74,7 +74,14 @@ public class ClientProxyInvocationHandle<T> implements InvocationHandler {
                 executeTimeout = config.getConfig(ConfigConstants.EXECUTE_TIMEOUT, Long.class, 5 * 60 * 1000L);
             }
 
-            Object result = RetryUtils.asyncExecuteWithRetry(() -> method.invoke(client, args),
+            Object result = RetryUtils.asyncExecuteWithRetry(() -> {
+                        try {
+                            return method.invoke(client, args);
+                        } catch (InvocationTargetException e) {
+                            Throwable targetException = e.getTargetException();
+                            throw new Exception(targetException);
+                        }
+                    },
                     retryTimes,
                     retryIntervalTime,
                     false,
