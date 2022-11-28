@@ -13,8 +13,7 @@ ENV ZK_HOST 127.0.0.1
 ENV ZK_PORT 2181
 WORKDIR $WORK_PATH
 
-RUN mkdir $WORK_PATH/datasourcex && \
-mkdir $WORK_PATH/lib && \
+RUN mkdir $WORK_PATH/lib && \
 mkdir $WORK_PATH/datasource-plugins   && \
 mkdir $WORK_PATH/worker-plugins   && \
 mkdir $WORK_PATH/logs   && \
@@ -23,9 +22,10 @@ mkdir $WORK_PATH/conf && \
 mkdir $WORK_PATH/run && \
 mkdir $WORK_PATH/finkconf && \
 mkdir $WORK_PATH/sparkconf && \
-touch $WORK_PATH/run/rdos.pid && \
+touch $WORK_PATH/run/taier.pid && \
 mkdir $WORK_PATH/dist && \
-touch $WORK_PATH/logs/taier.stdout \
+touch $WORK_PATH/logs/taier.stdout && \
+touch $WORK_PATH/logs/node.gc
 
 
 COPY lib $WORK_PATH/lib/

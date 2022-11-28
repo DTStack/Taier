@@ -218,10 +218,10 @@ INSERT INTO `console_component_config` VALUES (783, -2, -108, 1, 'INPUT', 0, 'sp
 INSERT INTO `console_component_config` VALUES (785, -2, -108, 1, 'INPUT', 0, 'spark.eventLog.enabled', 'true', NULL, 'deploymode$perjob', NULL, NULL, '2021-02-25 18:12:53', '2021-02-25 18:12:53', 0);
 INSERT INTO `console_component_config` VALUES (787, -2, -108, 1, 'INPUT', 1, 'spark.executor.cores', '1', NULL, 'deploymode$perjob', NULL, NULL, '2021-02-25 18:12:53', '2021-02-25 18:12:53', 0);
 INSERT INTO `console_component_config` VALUES (789, -2, -108, 1, 'INPUT', 0, 'spark.executor.extraJavaOptions', '-Dfile.encoding=utf-8', NULL, 'deploymode$perjob', NULL, NULL, '2021-02-25 18:12:53', '2021-02-25 18:12:53', 0);
-INSERT INTO `console_component_config` VALUES (791, -2, -108, 1, 'INPUT', 1, 'spark.executor.heartbeatInterval', '600s', NULL, 'deploymode$perjob', NULL, NULL, '2021-02-25 18:12:53', '2021-02-25 18:12:53', 0);
+INSERT INTO `console_component_config` VALUES (791, -2, -108, 1, 'INPUT', 1, 'spark.executor.heartbeatInterval', '10s', NULL, 'deploymode$perjob', NULL, NULL, '2021-02-25 18:12:53', '2021-02-25 18:12:53', 0);
 INSERT INTO `console_component_config` VALUES (793, -2, -108, 1, 'INPUT', 1, 'spark.executor.instances', '1', NULL, 'deploymode$perjob', NULL, NULL, '2021-02-25 18:12:53', '2021-02-25 18:12:53', 0);
 INSERT INTO `console_component_config` VALUES (795, -2, -108, 1, 'INPUT', 1, 'spark.executor.memory', '512m', NULL, 'deploymode$perjob', NULL, NULL, '2021-02-25 18:12:53', '2021-02-25 18:12:53', 0);
-INSERT INTO `console_component_config` VALUES (797, -2, -108, 1, 'INPUT', 1, 'spark.network.timeout', '600s', NULL, 'deploymode$perjob', NULL, NULL, '2021-02-25 18:12:53', '2021-02-25 18:12:53', 0);
+INSERT INTO `console_component_config` VALUES (797, -2, -108, 1, 'INPUT', 1, 'spark.network.timeout', '700s', NULL, 'deploymode$perjob', NULL, NULL, '2021-02-25 18:12:53', '2021-02-25 18:12:53', 0);
 INSERT INTO `console_component_config` VALUES (799, -2, -108, 1, 'INPUT', 1, 'spark.rpc.askTimeout', '600s', NULL, 'deploymode$perjob', NULL, NULL, '2021-02-25 18:12:53', '2021-02-25 18:12:53', 0);
 INSERT INTO `console_component_config` VALUES (801, -2, -108, 1, 'INPUT', 1, 'spark.speculation', 'true', NULL, 'deploymode$perjob', NULL, NULL, '2021-02-25 18:12:53', '2021-02-25 18:12:53', 0);
 INSERT INTO `console_component_config` VALUES (803, -2, -108, 1, 'INPUT', 1, 'spark.submit.deployMode', 'cluster', NULL, 'deploymode$perjob', NULL, NULL, '2021-02-25 18:12:53', '2021-02-25 18:12:53', 0);
