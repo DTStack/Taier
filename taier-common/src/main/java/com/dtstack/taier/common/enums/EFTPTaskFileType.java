@@ -26,7 +26,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
- * @author bnyte
+ * 
  * @since 1.3.1
  */
 public enum EFTPTaskFileType {

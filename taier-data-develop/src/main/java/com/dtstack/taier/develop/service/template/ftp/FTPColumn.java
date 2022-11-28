@@ -21,7 +21,6 @@ package com.dtstack.taier.develop.service.template.ftp;
 /**
  * list of column mappings in the ftp file
  *
- * @author bnyte
  * @since 1.3.1
  **/
 public class FTPColumn {

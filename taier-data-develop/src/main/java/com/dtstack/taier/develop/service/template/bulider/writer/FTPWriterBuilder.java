@@ -36,7 +36,7 @@ import java.util.Map;
 import java.util.Objects;
 
 /**
- * @author bnyte
+ * 
  * @since 1.3.1
  **/
 @Component

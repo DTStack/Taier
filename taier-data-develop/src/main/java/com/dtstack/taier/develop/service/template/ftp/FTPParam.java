@@ -21,7 +21,7 @@ package com.dtstack.taier.develop.service.template.ftp;
 import java.util.List;
 
 /**
- * @author bnyte
+ * 
  * @since 1.3.1
  */
 public class FTPParam {

@@ -45,7 +45,7 @@ public class MapUtil {
         if (org.apache.commons.lang3.StringUtils.isBlank(fieldDelimiter)) {
             split[0] = key;
         } else {
-            split = key.split(StringUtils.escapeExprSpecialWord(fieldDelimiter));
+            split = key.split(StringUtil.escapeExprSpecialWord(fieldDelimiter));
         }
 
         if (split.length == 1) {
@@ -88,7 +88,7 @@ public class MapUtil {
         if (org.apache.commons.lang3.StringUtils.isBlank(fieldDelimiter)) {
             split[0] = key;
         } else {
-            split = key.split(StringUtils.escapeExprSpecialWord(fieldDelimiter));
+            split = key.split(StringUtil.escapeExprSpecialWord(fieldDelimiter));
         }
 
         Map<String, Object> tempMap = map;

@@ -26,7 +26,7 @@ import com.dtstack.taier.dao.domain.DsInfo;
 import com.dtstack.taier.datasource.api.source.DataSourceType;
 import com.dtstack.taier.develop.common.template.Reader;
 import com.dtstack.taier.develop.dto.devlop.TaskResourceParam;
-import com.dtstack.taier.develop.enums.develop.*;
+import com.dtstack.taier.develop.enums.develop.HalfStructureDaType;
 import com.dtstack.taier.develop.service.datasource.impl.DsInfoService;
 import com.dtstack.taier.develop.service.template.ftp.FTPFileReaderParam;
 import com.dtstack.taier.develop.service.template.ftp.FTPFileReader;
@@ -39,7 +39,7 @@ import javax.annotation.PostConstruct;
 import java.util.*;
 
 /**
- * @author bnyte
+ * 
  * @since 1.3.1
  */
 @Component

@@ -24,7 +24,14 @@ import com.alibaba.fastjson.TypeReference;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.dtstack.taier.common.enums.*;
+import com.dtstack.taier.common.enums.CatalogueType;
+import com.dtstack.taier.common.enums.Deleted;
+import com.dtstack.taier.common.enums.DictType;
+import com.dtstack.taier.common.enums.EComputeType;
+import com.dtstack.taier.common.enums.EFTPTaskFileType;
+import com.dtstack.taier.common.enums.EScheduleJobType;
+import com.dtstack.taier.common.enums.EScheduleStatus;
+import com.dtstack.taier.common.enums.ResourceRefType;
 import com.dtstack.taier.common.exception.DtCenterDefException;
 import com.dtstack.taier.common.exception.ErrorCode;
 import com.dtstack.taier.common.exception.TaierDefineException;
@@ -103,7 +110,11 @@ import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.ObjectUtils;
-import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
@@ -111,12 +122,25 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.sql.Timestamp;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -1457,16 +1481,25 @@ public class DevelopTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
             }
         } catch (IOException e) {
             throw new RuntimeException(e);
+        } finally {
+            if (Objects.nonNull(inputStream)) {
+                try {
+                    inputStream.close();
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            }
         }
         return columns;
     }
 
     private List<FTPColumn> getTxtColumns(DevelopTaskParsingFTPFileParamVO payload, InputStream fileInputStream) {
         List<FTPColumn> columns = new ArrayList<>();
+        BufferedReader bis = null;
         try {
             // sftp特性，当你关闭ChannelSftp时随即你获取到的流对象也会被关闭所以这里要爆漏channelSftp获取流对象
             // The sftp feature, when you close the ChannelSftp, the stream object you get will also be closed, so here we need to leak the ChannelSftp to get the stream object
-            BufferedReader bis = new BufferedReader(new InputStreamReader(fileInputStream, payload.getEncoding()));
+            bis = new BufferedReader(new InputStreamReader(fileInputStream, payload.getEncoding()));
             // memory to store buffered stream per read
             int limit = 1;
             String line = null;
@@ -1493,6 +1526,14 @@ public class DevelopTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
             }
         } catch (IOException e) {
             throw new RuntimeException(e);
+        } finally {
+            if (Objects.nonNull(bis)) {
+                try {
+                    bis.close();
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            }
         }
         return columns;
     }

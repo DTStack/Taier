@@ -24,7 +24,7 @@ import java.util.List;
 
 /**
  * parsing ftp files
- * @author bnyte
+ * 
  * @since 1.3.1
  */
 public class ParsingFTPFileVO {

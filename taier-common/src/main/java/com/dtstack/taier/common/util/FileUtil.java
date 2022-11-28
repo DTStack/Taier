@@ -51,7 +51,7 @@ public class FileUtil {
     }
 
     public static String getFilename(String filepath) {
-        if (!com.dtstack.taier.common.util.StringUtils.hasLength(filepath)) {
+        if (StringUtils.isEmpty(filepath)) {
             throw new TaierDefineException("filepath cannot be empty");
         }
         int lastIndexOf = filepath.lastIndexOf(File.separator);

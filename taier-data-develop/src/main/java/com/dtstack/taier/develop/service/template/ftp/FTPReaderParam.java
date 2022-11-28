@@ -24,7 +24,6 @@ import com.dtstack.taier.develop.common.template.Reader;
 import com.dtstack.taier.develop.service.template.PluginName;
 
 /**
- * @author bnyte
  * @since 1.3.1
  */
 public abstract class FTPReaderParam extends FTPParam implements Reader {

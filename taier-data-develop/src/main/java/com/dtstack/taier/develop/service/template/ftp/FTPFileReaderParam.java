@@ -18,10 +18,6 @@
 
 package com.dtstack.taier.develop.service.template.ftp;
 
-import com.dtstack.taier.common.enums.EFTPTaskFileType;
-import com.dtstack.taier.common.exception.TaierDefineException;
-import com.dtstack.taier.common.util.FileUtil;
-import com.dtstack.taier.common.util.StringUtils;
 import com.dtstack.taier.develop.service.template.DaPluginParam;
 
 import java.util.List;
@@ -30,7 +26,6 @@ import java.util.stream.Stream;
 
 /**
  * ftp file data source parameters
- * @author bnyte
  * @since 1.3.1
  */
 public class FTPFileReaderParam extends DaPluginParam {

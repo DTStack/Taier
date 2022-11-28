@@ -25,7 +25,6 @@ import com.dtstack.taier.develop.service.template.PluginName;
 import java.util.List;
 
 /**
- * @author leon
  * @since 1.3.1
  **/
 public class FTPWriter extends FTPWriteParam {

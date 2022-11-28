@@ -27,7 +27,6 @@ import org.slf4j.LoggerFactory;
 import java.util.List;
 
 /**
- * @author bnyte
  * @since 1.3.1
  */
 public class FTPFileReader extends FTPReaderParam {

@@ -22,7 +22,7 @@ import com.dtstack.taier.common.enums.DataSourceTypeEnum;
 import com.dtstack.taier.common.exception.TaierDefineException;
 
 /**
- * @author bnyte
+ * 
  * @since 1.0.0
  */
 public enum EWriterMode {

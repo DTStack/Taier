@@ -26,7 +26,7 @@ import javax.validation.constraints.NotNull;
 
 /**
  * parsing ftp file column request payload
- * @author bnyte
+ * 
  * @since 1.3.1
  */
 @ApiModel("任务信息")

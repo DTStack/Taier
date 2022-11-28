@@ -29,7 +29,7 @@ import java.util.List;
 import static com.dtstack.taier.develop.service.template.BaseReaderPlugin.dealExtralConfig;
 
 /**
- * @author bnyte
+ * 
  * @since 1.3.1
  **/
 public class FTPWriteParam extends FTPParam implements Writer {

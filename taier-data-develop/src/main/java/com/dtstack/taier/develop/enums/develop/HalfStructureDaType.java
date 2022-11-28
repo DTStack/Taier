@@ -22,7 +22,7 @@ import com.dtstack.taier.common.exception.TaierDefineException;
 
 /**
  * Semi-structured database real-time acquisition type
- * @author bnyte
+ * 
  * @since 1.3.1
  */
 public enum HalfStructureDaType {
