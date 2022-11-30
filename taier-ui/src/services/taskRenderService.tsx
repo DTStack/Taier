@@ -19,6 +19,7 @@ import {
 	SparkSQLIcon,
 	VirtualIcon,
 	WorkflowIcon,
+	MysqlIcon,
 } from '@/components/icon';
 import scaffolds from '@/components/scaffolds/create';
 import editorActionsScaffolds from '@/components/scaffolds/editorActions';
@@ -228,6 +229,8 @@ export default class TaskRenderService extends Component<ITaskRenderState> {
 				return <SparkIcon />;
 			case TASK_TYPE_ENUM.DORIS:
 				return <DorisIcon />;
+			case TASK_TYPE_ENUM.MYSQL:
+				return <MysqlIcon />;
 			default:
 				return 'file';
 		}
