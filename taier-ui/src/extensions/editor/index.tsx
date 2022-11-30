@@ -262,6 +262,7 @@ const updateTaskVariables = debounce((tab: molecule.model.IEditorTab<any>) => {
 		case TASK_TYPE_ENUM.DORIS:
 		case TASK_TYPE_ENUM.CLICKHOUSE:
 		case TASK_TYPE_ENUM.SQL:
+		case TASK_TYPE_ENUM.MYSQL:
 			sqlText = currentData.value || '';
 			break;
 		case TASK_TYPE_ENUM.SYNC:

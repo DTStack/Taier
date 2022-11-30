@@ -1460,6 +1460,7 @@ INSERT INTO `dict` VALUES (355, 'tips', 'script.python2.path', 'python2.x 二进
 INSERT INTO `dict` VALUES (357, 'tips', 'script.python3.path', 'python3.x 二进制可执行文件地址', '8', 25, 0, 'STRING', '', 0, '2022-10-24 15:46:52', '2022-10-24 15:46:52', 0);
 INSERT INTO `dict` VALUES (359, '14', 'ClickHouseSQL', '{\"actions\":[\"SAVE_TASK\",\"RUN_TASK\",\"STOP_TASK\",\"SUBMIT_TASK\",\"OPERATOR_TASK\"],\"barItem\":[\"task\",\"dependency\",\"task_params\",\"env_params\"],\"formField\":[\"datasource\"],\"renderKind\":\"editor\",\"dataTypeCodes\":[25]}', NULL, 30, 0, 'STRING', '', 0, '2022-10-24 15:46:53', '2022-10-24 15:46:53', 0);
 INSERT INTO `dict` VALUES (361, '15', 'DorisSQL', '{\"actions\":[\"SAVE_TASK\",\"RUN_TASK\",\"STOP_TASK\",\"SUBMIT_TASK\",\"OPERATOR_TASK\"],\"barItem\":[\"task\",\"dependency\",\"task_params\",\"env_params\"],\"formField\":[\"datasource\"],\"renderKind\":\"editor\",\"dataTypeCodes\":[64]}', NULL, 30, 0, 'STRING', '', 0, '2022-10-24 15:46:53', '2022-10-24 15:46:53', 0);
+INSERT INTO `dict` VALUES (363, '17', 'MySQL', '{"actions":["SAVE_TASK","RUN_TASK","STOP_TASK","SUBMIT_TASK","OPERATOR_TASK"],"barItem":["task","dependency","task_params","env_params"],"formField":["datasource"],"renderKind":"editor","dataTypeCodes":[1]}', '', 30, 0, 'STRING', '', 0, '2022-10-24 15:46:53', '2022-10-24 15:46:53', 0);
 COMMIT;
 
 -- ----------------------------

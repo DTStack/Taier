@@ -99,6 +99,7 @@ export function runTask(current: molecule.model.IEditorGroup) {
 					TASK_TYPE_ENUM.OCEANBASE,
 					TASK_TYPE_ENUM.SPARK_SQL,
 					TASK_TYPE_ENUM.SQL,
+					TASK_TYPE_ENUM.MYSQL,
 				].includes(currentTabData.taskType)
 			) {
 				const rawSelections = molecule.editor.editorInstance.getSelections() || [];

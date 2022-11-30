@@ -255,7 +255,9 @@ export enum TASK_TYPE_ENUM {
 	/**
 	 * Python Spark
 	 */
-	PY_SPARK = 16
+	PY_SPARK = 16,
+
+	MYSQL = 17,
 }
 
 /**

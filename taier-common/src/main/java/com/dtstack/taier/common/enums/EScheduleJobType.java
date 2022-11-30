@@ -101,6 +101,13 @@ public enum EScheduleJobType {
      * PySpark
      */
     SPARK_PYTHON(16, "PySpark", EJobType.PYTHON.getType(), 12, EComponentType.SPARK, EComputeType.BATCH, EJobClientType.WORKER_PLUGIN),
+
+
+
+    /**
+     * MySQL
+     */
+    MYSQL(17, "MySQL", EJobType.SQL.getType(), 4, null, EComputeType.BATCH, EJobClientType.DATASOURCE_PLUGIN)
     ;
 
     private final Integer type;
