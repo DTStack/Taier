@@ -27,8 +27,13 @@ $ build/mvn-build.sh
   通过脚本编译项目后会生成对应的  
   - lib/taier-data-develop-with-dependencies.jar   
   - worker-plugins  
-  - datasource-plugins 
-  
+  - datasource-plugins
+
+:::tip
+oracle 插件因为商业版本原因，官方没有提供 ojdbc 的驱动，开发者有两种可选方式进行解决：
+1. 将代码中 oracle 插件 pom 文件中 ojdbc8 的依赖，对 scope 进行调整
+2. 在编译后的 datasource-plugins/oracle 目录下，增加 ojdbc8 的驱动
+:::  
 
 
 - 前端编译  

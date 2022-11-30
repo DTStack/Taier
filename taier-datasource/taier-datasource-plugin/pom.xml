@@ -13,7 +13,11 @@
     <packaging>pom</packaging>
 
     <modules>
+        <module>taier-datasource-plugin-common</module>
         <module>taier-datasource-plugin-rdbms</module>
+        <module>taier-datasource-plugin-kerberos</module>
+        <module>taier-datasource-plugin-kerberos-core</module>
+
         <module>taier-datasource-plugin-clickhouse</module>
         <module>taier-datasource-plugin-db2</module>
         <module>taier-datasource-plugin-dm</module>
@@ -41,9 +45,6 @@
         <module>taier-datasource-plugin-emq</module>
         <module>taier-datasource-plugin-phoenix5</module>
         <module>taier-datasource-plugin-spark</module>
-        <module>taier-datasource-plugin-common</module>
-        <module>taier-datasource-plugin-kerberos</module>
-        <module>taier-datasource-plugin-kerberos-core</module>
         <module>taier-datasource-plugin-websocket</module>
         <module>taier-datasource-plugin-vertica</module>
         <module>taier-datasource-plugin-socket</module>
@@ -69,6 +70,7 @@
         <module>taier-datasource-plugin-nfs</module>
         <module>taier-datasource-plugin-tdengine</module>
         <module>taier-datasource-plugin-restful-core</module>
+        <module>taier-datasource-plugin-oracle</module>
     </modules>
     
     <properties>
