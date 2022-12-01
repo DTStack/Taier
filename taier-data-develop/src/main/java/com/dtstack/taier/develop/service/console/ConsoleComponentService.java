@@ -47,6 +47,7 @@ import com.dtstack.taier.dao.mapper.ConsoleKerberosMapper;
 import com.dtstack.taier.develop.model.ClusterFactory;
 import com.dtstack.taier.develop.model.Part;
 import com.dtstack.taier.develop.model.PartCluster;
+import com.dtstack.taier.develop.model.system.Context;
 import com.dtstack.taier.develop.model.system.config.ComponentModel;
 import com.dtstack.taier.develop.vo.console.ComponentModelVO;
 import com.dtstack.taier.pluginapi.constrant.ConfigConstant;
@@ -140,6 +141,9 @@ public class ConsoleComponentService {
 
     @Autowired
     private ComponentService componentService;
+
+    @Autowired
+    private Context context;
 
     /**
      * 组件配置文件映射
@@ -1378,6 +1382,7 @@ public class ConsoleComponentService {
         }
         ComponentVO componentVO = ComponentVO.toVO(component);
         List<ComponentConfig> componentConfigs = componentConfigService.listByComponentIds(Lists.newArrayList(componentId), false);
+        context.populateTip(componentConfigs, component.getComponentTypeCode());
         Map<String, Object> configToMap = ComponentConfigUtils.convertComponentConfigToMap(componentConfigs);
         componentVO.setComponentConfig(JSONObject.toJSONString(configToMap));
         String version = ComponentVersionUtil.formatMultiVersion(component.getComponentTypeCode(), component.getVersionName());

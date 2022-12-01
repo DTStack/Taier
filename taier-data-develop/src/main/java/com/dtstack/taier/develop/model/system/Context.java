@@ -22,7 +22,9 @@ import com.alibaba.fastjson.JSONObject;
 import com.dtstack.taier.common.enums.DictType;
 import com.dtstack.taier.common.enums.EComponentScheduleType;
 import com.dtstack.taier.common.enums.EComponentType;
+import com.dtstack.taier.common.enums.EFrontType;
 import com.dtstack.taier.common.util.Strings;
+import com.dtstack.taier.dao.domain.ComponentConfig;
 import com.dtstack.taier.dao.domain.Dict;
 import com.dtstack.taier.dao.mapper.DictMapper;
 import com.dtstack.taier.develop.model.exception.InvalidComponentException;
@@ -30,6 +32,7 @@ import com.dtstack.taier.develop.model.system.config.ComponentModel;
 import com.dtstack.taier.develop.model.system.config.ComponentModelExtraParameters;
 import com.dtstack.taier.develop.model.system.config.ComponentModelTypeConfig;
 import com.dtstack.taier.develop.model.system.config.SystemConfigMapperException;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -73,6 +76,11 @@ public class Context {
      */
     private final Map<EComponentType, Map<String, ComponentModelExtraParameters>> componentModelExtraParams;
 
+    /**
+     * 组件 tip 缓存 - {componentTypeCode, {key, ScheduleDict}}
+     */
+    private final Map<Integer, Map<String, Dict>> tipDictCache;
+
     @Autowired
     public Context(DictMapper dictMapper) {
         this.dictMapper = dictMapper;
@@ -80,6 +88,7 @@ public class Context {
         this.componentConfigs = Collections.unmodifiableMap(initComponentModels());
         this.componentModelTypeConfig = Collections.unmodifiableMap(initComponentModelTypeConfig());
         this.componentModelExtraParams = Collections.unmodifiableMap(initComponentModelExtraParams());
+        this.tipDictCache = Collections.unmodifiableMap(initTipDictCache());
     }
 
     private Map<EComponentType, Map<String, ComponentModelTypeConfig>> initComponentModelTypeConfig() {
@@ -90,6 +99,13 @@ public class Context {
     private Map<EComponentType, Map<String, ComponentModelExtraParameters>> initComponentModelExtraParams() {
         List<Dict> dicts = dictMapper.listDictByType(DictType.EXTRA_VERSION_TEMPLATE.type);
         return parseComponentConfig(dicts, ComponentModelExtraParameters::new);
+    }
+
+    private Map<Integer, Map<String, Dict>> initTipDictCache() {
+        List<Dict> dicts = dictMapper.listDictByType(DictType.TIPS.type);
+        return dicts.stream().collect(Collectors.groupingBy(dict -> Integer.valueOf(dict.getDictDesc()),
+                Collectors.toMap(Dict::getDictName, Function.identity(), (x, y) -> y)
+        ));
     }
 
     private <T> Map<EComponentType, Map<String, T>> parseComponentConfig(List<Dict> dicts, BiFunction<String, String, T> function) {
@@ -239,5 +255,31 @@ public class Context {
             return Optional.empty();
         }
         return Optional.ofNullable(parameters.getComponentModelConfig());
+    }
+
+    /**
+     * 填充 tip
+     * @param componentConfigs
+     * @param componentType
+     */
+    public void populateTip(List<ComponentConfig> componentConfigs, Integer componentType) {
+        if (CollectionUtils.isEmpty(componentConfigs)) {
+            return;
+        }
+        Map<String, Dict> key2Dict = this.tipDictCache.get(componentType);
+        if (MapUtils.isEmpty(key2Dict)) {
+            return;
+        }
+        for (ComponentConfig componentConfig : componentConfigs) {
+            Dict dict = key2Dict.get(componentConfig.getKey());
+            if (dict == null) {
+                continue;
+            }
+            if (StringUtils.isEmpty(componentConfig.getType())
+                    || EFrontType.CUSTOM_CONTROL.name().equalsIgnoreCase(componentConfig.getType())) {
+                continue;
+            }
+            componentConfig.setKeyDescribe(dict.getDictValue());
+        }
     }
 }
