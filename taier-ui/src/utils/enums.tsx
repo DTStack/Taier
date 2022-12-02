@@ -48,6 +48,8 @@ export function taskTypeText(type?: TASK_TYPE_ENUM) {
 			return 'Flink';
 		case TASK_TYPE_ENUM.WORK_FLOW:
 			return '工作流';
+		case TASK_TYPE_ENUM.MYSQL:
+			return 'MySQL';
 		default:
 			return '未知';
 	}
@@ -384,6 +386,8 @@ export function mappingTaskTypeToLanguage(taskType: TASK_TYPE_ENUM) {
 			return TASK_LANGUAGE.PYTHON;
 		case TASK_TYPE_ENUM.SHELL:
 			return TASK_LANGUAGE.SHELL;
+		case TASK_TYPE_ENUM.MYSQL:
+			return TASK_LANGUAGE.MYSQL
 		default:
 			return TASK_LANGUAGE.SQL;
 	}
