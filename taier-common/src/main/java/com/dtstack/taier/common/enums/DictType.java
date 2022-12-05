@@ -39,6 +39,7 @@ public enum DictType {
     HDFS_TYPE_NAME(16),
 
     SYNC_MAPPING(17),
+    TIPS(25),
 
     TASK_TYPE_PROPERTIES(30),
     DATA_DEVELOP_CATALOGUE_L1(31),

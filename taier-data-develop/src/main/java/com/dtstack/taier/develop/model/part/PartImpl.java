@@ -87,7 +87,9 @@ public class PartImpl implements Part {
             allTemplateIds.add(extraVersionParameters);
         }
         context.getBaseTemplateId(pluginName).ifPresent(allTemplateIds::add);
-        return dataSource.listComponentConfig(allTemplateIds, true);
+        List<ComponentConfig> componentConfigs = dataSource.listComponentConfig(allTemplateIds, true);
+        context.populateTip(componentConfigs, getType().getTypeCode());
+        return componentConfigs;
     }
 
     protected void validDependOn() {
