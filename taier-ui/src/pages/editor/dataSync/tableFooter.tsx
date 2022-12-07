@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { Button, Dropdown, Menu, message, Space } from 'antd';
+import { Button, Dropdown, Menu, message } from 'antd';
 import ConstModal from './modals/constModal';
 import { DATA_SOURCE_ENUM } from '@/constant';
 import type { IDataColumnsProps } from '@/interface';
@@ -11,12 +11,10 @@ interface ITableFooterProps {
 	source: boolean;
 	onConstModalConfirm?: (col: IDataColumnsProps) => void;
 	onAddFieldClick?: () => void;
-	onAddFileName?: () => void;
 }
 
 const ButtonGroupIds = {
 	ADD_FIELD: 'add_field',
-	ADD_FTP_FILE_NAME: 'add_ftp_file_name',
 } as const;
 
 export default function TableFooter({
@@ -24,7 +22,6 @@ export default function TableFooter({
 	source,
 	onConstModalConfirm,
 	onAddFieldClick,
-	onAddFileName,
 }: ITableFooterProps) {
 	const [visibleConst, setConstVisible] = useState(false);
 
@@ -47,13 +44,6 @@ export default function TableFooter({
 			},
 		];
 
-		if (type === DATA_SOURCE_ENUM.FTP) {
-			defaultItem.push({
-				label: '+添加文件名称字段',
-				key: ButtonGroupIds.ADD_FTP_FILE_NAME,
-			});
-		}
-
 		return defaultItem;
 	}, [type]);
 
@@ -69,9 +59,6 @@ export default function TableFooter({
 									onAddFieldClick?.();
 									break;
 
-								case ButtonGroupIds.ADD_FTP_FILE_NAME:
-									onAddFileName?.();
-									break;
 								default:
 									break;
 							}
