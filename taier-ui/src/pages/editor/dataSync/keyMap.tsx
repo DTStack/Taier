@@ -25,7 +25,14 @@ enum OperatorKind {
 }
 
 function getUniqueKey(data: IDataColumnsProps) {
-	return `${data.key}-${data.type}`;
+	return `${getRecordKey(data)}-${data.type}`;
+}
+
+/**
+ * Generally, the record key field is 「key」, but in FTP it's 「index」
+ */
+function getRecordKey(data: IDataColumnsProps) {
+	return data.key ?? data.index;
 }
 
 enum QuickColumnKind {
@@ -496,9 +503,9 @@ export default function KeyMap() {
 				const sourceCols: IDataColumnsProps[] = [];
 				const targetCols: IDataColumnsProps[] = [];
 				sourceColumns.forEach((o) => {
-					const name = o.key.toString().toUpperCase();
+					const name = getRecordKey(o).toString().toUpperCase();
 					const idx = targetColumns.findIndex((col) => {
-						const sourceName = col.key.toString().toUpperCase();
+						const sourceName = getRecordKey(col).toString().toUpperCase();
 						return sourceName === name;
 					});
 					if (idx !== -1) {
@@ -553,6 +560,7 @@ export default function KeyMap() {
 
 	useEffect(() => {
 		selection.current = new LintTo(container.current!, {
+			rowKey: getRecordKey,
 			onRenderColumns(s) {
 				return s
 					? getSourceColumn(
@@ -607,19 +615,11 @@ export default function KeyMap() {
 					<TableFooter
 						type={form.getFieldValue([s ? 'sourceMap' : 'targetMap', 'type'])}
 						source={s}
-						onConstModalConfirm={(col) => {
+						onConstModalConfirm={(col) =>
 							assertSource(s) &&
-								handleColChanged(OperatorKind.ADD, [col], s ? 'source' : 'target');
-						}}
-						onAddFieldClick={() => handleAddVariable(s)}
-						onAddFileName={() =>
-							assertSource(s) &&
-							handleColChanged(
-								OperatorKind.ADD,
-								[{ key: 'dtstack_internal_file_name', type: 'STRING' }],
-								'source',
-							)
+							handleColChanged(OperatorKind.ADD, [col], s ? 'source' : 'target')
 						}
+						onAddFieldClick={() => handleAddVariable(s)}
 					/>
 				);
 			},
@@ -858,7 +858,12 @@ export default function KeyMap() {
 				onOk={(values: IDataColumnsProps) => {
 					(keyModal.isReader ? source : target).dispatch({
 						type: keyModal.operation,
-						payload: [values],
+						payload: [
+							keyModal.operation === OperatorKind.ADD
+								? values
+								: // Put the values into record for EDIT operation
+								  Object.assign(keyModal.editField!, values),
+						],
 					});
 					setKeyModal((m) => ({ ...m, visible: false }));
 				}}
@@ -949,7 +954,12 @@ function useColumns(mapKind: 'sourceMap' | 'targetMap') {
 	useEffect(() => {
 		function handler(keyMaps: IDataColumnsProps[]) {
 			if (Array.isArray(keyMaps)) {
-				setColumns(keyMaps);
+				dispatch({ type: OperatorKind.REPLACE, payload: keyMaps });
+				// reset form fields
+				form.resetFields([
+					['sourceMap', 'column'],
+					['targetMap', 'column'],
+				]);
 			}
 		}
 
@@ -965,14 +975,38 @@ function useColumns(mapKind: 'sourceMap' | 'targetMap') {
 	const dispatch = (next: { type: OperatorKind; payload: IDataColumnsProps[] }) => {
 		switch (next.type) {
 			case OperatorKind.ADD: {
+				const rules = [
+					{
+						field: 'index',
+						message: '添加失败：索引值不能重复',
+					},
+					{
+						field: 'key',
+						message: '添加失败：字段名不能重复',
+					},
+				] as const;
 				setColumns((cols) => {
 					const nextCols = [...cols];
+					// Generally, the linedCols are subset of columns, but if there is an exception.
+					// In FTP, the columns are empty and the linedCols are lined
+					const linedCols: IDataColumnsProps[] =
+						form.getFieldValue(mapKind)?.column || [];
+
 					next.payload.forEach((col) => {
-						if (checkExist(col.index) && nextCols.some((o) => o.index === col.index)) {
-							message.error(`添加失败：索引值不能重复`);
-						} else if (checkExist(col.key) && nextCols.some((o) => o.key === col.key)) {
-							message.error(`添加失败：字段名不能重复`);
-						} else {
+						if (
+							rules.every((rule) => {
+								const isDuplicated =
+									checkExist(col[rule.field]) &&
+									(nextCols.some((o) => o[rule.field] === col[rule.field]) ||
+										linedCols.some((o) => o[rule.field] === col[rule.field]));
+
+								if (isDuplicated) {
+									message.error(rule.message);
+								}
+
+								return !isDuplicated;
+							})
+						) {
 							nextCols.push(col);
 						}
 					});
@@ -984,9 +1018,9 @@ function useColumns(mapKind: 'sourceMap' | 'targetMap') {
 				// Check if columns were already be lined
 				const linedColumnsIndex = next.payload.reduce<number[]>((pre, cur) => {
 					const idx =
-						(formWatchField?.column as IDataColumnsProps[])?.findIndex(
+						(form.getFieldValue(mapKind)?.column as IDataColumnsProps[])?.findIndex(
 							(col) => getUniqueKey(col) === getUniqueKey(cur),
-						) || -1;
+						) ?? -1;
 					if (idx >= 0) {
 						pre.push(idx);
 					}
@@ -1034,15 +1068,9 @@ function useColumns(mapKind: 'sourceMap' | 'targetMap') {
 			}
 
 			case OperatorKind.EDIT: {
-				const nextValue: IDataColumnsProps[] = formWatchField.column ?? [];
-				// Check if columns were lined
-				next.payload.forEach((col) => {
-					const obj = nextValue.find((val) => getUniqueKey(val) === getUniqueKey(col));
-					if (obj) {
-						Object.assign(obj, { ...col });
-					}
-				});
-
+				// here get the value and set directly since the EDIT in KeyModal is copy
+				// refer to L860
+				const nextValue: IDataColumnsProps[] = form.getFieldValue(mapKind).column ?? [];
 				form.setFieldValue([mapKind, 'column'], nextValue);
 				updateValuesInData(form.getFieldsValue());
 

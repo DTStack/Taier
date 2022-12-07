@@ -122,7 +122,7 @@ export default function KeyModal({
 			];
 		}
 
-		const initialKeyValue = editField?.key ?? editField?.index;
+		const initialKeyValue = editField?.index ?? editField?.key;
 
 		if (isReader) {
 			// 数据源
@@ -132,9 +132,9 @@ export default function KeyModal({
 				case DATA_SOURCE_ENUM.S3: {
 					return [
 						<FormItem
-							name="key"
+							name="index"
 							label="索引值"
-							key="key"
+							key="index"
 							rules={[
 								{
 									required: true,
