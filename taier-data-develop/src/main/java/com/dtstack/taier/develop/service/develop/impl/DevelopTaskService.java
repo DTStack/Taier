@@ -64,7 +64,6 @@ import com.dtstack.taier.develop.dto.devlop.TaskCheckResultVO;
 import com.dtstack.taier.develop.dto.devlop.TaskGetNotDeleteVO;
 import com.dtstack.taier.develop.dto.devlop.TaskResourceParam;
 import com.dtstack.taier.develop.dto.devlop.TaskVO;
-import com.dtstack.taier.develop.enums.develop.FlinkVersion;
 import com.dtstack.taier.develop.enums.develop.TaskCreateModelType;
 import com.dtstack.taier.develop.enums.develop.WorkFlowScheduleConfEnum;
 import com.dtstack.taier.develop.mapstruct.vo.TaskDirtyDataManageTransfer;
@@ -731,22 +730,6 @@ public class DevelopTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
     }
 
     /**
-     * 转化环境参数，不同版本之间切换需要刷新环境参数信息
-     *
-     * @param before       转化前的 flink 版本
-     * @param after        转化后的 flink 版本
-     * @param paramsBefore 环境参数
-     * @return 转化后的环境参数
-     */
-    public String convertParams(FlinkVersion before, FlinkVersion after, String paramsBefore, Integer taskType) {
-        // 版本一致不需要进行转换
-        if (before.equals(after)) {
-            return paramsBefore;
-        }
-        return taskTemplateService.getTaskTemplate(taskType, after.getType()).getParams();
-    }
-
-    /**
      * 修改任务
      *
      * @param taskVO 任务信息
@@ -756,11 +739,6 @@ public class DevelopTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
         if (specialTask == null) {
             throw new TaierDefineException(ErrorCode.CAN_NOT_FIND_TASK);
         }
-        // 转换环境参数
-        String convertParams = convertParams(FlinkVersion.getVersion(specialTask.getComponentVersion()),
-                FlinkVersion.getVersion(taskVO.getComponentVersion()),
-                taskVO.getTaskParams(), taskVO.getTaskType());
-        taskVO.setTaskParams(convertParams);
         Task specialTask1 = new Task();
         TaskMapstructTransfer.INSTANCE.taskVOTOTask(taskVO, specialTask1);
         developTaskMapper.updateById(specialTask1);

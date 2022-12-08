@@ -55,7 +55,7 @@ public class SqlParamUtil {
                 }
                 break;
             default:
-                throw new DtCenterDefException(String.format("不支持flink版本: %s", flinkVersion.getType()));
+                throw new DtCenterDefException(String.format("不支持flink版本: %s", flinkVersion.getVersion()));
         }
         return frontFlinkXKeyMap;
     }

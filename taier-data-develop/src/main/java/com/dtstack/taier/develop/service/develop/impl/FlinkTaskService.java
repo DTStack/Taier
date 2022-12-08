@@ -25,7 +25,6 @@ import com.alibaba.fastjson.JSONPath;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.dtstack.taier.datasource.api.utils.AssertUtils;
 import com.dtstack.taier.common.enums.Deleted;
 import com.dtstack.taier.common.enums.EComponentType;
 import com.dtstack.taier.common.enums.EScheduleJobType;
@@ -45,6 +44,7 @@ import com.dtstack.taier.dao.mapper.DevelopTaskMapper;
 import com.dtstack.taier.dao.mapper.ScheduleJobMapper;
 import com.dtstack.taier.dao.mapper.UserMapper;
 import com.dtstack.taier.dao.pager.PageResult;
+import com.dtstack.taier.datasource.api.utils.AssertUtils;
 import com.dtstack.taier.develop.dto.devlop.TaskResourceParam;
 import com.dtstack.taier.develop.dto.devlop.TaskVO;
 import com.dtstack.taier.develop.enums.develop.FlinkVersion;
@@ -73,6 +73,7 @@ import com.dtstack.taier.scheduler.WorkerOperator;
 import com.dtstack.taier.scheduler.impl.pojo.ParamActionExt;
 import com.dtstack.taier.scheduler.service.ClusterService;
 import com.dtstack.taier.scheduler.service.ScheduleActionService;
+import com.dtstack.taier.scheduler.service.ScheduleDictService;
 import com.dtstack.taier.scheduler.service.ScheduleJobService;
 import com.google.common.base.Charsets;
 import com.google.common.base.Strings;
@@ -166,15 +167,20 @@ public class FlinkTaskService {
     @Autowired
     private StreamSqlFormatService streamSqlFormatService;
 
+    @Autowired
+    private ScheduleDictService scheduleDictService;
+
     public void convertTableStr(TaskResourceParam taskResourceParam) {
-        taskResourceParam.setSourceStr(taskResourceParam.getSource() != null ? JSON.toJSONString(GuideTableParamsUtil.deal(taskResourceParam.getSource(), taskResourceParam.getComponentVersion())) : null);
-        taskResourceParam.setTargetStr(taskResourceParam.getSink() != null ? JSON.toJSONString(GuideTableParamsUtil.deal(taskResourceParam.getSink(), taskResourceParam.getComponentVersion())) : null);
-        taskResourceParam.setSideStr(taskResourceParam.getSide() != null ? JSON.toJSONString(GuideTableParamsUtil.deal(taskResourceParam.getSide(), taskResourceParam.getComponentVersion())) : null);
+        String versionNameToValue = scheduleDictService.convertVersionNameToValue(taskResourceParam.getComponentVersion(), taskResourceParam.getTaskType(), null);
+        taskResourceParam.setSourceStr(taskResourceParam.getSource() != null ? JSON.toJSONString(GuideTableParamsUtil.deal(taskResourceParam.getSource(), versionNameToValue)) : null);
+        taskResourceParam.setTargetStr(taskResourceParam.getSink() != null ? JSON.toJSONString(GuideTableParamsUtil.deal(taskResourceParam.getSink(), versionNameToValue)) : null);
+        taskResourceParam.setSideStr(taskResourceParam.getSide() != null ? JSON.toJSONString(GuideTableParamsUtil.deal(taskResourceParam.getSide(), versionNameToValue)) : null);
     }
 
 
 
-    private String generateCreateFlinkSql(String sourceParams, String componentVersion, TableType type) {
+    private String generateCreateFlinkSql(String sourceParams, String componentVersion, TableType type,Integer taskType) {
+        String versionNameToValue = scheduleDictService.convertVersionNameToValue(componentVersion, taskType, null);
         StringBuilder createSql = new StringBuilder();
         if (StringUtils.isNotBlank(sourceParams)) {
             JSONArray array = JSON.parseArray(sourceParams);
@@ -184,7 +190,7 @@ public class FlinkTaskService {
                 Long srcId = Long.parseLong(obj.getString("sourceId"));
                 DsInfo dataSource = dsInfoService.dsInfoDetail(srcId);
                 if (dataSource != null) {
-                    String sql = SqlGenerateFactory.generateSql(dataSource, obj, componentVersion, type);
+                    String sql = SqlGenerateFactory.generateSql(dataSource, obj, versionNameToValue, type);
                     if (StringUtils.isNotBlank(sql)) {
                         createSql.append(sql);
                     }
@@ -197,9 +203,9 @@ public class FlinkTaskService {
 
     public String generateCreateFlinkSql(Task task) {
         StringBuilder sql = new StringBuilder(generateAddJarSQL(task));
-        sql.append(generateCreateFlinkSql(task.getSourceStr(), task.getComponentVersion(), TableType.SOURCE));
-        sql.append(generateCreateFlinkSql(task.getTargetStr(), task.getComponentVersion(), TableType.SINK));
-        sql.append(generateCreateFlinkSql(task.getSideStr(), task.getComponentVersion(), TableType.SIDE));
+        sql.append(generateCreateFlinkSql(task.getSourceStr(), task.getComponentVersion(), TableType.SOURCE,task.getTaskType()));
+        sql.append(generateCreateFlinkSql(task.getTargetStr(), task.getComponentVersion(), TableType.SINK,task.getTaskType()));
+        sql.append(generateCreateFlinkSql(task.getSideStr(), task.getComponentVersion(), TableType.SIDE,task.getTaskType()));
         // 用户填写的sql
         sql.append(task.getSqlText());
         String sqlString = SqlFormatter.removeAnnotation(sql.toString());
@@ -215,9 +221,9 @@ public class FlinkTaskService {
         switch (Objects.requireNonNull(eJobType)) {
             case FLINK_SQL:
                 if (TaskCreateModelType.GUIDE.getType().equals(task.getCreateModel())) {
-                    sql.append(generateCreateFlinkSql(task.getSourceStr(), task.getComponentVersion(), TableType.SOURCE));
-                    sql.append(generateCreateFlinkSql(task.getTargetStr(), task.getComponentVersion(), TableType.SINK));
-                    sql.append(generateCreateFlinkSql(task.getSideStr(), task.getComponentVersion(), TableType.SIDE));
+                    sql.append(generateCreateFlinkSql(task.getSourceStr(), task.getComponentVersion(), TableType.SOURCE,task.getTaskType()));
+                    sql.append(generateCreateFlinkSql(task.getTargetStr(), task.getComponentVersion(), TableType.SINK,task.getTaskType()));
+                    sql.append(generateCreateFlinkSql(task.getSideStr(), task.getComponentVersion(), TableType.SIDE,task.getTaskType()));
                 }
             case FLINK_MR:
                 sql.append(generateAddFlinkJar(task));
@@ -398,7 +404,8 @@ public class FlinkTaskService {
         // 补充其他的字段
         actionParam.put("type", EScheduleType.NORMAL_SCHEDULE.getType());
         actionParam.put("tenantId", task.getTenantId());
-        actionParam.put("taskParams", formatTaskParams(taskParams, task.getSourceStr(), task.getComponentVersion(), task.getTaskType()));
+        String versionNameToValue = scheduleDictService.convertVersionNameToValue(task.getComponentVersion(), task.getTaskType(), null);
+        actionParam.put("taskParams", formatTaskParams(taskParams, task.getSourceStr(), versionNameToValue, task.getTaskType()));
         actionParam.put("name", getJobName(task.getName(), task.getJobId()));
         Integer deployMode = EDeployMode.PERJOB.getType();
         if (clusterService.hasStandalone(task.getTenantId(), EComponentType.FLINK.getTypeCode())) {
@@ -413,7 +420,7 @@ public class FlinkTaskService {
         return JsonUtils.objectToObject(actionParam, ParamActionExt.class);
     }
 
-    private String formatTaskParams(String taskParams, String sourceParam, String componentVersion, Integer taskType) {
+    private String formatTaskParams(String taskParams, String sourceParam, String versionValue, Integer taskType) {
         List<String> params = new ArrayList<>();
         String[] tempParams = taskParams.split("\r|\n");
         for (String param : tempParams) {
@@ -431,7 +438,7 @@ public class FlinkTaskService {
                 String timeColumnFront = sourceJson.getString(KafkaSourceParamEnum.TIME_COLUMN.getFront());
                 if (StringUtils.isNotBlank(timeColumnFront)) {
                     // flink1.12 默认时间语义是事件时间，之前是机器时间
-                    String timeCharKey = FlinkVersion.FLINK_112.getVersions().contains(componentVersion) ?
+                    String timeCharKey = FlinkVersion.FLINK_112.getVersion().equals(versionValue) ?
                             PIPELINE_TIME_CHARACTERISTIC : TIME_CHARACTERISTIC;
                     if (!params.contains(timeCharKey)) {
                         if (timeCharacteristic) {
@@ -674,15 +681,15 @@ public class FlinkTaskService {
         Task task = developTaskMapper.selectById(taskId);
         if (EScheduleJobType.FLINK_SQL.getVal().equals(task.getTaskType()) && TaskCreateModelType.GUIDE.getType().equals(task.getCreateModel())) {
 
-            String source = generateCreateFlinkSql(task.getSourceStr(), task.getComponentVersion(), TableType.SOURCE);
+            String source = generateCreateFlinkSql(task.getSourceStr(), task.getComponentVersion(), TableType.SOURCE,task.getTaskType());
             source = sqlFormat(source);
             task.setSourceStr(source);
 
-            String sink = generateCreateFlinkSql(task.getTargetStr(), task.getComponentVersion(), TableType.SINK);
+            String sink = generateCreateFlinkSql(task.getTargetStr(), task.getComponentVersion(), TableType.SINK,task.getTaskType());
             sink = sqlFormat(sink);
             task.setTargetStr(sink);
 
-            String side = generateCreateFlinkSql(task.getSideStr(), task.getComponentVersion(), TableType.SIDE);
+            String side = generateCreateFlinkSql(task.getSideStr(), task.getComponentVersion(), TableType.SIDE,task.getTaskType());
             side = sqlFormat(side);
             task.setSideStr(side);
         }
