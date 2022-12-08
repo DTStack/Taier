@@ -10,6 +10,7 @@ import {
 	SelectWithCreate,
 	AutoCompleteWithRequest,
 	SelectWithRequest,
+	InputWithColumns,
 } from '@/components/scaffolds/task';
 import { Context } from '@/context/dataSync';
 import { convertObjToNamePath, getPlus, pickByTruly, visit } from '@/utils';
@@ -31,6 +32,8 @@ import './index.scss';
 export const event = new (class extends GlobalEvent {})();
 export enum EventKind {
 	Changed = 'changed',
+	SourceKeyChange = 'source_key_change',
+	TargetKeyChange = 'target_key_change',
 }
 
 interface IWidget {
@@ -61,7 +64,7 @@ interface IBasic {
 		| boolean
 		| {
 				field: string;
-				value: string;
+				value: string | boolean | number;
 				/**
 				 * 是否取反
 				 */
@@ -207,6 +210,7 @@ const defaultWidget: Record<string, ((props: any) => JSX.Element) | undefined> =
 	// User-Defined Widget
 	SelectWithCreate: (props: any) => <SelectWithCreate {...props} />,
 	SelectWithPreviewer: (props: any) => <SelectWithPreviewer {...props} />,
+	InputWithColumns: (props: any) => <InputWithColumns {...props} />,
 };
 
 /**
@@ -327,6 +331,7 @@ export default connect(molecule.editor, ({ current }: molecule.model.IEditor) =>
 										.map((item) => {
 											const value = get({ form: values }, item.field);
 											const isEqual = item.value
+												.toString()
 												?.split(',')
 												.includes(`${value}`);
 
@@ -362,7 +367,7 @@ export default connect(molecule.editor, ({ current }: molecule.model.IEditor) =>
 									rules={rules}
 									valuePropName={data.type === 'boolean' ? 'checked' : 'value'}
 								>
-									{!data.noStyle && <Widget {...data.props} />}
+									{!data.noStyle && <Widget {...data.props} event={event} />}
 								</Form.Item>
 							);
 						}}
@@ -475,6 +480,7 @@ export default connect(molecule.editor, ({ current }: molecule.model.IEditor) =>
 						}}
 						onValuesChange={handleValuesChanged}
 						form={form}
+						autoComplete="off"
 					>
 						{templateSchema.children.map((child) => renderContent(child))}
 					</Form>

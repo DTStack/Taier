@@ -1,18 +1,16 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import classNames from 'classnames';
 import { Button, Col, Form, message, Row, Space, Spin, Tooltip } from 'antd';
 import api from '@/api';
 import LintTo from '@/components/lineTo';
 import { DATA_SOURCE_ENUM, DATA_SOURCE_TEXT } from '@/constant';
 import { EditOutlined, ExclamationCircleOutlined, MinusOutlined } from '@ant-design/icons';
-import { useConstant } from '@/hooks';
 import { checkExist, isValidFormatType } from '@/utils';
 import { event, EventKind, updateValuesInData } from '.';
 import KeyModal from './modals/keyModal';
-import ConstModal from './modals/constModal';
 import viewStoreService from '@/services/viewStoreService';
 import molecule from '@dtinsight/molecule';
 import md5 from 'md5';
+import TableFooter from './tableFooter';
 import { useSize } from '@/components/customHooks';
 import type { IDataColumnsProps } from '@/interface';
 import type { ColumnType } from 'antd/lib/table';
@@ -27,7 +25,14 @@ enum OperatorKind {
 }
 
 function getUniqueKey(data: IDataColumnsProps) {
-	return `${data.key}-${data.type}`;
+	return `${getRecordKey(data)}-${data.type}`;
+}
+
+/**
+ * Generally, the record key field is 「key」, but in FTP it's 「index」
+ */
+function getRecordKey(data: IDataColumnsProps) {
+	return data.key ?? data.index;
 }
 
 enum QuickColumnKind {
@@ -39,6 +44,14 @@ enum QuickColumnKind {
 	 * 同名映射
 	 */
 	NAME_MAP,
+	/**
+	 * 拷贝源字段
+	 */
+	COPY_SOURCE,
+	/**
+	 * 拷贝目标字段
+	 */
+	COPY_TARGET,
 	/**
 	 * 重置
 	 */
@@ -53,6 +66,7 @@ function getSourceColumn(
 	switch (type) {
 		case DATA_SOURCE_ENUM.HDFS:
 		case DATA_SOURCE_ENUM.S3:
+		case DATA_SOURCE_ENUM.FTP:
 			return [
 				{
 					title: '索引位',
@@ -61,7 +75,7 @@ function getSourceColumn(
 					ellipsis: true,
 					render(text, record) {
 						const formatVal = record.value ? `'${record.key}'` : record.key;
-						return <Tooltip title={text || formatVal}>{text || formatVal}</Tooltip>;
+						return <Tooltip title={text ?? formatVal}>{text ?? formatVal}</Tooltip>;
 					},
 				},
 				{
@@ -242,6 +256,40 @@ function getTargetColumn(
 	editAction: (record: IDataColumnsProps) => JSX.Element,
 ): ColumnType<IDataColumnsProps>[] {
 	switch (type) {
+		case DATA_SOURCE_ENUM.FTP:
+			return [
+				{
+					title: '索引位',
+					dataIndex: 'index',
+					key: 'index',
+					ellipsis: true,
+					render(text) {
+						return <Tooltip title={text}>{text}</Tooltip>;
+					},
+				},
+				{
+					title: '类型',
+					dataIndex: 'type',
+					key: 'type',
+					ellipsis: true,
+					render(text, record) {
+						const val = `${text.toUpperCase()}${record.isPart ? '(分区字段)' : ''}`;
+						return <Tooltip title={val}>{val}</Tooltip>;
+					},
+				},
+				{
+					title: '操作',
+					key: 'action',
+					render(_, record) {
+						return (
+							<Space>
+								{removeAction(record)}
+								{editAction(record)}
+							</Space>
+						);
+					},
+				},
+			];
 		case DATA_SOURCE_ENUM.HDFS:
 		case DATA_SOURCE_ENUM.S3:
 			return [
@@ -355,7 +403,6 @@ export default function KeyMap() {
 	const [sourceCol, targetCol] = useFormColumns();
 	const { width } = useSize('taier__keyMap__container');
 
-	const [visibleConst, setConstVisible] = useState(false);
 	const [keyModal, setKeyModal] = useState<{
 		visible: boolean;
 		isReader: boolean;
@@ -374,20 +421,35 @@ export default function KeyMap() {
 		[source.fetching, target.fetching],
 	);
 
-	const disabled = useMemo(
-		() => source.disabled || target.disabled,
-		[source.disabled, target.disabled],
-	);
-	// Put disabled into ref so we could get the latest value in closure function
-	const disabledRef = useConstant(disabled);
+	/**
+	 * Make sure the source of reader or writer has been selected
+	 */
+	const assertSource = (isReader: boolean) => {
+		const type = form.getFieldValue([isReader ? 'sourceMap' : 'targetMap', 'type']);
+		if (type === undefined) {
+			message.warn('请先选择数据源');
+			return false;
+		}
+
+		return true;
+	};
 
 	const handleOpenKeyModal = (record: IDataColumnsProps, isReader: boolean) => {
-		if (!disabledRef.current) {
+		setKeyModal({
+			visible: true,
+			isReader,
+			editField: record,
+			operation: OperatorKind.EDIT,
+		});
+	};
+
+	const handleAddVariable = (isReader: boolean) => {
+		if (assertSource(isReader)) {
 			setKeyModal({
 				visible: true,
 				isReader,
-				editField: record,
-				operation: OperatorKind.EDIT,
+				editField: undefined,
+				operation: OperatorKind.ADD,
 			});
 		}
 	};
@@ -409,13 +471,41 @@ export default function KeyMap() {
 				break;
 			}
 
+			case QuickColumnKind.COPY_SOURCE: {
+				if (assertSource(false)) {
+					const targetCols = sourceColumns.filter(
+						(col) =>
+							!targetColumns.find((tCol) => getUniqueKey(tCol) === getUniqueKey(col)),
+					);
+					target.dispatch({
+						type: OperatorKind.ADD,
+						payload: targetCols,
+					});
+				}
+				break;
+			}
+
+			case QuickColumnKind.COPY_TARGET: {
+				if (assertSource(true)) {
+					const sourceCols = targetColumns.filter(
+						(col) =>
+							!sourceColumns.find((tCol) => getUniqueKey(tCol) === getUniqueKey(col)),
+					);
+					source.dispatch({
+						type: OperatorKind.ADD,
+						payload: sourceCols,
+					});
+				}
+				break;
+			}
+
 			case QuickColumnKind.NAME_MAP: {
 				const sourceCols: IDataColumnsProps[] = [];
 				const targetCols: IDataColumnsProps[] = [];
 				sourceColumns.forEach((o) => {
-					const name = o.key.toString().toUpperCase();
+					const name = getRecordKey(o).toString().toUpperCase();
 					const idx = targetColumns.findIndex((col) => {
-						const sourceName = col.key.toString().toUpperCase();
+						const sourceName = getRecordKey(col).toString().toUpperCase();
 						return sourceName === name;
 					});
 					if (idx !== -1) {
@@ -462,16 +552,15 @@ export default function KeyMap() {
 		columns: IDataColumnsProps[],
 		kind: 'source' | 'target',
 	) => {
-		if (!disabledRef.current) {
-			(kind === 'source' ? source : target).dispatch({
-				type: action,
-				payload: columns,
-			});
-		}
+		(kind === 'source' ? source : target).dispatch({
+			type: action,
+			payload: columns,
+		});
 	};
 
 	useEffect(() => {
 		selection.current = new LintTo(container.current!, {
+			rowKey: getRecordKey,
 			onRenderColumns(s) {
 				return s
 					? getSourceColumn(
@@ -479,9 +568,6 @@ export default function KeyMap() {
 							(record: IDataColumnsProps) => (
 								<Tooltip title="删除当前列">
 									<MinusOutlined
-										className={classNames(
-											disabledRef.current && 'taier__dataSync--disabled',
-										)}
 										onClick={() =>
 											handleColChanged(
 												OperatorKind.REMOVE,
@@ -495,9 +581,6 @@ export default function KeyMap() {
 							(record: IDataColumnsProps) => (
 								<Tooltip title="编辑当前列">
 									<EditOutlined
-										className={classNames(
-											disabledRef.current && 'taier__dataSync--disabled',
-										)}
 										onClick={() => handleOpenKeyModal(record, true)}
 									/>
 								</Tooltip>
@@ -508,9 +591,6 @@ export default function KeyMap() {
 							(record: IDataColumnsProps) => (
 								<Tooltip title="删除当前列">
 									<MinusOutlined
-										className={classNames(
-											disabledRef.current && 'taier__dataSync--disabled',
-										)}
 										onClick={() =>
 											handleColChanged(
 												OperatorKind.REMOVE,
@@ -524,9 +604,6 @@ export default function KeyMap() {
 							(record: IDataColumnsProps) => (
 								<Tooltip title="编辑当前列">
 									<EditOutlined
-										className={classNames(
-											disabledRef.current && 'taier__dataSync--disabled',
-										)}
 										onClick={() => handleOpenKeyModal(record, false)}
 									/>
 								</Tooltip>
@@ -534,18 +611,17 @@ export default function KeyMap() {
 					  );
 			},
 			onRenderFooter(s) {
-				return s ? (
-					<>
-						<Button
-							type="text"
-							block
-							onClick={() => setConstVisible(true)}
-							disabled={disabledRef.current}
-						>
-							+添加常量
-						</Button>
-					</>
-				) : null;
+				return (
+					<TableFooter
+						type={form.getFieldValue([s ? 'sourceMap' : 'targetMap', 'type'])}
+						source={s}
+						onConstModalConfirm={(col) =>
+							assertSource(s) &&
+							handleColChanged(OperatorKind.ADD, [col], s ? 'source' : 'target')
+						}
+						onAddFieldClick={() => handleAddVariable(s)}
+					/>
+				);
 			},
 			onDragStart(data) {
 				const column: IDataColumnsProps[] =
@@ -632,7 +708,7 @@ export default function KeyMap() {
 	useEffect(() => {
 		selection.current?.setLine(sourceCol.map((s, idx) => ({ from: s, to: targetCol[idx] })));
 		selection.current?.render();
-	}, [disabled, sourceCol, targetCol]);
+	}, [sourceCol, targetCol]);
 
 	// Re-render svg when width changed
 	useEffect(() => {
@@ -716,7 +792,6 @@ export default function KeyMap() {
 							className="taier__dataSync__keyMap__buttonGroups"
 						>
 							<Button
-								disabled={disabled}
 								onClick={() => handleSetColumns(QuickColumnKind.ROW_MAP)}
 								type="primary"
 								block
@@ -724,15 +799,47 @@ export default function KeyMap() {
 								同行映射
 							</Button>
 							<Button
-								disabled={disabled}
 								onClick={() => handleSetColumns(QuickColumnKind.NAME_MAP)}
 								type="primary"
 								block
 							>
 								同名映射
 							</Button>
+							{[
+								DATA_SOURCE_ENUM.HDFS,
+								DATA_SOURCE_ENUM.FTP,
+								DATA_SOURCE_ENUM.S3,
+								DATA_SOURCE_ENUM.ES,
+								DATA_SOURCE_ENUM.ES6,
+								DATA_SOURCE_ENUM.ES7,
+								DATA_SOURCE_ENUM.RESTFUL,
+							].includes(form.getFieldValue(['targetMap', 'type'])) && (
+								<Button
+									onClick={() => handleSetColumns(QuickColumnKind.COPY_SOURCE)}
+									type="default"
+									block
+								>
+									拷贝源字段
+								</Button>
+							)}
+							{[
+								DATA_SOURCE_ENUM.HDFS,
+								DATA_SOURCE_ENUM.FTP,
+								DATA_SOURCE_ENUM.S3,
+								DATA_SOURCE_ENUM.ES,
+								DATA_SOURCE_ENUM.ES6,
+								DATA_SOURCE_ENUM.ES7,
+								DATA_SOURCE_ENUM.RESTFUL,
+							].includes(form.getFieldValue(['sourceMap', 'type'])) && (
+								<Button
+									onClick={() => handleSetColumns(QuickColumnKind.COPY_TARGET)}
+									type="default"
+									block
+								>
+									拷贝目标字段
+								</Button>
+							)}
 							<Button
-								disabled={disabled}
 								type="default"
 								onClick={() => handleSetColumns(QuickColumnKind.RESET)}
 								block
@@ -751,19 +858,16 @@ export default function KeyMap() {
 				onOk={(values: IDataColumnsProps) => {
 					(keyModal.isReader ? source : target).dispatch({
 						type: keyModal.operation,
-						payload: [values],
+						payload: [
+							keyModal.operation === OperatorKind.ADD
+								? values
+								: // Put the values into record for EDIT operation
+								  Object.assign(keyModal.editField!, values),
+						],
 					});
 					setKeyModal((m) => ({ ...m, visible: false }));
 				}}
 				onCancel={() => setKeyModal((m) => ({ ...m, visible: false }))}
-			/>
-			<ConstModal
-				visible={visibleConst}
-				onOk={(col) => {
-					handleColChanged(OperatorKind.ADD, [col], 'source');
-					setConstVisible(false);
-				}}
-				onCancel={() => setConstVisible(false)}
 			/>
 		</div>
 	);
@@ -846,17 +950,63 @@ function useColumns(mapKind: 'sourceMap' | 'targetMap') {
 		setDisabled(!columns.length);
 	}, [columns]);
 
+	// Support to change the columns from outside
+	useEffect(() => {
+		function handler(keyMaps: IDataColumnsProps[]) {
+			if (Array.isArray(keyMaps)) {
+				dispatch({ type: OperatorKind.REPLACE, payload: keyMaps });
+				// reset form fields
+				form.resetFields([
+					['sourceMap', 'column'],
+					['targetMap', 'column'],
+				]);
+			}
+		}
+
+		const eventKind =
+			mapKind === 'sourceMap' ? EventKind.SourceKeyChange : EventKind.TargetKeyChange;
+		event.subscribe(eventKind, handler);
+
+		return () => {
+			event.unsubscribe(eventKind, handler);
+		};
+	}, []);
+
 	const dispatch = (next: { type: OperatorKind; payload: IDataColumnsProps[] }) => {
 		switch (next.type) {
 			case OperatorKind.ADD: {
+				const rules = [
+					{
+						field: 'index',
+						message: '添加失败：索引值不能重复',
+					},
+					{
+						field: 'key',
+						message: '添加失败：字段名不能重复',
+					},
+				] as const;
 				setColumns((cols) => {
 					const nextCols = [...cols];
+					// Generally, the linedCols are subset of columns, but if there is an exception.
+					// In FTP, the columns are empty and the linedCols are lined
+					const linedCols: IDataColumnsProps[] =
+						form.getFieldValue(mapKind)?.column || [];
+
 					next.payload.forEach((col) => {
-						if (checkExist(col.index) && nextCols.some((o) => o.index === col.index)) {
-							message.error(`添加失败：索引值不能重复`);
-						} else if (checkExist(col.key) && nextCols.some((o) => o.key === col.key)) {
-							message.error(`添加失败：字段名不能重复`);
-						} else {
+						if (
+							rules.every((rule) => {
+								const isDuplicated =
+									checkExist(col[rule.field]) &&
+									(nextCols.some((o) => o[rule.field] === col[rule.field]) ||
+										linedCols.some((o) => o[rule.field] === col[rule.field]));
+
+								if (isDuplicated) {
+									message.error(rule.message);
+								}
+
+								return !isDuplicated;
+							})
+						) {
 							nextCols.push(col);
 						}
 					});
@@ -868,9 +1018,9 @@ function useColumns(mapKind: 'sourceMap' | 'targetMap') {
 				// Check if columns were already be lined
 				const linedColumnsIndex = next.payload.reduce<number[]>((pre, cur) => {
 					const idx =
-						(formWatchField.column as IDataColumnsProps[])?.findIndex(
+						(form.getFieldValue(mapKind)?.column as IDataColumnsProps[])?.findIndex(
 							(col) => getUniqueKey(col) === getUniqueKey(cur),
-						) || -1;
+						) ?? -1;
 					if (idx >= 0) {
 						pre.push(idx);
 					}
@@ -918,15 +1068,9 @@ function useColumns(mapKind: 'sourceMap' | 'targetMap') {
 			}
 
 			case OperatorKind.EDIT: {
-				const nextValue: IDataColumnsProps[] = formWatchField.column ?? [];
-				// Check if columns were lined
-				next.payload.forEach((col) => {
-					const obj = nextValue.find((val) => getUniqueKey(val) === getUniqueKey(col));
-					if (obj) {
-						Object.assign(obj, { ...col });
-					}
-				});
-
+				// here get the value and set directly since the EDIT in KeyModal is copy
+				// refer to L860
+				const nextValue: IDataColumnsProps[] = form.getFieldValue(mapKind).column ?? [];
 				form.setFieldValue([mapKind, 'column'], nextValue);
 				updateValuesInData(form.getFieldsValue());
 

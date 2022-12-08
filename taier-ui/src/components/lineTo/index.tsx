@@ -1,13 +1,13 @@
 import { Table } from 'antd';
 import { mouse, select } from 'd3-selection';
 import { createRoot } from 'react-dom/client';
-import { merge } from 'lodash';
+import { mergeWith } from 'lodash';
 import type { Root } from 'react-dom/client';
 import type { ColumnType } from 'antd/lib/table';
 import './index.scss';
 
 interface IOptions<T> {
-	rowKey: string;
+	rowKey: string | ((record: T) => any);
 	className?: string;
 	onDragStart?: (data: T, node: Element) => boolean;
 	onDrop?: (data: T, node: Element) => boolean;
@@ -50,7 +50,7 @@ export default class LintTo<T extends object> {
 
 	constructor(container: HTMLElement, options?: Partial<IOptions<T>>) {
 		this.container = container;
-		this.options = merge(options, this.options);
+		this.options = mergeWith(options, this.options, (obj) => obj);
 
 		this.appendSVG();
 	}
@@ -112,7 +112,7 @@ export default class LintTo<T extends object> {
 				this.sourceRoot?.render(
 					<Table
 						ref={() => resolve()}
-						rowKey="key"
+						rowKey={this.options.rowKey}
 						dataSource={this.source}
 						rowClassName={this.rowClassName}
 						columns={this.options.onRenderColumns?.(true)}
@@ -131,13 +131,18 @@ export default class LintTo<T extends object> {
 				this.targetRoot?.render(
 					<Table
 						ref={() => resolve()}
-						rowKey="key"
+						rowKey={this.options.rowKey}
 						dataSource={this.target}
 						rowClassName={this.rowClassName}
 						columns={this.options.onRenderColumns?.(false)}
 						size="small"
 						pagination={false}
 						bordered
+						footer={
+							this.options.onRenderFooter?.(false)
+								? () => this.options.onRenderFooter?.(false)
+								: undefined
+						}
 					/>,
 				);
 			}),
@@ -365,10 +370,14 @@ export default class LintTo<T extends object> {
 		const nodeSelections = select(
 			`.${source === 'source' ? this.sourcePointsClassName : this.targetPointsClassName}`,
 		).selectAll<SVGCircleElement, T>(`.${this.pointClassName}`);
-		const idx = nodeSelections
-			.data()
-			// @ts-ignore
-			.findIndex((i) => i[this.options.rowKey] === data[this.options.rowKey]);
+
+		const getRowKey = (record: T) =>
+			typeof this.options.rowKey === 'string'
+				? // @ts-ignore
+				  record[this.options.rowKey]
+				: this.options.rowKey(record);
+
+		const idx = nodeSelections.data().findIndex((i) => getRowKey(i) === getRowKey(data));
 
 		const circleNode = nodeSelections.nodes()[idx]?.firstElementChild;
 
