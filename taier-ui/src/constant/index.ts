@@ -1602,3 +1602,11 @@ export enum PythonVersionKind {
 	py2 = 2,
 	py3 = 3,
 }
+
+/**
+ * For distinguish the same name but used in different dataSource type.
+ *
+ * There is a `path` field both in FTP and HDFS, but the two fileds are completely different,
+ * So the one named `path` and another named `path|FTP`
+ */
+export const NAME_SEPARATOR = '|';

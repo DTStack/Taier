@@ -10,12 +10,13 @@ import {
 	CREATE_MODEL_TYPE,
 	DATA_SOURCE_ENUM,
 	FLINK_VERSIONS,
+	NAME_SEPARATOR,
 	rdbmsDaType,
 	SOURCE_TIME_TYPE,
 	SUPPROT_SUB_LIBRARY_DB_ARRAY,
 	TASK_TYPE_ENUM,
 } from '@/constant';
-import { cloneDeep } from 'lodash';
+import { cloneDeep, isObject } from 'lodash';
 import api from '@/api';
 import { message } from 'antd';
 import { breadcrumbService, catalogueService, rightBarService } from '.';
@@ -35,10 +36,10 @@ import {
 } from '@/utils/is';
 import { checkColumnsData } from '@/pages/editor/streamCollection/taskFunc';
 import viewStoreService from './viewStoreService';
+import { isEditing } from '@/pages/editor/workflow';
 import type { IOfflineTaskProps } from '@/interface';
 import type { mxCell } from 'mxgraph';
 import type { IGeometryPosition } from '@/components/mxGraph/container';
-import { isEditing } from '@/pages/editor/workflow';
 
 interface IParamsProps extends IOfflineTaskProps {
 	// 接口要求的标记位
@@ -64,6 +65,24 @@ export enum SaveEventKind {
 
 @singleton()
 class TaskSaveService extends GlobalEvent {
+	/**
+	 * Remove the separator in params' name
+	 */
+	private removeSeparator<T extends Record<string, any> = {}>(raw: T) {
+		if (Array.isArray(raw)) return raw;
+		return Object.keys(raw).reduce((pre, cur) => {
+			const val = isObject(raw[cur]) ? this.removeSeparator(raw[cur]) : raw[cur];
+
+			if (cur.includes(NAME_SEPARATOR)) {
+				const idx = cur.indexOf(NAME_SEPARATOR);
+				pre[cur.substring(0, idx) as keyof T] = val;
+			} else {
+				pre[cur as keyof T] = val;
+			}
+
+			return pre;
+		}, {} as T);
+	}
 	/**
 	 * 校验器，用于发起校验以及校验结束后提示错误信息
 	 */
@@ -388,7 +407,7 @@ class TaskSaveService extends GlobalEvent {
 			case TASK_TYPE_ENUM.SYNC: {
 				return new Promise((resolve, reject) => {
 					const doSaveFn = () => {
-						const params = { ...data };
+						const params = this.removeSeparator({ ...data });
 						// 工作流中的数据同步保存
 						if (params.flowId) {
 							// 如果是 workflow__ 开头的，表示还没有保存过的工作流节点
@@ -434,6 +453,8 @@ class TaskSaveService extends GlobalEvent {
 									  ]
 									: [],
 								rdbmsDaType: rdbmsDaType.Poll,
+								// TODO only used in FTP source
+								halfStructureDaType: 0,
 							},
 						}).then((res) => {
 							if (res.code === 1) {

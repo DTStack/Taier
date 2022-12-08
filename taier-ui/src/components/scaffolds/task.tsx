@@ -1,19 +1,43 @@
 import { useContext, useEffect, useMemo, useState } from 'react';
 import { message, Modal, Tooltip, AutoComplete, Form, Select, Input } from 'antd';
-import type { AutoCompleteProps, SelectProps } from 'antd';
 import { omit } from 'lodash';
 import { Context } from '@/context/dataSync';
 import http from '@/api/http';
 import { convertParams, splitByKey } from '@/utils';
-import { ConsoleSqlOutlined, FundViewOutlined, LoadingOutlined } from '@ant-design/icons';
+import {
+	CloudSyncOutlined,
+	ConsoleSqlOutlined,
+	FundViewOutlined,
+	LoadingOutlined,
+} from '@ant-design/icons';
 import api from '@/api';
 import Editor from '../editor';
-import { DATA_SOURCE_ENUM, DATA_SYNC_MODE, DDL_IDE_PLACEHOLDER, TASK_LANGUAGE } from '@/constant';
+import {
+	CATALOGUE_TYPE,
+	DATA_SOURCE_ENUM,
+	DATA_SYNC_MODE,
+	DDL_IDE_PLACEHOLDER,
+	TASK_LANGUAGE,
+} from '@/constant';
 import molecule from '@dtinsight/molecule';
 import PreviewTable from '../previewTable';
-import type { TextAreaProps } from 'antd/lib/input';
 import md5 from 'md5';
 import viewStoreService from '@/services/viewStoreService';
+import FolderPicker from '../folderPicker';
+import { EventKind } from '@/pages/editor/dataSync';
+import type { TextAreaProps, InputProps } from 'antd/lib/input';
+import type { AutoCompleteProps, SelectProps } from 'antd';
+import type { GlobalEvent } from '@dtinsight/molecule/esm/common/event';
+import type { IDataColumnsProps } from '@/interface';
+
+interface IBasicFormItemProps<T = any> {
+	id: string;
+	value: T;
+	onChange: (value: T) => void;
+	event: GlobalEvent;
+
+	[key: string]: any;
+}
 
 interface IOptionsFromRequestFalsy {
 	optionsFromRequest?: false;
@@ -451,4 +475,55 @@ export function SelectWithPreviewer(props: SelectProps & IOptionsFromRequest) {
 
 export function TextareaWithJSONValidator(props: TextAreaProps) {
 	return <Input.TextArea {...props} />;
+}
+
+export function ResourcePicker(props: IBasicFormItemProps) {
+	return <FolderPicker dataType={CATALOGUE_TYPE.RESOURCE} showFile {...props} />;
+}
+
+/**
+ * Input with get columns
+ * @notice used in ftp path field
+ */
+export function InputWithColumns(props: InputProps & IBasicFormItemProps) {
+	const form = Form.useFormInstance();
+	const [loading, setLoading] = useState(false);
+
+	const currentType = form.getFieldValue(['sourceMap', 'type']);
+
+	const handleSyncFTPColumns = () => {
+		if (props.value) {
+			setLoading(true);
+			api.getFTPColumns<{ column: IDataColumnsProps[] }>({
+				filepath: props.value,
+				columnSeparator: form.getFieldValue(['sourceMap', 'fieldDelimiter|FTP']),
+				firstColumnName: form.getFieldValue(['sourceMap', 'isFirstLineHeader']),
+				sourceId: form.getFieldValue(['sourceMap', 'sourceId']),
+				encoding: form.getFieldValue(['sourceMap', 'encoding']),
+			})
+				.then((res) => {
+					if (res.code === 1) {
+						props.event.emit(
+							EventKind.SourceKeyChange,
+							res.data.column?.map((col) => ({ ...col, key: col.index })),
+						);
+					}
+				})
+				.finally(() => {
+					setLoading(false);
+				});
+		} else {
+			// for calling the validator
+			props.onChange(undefined);
+		}
+	};
+
+	const suffix = (
+		<Tooltip title="获取 FTP 文件列">
+			{loading ? <LoadingOutlined /> : <CloudSyncOutlined onClick={handleSyncFTPColumns} />}
+		</Tooltip>
+	);
+
+	// Only FTP source has suffix
+	return <Input {...props} suffix={currentType === DATA_SOURCE_ENUM.FTP && suffix} />;
 }

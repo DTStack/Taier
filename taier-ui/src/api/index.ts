@@ -562,4 +562,7 @@ export default {
 	getComponentVersionByTaskType<T = any>(params: any) {
 		return http.post<T>(req.GET_COMPONENT_VERSION, params);
 	},
+	getFTPColumns<T = any>(params: any) {
+		return http.post<T>(req.GET_FTP_COLUMNS, params);
+	},
 };
