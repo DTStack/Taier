@@ -16,27 +16,21 @@
  * limitations under the License.
  */
 
-package com.dtstack.taier.common.util;
+package com.dtstack.taier.develop.service.template.ftp;
 
-import org.apache.commons.lang3.StringUtils;
+import com.alibaba.fastjson.JSONObject;
+import com.dtstack.taier.develop.service.template.BaseWriterPlugin;
+import com.dtstack.taier.develop.service.template.PluginName;
 
-public abstract class StringUtil {
+import java.util.List;
 
-    /**
-     * 转义正则特殊字符 （$()*+.[]?\^{},|）
-     *
-     * @param keyword 需要转义特殊字符串的文本
-     * @return 特殊字符串转义后的文本
-     */
-    public static String escapeExprSpecialWord(String keyword) {
-        if (StringUtils.isNotBlank(keyword)) {
-            String[] fbsArr = {"\\", "$", "(", ")", "*", "+", ".", "[", "]", "?", "^", "{", "}", "|"};
-            for (String key : fbsArr) {
-                if (keyword.contains(key)) {
-                    keyword = keyword.replace(key, "\\" + key);
-                }
-            }
-        }
-        return keyword;
+/**
+ * @since 1.3.1
+ **/
+public class FTPWriter extends FTPWriteParam {
+
+    @Override
+    public JSONObject toWriterJson() {
+        return super.toWriterJson();
     }
 }

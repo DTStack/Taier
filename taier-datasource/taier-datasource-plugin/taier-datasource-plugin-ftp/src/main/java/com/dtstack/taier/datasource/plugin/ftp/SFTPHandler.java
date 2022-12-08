@@ -29,6 +29,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 
+import java.io.InputStream;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Vector;
@@ -112,6 +113,17 @@ public class SFTPHandler {
      */
     public Vector listFile(String sftpPath) throws SftpException {
         return channelSftp.ls(sftpPath);
+    }
+
+    /**
+     * Get the input stream of the file,
+     *  note that this method will not check the relevant permissions of the file or whether it is empty
+     * @param filepath the path of the file to be obtained
+     * @return an input byte stream object for the specified file
+     * @throws SftpException ftp connection exception
+     */
+    public InputStream getFileInputStream(String filepath) throws SftpException {
+        return channelSftp.get(filepath);
     }
 
     /**

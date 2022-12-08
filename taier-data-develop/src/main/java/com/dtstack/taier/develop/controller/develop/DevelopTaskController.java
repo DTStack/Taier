@@ -42,16 +42,18 @@ import com.dtstack.taier.develop.vo.develop.query.DevelopTaskGetChildTasksVO;
 import com.dtstack.taier.develop.vo.develop.query.DevelopTaskGetComponentVersionVO;
 import com.dtstack.taier.develop.vo.develop.query.DevelopTaskGetSupportJobTypesVO;
 import com.dtstack.taier.develop.vo.develop.query.DevelopTaskNameCheckVO;
+import com.dtstack.taier.develop.vo.develop.query.DevelopTaskParsingFTPFileParamVO;
 import com.dtstack.taier.develop.vo.develop.query.DevelopTaskPublishTaskVO;
 import com.dtstack.taier.develop.vo.develop.query.DevelopTaskResourceParamVO;
 import com.dtstack.taier.develop.vo.develop.result.DevelopAllProductGlobalReturnVO;
 import com.dtstack.taier.develop.vo.develop.result.DevelopGetChildTasksResultVO;
 import com.dtstack.taier.develop.vo.develop.result.DevelopSysParameterResultVO;
 import com.dtstack.taier.develop.vo.develop.result.DevelopTaskGetComponentVersionResultVO;
-import com.dtstack.taier.develop.vo.develop.result.DevelopTaskTypeVO;
 import com.dtstack.taier.develop.vo.develop.result.DevelopTaskGetTaskByIdResultVO;
 import com.dtstack.taier.develop.vo.develop.result.DevelopTaskPublishTaskResultVO;
 import com.dtstack.taier.develop.vo.develop.result.DevelopTaskResultVO;
+import com.dtstack.taier.develop.vo.develop.result.DevelopTaskTypeVO;
+import com.dtstack.taier.develop.vo.develop.result.ParsingFTPFileVO;
 import com.dtstack.taier.develop.vo.develop.result.TaskCatalogueResultVO;
 import com.dtstack.taier.scheduler.service.ScheduleTaskShadeService;
 import com.google.common.base.Preconditions;
@@ -64,8 +66,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 @Api(value = "任务管理", tags = {"任务管理"})
@@ -311,6 +315,10 @@ public class DevelopTaskController {
         return R.ok(developTaskService.getSyncProperties());
     }
 
-
+    @PostMapping(value = "/parsing_ftp_columns")
+    @ApiOperation("数据开发-解析ftp任务字段列表")
+    public R<ParsingFTPFileVO> parsingFtpTaskFile(@RequestBody DevelopTaskParsingFTPFileParamVO payload) throws IOException {
+        return R.ok(developTaskService.parsingFtpTaskFile(payload));
+    }
 
 }

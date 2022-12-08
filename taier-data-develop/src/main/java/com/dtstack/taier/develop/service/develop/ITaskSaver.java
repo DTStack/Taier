@@ -31,6 +31,11 @@ import java.util.List;
  */
 public interface ITaskSaver {
 
+    /**
+     * defines the types of scheduled jobs currently supported by saver
+     * @see EScheduleJobType
+     * @return current task supported schedule job types by saver
+     */
     List<EScheduleJobType> support();
 
     TaskVO addOrUpdate(TaskResourceParam taskResourceParam);
