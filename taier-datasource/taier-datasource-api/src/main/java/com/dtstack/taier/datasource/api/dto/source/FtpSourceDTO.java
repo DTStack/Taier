@@ -19,11 +19,9 @@
 package com.dtstack.taier.datasource.api.dto.source;
 
 import com.dtstack.taier.datasource.api.source.DataSourceType;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.ToString;
+import lombok.*;
+
+import java.nio.charset.StandardCharsets;
 
 /**
  * ftp source dto
@@ -33,6 +31,7 @@ import lombok.ToString;
  * company: www.dtstack.com
  */
 @Data
+@EqualsAndHashCode(callSuper = false)
 @ToString
 @Builder
 @NoArgsConstructor
@@ -89,6 +88,30 @@ public class FtpSourceDTO extends AbstractSourceDTO {
      * 连接模式
      */
     private String connectMode;
+
+    /**
+     * column separator
+     *  Process according to the column separator when previewing data
+     */
+    private String columnSeparator;
+
+    /**
+     * whether the first line is the column name
+     *  default false
+     *  if true: Parse the first row of data and use columnSeparator to separate and return the column name
+     *  if false: return the column name through column${index}
+     */
+    private Boolean firstLineColumnName = false;
+
+    /**
+     * full file path
+     */
+    private String filepath;
+
+    /**
+     * file encoding format
+     */
+    private String encoding = StandardCharsets.UTF_8.name();
 
 
     @Override

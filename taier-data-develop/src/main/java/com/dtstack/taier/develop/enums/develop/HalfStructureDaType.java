@@ -16,27 +16,39 @@
  * limitations under the License.
  */
 
-package com.dtstack.taier.common.util;
+package com.dtstack.taier.develop.enums.develop;
 
-import org.apache.commons.lang3.StringUtils;
+import com.dtstack.taier.common.exception.TaierDefineException;
 
-public abstract class StringUtil {
+/**
+ * Semi-structured database real-time acquisition type
+ * 
+ * @since 1.3.1
+ */
+public enum HalfStructureDaType {
+    FILE(0),
+    ;
+    private int code;
 
-    /**
-     * 转义正则特殊字符 （$()*+.[]?\^{},|）
-     *
-     * @param keyword 需要转义特殊字符串的文本
-     * @return 特殊字符串转义后的文本
-     */
-    public static String escapeExprSpecialWord(String keyword) {
-        if (StringUtils.isNotBlank(keyword)) {
-            String[] fbsArr = {"\\", "$", "(", ")", "*", "+", ".", "[", "]", "?", "^", "{", "}", "|"};
-            for (String key : fbsArr) {
-                if (keyword.contains(key)) {
-                    keyword = keyword.replace(key, "\\" + key);
-                }
+    HalfStructureDaType(int code) {
+        this.code = code;
+    }
+
+    public int getCode() {
+        return code;
+    }
+
+
+    public static HalfStructureDaType getRdbmsDaType(Integer code) {
+        //default file
+        if (code == null) {
+            return FILE;
+        }
+        for (HalfStructureDaType halfStructureDaType : values()) {
+            if (halfStructureDaType.getCode() == code) {
+                return halfStructureDaType;
             }
         }
-        return keyword;
+        throw new TaierDefineException("not support HalfStructureDaType");
     }
 }

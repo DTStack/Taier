@@ -16,31 +16,44 @@
  * limitations under the License.
  */
 
-package com.dtstack.taier.develop.common.template;
+package com.dtstack.taier.develop.service.template.ftp;
 
 import com.alibaba.fastjson.JSONObject;
+import com.dtstack.taier.develop.service.template.BaseReaderPlugin;
+import com.dtstack.taier.develop.service.template.PluginName;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.List;
 
 /**
- * company: www.dtstack.com
- * author: toutian
- * create: 2017/5/15
+ * @since 1.3.1
  */
-public interface Writer extends CheckFormat {
-    JSONObject toWriterJson();
+public class FTPFileReader extends FTPReaderParam {
 
-    String toWriterJsonString();
+    private static final Logger logger = LoggerFactory.getLogger(FTPFileReader.class);
 
-    /**
-     * Whether the current write data source needs to rewrite the write mode,
-     * and regenerate the required mode through the replace and insert passed in from the front end
-     *  For example: the front end of the FTP writer passes in replace and insert,
-     *  but chunjun needs overwrite and append, so it needs to be rewritten
-     *  default is not rewritten
-     *
-     * @return If you return True, you need to rewrite the write Mode,
-     *          and if you return False, you don't need to rewrite the write Mode
+    /**E
+     * file type of reader source file
      */
-    default boolean resetWriteMode() {
-        return false;
+    private String fileType;
+
+
+    @Override
+    public String pluginName() {
+        return PluginName.FTP_R;
+    }
+
+    @Override
+    public void checkFormat(JSONObject data) {
+        logger.info("data info --> {}", data);
+    }
+
+    public String getFileType() {
+        return fileType;
+    }
+
+    public void setFileType(String fileType) {
+        this.fileType = fileType;
     }
 }

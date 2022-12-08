@@ -29,10 +29,7 @@ import com.jcraft.jsch.SftpException;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
+import java.io.*;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Vector;
@@ -433,7 +430,7 @@ public class SftpFileManage implements IFileManage {
         }
     }
 
-    private boolean isFileExist(ChannelSftp channelSftp, String sftpPath) {
+    public boolean isFileExist(ChannelSftp channelSftp, String sftpPath) {
         try {
             channelSftp.lstat(sftpPath);
             return true;
