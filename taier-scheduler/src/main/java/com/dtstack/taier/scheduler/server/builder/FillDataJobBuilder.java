@@ -168,7 +168,9 @@ public class FillDataJobBuilder extends AbstractJobBuilder {
         }
 
         saveList.add(jobBuilderBean);
-        saveList.addAll(jobBuilderBean.getFlowBean().stream().peek(flowBean -> flowBean.getScheduleJob().setFillType(FillJobTypeEnum.RUN_JOB.getType())).collect(Collectors.toList()));
+        if (CollectionUtils.isNotEmpty(jobBuilderBean.getFlowBean())) {
+            saveList.addAll(jobBuilderBean.getFlowBean().stream().peek(flowBean -> flowBean.getScheduleJob().setFillType(FillJobTypeEnum.RUN_JOB.getType())).collect(Collectors.toList()));
+        }
     }
 
     /**
