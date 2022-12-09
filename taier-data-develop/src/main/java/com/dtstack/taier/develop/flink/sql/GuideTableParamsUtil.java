@@ -30,7 +30,7 @@ import java.util.List;
 import java.util.Objects;
 
 public class GuideTableParamsUtil {
-    public static List<JSONObject> deal(List<JSONObject> source, String componentVersion) {
+    public static List<JSONObject> deal(List<JSONObject> source, String versionValue) {
         for (JSONObject obj : source) {
             //只有mysql oracle类型采用键值模式填写
             Integer type = obj.getInteger("type");
@@ -38,7 +38,7 @@ public class GuideTableParamsUtil {
                 convertField(obj);
             } else {
                 String columnsText = obj.getString("columnsText");
-                obj.put("columns", parseColumnsFromText(columnsText, type, componentVersion));
+                obj.put("columns", parseColumnsFromText(columnsText, type, versionValue));
             }
         }
         return source;
@@ -62,7 +62,7 @@ public class GuideTableParamsUtil {
         sourceMeta.put("columns", formatColumns);
     }
 
-    private static List<JSONObject> parseColumnsFromText(String columnsText, Integer dataSourceType, String componentVersion) {
+    private static List<JSONObject> parseColumnsFromText(String columnsText, Integer dataSourceType, String versionValue) {
         List<JSONObject> list = Lists.newArrayList();
         List<String> check = Lists.newArrayList();
         if (StringUtils.isBlank(columnsText)) {
@@ -71,7 +71,7 @@ public class GuideTableParamsUtil {
         String[] columns = columnsText.split("\n");
         for (String column : columns) {
             if (StringUtils.isNotBlank(column)) {
-                if (FlinkVersion.FLINK_112.getVersions().contains(componentVersion) && DataSourceType.HBASE.getVal().equals(dataSourceType)) {
+                if (FlinkVersion.FLINK_112.getVersion().equals(versionValue) && DataSourceType.HBASE.getVal().equals(dataSourceType)) {
                     // 1. flink 1.12 2. 数据源为 hbase
                     JSONObject obj = new JSONObject();
                     obj.put("column", column);
