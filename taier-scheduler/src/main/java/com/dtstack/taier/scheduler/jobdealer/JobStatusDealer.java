@@ -22,6 +22,8 @@ import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.dtstack.taier.common.BlockCallerPolicy;
 import com.dtstack.taier.common.enums.EComponentType;
+import com.dtstack.taier.common.enums.EComputeType;
+import com.dtstack.taier.common.enums.EScheduleJobType;
 import com.dtstack.taier.common.enums.EScheduleType;
 import com.dtstack.taier.common.env.EnvironmentContext;
 import com.dtstack.taier.common.util.LogCountUtil;
@@ -185,10 +187,7 @@ public class JobStatusDealer implements Runnable {
             ParamAction paramAction = PublicUtil.jsonStrToObject(engineJobCache.getJobInfo(), ParamAction.class);
             Integer taskType = paramAction.getTaskType();
             Map<String, Object> pluginInfo = paramAction.getPluginInfo();
-            Integer deployType =  TaskParamsUtils.parseDeployTypeByTaskParams(paramAction.getTaskParams(),scheduleJob.getComputeType()).getType();
-            if (clusterService.hasStandalone(scheduleJob.getTenantId(), EComponentType.FLINK.getTypeCode())) {
-                deployType = EDeployMode.STANDALONE.getType();
-            }
+            Integer deployType = getDeployType(scheduleJob, paramAction);
             JobIdentifier jobIdentifier = new JobIdentifier(engineTaskId, appId, jobId, scheduleJob.getTenantId(), taskType, deployType, null, MapUtils.isEmpty(pluginInfo) ? null : JSONObject.toJSONString(pluginInfo), paramAction.getComponentVersion(), paramAction.getQueueName());
 
             TaskStatus taskStatus = workerOperator.getJobStatus(jobIdentifier);
@@ -229,6 +228,16 @@ public class JobStatusDealer implements Runnable {
                 }
             }
         }
+    }
+
+    private Integer getDeployType(ScheduleJob scheduleJob, ParamAction paramAction) {
+        Integer deployType = TaskParamsUtils.parseDeployTypeByTaskParams(paramAction.getTaskParams(), scheduleJob.getComputeType()).getType();
+        if (EScheduleJobType.SYNC.getType().equals(scheduleJob.getTaskType()) || EComputeType.STREAM.getType() == scheduleJob.getComputeType()) {
+            if (clusterService.hasStandalone(scheduleJob.getTenantId(), EComponentType.FLINK.getTypeCode())) {
+                deployType = EDeployMode.STANDALONE.getType();
+            }
+        }
+        return deployType;
     }
 
     private void updateHistoryEndTime(String jobId, String appId) {
