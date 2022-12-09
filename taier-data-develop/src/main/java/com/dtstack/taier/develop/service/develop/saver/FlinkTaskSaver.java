@@ -22,7 +22,6 @@ import com.dtstack.taier.common.enums.EScheduleJobType;
 import com.dtstack.taier.common.enums.ResourceRefType;
 import com.dtstack.taier.develop.dto.devlop.TaskResourceParam;
 import com.dtstack.taier.develop.dto.devlop.TaskVO;
-import com.dtstack.taier.develop.enums.develop.FlinkVersion;
 import com.dtstack.taier.develop.service.develop.impl.DevelopTaskResourceService;
 import com.google.common.collect.Lists;
 import org.apache.commons.collections.CollectionUtils;
@@ -48,7 +47,6 @@ public class FlinkTaskSaver extends AbstractTaskSaver {
 
     @Override
     public TaskResourceParam beforeProcessing(TaskResourceParam taskResourceParam) {
-        taskResourceParam.setTaskParams(taskResourceParam.getTaskParams() == null ? taskTemplateService.getTaskTemplate(taskResourceParam.getTaskType(), FlinkVersion.FLINK_112.getType()).getParams() : taskResourceParam.getTaskParams());
         return taskResourceParam;
     }
 

@@ -18,11 +18,6 @@
 
 package com.dtstack.taier.develop.enums.develop;
 
-import org.apache.commons.lang3.StringUtils;
-
-import java.util.Arrays;
-import java.util.List;
-
 /**
  * 组建版本
  *
@@ -32,42 +27,18 @@ import java.util.List;
  */
 public enum FlinkVersion {
 
-    FLINK_112("1.12", Arrays.asList("1.12-on-yarn", "1.12-standalone"));
+    FLINK_112("1.12", "112");
 
     private final String type;
 
-    private final List<String> versions;
+    private final String version;
 
-    public  String getType() {
-        return type;
+    public String getVersion() {
+        return version;
     }
 
-    public List<String> getVersions() {
-        return versions;
-    }
-
-    FlinkVersion(String type, List<String> versions) {
+    FlinkVersion(String type, String version) {
         this.type = type;
-        this.versions = versions;
-    }
-
-    /**
-     * 获取 flink 版本枚举
-     *
-     * @param version 版本 string
-     * @return flink 枚举
-     */
-    public static FlinkVersion getVersion(String version) {
-        if (StringUtils.isNotBlank(version)) {
-            for (FlinkVersion componentVersion : FlinkVersion.values()) {
-                if (StringUtils.equalsIgnoreCase(version, componentVersion.getType())) {
-                    return componentVersion;
-                }
-                if (componentVersion.getVersions().contains(version)) {
-                    return componentVersion;
-                }
-            }
-        }
-        return FLINK_112;
+        this.version = version;
     }
 }

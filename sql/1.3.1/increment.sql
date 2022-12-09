@@ -7,6 +7,8 @@ WHERE `type` = 17 and dict_code = 'SYNC';
 
 -- supported mysql task
 -- source comment of the "增加MySQL任务"
-INSERT INTO `dict` VALUES (363, '17', 'MySQL', '{"actions":["SAVE_TASK","RUN_TASK","STOP_TASK","SUBMIT_TASK","OPERATOR_TASK"],"barItem":["task","dependency","task_params","env_params"],"formField":["datasource"],"renderKind":"editor","dataTypeCodes":[1]}', '', 30, 0, 'STRING', '', 0, '2022-10-24 15:46:53', '2022-10-24 15:46:53', 0);
+DELETE FROM `dict` WHERE type = 30 AND dict_name = 'MySQL';
+INSERT INTO `dict` (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default, gmt_create, gmt_modified, is_deleted) VALUES ('17', 'MySQL', '{"actions":["SAVE_TASK","RUN_TASK","STOP_TASK","SUBMIT_TASK","OPERATOR_TASK"],"barItem":["task","dependency","task_params","env_params"],"formField":["datasource"],"renderKind":"editor","dataTypeCodes":[1]}', '', 30, 0, 'STRING', '', 0, '2022-10-24 15:46:53', '2022-10-24 15:46:53', 0);
 
+UPDATE `dict` SET dict_value = '112' WHERE dict_code = 'flink_version' and dict_name = '1.12-standalone' limit 1;
 COMMIT;

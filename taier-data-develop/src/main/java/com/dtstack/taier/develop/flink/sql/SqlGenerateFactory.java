@@ -33,31 +33,32 @@ import java.util.Objects;
 public class SqlGenerateFactory {
 
     /**
-     * 生成 flinkSql 建表 sql，1.12 版本
+     * 生成 flinkSql 建表 sql，112 版本
      *
-     * @param dataSource       数据源信息
-     * @param paramJson        前端入参信息
-     * @param componentVersion 组建版本
-     * @param tableType        表类型
+     * @param dataSource   数据源信息
+     * @param paramJson    前端入参信息
+     * @param versionValue 组建版本
+     * @param tableType    表类型
      * @return 建表 sql
      */
-    public static String generateSql(DsInfo dataSource, JSONObject paramJson, String componentVersion, TableType tableType) {
+    public static String generateSql(DsInfo dataSource, JSONObject paramJson, String versionValue, TableType tableType) {
         if (Objects.isNull(tableType)) {
             throw new DtCenterDefException("表类型不能为空");
         }
         JSONObject dataJson = JSON.parseObject(Base64Util.baseDecode(dataSource.getDataJson()));
+
         switch (tableType) {
             case SIDE:
-                if (StringUtils.isNotBlank(componentVersion) && FlinkVersion.FLINK_112.getVersions().contains(componentVersion)) {
-                    return TableFactory.getSideTable(dataSource.getDataTypeCode(), dataJson, paramJson, FlinkVersion.getVersion(componentVersion)).getCreateSql();
+                if (StringUtils.isNotBlank(versionValue) && FlinkVersion.FLINK_112.getVersion().equals(versionValue)) {
+                    return TableFactory.getSideTable(dataSource.getDataTypeCode(), dataJson, paramJson, FlinkVersion.FLINK_112).getCreateSql();
                 }
             case SINK:
-                if (StringUtils.isNotBlank(componentVersion) &&  FlinkVersion.FLINK_112.getVersions().contains(componentVersion)) {
-                    return TableFactory.getSinkTable(dataSource.getDataTypeCode(), dataJson, paramJson, FlinkVersion.getVersion(componentVersion)).getCreateSql();
+                if (StringUtils.isNotBlank(versionValue) && FlinkVersion.FLINK_112.getVersion().equals(versionValue)) {
+                    return TableFactory.getSinkTable(dataSource.getDataTypeCode(), dataJson, paramJson, FlinkVersion.FLINK_112).getCreateSql();
                 }
             case SOURCE:
-                if (StringUtils.isNotBlank(componentVersion) &&  FlinkVersion.FLINK_112.getVersions().contains(componentVersion)) {
-                    return TableFactory.getSourceTable(dataSource.getDataTypeCode(), dataJson, paramJson, FlinkVersion.getVersion(componentVersion)).getCreateSql();
+                if (StringUtils.isNotBlank(versionValue) && FlinkVersion.FLINK_112.getVersion().equals(versionValue)) {
+                    return TableFactory.getSourceTable(dataSource.getDataTypeCode(), dataJson, paramJson, FlinkVersion.FLINK_112).getCreateSql();
                 }
             default:
                 throw new DtCenterDefException(String.format("不支持的表类型:%s", tableType.getTableType()));
