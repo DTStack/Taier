@@ -20,7 +20,6 @@ package com.dtstack.taier.develop.utils.develop.service.impl;
 
 import com.dtstack.taier.datasource.api.base.ClientCache;
 import com.dtstack.taier.datasource.api.client.IClient;
-import com.dtstack.taier.datasource.api.dto.ColumnMetaDTO;
 import com.dtstack.taier.datasource.api.dto.SqlQueryDTO;
 import com.dtstack.taier.datasource.api.dto.source.ISourceDTO;
 import com.dtstack.taier.datasource.api.dto.source.RdbmsSourceDTO;
@@ -35,6 +34,7 @@ import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * @author chener
@@ -89,16 +89,9 @@ public class JdbcServiceImpl implements IJdbcService {
                 }
             }
 
-            if (sourceDTO instanceof RdbmsSourceDTO) {
-                List<ColumnMetaDTO> columnMetaDataWithSql = client.getColumnMetaDataWithSql(sourceDTO, SqlQueryDTO.builder().sql(sqls.get(sqls.size() - 1)).limit(0).build());
-                if (CollectionUtils.isNotEmpty(columnMetaDataWithSql)) {
-                    List<Object> column = new ArrayList<>();
-                    columnMetaDataWithSql.forEach(bean -> column.add(bean.getKey()));
-                    returnList.add(column);
-                }
-            }
             //数据源插件化 查询出值不符合要求  进行转化
             if (CollectionUtils.isNotEmpty(list)) {
+                returnList.add(list.get(0).keySet().stream().collect(Collectors.toList()));
                 for (Map<String, Object> result : list) {
                     List<Object> value = new ArrayList<>(result.values());
                     returnList.add(value);
