@@ -32,7 +32,7 @@ function getUniqueKey(data: IDataColumnsProps) {
  * Generally, the record key field is 「key」, but in FTP it's 「index」
  */
 function getRecordKey(data: IDataColumnsProps) {
-	return data.key ?? data.index;
+	return data.index ?? data.key;
 }
 
 enum QuickColumnKind {
@@ -250,46 +250,17 @@ function getSourceColumn(
 	}
 }
 
+/**
+ * Render the columns for target
+ */
 function getTargetColumn(
 	type: DATA_SOURCE_ENUM,
 	removeAction: (record: IDataColumnsProps) => JSX.Element,
 	editAction: (record: IDataColumnsProps) => JSX.Element,
 ): ColumnType<IDataColumnsProps>[] {
 	switch (type) {
+		// Shows the 「key」 in FTP but NOT shows the 「index」
 		case DATA_SOURCE_ENUM.FTP:
-			return [
-				{
-					title: '索引位',
-					dataIndex: 'index',
-					key: 'index',
-					ellipsis: true,
-					render(text) {
-						return <Tooltip title={text}>{text}</Tooltip>;
-					},
-				},
-				{
-					title: '类型',
-					dataIndex: 'type',
-					key: 'type',
-					ellipsis: true,
-					render(text, record) {
-						const val = `${text.toUpperCase()}${record.isPart ? '(分区字段)' : ''}`;
-						return <Tooltip title={val}>{val}</Tooltip>;
-					},
-				},
-				{
-					title: '操作',
-					key: 'action',
-					render(_, record) {
-						return (
-							<Space>
-								{removeAction(record)}
-								{editAction(record)}
-							</Space>
-						);
-					},
-				},
-			];
 		case DATA_SOURCE_ENUM.HDFS:
 		case DATA_SOURCE_ENUM.S3:
 			return [
