@@ -200,7 +200,7 @@ public abstract class AbstractTaskSaver implements ITaskSaver {
         Task specialTask1 = new Task();
         // 转换环境参数
         if (!Objects.equals(EScheduleJobType.WORK_FLOW.getVal(), taskVO.getTaskType())) {
-            if (!specialTask.getComponentVersion().equals(taskVO.getComponentVersion())) {
+            if (StringUtils.isNotBlank(specialTask.getComponentVersion()) && !specialTask.getComponentVersion().equals(taskVO.getComponentVersion())) {
                 taskVO.setTaskParams(getTaskParamByTask(taskVO));
             }
 
