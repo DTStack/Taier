@@ -19,10 +19,12 @@
 package com.dtstack.taier.develop.service.template.ftp;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.dtstack.taier.develop.common.template.Writer;
 import com.dtstack.taier.develop.enums.develop.EWriterMode;
 import com.dtstack.taier.develop.service.template.PluginName;
+import org.apache.commons.collections.CollectionUtils;
 
 import java.util.List;
 
@@ -63,6 +65,9 @@ public class FTPWriteParam extends FTPParam implements Writer {
             param = JSON.parseObject(JSON.toJSON(this).toString());
         }
 
+        // reset column index
+        param.put("column", resetColumnIndex(param.getJSONArray("column")));
+
         if (resetWriteMode()) {
             // 前端传入是 replace 和 insert
             param.put("writeMode", EWriterMode
@@ -76,6 +81,23 @@ public class FTPWriteParam extends FTPParam implements Writer {
         res.put("name", pluginName());
         res.put("parameter", param);
         return res;
+    }
+
+    /**
+     * reset column index
+     * @param jsonColumns request parameter target column of the json text
+     * @return list of converted entity objects
+     */
+    private List<FTPColumn> resetColumnIndex(JSONArray jsonColumns) {
+        // transfer to entity
+        List<FTPColumn> columns = JSONObject.parseArray(JSONObject.toJSONString(jsonColumns), FTPColumn.class);
+        if (CollectionUtils.isNotEmpty(columns)) {
+            int index = 0;
+            for (FTPColumn column : columns) {
+                column.setIndex(index++);
+            }
+        }
+        return columns;
     }
 
     @Override

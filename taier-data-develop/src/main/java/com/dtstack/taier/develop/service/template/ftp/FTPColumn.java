@@ -38,7 +38,7 @@ public class FTPColumn {
     /**
      * column name
      */
-    private String name;
+    private String key;
 
     public Integer getIndex() {
         return index;
@@ -56,12 +56,12 @@ public class FTPColumn {
         this.type = type;
     }
 
-    public String getName() {
-        return name;
+    public String getKey() {
+        return key;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setKey(String key) {
+        this.key = key;
     }
 
     @Override
@@ -69,7 +69,7 @@ public class FTPColumn {
         return "FtpColumn{" +
                 "index=" + index +
                 ", type='" + type + '\'' +
-                ", name='" + name + '\'' +
+                ", name='" + key + '\'' +
                 '}';
     }
 }

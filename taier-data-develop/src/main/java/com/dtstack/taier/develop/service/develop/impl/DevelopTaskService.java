@@ -1447,11 +1447,11 @@ public class DevelopTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
             for (int i = 0; i < lastCellNum; i++) {
                 FTPColumn ftpColumn = new FTPColumn();
                 if (!payload.getFirstColumnName()) {
-                    ftpColumn.setName("column" + i);
+                    ftpColumn.setKey("column" + i);
                 } else {
                     Cell cell = titleRow.getCell(i, Row.MissingCellPolicy.CREATE_NULL_AS_BLANK);
                     String titleValue = cell.getStringCellValue();
-                    ftpColumn.setName(titleValue);
+                    ftpColumn.setKey(titleValue);
                 }
                 ftpColumn.setType("string");
                 ftpColumn.setIndex(i);
@@ -1486,7 +1486,7 @@ public class DevelopTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
                 if (payload.getFirstColumnName() && limit == 1) {
                     for (int i = 0; i < split.length; i++) {
                         FTPColumn ftpColumn = new FTPColumn();
-                        ftpColumn.setName(split[i]);
+                        ftpColumn.setKey(split[i]);
                         ftpColumn.setType("string");
                         ftpColumn.setIndex(i);
                         columns.add(ftpColumn);
@@ -1494,7 +1494,7 @@ public class DevelopTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
                 } else if (!payload.getFirstColumnName() && limit == 1) {
                     for (int i = 0; i < split.length; i++) {
                         FTPColumn ftpColumn = new FTPColumn();
-                        ftpColumn.setName("column" + i);
+                        ftpColumn.setKey("column" + i);
                         ftpColumn.setType("string");
                         ftpColumn.setIndex(i);
                         columns.add(ftpColumn);
