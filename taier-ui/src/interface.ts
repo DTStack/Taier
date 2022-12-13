@@ -356,11 +356,17 @@ export interface ISourceMapProps extends ISourceFormField {
 export interface IDataColumnsProps {
 	comment?: string;
 	isPart?: boolean;
+	/**
+	 * Generally, it's the unique key for rows
+	 */
 	key: string | number;
 	part?: boolean;
 	type: string;
 	value?: string;
 	name?: string;
+	/**
+	 * It's the unique key in FTP for rows
+	 */
 	index?: string;
 	cf?: string;
 	format?: string;

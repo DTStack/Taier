@@ -503,10 +503,7 @@ export function InputWithColumns(props: InputProps & IBasicFormItemProps) {
 			})
 				.then((res) => {
 					if (res.code === 1) {
-						props.event.emit(
-							EventKind.SourceKeyChange,
-							res.data.column?.map((col) => ({ ...col, key: col.index })),
-						);
+						props.event.emit(EventKind.SourceKeyChange, res.data.column || []);
 					}
 				})
 				.finally(() => {
