@@ -188,14 +188,15 @@ function initContextMenu() {
 
 function createTask() {
 	molecule.folderTree.onCreate(async (type, id) => {
-		if (!id && !molecule.folderTree.getState().folderTree?.data?.length) {
+		const folderTree = molecule.folderTree.getState().folderTree;
+		if (!folderTree?.data?.length) {
 			message.error('请先配置集群并进行绑定!');
 			return;
 		}
 		if (type === 'File') {
 			openCreateTab();
 		} else if (type === 'Folder') {
-			// work through addNode function
+			const parentId = typeof id === 'string' ? id : folderTree.data?.[0].id;
 			molecule.folderTree.add(
 				new TreeNodeModel({
 					id: `${ID_COLLECTIONS.CREATE_FOLDER_PREFIX}_${new Date().getTime()}`,
@@ -204,10 +205,10 @@ function createTask() {
 					fileType: FileTypes.Folder,
 					isEditable: true,
 					data: {
-						parentId: id,
+						parentId,
 					},
 				}),
-				id,
+				parentId,
 			);
 		}
 	});
