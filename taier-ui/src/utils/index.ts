@@ -81,28 +81,6 @@ export function checkExist(prop: any) {
 	return prop !== undefined && prop !== null && prop !== '';
 }
 
-/**
- * JSON 格式校验
- */
-export function formJsonValidator(_: any, value: string) {
-	let msg = '';
-	try {
-		if (value) {
-			const t = JSON.parse(value);
-			if (typeof t !== 'object') {
-				msg = '请填写正确的JSON';
-			}
-		}
-	} catch (e) {
-		msg = '请检查JSON格式，确认无中英文符号混用！';
-	}
-
-	if (msg) {
-		return Promise.reject(new Error(msg));
-	}
-	return Promise.resolve();
-}
-
 interface FilterParser {
 	index: number;
 	queue: string;
@@ -304,71 +282,12 @@ export function filterSql(sql: string) {
 	return arr;
 }
 
-export const queryParse = (url: string) => {
-	const search = url.split('?')[1];
-	if (!search) return {};
-	return search.split('&').reduce((temp, current) => {
-		const next = temp;
-		const [key, value] = current.split('=');
-		next[key] = value;
-		return next;
-	}, {} as Record<string, string>);
-};
-
 export const getTenantId = () => {
 	return getCookie(`tenantId`);
 };
 
 export const getUserId = () => {
 	return getCookie('userId');
-};
-
-/**
- * 由于 antd@3 的嵌套表单 name 可以通过 a.b 实现，但是 antd@4 需要通过 [a,b] 所以需要将最终得到的结果做转化
- * @examples
- * ```js
- * // rawValues = { a.b.c: 1, a.b.a: 2};
- * const values = convertToObj(rawValues);
- * // values = { a: { b: {c: 1, a: 2}}};
- * ```
- */
-export const convertToObj = (values: Record<string, any>) => {
-	const res: Record<string, any> = {};
-	Object.keys(values).forEach((keyString) => {
-		const keys = keyString.split('.');
-		keys.forEach(
-			function (this: { res: Record<string, any> }, key, index, thisArr) {
-				if (index === thisArr.length - 1) {
-					this.res[key] = values[keyString];
-				} else if (this.res.hasOwnProperty(key)) {
-					this.res = this.res[key];
-				} else {
-					this.res[key] = {};
-					this.res = this.res[key];
-				}
-			},
-			{ res },
-		);
-	});
-	return res;
-};
-
-/**
- * 上述方法的逆运算
- */
-export const convertToStr = (values: Record<string, any>, prefix = '') => {
-	let res: Record<string, any> = {};
-
-	Object.keys(values).forEach((key) => {
-		if (typeof values[key] === 'object' && !Array.isArray(values[key])) {
-			const obj = convertToStr(values[key], `${prefix ? `${prefix}.` : ''}${key}`);
-			res = { ...res, ...obj };
-		} else {
-			res[`${prefix ? `${prefix}.` : ''}${key}`] = values[key];
-		}
-	});
-
-	return res;
 };
 
 function isUtf8(s: string) {
@@ -460,22 +379,6 @@ export function goToTaskDev(record: { id: string | number; [key: string]: any })
 	// clear popupMenu
 	removePopUpMenu();
 }
-
-/**
- * 从 document.body 隐藏 mxGraph 所产生的 tooltip
- */
-export const removeToolTips = () => {
-	const remove = () => {
-		const tips = document.querySelectorAll<HTMLDivElement>('.mxTooltip');
-		if (tips) {
-			tips.forEach((o) => {
-				// eslint-disable-next-line no-param-reassign
-				o.style.visibility = 'hidden';
-			});
-		}
-	};
-	setTimeout(remove, 500);
-};
 
 /**
  * 从 document.body 隐藏 mxGraph 所产生的 popup
@@ -733,7 +636,7 @@ export const convertParams = (params: Record<string, any>, form: Record<string, 
 
 			if (utils) {
 				const utilCollection: Record<string, (value: any) => any> = {
-					toArray: toArray,
+					toArray,
 				};
 				value = utilCollection[utils](value);
 			}

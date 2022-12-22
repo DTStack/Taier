@@ -28,33 +28,6 @@ import {
 	TASK_TYPE_ENUM,
 } from '@/constant';
 
-export function taskTypeText(type?: TASK_TYPE_ENUM) {
-	switch (type) {
-		case TASK_TYPE_ENUM.SYNC:
-			return '数据同步';
-		case TASK_TYPE_ENUM.VIRTUAL:
-			return '虚节点';
-		case TASK_TYPE_ENUM.SQL:
-			return 'FlinkSQL';
-		case TASK_TYPE_ENUM.SHELL:
-			return 'Shell';
-		case TASK_TYPE_ENUM.HIVE_SQL:
-			return 'HiveSQL';
-		case TASK_TYPE_ENUM.SPARK_SQL:
-			return 'SparkSQL';
-		case TASK_TYPE_ENUM.DATA_ACQUISITION:
-			return '实时采集';
-		case TASK_TYPE_ENUM.FLINK:
-			return 'Flink';
-		case TASK_TYPE_ENUM.WORK_FLOW:
-			return '工作流';
-		case TASK_TYPE_ENUM.MYSQL:
-			return 'MySQL';
-		default:
-			return '未知';
-	}
-}
-
 export function taskStatusText(type?: TASK_STATUS) {
 	switch (type) {
 		case TASK_STATUS.WAIT_SUBMIT:
