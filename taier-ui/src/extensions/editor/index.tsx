@@ -257,14 +257,6 @@ const updateTaskVariables = debounce((tab: molecule.model.IEditorTab<any>) => {
 	const currentData: IOfflineTaskProps & { value?: string } = tab.data;
 	let sqlText: string = '';
 	switch (currentData.taskType) {
-		case TASK_TYPE_ENUM.SPARK_SQL:
-		case TASK_TYPE_ENUM.HIVE_SQL:
-		case TASK_TYPE_ENUM.DORIS:
-		case TASK_TYPE_ENUM.CLICKHOUSE:
-		case TASK_TYPE_ENUM.SQL:
-		case TASK_TYPE_ENUM.MYSQL:
-			sqlText = currentData.value || '';
-			break;
 		case TASK_TYPE_ENUM.SYNC:
 			// 需要从以下属性中解析出参数
 			sqlText = `
@@ -282,6 +274,7 @@ const updateTaskVariables = debounce((tab: molecule.model.IEditorTab<any>) => {
 				`;
 			break;
 		default:
+			sqlText = currentData.value || '';
 			break;
 	}
 	const nextVariables = taskParamsService.matchTaskParams(sqlText);
