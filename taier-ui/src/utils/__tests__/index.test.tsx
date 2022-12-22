@@ -6,8 +6,6 @@ import {
 	checkExist,
 	convertObjToNamePath,
 	convertParams,
-	convertToObj,
-	convertToStr,
 	copyText,
 	createSeries,
 	createSQLProposals,
@@ -16,7 +14,6 @@ import {
 	filterComments,
 	filterSql,
 	formatDateTime,
-	formJsonValidator,
 	getColumnsByColumnsText,
 	getCookie,
 	getPlus,
@@ -28,10 +25,8 @@ import {
 	isValidFormatType,
 	pickByTruly,
 	prettierJSONstring,
-	queryParse,
 	randomId,
 	removePopUpMenu,
-	removeToolTips,
 	renderCharacterByCode,
 	replaceStrFormIndexArr,
 	splitByKey,
@@ -101,14 +96,6 @@ describe('utils/index', () => {
 		expect(checkExist({})).toBeTruthy();
 	});
 
-	it('Should Validate the JSON', async () => {
-		await expect(formJsonValidator(null, JSON.stringify({}))).resolves.not.toThrowError();
-		await expect(formJsonValidator(null, 'test')).rejects.toThrow(
-			'请检查JSON格式，确认无中英文符号混用！',
-		);
-		await expect(formJsonValidator(null, 'true')).rejects.toThrow('请填写正确的JSON');
-	});
-
 	it('Should Filter Comments In SQL', () => {
 		expect(filterComments('show tables;-- name test')).toBe('show tables; ');
 		expect(filterComments('-- select test from A where id = "taier";')).toBe(' ');
@@ -144,13 +131,6 @@ describe('utils/index', () => {
 		expect(filterSql(sql)).toEqual(['show tables']);
 	});
 
-	it('Should Query Hash in URL', () => {
-		const url = 'http://test.com/?test=task&test2=abc';
-		expect(queryParse(url)).toEqual({ test: 'task', test2: 'abc' });
-
-		expect(queryParse('')).toEqual({});
-	});
-
 	it('Should Get Tenant Id From Cookie', () => {
 		document.cookie = 'tenantId=1;';
 		expect(getTenantId()).toBe('1');
@@ -161,45 +141,6 @@ describe('utils/index', () => {
 		document.cookie = 'userId=1;';
 		expect(getUserId()).toBe('1');
 		deleteCookie('userId');
-	});
-
-	it('Should Convert to Object', () => {
-		const rawObj = { 'a.b.c': 1, 'a.b.a': 2 };
-		expect(convertToObj(rawObj)).toEqual({
-			a: {
-				b: {
-					c: 1,
-					a: 2,
-				},
-			},
-		});
-	});
-
-	it('Should Inverse to Object', () => {
-		const rawObj = {
-			a: {
-				b: {
-					c: 1,
-					a: 2,
-				},
-			},
-		};
-		expect(convertToStr(rawObj)).toEqual({ 'a.b.c': 1, 'a.b.a': 2 });
-	});
-
-	it('Should Remove Tooltips from Document', () => {
-		jest.useFakeTimers();
-		const dom = document.createElement('div');
-		dom.classList.add('mxTooltip');
-		dom.style.visibility = 'visibility';
-		document.body.appendChild(dom);
-		expect(dom.style.visibility).toBe('visibility');
-
-		removeToolTips();
-
-		jest.advanceTimersByTime(500);
-
-		expect(dom.style.visibility).toBe('hidden');
 	});
 
 	it('Should Remove Popup Menu from Document', () => {

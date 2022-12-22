@@ -19,23 +19,9 @@ import {
 	TaskStatus,
 	taskStatusText,
 	TaskTimeType,
-	taskTypeText,
 } from '../enums';
 
 describe('enums', () => {
-	it('Render Task Type Text', () => {
-		expect(taskTypeText(TASK_TYPE_ENUM.DATA_ACQUISITION)).toBe('实时采集');
-		expect(taskTypeText(TASK_TYPE_ENUM.HIVE_SQL)).toBe('HiveSQL');
-		expect(taskTypeText(TASK_TYPE_ENUM.SHELL)).toBe('Shell');
-		expect(taskTypeText(TASK_TYPE_ENUM.SPARK)).toBe('未知');
-		expect(taskTypeText(TASK_TYPE_ENUM.SPARK_SQL)).toBe('SparkSQL');
-		expect(taskTypeText(TASK_TYPE_ENUM.SQL)).toBe('FlinkSQL');
-		expect(taskTypeText(TASK_TYPE_ENUM.FLINK)).toBe('Flink');
-		expect(taskTypeText(TASK_TYPE_ENUM.SYNC)).toBe('数据同步');
-		expect(taskTypeText(TASK_TYPE_ENUM.VIRTUAL)).toBe('虚节点');
-		expect(taskTypeText(TASK_TYPE_ENUM.WORK_FLOW)).toBe('工作流');
-	});
-
 	it('Render Task Status Text', () => {
 		expect(taskStatusText(TASK_STATUS.AUTO_CANCEL)).toBe('自动取消');
 		expect(taskStatusText(TASK_STATUS.COMPUTING)).toBe('计算中');
