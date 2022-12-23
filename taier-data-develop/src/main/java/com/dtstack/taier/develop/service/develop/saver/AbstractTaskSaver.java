@@ -47,6 +47,7 @@ import com.dtstack.taier.scheduler.service.ScheduleActionService;
 import com.dtstack.taier.scheduler.service.ScheduleDictService;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
+import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -126,7 +127,9 @@ public abstract class AbstractTaskSaver implements ITaskSaver {
 
     public abstract TaskResourceParam beforeProcessing(TaskResourceParam taskResourceParam);
 
-    public abstract void afterProcessing(TaskResourceParam taskResourceParam, TaskVO taskVO);
+    public void afterProcessing(TaskResourceParam taskResourceParam, TaskVO taskVO){
+
+    }
 
 
     /**
@@ -142,9 +145,19 @@ public abstract class AbstractTaskSaver implements ITaskSaver {
 
         TaskVO taskVO = updateTaskInfo(taskResourceParam);
 
+        updateTaskTask(taskVO,taskResourceParam);
+
         afterProcessing(taskResourceParam, taskVO);
 
         return taskVO;
+    }
+
+    private void updateTaskTask(TaskVO task,TaskResourceParam taskResourceParam) {
+        // 如果是修改任务的基本属性（目录、名称），禁止处理任务信息
+        if (BooleanUtils.isTrue(taskResourceParam.getEditBaseInfo())) {
+            return;
+        }
+        developTaskTaskService.addOrUpdateTaskTask(task.getId(), task.getDependencyTasks());
     }
 
     @Override
