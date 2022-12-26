@@ -20,6 +20,12 @@ import {
 	VirtualIcon,
 	WorkflowIcon,
 	MysqlIcon,
+	HadoopMRIcon,
+	PostgreSqlIcon,
+	GreenPlumIcon,
+	SqlServerIcon,
+	TiDbIcon,
+	VerticaIcon,
 } from '@/components/icon';
 import scaffolds from '@/components/scaffolds/create';
 import editorActionsScaffolds from '@/components/scaffolds/editorActions';
@@ -231,6 +237,16 @@ export default class TaskRenderService extends Component<ITaskRenderState> {
 				return <DorisIcon />;
 			case TASK_TYPE_ENUM.MYSQL:
 				return <MysqlIcon />;
+			case TASK_TYPE_ENUM.GREENPLUM:
+				return <GreenPlumIcon />;
+			case TASK_TYPE_ENUM.POSTGRE_SQL:
+				return <PostgreSqlIcon />;
+			case TASK_TYPE_ENUM.SQL_SERVER:
+				return <SqlServerIcon style={{ color: '#bf4339' }} />;
+			case TASK_TYPE_ENUM.TiDB:
+				return <TiDbIcon style={{ color: '#bf4339' }} />;
+			case TASK_TYPE_ENUM.VERTICA:
+				return <VerticaIcon />;
 			default:
 				return 'file';
 		}

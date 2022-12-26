@@ -256,8 +256,14 @@ export enum TASK_TYPE_ENUM {
 	 * Python Spark
 	 */
 	PY_SPARK = 16,
-
 	MYSQL = 17,
+	GREENPLUM = 18,
+	GAUSS_DB = 19,
+	POSTGRE_SQL = 20,
+	SQL_SERVER = 21,
+	TiDB = 22,
+	VERTICA = 23,
+	MAX_COMPUTE = 24,
 }
 
 /**
