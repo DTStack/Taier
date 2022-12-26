@@ -20,7 +20,6 @@ package com.dtstack.taier.develop.service.develop.saver;
 
 import com.dtstack.taier.common.enums.EScheduleJobType;
 import com.dtstack.taier.develop.dto.devlop.TaskResourceParam;
-import com.dtstack.taier.develop.dto.devlop.TaskVO;
 import com.dtstack.taier.develop.service.develop.impl.FlinkTaskService;
 import com.google.common.collect.Lists;
 import org.slf4j.Logger;
@@ -48,10 +47,6 @@ public class FlinkSqlTaskSaver extends AbstractTaskSaver {
         return taskResourceParam;
     }
 
-    @Override
-    public void afterProcessing(TaskResourceParam taskResourceParam, TaskVO taskVO) {
-
-    }
 
 
     @Override
