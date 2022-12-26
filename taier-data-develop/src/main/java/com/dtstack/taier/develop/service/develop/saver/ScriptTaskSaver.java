@@ -55,11 +55,6 @@ public class ScriptTaskSaver extends AbstractTaskSaver {
     }
 
     @Override
-    public void afterProcessing(TaskResourceParam taskResourceParam, TaskVO taskVO) {
-        defaultTaskSaver.afterProcessing(taskResourceParam, taskVO);
-    }
-
-    @Override
     public String processScheduleRunSqlText(Task task) {
         return task.getSqlText();
     }

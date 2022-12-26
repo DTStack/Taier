@@ -76,15 +76,6 @@ public class DefaultTaskSaver extends AbstractTaskSaver {
         return taskResourceParam;
     }
 
-    @Override
-    public void afterProcessing(TaskResourceParam taskResourceParam, TaskVO task) {
-        // 如果是修改任务的基本属性（目录、名称），禁止处理任务信息
-        if (BooleanUtils.isTrue(taskResourceParam.getEditBaseInfo())) {
-            return;
-        }
-        developTaskTaskService.addOrUpdateTaskTask(task.getId(), task.getDependencyTasks());
-    }
-
     /**
      * 创建任务
      *
