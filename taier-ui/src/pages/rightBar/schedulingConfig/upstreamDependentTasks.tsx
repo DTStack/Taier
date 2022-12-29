@@ -68,10 +68,6 @@ export default function UpstreamDependentTasks({
 	};
 
 	const handleSearch = (value: string) => {
-		if (value.trim() === '') {
-			setTasks([]);
-			return;
-		}
 		setFetching(true);
 		api.allProductGlobalSearch({
 			taskName: value,
@@ -80,11 +76,6 @@ export default function UpstreamDependentTasks({
 		})
 			.then((res) => {
 				if (res.code === 1) {
-					if (!res.data?.length) {
-						form.setFieldsValue({
-							taskId: { errors: [new Error('没有符合条件的任务')] },
-						});
-					}
 					setTasks(res.data || []);
 				}
 			})
@@ -108,6 +99,8 @@ export default function UpstreamDependentTasks({
 				setTenants(res.data);
 			}
 		});
+		// Get the default value
+		handleSearch('');
 	}, []);
 
 	return (
@@ -130,29 +123,35 @@ export default function UpstreamDependentTasks({
 						})}
 					</Select>
 				</FormItem>
-				<FormItem {...formItemLayout} label="任务" required>
-					<FormItem
-						noStyle
-						name="taskId"
-						rules={[{ required: true, message: '请选择任务!' }]}
+				<FormItem
+					{...formItemLayout}
+					label="任务"
+					required
+					name="taskId"
+					rules={[{ required: true, message: '请选择任务!' }]}
+				>
+					<Select
+						showSearch
+						placeholder="请输入任务名称搜索"
+						style={{ width: '100%' }}
+						defaultActiveFirstOption={false}
+						showArrow={false}
+						filterOption={false}
+						onSearch={debounce(handleSearch, 500, { maxWait: 2000 })}
+						notFoundContent={
+							fetching ? (
+								<Spin spinning />
+							) : (
+								<Empty image={Empty.PRESENTED_IMAGE_SIMPLE} />
+							)
+						}
 					>
-						<Select
-							showSearch
-							placeholder="请输入任务名称搜索"
-							style={{ width: '100%' }}
-							defaultActiveFirstOption={false}
-							showArrow={false}
-							filterOption={false}
-							onSearch={debounce(handleSearch, 500, { maxWait: 2000 })}
-							notFoundContent={fetching ? <Spin spinning /> : <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} />}
-						>
-							{tasks.map((task) => (
-								<Option key={task.taskId} value={task.taskId}>
-									{task.taskName}
-								</Option>
-							))}
-						</Select>
-					</FormItem>
+						{tasks.map((task) => (
+							<Option key={task.taskId} value={task.taskId}>
+								{task.taskName}
+							</Option>
+						))}
+					</Select>
 				</FormItem>
 			</Form>
 		</Modal>

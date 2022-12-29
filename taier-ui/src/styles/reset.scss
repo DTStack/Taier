@@ -56,6 +56,10 @@
 	.ant-notification-notice {
 		background: var(--notifications-background);
 	}
+
+	.ant-select-status-error.ant-select:not(.ant-select-disabled):not(.ant-select-customize-input):not(.ant-pagination-size-changer) .ant-select-selector{
+		background-color: transparent;
+	}
 }
 
 [data-prefers-color] {
