@@ -19,7 +19,7 @@ import molecule from '@dtinsight/molecule';
 import { connect } from '@dtinsight/molecule/esm/react';
 import { EditorEvent } from '@dtinsight/molecule/esm/model';
 import taskSaveService from '@/services/taskSaveService';
-import { Scrollable } from '@dtinsight/molecule/esm/components';
+import { Scrollbar } from '@dtinsight/molecule/esm/components';
 import api from '@/api';
 import { taskRenderService } from '@/services';
 import type { Reducer } from 'react';
@@ -469,7 +469,7 @@ export default connect(molecule.editor, ({ current }: molecule.model.IEditor) =>
 	}, []);
 
 	return (
-		<Scrollable isShowShadow>
+		<Scrollbar isShowShadow>
 			<div className="taier__dataSync__container">
 				<Context.Provider value={{ optionCollections, dispatch, transformerFactory }}>
 					<Form
@@ -486,6 +486,6 @@ export default connect(molecule.editor, ({ current }: molecule.model.IEditor) =>
 					</Form>
 				</Context.Provider>
 			</div>
-		</Scrollable>
+		</Scrollbar>
 	);
 });

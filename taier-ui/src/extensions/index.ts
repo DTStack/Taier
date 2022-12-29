@@ -28,6 +28,7 @@ import DTStackTheme from './dtstackTheme';
 import { LocaleExtension } from './i18n';
 import ActionExtension from './action';
 import ColorThemeExtensions from './themes';
+import AuxiliaryBarExtensions from './auxiliaryBar';
 
 export const extensions: IExtension[] = [
 	LocaleExtension,
@@ -41,4 +42,5 @@ export const extensions: IExtension[] = [
 	new FolderTreeExtension(),
 	new ExtendsSparkSQL(),
 	new MenuExtension(),
+	new AuxiliaryBarExtensions()
 ];
