@@ -711,6 +711,20 @@ export enum IComputeType {
 	BATCH = 1,
 }
 
+/**
+ * 当前任务的任务类型
+ */
+export enum IJobType {
+	/**
+	 * SQL 类的任务
+	 */
+	SQL = 0,
+	/**
+	 * 非 SQL 类的任务
+	 */
+	OTHERS = 1,
+}
+
 export enum RightBarKind {
 	/**
 	 * 任务属性
