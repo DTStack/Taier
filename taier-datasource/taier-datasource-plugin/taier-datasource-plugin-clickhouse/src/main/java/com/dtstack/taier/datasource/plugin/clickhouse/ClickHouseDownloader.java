@@ -18,11 +18,11 @@
 
 package com.dtstack.taier.datasource.plugin.clickhouse;
 
-import com.dtstack.taier.datasource.plugin.common.utils.DBUtil;
-import com.dtstack.taier.datasource.plugin.common.utils.SqlFormatUtil;
 import com.dtstack.taier.datasource.api.downloader.IDownloader;
 import com.dtstack.taier.datasource.api.dto.Column;
 import com.dtstack.taier.datasource.api.exception.SourceException;
+import com.dtstack.taier.datasource.plugin.common.utils.DBUtil;
+import com.dtstack.taier.datasource.plugin.common.utils.SqlFormatUtil;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
@@ -83,16 +83,13 @@ public class ClickHouseDownloader implements IDownloader {
 
         //获取列信息
         String showColumns = String.format("SELECT * FROM (%s) t limit 1", sql);
-        ResultSet totalResultSet = null;
-        ResultSet columnsResultSet = null;
-        try {
-            totalResultSet = statement.executeQuery(countSQL);
+        try (ResultSet totalResultSet = statement.executeQuery(countSQL);
+             ResultSet columnsResultSet = statement.executeQuery(showColumns)) {
             while (totalResultSet.next()) {
                 //获取总行数
                 totalLine = totalResultSet.getInt(1);
             }
 
-            columnsResultSet = statement.executeQuery(showColumns);
             columnNames = new ArrayList<>();
             columnCount = columnsResultSet.getMetaData().getColumnCount();
             for (int i = 1; i <= columnCount; i++) {
@@ -106,13 +103,6 @@ public class ClickHouseDownloader implements IDownloader {
             pageAll = (int) Math.ceil(totalLine / (double) pageSize);
         } catch (Exception e) {
             throw new SourceException("build ClickHouse downloader message exception : " + e.getMessage(), e);
-        } finally {
-            if (totalResultSet != null) {
-                totalResultSet.close();
-            }
-            if (columnsResultSet != null) {
-                columnsResultSet.close();
-            }
         }
         return true;
     }
@@ -152,7 +142,7 @@ public class ClickHouseDownloader implements IDownloader {
     }
 
     @Override
-    public boolean close() throws Exception {
+    public boolean close() {
         DBUtil.closeDBResources(null, statement, connection);
         return true;
     }
