@@ -18,14 +18,7 @@
 
 import { createContext } from 'react';
 import type { DATA_SOURCE_ENUM, TASK_TYPE_ENUM } from '@/constant';
-import type { IComputeType, IOfflineTaskProps } from '@/interface';
-
-export enum SupportJobActionKind {
-	/**
-	 * 请求支持任务
-	 */
-	REQUEST = 'request',
-}
+import type { IJobType, IComputeType, IOfflineTaskProps } from '@/interface';
 
 export interface IPersonLists {
 	email: string;
@@ -42,6 +35,7 @@ export interface ISupportJobTypes {
 	 */
 	value: string;
 	computeType: IComputeType;
+	jobType: IJobType;
 	/**
 	 * 任务渲染相关属性
 	 */
@@ -98,7 +92,7 @@ export interface ISupportJobTypes {
 		/**
 		 * 当前任务类型支持的绑定数据源的任务类型
 		 */
-		 dataTypeCodes?: DATA_SOURCE_ENUM[];
+		dataTypeCodes?: DATA_SOURCE_ENUM[];
 	};
 }
 

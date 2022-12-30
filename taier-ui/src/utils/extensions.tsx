@@ -22,7 +22,7 @@ import { SyntaxIcon, ResourceIcon } from '@/components/icon';
 import type { RESOURCE_TYPE } from '@/constant';
 import { ID_COLLECTIONS } from '@/constant';
 import { CATALOGUE_TYPE, TASK_TYPE_ENUM } from '@/constant';
-import type { CatalogueDataProps, IOfflineTaskProps } from '@/interface';
+import { CatalogueDataProps, IJobType, IOfflineTaskProps } from '@/interface';
 import { executeService, taskRenderService } from '@/services';
 import taskResultService, { createLog } from '@/services/taskResultService';
 import Result from '@/components/task/result';
@@ -91,16 +91,10 @@ export function runTask(current: molecule.model.IEditorGroup) {
 			// 需要被执行的 sql 语句
 			const sqls: string[] = [];
 
+			const field = taskRenderService.getField(currentTabData.taskType);
 			if (
-				// 支持执行选中行的任务类型
-				[
-					TASK_TYPE_ENUM.FLINK,
-					TASK_TYPE_ENUM.HIVE_SQL,
-					TASK_TYPE_ENUM.OCEANBASE,
-					TASK_TYPE_ENUM.SPARK_SQL,
-					TASK_TYPE_ENUM.SQL,
-					TASK_TYPE_ENUM.MYSQL,
-				].includes(currentTabData.taskType)
+				field?.jobType === IJobType.SQL &&
+				taskRenderService.getRenderKind(currentTabData.taskType) === 'editor'
 			) {
 				const rawSelections = molecule.editor.editorInstance.getSelections() || [];
 				// 排除鼠标 focus 在 editor 中的情况
