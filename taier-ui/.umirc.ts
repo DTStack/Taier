@@ -14,6 +14,7 @@ export default defineConfig({
 	nodeModulesTransform: {
 		type: 'none',
 	},
+	webpack5: {},
 	dynamicImportSyntax: {},
 	routes: [
 		{

@@ -19,7 +19,7 @@
 import { useEffect, useState } from 'react';
 import { Button, Input, Form } from 'antd';
 import molecule from '@dtinsight/molecule/esm';
-import { Scrollable } from '@dtinsight/molecule/esm/components';
+import { Scrollbar } from '@dtinsight/molecule/esm/components';
 import FolderPicker from '../../components/folderPicker';
 import { CATALOGUE_TYPE, formItemLayout, tailFormItemLayout } from '@/constant';
 import type { CatalogueDataProps } from '@/interface';
@@ -90,7 +90,7 @@ export default connect(
 		}, []);
 
 		return (
-			<Scrollable>
+			<Scrollbar>
 				<Form form={form} onFinish={handleSubmit} className="mo-open-task">
 					<FormItem
 						{...formItemLayout}
@@ -127,7 +127,7 @@ export default connect(
 						</Button>
 					</FormItem>
 				</Form>
-			</Scrollable>
+			</Scrollbar>
 		);
 	},
 );

@@ -44,3 +44,38 @@
 .mo-statusBar__item > a:empty {
 	padding: 0;
 }
+
+// ===================== Auxiliary Bar ===========================
+.mo-auxiliaryBar__tabs {
+	.mo-auxiliaryBar__tabs__tab {
+		font-size: 12px;
+		padding-top: 5px;
+		padding-bottom: 5px;
+
+		&:hover {
+			color: var(--taier-rightBar-foreground);
+			background-color: var(--taier-rightBar-background);
+		}
+
+		&--active {
+			color: var(--taier-rightBar-foreground);
+			background-color: var(--taier-rightBar-background);
+			position: relative;
+
+			&::after {
+				position: absolute;
+				top: 0;
+				right: 0;
+				bottom: 0;
+				width: 2px;
+				height: 100%;
+				background-color: #3f87ff;
+				content: '';
+			}
+		}
+	}
+}
+
+.mo-auxiliaryBar__container {
+	background: var(--sideBar-background);
+}

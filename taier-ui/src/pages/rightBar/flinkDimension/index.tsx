@@ -298,7 +298,7 @@ export default function FlinkDimensionPanel({ current }: IRightBarComponentProps
 	}, []);
 
 	return (
-		<molecule.component.Scrollable>
+		<molecule.component.Scrollbar>
 			<div className="panel-content">
 				<Form<IFormFieldProps>
 					{...formItemLayout}
@@ -390,6 +390,6 @@ export default function FlinkDimensionPanel({ current }: IRightBarComponentProps
 					</Form.List>
 				</Form>
 			</div>
-		</molecule.component.Scrollable>
+		</molecule.component.Scrollbar>
 	);
 }

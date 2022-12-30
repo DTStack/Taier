@@ -298,7 +298,7 @@ export default function SchedulingConfig({ current }: IRightBarComponentProps) {
 	const isWorkflowNode = useMemo(() => !!tabData.flowId, [tabData]);
 
 	return (
-		<molecule.component.Scrollable>
+		<molecule.component.Scrollbar>
 			<div className="m-scheduling" style={{ position: 'relative' }}>
 				<Collapse bordered={false} defaultActiveKey={['1', '2', '3']}>
 					<Panel key="1" header="调度属性">
@@ -386,6 +386,6 @@ export default function SchedulingConfig({ current }: IRightBarComponentProps) {
 					)}
 				</Collapse>
 			</div>
-		</molecule.component.Scrollable>
+		</molecule.component.Scrollbar>
 	);
 }

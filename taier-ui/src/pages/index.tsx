@@ -24,7 +24,7 @@ import { history } from 'umi';
 import { extensions } from '@/extensions';
 import api from '@/api';
 import molecule, { create } from '@dtinsight/molecule';
-import { Workbench } from './workbench';
+import { Workbench } from '@dtinsight/molecule';
 import Task from '@/pages/operation/task';
 import StreamTask from '@/pages/operation/streamTask';
 import Schedule from '@/pages/operation/schedule';

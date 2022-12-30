@@ -15,7 +15,6 @@ import classNames from 'classnames';
 import { useEffect } from 'react';
 import { singleton } from 'tsyringe';
 import { RightBarKind } from '@/interface';
-import { taskRenderService } from '.';
 import TaskConfig from '@/pages/rightBar/taskConfig';
 
 interface IRightBarService {
@@ -31,7 +30,6 @@ interface IRightBarService {
 	 * 获取 form 组件对象
 	 */
 	getForm: () => FormInstance | null;
-	setCurrent: (nextCurrent: RightBarKind | null) => void;
 }
 
 /**
@@ -41,42 +39,18 @@ export interface IRightBarComponentProps {
 	current: molecule.model.IEditor['current'];
 }
 
-export interface IRightbarState {
-	/**
-	 * rightBar 的宽度
-	 */
-	width: number;
-	/**
-	 * 当前侧边栏选中项
-	 */
-	current: string | null;
-}
-
 export const FormContext = React.createContext<{ form?: FormInstance }>({});
 
 @singleton()
 /**
  * 负责调度侧边栏
  */
-export default class RightBarService extends Component<IRightbarState> implements IRightBarService {
-	/**
-	 * 侧边栏展开宽度
-	 */
-	static ACTIVE_WIDTH = 480;
-	/**
-	 * 侧边栏收起宽度
-	 */
-	static UNACTIVE_WIDTH = 30;
-
-	protected state: IRightbarState;
+export default class RightBarService extends Component<void> implements IRightBarService {
+	protected state: void | undefined;
 	protected form: FormInstance | null = null;
 
 	constructor() {
 		super();
-		this.state = {
-			width: RightBarService.UNACTIVE_WIDTH,
-			current: null,
-		};
 	}
 
 	private WithForm = ({ children }: { children: React.ReactNode }) => {
@@ -100,17 +74,6 @@ export default class RightBarService extends Component<IRightbarState> implement
 	private withForm = (Children: JSX.Element) => (
 		<this.WithForm key={Children.key}>{Children}</this.WithForm>
 	);
-
-	private setWidth = (collapse: boolean) => {
-		return collapse ? RightBarService.ACTIVE_WIDTH : RightBarService.UNACTIVE_WIDTH;
-	};
-
-	public setCurrent = (nextCurrent: string | null) => {
-		this.setState({
-			current: nextCurrent,
-			width: this.setWidth(!!nextCurrent),
-		});
-	};
 
 	public getForm = () => {
 		return this.form;
@@ -154,18 +117,9 @@ export default class RightBarService extends Component<IRightbarState> implement
 		 */
 		const isInValidTab = !isTaskTab(current?.tab?.id);
 
-		// 判断当前的 tab 是否支持该 kind
-		const supportBars = taskRenderService.renderRightBar();
-
-		const isSupportThisKind = supportBars.includes(kind);
-		if (!isSupportThisKind) {
-			// 不支持则重置 current
-			this.setCurrent(null);
-		}
-
-		if (isInValidTab || !isSupportThisKind) {
+		if (isInValidTab) {
 			return (
-				<div className={classNames('text-center', 'mt-10px')}>
+				<div className={classNames('text-center', 'pt-10px')}>
 					无法获取{this.getTextByKind(kind)}
 				</div>
 			);
