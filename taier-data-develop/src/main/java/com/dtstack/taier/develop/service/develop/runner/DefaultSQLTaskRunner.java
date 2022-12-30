@@ -33,6 +33,9 @@ public class DefaultSQLTaskRunner extends JdbcTaskRunner {
     @Override
     public List<EScheduleJobType> support() {
         return Lists.newArrayList(EScheduleJobType.HIVE_SQL, EScheduleJobType.OCEANBASE_SQL,
-                EScheduleJobType.DORIS_SQL, EScheduleJobType.CLICK_HOUSE_SQL, EScheduleJobType.MYSQL);
+                EScheduleJobType.DORIS_SQL, EScheduleJobType.CLICK_HOUSE_SQL, EScheduleJobType.MYSQL,
+                EScheduleJobType.GREENPLUM, EScheduleJobType.GAUSS_DB, EScheduleJobType.POSTGRESQL,
+                EScheduleJobType.SQLSERVER, EScheduleJobType.TIDB, EScheduleJobType.VERTICA,
+                EScheduleJobType.MAXCOMPUTE);
     }
 }

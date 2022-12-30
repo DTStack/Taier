@@ -32,10 +32,21 @@ public class DevelopTaskTypeVO {
     @ApiModelProperty(value = "任务描述", example = "SparkSQL")
     private String value;
 
-    @ApiModelProperty(value = "任务类型", example = "0：stream 1:batch")
+    @ApiModelProperty(value = "任务计算类型", example = "0：stream 1:batch")
     private Integer computeType;
 
     private TaskProperties taskProperties;
+
+    @ApiModelProperty(value = "任务类型", example = "0: sql 1:mr 2: sync 3: python shell")
+    private Integer jobType;
+
+    public Integer getJobType() {
+        return jobType;
+    }
+
+    public void setJobType(Integer jobType) {
+        this.jobType = jobType;
+    }
 
     public TaskProperties getTaskProperties() {
         return taskProperties;
