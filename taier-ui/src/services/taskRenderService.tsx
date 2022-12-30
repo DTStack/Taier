@@ -99,6 +99,20 @@ export default class TaskRenderService extends Component<ITaskRenderState> {
 		this.getSupportSource();
 	}
 
+	/**
+	 * Get the detail of task type
+	 */
+	public getField(key: TASK_TYPE_ENUM) {
+		return this.state.supportTaskList.find((i) => i.key === key);
+	}
+
+	/**
+	 * Get the renderKind in task type
+	 */
+	public getRenderKind(key: TASK_TYPE_ENUM) {
+		return this.getField(key)?.taskProperties.renderKind || 'editor';
+	}
+
 	// 获取当前支持的任务类型
 	public getTaskTypes(silent: boolean = false) {
 		if (silent) {
@@ -259,8 +273,8 @@ export default class TaskRenderService extends Component<ITaskRenderState> {
 		key: TASK_TYPE_ENUM,
 		record: { id: number | string; name: string; taskType: TASK_TYPE_ENUM; [key: string]: any },
 	): molecule.model.IEditorTab => {
-		const fields = this.state.supportTaskList.find((i) => i.key === key)?.taskProperties;
-		const renderKind = fields?.renderKind || 'editor';
+		const fields = this.getField(key)?.taskProperties;
+		const renderKind = this.getRenderKind(key);
 
 		const isWorkflow = !!record.flowId;
 
