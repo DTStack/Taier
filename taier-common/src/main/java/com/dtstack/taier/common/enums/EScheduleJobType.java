@@ -107,7 +107,15 @@ public enum EScheduleJobType {
     /**
      * MySQL
      */
-    MYSQL(17, "MySQL", EJobType.SQL.getType(), 4, null, EComputeType.BATCH, EJobClientType.DATASOURCE_PLUGIN)
+    MYSQL(17, "MySQL", EJobType.SQL.getType(), 4, null, EComputeType.BATCH, EJobClientType.DATASOURCE_PLUGIN),
+    GREENPLUM(18, "Greenplum", EJobType.SQL.getType(), 4, null, EComputeType.BATCH, EJobClientType.DATASOURCE_PLUGIN),
+    GAUSS_DB(19, "GaussDB", EJobType.SQL.getType(), 4, null, EComputeType.BATCH, EJobClientType.DATASOURCE_PLUGIN),
+    POSTGRESQL(20, "PostgreSQL", EJobType.SQL.getType(), 4, null, EComputeType.BATCH, EJobClientType.DATASOURCE_PLUGIN),
+    SQLSERVER(21, "SQLServer", EJobType.SQL.getType(), 4, null, EComputeType.BATCH, EJobClientType.DATASOURCE_PLUGIN),
+    TIDB(22, "TiDB", EJobType.SQL.getType(), 4, null, EComputeType.BATCH, EJobClientType.DATASOURCE_PLUGIN),
+    VERTICA(23, "Vertica", EJobType.SQL.getType(), 4, null, EComputeType.BATCH, EJobClientType.DATASOURCE_PLUGIN),
+    MAXCOMPUTE(24, "MaxCompute", EJobType.SQL.getType(), 4, null, EComputeType.BATCH, EJobClientType.DATASOURCE_PLUGIN),
+
     ;
 
     private final Integer type;

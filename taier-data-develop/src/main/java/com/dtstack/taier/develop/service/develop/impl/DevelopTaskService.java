@@ -1230,6 +1230,7 @@ public class DevelopTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
                     if (!StringUtils.isBlank(properties)) {
                         taskTypeVO.setTaskProperties(JSONObject.parseObject(properties, TaskProperties.class));
                     }
+                    taskTypeVO.setJobType(j.getEngineJobType());
                     return taskTypeVO;
                 })
                 .collect(Collectors.toList());
