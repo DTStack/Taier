@@ -18,11 +18,11 @@
 
 package com.dtstack.taier.datasource.plugin.kylin;
 
-import com.dtstack.taier.datasource.plugin.common.utils.DBUtil;
-import com.dtstack.taier.datasource.plugin.common.utils.SqlFormatUtil;
 import com.dtstack.taier.datasource.api.downloader.IDownloader;
 import com.dtstack.taier.datasource.api.dto.Column;
 import com.dtstack.taier.datasource.api.exception.SourceException;
+import com.dtstack.taier.datasource.plugin.common.utils.DBUtil;
+import com.dtstack.taier.datasource.plugin.common.utils.SqlFormatUtil;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
@@ -81,15 +81,13 @@ public class KylinDownloader implements IDownloader {
 
         String countSQL = String.format("SELECT COUNT(*) FROM (%s) temp", sql);
         String showColumns = String.format("SELECT * FROM (%s) t limit 1", sql);
-        ResultSet totalResultSet = null;
-        ResultSet columnsResultSet = null;
-        try {
-            totalResultSet = statement.executeQuery(countSQL);
+
+        try (ResultSet totalResultSet = statement.executeQuery(countSQL);
+             ResultSet columnsResultSet = statement.executeQuery(showColumns)) {
             while (totalResultSet.next()) {
                 //获取总行数
                 totalLine = totalResultSet.getInt(1);
             }
-            columnsResultSet = statement.executeQuery(showColumns);
             //获取列信息
             columnNames = new ArrayList<>();
             columnCount = columnsResultSet.getMetaData().getColumnCount();
@@ -104,13 +102,6 @@ public class KylinDownloader implements IDownloader {
             pageAll = (int) Math.ceil(totalLine / (double) pageSize);
         } catch (Exception e) {
             throw new SourceException("build Kylin downloader message exception : " + e.getMessage(), e);
-        } finally {
-            if (totalResultSet != null) {
-                totalResultSet.close();
-            }
-            if (columnsResultSet != null) {
-                columnsResultSet.close();
-            }
         }
         return true;
     }

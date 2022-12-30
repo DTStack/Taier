@@ -18,11 +18,11 @@
 
 package com.dtstack.taier.datasource.plugin.sqlserver;
 
-import com.dtstack.taier.datasource.plugin.common.utils.DBUtil;
-import com.dtstack.taier.datasource.plugin.common.utils.SqlFormatUtil;
 import com.dtstack.taier.datasource.api.downloader.IDownloader;
 import com.dtstack.taier.datasource.api.dto.Column;
 import com.dtstack.taier.datasource.api.exception.SourceException;
+import com.dtstack.taier.datasource.plugin.common.utils.DBUtil;
+import com.dtstack.taier.datasource.plugin.common.utils.SqlFormatUtil;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
@@ -86,15 +86,12 @@ public class SqlServerDownloader implements IDownloader {
         String countSQL = String.format("SELECT COUNT(*) FROM (%s) temp", sql);
         String showColumns = String.format("SELECT top 1 * FROM (%s) t", sql);
 
-        ResultSet totalResultSet = null;
-        ResultSet columnsResultSet = null;
-        try {
-            totalResultSet = statement.executeQuery(countSQL);
+        try (ResultSet totalResultSet = statement.executeQuery(countSQL);
+             ResultSet columnsResultSet = statement.executeQuery(showColumns)) {
             while (totalResultSet.next()) {
                 //获取总行数
                 totalLine = totalResultSet.getInt(1);
             }
-            columnsResultSet = statement.executeQuery(showColumns);
             //获取列信息
             columnNames = new ArrayList<>();
             columnCount = columnsResultSet.getMetaData().getColumnCount();
@@ -106,16 +103,9 @@ public class SqlServerDownloader implements IDownloader {
                 columnNames.add(column);
             }
             //获取总页数
-            pageAll = (int) Math.ceil(totalLine/(double)pageSize);
+            pageAll = (int) Math.ceil(totalLine / (double) pageSize);
         } catch (Exception e) {
             throw new SourceException("build SqlServer downloader message exception: " + e.getMessage(), e);
-        } finally {
-            if (totalResultSet != null) {
-                totalResultSet.close();
-            }
-            if (columnsResultSet != null) {
-                columnsResultSet.close();
-            }
         }
         return true;
     }
@@ -132,7 +122,7 @@ public class SqlServerDownloader implements IDownloader {
     public List<List<String>> readNext() {
         //分页查询，一次一百条
         //todo 没找到适合的分页
-        String limitSQL = String.format("select top %s * from (%s) as t where t.%s not in (select top %s m.%s from (%s) m) ", pageSize*pageNum - pageSize*(pageNum-1), sql, columnNames.get(0).getName(), pageSize*(pageNum-1), columnNames.get(0).getName(), sql);
+        String limitSQL = String.format("select top %s * from (%s) as t where t.%s not in (select top %s m.%s from (%s) m) ", pageSize * pageNum - pageSize * (pageNum - 1), sql, columnNames.get(0).getName(), pageSize * (pageNum - 1), columnNames.get(0).getName(), sql);
         List<List<String>> pageTemp = new ArrayList<>(100);
 
         try (ResultSet resultSet = statement.executeQuery(limitSQL)) {
