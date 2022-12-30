@@ -93,7 +93,7 @@ export default function TaskConfig({ current }: IRightBarComponentProps) {
 	}, [current?.activeTab]);
 
 	return (
-		<molecule.component.Scrollable>
+		<molecule.component.Scrollbar>
 			<Collapse bordered={false} ghost defaultActiveKey={['1']}>
 				<Panel key="1" header="脏数据管理">
 					<Form
@@ -230,6 +230,6 @@ export default function TaskConfig({ current }: IRightBarComponentProps) {
 					</Form>
 				</Panel>
 			</Collapse>
-		</molecule.component.Scrollable>
+		</molecule.component.Scrollbar>
 	);
 }

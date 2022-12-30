@@ -20,7 +20,7 @@ import { useState, useRef } from 'react';
 import type { FormInstance } from 'antd';
 import { Steps, Button, Spin, message } from 'antd';
 import Base64 from 'base-64';
-import { Scrollable } from '@dtinsight/molecule/esm/components';
+import { Scrollbar } from '@dtinsight/molecule/esm/components';
 import molecule from '@dtinsight/molecule';
 import { ID_COLLECTIONS } from '@/constant';
 import { SyncOutlined } from '@ant-design/icons';
@@ -352,7 +352,7 @@ export default function Add({ record, onSubmit }: IAddProps) {
 	};
 
 	return (
-		<Scrollable>
+		<Scrollbar>
 			<div className="source">
 				<div className="content">
 					<div className="top-steps">
@@ -370,6 +370,6 @@ export default function Add({ record, onSubmit }: IAddProps) {
 					<div className="footer-select">{switchFooter(current)}</div>
 				</div>
 			</div>
-		</Scrollable>
+		</Scrollbar>
 	);
 }

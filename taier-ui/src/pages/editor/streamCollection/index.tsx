@@ -17,7 +17,7 @@
  */
 
 import * as React from 'react';
-import { Scrollable } from '@dtinsight/molecule/esm/components';
+import { Scrollbar } from '@dtinsight/molecule/esm/components';
 import { connect as moleculeConnect } from '@dtinsight/molecule/esm/react';
 import molecule from '@dtinsight/molecule';
 import type { IEditor } from '@dtinsight/molecule/esm/model';
@@ -49,7 +49,7 @@ class StreamCollection extends React.Component<IEditor & any, Istate> {
 	render() {
 		const currentTabData = this.props.current?.tab?.data;
 		return (
-			<Scrollable>
+			<Scrollbar>
 				<div className="ide-editor">
 					<div style={{ zIndex: 901 }} className="ide-content">
 						<div
@@ -67,7 +67,7 @@ class StreamCollection extends React.Component<IEditor & any, Istate> {
 						</div>
 					</div>
 				</div>
-			</Scrollable>
+			</Scrollbar>
 		);
 	}
 }

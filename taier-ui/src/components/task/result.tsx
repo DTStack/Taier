@@ -107,7 +107,7 @@ export default function Result({
 	const pageSizeOptions = !tab?.tableType ? ['10', '20', '30', '40'] : ['10', '20', '50', '100'];
 
 	return (
-		<molecule.component.Scrollable>
+		<molecule.component.Scrollbar>
 			<div className="c-ide-result">
 				{tab?.tableType && (
 					<div className="console-select c-ide-result__select">
@@ -151,6 +151,6 @@ export default function Result({
 					</span>
 				</div>
 			</div>
-		</molecule.component.Scrollable>
+		</molecule.component.Scrollbar>
 	);
 }

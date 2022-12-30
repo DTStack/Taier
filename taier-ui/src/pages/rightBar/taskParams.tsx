@@ -85,7 +85,7 @@ export default function TaskParams({ current }: IRightBarComponentProps) {
 	const tabData = current!.tab!.data!;
 
 	return (
-		<molecule.component.Scrollable>
+		<molecule.component.Scrollbar>
 			<Form
 				form={form}
 				onValuesChange={(changed) => handleFormChanged(changed, tabData)}
@@ -156,6 +156,6 @@ export default function TaskParams({ current }: IRightBarComponentProps) {
 					</Panel>
 				</Collapse>
 			</Form>
-		</molecule.component.Scrollable>
+		</molecule.component.Scrollbar>
 	);
 }
