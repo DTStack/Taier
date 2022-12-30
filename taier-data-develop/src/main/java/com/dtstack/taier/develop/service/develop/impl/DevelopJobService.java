@@ -155,13 +155,6 @@ public class DevelopJobService {
             if (TaskStatus.RUNNING.getStatus().equals(status)) {
                 resultVO.setMsg("运行中");
             }
-            if (TaskStatus.FINISHED.getStatus().equals(status) && job.getExecEndTime() != null) {
-                //prometheus 指标为异步推送 任务快速结束 可能指标还未推送
-                if (job.getExecEndTime().toInstant().plus(90, ChronoUnit.SECONDS).isAfter(Instant.now())) {
-                    status = TaskStatus.RUNNING.getStatus();
-                    resultVO.setStatus(status);
-                }
-            }
 
             ActionLogVO actionLogVO = actionService.log(jobId);
             String engineLogStr = actionLogVO.getEngineLog();
