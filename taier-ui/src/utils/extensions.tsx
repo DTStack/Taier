@@ -22,7 +22,8 @@ import { SyntaxIcon, ResourceIcon } from '@/components/icon';
 import type { RESOURCE_TYPE } from '@/constant';
 import { ID_COLLECTIONS } from '@/constant';
 import { CATALOGUE_TYPE, TASK_TYPE_ENUM } from '@/constant';
-import { CatalogueDataProps, IJobType, IOfflineTaskProps } from '@/interface';
+import type { CatalogueDataProps, IOfflineTaskProps } from '@/interface';
+import { IJobType } from '@/interface';
 import { executeService, taskRenderService } from '@/services';
 import taskResultService, { createLog } from '@/services/taskResultService';
 import Result from '@/components/task/result';
@@ -239,4 +240,27 @@ export function getParentNode(treeList: IFolderTreeNodeProps, currentNode: IFold
 		return treeView.getNode(parentNode);
 	}
 	return null;
+}
+
+/**
+ * This function for executing func after switching task
+ */
+export function onTaskSwitch(func: () => void) {
+	[
+		molecule.editorTree.onSelect,
+		molecule.editorTree.onClose,
+		molecule.editorTree.onCloseAll,
+		molecule.editorTree.onCloseOthers,
+		molecule.editorTree.onCloseSaved,
+	].forEach((subscribe) => subscribe.call(molecule.editorTree, func));
+
+	[
+		molecule.editor.onOpenTab,
+		molecule.editor.onSelectTab,
+		molecule.editor.onCloseAll,
+		molecule.editor.onCloseOther,
+		molecule.editor.onCloseTab,
+		molecule.editor.onCloseToLeft,
+		molecule.editor.onCloseToRight,
+	].forEach((subscribe) => subscribe.call(molecule.editor, func));
 }

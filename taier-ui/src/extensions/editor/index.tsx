@@ -20,7 +20,7 @@ import { createRoot } from 'react-dom/client';
 import { message, Modal } from 'antd';
 import molecule from '@dtinsight/molecule';
 import type { IExtension } from '@dtinsight/molecule/esm/model';
-import { runTask, syntaxValidate } from '@/utils/extensions';
+import { onTaskSwitch, runTask, syntaxValidate } from '@/utils/extensions';
 import { DRAWER_MENU_ENUM, TASK_LANGUAGE, ID_COLLECTIONS } from '@/constant';
 import { history } from 'umi';
 import { debounce } from 'lodash';
@@ -45,9 +45,6 @@ import { isEditing } from '@/pages/editor/workflow';
 
 function emitEvent() {
 	molecule.editor.onActionsClick(async (menuId, current) => {
-		const actionDisabled = current?.actions?.find(({ id }) => id === menuId)?.disabled;
-		// TODO molecule发布新版就不用这一层根据action的状态控制是否可以点击的逻辑了
-		if (actionDisabled) return;
 		switch (menuId) {
 			case ID_COLLECTIONS.TASK_RUN_ID: {
 				runTask(current);
@@ -338,20 +335,15 @@ export default class EditorExtension implements IExtension {
 
 		molecule.editor.onOpenTab((tab) => {
 			viewStoreService.clearStorage(tab.id.toString());
+		});
+
+		onTaskSwitch(() =>
 			// Should delay to performSyncTaskActions
 			// because when onOpenTab called, the current tab was not changed
-			window.setTimeout(() => {
+			window.requestAnimationFrame(() => {
 				editorActionBarService.performSyncTaskActions();
-			}, 0);
-		});
-
-		molecule.editor.onSelectTab(() => {
-			editorActionBarService.performSyncTaskActions();
-		});
-
-		molecule.editor.onCloseTab(() => {
-			editorActionBarService.performSyncTaskActions();
-		});
+			}),
+		);
 
 		molecule.editor.onUpdateTab((tab) => {
 			updateTaskVariables(tab);
