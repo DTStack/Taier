@@ -764,3 +764,22 @@ export const isValidFormatType = (type: string) => {
 	const typeStr = type.toUpperCase();
 	return typeStr === 'STRING' || typeStr === 'VARCHAR' || typeStr === 'VARCHAR2';
 };
+
+export function createElement({ className }: { className?: string }) {
+	if (className) {
+		let dom = document.querySelector(`.${className}`);
+
+		if (!dom) {
+			dom = document.createElement('div');
+			dom.classList.add(className);
+		}
+
+		document.body.appendChild(dom);
+		return dom;
+	}
+
+	const dom = document.createElement('div');
+
+	document.body.appendChild(dom);
+	return dom;
+}

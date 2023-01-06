@@ -369,8 +369,10 @@ export default class EditorExtension implements IExtension {
 			api.getOfflineTaskByID<IOfflineTaskProps>({ id }).then((res) => {
 				if (res.code === 1) {
 					const task = res.data;
-					const currentTab: molecule.model.IEditorTab<IOfflineTaskProps> =
-						molecule.editor.getState().current!.tab!;
+					const currentTab: molecule.model.IEditorTab<IOfflineTaskProps> | undefined =
+						molecule.editor.getState().current?.tab;
+
+					if (!currentTab) return;
 
 					// 更新当前 tab 的状态为已保存
 					molecule.editor.updateTab({
