@@ -2,6 +2,7 @@ import molecule from '@dtinsight/molecule';
 import taskSaveService from '@/services/taskSaveService';
 import { confirm } from '@/components/confirm';
 import { EditorEvent } from '@dtinsight/molecule/esm/model';
+import { isTaskTab } from '@/utils/is';
 import type { CatalogueDataProps } from '@/interface';
 import type { ListenerEventContext } from '@dtinsight/molecule/esm/common/event';
 import type { UniqueId } from '@dtinsight/molecule/esm/common/types';
@@ -13,7 +14,7 @@ export default class ConfirmExtension implements IExtension {
 	activate(): void {
 		molecule.editor.onCloseTab(function anonymous(this: ListenerEventContext, tabId, groupId) {
 			const tab = molecule.editor.getTabById(tabId, groupId!);
-			if (tab?.status === 'edited') {
+			if (tab?.status === 'edited' && isTaskTab(tab.id)) {
 				this.stopDelivery();
 				showConfirm(tabId, groupId!, () => {
 					molecule.editor.emit(EditorEvent.OnCloseTab, tabId, groupId);
@@ -26,7 +27,7 @@ export default class ConfirmExtension implements IExtension {
 			if (group) {
 				const tabs = group.data?.filter((data) => data !== tab) || [];
 
-				if (tabs.some((t) => t.status === 'edited')) {
+				if (tabs.some((t) => t.status === 'edited' && isTaskTab(t.id))) {
 					this.stopDelivery();
 					const unSavedTab = tabs.find((t) => t.status === 'edited')!;
 
@@ -40,7 +41,7 @@ export default class ConfirmExtension implements IExtension {
 
 		molecule.editor.onCloseAll(function anonymous(this: ListenerEventContext, groupId) {
 			const group = molecule.editor.getGroupById(groupId!);
-			if (group?.data?.some((tab) => tab.status === 'edited')) {
+			if (group?.data?.some((tab) => tab.status === 'edited' && isTaskTab(tab.id))) {
 				this.stopDelivery();
 
 				const unSavedTab = group!.data!.find((t) => t.status === 'edited')!;
@@ -55,7 +56,9 @@ export default class ConfirmExtension implements IExtension {
 			const group = molecule.editor.getGroupById(groupId!)!;
 			const idx = group.data?.indexOf(tab) || -1;
 
-			const unSavedTab = group.data?.slice(0, idx).find((t) => t.status === 'edited');
+			const unSavedTab = group.data
+				?.slice(0, idx)
+				.find((t) => t.status === 'edited' && isTaskTab(t.id));
 
 			if (unSavedTab) {
 				this.stopDelivery();
@@ -74,7 +77,9 @@ export default class ConfirmExtension implements IExtension {
 			const group = molecule.editor.getGroupById(groupId!)!;
 			const idx = group.data?.indexOf(tab) || -1;
 
-			const unSavedTab = group.data?.slice(idx + 1).find((t) => t.status === 'edited');
+			const unSavedTab = group.data
+				?.slice(idx + 1)
+				.find((t) => t.status === 'edited' && isTaskTab(t.id));
 
 			if (unSavedTab) {
 				this.stopDelivery();
@@ -87,7 +92,7 @@ export default class ConfirmExtension implements IExtension {
 
 		molecule.editorTree.onClose(function anonymous(this: ListenerEventContext, tabId, groupId) {
 			const tab = molecule.editor.getTabById(tabId, groupId!);
-			if (tab?.status === 'edited') {
+			if (tab?.status === 'edited' && isTaskTab(tab.id)) {
 				this.stopDelivery();
 				showConfirm(tabId, groupId!, () => {
 					molecule.editor.emit(EditorEvent.OnCloseTab, tabId, groupId);
@@ -97,7 +102,7 @@ export default class ConfirmExtension implements IExtension {
 
 		molecule.editorTree.onCloseAll(function anonymous(this: ListenerEventContext, groupId) {
 			const group = molecule.editor.getGroupById(groupId!);
-			if (group?.data?.some((tab) => tab.status === 'edited')) {
+			if (group?.data?.some((tab) => tab.status === 'edited' && isTaskTab(tab.id))) {
 				this.stopDelivery();
 
 				const unSavedTab = group!.data!.find((t) => t.status === 'edited')!;
@@ -117,7 +122,7 @@ export default class ConfirmExtension implements IExtension {
 			if (group) {
 				const tabs = group.data?.filter((data) => data !== tab) || [];
 
-				if (tabs.some((t) => t.status === 'edited')) {
+				if (tabs.some((t) => t.status === 'edited' && isTaskTab(t.id))) {
 					this.stopDelivery();
 					const unSavedTab = tabs.find((t) => t.status === 'edited')!;
 
@@ -132,7 +137,8 @@ export default class ConfirmExtension implements IExtension {
 		molecule.editorTree.onCloseSaved((groupId) => {
 			const group = molecule.editor.getGroupById(groupId);
 
-			const tabs = group?.data?.filter((t) => t.status !== 'edited') || [];
+			// Close saved tab will ONLY close task tab and ignore others
+			const tabs = group?.data?.filter((t) => t.status !== 'edited' && isTaskTab(t.id)) || [];
 
 			tabs.forEach((tab) => {
 				molecule.editor.closeTab(tab.id, groupId);
