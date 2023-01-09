@@ -634,11 +634,11 @@ export const convertParams = (params: Record<string, any>, form: Record<string, 
 			const [scope, path, utils] = content.split('#');
 			value = get({ form }, `${scope.trim()}.${path.trim()}`);
 
-			if (utils) {
+			if (utils?.trim()) {
 				const utilCollection: Record<string, (value: any) => any> = {
 					toArray,
 				};
-				value = utilCollection[utils](value);
+				value = utilCollection[utils.trim()](value);
 			}
 		}
 

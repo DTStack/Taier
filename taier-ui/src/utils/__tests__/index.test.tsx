@@ -1,5 +1,6 @@
 import { TASK_STATUS } from '@/constant';
 import { taskRenderService } from '@/services';
+import '@testing-library/jest-dom';
 import moment from 'moment';
 import { history } from 'umi';
 import {
@@ -7,6 +8,7 @@ import {
 	convertObjToNamePath,
 	convertParams,
 	copyText,
+	createElement,
 	createSeries,
 	createSQLProposals,
 	deleteCookie,
@@ -31,6 +33,9 @@ import {
 	replaceStrFormIndexArr,
 	splitByKey,
 	splitSql,
+	toArray,
+	utf16to8,
+	utf8to16,
 	visit,
 } from '..';
 
@@ -57,6 +62,7 @@ jest.mock('@/services', () => {
 describe('utils/index', () => {
 	beforeEach(() => {
 		jest.clearAllMocks();
+		document.body.innerHTML = '';
 	});
 
 	it('Should Get the time', () => {
@@ -237,9 +243,20 @@ describe('utils/index', () => {
 		expect(renderCharacterByCode(8)).toBe('⌫');
 	});
 
+	it('Should get an Array', () => {
+		expect(toArray('test')).toEqual(['test']);
+		expect(toArray(['test'])).toEqual(['test']);
+	});
+
 	it('Should convert params into values', () => {
-		expect(convertParams({ sourceId: '{{ form#a.b }}' }, { a: { b: 1 } })).toEqual({
+		expect(
+			convertParams(
+				{ sourceId: '{{ form#a.b }}', targetId: '{{ form#a.b#toArray }}' },
+				{ a: { b: 1 } },
+			),
+		).toEqual({
 			sourceId: 1,
+			targetId: [1],
 		});
 	});
 
@@ -363,6 +380,16 @@ describe('utils/index', () => {
 	});
 
 	it('Should have completion for sql', () => {
+		window.fetch = jest
+			.fn()
+			.mockResolvedValueOnce({
+				// eslint-disable-next-line global-require
+				json: () => Promise.resolve(require('../../../public/assets/keywords.json')),
+			})
+			.mockResolvedValueOnce({
+				// eslint-disable-next-line global-require
+				json: () => Promise.resolve(require('../../../public/assets/functions.json')),
+			});
 		const completions = createSQLProposals({
 			startLineNumber: 0,
 			startColumn: 0,
@@ -370,7 +397,7 @@ describe('utils/index', () => {
 			endColumn: 0,
 		});
 
-		expect(completions).toMatchSnapshot();
+		expect(completions).resolves.toMatchSnapshot();
 	});
 
 	it('disableRangeCreater', () => {
@@ -437,10 +464,32 @@ describe('utils/index', () => {
 		).toEqual(secondsRange.slice(51));
 	});
 
+	it('Should convert utf-8 to utf-16', () => {
+		expect(utf8to16('test')).toBe('test');
+		expect(utf8to16('@Àäåæçèé')).toBe('@$妧詀');
+		expect(utf8to16(1 as any)).toBe(1);
+	});
+
+	it('Should convert utf-16 to utf-8', () => {
+		expect(utf16to8(1 as any)).toBe(1);
+		expect(utf16to8('Àäåæçèé')).toBe('Àäåæçèé');
+		expect(utf16to8('a¡ऄ')).toBe('aÂ¡à¤');
+	});
+
 	it('Should support to goToTaskDev', () => {
 		goToTaskDev({ id: 1 });
 
 		expect(taskRenderService.openTask).toBeCalledWith({ id: '1' });
 		expect(history.push).toBeCalledWith({ query: {} });
+	});
+
+	it('Should create a dom avoid duplicated element', () => {
+		expect(document.body.childElementCount).toBe(0);
+
+		createElement({});
+		expect(document.body.childElementCount).toBe(1);
+
+		createElement({ className: 'test' });
+		expect(document.querySelector('.test')).toBeInTheDocument();
 	});
 });
