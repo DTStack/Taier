@@ -29,10 +29,12 @@ import { LocaleExtension } from './i18n';
 import ActionExtension from './action';
 import ColorThemeExtensions from './themes';
 import AuxiliaryBarExtensions from './auxiliaryBar';
+import ConfirmExtension from './confirm';
 
 export const extensions: IExtension[] = [
 	LocaleExtension,
 	DTStackTheme,
+	new ConfirmExtension(),
 	new ColorThemeExtensions(),
 	new ActionExtension(),
 	new InitializeExtension(),
@@ -42,5 +44,5 @@ export const extensions: IExtension[] = [
 	new FolderTreeExtension(),
 	new ExtendsSparkSQL(),
 	new MenuExtension(),
-	new AuxiliaryBarExtensions()
+	new AuxiliaryBarExtensions(),
 ];
