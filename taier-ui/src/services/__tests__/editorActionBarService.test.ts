@@ -1,6 +1,5 @@
 import molecule from '@dtinsight/molecule';
 import EditorActionBarService from '../editorActionBarService';
-import ExecuteService from '../executeService';
 import { taskRenderService } from '..';
 
 jest.mock(

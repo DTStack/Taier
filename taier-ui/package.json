@@ -6,7 +6,7 @@
 		"postinstall": "umi generate tmp",
 		"prettier": "prettier --write '**/*.{js,jsx,tsx,ts,less,md,json}'",
 		"test": "umi-test",
-		"test:coverage": "umi-test --coverage",
+		"test:coverage": "umi-test --coverage src/services/__tests__/executeService.test.ts",
 		"gen-api": "node scripts/getSwagger.js -t"
 	},
 	"gitHooks": {
@@ -50,6 +50,8 @@
 		"whatwg-fetch": "^3.6.2"
 	},
 	"devDependencies": {
+		"@swc/core": "^1.3.25",
+		"@swc/jest": "^0.2.24",
 		"@testing-library/jest-dom": "^5.16.4",
 		"@testing-library/react": "^13.3.0",
 		"@typed-mxgraph/typed-mxgraph": "^1.0.6",
@@ -72,6 +74,7 @@
 		"@umijs/test": "^3.5.20",
 		"colors": "^1.4.0",
 		"commander": "^9.0.0",
+		"identity-obj-proxy": "^3.0.0",
 		"inquirer": "^8.2.0",
 		"lint-staged": "^10.0.7",
 		"mini-cup": "^1.1.3",

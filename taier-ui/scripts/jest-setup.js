@@ -1,4 +1,4 @@
 import React from 'react';
-import "reflect-metadata"
+import 'reflect-metadata';
 
 global.React = React;
