@@ -87,6 +87,7 @@ export default function SpreadSheet({ columns = [], data }: ISpreadSheet) {
 			beforeCopy={handleCopy}
 			manualRowResize
 			manualColumnResize
+			licenseKey="non-commercial-and-evaluation"
 			contextMenu={{
 				items: {
 					copy: {
