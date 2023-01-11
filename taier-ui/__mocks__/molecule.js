@@ -28,12 +28,14 @@ module.exports = {
 	editor: {
 		updateActions: jest.fn(),
 		updateGroup: jest.fn(),
+		updateTab: jest.fn(),
 		getDefaultActions: jest.fn(),
 		getState: jest.fn(),
 		getGroupIdByTab: jest.fn(),
 		setActive: jest.fn(),
 		isOpened: jest.fn(),
 		open: jest.fn(),
+		closeTab: jest.fn(),
 		...editor,
 	},
 	folderTree: {

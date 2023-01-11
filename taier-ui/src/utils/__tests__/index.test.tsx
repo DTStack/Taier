@@ -411,18 +411,26 @@ describe('utils/index', () => {
 		const secondsRange = new Array(60).fill(1).map((_, idx) => idx);
 
 		// Range span a day
-		expect(disableRangeCreater(moment('2013-02-08'), moment('2013-02-09'), 'hour')).toEqual(
-			hoursRange.slice(1),
-		);
+		expect(
+			disableRangeCreater(
+				moment('2013-02-08', 'YYYY-DD-MM'),
+				moment('2013-02-09', 'YYYY-DD-MM'),
+				'hour',
+			),
+		).toEqual(hoursRange.slice(1));
 
 		expect(
-			disableRangeCreater(moment('2013-02-08 09:30'), moment('2013-02-08 10:30'), 'hour'),
+			disableRangeCreater(
+				moment('2013-02-08 09:30', 'YYYY-DD-MM HH:mm'),
+				moment('2013-02-08 10:30', 'YYYY-DD-MM HH:mm'),
+				'hour',
+			),
 		).toEqual(hoursRange.slice(11));
 
 		expect(
 			disableRangeCreater(
-				moment('2013-02-08 09:30'),
-				moment('2013-02-08 10:30'),
+				moment('2013-02-08 09:30', 'YYYY-DD-MM HH:mm'),
+				moment('2013-02-08 10:30', 'YYYY-DD-MM HH:mm'),
 				'hour',
 				true,
 			),
@@ -430,18 +438,26 @@ describe('utils/index', () => {
 
 		// Returns [] since different hour
 		expect(
-			disableRangeCreater(moment('2013-02-08 09:30'), moment('2013-02-08 10:35'), 'minute'),
+			disableRangeCreater(
+				moment('2013-02-08 09:30', 'YYYY-DD-MM HH:mm'),
+				moment('2013-02-08 10:35', 'YYYY-DD-MM HH:mm'),
+				'minute',
+			),
 		).toEqual([]);
 
 		expect(
-			disableRangeCreater(moment('2013-02-08 09:30'), moment('2013-02-08 9:35'), 'minute'),
+			disableRangeCreater(
+				moment('2013-02-08 09:30', 'YYYY-DD-MM HH:mm'),
+				moment('2013-02-08 9:35', 'YYYY-DD-MM HH:mm'),
+				'minute',
+			),
 		).toEqual(minutesRange.slice(36));
 
 		// Returns [] since different hour
 		expect(
 			disableRangeCreater(
-				moment('2013-02-08 09:30:26'),
-				moment('2013-02-08 10:30:26'),
+				moment('2013-02-08 09:30:26', 'YYYY-DD-MM HH:mm:ss'),
+				moment('2013-02-08 10:30:26', 'YYYY-DD-MM HH:mm:ss'),
 				'second',
 			),
 		).toEqual([]);
@@ -449,16 +465,16 @@ describe('utils/index', () => {
 		// Returns [] since different minute
 		expect(
 			disableRangeCreater(
-				moment('2013-02-08 09:30:26'),
-				moment('2013-02-08 09:31:26'),
+				moment('2013-02-08 09:30:26', 'YYYY-DD-MM HH:mm:ss'),
+				moment('2013-02-08 09:31:26', 'YYYY-DD-MM HH:mm:ss'),
 				'second',
 			),
 		).toEqual([]);
 
 		expect(
 			disableRangeCreater(
-				moment('2013-02-08 09:30:26'),
-				moment('2013-02-08 09:30:50'),
+				moment('2013-02-08 09:30:26', 'YYYY-DD-MM HH:mm:ss'),
+				moment('2013-02-08 09:30:50', 'YYYY-DD-MM HH:mm:ss'),
 				'second',
 			),
 		).toEqual(secondsRange.slice(51));

@@ -6,7 +6,7 @@
 		"postinstall": "umi generate tmp",
 		"prettier": "prettier --write '**/*.{js,jsx,tsx,ts,less,md,json}'",
 		"test": "umi-test",
-		"test:coverage": "umi-test --coverage src/services/__tests__/executeService.test.ts",
+		"test:coverage": "umi-test --coverage",
 		"gen-api": "node scripts/getSwagger.js -t"
 	},
 	"gitHooks": {
