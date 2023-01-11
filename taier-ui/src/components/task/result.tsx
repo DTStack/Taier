@@ -107,50 +107,48 @@ export default function Result({
 	const pageSizeOptions = !tab?.tableType ? ['10', '20', '30', '40'] : ['10', '20', '50', '100'];
 
 	return (
-		<molecule.component.Scrollbar>
-			<div className="c-ide-result">
-				{tab?.tableType && (
-					<div className="console-select c-ide-result__select">
-						<span>{tab?.tableType === defaultOutTable ? '数据表：' : '结果表：'}</span>
-						<Select
-							defaultValue={tab.tableName}
-							style={{ width: 340 }}
-							onChange={tableNameChange}
-						>
-							{renderOptions()}
-						</Select>
-					</div>
-				)}
-				<div className="c-ide-result__table">
-					<SpreadSheet columns={data[0]} data={resultData} />
+		<div className="c-ide-result">
+			{!!tab?.tableType && (
+				<div className="console-select c-ide-result__select">
+					<span>{tab?.tableType === defaultOutTable ? '数据表：' : '结果表：'}</span>
+					<Select
+						defaultValue={tab.tableName}
+						style={{ width: 340 }}
+						onChange={tableNameChange}
+					>
+						{renderOptions()}
+					</Select>
 				</div>
-				<div className="c-ide-result__tools">
-					{extraView}
-					<span className="c-ide-result__tools__pagination">
-						<Pagination
-							size="small"
-							{...pagination}
-							total={total}
-							showSizeChanger
-							pageSizeOptions={pageSizeOptions}
-							onChange={(page) => {
-								setPagination((p) => {
-									const nextPagination = { ...p, current: page };
-									onPageChange(undefined, nextPagination);
-									return nextPagination;
-								});
-							}}
-							onShowSizeChange={(_, size) => {
-								setPagination((p) => {
-									const nextPagination = { ...p, current: 1, pageSize: size };
-									onPageChange(undefined, nextPagination);
-									return nextPagination;
-								});
-							}}
-						/>
-					</span>
-				</div>
+			)}
+			<molecule.component.Scrollbar>
+				<SpreadSheet columns={data[0]} data={resultData} />
+			</molecule.component.Scrollbar>
+			<div className="c-ide-result__tools">
+				{extraView}
+				<span className="c-ide-result__tools__pagination">
+					<Pagination
+						size="small"
+						{...pagination}
+						total={total}
+						showSizeChanger
+						pageSizeOptions={pageSizeOptions}
+						onChange={(page) => {
+							setPagination((p) => {
+								const nextPagination = { ...p, current: page };
+								onPageChange(undefined, nextPagination);
+								return nextPagination;
+							});
+						}}
+						onShowSizeChange={(_, size) => {
+							setPagination((p) => {
+								const nextPagination = { ...p, current: 1, pageSize: size };
+								onPageChange(undefined, nextPagination);
+								return nextPagination;
+							});
+						}}
+					/>
+				</span>
 			</div>
-		</molecule.component.Scrollbar>
+		</div>
 	);
 }
