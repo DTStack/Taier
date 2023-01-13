@@ -2,9 +2,10 @@ const { editor, ...rest } = require('./monaco-editor');
 
 module.exports = {
 	Component: class {
+		emit = jest.fn();
 		subscribe = jest.fn();
 		getState = () => this.state;
-		setState = (state) => (this.state = state);
+		setState = (state) => Object.assign(this.state, state);
 	},
 	FolderTreeService: class FolderTreeService {
 		get = jest.fn();
@@ -21,11 +22,20 @@ module.exports = {
 		update: jest.fn(),
 		getPanel: jest.fn(),
 	},
+	explorer: {
+		forceUpdate: jest.fn(),
+	},
 	editor: {
 		updateActions: jest.fn(),
 		updateGroup: jest.fn(),
+		updateTab: jest.fn(),
 		getDefaultActions: jest.fn(),
 		getState: jest.fn(),
+		getGroupIdByTab: jest.fn(),
+		setActive: jest.fn(),
+		isOpened: jest.fn(),
+		open: jest.fn(),
+		closeTab: jest.fn(),
 		...editor,
 	},
 	folderTree: {
@@ -33,6 +43,7 @@ module.exports = {
 		add: jest.fn(),
 		getState: jest.fn(),
 		update: jest.fn(),
+		setActive: jest.fn(),
 	},
 	layout: {
 		getState: jest.fn(),

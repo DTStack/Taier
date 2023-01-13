@@ -38,7 +38,10 @@ interface ITaskParamsStates {
 	systemParams: IParamsProps[];
 }
 
-class TaskParamsService extends Component<ITaskParamsStates> implements ITaskParamsService {
+export default class TaskParamsService
+	extends Component<ITaskParamsStates>
+	implements ITaskParamsService
+{
 	protected state: ITaskParamsStates;
 	constructor() {
 		super();
@@ -85,5 +88,3 @@ class TaskParamsService extends Component<ITaskParamsStates> implements ITaskPar
 		return data;
 	};
 }
-
-export default new TaskParamsService();
