@@ -1,5 +1,6 @@
 import { TASK_STATUS } from '@/constant';
 import { taskRenderService } from '@/services';
+import '@testing-library/jest-dom';
 import moment from 'moment';
 import { history } from 'umi';
 import {
@@ -7,6 +8,7 @@ import {
 	convertObjToNamePath,
 	convertParams,
 	copyText,
+	createElement,
 	createSeries,
 	createSQLProposals,
 	deleteCookie,
@@ -31,6 +33,9 @@ import {
 	replaceStrFormIndexArr,
 	splitByKey,
 	splitSql,
+	toArray,
+	utf16to8,
+	utf8to16,
 	visit,
 } from '..';
 
@@ -57,6 +62,7 @@ jest.mock('@/services', () => {
 describe('utils/index', () => {
 	beforeEach(() => {
 		jest.clearAllMocks();
+		document.body.innerHTML = '';
 	});
 
 	it('Should Get the time', () => {
@@ -237,9 +243,20 @@ describe('utils/index', () => {
 		expect(renderCharacterByCode(8)).toBe('⌫');
 	});
 
+	it('Should get an Array', () => {
+		expect(toArray('test')).toEqual(['test']);
+		expect(toArray(['test'])).toEqual(['test']);
+	});
+
 	it('Should convert params into values', () => {
-		expect(convertParams({ sourceId: '{{ form#a.b }}' }, { a: { b: 1 } })).toEqual({
+		expect(
+			convertParams(
+				{ sourceId: '{{ form#a.b }}', targetId: '{{ form#a.b#toArray }}' },
+				{ a: { b: 1 } },
+			),
+		).toEqual({
 			sourceId: 1,
+			targetId: [1],
 		});
 	});
 
@@ -363,6 +380,16 @@ describe('utils/index', () => {
 	});
 
 	it('Should have completion for sql', () => {
+		window.fetch = jest
+			.fn()
+			.mockResolvedValueOnce({
+				// eslint-disable-next-line global-require
+				json: () => Promise.resolve(require('../../../public/assets/keywords.json')),
+			})
+			.mockResolvedValueOnce({
+				// eslint-disable-next-line global-require
+				json: () => Promise.resolve(require('../../../public/assets/functions.json')),
+			});
 		const completions = createSQLProposals({
 			startLineNumber: 0,
 			startColumn: 0,
@@ -370,7 +397,7 @@ describe('utils/index', () => {
 			endColumn: 0,
 		});
 
-		expect(completions).toMatchSnapshot();
+		expect(completions).resolves.toMatchSnapshot();
 	});
 
 	it('disableRangeCreater', () => {
@@ -384,18 +411,26 @@ describe('utils/index', () => {
 		const secondsRange = new Array(60).fill(1).map((_, idx) => idx);
 
 		// Range span a day
-		expect(disableRangeCreater(moment('2013-02-08'), moment('2013-02-09'), 'hour')).toEqual(
-			hoursRange.slice(1),
-		);
+		expect(
+			disableRangeCreater(
+				moment('2013-02-08', 'YYYY-DD-MM'),
+				moment('2013-02-09', 'YYYY-DD-MM'),
+				'hour',
+			),
+		).toEqual(hoursRange.slice(1));
 
 		expect(
-			disableRangeCreater(moment('2013-02-08 09:30'), moment('2013-02-08 10:30'), 'hour'),
+			disableRangeCreater(
+				moment('2013-02-08 09:30', 'YYYY-DD-MM HH:mm'),
+				moment('2013-02-08 10:30', 'YYYY-DD-MM HH:mm'),
+				'hour',
+			),
 		).toEqual(hoursRange.slice(11));
 
 		expect(
 			disableRangeCreater(
-				moment('2013-02-08 09:30'),
-				moment('2013-02-08 10:30'),
+				moment('2013-02-08 09:30', 'YYYY-DD-MM HH:mm'),
+				moment('2013-02-08 10:30', 'YYYY-DD-MM HH:mm'),
 				'hour',
 				true,
 			),
@@ -403,18 +438,26 @@ describe('utils/index', () => {
 
 		// Returns [] since different hour
 		expect(
-			disableRangeCreater(moment('2013-02-08 09:30'), moment('2013-02-08 10:35'), 'minute'),
+			disableRangeCreater(
+				moment('2013-02-08 09:30', 'YYYY-DD-MM HH:mm'),
+				moment('2013-02-08 10:35', 'YYYY-DD-MM HH:mm'),
+				'minute',
+			),
 		).toEqual([]);
 
 		expect(
-			disableRangeCreater(moment('2013-02-08 09:30'), moment('2013-02-08 9:35'), 'minute'),
+			disableRangeCreater(
+				moment('2013-02-08 09:30', 'YYYY-DD-MM HH:mm'),
+				moment('2013-02-08 9:35', 'YYYY-DD-MM HH:mm'),
+				'minute',
+			),
 		).toEqual(minutesRange.slice(36));
 
 		// Returns [] since different hour
 		expect(
 			disableRangeCreater(
-				moment('2013-02-08 09:30:26'),
-				moment('2013-02-08 10:30:26'),
+				moment('2013-02-08 09:30:26', 'YYYY-DD-MM HH:mm:ss'),
+				moment('2013-02-08 10:30:26', 'YYYY-DD-MM HH:mm:ss'),
 				'second',
 			),
 		).toEqual([]);
@@ -422,19 +465,31 @@ describe('utils/index', () => {
 		// Returns [] since different minute
 		expect(
 			disableRangeCreater(
-				moment('2013-02-08 09:30:26'),
-				moment('2013-02-08 09:31:26'),
+				moment('2013-02-08 09:30:26', 'YYYY-DD-MM HH:mm:ss'),
+				moment('2013-02-08 09:31:26', 'YYYY-DD-MM HH:mm:ss'),
 				'second',
 			),
 		).toEqual([]);
 
 		expect(
 			disableRangeCreater(
-				moment('2013-02-08 09:30:26'),
-				moment('2013-02-08 09:30:50'),
+				moment('2013-02-08 09:30:26', 'YYYY-DD-MM HH:mm:ss'),
+				moment('2013-02-08 09:30:50', 'YYYY-DD-MM HH:mm:ss'),
 				'second',
 			),
 		).toEqual(secondsRange.slice(51));
+	});
+
+	it('Should convert utf-8 to utf-16', () => {
+		expect(utf8to16('test')).toBe('test');
+		expect(utf8to16('@Àäåæçèé')).toBe('@$妧詀');
+		expect(utf8to16(1 as any)).toBe(1);
+	});
+
+	it('Should convert utf-16 to utf-8', () => {
+		expect(utf16to8(1 as any)).toBe(1);
+		expect(utf16to8('Àäåæçèé')).toBe('Àäåæçèé');
+		expect(utf16to8('a¡ऄ')).toBe('aÂ¡à¤');
 	});
 
 	it('Should support to goToTaskDev', () => {
@@ -442,5 +497,15 @@ describe('utils/index', () => {
 
 		expect(taskRenderService.openTask).toBeCalledWith({ id: '1' });
 		expect(history.push).toBeCalledWith({ query: {} });
+	});
+
+	it('Should create a dom avoid duplicated element', () => {
+		expect(document.body.childElementCount).toBe(0);
+
+		createElement({});
+		expect(document.body.childElementCount).toBe(1);
+
+		createElement({ className: 'test' });
+		expect(document.querySelector('.test')).toBeInTheDocument();
 	});
 });

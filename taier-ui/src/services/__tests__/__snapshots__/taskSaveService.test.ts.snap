@@ -1,0 +1,309 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Test TaskSaveService Should generate rules for source in flink 1`] = `
+Object {
+  "columnsText": Array [
+    Object {
+      "message": "字段信息不能为空！",
+      "required": true,
+    },
+  ],
+  "offset": Array [
+    Object {
+      "message": "请输入最大延迟时间",
+      "required": true,
+    },
+  ],
+  "schemaInfo": Array [
+    Object {
+      "message": "请输入Schema",
+      "required": false,
+    },
+  ],
+  "sourceDataType": Array [
+    Object {
+      "message": "请选择读取类型",
+      "required": true,
+    },
+  ],
+  "sourceId": Array [
+    Object {
+      "message": "请选择数据源",
+      "required": true,
+    },
+  ],
+  "table": Array [
+    Object {
+      "message": "请输入映射表名",
+      "required": true,
+    },
+  ],
+  "timeColumn": Array [
+    Object {
+      "message": "请选择时间列",
+      "required": true,
+    },
+  ],
+  "topic": Array [
+    Object {
+      "message": "请选择Topic",
+      "required": true,
+    },
+  ],
+  "type": Array [
+    Object {
+      "message": "请选择类型",
+      "required": true,
+    },
+  ],
+}
+`;
+
+exports[`Test TaskSaveService Should support save specific tab 1`] = `
+Object {
+  "computeType": 1,
+  "id": 1,
+  "nodePid": 2,
+}
+`;
+
+exports[`Test TaskSaveService Test save function Should save DATA_ACQUISITION successfully 1`] = `
+Object {
+  "createModel": 0,
+  "preSave": true,
+  "settingMap": Object {
+    "readerChannel": "1",
+    "speed": -1,
+    "writerChannel": 1,
+  },
+  "sourceMap": Object {
+    "allTable": false,
+    "cat": Array [
+      1,
+      2,
+      3,
+    ],
+    "codec": "plain",
+    "codecType": "text",
+    "collectPoint": "taskRun",
+    "collectType": 0,
+    "decode": "text",
+    "decoder": "FixedLength",
+    "distributeTable": Object {
+      "test": Array [
+        "a",
+      ],
+    },
+    "isCleanSession": true,
+    "mode": "group-offsets",
+    "multipleTable": false,
+    "parse": "text",
+    "pavingData": false,
+    "protocol": "http",
+    "qos": 2,
+    "rdbmsDaType": 1,
+    "requestMode": "post",
+    "slotConfig": 1,
+    "sourceId": 17,
+    "table": Array [
+      "binary_test",
+    ],
+    "temporary": false,
+    "type": 1,
+  },
+  "sqlText": "",
+  "targetMap": Object {
+    "dataSequence": false,
+    "isCleanSession": true,
+    "qos": 2,
+    "sourceId": 19,
+    "topic": "test",
+    "type": 37,
+  },
+  "taskType": 6,
+  "updateSource": true,
+}
+`;
+
+exports[`Test TaskSaveService Test save function Should save flink SQL in guide mode 1`] = `
+Object {
+  "componentVersion": "1.12",
+  "createModel": 0,
+  "preSave": true,
+  "side": Array [
+    Object {
+      "asyncPoolSize": 5,
+      "cache": "LRU",
+      "cacheSize": 10000,
+      "cacheTTLMs": 60000,
+      "columns": Array [
+        Object {
+          "column": "i1",
+          "type": "VARBINARY",
+        },
+      ],
+      "parallelism": 1,
+      "sourceId": 9,
+      "table": "binary_test",
+      "tableName": "test",
+      "type": 1,
+    },
+  ],
+  "sink": Array [
+    Object {
+      "allReplace": "false",
+      "batchSize": 100,
+      "batchWaitInterval": 1000,
+      "bulkFlushMaxActions": 100,
+      "columns": Array [
+        Object {
+          "column": "i1",
+          "type": "VARBINARY",
+        },
+      ],
+      "enableKeyPartitions": false,
+      "parallelism": 1,
+      "sourceId": 9,
+      "table": "binary_test",
+      "tableName": "test",
+      "type": 1,
+      "updateMode": "append",
+    },
+  ],
+  "source": Array [
+    Object {
+      "charset": "utf-8",
+      "columnsText": "id int",
+      "offset": 0,
+      "offsetReset": "latest",
+      "offsetUnit": "SECOND",
+      "parallelism": 1,
+      "procTime": "proc_time",
+      "sourceDataType": "dt_nest",
+      "sourceId": "19",
+      "table": "test",
+      "timeType": 1,
+      "timeTypeArr": Array [
+        1,
+      ],
+      "timeZone": "Asia/Shanghai",
+      "topic": "test_topic_name_gcwfybte",
+      "type": 37,
+    },
+  ],
+  "sqlText": "",
+  "taskType": 5,
+  "updateSource": true,
+}
+`;
+
+exports[`Test TaskSaveService Test save function Should save flink SQL in script mode 1`] = `
+Object {
+  "componentVersion": "1.12",
+  "createModel": 1,
+  "preSave": true,
+  "side": Array [
+    Object {
+      "asyncPoolSize": 5,
+      "cache": "LRU",
+      "cacheSize": 10000,
+      "cacheTTLMs": 60000,
+      "columns": Array [
+        Object {
+          "column": "i1",
+          "type": "VARBINARY",
+        },
+      ],
+      "parallelism": 1,
+      "sourceId": 9,
+      "table": "binary_test",
+      "tableName": "test",
+      "type": 1,
+    },
+  ],
+  "sink": Array [
+    Object {
+      "allReplace": "false",
+      "batchSize": 100,
+      "batchWaitInterval": 1000,
+      "bulkFlushMaxActions": 100,
+      "columns": Array [
+        Object {
+          "column": "i1",
+          "type": "VARBINARY",
+        },
+      ],
+      "enableKeyPartitions": false,
+      "parallelism": 1,
+      "sourceId": 9,
+      "table": "binary_test",
+      "tableName": "test",
+      "type": 1,
+      "updateMode": "append",
+    },
+  ],
+  "source": Array [
+    Object {
+      "charset": "utf-8",
+      "columnsText": "id int",
+      "offset": 0,
+      "offsetReset": "latest",
+      "offsetUnit": "SECOND",
+      "parallelism": 1,
+      "sourceDataType": "dt_nest",
+      "sourceId": "19",
+      "table": "test",
+      "timeType": 1,
+      "timeTypeArr": Array [
+        1,
+      ],
+      "timeZone": "Asia/Shanghai",
+      "topic": "test_topic_name_gcwfybte",
+      "type": 37,
+    },
+  ],
+  "sqlText": undefined,
+  "taskType": 5,
+  "updateSource": true,
+}
+`;
+
+exports[`Test TaskSaveService Test save function Should save sparkMR successfully 1`] = `
+Object {
+  "componentVersion": "2.1",
+  "exeArgs": null,
+  "id": 1,
+  "mainClass": "a.x",
+  "name": "hadooooooopMR",
+  "nodePid": 1,
+  "preSave": false,
+  "resourceIdList": Array [
+    7,
+  ],
+  "taskDesc": "",
+  "taskType": 1,
+  "updateSource": false,
+}
+`;
+
+exports[`Test TaskSaveService Test save function Should save sparkSQL successful 1`] = `
+Object {
+  "computeType": 1,
+  "flowId": 1,
+  "nodePid": 1,
+  "preSave": true,
+  "sqlText": "test",
+  "taskType": 0,
+}
+`;
+
+exports[`Test TaskSaveService Test save function Should save virtual task 1`] = `
+Object {
+  "computeType": 1,
+  "flowId": 1,
+  "name": "virtual",
+  "nodePid": 1,
+  "taskDesc": "",
+  "taskType": -1,
+}
+`;

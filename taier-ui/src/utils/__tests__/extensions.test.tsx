@@ -29,6 +29,8 @@ jest.mock('@/services', () => {
 		},
 		taskRenderService: {
 			renderTaskIcon: jest.fn((type) => type),
+			getField: jest.fn(),
+			getRenderKind: jest.fn(),
 		},
 	};
 });
@@ -65,6 +67,17 @@ describe('utils/extensions', () => {
 			.mockReset()
 			.mockImplementationOnce(() => undefined)
 			.mockImplementation(() => ({ id: 'test' }));
+
+		(taskRenderService.getField as jest.Mock).mockReset().mockImplementation(() => ({
+			key: 0,
+			value: 'SparkSQL',
+			computeType: 1,
+			jobType: 0,
+		}));
+
+		(taskRenderService.getRenderKind as jest.Mock)
+			.mockReset()
+			.mockImplementation(() => 'editor');
 
 		runTask({
 			id: 1,

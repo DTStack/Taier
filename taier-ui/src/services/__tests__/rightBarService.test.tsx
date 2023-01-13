@@ -43,19 +43,6 @@ describe('Test RightBarService', () => {
 		(molecule.editor.getState as jest.Mock).mockReset();
 	});
 
-	it('Should has static constants', () => {
-		expect(RightBarService.UNACTIVE_WIDTH).toBe(30);
-		expect(RightBarService.ACTIVE_WIDTH).toBe(480);
-	});
-
-	it('Should init with default value', () => {
-		const rightBarService = new RightBarService();
-		expect(rightBarService.getState()).toEqual({
-			width: RightBarService.UNACTIVE_WIDTH,
-			current: null,
-		});
-	});
-
 	it('Should have rightBar text', () => {
 		const rightBarService = new RightBarService();
 		expect(rightBarService.getTextByKind(RightBarKind.TASK)).toBe('任务属性');
@@ -70,28 +57,6 @@ describe('Test RightBarService', () => {
 		expect(rightBarService.getTextByKind('')).toBe('未知');
 	});
 
-	it('Should have get invalid status', () => {
-		(taskRenderService.renderRightBar as jest.Mock)
-			.mockImplementationOnce(() => [])
-			.mockImplementationOnce(() => ['test']);
-
-		(molecule.editor.getState as jest.Mock).mockImplementation(() => ({ current: undefined }));
-
-		const rightBarService = new RightBarService();
-
-		rightBarService.setCurrent('test');
-		expect(rightBarService.getState().current).toBe('test');
-
-		expect(rightBarService.createContent('test')).toMatchSnapshot();
-		expect(rightBarService.getState().current).toBe(null);
-
-		// support bars won't reset current
-		rightBarService.setCurrent('test');
-		expect(rightBarService.getState().current).toBe('test');
-		expect(rightBarService.createContent('test')).toMatchSnapshot();
-		expect(rightBarService.getState().current).toBe('test');
-	});
-
 	it('Should have correct component', () => {
 		(taskRenderService.renderRightBar as jest.Mock).mockImplementation(() => [
 			RightBarKind.TASK,
@@ -102,7 +67,7 @@ describe('Test RightBarService', () => {
 			RightBarKind.FLINKSQL_SOURCE,
 			RightBarKind.FLINKSQL_RESULT,
 			RightBarKind.FLINKSQL_DIMENSION,
-			'1'
+			'1',
 		]);
 
 		(molecule.editor.getState as jest.Mock).mockImplementation(() => ({

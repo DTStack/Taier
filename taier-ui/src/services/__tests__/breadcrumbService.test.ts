@@ -1,10 +1,13 @@
+// eslint-disable-next-line max-classes-per-file
 import BreadcrumbService from '../breadcrumbService';
 import { catalogueService } from '../';
 import { TreeViewUtil } from '@dtinsight/molecule/esm/common/treeUtil';
 
 class MockService {
 	private cb = () => {};
-	onUpdate = (cb: any) => (this.cb = cb);
+	onUpdate = (cb: any) => {
+		this.cb = cb;
+	};
 	emitUpdate = () => this.cb();
 	getRootFolder = jest.fn();
 }
@@ -13,7 +16,9 @@ jest.mock('@/services', () => {
 	return {
 		catalogueService: new (class {
 			private cb = () => {};
-			onUpdate = (cb: any) => (this.cb = cb);
+			onUpdate = (cb: any) => {
+				this.cb = cb;
+			};
 			emitUpdate = () => this.cb();
 			getRootFolder = jest.fn();
 		})(),

@@ -32,9 +32,13 @@ import { TASK_TYPE_ENUM } from '@/constant';
 import type { CatalogueDataProps, IOfflineTaskProps } from '@/interface';
 import { IComputeType } from '@/interface';
 import type { IParamsProps } from '@/services/taskParamsService';
-import taskParamsService from '@/services/taskParamsService';
 import { languages } from '@dtinsight/molecule/esm/monaco';
-import { editorActionBarService, taskRenderService, executeService } from '@/services';
+import {
+	editorActionBarService,
+	taskRenderService,
+	executeService,
+	taskParamsService,
+} from '@/services';
 import notification from '@/components/notification';
 import { mappingTaskTypeToLanguage } from '@/utils/enums';
 import taskSaveService from '@/services/taskSaveService';

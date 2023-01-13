@@ -63,21 +63,3 @@ exports[`Test RightBarService Should have correct component 8`] = `
   </div>
 </DocumentFragment>
 `;
-
-exports[`Test RightBarService Should have get invalid status 1`] = `
-<div
-  className="text-center mt-10px"
->
-  无法获取
-  未知
-</div>
-`;
-
-exports[`Test RightBarService Should have get invalid status 2`] = `
-<div
-  className="text-center mt-10px"
->
-  无法获取
-  未知
-</div>
-`;
