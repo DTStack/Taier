@@ -74,7 +74,7 @@ at com.dtstack.chunjun.converter.AbstractRowConverter.$deserializeLambda$(Abstra
 
 ```
 :::tip
-Flink-Standalone服务增加类加载配置解决  
+Flink-Standalone服务fink-config.yml增加类加载配置解决  
 ```xml
 classloader.resolve-order: parent-first
 classloader.check-leaked-classloader: false
@@ -110,4 +110,10 @@ com.dtstack.taier.datasource.api.exception.InitializeException: get classloader 
 ```
 :::tip
 确保taier部署环境存在同级目录datasource-plugins
+:::
+
+### 数据同步任务运行class not found
+![login_error](../../static/img/example/class_not_find.png)  
+:::tip
+chunjun的connector部分依赖包是provided,运行时候需要下载对应jar包放在flink组件配置的`flinkLibDir`目录下
 :::

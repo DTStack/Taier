@@ -19,6 +19,8 @@
   </p>
 </p>
 
+[中文](./README_zh-CN.md) | [English](./README.md) 
+
 ## Introduction
 
 > **Taier** , spelling in chinese is 太阿, is one of the ancient chinese celebrated swords.
@@ -30,6 +32,7 @@ It's unnecessary to concern about the complex dependencies between tasks and the
 **Taier** provide an one-stop big data platform for submitting tasks, scheduling tasks, O&M, presentation about indicators.
 
 The core features for Taier are as follows:
+
 
 - Easy to distributed extend
 - Visualization config for DAG
@@ -72,17 +75,26 @@ $ docker-compose up -d
 
 |       Tasks       |                                     Documentation                                     |
 | :---------------: | :-----------------------------------------------------------------------------------: |
+|     Work Flow     |       [Documentation](https://dtstack.github.io/Taier/docs/functions/task/workflow)   |
 |     Data Sync     |       [Documentation](https://dtstack.github.io/Taier/docs/functions/task/sync)       |
 | Data Acquisition  | [Documentation](https://dtstack.github.io/Taier/docs/functions/task/data-acquisition) |
-|     Flink SQL     |    [Documentation](https://dtstack.github.io/Taier/docs/functions/task/flink-sql)     |
 |       Flink       |      [Documentation](https://dtstack.github.io/Taier/docs/functions/task/flink)       |
+|       Shell       |      [Documentation](https://dtstack.github.io/Taier/docs/functions/task/shell)       |
+|      Python       |      [Documentation](https://dtstack.github.io/Taier/docs/functions/task/python)      |
 |     Spark SQL     |    [Documentation](https://dtstack.github.io/Taier/docs/functions/task/spark-sql)     |
 |     Hive SQL      |     [Documentation](https://dtstack.github.io/Taier/docs/functions/task/hive-sql)     |
+|     Flink SQL     |    [Documentation](https://dtstack.github.io/Taier/docs/functions/task/flink-sql)     |
 |   OceanBase SQL   |  [Documentation](https://dtstack.github.io/Taier/docs/functions/task/oceanbase-sql)   |
 |  ClickHouse SQL   |  [Documentation](https://dtstack.github.io/Taier/docs/functions/task/clickhouse-sql)  |
 |     Doris SQL     |    [Documentation](https://dtstack.github.io/Taier/docs/functions/task/doris-sql)     |
-|       Shell       |      [Documentation](https://dtstack.github.io/Taier/docs/functions/task/shell)       |
-|      Python       |      [Documentation](https://dtstack.github.io/Taier/docs/functions/task/python)      |
+|      TiDB SQL     |      [Documentation](https://dtstack.github.io/Taier/docs/functions/task/tidb-sql)    |
+|      MySQL SQL    |      [Documentation](https://dtstack.github.io/Taier/docs/functions/task/mysql-sql)   |
+|      Vertica SQL  |      [Documentation](https://dtstack.github.io/Taier/docs/functions/task/vertica-sql) |
+|      Postgre SQL  |      [Documentation](https://dtstack.github.io/Taier/docs/functions/task/postgre-sql) |
+|     SqlServer SQL |     [Documentation](https://dtstack.github.io/Taier/docs/functions/task/sqlserver-sql)|
+|   Greenplum SQL   |     [Documentation](https://dtstack.github.io/Taier/docs/functions/task/greenplum-sql)|
+|   MaxCompute SQL  |    [Documentation](https://dtstack.github.io/Taier/docs/functions/task/maxcompute-sql)|
+|     GaussDB SQL   |      [Documentation](https://dtstack.github.io/Taier/docs/functions/task/guassdb-sql) |
 | User-defined Task |           [Documentation](https://dtstack.github.io/Taier/docs/expand/task)           |
 
 ## Questions
