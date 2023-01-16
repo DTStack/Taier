@@ -58,6 +58,7 @@ specifiers:
   react-use: ^17.4.0
   reflect-metadata: ^0.1.13
   request-promise: ^4.2.6
+  resize-observer-polyfill: ^1.5.1
   tslib: ^2.3.1
   tsyringe: ^4.6.0
   typescript: ^4.1.2
@@ -129,6 +130,7 @@ devDependencies:
   prettier: registry.npmmirror.com/prettier/2.8.1
   progress: registry.npmmirror.com/progress/2.0.3
   request-promise: registry.npmmirror.com/request-promise/4.2.6
+  resize-observer-polyfill: registry.npmmirror.com/resize-observer-polyfill/1.5.1
   tslib: registry.npmmirror.com/tslib/2.4.1
   typescript: registry.npmmirror.com/typescript/4.9.4
   umi-plugin-tailwindcss: registry.npmmirror.com/umi-plugin-tailwindcss/3.2.1_umi@3.5.36

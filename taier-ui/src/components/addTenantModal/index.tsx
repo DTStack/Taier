@@ -30,14 +30,16 @@ export default function AddTenantModal() {
 	const [form] = Form.useForm<IFormFieldProps>();
 
 	const handleAddTenant = () => {
-		form.validateFields().then((values) => {
-			api.addTenant({ ...values, userId: getUserId() }).then((res) => {
-				if (res.code) {
-					message.success('新增成功');
-					handleCloseModal();
-				}
-			});
-		});
+		form.validateFields()
+			.then((values) => {
+				api.addTenant({ ...values, userId: getUserId() }).then((res) => {
+					if (res.code) {
+						message.success('新增成功');
+						handleCloseModal();
+					}
+				});
+			})
+			.catch(() => {});
 	};
 
 	const handleCloseModal = () => {

@@ -194,7 +194,7 @@ export default function DetailInfo({ type, data }: IDetailInfoProps) {
 	}
 }
 
-interface IDetailModalProps {
+export interface IDetailModalProps {
 	visible?: boolean;
 	title?: string;
 	loading?: boolean;

@@ -57,5 +57,9 @@ module.exports = {
 			Object.assign(this, params);
 		}
 	},
+	colorTheme: {
+		getColorThemeMode: jest.fn(),
+		onChange: jest.fn(),
+	},
 	...rest,
 };
