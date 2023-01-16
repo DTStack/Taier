@@ -1,6 +1,6 @@
 ---
-title: Flink-standalone
-sidebar_label: Flink-standalone
+title: Flink On Standalone
+sidebar_label: Flink On Standalone
 ---
 
 ## 启动Flink Standalone环境
@@ -39,6 +39,42 @@ metrics.reporter.promgateway.randomJobNameSuffix: true
 metrics.reporter.promgateway.deleteOnShutdown: false
 ```
 
+
+flink standalone节点lib目录结构和文件，
+:::caution
+lib需要包含`chunjun-dist源码包`
+:::
+
+```shell
+lib/
+├── chunjun-dist
+│   ├── chunjun-core.jar
+│   ├── connector
+│   ├── ddl-plugins
+│   ├── dirty-data-collector
+│   ├── docker-build
+│   ├── formats
+│   ├── metrics
+│   └── restore-plugins
+│       └── mysql
+│           └── chunjun-restore-mysql.jar
+├── flink-csv-1.12.7.jar
+├── flink-dist_2.11-1.12.7.jar
+├── flink-json-1.12.7.jar
+├── flink-shaded-zookeeper-3.4.14.jar
+├── flink-table_2.11-1.12.7.jar
+├── flink-table-blink_2.11-1.12.7.jar
+├── log4j-1.2-api-2.16.0.jar
+├── log4j-api-2.16.0.jar
+├── log4j-core-2.16.0.jar
+├── log4j-slf4j-impl-2.16.0.jar
+├── logback-classic-1.2.11.jar
+└── logback-core-1.2.11.jar
+
+
+```
+
+
 ## Standalone 控制台参数
 
 | 参数名 | 含义 | 是否必填 * 为必填 | 默认值 |
@@ -62,17 +98,9 @@ metrics.reporter.promgateway.deleteOnShutdown: false
 
 
 
-## 新增集群
-
-1. 进入控制台 > 2. 多集群管理 > 3. 新增集群  
-   配置集群参考 [集群配置](././functions/multi-cluster.md)  
-   配置组件参考 [组件配置](././functions/component/sftp.md)
-
-## 绑定集群
-
-> 控制台>资源管理>绑定新租户 会初始化相关目录、schema、默认数据源信息
-
-![bing-tenant](/img/readme/bind-tenant.png)
+:::tip
+flink on standalone 离线任务需要手动将`环境参数`flinkTaskRunMode设置为`standalone`模式
+:::
 
 
 
