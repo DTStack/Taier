@@ -20,6 +20,8 @@
   </p>
 </p>
 
+[中文](./README_zh-CN.md) | [English](./README.md)
+
 ## 介绍
 
 > **Taier**  太阿，是中国古代十大名剑之一
@@ -71,20 +73,29 @@ $ docker-compose up -d
 
 ## 任务类型
 
-| 任务类型      | 文档说明 |
-| :---:        |    :----:   |
-| 数据同步      | [文档](https://dtstack.github.io/Taier/docs/functions/task/sync)|
-| 实时采集      | [文档](https://dtstack.github.io/Taier/docs/functions/task/data-acquisition)     |
-| Flink SQL   | [文档](https://dtstack.github.io/Taier/docs/functions/task/flink-sql)      |
-| Flink   | [文档](https://dtstack.github.io/Taier/docs/functions/task/flink)     |
-| Spark SQL   | [文档](https://dtstack.github.io/Taier/docs/functions/task/spark-sql)     |
-| Hive SQL   |[文档](https://dtstack.github.io/Taier/docs/functions/task/hive-sql)     |
-| OceanBase SQL   |[文档](https://dtstack.github.io/Taier/docs/functions/task/oceanbase-sql)   |
-| ClickHouse SQL   |[文档](https://dtstack.github.io/Taier/docs/functions/task/clickhouse-sql)   |
-| Doris SQL   |[文档](https://dtstack.github.io/Taier/docs/functions/task/doris-sql)   |
-| Shell   |[文档](https://dtstack.github.io/Taier/docs/functions/task/shell)   |
-| Python   |[文档](https://dtstack.github.io/Taier/docs/functions/task/python)   |
-| 自定义扩展   |[文档](https://dtstack.github.io/Taier/docs/expand/task)   |
+|       Tasks       |                                     Documentation                                     |
+| :---------------: | :-----------------------------------------------------------------------------------: |
+|        工作流      |       [文档](https://dtstack.github.io/Taier/docs/functions/task/workflow)   |
+|      数据同步      |       [文档](https://dtstack.github.io/Taier/docs/functions/task/sync)       |
+|      实时采集      | [文档](https://dtstack.github.io/Taier/docs/functions/task/data-acquisition) |
+|       Flink       |      [文档](https://dtstack.github.io/Taier/docs/functions/task/flink)       |
+|       Shell       |      [文档](https://dtstack.github.io/Taier/docs/functions/task/shell)       |
+|      Python       |      [文档](https://dtstack.github.io/Taier/docs/functions/task/python)      |
+|     Spark SQL     |    [文档](https://dtstack.github.io/Taier/docs/functions/task/spark-sql)     |
+|     Hive SQL      |     [文档](https://dtstack.github.io/Taier/docs/functions/task/hive-sql)     |
+|     Flink SQL     |    [文档](https://dtstack.github.io/Taier/docs/functions/task/flink-sql)     |
+|   OceanBase SQL   |  [文档](https://dtstack.github.io/Taier/docs/functions/task/oceanbase-sql)   |
+|  ClickHouse SQL   |  [文档](https://dtstack.github.io/Taier/docs/functions/task/clickhouse-sql)  |
+|     Doris SQL     |    [文档](https://dtstack.github.io/Taier/docs/functions/task/doris-sql)     |
+|      TiDB SQL     |      [文档](https://dtstack.github.io/Taier/docs/functions/task/tidb-sql)    |
+|      MySQL SQL    |      [文档](https://dtstack.github.io/Taier/docs/functions/task/mysql-sql)   |
+|      Vertica SQL  |      [文档](https://dtstack.github.io/Taier/docs/functions/task/vertica-sql) |
+|      Postgre SQL  |      [文档](https://dtstack.github.io/Taier/docs/functions/task/postgre-sql) |
+|     SqlServer SQL |     [文档](https://dtstack.github.io/Taier/docs/functions/task/sqlserver-sql)|
+|   Greenplum SQL   |     [文档](https://dtstack.github.io/Taier/docs/functions/task/greenplum-sql)|
+|   MaxCompute SQL  |    [文档](https://dtstack.github.io/Taier/docs/functions/task/maxcompute-sql)|
+|     GaussDB SQL   |      [文档](https://dtstack.github.io/Taier/docs/functions/task/guassdb-sql) |
+|      自定义扩展     |           [文档](https://dtstack.github.io/Taier/docs/expand/task)           |
 
 ## 问题反馈
 

@@ -1,6 +1,6 @@
 ---
-title: Flink
-sidebar_label: Flink
+title: Flink On Yarn
+sidebar_label: Flink On Yarn
 ---
 
 ## 配置Flink
@@ -85,7 +85,7 @@ Flink在自定义参数中添加Flink官方参数来调整任务提交参数信�
 
 ### 文件结构
 :::tip
-flinkLibDir为Flink jar 需要配置`taier部署机器`上的centos路径
+flinkLibDir为Flink jar 需要配置`taier部署机器`上的本地路径
 :::
 
 如 flinkLibDir 配置为/opt/dtstack/flink110_lib  
@@ -112,7 +112,7 @@ flinkLibDir为Flink jar 需要配置`taier部署机器`上的centos路径
 ```
 
 :::caution
-配置好数据同步任务之后运行，如果提示Could not read ch.qos.logback.classic.Logger 请确认下flinkLibDir下logback包是否放置
+配置好数据同步任务之后运行，如果提示Could not read ch.qos.logback.classic.Logger 请确认下flinkLibDir下logback等jar包是否放置
 :::
 
 :::tip 
