@@ -49,7 +49,7 @@ module.exports = {
 		getState: jest.fn(),
 		togglePanelVisibility: jest.fn(),
 	},
-	connect: jest.fn(),
+	connect: jest.fn((_, children) => children),
 	TreeViewUtil: jest.fn(),
 	FileTypes: {},
 	TreeNodeModel: class {
@@ -60,6 +60,10 @@ module.exports = {
 	colorTheme: {
 		getColorThemeMode: jest.fn(),
 		onChange: jest.fn(),
+	},
+	notification: {
+		getState: jest.fn(),
+		add: jest.fn(),
 	},
 	...rest,
 };

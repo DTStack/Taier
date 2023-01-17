@@ -1,0 +1,152 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Test LineTo Class Component Should match snapshot 1`] = `
+<div
+  class="taier__lineTo "
+>
+  <div
+    class="taier__lintTo__source"
+  >
+    <div
+      class="ant-table-wrapper"
+    >
+      <div
+        class="ant-spin-nested-loading"
+      >
+        <div
+          class="ant-spin-container"
+        >
+          <div
+            class="ant-table ant-table-small ant-table-bordered"
+          >
+            <div
+              class="ant-table-container"
+            >
+              <div
+                class="ant-table-content"
+              >
+                <table
+                  style="table-layout: auto;"
+                >
+                  <colgroup />
+                  <thead
+                    class="ant-table-thead"
+                  >
+                    <tr>
+                      <th
+                        class="ant-table-cell"
+                      />
+                    </tr>
+                  </thead>
+                  <tbody
+                    class="ant-table-tbody"
+                  >
+                    <tr
+                      class="ant-table-row ant-table-row-level-0 taier__lineTo__row"
+                      data-row-key="1"
+                    >
+                      <td
+                        class="ant-table-cell"
+                      >
+                        source
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <svg
+    class="taier__lintTo__svg"
+  >
+    <foreignobject
+      class="taier__lineTo__tooltip"
+      height="100%"
+      width="100%"
+      x="0"
+      y="0"
+    >
+      <div
+        class="taier__lintTo__tooltip__content"
+      >
+        取消映射
+      </div>
+    </foreignobject>
+    <marker
+      id="arrow"
+      markerHeight="20"
+      markerUnits="userSpaceOnUse"
+      markerWidth="20"
+      orient="auto"
+      refX="6"
+      refY="6"
+      viewBox="0 0 12 12"
+    >
+      <path
+        d="M2,3 L9,6 L2,9 L2,6 L2,3"
+        fill="currentColor"
+      />
+    </marker>
+  </svg>
+  <div
+    class="taier__lintTo__target"
+  >
+    <div
+      class="ant-table-wrapper"
+    >
+      <div
+        class="ant-spin-nested-loading"
+      >
+        <div
+          class="ant-spin-container"
+        >
+          <div
+            class="ant-table ant-table-small ant-table-bordered"
+          >
+            <div
+              class="ant-table-container"
+            >
+              <div
+                class="ant-table-content"
+              >
+                <table
+                  style="table-layout: auto;"
+                >
+                  <colgroup />
+                  <thead
+                    class="ant-table-thead"
+                  >
+                    <tr>
+                      <th
+                        class="ant-table-cell"
+                      />
+                    </tr>
+                  </thead>
+                  <tbody
+                    class="ant-table-tbody"
+                  >
+                    <tr
+                      class="ant-table-row ant-table-row-level-0 taier__lineTo__row"
+                      data-row-key="1"
+                    >
+                      <td
+                        class="ant-table-cell"
+                      >
+                        target
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+`;

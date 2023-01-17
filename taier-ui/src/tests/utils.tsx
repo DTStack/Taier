@@ -25,3 +25,20 @@ export function selectItem(index: number = 0, wrapperIndex = 0) {
 			.item(index),
 	);
 }
+
+export async function sleep(delay = 300) {
+	return new Promise<void>((resolve) => {
+		setTimeout(() => {
+			resolve();
+		}, delay);
+	});
+}
+
+
+export function selectValue(idx = 0, index = 0) {
+	const container = document.querySelectorAll('.ant-select-dropdown')[index];
+
+	act(() => {
+		fireEvent.click(container.querySelectorAll('.ant-select-item')[idx]);
+	});
+}
