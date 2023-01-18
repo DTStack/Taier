@@ -65,5 +65,8 @@ module.exports = {
 		getState: jest.fn(),
 		add: jest.fn(),
 	},
+	component: {
+		Scrollbar: ({ children }) => <div data-testid="Scrollbar">{children}</div>,
+	},
 	...rest,
 };

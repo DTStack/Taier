@@ -1,0 +1,761 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Test SpreadSheet Component Should match snapshot 1`] = `
+<DocumentFragment>
+  <div
+    class="dtc-handsontable-no-border handsontable htRowHeaders htColumnHeaders"
+    data-originalstyle="width: 100%;"
+    id="hot-"
+    style="width: 100%;"
+  >
+    <div
+      class="ht_master handsontable"
+      style="overflow: visible;"
+    >
+      <div
+        class="wtHolder"
+        style="position: relative; overflow: visible;"
+      >
+        <div
+          class="wtHider"
+          style="width: 150px; height: 47px;"
+        >
+          <div
+            class="wtSpreader"
+            style="position: relative; top: 0px; left: 0px;"
+          >
+            <table
+              class="htCore"
+            >
+              <colgroup>
+                <col
+                  class="rowHeader"
+                  style="width: 50px;"
+                />
+                <col
+                  style="width: 50px;"
+                />
+              </colgroup>
+              <thead>
+                <tr>
+                  <th
+                    class=""
+                    style="height: 25px;"
+                  >
+                    <div
+                      class="relative"
+                    >
+                      <span
+                        class="colHeader cornerHeader"
+                      >
+                         
+                      </span>
+                    </div>
+                  </th>
+                  <th
+                    class=""
+                  >
+                    <div
+                      class="relative"
+                    >
+                      <span
+                        class="colHeader"
+                      >
+                        age
+                      </span>
+                    </div>
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <th
+                    class=""
+                  >
+                    <div
+                      class="relative"
+                    >
+                      <span
+                        class="rowHeader"
+                      >
+                        1
+                      </span>
+                    </div>
+                  </th>
+                  <td
+                    class="dtc-handsontable-no-border htDimmed"
+                  >
+                    1
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+            <div
+              class="htBorders"
+            >
+              <div
+                style="position: absolute; top: 0px; left: 0px;"
+              >
+                <div
+                  class="wtBorder current"
+                  style="background-color: rgb(75, 137, 255); height: 2px; width: 2px; display: none;"
+                />
+                <div
+                  class="wtBorder current"
+                  style="background-color: rgb(75, 137, 255); height: 2px; width: 2px; display: none;"
+                />
+                <div
+                  class="wtBorder current"
+                  style="background-color: rgb(75, 137, 255); height: 2px; width: 2px; display: none;"
+                />
+                <div
+                  class="wtBorder current"
+                  style="background-color: rgb(75, 137, 255); height: 2px; width: 2px; display: none;"
+                />
+                <div
+                  class="wtBorder current corner"
+                  style="background-color: rgb(75, 137, 255); height: 6px; width: 6px; border: 1px solid #fff; display: none;"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div
+      class="ht_clone_top handsontable"
+      style="position: absolute; top: 0px; left: 0px; overflow: visible; height: 0px; transform: translate3d(0,0px,0);"
+    >
+      <div
+        class="wtHolder"
+        style="position: relative; height: 3px;"
+      >
+        <div
+          class="wtHider"
+          style="width: 150px;"
+        >
+          <div
+            class="wtSpreader"
+            style="position: relative; left: 0px;"
+          >
+            <table
+              class="htCore"
+            >
+              <colgroup>
+                <col
+                  class="rowHeader"
+                  style="width: 50px;"
+                />
+                <col
+                  style="width: 50px;"
+                />
+              </colgroup>
+              <thead>
+                <tr>
+                  <th
+                    class=""
+                    style="height: 25px;"
+                  >
+                    <div
+                      class="relative"
+                    >
+                      <span
+                        class="colHeader cornerHeader"
+                      >
+                         
+                      </span>
+                    </div>
+                  </th>
+                  <th
+                    class=""
+                  >
+                    <div
+                      class="relative"
+                    >
+                      <span
+                        class="colHeader"
+                      >
+                        age
+                      </span>
+                    </div>
+                  </th>
+                </tr>
+              </thead>
+              <tbody />
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div
+      class="ht_clone_bottom handsontable"
+      style="position: absolute; top: 0px; left: 0px; overflow: visible;"
+    >
+      <div
+        class="wtHolder"
+        style="position: relative;"
+      >
+        <div
+          class="wtHider"
+        >
+          <div
+            class="wtSpreader"
+            style="position: relative;"
+          >
+            <table
+              class="htCore"
+            >
+              <colgroup />
+              <thead>
+                <tr />
+              </thead>
+              <tbody />
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div
+      class="ht_clone_left handsontable"
+      style="position: absolute; top: 0px; left: 0px; overflow: visible; width: 0px; transform: translate3d(0px,0,0);"
+    >
+      <div
+        class="wtHolder"
+        style="position: relative; width: 3px;"
+      >
+        <div
+          class="wtHider"
+          style="height: 47px;"
+        >
+          <div
+            class="wtSpreader"
+            style="position: relative; top: 0px;"
+          >
+            <table
+              class="htCore"
+            >
+              <colgroup>
+                <col
+                  class="rowHeader"
+                  style="width: 50px;"
+                />
+              </colgroup>
+              <thead>
+                <tr>
+                  <th
+                    class=""
+                    style="height: 25px;"
+                  >
+                    <div
+                      class="relative"
+                    >
+                      <span
+                        class="colHeader cornerHeader"
+                      >
+                         
+                      </span>
+                    </div>
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <th
+                    class=""
+                  >
+                    <div
+                      class="relative"
+                    >
+                      <span
+                        class="rowHeader"
+                      >
+                        1
+                      </span>
+                    </div>
+                  </th>
+                </tr>
+              </tbody>
+            </table>
+            <div
+              class="htBorders"
+            >
+              <div
+                style="position: absolute; top: 0px; left: 0px;"
+              >
+                <div
+                  class="wtBorder fill"
+                  style="background-color: rgb(255, 0, 0); height: 1px; width: 1px; display: none;"
+                />
+                <div
+                  class="wtBorder fill"
+                  style="background-color: rgb(255, 0, 0); height: 1px; width: 1px; display: none;"
+                />
+                <div
+                  class="wtBorder fill"
+                  style="background-color: rgb(255, 0, 0); height: 1px; width: 1px; display: none;"
+                />
+                <div
+                  class="wtBorder fill"
+                  style="background-color: rgb(255, 0, 0); height: 1px; width: 1px; display: none;"
+                />
+                <div
+                  class="wtBorder fill corner"
+                  style="background-color: rgb(255, 0, 0); height: 6px; width: 6px; border: 1px solid #fff; display: none;"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div
+      class="ht_clone_top_left_corner handsontable"
+      style="position: absolute; top: 0px; left: 0px; overflow: visible; transform: translate3d(0,0,0); height: 0px; width: 0px;"
+    >
+      <div
+        class="wtHolder"
+        style="position: relative;"
+      >
+        <div
+          class="wtHider"
+        >
+          <div
+            class="wtSpreader"
+            style="position: relative;"
+          >
+            <table
+              class="htCore"
+            >
+              <colgroup>
+                <col
+                  class="rowHeader"
+                  style="width: 50px;"
+                />
+              </colgroup>
+              <thead>
+                <tr>
+                  <th
+                    class=""
+                    style="height: 25px;"
+                  >
+                    <div
+                      class="relative"
+                    >
+                      <span
+                        class="colHeader cornerHeader"
+                      >
+                         
+                      </span>
+                    </div>
+                  </th>
+                </tr>
+              </thead>
+              <tbody />
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</DocumentFragment>
+`;
+
+exports[`Test SpreadSheet Component Should match snapshot with empty data 1`] = `
+<DocumentFragment>
+  <div
+    class="dtc-handsontable-no-border handsontable htRowHeaders htColumnHeaders"
+    data-originalstyle="width: 100%;"
+    id="hot-"
+    style="width: 100%;"
+  >
+    <div
+      class="ht_master handsontable"
+      style="overflow: visible;"
+    >
+      <div
+        class="wtHolder"
+        style="position: relative; overflow: visible;"
+      >
+        <div
+          class="wtHider"
+          style="width: 150px; height: 24px;"
+        >
+          <div
+            class="wtSpreader"
+            style="position: relative; top: 0px; left: 0px;"
+          >
+            <table
+              class="htCore"
+            >
+              <colgroup>
+                <col
+                  class="rowHeader"
+                  style="width: 50px;"
+                />
+                <col
+                  style="width: 50px;"
+                />
+                <col
+                  style="width: 50px;"
+                />
+              </colgroup>
+              <thead>
+                <tr>
+                  <th
+                    class=""
+                    style="height: 25px;"
+                  >
+                    <div
+                      class="relative"
+                    >
+                      <span
+                        class="colHeader cornerHeader"
+                      >
+                         
+                      </span>
+                    </div>
+                  </th>
+                  <th
+                    class=""
+                  >
+                    <div
+                      class="relative"
+                    >
+                      <span
+                        class="colHeader"
+                      >
+                        age
+                      </span>
+                    </div>
+                  </th>
+                  <th
+                    class=""
+                  >
+                    <div
+                      class="relative"
+                    >
+                      <span
+                        class="colHeader"
+                      >
+                        name
+                      </span>
+                    </div>
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <th
+                    class=""
+                  >
+                    <div
+                      class="relative"
+                    >
+                      <span
+                        class="rowHeader"
+                      >
+                        1
+                      </span>
+                    </div>
+                  </th>
+                  <td
+                    class="htCenter htMiddle htDimmed"
+                    colspan="2"
+                    rowspan="1"
+                  >
+                    暂无数据
+                  </td>
+                  <td
+                    class="htCenter htMiddle htDimmed"
+                    style="display: none;"
+                  >
+                    暂无数据
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+            <div
+              class="htBorders"
+            >
+              <div
+                style="position: absolute; top: 0px; left: 0px;"
+              >
+                <div
+                  class="wtBorder current"
+                  style="background-color: rgb(75, 137, 255); height: 2px; width: 2px; display: none;"
+                />
+                <div
+                  class="wtBorder current"
+                  style="background-color: rgb(75, 137, 255); height: 2px; width: 2px; display: none;"
+                />
+                <div
+                  class="wtBorder current"
+                  style="background-color: rgb(75, 137, 255); height: 2px; width: 2px; display: none;"
+                />
+                <div
+                  class="wtBorder current"
+                  style="background-color: rgb(75, 137, 255); height: 2px; width: 2px; display: none;"
+                />
+                <div
+                  class="wtBorder current corner"
+                  style="background-color: rgb(75, 137, 255); height: 6px; width: 6px; border: 1px solid #fff; display: none;"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div
+      class="ht_clone_top handsontable"
+      style="position: absolute; top: 0px; left: 0px; overflow: visible; height: 0px; transform: translate3d(0,0px,0);"
+    >
+      <div
+        class="wtHolder"
+        style="position: relative; height: 3px;"
+      >
+        <div
+          class="wtHider"
+          style="width: 150px;"
+        >
+          <div
+            class="wtSpreader"
+            style="position: relative; left: 0px;"
+          >
+            <table
+              class="htCore"
+            >
+              <colgroup>
+                <col
+                  class="rowHeader"
+                  style="width: 50px;"
+                />
+                <col
+                  style="width: 50px;"
+                />
+                <col
+                  style="width: 50px;"
+                />
+              </colgroup>
+              <thead>
+                <tr>
+                  <th
+                    class=""
+                    style="height: 25px;"
+                  >
+                    <div
+                      class="relative"
+                    >
+                      <span
+                        class="colHeader cornerHeader"
+                      >
+                         
+                      </span>
+                    </div>
+                  </th>
+                  <th
+                    class=""
+                  >
+                    <div
+                      class="relative"
+                    >
+                      <span
+                        class="colHeader"
+                      >
+                        age
+                      </span>
+                    </div>
+                  </th>
+                  <th
+                    class=""
+                  >
+                    <div
+                      class="relative"
+                    >
+                      <span
+                        class="colHeader"
+                      >
+                        name
+                      </span>
+                    </div>
+                  </th>
+                </tr>
+              </thead>
+              <tbody />
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div
+      class="ht_clone_bottom handsontable"
+      style="position: absolute; top: 0px; left: 0px; overflow: visible;"
+    >
+      <div
+        class="wtHolder"
+        style="position: relative;"
+      >
+        <div
+          class="wtHider"
+        >
+          <div
+            class="wtSpreader"
+            style="position: relative;"
+          >
+            <table
+              class="htCore"
+            >
+              <colgroup />
+              <thead>
+                <tr />
+              </thead>
+              <tbody />
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div
+      class="ht_clone_left handsontable"
+      style="position: absolute; top: 0px; left: 0px; overflow: visible; width: 0px; transform: translate3d(0px,0,0);"
+    >
+      <div
+        class="wtHolder"
+        style="position: relative; width: 3px;"
+      >
+        <div
+          class="wtHider"
+          style="height: 24px;"
+        >
+          <div
+            class="wtSpreader"
+            style="position: relative; top: 0px;"
+          >
+            <table
+              class="htCore"
+            >
+              <colgroup>
+                <col
+                  class="rowHeader"
+                  style="width: 50px;"
+                />
+              </colgroup>
+              <thead>
+                <tr>
+                  <th
+                    class=""
+                    style="height: 25px;"
+                  >
+                    <div
+                      class="relative"
+                    >
+                      <span
+                        class="colHeader cornerHeader"
+                      >
+                         
+                      </span>
+                    </div>
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <th
+                    class=""
+                  >
+                    <div
+                      class="relative"
+                    >
+                      <span
+                        class="rowHeader"
+                      >
+                        1
+                      </span>
+                    </div>
+                  </th>
+                </tr>
+              </tbody>
+            </table>
+            <div
+              class="htBorders"
+            >
+              <div
+                style="position: absolute; top: 0px; left: 0px;"
+              >
+                <div
+                  class="wtBorder fill"
+                  style="background-color: rgb(255, 0, 0); height: 1px; width: 1px; display: none;"
+                />
+                <div
+                  class="wtBorder fill"
+                  style="background-color: rgb(255, 0, 0); height: 1px; width: 1px; display: none;"
+                />
+                <div
+                  class="wtBorder fill"
+                  style="background-color: rgb(255, 0, 0); height: 1px; width: 1px; display: none;"
+                />
+                <div
+                  class="wtBorder fill"
+                  style="background-color: rgb(255, 0, 0); height: 1px; width: 1px; display: none;"
+                />
+                <div
+                  class="wtBorder fill corner"
+                  style="background-color: rgb(255, 0, 0); height: 6px; width: 6px; border: 1px solid #fff; display: none;"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div
+      class="ht_clone_top_left_corner handsontable"
+      style="position: absolute; top: 0px; left: 0px; overflow: visible; transform: translate3d(0,0,0); height: 0px; width: 0px;"
+    >
+      <div
+        class="wtHolder"
+        style="position: relative;"
+      >
+        <div
+          class="wtHider"
+        >
+          <div
+            class="wtSpreader"
+            style="position: relative;"
+          >
+            <table
+              class="htCore"
+            >
+              <colgroup>
+                <col
+                  class="rowHeader"
+                  style="width: 50px;"
+                />
+              </colgroup>
+              <thead>
+                <tr>
+                  <th
+                    class=""
+                    style="height: 25px;"
+                  >
+                    <div
+                      class="relative"
+                    >
+                      <span
+                        class="colHeader cornerHeader"
+                      >
+                         
+                      </span>
+                    </div>
+                  </th>
+                </tr>
+              </thead>
+              <tbody />
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</DocumentFragment>
+`;
