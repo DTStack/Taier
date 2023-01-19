@@ -66,7 +66,7 @@ const SyncModel = ({ disabled }: ICreateFormProps) => (
  */
 const ComponentVersion = ({ onChange }: ICreateFormProps) => {
 	const form = Form.useFormInstance();
-	const taskType = Form.useWatch('taskType');
+	const taskType = Form.useWatch('taskType', form);
 	const [versions, setVersions] = useState<{ label: string; value: string }[]>([]);
 
 	useEffect(() => {

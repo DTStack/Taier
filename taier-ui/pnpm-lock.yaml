@@ -39,6 +39,7 @@ specifiers:
   handsontable: ^11.1.0
   identity-obj-proxy: ^3.0.0
   inquirer: ^8.2.0
+  jest-canvas-mock: ^2.4.0
   lint-staged: ^10.0.7
   lodash: ^4.17.21
   md5: ^2.3.0
@@ -123,6 +124,7 @@ devDependencies:
   commander: registry.npmmirror.com/commander/9.4.1
   identity-obj-proxy: registry.npmmirror.com/identity-obj-proxy/3.0.0
   inquirer: registry.npmmirror.com/inquirer/8.2.5
+  jest-canvas-mock: registry.npmmirror.com/jest-canvas-mock/2.4.0
   lint-staged: registry.npmmirror.com/lint-staged/10.5.4
   mini-cup: registry.npmmirror.com/mini-cup/1.1.3
   monaco-editor-webpack-plugin: registry.npmmirror.com/monaco-editor-webpack-plugin/6.0.0
@@ -6469,6 +6471,12 @@ packages:
     engines: {node: '>=4'}
     hasBin: true
 
+  registry.npmmirror.com/cssfontparser/1.2.1:
+    resolution: {integrity: sha512-6tun4LoZnj7VN6YeegOVb67KBX/7JJsqvj+pv3ZA7F878/eN33AbGa5b/S/wXxS/tcp8nc40xRUrsPlxIyNUPg==, registry: https://registry.npm.taobao.org/, tarball: https://registry.npmmirror.com/cssfontparser/-/cssfontparser-1.2.1.tgz}
+    name: cssfontparser
+    version: 1.2.1
+    dev: true
+
   registry.npmmirror.com/cssom/0.3.8:
     resolution: {integrity: sha512-b0tGHbfegbhPJpxpiBPU2sCkigAqtM9O121le6bbOlgyV+NyGyCmVfJ6QW9eRjz8CpNfWEOYBIMIGRYkLwsIYg==, registry: https://registry.npm.taobao.org/, tarball: https://registry.npmmirror.com/cssom/-/cssom-0.3.8.tgz}
     name: cssom
@@ -10222,6 +10230,15 @@ packages:
     name: javascript-stringify
     version: 2.1.0
 
+  registry.npmmirror.com/jest-canvas-mock/2.4.0:
+    resolution: {integrity: sha512-mmMpZzpmLzn5vepIaHk5HoH3Ka4WykbSoLuG/EKoJd0x0ID/t+INo1l8ByfcUJuDM+RIsL4QDg/gDnBbrj2/IQ==, registry: https://registry.npm.taobao.org/, tarball: https://registry.npmmirror.com/jest-canvas-mock/-/jest-canvas-mock-2.4.0.tgz}
+    name: jest-canvas-mock
+    version: 2.4.0
+    dependencies:
+      cssfontparser: registry.npmmirror.com/cssfontparser/1.2.1
+      moo-color: registry.npmmirror.com/moo-color/1.0.3
+    dev: true
+
   registry.npmmirror.com/jest-changed-files/26.6.2:
     resolution: {integrity: sha512-fDS7szLcY9sCtIip8Fjry9oGf3I2ht/QT21bAHm5Dmf0mD4X3ReNUf17y+bO6fR8WgbIZTlbyG1ak/53cbRzKQ==, registry: https://registry.npm.taobao.org/, tarball: https://registry.npmmirror.com/jest-changed-files/-/jest-changed-files-26.6.2.tgz}
     name: jest-changed-files
@@ -11864,6 +11881,14 @@ packages:
     dependencies:
       dt-sql-parser: registry.npmmirror.com/dt-sql-parser/4.0.0-beta.3
     dev: false
+
+  registry.npmmirror.com/moo-color/1.0.3:
+    resolution: {integrity: sha512-i/+ZKXMDf6aqYtBhuOcej71YSlbjT3wCO/4H1j8rPvxDJEifdwgg5MaFyu6iYAT8GBZJg2z0dkgK4YMzvURALQ==, registry: https://registry.npm.taobao.org/, tarball: https://registry.npmmirror.com/moo-color/-/moo-color-1.0.3.tgz}
+    name: moo-color
+    version: 1.0.3
+    dependencies:
+      color-name: registry.npmmirror.com/color-name/1.1.4
+    dev: true
 
   registry.npmmirror.com/morgan/1.10.0:
     resolution: {integrity: sha512-AbegBVI4sh6El+1gNwvD5YIck7nSA36weD7xvIxG4in80j/UoK8AEGaWnnz8v1GxonMCltmlNs5ZKbGvl9b1XQ==, registry: https://registry.npm.taobao.org/, tarball: https://registry.npmmirror.com/morgan/-/morgan-1.10.0.tgz}

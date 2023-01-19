@@ -68,5 +68,11 @@ module.exports = {
 	component: {
 		Scrollbar: ({ children }) => <div data-testid="Scrollbar">{children}</div>,
 	},
+	sidebar: {
+		setActive: jest.fn(),
+	},
+	activityBar: {
+		setActive: jest.fn(),
+	},
 	...rest,
 };

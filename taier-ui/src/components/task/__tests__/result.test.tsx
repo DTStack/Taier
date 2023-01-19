@@ -5,6 +5,10 @@ import Result from '../result';
 jest.useFakeTimers();
 
 describe('Test Result Component', () => {
+	beforeEach(() => {
+		jest.spyOn(global.Math, 'random').mockReturnValue(10);
+	});
+
 	it('Should match snapshot', () => {
 		const { asFragment } = render(
 			<Result

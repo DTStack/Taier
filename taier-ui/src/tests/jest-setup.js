@@ -1,6 +1,7 @@
 import React from 'react';
 import 'reflect-metadata';
 import ResizeObserver from 'resize-observer-polyfill';
+import 'jest-canvas-mock';
 
 global.React = React;
 global.ResizeObserver = ResizeObserver;

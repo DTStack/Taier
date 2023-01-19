@@ -34,11 +34,14 @@ export async function sleep(delay = 300) {
 	});
 }
 
-
 export function selectValue(idx = 0, index = 0) {
 	const container = document.querySelectorAll('.ant-select-dropdown')[index];
 
 	act(() => {
 		fireEvent.click(container.querySelectorAll('.ant-select-item')[idx]);
 	});
+}
+
+export function showTooltip(ele: HTMLElement) {
+	fireEvent.mouseEnter(ele);
 }

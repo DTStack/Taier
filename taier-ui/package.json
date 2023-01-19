@@ -76,6 +76,7 @@
 		"commander": "^9.0.0",
 		"identity-obj-proxy": "^3.0.0",
 		"inquirer": "^8.2.0",
+		"jest-canvas-mock": "^2.4.0",
 		"lint-staged": "^10.0.7",
 		"mini-cup": "^1.1.3",
 		"monaco-editor-webpack-plugin": "^6.0.0",

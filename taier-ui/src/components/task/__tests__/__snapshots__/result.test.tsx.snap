@@ -11,7 +11,7 @@ exports[`Test Result Component Should match snapshot 1`] = `
       <div
         class="dtc-handsontable-no-border handsontable htRowHeaders htColumnHeaders"
         data-originalstyle="width: 100%;"
-        id="hot-rgjftsq"
+        id="hot-"
         style="width: 100%;"
       >
         <div
@@ -123,30 +123,6 @@ exports[`Test Result Component Should match snapshot 1`] = `
                       style="background-color: rgb(75, 137, 255); height: 6px; width: 6px; border: 1px solid #fff; display: none;"
                     />
                   </div>
-                  <div
-                    style="position: absolute; top: 0px; left: 0px;"
-                  >
-                    <div
-                      class="wtBorder fill"
-                      style="background-color: rgb(255, 0, 0); height: 1px; width: 1px; display: none;"
-                    />
-                    <div
-                      class="wtBorder fill"
-                      style="background-color: rgb(255, 0, 0); height: 1px; width: 1px; display: none;"
-                    />
-                    <div
-                      class="wtBorder fill"
-                      style="background-color: rgb(255, 0, 0); height: 1px; width: 1px; display: none;"
-                    />
-                    <div
-                      class="wtBorder fill"
-                      style="background-color: rgb(255, 0, 0); height: 1px; width: 1px; display: none;"
-                    />
-                    <div
-                      class="wtBorder fill corner"
-                      style="background-color: rgb(255, 0, 0); height: 6px; width: 6px; border: 1px solid #fff; display: none;"
-                    />
-                  </div>
                 </div>
               </div>
             </div>
@@ -213,58 +189,6 @@ exports[`Test Result Component Should match snapshot 1`] = `
                   </thead>
                   <tbody />
                 </table>
-                <div
-                  class="htBorders"
-                >
-                  <div
-                    style="position: absolute; top: 0px; left: 0px;"
-                  >
-                    <div
-                      class="wtBorder current"
-                      style="background-color: rgb(75, 137, 255); height: 2px; width: 2px; display: none;"
-                    />
-                    <div
-                      class="wtBorder current"
-                      style="background-color: rgb(75, 137, 255); height: 2px; width: 2px; display: none;"
-                    />
-                    <div
-                      class="wtBorder current"
-                      style="background-color: rgb(75, 137, 255); height: 2px; width: 2px; display: none;"
-                    />
-                    <div
-                      class="wtBorder current"
-                      style="background-color: rgb(75, 137, 255); height: 2px; width: 2px; display: none;"
-                    />
-                    <div
-                      class="wtBorder current corner"
-                      style="background-color: rgb(75, 137, 255); height: 6px; width: 6px; border: 1px solid #fff; display: none;"
-                    />
-                  </div>
-                  <div
-                    style="position: absolute; top: 0px; left: 0px;"
-                  >
-                    <div
-                      class="wtBorder fill"
-                      style="background-color: rgb(255, 0, 0); height: 1px; width: 1px; display: none;"
-                    />
-                    <div
-                      class="wtBorder fill"
-                      style="background-color: rgb(255, 0, 0); height: 1px; width: 1px; display: none;"
-                    />
-                    <div
-                      class="wtBorder fill"
-                      style="background-color: rgb(255, 0, 0); height: 1px; width: 1px; display: none;"
-                    />
-                    <div
-                      class="wtBorder fill"
-                      style="background-color: rgb(255, 0, 0); height: 1px; width: 1px; display: none;"
-                    />
-                    <div
-                      class="wtBorder fill corner"
-                      style="background-color: rgb(255, 0, 0); height: 6px; width: 6px; border: 1px solid #fff; display: none;"
-                    />
-                  </div>
-                </div>
               </div>
             </div>
           </div>
@@ -365,30 +289,6 @@ exports[`Test Result Component Should match snapshot 1`] = `
                     style="position: absolute; top: 0px; left: 0px;"
                   >
                     <div
-                      class="wtBorder current"
-                      style="background-color: rgb(75, 137, 255); height: 2px; width: 2px; display: none;"
-                    />
-                    <div
-                      class="wtBorder current"
-                      style="background-color: rgb(75, 137, 255); height: 2px; width: 2px; display: none;"
-                    />
-                    <div
-                      class="wtBorder current"
-                      style="background-color: rgb(75, 137, 255); height: 2px; width: 2px; display: none;"
-                    />
-                    <div
-                      class="wtBorder current"
-                      style="background-color: rgb(75, 137, 255); height: 2px; width: 2px; display: none;"
-                    />
-                    <div
-                      class="wtBorder current corner"
-                      style="background-color: rgb(75, 137, 255); height: 6px; width: 6px; border: 1px solid #fff; display: none;"
-                    />
-                  </div>
-                  <div
-                    style="position: absolute; top: 0px; left: 0px;"
-                  >
-                    <div
                       class="wtBorder fill"
                       style="background-color: rgb(255, 0, 0); height: 1px; width: 1px; display: none;"
                     />
@@ -458,58 +358,6 @@ exports[`Test Result Component Should match snapshot 1`] = `
                   </thead>
                   <tbody />
                 </table>
-                <div
-                  class="htBorders"
-                >
-                  <div
-                    style="position: absolute; top: 0px; left: 0px;"
-                  >
-                    <div
-                      class="wtBorder current"
-                      style="background-color: rgb(75, 137, 255); height: 2px; width: 2px; display: none;"
-                    />
-                    <div
-                      class="wtBorder current"
-                      style="background-color: rgb(75, 137, 255); height: 2px; width: 2px; display: none;"
-                    />
-                    <div
-                      class="wtBorder current"
-                      style="background-color: rgb(75, 137, 255); height: 2px; width: 2px; display: none;"
-                    />
-                    <div
-                      class="wtBorder current"
-                      style="background-color: rgb(75, 137, 255); height: 2px; width: 2px; display: none;"
-                    />
-                    <div
-                      class="wtBorder current corner"
-                      style="background-color: rgb(75, 137, 255); height: 6px; width: 6px; border: 1px solid #fff; display: none;"
-                    />
-                  </div>
-                  <div
-                    style="position: absolute; top: 0px; left: 0px;"
-                  >
-                    <div
-                      class="wtBorder fill"
-                      style="background-color: rgb(255, 0, 0); height: 1px; width: 1px; display: none;"
-                    />
-                    <div
-                      class="wtBorder fill"
-                      style="background-color: rgb(255, 0, 0); height: 1px; width: 1px; display: none;"
-                    />
-                    <div
-                      class="wtBorder fill"
-                      style="background-color: rgb(255, 0, 0); height: 1px; width: 1px; display: none;"
-                    />
-                    <div
-                      class="wtBorder fill"
-                      style="background-color: rgb(255, 0, 0); height: 1px; width: 1px; display: none;"
-                    />
-                    <div
-                      class="wtBorder fill corner"
-                      style="background-color: rgb(255, 0, 0); height: 6px; width: 6px; border: 1px solid #fff; display: none;"
-                    />
-                  </div>
-                </div>
               </div>
             </div>
           </div>
