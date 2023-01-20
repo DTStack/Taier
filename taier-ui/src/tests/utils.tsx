@@ -9,6 +9,9 @@ export function fireInputChange(dom: HTMLElement, value: string) {
 	fireEvent.change(dom, { target: { value } });
 }
 
+/**
+ * Used for open Select's option lists
+ */
 export function toggleOpen(container: ReturnType<typeof render>['container']): void {
 	fireEvent.mouseDown(container.querySelector('.ant-select-selector')!);
 	act(() => {
@@ -20,9 +23,15 @@ export function selectItem(index: number = 0, wrapperIndex = 0) {
 	fireEvent.click(
 		document.body
 			.querySelectorAll('div.ant-select-dropdown')
-			.item(wrapperIndex)
-			.querySelectorAll('div.ant-select-item-option-content')
-			.item(index),
+			[wrapperIndex].querySelectorAll('div.ant-select-item-option-content')[index],
+	);
+}
+
+export function selectItemInTree(index: number = 0, wrapperIndex = 0) {
+	fireEvent.click(
+		document.body
+			.querySelectorAll('div.ant-select-dropdown')
+			[wrapperIndex].querySelectorAll('span.ant-select-tree-node-content-wrapper')[index],
 	);
 }
 

@@ -67,6 +67,7 @@ module.exports = {
 	},
 	component: {
 		Scrollbar: ({ children }) => <div data-testid="Scrollbar">{children}</div>,
+		Icon: ({ type }) => <svg data-testid="Icon" type={type} />,
 	},
 	sidebar: {
 		setActive: jest.fn(),
