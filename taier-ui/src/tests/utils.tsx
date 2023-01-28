@@ -1,5 +1,6 @@
 import { act, fireEvent } from '@testing-library/react';
 import type { render } from '@testing-library/react';
+import { Input } from 'antd';
 
 export function fireConfirmOnModal(getByTestId: any) {
 	fireEvent.click(getByTestId('antd-mock-Modal-confirm'));
@@ -12,8 +13,8 @@ export function fireInputChange(dom: HTMLElement, value: string) {
 /**
  * Used for open Select's option lists
  */
-export function toggleOpen(container: ReturnType<typeof render>['container']): void {
-	fireEvent.mouseDown(container.querySelector('.ant-select-selector')!);
+export function toggleOpen(container?: ReturnType<typeof render>['container']): void {
+	fireEvent.mouseDown((container || document).querySelector('.ant-select-selector')!);
 	act(() => {
 		jest.runAllTimers();
 	});

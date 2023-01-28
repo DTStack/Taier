@@ -1,0 +1,115 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Test FolderModal Component for function Match snapshot 1`] = `
+<DocumentFragment>
+  <div>
+    <p
+      data-testid="antd-mock-Modal-title"
+    >
+      新建文件夹
+    </p>
+    <form
+      class="ant-form ant-form-horizontal"
+    >
+      <div
+        class="ant-form-item"
+      >
+        <div
+          class="ant-row ant-form-item-row"
+        >
+          <div
+            class="ant-col ant-form-item-label ant-col-xs-24 ant-col-sm-6"
+          >
+            <label
+              class="ant-form-item-required"
+              for="dt_nodeName"
+              title="目录名称"
+            >
+              目录名称
+            </label>
+          </div>
+          <div
+            class="ant-col ant-form-item-control ant-col-xs-24 ant-col-sm-16"
+          >
+            <div
+              class="ant-form-item-control-input"
+            >
+              <div
+                class="ant-form-item-control-input-content"
+              >
+                <input
+                  aria-required="true"
+                  class="ant-input"
+                  id="dt_nodeName"
+                  placeholder="文件夹名称"
+                  type="text"
+                  value=""
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div
+        class="ant-form-item"
+      >
+        <div
+          class="ant-row ant-form-item-row"
+        >
+          <div
+            class="ant-col ant-form-item-label ant-col-xs-24 ant-col-sm-6"
+          >
+            <label
+              class=""
+              title="选择目录位置"
+            >
+              选择目录位置
+            </label>
+          </div>
+          <div
+            class="ant-col ant-form-item-control ant-col-xs-24 ant-col-sm-16"
+          >
+            <div
+              class="ant-form-item-control-input"
+            >
+              <div
+                class="ant-form-item-control-input-content"
+              >
+                <input
+                  aria-required="true"
+                  class="ant-input"
+                  id="nodePid"
+                  type="hidden"
+                  value=""
+                />
+                <input
+                  class="ant-input"
+                  data-testid="mockFolderPicker"
+                  type="text"
+                  value=""
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </form>
+    <button
+      class="ant-btn ant-btn-default ant-btn-lg"
+      type="button"
+    >
+      <span>
+        取 消
+      </span>
+    </button>
+    <button
+      class="ant-btn ant-btn-primary ant-btn-lg"
+      type="button"
+    >
+      <span>
+        确 认
+      </span>
+    </button>
+  </div>
+</DocumentFragment>
+`;
