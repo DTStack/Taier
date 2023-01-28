@@ -1,0 +1,25 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Test ViewDetail Component Should match snapshot 1`] = `
+<DocumentFragment>
+  <p
+    data-testid="antd-mock-Modal-title"
+  >
+    任务详情
+  </p>
+  <div
+    class="code-editor"
+    style="position: relative; min-height: 400px; height: 400px; width: 100%; margin-top: 1px;"
+  >
+    <pre
+      class="dt-placeholder"
+      style="font-size: 12px; display: initial;"
+    />
+  </div>
+  <button
+    data-testid="antd-mock-Modal-confirm"
+  >
+    confirm
+  </button>
+</DocumentFragment>
+`;

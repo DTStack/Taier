@@ -1,0 +1,15 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Test Editor Component Should match snapshot 1`] = `
+<DocumentFragment>
+  <div
+    class="code-editor"
+    style="position: relative; min-height: 400px; height: 100%; width: 100%;"
+  >
+    <pre
+      class="dt-placeholder"
+      style="font-size: 12px; display: initial;"
+    />
+  </div>
+</DocumentFragment>
+`;

@@ -1,6 +1,7 @@
 module.exports = {
 	editor: {
 		create: jest.fn(),
+		setModelLanguage: jest.fn(),
 		editorInstance: {
 			getSelections: jest
 				.fn()
@@ -23,6 +24,10 @@ module.exports = {
 				getValueInRange: jest.fn(() => 'show tables;'),
 			})),
 		},
+		ScrollType: {
+			Smooth: 0,
+			Immediate: 1,
+		},
 	},
 	languages: {
 		register: jest.fn(),
@@ -34,5 +39,17 @@ module.exports = {
 		CompletionItemKind: {
 			Keyword: 0,
 		},
+	},
+	KeyMod: {
+		CtrlCmd: 0,
+		Shift: 1,
+	},
+	KeyCode: {
+		KeyA: 31,
+		KeyF: 36,
+		KeyK: 41,
+		KeyP: 46,
+		KeyZ: 56,
+		Comma: 82,
 	},
 };

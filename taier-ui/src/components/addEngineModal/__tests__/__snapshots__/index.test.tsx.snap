@@ -1,0 +1,60 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Test AddEngineModal Component Should match snapshot 1`] = `
+<DocumentFragment>
+  <p
+    data-testid="antd-mock-Modal-title"
+  >
+    新增集群
+  </p>
+  <form
+    autocomplete="off"
+    class="ant-form ant-form-horizontal"
+  >
+    <div
+      class="ant-form-item"
+    >
+      <div
+        class="ant-row ant-form-item-row"
+      >
+        <div
+          class="ant-col ant-form-item-label ant-col-xs-24 ant-col-sm-6"
+        >
+          <label
+            class="ant-form-item-required"
+            for="clusterName"
+            title="集群名称"
+          >
+            集群名称
+          </label>
+        </div>
+        <div
+          class="ant-col ant-form-item-control ant-col-xs-24 ant-col-sm-16"
+        >
+          <div
+            class="ant-form-item-control-input"
+          >
+            <div
+              class="ant-form-item-control-input-content"
+            >
+              <input
+                aria-required="true"
+                class="ant-input"
+                id="clusterName"
+                placeholder="请输入集群标识"
+                type="text"
+                value=""
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </form>
+  <button
+    data-testid="antd-mock-Modal-confirm"
+  >
+    confirm
+  </button>
+</DocumentFragment>
+`;

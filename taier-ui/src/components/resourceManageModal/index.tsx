@@ -65,23 +65,25 @@ export default ({
 	};
 
 	const getServiceParam = () => {
-		form.validateFields().then((values) => {
-			setLoading(true);
-			api.switchQueue({
-				queueName: values.queueName,
-				tenantId,
-				clusterId,
-			})
-				.then((res) => {
-					if (res.code === 1) {
-						message.success('提交成功');
-						onOk?.();
-					}
+		form.validateFields()
+			.then((values) => {
+				setLoading(true);
+				api.switchQueue({
+					queueName: values.queueName,
+					tenantId,
+					clusterId,
 				})
-				.finally(() => {
-					setLoading(false);
-				});
-		});
+					.then((res) => {
+						if (res.code === 1) {
+							message.success('提交成功');
+							onOk?.();
+						}
+					})
+					.finally(() => {
+						setLoading(false);
+					});
+			})
+			.catch(() => {});
 	};
 
 	const handleCancel = () => {

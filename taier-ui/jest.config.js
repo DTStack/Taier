@@ -2,7 +2,7 @@ module.exports = {
 	transform: {
 		'^.+\\.(t|j)sx?$': ['@swc/jest'],
 	},
-	setupFiles: ['<rootDir>/scripts/jest-setup.js'],
+	setupFiles: ['<rootDir>/src/tests/jest-setup.js'],
 	modulePathIgnorePatterns: ['<rootDir>/src/.umi/'],
 	moduleNameMapper: {
 		'@/(.*)': '<rootDir>/src/$1',

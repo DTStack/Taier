@@ -35,9 +35,11 @@ export default ({ onOk, ...restModalProps }: IEngineModalProps) => {
 	const [form] = Form.useForm();
 
 	const handleSubmit = () => {
-		form.validateFields().then((values) => {
-			onOk?.({ clusterName: values.clusterName });
-		});
+		form.validateFields()
+			.then((values) => {
+				onOk?.({ clusterName: values.clusterName });
+			})
+			.catch(() => {});
 	};
 
 	return (
