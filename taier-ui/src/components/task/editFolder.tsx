@@ -19,7 +19,6 @@
 import { useEffect, useState } from 'react';
 import { Button, Input, Form } from 'antd';
 import molecule from '@dtinsight/molecule/esm';
-import { Scrollbar } from '@dtinsight/molecule/esm/components';
 import FolderPicker from '../../components/folderPicker';
 import { CATALOGUE_TYPE, formItemLayout, tailFormItemLayout } from '@/constant';
 import type { CatalogueDataProps } from '@/interface';
@@ -90,8 +89,12 @@ export default connect(
 		}, []);
 
 		return (
-			<Scrollbar>
-				<Form form={form} onFinish={handleSubmit} className="mo-open-task">
+			<molecule.component.Scrollbar>
+				<Form
+					form={form}
+					onFinish={handleSubmit}
+					className="mo-open-task"
+				>
 					<FormItem
 						{...formItemLayout}
 						label="目录名称"
@@ -127,7 +130,7 @@ export default connect(
 						</Button>
 					</FormItem>
 				</Form>
-			</Scrollbar>
+			</molecule.component.Scrollbar>
 		);
 	},
 );

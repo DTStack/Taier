@@ -1,0 +1,65 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Test Circle Component Should match snapshots: fail 1`] = `
+<DocumentFragment>
+  <div
+    class="dtc-circle-default dtc-circle-fail"
+  />
+</DocumentFragment>
+`;
+
+exports[`Test Circle Component Should match snapshots: finished 1`] = `
+<DocumentFragment>
+  <div
+    class="dtc-circle-default dtc-circle-finished"
+  />
+</DocumentFragment>
+`;
+
+exports[`Test Circle Component Should match snapshots: frozen 1`] = `
+<DocumentFragment>
+  <div
+    class="dtc-circle-default dtc-circle-frozen"
+  />
+</DocumentFragment>
+`;
+
+exports[`Test Circle Component Should match snapshots: restarting 1`] = `
+<DocumentFragment>
+  <div
+    class="dtc-circle-default dtc-circle-restarting"
+  />
+</DocumentFragment>
+`;
+
+exports[`Test Circle Component Should match snapshots: running 1`] = `
+<DocumentFragment>
+  <div
+    class="dtc-circle-default dtc-circle-running"
+  />
+</DocumentFragment>
+`;
+
+exports[`Test Circle Component Should match snapshots: stopped 1`] = `
+<DocumentFragment>
+  <div
+    class="dtc-circle-default dtc-circle-stopped"
+  />
+</DocumentFragment>
+`;
+
+exports[`Test Circle Component Should match snapshots: submitting 1`] = `
+<DocumentFragment>
+  <div
+    class="dtc-circle-default dtc-circle-submitting"
+  />
+</DocumentFragment>
+`;
+
+exports[`Test Circle Component Should match snapshots: waitSubmit 1`] = `
+<DocumentFragment>
+  <div
+    class="dtc-circle-default dtc-circle-waitSubmit"
+  />
+</DocumentFragment>
+`;

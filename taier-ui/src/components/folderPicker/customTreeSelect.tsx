@@ -19,10 +19,8 @@
 import { useEffect, useState } from 'react';
 import { omit } from 'lodash';
 import { TreeSelect, Input } from 'antd';
-
 import type { TreeSelectProps } from 'antd/lib/tree-select';
-import { Icon } from '@dtinsight/molecule/esm/components';
-import type molecule from '@dtinsight/molecule';
+import molecule from '@dtinsight/molecule';
 import type { CATALOGUE_TYPE } from '@/constant';
 import { fileIcon } from '@/utils/extensions';
 import { FileTypes } from '@dtinsight/molecule/esm/model';
@@ -67,7 +65,11 @@ export default function CustomTreeSelect(props: CustomTreeSelectProps) {
 
 	const renderIcon = (isShowFile: boolean, type: string, catalogueType: CATALOGUE_TYPE) => {
 		if (isShowFile) {
-			return type === 'file' ? fileIcon({} as any, catalogueType) : <Icon type="folder" />;
+			return type === 'file' ? (
+				fileIcon({} as any, catalogueType)
+			) : (
+				<molecule.component.Icon type="folder" />
+			);
 		}
 		return null;
 	};

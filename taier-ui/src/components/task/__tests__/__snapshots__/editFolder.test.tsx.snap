@@ -1,0 +1,121 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Test EditFolder Component Should match snapshot 1`] = `
+<DocumentFragment>
+  <div
+    data-testid="Scrollbar"
+  >
+    <form
+      class="ant-form ant-form-horizontal mo-open-task"
+    >
+      <div
+        class="ant-form-item"
+      >
+        <div
+          class="ant-row ant-form-item-row"
+        >
+          <div
+            class="ant-col ant-form-item-label ant-col-xs-24 ant-col-sm-6"
+          >
+            <label
+              class="ant-form-item-required"
+              for="dt_nodeName"
+              title="目录名称"
+            >
+              目录名称
+            </label>
+          </div>
+          <div
+            class="ant-col ant-form-item-control ant-col-xs-24 ant-col-sm-16"
+          >
+            <div
+              class="ant-form-item-control-input"
+            >
+              <div
+                class="ant-form-item-control-input-content"
+              >
+                <input
+                  aria-required="true"
+                  autocomplete="off"
+                  class="ant-input"
+                  id="dt_nodeName"
+                  type="text"
+                  value=""
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div
+        class="ant-form-item"
+      >
+        <div
+          class="ant-row ant-form-item-row"
+        >
+          <div
+            class="ant-col ant-form-item-label ant-col-xs-24 ant-col-sm-6"
+          >
+            <label
+              class="ant-form-item-required"
+              for="nodePid"
+              title="选择目录位置"
+            >
+              选择目录位置
+            </label>
+          </div>
+          <div
+            class="ant-col ant-form-item-control ant-col-xs-24 ant-col-sm-16"
+          >
+            <div
+              class="ant-form-item-control-input"
+            >
+              <div
+                class="ant-form-item-control-input-content"
+              >
+                <input
+                  aria-required="true"
+                  class="ant-input"
+                  data-testid="folderPicker"
+                  datatype="task"
+                  id="nodePid"
+                  type="text"
+                  value=""
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div
+        class="ant-form-item"
+      >
+        <div
+          class="ant-row ant-form-item-row"
+        >
+          <div
+            class="ant-col ant-form-item-control ant-col-xs-24 ant-col-xs-offset-0 ant-col-sm-14 ant-col-sm-offset-8"
+          >
+            <div
+              class="ant-form-item-control-input"
+            >
+              <div
+                class="ant-form-item-control-input-content"
+              >
+                <button
+                  class="ant-btn ant-btn-primary"
+                  type="submit"
+                >
+                  <span>
+                    确 认
+                  </span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </form>
+  </div>
+</DocumentFragment>
+`;

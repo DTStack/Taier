@@ -30,10 +30,10 @@ enum CIRCLE_TYPES_ENUM {
 	waitSubmit = 'waitSubmit',
 }
 
-type CicleType = keyof typeof CIRCLE_TYPES_ENUM;
+type CircleType = keyof typeof CIRCLE_TYPES_ENUM;
 
 interface CircleProps {
-	type?: CicleType;
+	type?: CircleType;
 	className?: string;
 	style?: React.CSSProperties;
 	onClick?: () => void;

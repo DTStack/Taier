@@ -1,0 +1,21 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Test Chart Component Should match snapshot 1`] = `
+<DocumentFragment>
+  <div
+    _echarts_instance_="ec_1577836800000"
+    style="width: 110px; height: 110px; user-select: none; background: transparent;"
+  >
+    <div
+      style="position: relative; overflow: hidden; width: 110px; height: 110px; padding: 0px; margin: 0px; border-width: 0px;"
+    >
+      <canvas
+        data-zr-dom-id="zr_0"
+        height="110"
+        style="position: absolute; left: 0px; top: 0px; width: 110px; height: 110px; user-select: none; padding: 0px; margin: 0px; border-width: 0px;"
+        width="110"
+      />
+    </div>
+  </div>
+</DocumentFragment>
+`;

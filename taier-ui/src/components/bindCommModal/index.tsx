@@ -172,7 +172,7 @@ export default ({
 			onOk?.(params).finally(() => {
 				setLoading(false);
 			});
-		});
+		}).catch(() => {});
 	};
 
 	const bindEnginName = getEnginName();

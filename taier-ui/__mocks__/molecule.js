@@ -49,13 +49,31 @@ module.exports = {
 		getState: jest.fn(),
 		togglePanelVisibility: jest.fn(),
 	},
-	connect: jest.fn(),
+	connect: jest.fn((_, children) => children),
 	TreeViewUtil: jest.fn(),
 	FileTypes: {},
 	TreeNodeModel: class {
 		constructor(params) {
 			Object.assign(this, params);
 		}
+	},
+	colorTheme: {
+		getColorThemeMode: jest.fn(),
+		onChange: jest.fn(),
+	},
+	notification: {
+		getState: jest.fn(),
+		add: jest.fn(),
+	},
+	component: {
+		Scrollbar: ({ children }) => <div data-testid="Scrollbar">{children}</div>,
+		Icon: ({ type }) => <svg data-testid="Icon" type={type} />,
+	},
+	sidebar: {
+		setActive: jest.fn(),
+	},
+	activityBar: {
+		setActive: jest.fn(),
 	},
 	...rest,
 };
