@@ -6,9 +6,5 @@ module.exports = {
         '@typescript-eslint/no-non-null-assertion': 'off',
         // Turn it to warn temporarily since there are some code have to use this comment to skip ts checker
         '@typescript-eslint/ban-ts-comment': 'warn',
-        // 'no-use-before-define': 'off',
-        // '@typescript-eslint/no-use-before-define': 'off',
-        // 'consistent-return': 'off',
-        // 'react-hooks/exhaustive-deps': 'off',
     },
 };

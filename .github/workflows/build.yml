@@ -4,11 +4,11 @@ on:
   push:
     branches: [master]
     paths-ignore:
-      - 'taier-ui/**'
+      - 'taier-ui/**/*'
   pull_request:
     branches: [master]
     paths-ignore:
-      - 'taier-ui/**'
+      - 'taier-ui/**/*'
 
 jobs:
   build:
