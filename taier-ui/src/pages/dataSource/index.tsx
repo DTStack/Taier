@@ -19,7 +19,7 @@
 import { useMemo, useState } from 'react';
 import { Empty, message, Modal } from 'antd';
 import molecule from '@dtinsight/molecule';
-import { ActionBar, Menu, useContextView } from '@dtinsight/molecule/esm/components';
+import { ActionBar, Menu, useContextViewEle } from '@dtinsight/molecule/esm/components';
 import { Content, Header } from '@dtinsight/molecule/esm/workbench/sidebar';
 import { connect } from '@dtinsight/molecule/esm/react';
 import { dataSourceService } from '@/services';
@@ -52,7 +52,7 @@ const DataSourceView = ({ dataSource }: IDataSourceState) => {
 	const [visible, setVisible] = useState<boolean>(false);
 	const [detailView, setView] = useState<IDataSourceProps | undefined>(undefined);
 
-	const contextView = useContextView();
+	const contextView = useContextViewEle();
 
 	// 搜索事件
 	const handleSearch = (value: Record<string, any>) => {
@@ -81,7 +81,7 @@ const DataSourceView = ({ dataSource }: IDataSourceState) => {
 	};
 
 	const handleMenuClick = (menu: { id: string; name: string }, record: IDataSourceProps) => {
-		contextView.hide();
+		contextView?.hide();
 		switch (menu.id) {
 			case 'edit':
 				if (molecule.editor.isOpened(ID_COLLECTIONS.EDIT_DATASOURCE_PREFIX)) {
@@ -139,7 +139,7 @@ const DataSourceView = ({ dataSource }: IDataSourceState) => {
 	) => {
 		e.preventDefault();
 		e.currentTarget.focus();
-		contextView.show(getEventPosition(e), () => (
+		contextView?.show(getEventPosition(e), () => (
 			<Menu
 				role="menu"
 				onClick={(_: any, item: any) => handleMenuClick(item, record)}
