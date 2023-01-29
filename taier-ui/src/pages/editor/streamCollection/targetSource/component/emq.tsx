@@ -16,48 +16,51 @@
  * limitations under the License.
  */
 
-import { isCleanSession } from "@/components/helpDoc/docs";
-import { QOS_TYPE } from "@/constant";
-import { Checkbox, Form, Input, Select } from "antd";
-import React from "react";
+import { isCleanSession } from '@/components/helpDoc/docs';
+import { QOS_TYPE } from '@/constant';
+import { Checkbox, Form, Input, Select } from 'antd';
+import React from 'react';
 
 const FormItem = Form.Item;
 const Option = Select.Option;
 
-export default (props: { collectionData: any; }) => {
+export default (props: { collectionData: any }) => {
     const { collectionData } = props;
     const { isEdit } = collectionData;
-    return (<React.Fragment>
-        <FormItem
-            name="topic"
-            label="Topic"
-            rules={[{
-                required: true, message: '请输入topic'
-            }, {
-                pattern: /[\w/#+]+/i, message: 'Topic仅支持英文、数字、+、/、#进行输入'
-            }]}
-        >
-            <Input disabled={isEdit} placeholder="请输入topic" />
-        </FormItem>
-        <FormItem
-            label="清除Session"
-            name="isCleanSession"
-            rules={[{ required: true, message: '请选择是否清除Session' }]}
-            valuePropName='checked'
-            tooltip={isCleanSession}
-        >
-            <Checkbox>清除</Checkbox>
-        </FormItem>
-        <FormItem
-            label="服务质量(qos)"
-            name="qos"
-            rules={[{ required: true, message: '请选择服务质量' }]}
-        >
-            <Select disabled={isEdit} getPopupContainer={(triggerNode: any) => triggerNode}>
-                <Option value={QOS_TYPE.EXACTLY_ONCE}>精准一次（EXACTLY_ONCE)</Option>
-                <Option value={QOS_TYPE.AT_LEAST_ONCE}>至少一次 (AT_LEAST_ONCE)</Option>
-                <Option value={QOS_TYPE.AT_MOST_ONCE}>至多一次 (AT_MOST_ONCE)</Option>
-            </Select>
-        </FormItem>
-    </React.Fragment>)
-}
+    return (
+        <React.Fragment>
+            <FormItem
+                name="topic"
+                label="Topic"
+                rules={[
+                    {
+                        required: true,
+                        message: '请输入topic',
+                    },
+                    {
+                        pattern: /[\w/#+]+/i,
+                        message: 'Topic仅支持英文、数字、+、/、#进行输入',
+                    },
+                ]}
+            >
+                <Input disabled={isEdit} placeholder="请输入topic" />
+            </FormItem>
+            <FormItem
+                label="清除Session"
+                name="isCleanSession"
+                rules={[{ required: true, message: '请选择是否清除Session' }]}
+                valuePropName="checked"
+                tooltip={isCleanSession}
+            >
+                <Checkbox>清除</Checkbox>
+            </FormItem>
+            <FormItem label="服务质量(qos)" name="qos" rules={[{ required: true, message: '请选择服务质量' }]}>
+                <Select disabled={isEdit} getPopupContainer={(triggerNode: any) => triggerNode}>
+                    <Option value={QOS_TYPE.EXACTLY_ONCE}>精准一次（EXACTLY_ONCE)</Option>
+                    <Option value={QOS_TYPE.AT_LEAST_ONCE}>至少一次 (AT_LEAST_ONCE)</Option>
+                    <Option value={QOS_TYPE.AT_MOST_ONCE}>至多一次 (AT_MOST_ONCE)</Option>
+                </Select>
+            </FormItem>
+        </React.Fragment>
+    );
+};

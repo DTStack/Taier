@@ -1,63 +1,61 @@
 .codicon-sync::before {
-	color: #cbcb41;
+    color: #cbcb41;
 }
 
 .codicon-code::before {
-	color: #53beda;
+    color: #53beda;
 }
 
-:root[data-prefers-color='light'] {
-	--taier-rightBar-foreground: #3f87ff;
-	--taier-rightBar-background: #eef6fe;
-	--taier-workflow-widget-foreground: #333333;
-	--taier-workflow-widget-background: #edf6ff;
-	--taier-workflow-widget-border: #a7cdf0;
-	--taier-workflow-widget-description: #666;
-
-	--badge-common-background: #f2f2f2;
-	--badge-common-foreground: #333;
-	--badge-common-border: #d4d4d4;
-	--badge-finished-background: #cdf7e2;
-	--badge-finished-foreground: #00a755;
-	--badge-finished-border: #12bc6a;
-	--badge-running-background: #def;
-	--badge-running-foreground: #2491f7;
-	--badge-running-border: #3f87ff;
-	--badge-pending-background: #f9f3de;
-	--badge-pending-foreground: #f5a623;
-	--badge-pending-border: #fdb313;
-	--badge-cancel-background: #e6e9f2;
-	--badge-cancel-foreground: #94a8c6;
-	--badge-cancel-border: #5b6da6;
-	--badge-failed-background: #ffe9e9;
-	--badge-failed-foreground: #ef5350;
-	--badge-failed-border: #fe615c;
+:root[data-prefers-color="light"] {
+    --taier-rightBar-foreground: #3f87ff;
+    --taier-rightBar-background: #eef6fe;
+    --taier-workflow-widget-foreground: #333;
+    --taier-workflow-widget-background: #edf6ff;
+    --taier-workflow-widget-border: #a7cdf0;
+    --taier-workflow-widget-description: #666;
+    --badge-common-background: #f2f2f2;
+    --badge-common-foreground: #333;
+    --badge-common-border: #d4d4d4;
+    --badge-finished-background: #cdf7e2;
+    --badge-finished-foreground: #00a755;
+    --badge-finished-border: #12bc6a;
+    --badge-running-background: #def;
+    --badge-running-foreground: #2491f7;
+    --badge-running-border: #3f87ff;
+    --badge-pending-background: #f9f3de;
+    --badge-pending-foreground: #f5a623;
+    --badge-pending-border: #fdb313;
+    --badge-cancel-background: #e6e9f2;
+    --badge-cancel-foreground: #94a8c6;
+    --badge-cancel-border: #5b6da6;
+    --badge-failed-background: #ffe9e9;
+    --badge-failed-foreground: #ef5350;
+    --badge-failed-border: #fe615c;
 }
 
-:root[data-prefers-color='dark'] {
-	--taier-rightBar-foreground: #f2f2f2;
-	--taier-rightBar-background: #282a38;
-	--taier-workflow-widget-foreground: #f2f2f2;
-	--taier-workflow-widget-background: #1a1c29;
-	--taier-workflow-widget-border: #282b40;
-	--taier-workflow-widget-description: #999999;
-
-	--badge-common-background: #e6e6e612;
-	--badge-common-foreground: #d9d9d9ff;
-	--badge-common-border: #d4d4d4;
-	--badge-finished-background: #13bc691a;
-	--badge-finished-foreground: #00a755ff;
-	--badge-finished-border: #00a656ff;
-	--badge-running-background: #3f87ff1a;
-	--badge-running-foreground: #2491f7ff;
-	--badge-running-border: #3f87ffff;
-	--badge-pending-background: #c28c3a14;
-	--badge-pending-foreground: #c28c3aff;
-	--badge-pending-border: #c38c3bff;
-	--badge-cancel-background: #666666ff;
-	--badge-cancel-foreground: #7d91cfff;
-	--badge-cancel-border: #7d91cfff;
-	--badge-failed-background: #ff5f5c12;
-	--badge-failed-foreground: #ff5f5cff;
-	--badge-failed-border: #fe615cff;
+:root[data-prefers-color="dark"] {
+    --taier-rightBar-foreground: #f2f2f2;
+    --taier-rightBar-background: #282a38;
+    --taier-workflow-widget-foreground: #f2f2f2;
+    --taier-workflow-widget-background: #1a1c29;
+    --taier-workflow-widget-border: #282b40;
+    --taier-workflow-widget-description: #999;
+    --badge-common-background: #e6e6e612;
+    --badge-common-foreground: #d9d9d9ff;
+    --badge-common-border: #d4d4d4;
+    --badge-finished-background: #13bc691a;
+    --badge-finished-foreground: #00a755ff;
+    --badge-finished-border: #00a656ff;
+    --badge-running-background: #3f87ff1a;
+    --badge-running-foreground: #2491f7ff;
+    --badge-running-border: #3f87ffff;
+    --badge-pending-background: #c28c3a14;
+    --badge-pending-foreground: #c28c3aff;
+    --badge-pending-border: #c38c3bff;
+    --badge-cancel-background: #666f;
+    --badge-cancel-foreground: #7d91cfff;
+    --badge-cancel-border: #7d91cfff;
+    --badge-failed-background: #ff5f5c12;
+    --badge-failed-foreground: #ff5f5cff;
+    --badge-failed-border: #fe615cff;
 }

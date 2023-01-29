@@ -1,23 +1,23 @@
-@import '../styles/variables.scss';
+@import "../styles/variables.scss";
 
 .dt-login {
-	.dt-input-borderless {
-		height: 40px;
-		padding: 0 16px;
-		background: var(--editor-background);
-		border: none;
-		border-radius: 0;
+    .dt-input-borderless {
+        height: 40px;
+        padding: 0 16px;
+        background: var(--editor-background);
+        border: none;
+        border-radius: 0;
 
-		&:focus,
-		&:hover {
-			background: var(--editor-background);
-		}
-	}
+        &:focus,
+        &:hover {
+            background: var(--editor-background);
+        }
+    }
 
-	button.dt-button {
-		height: 40px;
-		font-size: 16px;
-		background: $main-color;
-		border-radius: 0;
-	}
+    button.dt-button {
+        height: 40px;
+        font-size: 16px;
+        background: $main-color;
+        border-radius: 0;
+    }
 }

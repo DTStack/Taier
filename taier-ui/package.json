@@ -7,16 +7,26 @@
 		"prettier": "prettier --write '**/*.{js,jsx,tsx,ts,less,md,json}'",
 		"test": "umi-test",
 		"test:coverage": "umi-test --coverage",
-		"gen-api": "node scripts/getSwagger.js -t"
+		"lint:es": "eslint \"src/**/*.{js,jsx,ts,tsx}\"",
+		"lint:css": "stylelint \"src/**/*.{css,scss}\""
 	},
 	"gitHooks": {
 		"pre-commit": "lint-staged"
 	},
 	"lint-staged": {
-		"*.{js,jsx,less,md,json}": [
+		"*.{md,json}": [
+			"prettier --write --no-error-on-unmatched-pattern"
+		],
+		"*.{css,scss}": [
+			"stylelint --fix",
 			"prettier --write"
 		],
-		"*.ts?(x)": [
+		"*.{js,jsx}": [
+			"eslint --fix",
+			"prettier --write"
+		],
+		"*.{ts,tsx}": [
+			"eslint --fix",
 			"prettier --parser=typescript --write"
 		]
 	},
@@ -67,7 +77,6 @@
 		"@types/react-copy-to-clipboard": "^5.0.3",
 		"@types/react-dom": "^18.0.6",
 		"@types/testing-library__jest-dom": "^5.14.5",
-		"@umijs/fabric": "2.7.0",
 		"@umijs/plugin-esbuild": "^1.4.1",
 		"@umijs/plugin-sass": "^1.1.1",
 		"@umijs/preset-react": "1.x",
@@ -77,16 +86,16 @@
 		"identity-obj-proxy": "^3.0.0",
 		"inquirer": "^8.2.0",
 		"jest-canvas-mock": "^2.4.0",
+		"ko-lint-config": "^2.2.16",
 		"lint-staged": "^10.0.7",
-		"mini-cup": "^1.1.3",
 		"monaco-editor-webpack-plugin": "^6.0.0",
 		"mustache": "^4.2.0",
-		"prettier": "^2.7.1",
 		"progress": "^2.0.3",
 		"request-promise": "^4.2.6",
 		"resize-observer-polyfill": "^1.5.1",
+		"stylelint": "^14.16.1",
 		"tslib": "^2.3.1",
-		"typescript": "^4.1.2",
+		"typescript": "4.7.4",
 		"umi-plugin-tailwindcss": "^3.2.1",
 		"yorkie": "^2.0.0"
 	}

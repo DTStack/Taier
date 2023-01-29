@@ -1,16 +1,16 @@
 .dt-datasource-hdfs-tooltips {
-	&-list {
-		padding: 0;
-		list-style: none;
-		counter-reset: list;
+    &-list {
+        padding: 0;
+        list-style: none;
+        counter-reset: list;
 
-		p {
-			margin: 0;
-		}
+        p {
+            margin: 0;
+        }
 
-		li::before {
-			content: counter(list) '、';
-			counter-increment: list;
-		}
-	}
+        li::before {
+            content: counter(list) "、";
+            counter-increment: list;
+        }
+    }
 }

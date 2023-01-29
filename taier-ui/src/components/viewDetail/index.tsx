@@ -27,37 +27,37 @@ import { Modal } from 'antd';
 import CodeEditor from '@/components/editor';
 
 class ViewDetail extends React.Component<any, any> {
-	state: any = {
-		editor: {
-			sql: '',
-			cursor: undefined,
-			sync: true,
-		},
-	};
-	render() {
-		const { title } = this.props;
-		return (
-			<Modal
-				title={title || '任务详情'}
-				width={650}
-				onCancel={this.props.onCancel}
-				onOk={this.props.onCancel}
-				visible={this.props.visible}
-				destroyOnClose
-			>
-				<CodeEditor
-					style={{ height: '400px', marginTop: '1px' }}
-					value={this.props.resource}
-					language="json"
-					options={{
-						readOnly: true,
-						minimap: {
-							enabled: false,
-						},
-					}}
-				/>
-			</Modal>
-		);
-	}
+    state: any = {
+        editor: {
+            sql: '',
+            cursor: undefined,
+            sync: true,
+        },
+    };
+    render() {
+        const { title } = this.props;
+        return (
+            <Modal
+                title={title || '任务详情'}
+                width={650}
+                onCancel={this.props.onCancel}
+                onOk={this.props.onCancel}
+                visible={this.props.visible}
+                destroyOnClose
+            >
+                <CodeEditor
+                    style={{ height: '400px', marginTop: '1px' }}
+                    value={this.props.resource}
+                    language="json"
+                    options={{
+                        readOnly: true,
+                        minimap: {
+                            enabled: false,
+                        },
+                    }}
+                />
+            </Modal>
+        );
+    }
 }
 export default ViewDetail;

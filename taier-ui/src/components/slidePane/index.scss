@@ -1,41 +1,41 @@
 .dtc-slide-pane {
-	position: absolute;
-	z-index: 99;
-	display: inline-block;
-	line-height: 50px;
-	background: var(--editorGroupHeader-tabsBackground, #fff);
-	border-left: 1px solid var(--panel-border);
-	transition: transform 0.3s ease-in;
+    position: absolute;
+    z-index: 99;
+    display: inline-block;
+    line-height: 50px;
+    background: var(--editorGroupHeader-tabsBackground, #fff);
+    border-left: 1px solid var(--panel-border);
+    transition: transform 0.3s ease-in;
 
-	.dtc-slide-pane-conent {
-		position: relative;
-	}
+    .dtc-slide-pane-conent {
+        position: relative;
+    }
 
-	.dtc-slide-pane-toggle {
-		position: absolute;
-		top: 0;
-		bottom: 0;
-		left: 0;
-		z-index: 999;
-		width: 18px;
-		height: 50px;
-		margin: auto;
-		color: var(--editor-foreground);
-		font-size: 12px;
-		line-height: 50px;
-		background: var(--tab-activeBackground);
-		border: 1px solid var(--panel-border);
-		border-left: 0;
-		cursor: pointer;
+    .dtc-slide-pane-toggle {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        z-index: 999;
+        width: 18px;
+        height: 50px;
+        margin: auto;
+        color: var(--editor-foreground);
+        font-size: 12px;
+        line-height: 50px;
+        background: var(--tab-activeBackground);
+        border: 1px solid var(--panel-border);
+        border-left: 0;
+        cursor: pointer;
 
-		> i {
-			position: absolute;
-			top: 0;
-			right: 0;
-			bottom: 0;
-			left: 0;
-			height: 12px;
-			margin: auto;
-		}
-	}
+        > i {
+            position: absolute;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            left: 0;
+            height: 12px;
+            margin: auto;
+        }
+    }
 }

@@ -1,21 +1,21 @@
 .taier__dataSync__container {
-	height: 100%;
-	padding: 20px 15px;
+    height: 100%;
+    padding: 20px 15px;
 
-	.taier__dataSync__collapse {
-		border-color: var(--tab-border);
+    .taier__dataSync__collapse {
+        border-color: var(--tab-border);
 
-		+ .taier__dataSync__collapse {
-			margin-top: 15px;
-		}
+        + .taier__dataSync__collapse {
+            margin-top: 15px;
+        }
 
-		.ant-collapse-item {
-			border-color: var(--tab-border);
-		}
-	}
+        .ant-collapse-item {
+            border-color: var(--tab-border);
+        }
+    }
 
-	.ant-collapse-content {
-		border-color: var(--tab-border);
-		background-color: var(--panel-background);
-	}
+    .ant-collapse-content {
+        border-color: var(--tab-border);
+        background-color: var(--panel-background);
+    }
 }

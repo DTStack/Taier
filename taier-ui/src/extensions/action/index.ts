@@ -5,13 +5,13 @@ import QuickRunSQLAction from './quickRunSQLAction';
 import QuickSaveTaskAction from './quickSaveTaskAction';
 
 export default class ActionExtensions implements IExtension {
-	id: UniqueId = 'actions';
-	name: string = 'actions';
-	activate(extensionCtx: IExtensionService): void {
-		extensionCtx.registerAction(QuickRunSQLAction);
-		extensionCtx.registerAction(QuickSaveTaskAction);
-	}
-	dispose(): void {
-		throw new Error('Method not implemented.');
-	}
+    id: UniqueId = 'actions';
+    name = 'actions';
+    activate(extensionCtx: IExtensionService): void {
+        extensionCtx.registerAction(QuickRunSQLAction);
+        extensionCtx.registerAction(QuickSaveTaskAction);
+    }
+    dispose(): void {
+        throw new Error('Method not implemented.');
+    }
 }

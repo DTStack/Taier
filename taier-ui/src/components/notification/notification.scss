@@ -1,23 +1,23 @@
-@import '@/styles/variables.scss';
+@import "@/styles/variables.scss";
 
 .dt-notification.ant-notification-notice {
-	padding: 5px 13px;
-	cursor: pointer;
+    padding: 5px 13px;
+    cursor: pointer;
 
-	.ant-notification-notice-message {
-		margin-bottom: 0;
-		overflow: hidden;
-		font-size: $font-size;
-		white-space: nowrap;
-		text-overflow: ellipsis;
-	}
+    .ant-notification-notice-message {
+        margin-bottom: 0;
+        overflow: hidden;
+        font-size: $font-size;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+    }
 
-	.ant-notification-notice-close {
-		top: 6px;
-		right: 14px;
-	}
+    .ant-notification-notice-close {
+        top: 6px;
+        right: 14px;
+    }
 
-	&:hover {
-		background-color: var(--button-hoverBackground);
-	}
+    &:hover {
+        background-color: var(--button-hoverBackground);
+    }
 }

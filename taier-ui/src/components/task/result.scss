@@ -1,22 +1,24 @@
 $tools-size: 40px;
 
 .c-ide-result {
-	height: calc(100% - $tools-size);
+    height: calc(100% - $tools-size);
 
-	.c-ide-result__tools {
-		height: $tools-size;
-		width: 100%;
-		padding-top: 5px;
-		padding-left: 8px;
-	}
-	.c-ide-result__tools__pagination {
-		float: right;
-		padding-right: 5px;
-	}
-	.c-ide-result__mark {
-		float: right;
-		padding-right: 18px;
-		color: #ccc;
-		line-height: 1.8;
-	}
+    .c-ide-result__tools {
+        height: $tools-size;
+        width: 100%;
+        padding-top: 5px;
+        padding-left: 8px;
+    }
+
+    .c-ide-result__tools__pagination {
+        float: right;
+        padding-right: 5px;
+    }
+
+    .c-ide-result__mark {
+        float: right;
+        padding-right: 18px;
+        color: #ccc;
+        line-height: 1.8;
+    }
 }

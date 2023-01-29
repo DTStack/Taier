@@ -1,6 +1,6 @@
-@import '../../styles/variables.scss';
+@import "../../styles/variables.scss";
 
-$prefix: 'dtc-progress';
+$prefix: "dtc-progress";
 .#{$prefix}-progress-bar {
     position: fixed;
     top: 0;
@@ -15,6 +15,6 @@ $prefix: 'dtc-progress';
 
 @keyframes dtc-progress-loading-anim {
     to {
-        transform: translateX(200%)
+        transform: translateX(200%);
     }
 }

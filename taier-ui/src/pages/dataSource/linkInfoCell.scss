@@ -1,9 +1,9 @@
 .link-json {
-	display: inline-block;
-	display: -webkit-box;
-	overflow: hidden;
-	text-overflow: ellipsis;
-	word-break: break-all;
-	-webkit-line-clamp: 2; // 设置两行文字溢出
-	-webkit-box-orient: vertical;
+    display: inline-block;
+    display: -webkit-box;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    word-break: break-all;
+    -webkit-line-clamp: 2; // 设置两行文字溢出
+    -webkit-box-orient: vertical;
 }
