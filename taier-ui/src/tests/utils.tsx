@@ -1,6 +1,13 @@
 import { act, fireEvent } from '@testing-library/react';
 import type { render } from '@testing-library/react';
-import { Input } from 'antd';
+
+export const $ = <T extends Element>(selector: string) => {
+	return document.querySelector<T>(selector);
+};
+
+export const $$ = <T extends Element>(selector: string) => {
+	return document.querySelectorAll<T>(selector);
+};
 
 export function fireConfirmOnModal(getByTestId: any) {
 	fireEvent.click(getByTestId('antd-mock-Modal-confirm'));
@@ -54,4 +61,12 @@ export function selectValue(idx = 0, index = 0) {
 
 export function showTooltip(ele: HTMLElement) {
 	fireEvent.mouseEnter(ele);
+}
+
+export async function triggerOkOnConfirm() {
+	await act(async () => {
+		fireEvent.click(
+			document.querySelector('.ant-modal-confirm-btns')!.querySelectorAll('button')[1],
+		);
+	});
 }
