@@ -17,9 +17,12 @@ exports[`Test DetailInfo Component Should match snapshots 1`] = `
     </div>
   </div>
   <button
-    data-testid="antd-mock-Modal-confirm"
+    class="ant-btn ant-btn-default"
+    type="button"
   >
-    confirm
+    <span>
+      关 闭
+    </span>
   </button>
 </DocumentFragment>
 `;

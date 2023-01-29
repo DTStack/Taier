@@ -1,0 +1,55 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Test Function Manage Should match snapshot 1`] = `
+<DocumentFragment>
+  <div
+    class="functionManager-container"
+  >
+    <div
+      data-testid="mockHeader"
+    >
+      函数管理
+      <div
+        data-testid="mockHeaderToolbar"
+      >
+        <div
+          data-testid="ActionBar"
+        >
+          <div
+            id="refresh"
+          />
+        </div>
+      </div>
+    </div>
+    <div
+      data-testid="mockContent"
+    >
+      <div
+        class="functionManager-content"
+        tabindex="0"
+      >
+        <div
+          data-testid="mockFolderTree"
+        >
+          <div
+            data-testid="mockFolderTreeNode"
+          >
+            root
+          </div>
+          <div
+            data-testid="mockFolderTreeNode"
+          >
+            folder
+          </div>
+          <div
+            data-testid="mockFolderTreeNode"
+          >
+            file
+          </div>
+        </div>
+      </div>
+    </div>
+    <div />
+  </div>
+</DocumentFragment>
+`;
