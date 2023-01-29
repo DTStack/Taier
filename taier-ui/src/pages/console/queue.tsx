@@ -287,6 +287,7 @@ export default () => {
 			tableProps={{
 				rowSelection: undefined,
 				footer: undefined,
+				rowKey: 'jobResource',
 			}}
 		/>
 	);
