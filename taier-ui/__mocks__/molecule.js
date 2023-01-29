@@ -49,6 +49,14 @@ module.exports = {
 		getState: jest.fn(),
 		togglePanelVisibility: jest.fn(),
 	},
+	Header: ({ title, toolbar }) => (
+		<div data-testid="mockHeader">
+			{title}
+			<div data-testid="mockHeaderToolbar">{toolbar}</div>
+		</div>
+	),
+	Content: ({ children }) => <div data-testid="mockContent">{children}</div>,
+	FolderTree: jest.fn(),
 	connect: jest.fn((_, children) => children),
 	TreeViewUtil: jest.fn(),
 	FileTypes: {},
@@ -68,6 +76,15 @@ module.exports = {
 	component: {
 		Scrollbar: ({ children }) => <div data-testid="Scrollbar">{children}</div>,
 		Icon: ({ type }) => <svg data-testid="Icon" type={type} />,
+		ActionBar: ({ data = [] }) => (
+			<div data-testid="ActionBar">
+				{data.map((i) => (
+					<div key={i.id} id={i.id}>
+						{i.name}
+					</div>
+				))}
+			</div>
+		),
 	},
 	sidebar: {
 		setActive: jest.fn(),

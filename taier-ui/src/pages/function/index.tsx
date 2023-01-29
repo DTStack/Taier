@@ -20,7 +20,7 @@ import React, { useState } from 'react';
 import type { IMenuItemProps, ITreeNodeItemProps } from '@dtinsight/molecule/esm/components';
 import { catalogueService } from '@/services';
 import { debounce } from 'lodash';
-import { ActionBar } from '@dtinsight/molecule/esm/components';
+import molecule from '@dtinsight/molecule';
 import { Content, Header } from '@dtinsight/molecule/esm/workbench/sidebar';
 import { connect } from '@dtinsight/molecule/esm/react';
 import functionManagerService from '../../services/functionManagerService';
@@ -351,7 +351,7 @@ const FunctionManagerView = ({ headerToolBar, panel, entry }: IFunctionViewProps
 			<Header
 				title="函数管理"
 				toolbar={
-					<ActionBar
+					<molecule.component.ActionBar
 						data={headerToolBar}
 						onClick={handleHeaderClick}
 						onContextMenuClick={handleHeaderContextClick}
