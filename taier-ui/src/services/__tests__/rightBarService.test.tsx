@@ -2,7 +2,7 @@ import { RightBarKind } from '@/interface';
 import molecule from '@dtinsight/molecule';
 import { render } from '@testing-library/react';
 import { taskRenderService } from '..';
-import RightBarService from '../RightBarService';
+import RightBarService from '../rightBarService';
 
 jest.mock('../', () => {
     return {
