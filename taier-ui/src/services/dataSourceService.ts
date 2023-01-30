@@ -22,58 +22,49 @@ import Base64 from 'base-64';
 import api from '@/api';
 
 export interface IDataSourceState {
-	dataSource: IDataSourceProps[];
+    dataSource: IDataSourceProps[];
 }
 
 interface IDataSourceService {
-	getDataSource: () => IDataSourceProps[];
-	reloadDataSource: () => void;
+    getDataSource: () => IDataSourceProps[];
+    reloadDataSource: () => void;
 }
 
-export default class DataSourceService
-	extends Component<IDataSourceState>
-	implements IDataSourceService
-{
-	protected state: IDataSourceState = {
-		dataSource: [],
-	};
+export default class DataSourceService extends Component<IDataSourceState> implements IDataSourceService {
+    protected state: IDataSourceState = {
+        dataSource: [],
+    };
 
-	constructor() {
-		super();
-		this.queryDataSource();
-	}
+    constructor() {
+        super();
+        this.queryDataSource();
+    }
 
-	private queryDataSource = () => {
-		api.getAllDataSource({}).then((res) => {
-			if (res.code === 1) {
-				const nextData: IDataSourceProps[] = ((res.data as IDataSourceProps[]) || []).map(
-					(ele) => {
-						const canConvertLinkJson =
-							ele.linkJson &&
-							!ele.linkJson.includes('{') &&
-							!ele.linkJson.includes('}');
+    private queryDataSource = () => {
+        api.getAllDataSource({}).then((res) => {
+            if (res.code === 1) {
+                const nextData: IDataSourceProps[] = ((res.data as IDataSourceProps[]) || []).map((ele) => {
+                    const canConvertLinkJson =
+                        ele.linkJson && !ele.linkJson.includes('{') && !ele.linkJson.includes('}');
 
-						return {
-							...ele,
-							linkJson: canConvertLinkJson
-								? Base64.decode(ele.linkJson!)
-								: ele.linkJson,
-						};
-					},
-				);
+                    return {
+                        ...ele,
+                        linkJson: canConvertLinkJson ? Base64.decode(ele.linkJson!) : ele.linkJson,
+                    };
+                });
 
-				this.setState({
-					dataSource: nextData,
-				});
-			}
-		});
-	};
+                this.setState({
+                    dataSource: nextData,
+                });
+            }
+        });
+    };
 
-	getDataSource = () => {
-		return this.state.dataSource || [];
-	};
+    getDataSource = () => {
+        return this.state.dataSource || [];
+    };
 
-	reloadDataSource = () => {
-		this.queryDataSource();
-	};
+    reloadDataSource = () => {
+        this.queryDataSource();
+    };
 }

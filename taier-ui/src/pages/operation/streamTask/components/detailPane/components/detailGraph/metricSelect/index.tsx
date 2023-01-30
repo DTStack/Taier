@@ -22,7 +22,7 @@ const MetricSelect: React.FC<IProps> = (props) => {
     const [selectValue, setSelectValue] = useState<any>(defaultValue);
 
     useEffect(() => {
-        setSelectValue(value)
+        setSelectValue(value);
     }, [value]);
 
     // 选择metric
@@ -33,7 +33,7 @@ const MetricSelect: React.FC<IProps> = (props) => {
         if (value === undefined) {
             setSelectValue(value);
         }
-    }
+    };
 
     // 确认添加
     const handleClick = () => {
@@ -41,7 +41,7 @@ const MetricSelect: React.FC<IProps> = (props) => {
             const option = options.find((item: any) => item.value === selectValue);
             onOk(selectValue, option);
         }
-    }
+    };
 
     return (
         <div className={classNames('c-check-select', className)} {...rest}>
@@ -53,14 +53,17 @@ const MetricSelect: React.FC<IProps> = (props) => {
                 value={selectValue}
                 onChange={handleSelectChange}
             >
-                {Array.isArray(options) && options.map((item: any) => (
-                    <Option key={item.value} value={item.value}>
-                        <Tooltip title={item.text}>{item.text}</Tooltip>
-                    </Option>
-                ))}
+                {Array.isArray(options) &&
+                    options.map((item: any) => (
+                        <Option key={item.value} value={item.value}>
+                            <Tooltip title={item.text}>{item.text}</Tooltip>
+                        </Option>
+                    ))}
             </Select>
-            <Button type="primary" onClick={handleClick}>{enterButton || 'Add'}</Button>
+            <Button type="primary" onClick={handleClick}>
+                {enterButton || 'Add'}
+            </Button>
         </div>
-    )
-}
+    );
+};
 export default MetricSelect;

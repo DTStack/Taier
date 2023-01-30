@@ -1,38 +1,38 @@
 $form-size: 32px;
 
 .resource-wrapper {
-	height: 100%;
-	min-width: 600px;
+    height: 100%;
+    min-width: 600px;
 
-	.ant-tabs-tab.ant-tabs-tab-active .ant-tabs-tab-btn {
-		text-shadow: none;
-	}
+    .ant-tabs-tab.ant-tabs-tab-active .ant-tabs-tab-btn {
+        text-shadow: none;
+    }
 
-	.dt-resource-form {
-		display: inline-flex;
-		height: $form-size;
-		line-height: $form-size;
-		flex-wrap: nowrap;
-	}
+    .dt-resource-form {
+        display: inline-flex;
+        height: $form-size;
+        line-height: $form-size;
+        flex-wrap: nowrap;
+    }
 
-	.dt-resource-tenant {
-		float: right;
-	}
+    .dt-resource-tenant {
+        float: right;
+    }
 
-	> .ant-spin-nested-loading {
-		height: calc(100% - $form-size);
+    > .ant-spin-nested-loading {
+        height: calc(100% - $form-size);
 
-		> .ant-spin-container {
-			height: 100%;
-		}
-	}
+        > .ant-spin-container {
+            height: 100%;
+        }
+    }
 
-	.dt-resource-tabs {
-		height: 100%;
+    .dt-resource-tabs {
+        height: 100%;
 
-		.ant-tabs-content-holder {
-			flex: 1;
-			overflow-y: auto;
-		}
-	}
+        .ant-tabs-content-holder {
+            flex: 1;
+            overflow-y: auto;
+        }
+    }
 }

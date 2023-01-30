@@ -24,52 +24,44 @@ import { getTenantId, getUserId } from '@/utils';
 export const CONTAINER_ID = 'container_wrapper';
 
 export default ({ taskId }: { taskId: number }) => {
-	const [visible, changeVisible] = useState(true);
-	const [loading, changeLoading] = useState(false);
+    const [visible, changeVisible] = useState(true);
+    const [loading, changeLoading] = useState(false);
 
-	const checkPublishTask = () => {
-		changeLoading(true);
-		ajax.publishOfflineTask({
-			id: taskId,
-			tenantId: getTenantId(),
-			userId: getUserId(),
-			preSave: true,
-		})
-			.then((res) => {
-				const { code } = res;
-				if (code === 1) {
-					message.success('提交成功！');
-					changeVisible(false);
-				}
-			})
-			.finally(() => {
-				changeLoading(false);
-			});
-	};
-	return (
-		<Modal
-			wrapClassName="vertical-center-modal"
-			title="提交任务"
-			getContainer={() => document.getElementById(CONTAINER_ID)!}
-			prefixCls="ant-modal"
-			style={{ height: '600px', width: '600px' }}
-			visible={visible}
-			onCancel={() => changeVisible(false)}
-			onOk={() => checkPublishTask()}
-			confirmLoading={loading}
-			cancelText="关闭"
-		>
-			<Alert
-				message="提交过的任务才能被调度执行及发布到其他项目"
-				type="warning"
-				closable={false}
-			/>
-			<br />
-			<Alert
-				message="新提交的任务需要第二天才能生成周期实例"
-				type="warning"
-				closable={false}
-			/>
-		</Modal>
-	);
+    const checkPublishTask = () => {
+        changeLoading(true);
+        ajax.publishOfflineTask({
+            id: taskId,
+            tenantId: getTenantId(),
+            userId: getUserId(),
+            preSave: true,
+        })
+            .then((res) => {
+                const { code } = res;
+                if (code === 1) {
+                    message.success('提交成功！');
+                    changeVisible(false);
+                }
+            })
+            .finally(() => {
+                changeLoading(false);
+            });
+    };
+    return (
+        <Modal
+            wrapClassName="vertical-center-modal"
+            title="提交任务"
+            getContainer={() => document.getElementById(CONTAINER_ID)!}
+            prefixCls="ant-modal"
+            style={{ height: '600px', width: '600px' }}
+            visible={visible}
+            onCancel={() => changeVisible(false)}
+            onOk={() => checkPublishTask()}
+            confirmLoading={loading}
+            cancelText="关闭"
+        >
+            <Alert message="提交过的任务才能被调度执行及发布到其他项目" type="warning" closable={false} />
+            <br />
+            <Alert message="新提交的任务需要第二天才能生成周期实例" type="warning" closable={false} />
+        </Modal>
+    );
 };

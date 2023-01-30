@@ -1,17 +1,18 @@
 .taskParams {
-	color: var(--foreground);
+    color: var(--foreground);
 
-	.ant-collapse > .ant-collapse-item > .ant-collapse-header {
-		color: var(--foreground);
-	}
+    .ant-collapse > .ant-collapse-item > .ant-collapse-header {
+        color: var(--foreground);
+    }
 
-	.ant-form-item-label > label {
-		color: var(--foreground);
-		.taskParams__ellipsis {
-			width: 100%;
-			overflow: hidden;
-			white-space: nowrap;
-			text-overflow: ellipsis;
-		}
-	}
+    .ant-form-item-label > label {
+        color: var(--foreground);
+
+        .taskParams__ellipsis {
+            width: 100%;
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+        }
+    }
 }

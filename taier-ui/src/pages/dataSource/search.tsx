@@ -23,80 +23,75 @@ import { SearchOutlined } from '@ant-design/icons';
 import './search.scss';
 
 interface IProps {
-	onSearch: (value: IFormFieldProps) => void;
+    onSearch: (value: IFormFieldProps) => void;
 }
 
 const { Option } = Select;
 
 interface ITypeProps {
-	dataType: string;
+    dataType: string;
 }
 
 interface IFormFieldProps {
-	search: string;
-	dataTypeList: string[];
+    search: string;
+    dataTypeList: string[];
 }
 
 export default function Search({ onSearch }: IProps) {
-	const [form] = Form.useForm<IFormFieldProps>();
-	const [typeList, setTypeList] = useState<ITypeProps[]>([]);
+    const [form] = Form.useForm<IFormFieldProps>();
+    const [typeList, setTypeList] = useState<ITypeProps[]>([]);
 
-	const handleSearch = () => {
-		const { search = '', dataTypeList } = form.getFieldsValue();
-		onSearch({
-			search: search.trim(),
-			dataTypeList,
-		});
-	};
+    const handleSearch = () => {
+        const { search = '', dataTypeList } = form.getFieldsValue();
+        onSearch({
+            search: search.trim(),
+            dataTypeList,
+        });
+    };
 
-	const getTypeList = async () => {
-		const { data, success } = await API.typeList({});
+    const getTypeList = async () => {
+        const { data, success } = await API.typeList({});
 
-		if (success) {
-			setTypeList(data || []);
-		}
-	};
+        if (success) {
+            setTypeList(data || []);
+        }
+    };
 
-	useEffect(() => {
-		getTypeList();
-	}, []);
+    useEffect(() => {
+        getTypeList();
+    }, []);
 
-	return (
-		<div className="top-search">
-			<Form<IFormFieldProps> form={form} wrapperCol={{ span: 24 }} autoComplete="off">
-				<Form.Item name="search">
-					<Input
-						placeholder="数据源名称/描述"
-						onPressEnter={() => handleSearch()}
-						suffix={
-							<SearchOutlined
-								onClick={() => handleSearch()}
-								style={{ cursor: 'pointer' }}
-							/>
-						}
-					/>
-				</Form.Item>
-				<Form.Item name="dataTypeList">
-					<Select<string[]>
-						mode="multiple"
-						placeholder="请选择类型"
-						allowClear
-						showSearch
-						maxTagCount={1}
-						showArrow
-						optionFilterProp="children"
-						onChange={() => handleSearch()}
-					>
-						{typeList.map((item) => {
-							return (
-								<Option value={item.dataType} key={item.dataType}>
-									{item.dataType}
-								</Option>
-							);
-						})}
-					</Select>
-				</Form.Item>
-			</Form>
-		</div>
-	);
+    return (
+        <div className="top-search">
+            <Form<IFormFieldProps> form={form} wrapperCol={{ span: 24 }} autoComplete="off">
+                <Form.Item name="search">
+                    <Input
+                        placeholder="数据源名称/描述"
+                        onPressEnter={() => handleSearch()}
+                        suffix={<SearchOutlined onClick={() => handleSearch()} style={{ cursor: 'pointer' }} />}
+                    />
+                </Form.Item>
+                <Form.Item name="dataTypeList">
+                    <Select<string[]>
+                        mode="multiple"
+                        placeholder="请选择类型"
+                        allowClear
+                        showSearch
+                        maxTagCount={1}
+                        showArrow
+                        optionFilterProp="children"
+                        onChange={() => handleSearch()}
+                    >
+                        {typeList.map((item) => {
+                            return (
+                                <Option value={item.dataType} key={item.dataType}>
+                                    {item.dataType}
+                                </Option>
+                            );
+                        })}
+                    </Select>
+                </Form.Item>
+            </Form>
+        </div>
+    );
 }

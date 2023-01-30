@@ -39,240 +39,224 @@ import './index.scss';
 const { confirm } = Modal;
 
 interface IOther {
-	search: string;
-	dataTypeList: string[];
+    search: string;
+    dataTypeList: string[];
 }
 
 const DataSourceView = ({ dataSource }: IDataSourceState) => {
-	const [other, setOther] = useState<IOther>({
-		search: '',
-		dataTypeList: [],
-	});
+    const [other, setOther] = useState<IOther>({
+        search: '',
+        dataTypeList: [],
+    });
 
-	const [visible, setVisible] = useState<boolean>(false);
-	const [detailView, setView] = useState<IDataSourceProps | undefined>(undefined);
+    const [visible, setVisible] = useState<boolean>(false);
+    const [detailView, setView] = useState<IDataSourceProps | undefined>(undefined);
 
-	const contextView = useContextViewEle();
+    const contextView = useContextViewEle();
 
-	// 搜索事件
-	const handleSearch = (value: Record<string, any>) => {
-		const data = { ...other, ...value };
-		setOther(data);
-	};
+    // 搜索事件
+    const handleSearch = (value: Record<string, any>) => {
+        const data = { ...other, ...value };
+        setOther(data);
+    };
 
-	const handleOpenDetail = (record: IDataSourceProps) => {
-		setVisible(true);
-		setView(record);
-	};
+    const handleOpenDetail = (record: IDataSourceProps) => {
+        setVisible(true);
+        setView(record);
+    };
 
-	// 删除
-	const toDelete = async (record: IDataSourceProps) => {
-		const { success, message: msg } = await API.dataSourceDelete({
-			dataInfoId: record.dataInfoId,
-		});
+    // 删除
+    const toDelete = async (record: IDataSourceProps) => {
+        const { success, message: msg } = await API.dataSourceDelete({
+            dataInfoId: record.dataInfoId,
+        });
 
-		if (success) {
-			message.success('删除成功');
-			// 更新表格
-			dataSourceService.reloadDataSource();
-		} else {
-			message.error(`${msg}`);
-		}
-	};
+        if (success) {
+            message.success('删除成功');
+            // 更新表格
+            dataSourceService.reloadDataSource();
+        } else {
+            message.error(`${msg}`);
+        }
+    };
 
-	const handleMenuClick = (menu: { id: string; name: string }, record: IDataSourceProps) => {
-		contextView?.hide();
-		switch (menu.id) {
-			case 'edit':
-				if (molecule.editor.isOpened(ID_COLLECTIONS.EDIT_DATASOURCE_PREFIX)) {
-					message.warning('请先保存或关闭编辑数据源');
-					const groupId = molecule.editor.getGroupIdByTab(
-						ID_COLLECTIONS.EDIT_DATASOURCE_PREFIX,
-					)!;
-					molecule.editor.setActive(groupId, ID_COLLECTIONS.EDIT_DATASOURCE_PREFIX);
-				} else {
-					molecule.editor.open({
-						id: ID_COLLECTIONS.EDIT_DATASOURCE_PREFIX,
-						name: '编辑数据源',
-						icon: 'edit',
-						renderPane: (
-							<Add
-								key={ID_COLLECTIONS.EDIT_DATASOURCE_PREFIX}
-								record={record}
-								onSubmit={() => dataSourceService.reloadDataSource()}
-							/>
-						),
-						breadcrumb: [
-							{
-								id: 'root',
-								name: '数据源中心',
-							},
-							{
-								id: ID_COLLECTIONS.EDIT_DATASOURCE_PREFIX,
-								name: '编辑数据源',
-							},
-						],
-					});
-				}
-				break;
-			case 'delete':
-				confirm({
-					title: '是否删除此条记录？',
-					icon: <ExclamationCircleOutlined />,
-					okText: '删除',
-					okType: 'danger',
-					cancelText: '取消',
-					onOk() {
-						toDelete(record);
-					},
-					onCancel() {},
-				});
-				break;
-			default:
-				break;
-		}
-	};
+    const handleMenuClick = (menu: { id: string; name: string }, record: IDataSourceProps) => {
+        contextView?.hide();
+        switch (menu.id) {
+            case 'edit':
+                if (molecule.editor.isOpened(ID_COLLECTIONS.EDIT_DATASOURCE_PREFIX)) {
+                    message.warning('请先保存或关闭编辑数据源');
+                    const groupId = molecule.editor.getGroupIdByTab(ID_COLLECTIONS.EDIT_DATASOURCE_PREFIX)!;
+                    molecule.editor.setActive(groupId, ID_COLLECTIONS.EDIT_DATASOURCE_PREFIX);
+                } else {
+                    molecule.editor.open({
+                        id: ID_COLLECTIONS.EDIT_DATASOURCE_PREFIX,
+                        name: '编辑数据源',
+                        icon: 'edit',
+                        renderPane: (
+                            <Add
+                                key={ID_COLLECTIONS.EDIT_DATASOURCE_PREFIX}
+                                record={record}
+                                onSubmit={() => dataSourceService.reloadDataSource()}
+                            />
+                        ),
+                        breadcrumb: [
+                            {
+                                id: 'root',
+                                name: '数据源中心',
+                            },
+                            {
+                                id: ID_COLLECTIONS.EDIT_DATASOURCE_PREFIX,
+                                name: '编辑数据源',
+                            },
+                        ],
+                    });
+                }
+                break;
+            case 'delete':
+                confirm({
+                    title: '是否删除此条记录？',
+                    icon: <ExclamationCircleOutlined />,
+                    okText: '删除',
+                    okType: 'danger',
+                    cancelText: '取消',
+                    onOk() {
+                        toDelete(record);
+                    },
+                    onCancel() {},
+                });
+                break;
+            default:
+                break;
+        }
+    };
 
-	const handleContextmenu = (
-		e: React.MouseEvent<HTMLLIElement, MouseEvent>,
-		record: IDataSourceProps,
-	) => {
-		e.preventDefault();
-		e.currentTarget.focus();
-		contextView?.show(getEventPosition(e), () => (
-			<Menu
-				role="menu"
-				onClick={(_: any, item: any) => handleMenuClick(item, record)}
-				data={[
-					{
-						id: 'edit',
-						name: '编辑',
-					},
-					{
-						id: 'delete',
-						name: '删除',
-					},
-				]}
-			/>
-		));
-	};
+    const handleContextmenu = (e: React.MouseEvent<HTMLLIElement, MouseEvent>, record: IDataSourceProps) => {
+        e.preventDefault();
+        e.currentTarget.focus();
+        contextView?.show(getEventPosition(e), () => (
+            <Menu
+                role="menu"
+                onClick={(_: any, item: any) => handleMenuClick(item, record)}
+                data={[
+                    {
+                        id: 'edit',
+                        name: '编辑',
+                    },
+                    {
+                        id: 'delete',
+                        name: '删除',
+                    },
+                ]}
+            />
+        ));
+    };
 
-	const handleHeaderBarClick = () => {
-		if (molecule.editor.isOpened(ID_COLLECTIONS.CREATE_DATASOURCE_PREFIX)) {
-			message.warning('请先保存或关闭新增数据源');
-			const groupId = molecule.editor.getGroupIdByTab(
-				ID_COLLECTIONS.CREATE_DATASOURCE_PREFIX,
-			)!;
-			molecule.editor.setActive(groupId, ID_COLLECTIONS.CREATE_DATASOURCE_PREFIX);
-		} else {
-			molecule.editor.open({
-				id: ID_COLLECTIONS.CREATE_DATASOURCE_PREFIX,
-				name: '新增数据源',
-				icon: 'server-process',
-				renderPane: (
-					<Add
-						key={ID_COLLECTIONS.CREATE_DATASOURCE_PREFIX}
-						onSubmit={() => dataSourceService.reloadDataSource()}
-					/>
-				),
-				breadcrumb: [
-					{
-						id: 'root',
-						name: '数据源中心',
-					},
-					{
-						id: ID_COLLECTIONS.CREATE_DATASOURCE_PREFIX,
-						name: '新增数据源',
-					},
-				],
-			});
-		}
-	};
+    const handleHeaderBarClick = () => {
+        if (molecule.editor.isOpened(ID_COLLECTIONS.CREATE_DATASOURCE_PREFIX)) {
+            message.warning('请先保存或关闭新增数据源');
+            const groupId = molecule.editor.getGroupIdByTab(ID_COLLECTIONS.CREATE_DATASOURCE_PREFIX)!;
+            molecule.editor.setActive(groupId, ID_COLLECTIONS.CREATE_DATASOURCE_PREFIX);
+        } else {
+            molecule.editor.open({
+                id: ID_COLLECTIONS.CREATE_DATASOURCE_PREFIX,
+                name: '新增数据源',
+                icon: 'server-process',
+                renderPane: (
+                    <Add
+                        key={ID_COLLECTIONS.CREATE_DATASOURCE_PREFIX}
+                        onSubmit={() => dataSourceService.reloadDataSource()}
+                    />
+                ),
+                breadcrumb: [
+                    {
+                        id: 'root',
+                        name: '数据源中心',
+                    },
+                    {
+                        id: ID_COLLECTIONS.CREATE_DATASOURCE_PREFIX,
+                        name: '新增数据源',
+                    },
+                ],
+            });
+        }
+    };
 
-	const renderFilterDataSource = (item: IDataSourceProps) => {
-		if (other.search) {
-			return item.dataName.includes(other.search);
-		}
+    const renderFilterDataSource = (item: IDataSourceProps) => {
+        if (other.search) {
+            return item.dataName.includes(other.search);
+        }
 
-		if (other.dataTypeList?.length) {
-			return other.dataTypeList.includes(item.dataType);
-		}
+        if (other.dataTypeList?.length) {
+            return other.dataTypeList.includes(item.dataType);
+        }
 
-		return true;
-	};
+        return true;
+    };
 
-	const filterDataSource = useMemo(
-		() => dataSource.filter(renderFilterDataSource),
-		[dataSource, other],
-	);
+    const filterDataSource = useMemo(() => dataSource.filter(renderFilterDataSource), [dataSource, other]);
 
-	return (
-		<div className="datasource-container">
-			<Header
-				title="数据源中心"
-				toolbar={
-					<ActionBar
-						data={[
-							{
-								id: 'add',
-								title: '新增数据源',
-								icon: 'server-process',
-								contextMenu: [],
-								onClick: handleHeaderBarClick,
-							},
-						]}
-					/>
-				}
-			/>
-			<Content>
-				<Search onSearch={handleSearch} />
-				{filterDataSource.length ? (
-					<div tabIndex={0} className="datasource-content">
-						<ul className="datasource-list">
-							{filterDataSource.map((item) => (
-								<li
-									key={item.dataInfoId}
-									tabIndex={-1}
-									className="datasource-record"
-									onClick={() => handleOpenDetail(item)}
-									onContextMenu={(e) => handleContextmenu(e, item)}
-								>
-									{item.status === 0 ? (
-										<DataSourceLinkFailed
-											style={{ color: '#ed5b56', fontSize: 0 }}
-										/>
-									) : (
-										<DataSourceLinkSuccess
-											style={{ color: '#72c140', fontSize: 0 }}
-										/>
-									)}
-									<div className="datasource-title">
-										<span className="title" title={item.dataName}>
-											{item.dataName}({item.dataType}
-											{item.dataVersion || ''})
-										</span>
-										<span className={classNames('desc')}>
-											{item.dataDesc || '--'}
-										</span>
-									</div>
-								</li>
-							))}
-						</ul>
-					</div>
-				) : (
-					<Empty image={Empty.PRESENTED_IMAGE_SIMPLE} />
-				)}
-				<DetailInfoModal
-					type="dataSource"
-					title="数据源详情"
-					visible={visible}
-					loading={false}
-					onCancel={() => setVisible(false)}
-					data={detailView}
-				/>
-			</Content>
-		</div>
-	);
+    return (
+        <div className="datasource-container">
+            <Header
+                title="数据源中心"
+                toolbar={
+                    <ActionBar
+                        data={[
+                            {
+                                id: 'add',
+                                title: '新增数据源',
+                                icon: 'server-process',
+                                contextMenu: [],
+                                onClick: handleHeaderBarClick,
+                            },
+                        ]}
+                    />
+                }
+            />
+            <Content>
+                <Search onSearch={handleSearch} />
+                {filterDataSource.length ? (
+                    <div tabIndex={0} className="datasource-content">
+                        <ul className="datasource-list">
+                            {filterDataSource.map((item) => (
+                                <li
+                                    key={item.dataInfoId}
+                                    tabIndex={-1}
+                                    className="datasource-record"
+                                    onClick={() => handleOpenDetail(item)}
+                                    onContextMenu={(e) => handleContextmenu(e, item)}
+                                >
+                                    {item.status === 0 ? (
+                                        <DataSourceLinkFailed style={{ color: '#ed5b56', fontSize: 0 }} />
+                                    ) : (
+                                        <DataSourceLinkSuccess style={{ color: '#72c140', fontSize: 0 }} />
+                                    )}
+                                    <div className="datasource-title">
+                                        <span className="title" title={item.dataName}>
+                                            {item.dataName}({item.dataType}
+                                            {item.dataVersion || ''})
+                                        </span>
+                                        <span className={classNames('desc')}>{item.dataDesc || '--'}</span>
+                                    </div>
+                                </li>
+                            ))}
+                        </ul>
+                    </div>
+                ) : (
+                    <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} />
+                )}
+                <DetailInfoModal
+                    type="dataSource"
+                    title="数据源详情"
+                    visible={visible}
+                    loading={false}
+                    onCancel={() => setVisible(false)}
+                    data={detailView}
+                />
+            </Content>
+        </div>
+    );
 };
 
 export default connect(dataSourceService, DataSourceView);

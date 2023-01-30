@@ -21,9 +21,9 @@ import DetailInfo from '@/components/detailInfo';
 import { CATALOGUE_TYPE } from '@/constant';
 
 export default function TaskInfo({ current }: IRightBarComponentProps) {
-	return (
-		<div className="p-8">
-			<DetailInfo type={CATALOGUE_TYPE.TASK} data={current!.tab!.data} />
-		</div>
-	);
+    return (
+        <div className="p-8">
+            <DetailInfo type={CATALOGUE_TYPE.TASK} data={current!.tab!.data} />
+        </div>
+    );
 }

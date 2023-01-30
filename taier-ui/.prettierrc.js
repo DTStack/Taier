@@ -1,5 +1,6 @@
-const fabric = require('@umijs/fabric');
+const prettier = require('ko-lint-config/.prettierrc');
 
 module.exports = {
-  ...fabric.prettier,
+    ...prettier,
+    printWidth: 120,
 };

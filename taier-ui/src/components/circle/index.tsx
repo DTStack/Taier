@@ -20,37 +20,37 @@ import classNames from 'classnames';
 import './index.scss';
 
 enum CIRCLE_TYPES_ENUM {
-	running = 'running',
-	finished = 'finished',
-	stopped = 'stopped',
-	frozen = 'frozen',
-	fail = 'fail',
-	submitting = 'submitting',
-	restarting = 'restarting',
-	waitSubmit = 'waitSubmit',
+    running = 'running',
+    finished = 'finished',
+    stopped = 'stopped',
+    frozen = 'frozen',
+    fail = 'fail',
+    submitting = 'submitting',
+    restarting = 'restarting',
+    waitSubmit = 'waitSubmit',
 }
 
 type CircleType = keyof typeof CIRCLE_TYPES_ENUM;
 
 interface CircleProps {
-	type?: CircleType;
-	className?: string;
-	style?: React.CSSProperties;
-	onClick?: () => void;
-	children?: React.ReactNode;
+    type?: CircleType;
+    className?: string;
+    style?: React.CSSProperties;
+    onClick?: () => void;
+    children?: React.ReactNode;
 }
 
 export default function Circle({ className, type, children, ...other }: CircleProps) {
-	const prefixCls = 'dtc-circle';
-	const classes = classNames({
-		className,
-		[`${prefixCls}-default`]: true,
-		[`${prefixCls}-${type}`]: type,
-	});
+    const prefixCls = 'dtc-circle';
+    const classes = classNames({
+        className,
+        [`${prefixCls}-default`]: true,
+        [`${prefixCls}-${type}`]: type,
+    });
 
-	return (
-		<div {...other} className={classes}>
-			{children || ''}
-		</div>
-	);
+    return (
+        <div {...other} className={classes}>
+            {children || ''}
+        </div>
+    );
 }

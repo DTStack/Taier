@@ -1,81 +1,81 @@
-@import './variables.scss';
+@import "./variables.scss";
 
 .mo-menuBar--horizontal {
-	height: $menuBar-size;
-	background: var(--activityBar-background);
+    height: $menuBar-size;
+    background: var(--activityBar-background);
 
-	> .mo-menu {
-		height: $menuBar-size;
-		color: var(--activityBar-inactiveForeground);
-		background: inherit;
-	}
+    > .mo-menu {
+        height: $menuBar-size;
+        color: var(--activityBar-inactiveForeground);
+        background: inherit;
+    }
 }
 
 // only the tabs in editor should have hover styles
 .mo-editor__group {
-	.mo-tab__item:hover {
-		background-color: var(--tab-hoverBackground);
-	}
+    .mo-tab__item:hover {
+        background-color: var(--tab-hoverBackground);
+    }
 }
 
 .mo-tab__item__status,
 .mo-tab__item__op {
-	color: inherit;
+    color: inherit;
 
-	&:hover {
-		color: inherit;
-	}
+    &:hover {
+        color: inherit;
+    }
 }
 
 .mo-editor__group-breadcrumb {
-	color: var(--breadcrumb-foreground);
+    color: var(--breadcrumb-foreground);
 
-	.mo-breadcrumb__item:hover {
-		color: var(--breadcrumb-focusForeground);
-		opacity: 1;
-	}
+    .mo-breadcrumb__item:hover {
+        color: var(--breadcrumb-focusForeground);
+        opacity: 1;
+    }
 }
 
 .mo-notification__item:focus {
-	background: var(--list-hoverBackground);
-	outline: 1px solid var(--list-focusOutline);
+    background: var(--list-hoverBackground);
+    outline: 1px solid var(--list-focusOutline);
 }
 
 .mo-statusBar__item > a:empty {
-	padding: 0;
+    padding: 0;
 }
 
 // ===================== Auxiliary Bar ===========================
 .mo-auxiliaryBar__tabs {
-	.mo-auxiliaryBar__tabs__tab {
-		font-size: 12px;
-		padding-top: 5px;
-		padding-bottom: 5px;
+    .mo-auxiliaryBar__tabs__tab {
+        font-size: 12px;
+        padding-top: 5px;
+        padding-bottom: 5px;
 
-		&:hover {
-			color: var(--taier-rightBar-foreground);
-			background-color: var(--taier-rightBar-background);
-		}
+        &:hover {
+            color: var(--taier-rightBar-foreground);
+            background-color: var(--taier-rightBar-background);
+        }
 
-		&--active {
-			color: var(--taier-rightBar-foreground);
-			background-color: var(--taier-rightBar-background);
-			position: relative;
+        &--active {
+            color: var(--taier-rightBar-foreground);
+            background-color: var(--taier-rightBar-background);
+            position: relative;
 
-			&::after {
-				position: absolute;
-				top: 0;
-				right: 0;
-				bottom: 0;
-				width: 2px;
-				height: 100%;
-				background-color: #3f87ff;
-				content: '';
-			}
-		}
-	}
+            &::after {
+                position: absolute;
+                top: 0;
+                right: 0;
+                bottom: 0;
+                width: 2px;
+                height: 100%;
+                background-color: #3f87ff;
+                content: "";
+            }
+        }
+    }
 }
 
 .mo-auxiliaryBar__container {
-	background: var(--sideBar-background);
+    background: var(--sideBar-background);
 }

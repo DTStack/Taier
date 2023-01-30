@@ -24,52 +24,52 @@ import taskResultService from '@/services/taskResultService';
 import Editor from '../editor';
 
 interface ILogEditorProps {
-	results: ITaskResultStates;
-	editor: molecule.model.IEditor;
+    results: ITaskResultStates;
+    editor: molecule.model.IEditor;
 }
 
 export default connect(
-	{ results: taskResultService, editor: molecule.editor },
-	({ editor, results: { logs } }: ILogEditorProps) => {
-		const { current } = editor;
+    { results: taskResultService, editor: molecule.editor },
+    ({ editor, results: { logs } }: ILogEditorProps) => {
+        const { current } = editor;
 
-		const value = useMemo(() => {
-			if (current?.tab?.id && logs[current.tab.id]) {
-				return logs[current.tab.id];
-			}
-			return '暂无日志';
-		}, [logs, current?.tab?.id]);
+        const value = useMemo(() => {
+            if (current?.tab?.id && logs[current.tab.id]) {
+                return logs[current.tab.id];
+            }
+            return '暂无日志';
+        }, [logs, current?.tab?.id]);
 
-		if (!current || !current.activeTab) {
-			return (
-				<div
-					style={{
-						marginTop: 10,
-						textAlign: 'center',
-					}}
-				>
-					无法获取任务日志
-				</div>
-			);
-		}
+        if (!current || !current.activeTab) {
+            return (
+                <div
+                    style={{
+                        marginTop: 10,
+                        textAlign: 'center',
+                    }}
+                >
+                    无法获取任务日志
+                </div>
+            );
+        }
 
-		return (
-			<Editor
-				language="jsonlog"
-				value={value}
-				sync
-				options={{
-					automaticLayout: true,
-					readOnly: true,
-					wordWrap: 'on',
-					contextmenu: false,
-					scrollBeyondLastLine: true,
-					lineNumbers: 'off',
-					minimap: {
-						enabled: false,
-					},
-				}}
-			/>
-		);
-	},
+        return (
+            <Editor
+                language="jsonlog"
+                value={value}
+                sync
+                options={{
+                    automaticLayout: true,
+                    readOnly: true,
+                    wordWrap: 'on',
+                    contextmenu: false,
+                    scrollBeyondLastLine: true,
+                    lineNumbers: 'off',
+                    minimap: {
+                        enabled: false,
+                    },
+                }}
+            />
+        );
+    }
 );

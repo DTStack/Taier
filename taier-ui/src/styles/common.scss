@@ -1,120 +1,115 @@
 /* Some styles used for multiply components */
 .split-text {
-	float: left;
-	padding: 0 5px;
+    float: left;
+    padding: 0 5px;
 }
 
 .task_offline_message {
-	margin-bottom: 10px;
-	padding: 10px;
-	color: #666;
-	font-size: 12px;
-	background-color: #eef6fe;
+    margin-bottom: 10px;
+    padding: 10px;
+    color: #666;
+    font-size: 12px;
+    background-color: #eef6fe;
 }
 
 .no-padding-modal {
-	.ant-modal-body {
-		padding: 0;
-		font-size: 12px;
-		line-height: 1.5;
-	}
+    .ant-modal-body {
+        padding: 0;
+        font-size: 12px;
+        line-height: 1.5;
+    }
 }
 
 .ope-statistics {
-	display: flex;
-	flex: none;
-	flex-wrap: nowrap;
-	overflow-x: scroll;
-	font-weight: bold;
+    display: flex;
+    flex: none;
+    flex-wrap: nowrap;
+    overflow-x: scroll;
+    font-weight: bold;
 
-	span {
-		height: 32px;
-		margin: 0 8px;
-		font-size: 12px;
-		line-height: 23px;
-		white-space: nowrap;
-	}
+    span {
+        height: 32px;
+        margin: 0 8px;
+        font-size: 12px;
+        line-height: 23px;
+        white-space: nowrap;
+    }
 }
 
 .status_overview_basic_block {
-	display: inline-block;
-	padding: 4px 20px;
-	font-weight: 400;
-	border-radius: 30px;
+    display: inline-block;
+    padding: 4px 20px;
+    font-weight: 400;
+    border-radius: 30px;
 }
 
 .status_overview_fail_font {
-	@extend .status_overview_basic_block;
-
-	color: var(--badge-failed-foreground);
-	background: var(--badge-failed-background);
+    @extend .status_overview_basic_block;
+    color: var(--badge-failed-foreground);
+    background: var(--badge-failed-background);
 }
 
 .status_overview_running_font {
-	@extend .status_overview_basic_block;
-
-	color: var(--badge-running-foreground);
-	background: var(--badge-running-background);
+    @extend .status_overview_basic_block;
+    color: var(--badge-running-foreground);
+    background: var(--badge-running-background);
 }
 
 .status_overview_grey_font {
-	@extend .status_overview_basic_block;
-
-	color: var(--badge-cancel-foreground);
-	background: var(--badge-cancel-background);
+    @extend .status_overview_basic_block;
+    color: var(--badge-cancel-foreground);
+    background: var(--badge-cancel-background);
 }
 
 .status_overview_yellow_font {
-	@extend .status_overview_basic_block;
-
-	color: var(--badge-pending-foreground);
-	background: var(--badge-pending-background);
+    @extend .status_overview_basic_block;
+    color: var(--badge-pending-foreground);
+    background: var(--badge-pending-background);
 }
 
 .status_overview_finished_font {
-	@extend .status_overview_basic_block;
-
-	color: var(--badge-finished-foreground);
-	background: var(--badge-finished-background);
+    @extend .status_overview_basic_block;
+    color: var(--badge-finished-foreground);
+    background: var(--badge-finished-background);
 }
 
 .status_overview_count_font {
-	@extend .status_overview_basic_block;
-
-	color: var(--badge-common-foreground);
-	background: var(--badge-common-background);
+    @extend .status_overview_basic_block;
+    color: var(--badge-common-foreground);
+    background: var(--badge-common-background);
 }
 
 .dt-refresh.ant-btn {
-	width: 32px;
-	height: 32px;
-	padding: 0;
-	color: var(--problemsInfoIcon-foreground);
-	line-height: 32px;
-	background: var(--editor-background);
-	border: none;
-	border-radius: 0;
-	box-shadow: 0 2px 6px 0 var(--minimapSlider-hoverBackground);
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    color: var(--problemsInfoIcon-foreground);
+    line-height: 32px;
+    background: var(--editor-background);
+    border: none;
+    border-radius: 0;
+    box-shadow: 0 2px 6px 0 var(--minimapSlider-hoverBackground);
 }
 
 .modal-body-nopadding {
-	.ant-modal-body {
-		padding: 0;
-	}
+    .ant-modal-body {
+        padding: 0;
+    }
 }
 
 // 全链路图
 .modal-body--height100 {
-	.ant-modal-content {
-		height: 100%;
-		.ant-modal-body {
-			height: 528px;
-		}
-	}
+    .ant-modal-content {
+        height: 100%;
+
+        .ant-modal-body {
+            height: 528px;
+        }
+    }
 }
 
 .ellipsis {
-	overflow: hidden;
-	text-overflow: ellipsis;
-	white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }

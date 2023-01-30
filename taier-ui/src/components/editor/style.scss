@@ -1,15 +1,15 @@
 .dt-placeholder {
-	position: absolute;
-	top: 0;
-	left: 65px;
-	z-index: 1;
-	display: none;
-	width: calc(100% - 75px);
-	height: 100%;
-	overflow: hidden;
-	color: var(--input-placeholderForeground);
-	font-style: italic;
-	white-space: pre-line;
-	opacity: 0.6;
-	pointer-events: none;
+    position: absolute;
+    top: 0;
+    left: 65px;
+    z-index: 1;
+    display: none;
+    width: calc(100% - 75px);
+    height: 100%;
+    overflow: hidden;
+    color: var(--input-placeholderForeground);
+    font-style: italic;
+    white-space: pre-line;
+    opacity: 0.6;
+    pointer-events: none;
 }

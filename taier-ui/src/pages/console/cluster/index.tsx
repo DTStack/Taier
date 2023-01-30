@@ -29,133 +29,125 @@ import { DRAWER_MENU_ENUM } from '@/constant';
 import './index.scss';
 
 interface IClusterProps {
-	id: string;
-	gmtCreate: number;
-	gmtModified: number;
-	clusterName: string;
-	hadoopVersion: string;
-	clusterId: number;
+    id: string;
+    gmtCreate: number;
+    gmtModified: number;
+    clusterName: string;
+    hadoopVersion: string;
+    clusterId: number;
 }
 
 export default function ClusterManage() {
-	const actionRef = useRef<IActionRef>(null);
-	const [modalVisible, setModalVisible] = useState(false);
+    const actionRef = useRef<IActionRef>(null);
+    const [modalVisible, setModalVisible] = useState(false);
 
-	const getResourceList = (
-		_: any,
-		{ current, pageSize }: { current: number; pageSize: number },
-	) => {
-		return Api.getClusterList({
-			currentPage: current,
-			pageSize,
-		}).then((res) => {
-			if (res.code === 1) {
-				return {
-					total: res.data.totalCount,
-					data: res.data.data,
-				};
-			}
-		});
-	};
+    const getResourceList = (_: any, { current, pageSize }: { current: number; pageSize: number }) => {
+        return Api.getClusterList({
+            currentPage: current,
+            pageSize,
+        }).then((res) => {
+            if (res.code === 1) {
+                return {
+                    total: res.data.totalCount,
+                    data: res.data.data,
+                };
+            }
+        });
+    };
 
-	const handleDelete = (record: IClusterProps) => {
-		Modal.confirm({
-			title: `删除集群后不可恢复，确认删除集群 ${record.clusterName}?`,
-			okText: '确认',
-			onOk() {
-				Api.deleteCluster({
-					clusterId: record.clusterId,
-				}).then((res: any) => {
-					if (res.code === 1) {
-						message.success('集群删除成功');
-						actionRef.current?.submit();
-					}
-				});
-			},
-		});
-	};
+    const handleDelete = (record: IClusterProps) => {
+        Modal.confirm({
+            title: `删除集群后不可恢复，确认删除集群 ${record.clusterName}?`,
+            okText: '确认',
+            onOk() {
+                Api.deleteCluster({
+                    clusterId: record.clusterId,
+                }).then((res: any) => {
+                    if (res.code === 1) {
+                        message.success('集群删除成功');
+                        actionRef.current?.submit();
+                    }
+                });
+            },
+        });
+    };
 
-	const newCluster = () => {
-		setModalVisible(true);
-	};
+    const newCluster = () => {
+        setModalVisible(true);
+    };
 
-	const onCancel = () => {
-		setModalVisible(false);
-	};
+    const onCancel = () => {
+        setModalVisible(false);
+    };
 
-	const onSubmit = (params: { clusterName: string }) => {
-		Api.addCluster({ ...params }).then((res) => {
-			if (res.code === 1) {
-				onCancel();
-				history.push({
-					query: {
-						drawer: DRAWER_MENU_ENUM.CLUSTER_DETAIL,
-						clusterName: params.clusterName,
-						clusterId: res.data.toString(),
-					},
-				});
-				message.success('集群新增成功！');
-			}
-		});
-	};
+    const onSubmit = (params: { clusterName: string }) => {
+        Api.addCluster({ ...params }).then((res) => {
+            if (res.code === 1) {
+                onCancel();
+                history.push({
+                    query: {
+                        drawer: DRAWER_MENU_ENUM.CLUSTER_DETAIL,
+                        clusterName: params.clusterName,
+                        clusterId: res.data.toString(),
+                    },
+                });
+                message.success('集群新增成功！');
+            }
+        });
+    };
 
-	const viewCluster = (record: IClusterProps) => {
-		history.push({
-			query: {
-				drawer: DRAWER_MENU_ENUM.CLUSTER_DETAIL,
-				clusterName: record.clusterName,
-				clusterId: record.clusterId.toString(),
-			},
-		});
-	};
+    const viewCluster = (record: IClusterProps) => {
+        history.push({
+            query: {
+                drawer: DRAWER_MENU_ENUM.CLUSTER_DETAIL,
+                clusterName: record.clusterName,
+                clusterId: record.clusterId.toString(),
+            },
+        });
+    };
 
-	const columns: ColumnsType<IClusterProps> = [
-		{
-			title: '集群名称',
-			dataIndex: 'clusterName',
-		},
-		{
-			title: '修改时间',
-			dataIndex: 'gmtModified',
-			render(text) {
-				return moment(text).format('YYYY-MM-DD HH:mm:ss');
-			},
-		},
-		{
-			title: '操作',
-			dataIndex: 'deal',
-			width: '170px',
-			render: (_, record) => {
-				return (
-					<Space split={<Divider type="vertical" />}>
-						<a onClick={() => viewCluster(record)}>查看</a>
-						<a onClick={() => handleDelete(record)}>删除</a>
-					</Space>
-				);
-			},
-		},
-	];
-	return (
-		<>
-			<Sketch<IClusterProps, Record<string, never>>
-				extra={
-					<Button type="primary" onClick={() => newCluster()}>
-						新增集群
-					</Button>
-				}
-				actionRef={actionRef}
-				request={getResourceList}
-				columns={columns}
-				tableProps={{
-					rowSelection: undefined,
-				}}
-			/>
-			<AddEngineModal
-				title="新增集群"
-				visible={modalVisible}
-				onCancel={onCancel}
-				onOk={onSubmit}
-			/>
-		</>
-	);
+    const columns: ColumnsType<IClusterProps> = [
+        {
+            title: '集群名称',
+            dataIndex: 'clusterName',
+        },
+        {
+            title: '修改时间',
+            dataIndex: 'gmtModified',
+            render(text) {
+                return moment(text).format('YYYY-MM-DD HH:mm:ss');
+            },
+        },
+        {
+            title: '操作',
+            dataIndex: 'deal',
+            width: '170px',
+            render: (_, record) => {
+                return (
+                    <Space split={<Divider type="vertical" />}>
+                        <a onClick={() => viewCluster(record)}>查看</a>
+                        <a onClick={() => handleDelete(record)}>删除</a>
+                    </Space>
+                );
+            },
+        },
+    ];
+    return (
+        <>
+            <Sketch<IClusterProps, Record<string, never>>
+                extra={
+                    <Button type="primary" onClick={() => newCluster()}>
+                        新增集群
+                    </Button>
+                }
+                actionRef={actionRef}
+                request={getResourceList}
+                columns={columns}
+                tableProps={{
+                    rowSelection: undefined,
+                }}
+            />
+            <AddEngineModal title="新增集群" visible={modalVisible} onCancel={onCancel} onOk={onSubmit} />
+        </>
+    );
 }

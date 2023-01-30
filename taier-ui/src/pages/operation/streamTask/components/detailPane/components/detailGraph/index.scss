@@ -1,125 +1,123 @@
 .c-graph__container {
-	position: relative;
-	display: flex;
-	flex-direction: column;
-	height: 100%;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
 
-	.c-graph__header {
-		z-index: 1;
-		padding: 12px 20px;
-	}
+    .c-graph__header {
+        z-index: 1;
+        padding: 12px 20px;
+    }
 
-	.c-graph__time-picker {
-		display: flex;
-		align-items: center;
-		justify-content: flex-end;
-	}
+    .c-graph__time-picker {
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+    }
 
-	.c-graph__content {
-		flex: 1;
-		padding: 0 20px;
-		overflow: auto;
-		background: inherit;
+    .c-graph__content {
+        flex: 1;
+        padding: 0 20px;
+        overflow: auto;
+        background: inherit;
 
-		.ant-collapse > .ant-collapse-item > .ant-collapse-header > .ant-collapse-arrow {
-			left: 20px;
-			color: #999;
-		}
-	}
+        .ant-collapse > .ant-collapse-item > .ant-collapse-header > .ant-collapse-arrow {
+            left: 20px;
+            color: #999;
+        }
+    }
 
-	.alarm-graph-row {
-		padding-left: 2px;
-		display: flex;
+    .alarm-graph-row {
+        padding-left: 2px;
+        display: flex;
 
-		& ~ .alarm-graph-row {
-			margin-top: 11px;
-		}
+        & ~ .alarm-graph-row {
+            margin-top: 11px;
+        }
 
-		section {
-			& ~ section {
-				margin-left: 10px;
-			}
+        section {
+            & ~ section {
+                margin-left: 10px;
+            }
+            width: 50%;
+            flex: 1 1 50%;
+        }
 
-			width: 50%;
-			flex-basis: 50%;
-			flex-grow: 1;
-			flex-shrink: 1;
-		}
+        .basegraph-size {
+            height: 300px;
 
-		.basegraph-size {
-			height: 300px;
+            .alarm-basegraph-box {
+                background: inherit;
+                border: 1px solid var(--panel-border);
+                position: relative;
+                height: 100%;
+                width: 100%;
 
-			.alarm-basegraph-box {
-				background: inherit;
-				border: 1px solid var(--panel-border);
-				position: relative;
-				height: 100%;
-				width: 100%;
+                header {
+                    padding: 7.5px 0 8.5px 21px;
+                    font-size: 14px;
+                    color: var(--foreground);
+                    background-color: var(--editorGroupHeader-tabsBackground);
+                    line-height: 24px;
+                    border-bottom: 1px solid var(--panel-border);
+                    position: absolute;
+                    top: 0;
+                    left: 0;
+                    width: 100%;
+                    z-index: 1;
 
-				header {
-					padding: 7.5px 0px 8.5px 21px;
-					font-size: 14px;
-					color: var(--foreground);
-					background-color: var(--editorGroupHeader-tabsBackground);
-					line-height: 24px;
-					border-bottom: 1px solid var(--panel-border);
-					position: absolute;
-					top: 0px;
-					left: 0px;
-					width: 100%;
-					z-index: 1;
+                    .title {
+                        font-weight: 500;
+                        font-size: 12px;
+                        color: var(--foreground);
+                    }
+                }
 
-					.title {
-						font-weight: 500;
-						font-size: 12px;
-						color: var(--foreground);
-					}
-				}
+                .alt,
+                .icon-delete {
+                    line-height: 22px;
+                    float: right;
+                    margin: 2px 8px 0 0;
+                    cursor: pointer;
+                    transition-duration: 0.3s;
+                    color: #999;
 
-				.alt,
-				.icon-delete {
-					line-height: 22px;
-					float: right;
-					margin: 2px 8px 0 0;
-					cursor: pointer;
-					transition-duration: 0.3s;
-					color: #999999;
-					&:hover {
-						// color:rgba(0,0,0,0.5)
-						color: #333;
-					}
-				}
+                    &:hover {
+                        // color:rgba(0,0,0,0.5)
+                        color: #333;
+                    }
+                }
 
-				.icon-delete {
-					margin-top: 3px;
-				}
+                .icon-delete {
+                    margin-top: 3px;
+                }
 
-				.loading-box {
-					width: 100%;
-					height: 100%;
-					padding-top: 40px;
-					text-align: center;
+                .loading-box {
+                    width: 100%;
+                    height: 100%;
+                    padding-top: 40px;
+                    text-align: center;
 
-					.loading {
-						position: absolute;
-						top: 50%;
-						transform: translateY(-50%);
-					}
-				}
+                    .loading {
+                        position: absolute;
+                        top: 50%;
+                        transform: translateY(-50%);
+                    }
+                }
 
-				.graph-content {
-					padding-top: 40px;
-					height: 100%;
-					position: relative;
+                .graph-content {
+                    padding-top: 40px;
+                    height: 100%;
+                    position: relative;
 
-					.no-data-text {
-						color: #666666;
-						font-size: 14px;
-						text-align: center;
-						margin-top: 100px;
-					}
-				}
-			}
-		}
-	}
+                    .no-data-text {
+                        color: #666;
+                        font-size: 14px;
+                        text-align: center;
+                        margin-top: 100px;
+                    }
+                }
+            }
+        }
+    }
 }

@@ -1,62 +1,62 @@
 // TODO：只兼容了暗黑主题下，亮色主题还没测试
-[data-prefers-color='dark'] {
-	.dtc-handsontable-no-border {
-		.handsontable {
-			thead tr:first-child,
-			tbody tr {
-				color: var(--list-hoverForeground);
-				background: var(--list-inactiveSelectionBackground);
-				border-color: var(--tree-tableColumnsBorder);
-			}
+[data-prefers-color="dark"] {
+    .dtc-handsontable-no-border {
+        .handsontable {
+            thead tr:first-child,
+            tbody tr {
+                color: var(--list-hoverForeground);
+                background: var(--list-inactiveSelectionBackground);
+                border-color: var(--tree-tableColumnsBorder);
+            }
 
-			th,
-			td {
-				color: inherit;
-				background: inherit;
-				border-color: inherit !important;
-			}
+            th,
+            td {
+                color: inherit;
+                background: inherit;
+                border-color: inherit !important;
+            }
 
-			tbody tr:nth-child(odd) {
-				color: var(--list-activeSelectionForeground);
-				background: var(--list-activeSelectionBackground);
-				border-color: var(--tree-tableColumnsBorder) !important;
-			}
+            tbody tr:nth-child(odd) {
+                color: var(--list-activeSelectionForeground);
+                background: var(--list-activeSelectionBackground);
+                border-color: var(--tree-tableColumnsBorder) !important;
+            }
 
-			tbody th.ht__highlight,
-			thead th.ht__highlight {
-				color: var(--list-highlightForeground);
-				background: var(--editor-background);
-			}
-		}
+            tbody th.ht__highlight,
+            thead th.ht__highlight {
+                color: var(--list-highlightForeground);
+                background: var(--editor-background);
+            }
+        }
 
-		.manualRowResizer,
-		.manualColumnResizer {
-			&:hover,
-			&.active {
-				background-color: var(--sash-hoverBorder);
-			}
-		}
-	}
+        .manualRowResizer,
+        .manualColumnResizer {
+            &:hover,
+            &.active {
+                background-color: var(--sash-hoverBorder);
+            }
+        }
+    }
 
-	.htContextMenu {
-		.ht_master table.htCore {
-			border: 1px solid var(--panel-border);
+    .htContextMenu {
+        .ht_master table.htCore {
+            border: 1px solid var(--panel-border);
 
-			tr {
-				color: var(--menu-foreground);
-				background: var(--menu-background);
-			}
+            tr {
+                color: var(--menu-foreground);
+                background: var(--menu-background);
+            }
 
-			tbody tr td,
-			tbody tr td.current {
-				padding: 0;
-				background: inherit;
-			}
+            tbody tr td,
+            tbody tr td.current {
+                padding: 0;
+                background: inherit;
+            }
 
-			tbody tr td.highlight {
-				color: var(--menu-selectionForeground);
-				background: var(--menu-selectionBackground);
-			}
-		}
-	}
+            tbody tr td.highlight {
+                color: var(--menu-selectionForeground);
+                background: var(--menu-selectionBackground);
+            }
+        }
+    }
 }

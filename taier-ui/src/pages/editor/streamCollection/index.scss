@@ -1,205 +1,217 @@
-@import '@/styles/variables.scss';
+@import "@/styles/variables.scss";
 
 .distribute-table-box {
-	position: relative;
-	margin-bottom: 20px;
-	display: flex;
-	&:first-child {
-		margin-top: -18px;
-	}
-	&__ant-card {
-		border-radius: 4px;
-		flex: 1;
-		.ant-form-item {
-			margin-bottom: 12px;
-			&:last-child {
-				margin-bottom: 0;
-			}
-		}
-		.card-select {
-			border: 1px solid #dddddd;
-			border-radius: 4px;
-			padding: 12px;
-			line-height: 0;
-			&__ant-tag {
-				margin: 0 8px 8px 0;
-				height: 24px;
-				line-height: 24px;
-				border-radius: 2px;
-				border: 1px solid #f5f5f5;
-				max-width: 100%;
-				display: flex;
-				align-items: center;
-				& > span {
-					overflow: hidden;
-					text-overflow: ellipsis;
-					white-space: nowrap;
-					display: inline-block;
-					flex: 1;
-				}
-			}
-			&_btn-edit {
-				display: block;
-				line-height: 12px;
-				margin-top: 4px;
-			}
-		}
-	}
-	&__icon-delete {
-		margin-left: 20px;
-		margin-top: 24px;
-		line-height: 32px;
-	}
+    position: relative;
+    margin-bottom: 20px;
+    display: flex;
+
+    &:first-child {
+        margin-top: -18px;
+    }
+
+    &__ant-card {
+        border-radius: 4px;
+        flex: 1;
+
+        .ant-form-item {
+            margin-bottom: 12px;
+
+            &:last-child {
+                margin-bottom: 0;
+            }
+        }
+
+        .card-select {
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 12px;
+            line-height: 0;
+
+            &__ant-tag {
+                margin: 0 8px 8px 0;
+                height: 24px;
+                line-height: 24px;
+                border-radius: 2px;
+                border: 1px solid #f5f5f5;
+                max-width: 100%;
+                display: flex;
+                align-items: center;
+
+                & > span {
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                    white-space: nowrap;
+                    display: inline-block;
+                    flex: 1;
+                }
+            }
+
+            &_btn-edit {
+                display: block;
+                line-height: 12px;
+                margin-top: 4px;
+            }
+        }
+    }
+
+    &__icon-delete {
+        margin-left: 20px;
+        margin-top: 24px;
+        line-height: 32px;
+    }
 }
 
 // TODO: 后续改造计划中移除一下 css
 .dt-datasync {
-	min-width: 770px;
-	min-height: 200px;
-	padding: 50px;
+    min-width: 770px;
+    min-height: 200px;
+    padding: 50px;
 
-	&-content {
-		margin-top: 20px;
-		padding: 20px 0 40px 0;
-		background: var(--workbenchBackground);
-		border: 1px dashed var(--widget-shadow);
-		border-radius: 0;
-	}
+    &-content {
+        margin-top: 20px;
+        padding: 20px 0 40px;
+        background: var(--workbenchBackground);
+        border: 1px dashed var(--widget-shadow);
+        border-radius: 0;
+    }
 
-	.steps-action {
-		margin-top: 24px;
-		text-align: center;
-	}
+    .steps-action {
+        margin-top: 24px;
+        text-align: center;
+    }
 }
 
 .m-keymapbox {
-	position: relative;
-	display: inline-block;
+    position: relative;
+    display: inline-block;
 
-	.m-keymapcanvas {
-		position: absolute;
-		color: $main-color;
-	}
+    .m-keymapcanvas {
+        position: absolute;
+        color: $main-color;
+    }
 
-	.col-plugin {
-		padding: 10px;
-		padding-right: 0;
-		cursor: pointer;
-	}
+    .col-plugin {
+        padding: 10px;
+        padding-right: 0;
+        cursor: pointer;
+    }
 
-	.m-col {
-		line-height: 40px;
-		background: var(--textBlockQuote-background);
-		border-bottom: 1px dotted var(--textBlockQuote-border);
+    .m-col {
+        line-height: 40px;
+        background: var(--textBlockQuote-background);
+        border-bottom: 1px dotted var(--textBlockQuote-border);
 
-		.cell {
-			float: left;
-			box-sizing: border-box;
-			padding: 0 10px;
-			overflow: hidden;
-			font-size: 11px;
-			text-align: left;
-			text-overflow: ellipsis;
+        .cell {
+            float: left;
+            box-sizing: border-box;
+            padding: 0 10px;
+            overflow: hidden;
+            font-size: 11px;
+            text-align: left;
+            text-overflow: ellipsis;
 
-			&:first-child {
-				width: 40%;
-				font-weight: bold;
-			}
+            &:first-child {
+                width: 40%;
+                font-weight: bold;
+            }
 
-			&:nth-child(2) {
-				width: 40%;
-				white-space: nowrap;
-				text-align: left;
-			}
+            &:nth-child(2) {
+                width: 40%;
+                white-space: nowrap;
+                text-align: left;
+            }
 
-			&:nth-child(3) {
-				width: 20%;
-				text-align: right;
-			}
-		}
+            &:nth-child(3) {
+                width: 20%;
+                text-align: right;
+            }
+        }
 
-		.remove-cell,
-		.edit-cell {
-			position: absolute;
-			top: 14px;
-			z-index: 2;
-			display: inline-block;
-			font-weight: normal;
-			line-height: 1;
-			cursor: pointer;
-		}
+        .remove-cell,
+        .edit-cell {
+            position: absolute;
+            top: 14px;
+            z-index: 2;
+            display: inline-block;
+            font-weight: normal;
+            line-height: 1;
+            cursor: pointer;
+        }
 
-		.four-cells {
-			.cell {
-				&:first-child {
-					width: 30%;
-					font-weight: bold;
-				}
-				&:nth-child(2) {
-					width: 30%;
-					text-align: left;
-				}
-				&:nth-child(3) {
-					width: 20%;
-					text-align: right;
-				}
-				&:nth-child(4) {
-					width: 20%;
-					text-align: right;
-				}
-			}
-		}
+        .four-cells {
+            .cell {
+                &:first-child {
+                    width: 30%;
+                    font-weight: bold;
+                }
 
-		.remove-cell {
-			right: 23px;
-		}
+                &:nth-child(2) {
+                    width: 30%;
+                    text-align: left;
+                }
 
-		.edit-cell {
-			right: 10px;
-		}
-	}
+                &:nth-child(3) {
+                    width: 20%;
+                    text-align: right;
+                }
 
-	.dl {
-		.dag-circle {
-			cursor: crosshair;
-		}
-	}
+                &:nth-child(4) {
+                    width: 20%;
+                    text-align: right;
+                }
+            }
+        }
+
+        .remove-cell {
+            right: 23px;
+        }
+
+        .edit-cell {
+            right: 10px;
+        }
+    }
+
+    .dl {
+        .dag-circle {
+            cursor: crosshair;
+        }
+    }
 }
 
 .m-buttons {
-	padding-top: 10px;
-	text-align: center;
+    padding-top: 10px;
+    text-align: center;
 
-	button {
-		margin-bottom: 5px;
-	}
+    button {
+        margin-bottom: 5px;
+    }
 }
 
 .dt-preview {
-	width: 100%;
+    width: 100%;
 
-	.ant-card {
-		margin: 0 20px;
+    .ant-card {
+        margin: 0 20px;
 
-		.ant-card-head {
-			padding: 0 20px;
-			font-size: 14px;
-			border-bottom: none;
-		}
+        .ant-card-head {
+            padding: 0 20px;
+            font-size: 14px;
+            border-bottom: none;
+        }
 
-		.ant-card-body {
-			padding: 0;
-		}
-	}
+        .ant-card-body {
+            padding: 0;
+        }
+    }
 }
 
 .mask-lock-layer {
-	position: absolute;
-	top: 48px;
-	right: 0;
-	bottom: 0;
-	left: 0;
-	z-index: 3;
-	background: var(--scrollbarSlider-background);
-	cursor: not-allowed;
+    position: absolute;
+    top: 48px;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 3;
+    background: var(--scrollbarSlider-background);
+    cursor: not-allowed;
 }

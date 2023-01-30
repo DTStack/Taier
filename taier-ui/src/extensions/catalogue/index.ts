@@ -24,12 +24,12 @@ import { catalogueService } from '@/services';
  * This is for getting the root catalogues including the resouces and tasks and functions
  */
 export default class CatalogueExtension implements IExtension {
-	id: UniqueId = 'Catalogue';
-	name: string = 'Catalogue';
-	activate(): void {
-		catalogueService.loadRootFolder();
-	}
-	dispose(): void {
-		throw new Error('Method not implemented.');
-	}
+    id: UniqueId = 'Catalogue';
+    name = 'Catalogue';
+    activate(): void {
+        catalogueService.loadRootFolder();
+    }
+    dispose(): void {
+        throw new Error('Method not implemented.');
+    }
 }

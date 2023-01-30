@@ -23,60 +23,56 @@ import { ENGINE_SOURCE_TYPE, RESOURCE_TYPE } from '@/constant';
  * 初始化
  */
 function initailValue() {
-	const initailValue: Record<string, boolean> = {};
-	for (const key in ENGINE_SOURCE_TYPE) {
-		initailValue[(ENGINE_SOURCE_TYPE as any)[key]] = false;
-	}
-	return initailValue;
+    const initailValue: Record<string, boolean> = {};
+    for (const key in ENGINE_SOURCE_TYPE) {
+        initailValue[(ENGINE_SOURCE_TYPE as any)[key]] = false;
+    }
+    return initailValue;
 }
 
 function handleEngine(enginList: any[], type: string) {
-	if (type == RESOURCE_TYPE.KUBERNETES) {
-		return enginList.filter((item: any) => item.resourceType == type).length > 0;
-	}
-	return enginList.filter((item: any) => item.engineType == type).length > 0;
+    if (type == RESOURCE_TYPE.KUBERNETES) {
+        return enginList.filter((item: any) => item.resourceType == type).length > 0;
+    }
+    return enginList.filter((item: any) => item.engineType == type).length > 0;
 }
 
 function useEnv({
-	clusterId,
-	form,
-	clusterList,
-	visible,
+    clusterId,
+    form,
+    clusterList,
+    visible,
 }: {
-	clusterId: any;
-	form: any;
-	clusterList: any[];
-	visible: boolean;
+    clusterId: any;
+    form: any;
+    clusterList: any[];
+    visible: boolean;
 }) {
-	const [queueList, setQueueList] = useState([]);
-	const [env, setEnv] = useState({ ...initailValue() });
-	useEffect(() => {
-		if (!clusterId) return;
-		if (!visible) {
-			form.resetFields(['queueId']);
-			setEnv({ ...initailValue() });
-			setQueueList([]);
-			return;
-		}
+    const [queueList, setQueueList] = useState([]);
+    const [env, setEnv] = useState({ ...initailValue() });
+    useEffect(() => {
+        if (!clusterId) return;
+        if (!visible) {
+            form.resetFields(['queueId']);
+            setEnv({ ...initailValue() });
+            setQueueList([]);
+            return;
+        }
 
-		const currentCluster = clusterList.filter(
-			(clusItem: any) => clusItem?.clusterId == clusterId,
-		); // 选中当前集群
-		const currentEngineList = currentCluster?.[0]?.engines || [];
+        const currentCluster = clusterList.filter((clusItem: any) => clusItem?.clusterId == clusterId); // 选中当前集群
+        const currentEngineList = currentCluster?.[0]?.engines || [];
 
-		const hadoopEngine = currentEngineList.filter(
-			(item: any) => item.engineType == ENGINE_SOURCE_TYPE.HADOOP,
-		);
-		const newEnv: Record<string, boolean> = {};
-		for (const key in ENGINE_SOURCE_TYPE) {
-			newEnv[(ENGINE_SOURCE_TYPE as any)[key]] = handleEngine(
-				currentEngineList,
-				(ENGINE_SOURCE_TYPE as any)[key],
-			);
-		}
-		setEnv({ ...newEnv });
-		setQueueList(hadoopEngine?.[0]?.queues || []);
-	}, [clusterId, clusterList, visible, form]);
-	return { env, queueList };
+        const hadoopEngine = currentEngineList.filter((item: any) => item.engineType == ENGINE_SOURCE_TYPE.HADOOP);
+        const newEnv: Record<string, boolean> = {};
+        for (const key in ENGINE_SOURCE_TYPE) {
+            newEnv[(ENGINE_SOURCE_TYPE as any)[key]] = handleEngine(
+                currentEngineList,
+                (ENGINE_SOURCE_TYPE as any)[key]
+            );
+        }
+        setEnv({ ...newEnv });
+        setQueueList(hadoopEngine?.[0]?.queues || []);
+    }, [clusterId, clusterList, visible, form]);
+    return { env, queueList };
 }
 export default useEnv;

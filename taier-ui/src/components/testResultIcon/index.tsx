@@ -25,84 +25,80 @@ import type { COMPONENT_TYPE_VALUE } from '@/constant';
 import './index.scss';
 
 const TEST_STATUS = {
-	SUCCESS: true,
-	FAIL: false,
+    SUCCESS: true,
+    FAIL: false,
 };
 
 interface ITestStatusProps {
-	clusterResourceDescription?: null | string;
-	componentTypeCode: COMPONENT_TYPE_VALUE;
-	componentVersion?: string | null;
-	multiVersion?: ITestStatusProps[];
-	errorMsg:
-		| string
-		| null
-		| {
-				componentVersion?: string | null;
-				errorMsg: string | null;
-		  }[];
-	result: null | boolean;
+    clusterResourceDescription?: null | string;
+    componentTypeCode: COMPONENT_TYPE_VALUE;
+    componentVersion?: string | null;
+    multiVersion?: ITestStatusProps[];
+    errorMsg:
+        | string
+        | null
+        | {
+              componentVersion?: string | null;
+              errorMsg: string | null;
+          }[];
+    result: null | boolean;
 }
 
 interface ITestRestIconProps {
-	testStatus: ITestStatusProps;
+    testStatus: ITestStatusProps;
 }
 
 export default function TestRestIcon({ testStatus }: ITestRestIconProps) {
-	const [showMsg, setShowMsg] = useState(false);
+    const [showMsg, setShowMsg] = useState(false);
 
-	const showDetailErrMessage = (msgContent: JSX.Element | JSX.Element[]) => {
-		setShowMsg(false);
-		Modal.error({
-			title: `错误信息`,
-			content: (
-				<div style={{ maxHeight: 'calc(100vh - 300px)', overflow: 'auto' }}>
-					{msgContent}
-				</div>
-			),
-			zIndex: 1061,
-		});
-	};
+    const showDetailErrMessage = (msgContent: JSX.Element | JSX.Element[]) => {
+        setShowMsg(false);
+        Modal.error({
+            title: `错误信息`,
+            content: <div style={{ maxHeight: 'calc(100vh - 300px)', overflow: 'auto' }}>{msgContent}</div>,
+            zIndex: 1061,
+        });
+    };
 
-	const matchCompTest = (testResult: ITestStatusProps) => {
-		switch (testResult?.result) {
-			case TEST_STATUS.SUCCESS: {
-				return <CheckCircleFilled className="success-icon" />;
-			}
-			case TEST_STATUS.FAIL: {
-				const msgContent = isArray(testResult?.errorMsg) ? (
-					testResult?.errorMsg?.map((msg) => (
-						<p key={msg.componentVersion}>
-							{msg.componentVersion ? `${msg.componentVersion} : ` : ''}
-							{msg.errorMsg}
-						</p>
-					))
-				) : (
-					<span>{testResult?.errorMsg}</span>
-				);
-				return (
-					<Tooltip
-						visible={showMsg}
-						title={
-							<a
-								className={classNames('text-white', 'overflow-scroll')}
-								onClick={() => showDetailErrMessage(msgContent)}
-							>
-								{msgContent}
-							</a>
-						}
-						placement="right"
-						onVisibleChange={(v) => setShowMsg(v)}
-						overlayInnerStyle={{ maxHeight: 300, overflow: 'auto' }}
-					>
-						<CloseCircleFilled className="err-icon" />
-					</Tooltip>
-				);
-			}
-			default: {
-				return null;
-			}
-		}
-	};
-	return matchCompTest(testStatus);
+    const matchCompTest = (testResult: ITestStatusProps) => {
+        switch (testResult?.result) {
+            case TEST_STATUS.SUCCESS: {
+                return <CheckCircleFilled className="success-icon" />;
+            }
+            case TEST_STATUS.FAIL: {
+                const msgContent = isArray(testResult?.errorMsg) ? (
+                    testResult?.errorMsg?.map((msg) => (
+                        <p key={msg.componentVersion}>
+                            {msg.componentVersion ? `${msg.componentVersion} : ` : ''}
+                            {msg.errorMsg}
+                        </p>
+                    ))
+                ) : (
+                    <span>{testResult?.errorMsg}</span>
+                );
+                return (
+                    <Tooltip
+                        visible={showMsg}
+                        title={
+                            <a
+                                className={classNames('text-white', 'overflow-scroll')}
+                                onClick={() => showDetailErrMessage(msgContent)}
+                            >
+                                {msgContent}
+                            </a>
+                        }
+                        placement="right"
+                        onVisibleChange={(v) => setShowMsg(v)}
+                        overlayInnerStyle={{ maxHeight: 300, overflow: 'auto' }}
+                    >
+                        <CloseCircleFilled className="err-icon" />
+                    </Tooltip>
+                );
+            }
+            default: {
+                return null;
+            }
+        }
+    };
+    return matchCompTest(testStatus);
 }
