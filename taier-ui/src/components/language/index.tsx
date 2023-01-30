@@ -23,31 +23,27 @@ import { useContext } from 'react';
 import context from '@/context';
 
 const Language = connect(molecule.editor, ({ current }: molecule.model.IEditor) => {
-	const { supportJobTypes } = useContext(context);
+    const { supportJobTypes } = useContext(context);
 
-	if (!current) return null;
+    if (!current) return null;
 
-	const renderLanguage = () => {
-		const dataType = current.tab?.data?.taskType;
-		return (
-			(isTaskTab(current.tab?.id) &&
-				supportJobTypes.find((t) => t.key === dataType)?.value) ||
-			'未知'
-		);
-	};
+    const renderLanguage = () => {
+        const dataType = current.tab?.data?.taskType;
+        return (isTaskTab(current.tab?.id) && supportJobTypes.find((t) => t.key === dataType)?.value) || '未知';
+    };
 
-	// 渲染是否是增量
-	const renderIncrement = () => {
-		const isIncrement = isTaskTab(current.tab?.id) && current.tab?.data?.sourceMap?.syncModel;
-		return isIncrement ? '(增量模式)' : null;
-	};
+    // 渲染是否是增量
+    const renderIncrement = () => {
+        const isIncrement = isTaskTab(current.tab?.id) && current.tab?.data?.sourceMap?.syncModel;
+        return isIncrement ? '(增量模式)' : null;
+    };
 
-	return (
-		<span>
-			{renderLanguage()}
-			{renderIncrement()}
-		</span>
-	);
+    return (
+        <span>
+            {renderLanguage()}
+            {renderIncrement()}
+        </span>
+    );
 });
 
 export default Language;

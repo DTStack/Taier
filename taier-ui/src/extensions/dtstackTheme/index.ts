@@ -8,9 +8,9 @@ const themes = [dtstackTheme];
 const packageThemes = MyTheme.contributes?.themes || [];
 
 MyTheme.contributes.themes = packageThemes.map((theme, index) => {
-	// 为每个 theme 添加 id
-	const nextTheme = { ...theme, ...themes[index] };
-	return nextTheme;
+    // 为每个 theme 添加 id
+    const nextTheme = { ...theme, ...themes[index] };
+    return nextTheme;
 });
 
 // 声明当前主题的唯一 id

@@ -21,21 +21,21 @@ import { updateValuesInData } from '../editor/dataSync';
 import type { IRightBarComponentProps } from '@/services/rightBarService';
 
 export default function EnvParams({ current }: IRightBarComponentProps) {
-	const handleValueChanged = (value: string) => {
-		if (current?.tab) {
-			updateValuesInData({ taskParams: value });
-		}
-	};
+    const handleValueChanged = (value: string) => {
+        if (current?.tab) {
+            updateValuesInData({ taskParams: value });
+        }
+    };
 
-	return (
-		<Editor
-			value={current?.tab?.data.taskParams || ''}
-			language="ini"
-			options={{
-				automaticLayout: true,
-				minimap: { enabled: false },
-			}}
-			onChange={handleValueChanged}
-		/>
-	);
+    return (
+        <Editor
+            value={current?.tab?.data.taskParams || ''}
+            language="ini"
+            options={{
+                automaticLayout: true,
+                minimap: { enabled: false },
+            }}
+            onChange={handleValueChanged}
+        />
+    );
 }

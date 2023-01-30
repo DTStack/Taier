@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-import { IContributeType, IExtension } from "@dtinsight/molecule/esm/model";
+import { IContributeType, IExtension } from '@dtinsight/molecule/esm/model';
 
 const zhCN = require('./zh-CN.json');
 const locales = [zhCN];

@@ -18,12 +18,12 @@ const dataSourceService = container.resolve(DataSourceService);
 const taskParamsService = container.resolve(TaskParamsService);
 
 export {
-	editorActionBarService,
-	catalogueService,
-	executeService,
-	breadcrumbService,
-	rightBarService,
-	taskRenderService,
-	dataSourceService,
-	taskParamsService,
+    editorActionBarService,
+    catalogueService,
+    executeService,
+    breadcrumbService,
+    rightBarService,
+    taskRenderService,
+    dataSourceService,
+    taskParamsService,
 };

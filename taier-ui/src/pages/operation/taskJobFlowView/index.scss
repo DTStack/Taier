@@ -1,44 +1,39 @@
 .mxBasicColor {
-	position: relative;
-	top: 2px;
-	display: inline-block;
-	width: 36px;
-	height: 14px;
-	margin-right: 10px;
-	border-radius: 0;
+    position: relative;
+    top: 2px;
+    display: inline-block;
+    width: 36px;
+    height: 14px;
+    margin-right: 10px;
+    border-radius: 0;
 }
 
 .mxYellow {
-	@extend .mxBasicColor;
-
-	background: var(--badge-pending-background);
-	border: 1px solid var(--badge-pending-border);
+    @extend .mxBasicColor;
+    background: var(--badge-pending-background);
+    border: 1px solid var(--badge-pending-border);
 }
 
 .mxBlue {
-	@extend .mxBasicColor;
-
-	background: var(--badge-running-background);
-	border: 1px solid var(--badge-running-border);
+    @extend .mxBasicColor;
+    background: var(--badge-running-background);
+    border: 1px solid var(--badge-running-border);
 }
 
 .mxGreen {
-	@extend .mxBasicColor;
-
-	background: var(--badge-finished-background);
-	border: 1px solid var(--badge-finished-border);
+    @extend .mxBasicColor;
+    background: var(--badge-finished-background);
+    border: 1px solid var(--badge-finished-border);
 }
 
 .mxRed {
-	@extend .mxBasicColor;
-
-	background: var(--badge-failed-background);
-	border: 1px solid var(--badge-failed-border);
+    @extend .mxBasicColor;
+    background: var(--badge-failed-background);
+    border: 1px solid var(--badge-failed-border);
 }
 
 .mxGray {
-	@extend .mxBasicColor;
-
-	background: var(--badge-cancel-background);
-	border: 1px solid var(--badge-cancel-border);
+    @extend .mxBasicColor;
+    background: var(--badge-cancel-background);
+    border: 1px solid var(--badge-cancel-border);
 }

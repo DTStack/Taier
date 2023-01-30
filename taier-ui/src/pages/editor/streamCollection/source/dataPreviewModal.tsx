@@ -23,129 +23,126 @@ import TablePreview, { CollapsePreview } from './component/tablePreview';
 import { isHaveTopic, isHaveDataPreview } from '@/utils/is';
 
 const previewTypes = {
-	Latest: 'latest',
-	Earliest: 'earliest',
+    Latest: 'latest',
+    Earliest: 'earliest',
 };
 
 class DataPreviewModal extends React.Component<any, any> {
-	constructor(props: any) {
-		super(props);
-		this.state = {
-			loading: false,
-			previewData: [], // panel数据，若props传入dataSource，数据则为dataSource
-			previewType: previewTypes.Earliest,
-		};
-		this.retryCount = 0;
-	}
-	retryCount: number;
-	MAX_RETRY_COUNT: number = 3;
-	_clock: any;
-	componentDidUpdate(prevProps: any) {
-		const params = this.props.params;
-		if (prevProps.visible != this.props.visible && this.props.visible && params) {
-			this.setState({
-				previewData: [],
-			});
-			clearTimeout(this._clock);
-			this.retryCount = 0;
-			this.getDataPreviewList(params);
-		}
-	}
-	componentWillUnmount() {
-		clearTimeout(this._clock);
-	}
-	getDataPreviewList = async (params: any) => {
-		const { type } = this.props;
-		const { previewType } = this.state;
-		this.setState({
-			loading: true,
-		});
-		if (!isHaveTopic(type)) return;
-		const reqParams = {
-			...params,
-			previewModel: previewType,
-		};
-		const res = await stream.getDataPreview(reqParams);
-		if (params != this.props.params) {
-			return;
-		}
-		if (res.code === 1) {
-			if (res.data) {
-				this.setState({
-					previewData: res.data,
-					loading: false,
-				});
-			} else if (this.retryCount < this.MAX_RETRY_COUNT) {
-				this._clock = setTimeout(() => {
-					this.getDataPreviewList({
-						...params,
-						previewModel: previewType,
-					});
-				}, 1000);
-				this.retryCount++;
-			} else {
-				this.setState({
-					loading: false,
-				});
-			}
-		} else {
-			this.setState({
-				loading: false,
-			});
-		}
-	};
+    constructor(props: any) {
+        super(props);
+        this.state = {
+            loading: false,
+            previewData: [], // panel数据，若props传入dataSource，数据则为dataSource
+            previewType: previewTypes.Earliest,
+        };
+        this.retryCount = 0;
+    }
+    retryCount: number;
+    MAX_RETRY_COUNT = 3;
+    _clock: any;
+    componentDidUpdate(prevProps: any) {
+        const params = this.props.params;
+        if (prevProps.visible != this.props.visible && this.props.visible && params) {
+            this.setState({
+                previewData: [],
+            });
+            clearTimeout(this._clock);
+            this.retryCount = 0;
+            this.getDataPreviewList(params);
+        }
+    }
+    componentWillUnmount() {
+        clearTimeout(this._clock);
+    }
+    getDataPreviewList = async (params: any) => {
+        const { type } = this.props;
+        const { previewType } = this.state;
+        this.setState({
+            loading: true,
+        });
+        if (!isHaveTopic(type)) return;
+        const reqParams = {
+            ...params,
+            previewModel: previewType,
+        };
+        const res = await stream.getDataPreview(reqParams);
+        if (params != this.props.params) {
+            return;
+        }
+        if (res.code === 1) {
+            if (res.data) {
+                this.setState({
+                    previewData: res.data,
+                    loading: false,
+                });
+            } else if (this.retryCount < this.MAX_RETRY_COUNT) {
+                this._clock = setTimeout(() => {
+                    this.getDataPreviewList({
+                        ...params,
+                        previewModel: previewType,
+                    });
+                }, 1000);
+                this.retryCount++;
+            } else {
+                this.setState({
+                    loading: false,
+                });
+            }
+        } else {
+            this.setState({
+                loading: false,
+            });
+        }
+    };
 
-	previewTypeChange = (e: any) => {
-		const params = this.props.params;
-		this.setState(
-			{
-				previewType: e.target.value,
-			},
-			() => this.getDataPreviewList(params),
-		);
-	};
+    previewTypeChange = (e: any) => {
+        const params = this.props.params;
+        this.setState(
+            {
+                previewType: e.target.value,
+            },
+            () => this.getDataPreviewList(params)
+        );
+    };
 
-	render() {
-		const { visible, onCancel, type, dataSource, params } = this.props;
-		const { previewData, loading, previewType } = this.state;
-		return (
-			<Modal
-				visible={visible}
-				title="数据预览"
-				onCancel={onCancel}
-				maskClosable={false}
-				width={600}
-				footer={[
-					<Button key="back" type="primary" onClick={onCancel}>
-						关闭
-					</Button>,
-				]}
-			>
-				{isHaveTopic(type) && (
-					<>
-						<Radio.Group
-							value={previewType}
-							onChange={this.previewTypeChange}
-							className="c-dataPreview__radio"
-						>
-							{Object.entries(previewTypes).map(([key, value]) => {
-								return (
-									<Radio.Button key={value} value={value}>
-										{key}
-									</Radio.Button>
-								);
-							})}
-						</Radio.Group>
-						<CollapsePreview
-							previewData={dataSource || previewData}
-							loading={loading}
-						/>
-					</>
-				)}
-				{isHaveDataPreview(type) && <TablePreview notDesc={true} data={params} type={type} />}
-			</Modal>
-		);
-	}
+    render() {
+        const { visible, onCancel, type, dataSource, params } = this.props;
+        const { previewData, loading, previewType } = this.state;
+        return (
+            <Modal
+                visible={visible}
+                title="数据预览"
+                onCancel={onCancel}
+                maskClosable={false}
+                width={600}
+                footer={[
+                    <Button key="back" type="primary" onClick={onCancel}>
+                        关闭
+                    </Button>,
+                ]}
+            >
+                {isHaveTopic(type) && (
+                    <>
+                        <Radio.Group
+                            value={previewType}
+                            onChange={this.previewTypeChange}
+                            className="c-dataPreview__radio"
+                        >
+                            {Object.entries(previewTypes).map(([key, value]) => {
+                                return (
+                                    <Radio.Button key={value} value={value}>
+                                        {key}
+                                    </Radio.Button>
+                                );
+                            })}
+                        </Radio.Group>
+                        <CollapsePreview previewData={dataSource || previewData} loading={loading} />
+                    </>
+                )}
+                {isHaveDataPreview(type) && <TablePreview notDesc data={params} type={type} />}
+            </Modal>
+        );
+    }
 }
 
 export default DataPreviewModal;

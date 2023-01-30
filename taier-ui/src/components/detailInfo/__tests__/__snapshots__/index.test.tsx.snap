@@ -45,12 +45,12 @@ exports[`Test DetailInfo Component Test DetailInfo Component Should match snapsh
               colspan="1"
             >
               <span>
-                任务名称：
+                任务名称
               </span>
             </th>
             <td
               class="ant-descriptions-item-content"
-              colspan="5"
+              colspan="1"
             >
               <span>
                 test
@@ -65,12 +65,12 @@ exports[`Test DetailInfo Component Test DetailInfo Component Should match snapsh
               colspan="1"
             >
               <span>
-                任务类型：
+                任务类型
               </span>
             </th>
             <td
               class="ant-descriptions-item-content"
-              colspan="5"
+              colspan="1"
             >
               <span>
                 spark
@@ -90,7 +90,7 @@ exports[`Test DetailInfo Component Test DetailInfo Component Should match snapsh
             </th>
             <td
               class="ant-descriptions-item-content"
-              colspan="5"
+              colspan="1"
             >
               <span>
                 dataName(1)
@@ -105,12 +105,12 @@ exports[`Test DetailInfo Component Test DetailInfo Component Should match snapsh
               colspan="1"
             >
               <span>
-                引擎版本：
+                引擎版本
               </span>
             </th>
             <td
               class="ant-descriptions-item-content"
-              colspan="5"
+              colspan="1"
             >
               <span>
                 1.12
@@ -125,15 +125,15 @@ exports[`Test DetailInfo Component Test DetailInfo Component Should match snapsh
               colspan="1"
             >
               <span>
-                创建时间：
+                创建时间
               </span>
             </th>
             <td
               class="ant-descriptions-item-content"
-              colspan="5"
+              colspan="1"
             >
               <span>
-                2022-01-01 08:00:00
+                2022-01-01 00:00:00
               </span>
             </td>
           </tr>
@@ -145,15 +145,15 @@ exports[`Test DetailInfo Component Test DetailInfo Component Should match snapsh
               colspan="1"
             >
               <span>
-                修改时间：
+                修改时间
               </span>
             </th>
             <td
               class="ant-descriptions-item-content"
-              colspan="5"
+              colspan="1"
             >
               <span>
-                2022-01-01 08:00:00
+                2022-01-01 00:00:00
               </span>
             </td>
           </tr>
@@ -165,12 +165,12 @@ exports[`Test DetailInfo Component Test DetailInfo Component Should match snapsh
               colspan="1"
             >
               <span>
-                描述：
+                描述
               </span>
             </th>
             <td
               class="ant-descriptions-item-content"
-              colspan="5"
+              colspan="1"
             >
               <span>
                 test
@@ -207,7 +207,7 @@ exports[`Test DetailInfo Component Test DetailInfo Component Should match snapsh
             </th>
             <td
               class="ant-descriptions-item-content"
-              colspan="5"
+              colspan="1"
             >
               <span>
                 <code>
@@ -229,7 +229,7 @@ exports[`Test DetailInfo Component Test DetailInfo Component Should match snapsh
             </th>
             <td
               class="ant-descriptions-item-content"
-              colspan="5"
+              colspan="1"
             >
               <span>
                 className
@@ -249,7 +249,7 @@ exports[`Test DetailInfo Component Test DetailInfo Component Should match snapsh
             </th>
             <td
               class="ant-descriptions-item-content"
-              colspan="5"
+              colspan="1"
             >
               <span>
                 sqlText
@@ -269,7 +269,7 @@ exports[`Test DetailInfo Component Test DetailInfo Component Should match snapsh
             </th>
             <td
               class="ant-descriptions-item-content"
-              colspan="5"
+              colspan="1"
             >
               <span>
                 purpose
@@ -289,7 +289,7 @@ exports[`Test DetailInfo Component Test DetailInfo Component Should match snapsh
             </th>
             <td
               class="ant-descriptions-item-content"
-              colspan="5"
+              colspan="1"
             >
               <span>
                 <code>
@@ -311,7 +311,7 @@ exports[`Test DetailInfo Component Test DetailInfo Component Should match snapsh
             </th>
             <td
               class="ant-descriptions-item-content"
-              colspan="5"
+              colspan="1"
             >
               <span>
                 paramDesc
@@ -331,10 +331,10 @@ exports[`Test DetailInfo Component Test DetailInfo Component Should match snapsh
             </th>
             <td
               class="ant-descriptions-item-content"
-              colspan="5"
+              colspan="1"
             >
               <span>
-                2022-01-01 08:00:00
+                2022-01-01 00:00:00
               </span>
             </td>
           </tr>
@@ -351,10 +351,10 @@ exports[`Test DetailInfo Component Test DetailInfo Component Should match snapsh
             </th>
             <td
               class="ant-descriptions-item-content"
-              colspan="5"
+              colspan="1"
             >
               <span>
-                2022-01-01 08:00:00
+                2022-01-01 00:00:00
               </span>
             </td>
           </tr>
@@ -388,7 +388,7 @@ exports[`Test DetailInfo Component Test DetailInfo Component Should match snapsh
             </th>
             <td
               class="ant-descriptions-item-content"
-              colspan="5"
+              colspan="1"
             >
               <span>
                 test
@@ -408,7 +408,7 @@ exports[`Test DetailInfo Component Test DetailInfo Component Should match snapsh
             </th>
             <td
               class="ant-descriptions-item-content"
-              colspan="5"
+              colspan="1"
             >
               <span>
                 resourceDesc
@@ -428,7 +428,7 @@ exports[`Test DetailInfo Component Test DetailInfo Component Should match snapsh
             </th>
             <td
               class="ant-descriptions-item-content"
-              colspan="5"
+              colspan="1"
             >
               <span>
                 <code
@@ -452,10 +452,10 @@ exports[`Test DetailInfo Component Test DetailInfo Component Should match snapsh
             </th>
             <td
               class="ant-descriptions-item-content"
-              colspan="5"
+              colspan="1"
             >
               <span>
-                userName 于2022-01-01 08:00:00
+                userName 于2022-01-01 00:00:00
               </span>
             </td>
           </tr>
@@ -472,10 +472,10 @@ exports[`Test DetailInfo Component Test DetailInfo Component Should match snapsh
             </th>
             <td
               class="ant-descriptions-item-content"
-              colspan="5"
+              colspan="1"
             >
               <span>
-                2022-01-01 08:00:00
+                2022-01-01 00:00:00
               </span>
             </td>
           </tr>
@@ -509,7 +509,7 @@ exports[`Test DetailInfo Component Test DetailInfo Component Should match snapsh
             </th>
             <td
               class="ant-descriptions-item-content"
-              colspan="5"
+              colspan="1"
             >
               <span>
                 mysql_test
@@ -529,7 +529,7 @@ exports[`Test DetailInfo Component Test DetailInfo Component Should match snapsh
             </th>
             <td
               class="ant-descriptions-item-content"
-              colspan="5"
+              colspan="1"
             >
               <span>
                 MySQL
@@ -549,7 +549,7 @@ exports[`Test DetailInfo Component Test DetailInfo Component Should match snapsh
             </th>
             <td
               class="ant-descriptions-item-content"
-              colspan="5"
+              colspan="1"
             >
               <span>
                 --
@@ -569,7 +569,7 @@ exports[`Test DetailInfo Component Test DetailInfo Component Should match snapsh
             </th>
             <td
               class="ant-descriptions-item-content"
-              colspan="5"
+              colspan="1"
             >
               <span>
                 <div>
@@ -620,7 +620,7 @@ exports[`Test DetailInfo Component Test DetailInfo Component Should match snapsh
             </th>
             <td
               class="ant-descriptions-item-content"
-              colspan="5"
+              colspan="1"
             >
               <span>
                 <span
@@ -651,10 +651,10 @@ exports[`Test DetailInfo Component Test DetailInfo Component Should match snapsh
             </th>
             <td
               class="ant-descriptions-item-content"
-              colspan="5"
+              colspan="1"
             >
               <span>
-                2022-11-02 11:00:42
+                2022-11-02 03:00:42
               </span>
             </td>
           </tr>
@@ -683,12 +683,12 @@ exports[`Test DetailInfo Component Test DetailInfo Component Should match snapsh
               colspan="1"
             >
               <span>
-                任务名称：
+                任务名称
               </span>
             </th>
             <td
               class="ant-descriptions-item-content"
-              colspan="5"
+              colspan="1"
             >
               <span>
                 test
@@ -708,14 +708,14 @@ exports[`Test DetailInfo Component Test DetailInfo Component Should match snapsh
             </th>
             <td
               class="ant-descriptions-item-content"
-              colspan="5"
+              colspan="1"
             >
               <span>
-                <span
+                <code
                   class="cursor-pointer"
                 >
                   jobId
-                </span>
+                </code>
               </span>
             </td>
           </tr>
@@ -732,7 +732,7 @@ exports[`Test DetailInfo Component Test DetailInfo Component Should match snapsh
             </th>
             <td
               class="ant-descriptions-item-content"
-              colspan="5"
+              colspan="1"
             >
               <span>
                 spark
@@ -752,7 +752,7 @@ exports[`Test DetailInfo Component Test DetailInfo Component Should match snapsh
             </th>
             <td
               class="ant-descriptions-item-content"
-              colspan="5"
+              colspan="1"
             >
               <span>
                 <span>
@@ -777,7 +777,7 @@ exports[`Test DetailInfo Component Test DetailInfo Component Should match snapsh
             </th>
             <td
               class="ant-descriptions-item-content"
-              colspan="5"
+              colspan="1"
             >
               <span>
                 <span>
@@ -799,7 +799,7 @@ exports[`Test DetailInfo Component Test DetailInfo Component Should match snapsh
             </th>
             <td
               class="ant-descriptions-item-content"
-              colspan="5"
+              colspan="1"
             >
               <span>
                 1667358042000

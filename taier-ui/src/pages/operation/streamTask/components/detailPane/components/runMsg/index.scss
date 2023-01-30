@@ -1,25 +1,25 @@
 .c-collapse-wrapper {
-	height: 100%;
+    height: 100%;
 
-	.graph-content-box {
-		margin: 12px 0;
-		background: inherit;
-		display: flex;
-		flex-direction: column;
-		height: 100%;
+    .graph-content-box {
+        margin: 12px 0;
+        background: inherit;
+        display: flex;
+        flex-direction: column;
+        height: 100%;
 
-		.ant-collapse > .ant-collapse-item > .ant-collapse-header > .ant-collapse-arrow {
-			color: var(--foreground);
-		}
-	}
+        .ant-collapse > .ant-collapse-item > .ant-collapse-header > .ant-collapse-arrow {
+            color: var(--foreground);
+        }
+    }
 
-	.ant-collapse-content-box {
-		.c-table_tag {
-			width: 76px;
-			height: 24px;
-			border-radius: 2px;
-			text-align: center;
-			line-height: 24px;
-		}
-	}
+    .ant-collapse-content-box {
+        .c-table_tag {
+            width: 76px;
+            height: 24px;
+            border-radius: 2px;
+            text-align: center;
+            line-height: 24px;
+        }
+    }
 }

@@ -4,19 +4,19 @@ import molecule from '@dtinsight/molecule';
 import { connect } from '@dtinsight/molecule/esm/react';
 
 const Flink = connect(molecule.editor, ({ current }: molecule.model.IEditor) => {
-	if (!current) {
-		return null;
-	}
+    if (!current) {
+        return null;
+    }
 
-	const handleSubmit = () => {
-		return new Promise<boolean>((resolve) => {
-			taskSaveService.save().finally(() => {
-				resolve(false);
-			});
-		});
-	};
+    const handleSubmit = () => {
+        return new Promise<boolean>((resolve) => {
+            taskSaveService.save().finally(() => {
+                resolve(false);
+            });
+        });
+    };
 
-	return <Create record={current.tab?.data} isRequest={false} onSubmit={handleSubmit} />;
+    return <Create record={current.tab?.data} isRequest={false} onSubmit={handleSubmit} />;
 });
 
 export default Flink;

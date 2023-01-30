@@ -1,10 +1,10 @@
 module.exports = {
-	extends: [require.resolve('@umijs/fabric/dist/eslint')],
-	parserOptions: {},
-	rules: {
-		'no-use-before-define': 'off',
-		'@typescript-eslint/no-use-before-define': 'off',
-		'consistent-return': 'off',
-		'react-hooks/exhaustive-deps': 'off',
-	},
+    extends: [require.resolve('ko-lint-config/.eslintrc')],
+    parserOptions: {},
+    rules: {
+        // Since there are majority of code have to use the not-null-assertion
+        '@typescript-eslint/no-non-null-assertion': 'off',
+        // Turn it to warn temporarily since there are some code have to use this comment to skip ts checker
+        '@typescript-eslint/ban-ts-comment': 'warn',
+    },
 };

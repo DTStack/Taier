@@ -21,24 +21,24 @@ import { QuestionCircleOutlined } from '@ant-design/icons';
 import * as Doc from './docs';
 
 export const relativeStyle: any = {
-	position: 'initial',
-	right: 0,
-	top: 0,
+    position: 'initial',
+    right: 0,
+    top: 0,
 };
 
 interface IHelpDocProps {
-	doc?: string;
-	style?: React.CSSProperties;
-	/**
-	 * When doc is a function, it would need a param
-	 */
-	param?: any;
+    doc?: string;
+    style?: React.CSSProperties;
+    /**
+     * When doc is a function, it would need a param
+     */
+    param?: any;
 }
 
 export default function HelpDoc({ doc, style, param }: IHelpDocProps) {
-	return doc ? (
-		<Tooltip title={param ? (Doc as any)[doc](param) : (Doc as any)[doc]}>
-			<QuestionCircleOutlined className="help-doc" style={style} />
-		</Tooltip>
-	) : null;
+    return doc ? (
+        <Tooltip title={param ? (Doc as any)[doc](param) : (Doc as any)[doc]}>
+            <QuestionCircleOutlined className="help-doc" style={style} />
+        </Tooltip>
+    ) : null;
 }

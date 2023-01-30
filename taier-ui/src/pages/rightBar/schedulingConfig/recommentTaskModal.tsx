@@ -22,92 +22,86 @@ import classNames from 'classnames';
 import type { ITaskVOProps } from '@/interface';
 
 interface IRecommendTaskProps {
-	visible: boolean;
-	taskList: ITaskVOProps[];
-	/**
-	 * 已选择的任务
-	 */
-	existTask?: ITaskVOProps[] | null;
-	onCancel: () => void;
-	onOk: (rows: ITaskVOProps[]) => void;
+    visible: boolean;
+    taskList: ITaskVOProps[];
+    /**
+     * 已选择的任务
+     */
+    existTask?: ITaskVOProps[] | null;
+    onCancel: () => void;
+    onOk: (rows: ITaskVOProps[]) => void;
 }
 
 const COLUNMS = [
-	{
-		title: '表名',
-		dataIndex: 'tableName',
-		width: '200px',
-	},
-	{
-		title: '任务名称',
-		dataIndex: 'name',
-	},
+    {
+        title: '表名',
+        dataIndex: 'tableName',
+        width: '200px',
+    },
+    {
+        title: '任务名称',
+        dataIndex: 'name',
+    },
 ];
 
-export default function RecommendTaskModal({
-	visible,
-	taskList,
-	existTask = [],
-	onCancel,
-	onOk,
-}: IRecommendTaskProps) {
-	const [selectedRows, setSelectedRows] = useState<ITaskVOProps[]>([]);
+export default function RecommendTaskModal({ visible, taskList, existTask = [], onCancel, onOk }: IRecommendTaskProps) {
+    const [selectedRows, setSelectedRows] = useState<ITaskVOProps[]>([]);
 
-	const handleCancel = () => {
-		onCancel();
-		setSelectedRows([]);
-	};
+    const handleCancel = () => {
+        onCancel();
+        setSelectedRows([]);
+    };
 
-	const handleOk = () => {
-		if (selectedRows.length === 0) {
-			message.warning('请选择依赖');
-			return;
-		}
-		onOk(selectedRows);
-		setSelectedRows([]);
-	};
+    const handleOk = () => {
+        if (selectedRows.length === 0) {
+            message.warning('请选择依赖');
+            return;
+        }
+        onOk(selectedRows);
+        setSelectedRows([]);
+    };
 
-	const getCheckboxProps = (record: ITaskVOProps) => {
-		const { id } = record;
-		let isExist = false;
-		if (existTask) {
-			existTask.forEach((item) => {
-				if (item.id === id) {
-					isExist = true;
-				}
-			});
-		}
-		if (isExist) {
-			return { disabled: true };
-		}
-		return {};
-	};
+    const getCheckboxProps = (record: ITaskVOProps) => {
+        const { id } = record;
+        let isExist = false;
+        if (existTask) {
+            existTask.forEach((item) => {
+                if (item.id === id) {
+                    isExist = true;
+                }
+            });
+        }
+        if (isExist) {
+            return { disabled: true };
+        }
+        return {};
+    };
 
-	return (
-		<Modal
-			title="推荐上游依赖"
-			maskClosable={false}
-			visible={visible}
-			onCancel={handleCancel}
-			onOk={handleOk}
-			okText="确定"
-			cancelText="取消"
-		>
-			<p className={classNames('m-10px')}>提示：该分析仅基于您已发布过的任务进行分析</p>
-			<Table
-				className="dt-ant-table dt-ant-table--border"
-				columns={COLUNMS}
-				dataSource={taskList}
-				pagination={false}
-				rowSelection={{
-					selectedRowKeys: selectedRows.map((item) => item.id),
-					onChange: (_, nextSelectedRows) => {
-						setSelectedRows(nextSelectedRows);
-					},
-					getCheckboxProps,
-				}}
-				scroll={{ y: 400 }}
-			/>
-		</Modal>
-	);
+    return (
+        <Modal
+            title="推荐上游依赖"
+            maskClosable={false}
+            visible={visible}
+            onCancel={handleCancel}
+            onOk={handleOk}
+            okText="确定"
+            cancelText="取消"
+        >
+            <p className={classNames('m-10px')}>提示：该分析仅基于您已发布过的任务进行分析</p>
+            <Table
+                className="dt-ant-table dt-ant-table--border"
+                columns={COLUNMS}
+                dataSource={taskList}
+                pagination={false}
+                rowSelection={{
+                    selectedRowKeys: selectedRows.map((item) => item.id),
+                    onChange: (_, nextSelectedRows) => {
+                        setSelectedRows(nextSelectedRows);
+                    },
+                    getCheckboxProps,
+                }}
+                scroll={{ y: 400 }}
+            />
+        </Modal>
+    );
 }
