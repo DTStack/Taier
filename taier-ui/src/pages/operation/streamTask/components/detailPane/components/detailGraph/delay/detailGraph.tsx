@@ -31,7 +31,6 @@ class TopicDetailTable extends React.Component<Props, any> {
         this.getDetail();
     }
 
-    // eslint-disable-next-line
     UNSAFE_componentWillReceiveProps(nextProps: any) {
         const { taskId, partitionId, topicName, timespan, end } = this.props;
         const {

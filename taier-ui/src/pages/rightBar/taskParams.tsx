@@ -30,7 +30,6 @@ const { Panel } = Collapse;
 
 // 匹配规则：$[函数]或$[a-z0-9+-两个字符]或随意输入几个字符
 // 原来的正则：/(^\$\[(\S+\(\S*\)|[a-z0-9\+\-\:\s\/\\\*]{2,})\]$)|(^(?!\$)\S+$)/i;
-// eslint-disable-next-line no-useless-escape
 const paramsRegPattern = /^\$[\{\[\(](\S+\((.*)\)|.+)[\}\]\)]$|^(?!\$)\S+$/i;
 
 export default function TaskParams({ current }: IRightBarComponentProps) {

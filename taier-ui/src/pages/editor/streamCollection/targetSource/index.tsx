@@ -37,7 +37,6 @@ import Adb from './component/adb';
 const FormItem = Form.Item;
 const Option = Select.Option;
 
-// eslint-disable-next-line
 const prefixRule = '${schema}_${table}';
 
 function getSourceInitialField(sourceType: any, data: any) {
@@ -53,7 +52,6 @@ function getSourceInitialField(sourceType: any, data: any) {
             return initialFields;
         }
         case DATA_SOURCE_ENUM.HIVE: {
-            // eslint-disable-next-line
             initialFields.partitionType = PARTITION_TYPE.DAY;
             initialFields.analyticalRules = isMysqlSource ? prefixRule : undefined;
             initialFields.partition = isMysqlSource ? 'pt' : undefined; // 后端（nanqi）要求自动建表默认加一个partition = pt。

@@ -149,7 +149,6 @@ class AlarmBaseGraph extends React.Component<any, any> {
         this.initGraph();
     }
 
-    // eslint-disable-next-line
     UNSAFE_componentWillReceiveProps(nextProps: any) {
         if (this.props.lineData != nextProps.lineData || this.props.time != nextProps.time) {
             this.initGraph(nextProps.lineData, nextProps.time);

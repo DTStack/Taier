@@ -26,7 +26,6 @@ export default class QuickRunSQLAction extends Action2 {
             keybinding: {
                 when: undefined,
                 weight: KeybindingWeight.WorkbenchContrib,
-                // eslint-disable-next-line no-bitwise
                 primary: KeyMod.CtrlCmd | KeyCode.Enter,
             },
         });

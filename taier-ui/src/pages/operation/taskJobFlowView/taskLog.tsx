@@ -168,7 +168,6 @@ export default function LogInfo(props: ILogInfoProps) {
                 }
             }
             if (Array.isArray(log.ruleLogList) && log.ruleLogList.length > 0) {
-                // eslint-disable-next-line no-restricted-syntax
                 for (const logInfo of log.ruleLogList) {
                     text = `${text}\n${wrappTitle('')}\n${createLog(logInfo, 'info')} ${safeSpace} \n`;
                 }

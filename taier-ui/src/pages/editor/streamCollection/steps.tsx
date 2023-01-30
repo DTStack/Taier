@@ -16,7 +16,7 @@ class CollectionGuide extends React.Component<any, any> {
     state = {
         sourceList: [],
     };
-    // eslint-disable-next-line
+
     componentDidMount() {
         // this.props.getDataSource();
         if (this.props.currentPage) {

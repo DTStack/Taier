@@ -99,7 +99,6 @@ class Http {
                     ProgressBar.hide();
                 }, 300);
                 if (err.name === 'AbortError') {
-                    // eslint-disable-next-line no-param-reassign
                     err.stack = '';
                 }
                 throw err;

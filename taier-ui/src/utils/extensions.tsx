@@ -206,7 +206,6 @@ export function syntaxValidate(current: molecule.model.IEditorGroup) {
             }
         })
         .catch((e) => {
-            // eslint-disable-next-line no-console
             console.trace(e);
         })
         .finally(() => {

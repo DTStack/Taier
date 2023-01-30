@@ -53,10 +53,8 @@ export default class RightBarService extends Component<void> implements IRightBa
     }
 
     private WithForm = ({ children }: { children: React.ReactNode }) => {
-        // eslint-disable-next-line react-hooks/rules-of-hooks
         const [form] = Form.useForm();
 
-        // eslint-disable-next-line react-hooks/rules-of-hooks
         useEffect(() => {
             this.form = form;
             return () => {

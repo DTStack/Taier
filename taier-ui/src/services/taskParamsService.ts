@@ -62,7 +62,6 @@ export default class TaskParamsService extends Component<ITaskParamsStates> impl
         const regx = /\$\{([.\w]+)\}/g;
         const data: Partial<IParamsProps>[] = [];
         let res = null;
-        // eslint-disable-next-line no-cond-assign
         while ((res = regx.exec(sqlText)) !== null) {
             const name = res[1];
             const param: Partial<IParamsProps> = {

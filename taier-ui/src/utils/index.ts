@@ -16,7 +16,6 @@
  * limitations under the License.
  */
 
-/* eslint-disable no-bitwise */
 import { endsWith, get, pickBy, range as lodashRange } from 'lodash';
 import moment from 'moment';
 import {
@@ -100,14 +99,10 @@ export function filterComments(rawSql: string) {
         if (lastItem === "'" || lastItem === '"') {
             const nextToken = sql.indexOf(lastItem, parser.index + 1);
             if (nextToken !== -1) {
-                // eslint-disable-next-line no-param-reassign
                 parser.index = nextToken;
-                // eslint-disable-next-line no-param-reassign
                 parser.queue = '';
             } else {
-                // eslint-disable-next-line no-param-reassign
                 parser.index = sql.length - 1;
-                // eslint-disable-next-line no-param-reassign
                 parser.queue = '';
             }
         } else {
@@ -127,18 +122,14 @@ export function filterComments(rawSql: string) {
                     begin,
                     end,
                 });
-                // eslint-disable-next-line no-param-reassign
                 parser.index = end;
-                // eslint-disable-next-line no-param-reassign
                 parser.queue = '';
             } else {
                 parser.comments.push({
                     begin,
                     end: sql.length - 1,
                 });
-                // eslint-disable-next-line no-param-reassign
                 parser.index = sql.length - 1;
-                // eslint-disable-next-line no-param-reassign
                 parser.queue = '';
             }
         } else {
@@ -156,14 +147,10 @@ export function filterComments(rawSql: string) {
                     begin: parser.index - 1,
                     end: nextToken + 1,
                 });
-                // eslint-disable-next-line no-param-reassign
                 parser.index = nextToken;
-                // eslint-disable-next-line no-param-reassign
                 parser.queue = '';
             } else {
-                // eslint-disable-next-line no-param-reassign
                 parser.index = sql.length - 1;
-                // eslint-disable-next-line no-param-reassign
                 parser.queue = '';
             }
         } else {
@@ -382,7 +369,6 @@ export const removePopUpMenu = () => {
         const tips = document.querySelectorAll<HTMLDivElement>('.mxPopupMenu');
         if (tips) {
             tips.forEach((o) => {
-                // eslint-disable-next-line no-param-reassign
                 o.style.visibility = 'hidden';
             });
         }
@@ -625,7 +611,6 @@ export const convertParams = (params: Record<string, any>, form: Record<string, 
             }
         }
 
-        // eslint-disable-next-line no-param-reassign
         pre[cur] = value;
         return pre;
     }, {});

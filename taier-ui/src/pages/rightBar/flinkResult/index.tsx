@@ -113,7 +113,6 @@ export default function FlinkResultPanel({ current }: IRightBarComponentProps) {
      * 获取Schema列表
      * @deprecated 暂时不需要去请求 schema 数据
      */
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const getSchemaData = (..._args: any[]) => {};
 
     /**
@@ -177,8 +176,7 @@ export default function FlinkResultPanel({ current }: IRightBarComponentProps) {
     /**
      * @deprecated 暂时不需要请求分区
      */
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const loadPartitions = async (...args: any[]) => {};
+    const loadPartitions = async (..._args: any[]) => {};
 
     /**
      * 获取 topic 列表

@@ -4,7 +4,6 @@ import type { DefaultOptionType } from 'antd/lib/cascader';
 const mapToArray = (data: Partial<DefaultOptionType>, dataMap: Record<string, any>) => {
     const names = Object.getOwnPropertyNames(dataMap);
     if (names.length === 0) {
-        // eslint-disable-next-line no-param-reassign
         data.children = undefined;
     }
     for (let i = 0; i < names.length; i += 1) {

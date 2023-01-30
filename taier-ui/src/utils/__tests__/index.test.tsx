@@ -306,7 +306,6 @@ describe('utils/index', () => {
             tree,
             (item) => item.value === 1,
             (item) => {
-                // eslint-disable-next-line no-param-reassign
                 item.visited = true;
             }
         );
@@ -380,11 +379,9 @@ describe('utils/index', () => {
         window.fetch = jest
             .fn()
             .mockResolvedValueOnce({
-                // eslint-disable-next-line global-require
                 json: () => Promise.resolve(require('../../../public/assets/keywords.json')),
             })
             .mockResolvedValueOnce({
-                // eslint-disable-next-line global-require
                 json: () => Promise.resolve(require('../../../public/assets/functions.json')),
             });
         const completions = createSQLProposals({

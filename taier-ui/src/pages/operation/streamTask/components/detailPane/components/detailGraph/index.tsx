@@ -166,7 +166,6 @@ export default class StreamDetailGraph extends React.Component<IProps & any, ISt
         this.checkMetricStatus();
     }
 
-    // eslint-disable-next-line
     UNSAFE_componentWillReceiveProps(nextProps: any) {
         const data = nextProps.data;
         const oldData = this.props.data;

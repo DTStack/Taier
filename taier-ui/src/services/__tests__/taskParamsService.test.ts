@@ -49,7 +49,6 @@ describe('Test TaskParamService', () => {
             ]);
         });
 
-        // eslint-disable-next-line no-template-curly-in-string
         expect(taskParamsService.matchTaskParams('${test};${a.b}')).toEqual([
             { paramCommand: 'test', paramName: 'test', type: PARAMS_ENUM.SYSTEM },
             { paramCommand: '', paramName: 'a.b', type: PARAMS_ENUM.CUSTOM },

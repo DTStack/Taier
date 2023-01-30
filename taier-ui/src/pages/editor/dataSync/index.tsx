@@ -425,7 +425,7 @@ export default connect(molecule.editor, ({ current }: molecule.model.IEditor) =>
 
     // 监听保存事件
     useEffect(() => {
-        const listener = (action: Parameters<Parameters<(typeof taskSaveService)['onBeforeSave']>[0]>[0]) => {
+        const listener = (action: Parameters<Parameters<typeof taskSaveService['onBeforeSave']>[0]>[0]) => {
             form.validateFields()
                 .then(() => {
                     action.continue();
@@ -455,10 +455,7 @@ export default connect(molecule.editor, ({ current }: molecule.model.IEditor) =>
                 <Context.Provider value={{ optionCollections, dispatch, transformerFactory }}>
                     <Form
                         {...formItemLayout}
-                        validateMessages={{
-                            // eslint-disable-next-line no-template-curly-in-string
-                            required: '请选择${label}',
-                        }}
+                        validateMessages={{ required: '请选择${label}' }}
                         onValuesChange={handleValuesChanged}
                         form={form}
                         autoComplete="off"

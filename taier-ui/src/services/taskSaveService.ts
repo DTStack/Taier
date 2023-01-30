@@ -366,7 +366,6 @@ class TaskSaveService extends GlobalEvent {
         if (params.componentVersion === FLINK_VERSIONS.FLINK_1_12 && Array.isArray(params.source)) {
             params.source.forEach((form) => {
                 if (form.timeTypeArr.includes(1)) {
-                    // eslint-disable-next-line no-param-reassign
                     form.procTime = form.procTime || 'proc_time';
                 }
             });

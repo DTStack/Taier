@@ -1,4 +1,3 @@
-// eslint-disable-next-line max-classes-per-file
 import BreadcrumbService from '../breadcrumbService';
 import { catalogueService } from '../';
 import { TreeViewUtil } from '@dtinsight/molecule/esm/common/treeUtil';

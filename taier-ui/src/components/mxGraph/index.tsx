@@ -112,15 +112,13 @@ class MxFactory {
             );
 
             if (s.alpha < 1 || s.strokeAlpha < 1) {
-                // @ts-ignore
-                this.node.setAttribute('stroke-opacity', s.alpha * s.strokeAlpha);
+                this.node.setAttribute('stroke-opacity', (s.alpha * s.strokeAlpha).toString());
             }
 
             const sw = this.getCurrentStrokeWidth();
 
             if (sw !== 1) {
-                // @ts-ignore
-                this.node.setAttribute('stroke-width', sw);
+                this.node.setAttribute('stroke-width', sw.toString());
             }
 
             if (this.node.nodeName === 'path') {
@@ -144,8 +142,7 @@ class MxFactory {
             const s = this.state;
 
             if (s.alpha < 1 || s.fillAlpha < 1) {
-                // @ts-ignore
-                this.node.setAttribute('fill-opacity', s.alpha * s.fillAlpha);
+                this.node.setAttribute('fill-opacity', (s.alpha * s.fillAlpha).toString());
             }
 
             if (s.fillColor != null) {
@@ -153,9 +150,8 @@ class MxFactory {
                     const id = this.getSvgGradient(
                         String(s.fillColor),
                         String(s.gradientColor),
-                        // @ts-ignore
-                        s.gradientFillAlpha,
-                        s.gradientAlpha,
+                        s.gradientFillAlpha.toString(),
+                        s.gradientAlpha.toString(),
                         s.gradientDirection
                     );
 

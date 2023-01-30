@@ -27,7 +27,6 @@ export default class QuickSaveTaskAction extends Action2 {
             keybinding: {
                 when: undefined,
                 weight: KeybindingWeight.WorkbenchContrib,
-                // eslint-disable-next-line no-bitwise
                 primary: KeyMod.CtrlCmd | KeyCode.KeyS,
             },
         });

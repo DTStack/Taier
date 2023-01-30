@@ -209,23 +209,17 @@ export default forwardRef(({ record, version = '', onValuesChange }: IProps, ref
             if (nextDetailData) {
                 fromFieldVoList.forEach((item) => {
                     if (item.label === '数据源名称') {
-                        // eslint-disable-next-line no-param-reassign
                         item.disabled = true;
                     }
                     try {
-                        // eslint-disable-next-line no-param-reassign
                         item.initialValue =
                             nextDetailData[item.name] || JSON.parse(Base64.decode(nextDetailData.dataJson))[item.name];
-                    } catch (error) {
-                        // don't handle this error
-                    }
+                    } catch {}
 
                     let data: any = {};
                     try {
                         data = JSON.parse(utf8to16(Base64.decode(nextDetailData.dataJson)));
-                    } catch (error) {
-                        // don't handle this error
-                    }
+                    } catch {}
                     setDetailData(data);
 
                     // webSocket定制化
@@ -250,7 +244,6 @@ export default forwardRef(({ record, version = '', onValuesChange }: IProps, ref
         kerberosFile: RcFile & { modifyTime?: moment.Moment },
         callBack?: (res: { success: boolean; code: number; data: any[] }) => void
     ) => {
-        // eslint-disable-next-line no-param-reassign
         kerberosFile.modifyTime = moment();
         const res = await api.uploadCode({
             file: kerberosFile,
@@ -885,7 +878,6 @@ export default forwardRef(({ record, version = '', onValuesChange }: IProps, ref
                             shouldUpdate={(prevValues, curValues) => prevValues.kafkaType !== curValues.kafkaType}
                         >
                             {({ getFieldValue }) =>
-                                // eslint-disable-next-line no-nested-ternary
                                 getFieldValue('kafkaType') === KAFKA_CONNECTION_TYPE.CLUSTER ? (
                                     <Form.Item
                                         label="集群地址"

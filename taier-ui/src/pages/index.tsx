@@ -270,9 +270,7 @@ export default connect(taskRenderService, ({ supportTaskList }: ITaskRenderState
             const { groups } = molecule.editor.getState();
             if (groups?.length) {
                 // refer to: https://developer.mozilla.org/en-US/docs/Web/API/BeforeUnloadEvent
-                // prettier-ignore
-                // eslint-disable-next-line no-useless-escape
-                const confirmationMessage = '\o/';
+                const confirmationMessage = '\\o/';
                 e.preventDefault();
                 (e || window.event).returnValue = confirmationMessage; // Gecko + IE
                 return confirmationMessage; // Webkit, Safari, Chrome

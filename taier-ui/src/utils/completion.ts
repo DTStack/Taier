@@ -1,4 +1,3 @@
-/* eslint-disable no-template-curly-in-string */
 import { languages } from '@dtinsight/molecule/esm/monaco';
 
 interface ICompletionProps {
