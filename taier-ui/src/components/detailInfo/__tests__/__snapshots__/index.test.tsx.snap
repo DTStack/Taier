@@ -133,7 +133,7 @@ exports[`Test DetailInfo Component Test DetailInfo Component Should match snapsh
               colspan="1"
             >
               <span>
-                2022-01-01 08:00:00
+                2022-01-01 00:00:00
               </span>
             </td>
           </tr>
@@ -153,7 +153,7 @@ exports[`Test DetailInfo Component Test DetailInfo Component Should match snapsh
               colspan="1"
             >
               <span>
-                2022-01-01 08:00:00
+                2022-01-01 00:00:00
               </span>
             </td>
           </tr>
@@ -334,7 +334,7 @@ exports[`Test DetailInfo Component Test DetailInfo Component Should match snapsh
               colspan="1"
             >
               <span>
-                2022-01-01 08:00:00
+                2022-01-01 00:00:00
               </span>
             </td>
           </tr>
@@ -354,7 +354,7 @@ exports[`Test DetailInfo Component Test DetailInfo Component Should match snapsh
               colspan="1"
             >
               <span>
-                2022-01-01 08:00:00
+                2022-01-01 00:00:00
               </span>
             </td>
           </tr>
@@ -455,7 +455,7 @@ exports[`Test DetailInfo Component Test DetailInfo Component Should match snapsh
               colspan="1"
             >
               <span>
-                userName 于2022-01-01 08:00:00
+                userName 于2022-01-01 00:00:00
               </span>
             </td>
           </tr>
@@ -475,7 +475,7 @@ exports[`Test DetailInfo Component Test DetailInfo Component Should match snapsh
               colspan="1"
             >
               <span>
-                2022-01-01 08:00:00
+                2022-01-01 00:00:00
               </span>
             </td>
           </tr>
@@ -654,7 +654,7 @@ exports[`Test DetailInfo Component Test DetailInfo Component Should match snapsh
               colspan="1"
             >
               <span>
-                2022-11-02 11:00:42
+                2022-11-02 03:00:42
               </span>
             </td>
           </tr>

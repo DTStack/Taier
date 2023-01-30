@@ -91,8 +91,8 @@ describe('utils/index', () => {
 
     it('Should Format the DateTime', () => {
         expect(formatDateTime('2022-06-01')).toBe('2022-06-01 00:00:00');
-        expect(formatDateTime(new Date('2022-6-1').valueOf())).toBe('2022-06-01 00:00:00');
-        expect(formatDateTime(new Date('2022-6-1'))).toBe('2022-06-01 00:00:00');
+        expect(formatDateTime(new Date('2022-06-01').valueOf())).toBe('2022-06-01 00:00:00');
+        expect(formatDateTime(new Date('2022-06-01'))).toBe('2022-06-01 00:00:00');
     });
 
     it('Should Get the Existension', () => {
