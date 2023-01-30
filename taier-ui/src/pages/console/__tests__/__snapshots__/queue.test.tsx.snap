@@ -302,6 +302,7 @@ exports[`Test Queue Page Should match snapshot 1`] = `
                   >
                     <tr
                       class="ant-table-row ant-table-row-level-0"
+                      data-row-key="spark_sql_default_default_batch_Yarn"
                     >
                       <td
                         class="ant-table-cell ant-table-cell-ellipsis"
@@ -355,6 +356,7 @@ exports[`Test Queue Page Should match snapshot 1`] = `
                     </tr>
                     <tr
                       class="ant-table-row ant-table-row-level-0"
+                      data-row-key="shell_default_default_batch_"
                     >
                       <td
                         class="ant-table-cell ant-table-cell-ellipsis"
