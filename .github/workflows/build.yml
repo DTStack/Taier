@@ -2,13 +2,15 @@ name: Build With Mvnw
 
 on:
   push:
-    branches: [master]
+    branches: 
+      - master
     paths-ignore:
-      - 'taier-ui/**/*'
+      - 'taier-ui/**'
   pull_request:
-    branches: [master]
+    branches:
+      - master
     paths-ignore:
-      - 'taier-ui/**/*'
+      - 'taier-ui/**'
 
 jobs:
   build:
