@@ -35,6 +35,11 @@ import com.aliyun.odps.data.DefaultRecordReader;
 import com.aliyun.odps.data.Record;
 import com.aliyun.odps.data.ResultSet;
 import com.aliyun.odps.task.SQLTask;
+import com.dtstack.taier.datasource.api.dto.ColumnMetaDTO;
+import com.dtstack.taier.datasource.api.dto.SqlQueryDTO;
+import com.dtstack.taier.datasource.api.dto.source.ISourceDTO;
+import com.dtstack.taier.datasource.api.dto.source.OdpsSourceDTO;
+import com.dtstack.taier.datasource.api.exception.SourceException;
 import com.dtstack.taier.datasource.plugin.common.exception.IErrorPattern;
 import com.dtstack.taier.datasource.plugin.common.nosql.AbsNoSqlClient;
 import com.dtstack.taier.datasource.plugin.common.service.ErrorAdapterImpl;
@@ -43,11 +48,6 @@ import com.dtstack.taier.datasource.plugin.common.utils.SearchUtil;
 import com.dtstack.taier.datasource.plugin.odps.common.OdpsFields;
 import com.dtstack.taier.datasource.plugin.odps.pool.OdpsManager;
 import com.dtstack.taier.datasource.plugin.odps.pool.OdpsPool;
-import com.dtstack.taier.datasource.api.dto.ColumnMetaDTO;
-import com.dtstack.taier.datasource.api.dto.SqlQueryDTO;
-import com.dtstack.taier.datasource.api.dto.source.ISourceDTO;
-import com.dtstack.taier.datasource.api.dto.source.OdpsSourceDTO;
-import com.dtstack.taier.datasource.api.exception.SourceException;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import lombok.extern.slf4j.Slf4j;
@@ -319,6 +319,23 @@ public class OdpsClient extends AbsNoSqlClient {
             return dataList;
         } catch (Exception e) {
             throw new SourceException(e.getMessage(), e);
+        } finally {
+            closeResource(odps, odpsSourceDTO);
+        }
+    }
+
+    @Override
+    public Boolean executeBatchQuery(ISourceDTO source, SqlQueryDTO queryDTO) {
+        OdpsSourceDTO odpsSourceDTO = (OdpsSourceDTO) source;
+        beforeQuery(odpsSourceDTO, queryDTO, true);
+        Odps odps = null;
+        try {
+            odps = initOdps(odpsSourceDTO);
+            Instance instance = runOdpsTask(odps, queryDTO);
+            instance.waitForSuccess();
+            return instance.isSuccessful();
+        } catch (Exception e) {
+            throw new SourceException(String.format("SQL execute error : %s", e.getMessage()), e);
         } finally {
             closeResource(odps, odpsSourceDTO);
         }
