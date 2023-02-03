@@ -209,8 +209,13 @@ public class TaskService extends ServiceImpl<ScheduleTaskShadeMapper, ScheduleTa
         if (CollectionUtils.isEmpty(scheduleTaskTaskShadeList)) {
             return false;
         }
-        Function<List<Long>, List<ScheduleTaskTaskShadeFlatGraphSideAdapterFlat>> parentProvider =
-                taskIds -> ScheduleTaskTaskShadeFlatGraphSideAdapterFlat.build(tasktaskService.listByIds(taskIds));
+        Function<List<Long>, List<ScheduleTaskTaskShadeFlatGraphSideAdapterFlat>> parentProvider = taskIds -> {
+            List<ScheduleTaskTaskShade> parentScheduleTaskTaskShadeList = tasktaskService.lambdaQuery()
+                    .in(ScheduleTaskTaskShade::getTaskId, taskIds)
+                    .eq(ScheduleTaskTaskShade::getIsDeleted, Deleted.NORMAL.getStatus())
+                    .list();
+            return ScheduleTaskTaskShadeFlatGraphSideAdapterFlat.build(parentScheduleTaskTaskShadeList);
+        };
 
         Function<List<Long>, List<ScheduleTaskTaskShadeFlatGraphSideAdapterFlat>> childProvider = parentIds -> {
             List<ScheduleTaskTaskShade> scheduleTaskTaskShadeList1 = tasktaskService.lambdaQuery()
