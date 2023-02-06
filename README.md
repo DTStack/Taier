@@ -61,7 +61,7 @@ The core features for Taier are as follows:
 #### [In Docker](https://dtstack.github.io/Taier/docs/quickstart/deploy/docker#2-%E4%BD%BF%E7%94%A8docker-compose)
 
 ```shell
-$ wget https://github.com/DTStack/Taier/blob/master/docker-compose.yml
+$ wget https://raw.githubusercontent.com/DTStack/Taier/master/docker-compose.yml
 $ docker-compose up -d
 ```
 
