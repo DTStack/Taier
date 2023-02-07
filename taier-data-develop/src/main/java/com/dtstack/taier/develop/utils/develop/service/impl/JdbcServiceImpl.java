@@ -23,6 +23,7 @@ import com.dtstack.taier.datasource.api.client.IClient;
 import com.dtstack.taier.datasource.api.dto.SqlQueryDTO;
 import com.dtstack.taier.datasource.api.dto.source.ISourceDTO;
 import com.dtstack.taier.datasource.api.dto.source.RdbmsSourceDTO;
+import com.dtstack.taier.datasource.api.source.DataSourceType;
 import com.dtstack.taier.datasource.api.utils.DBUtil;
 import com.dtstack.taier.develop.service.develop.IJdbcService;
 import org.apache.commons.collections.CollectionUtils;
@@ -72,7 +73,7 @@ public class JdbcServiceImpl implements IJdbcService {
         IClient client = ClientCache.getClient(sourceDTO.getSourceType());
         // to json properties
         Connection con = null;
-        if (sourceDTO instanceof RdbmsSourceDTO) {
+        if (sourceDTO instanceof RdbmsSourceDTO && DataSourceType.RDBM_S.contains(sourceDTO.getSourceType())) {
             String properties = DBUtil.propToJson(taskParam);
             ((RdbmsSourceDTO) sourceDTO).setProperties(properties);
             con = client.getCon(sourceDTO);
