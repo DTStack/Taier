@@ -145,7 +145,7 @@ public enum DataSourceType {
         this.pluginName = pluginName;
     }
 
-    private static final List<Integer> RDBM_S = new ArrayList<>();
+    public static final List<Integer> RDBM_S = new ArrayList<>();
     private static final List<Integer> KAFKA_S = new ArrayList<>();
     public static final List<Integer> GET_SCHEMA = new ArrayList<>();
     public static final Map<String, List<Integer>> GROUP = new HashMap<>(DataSourceType.values().length);
