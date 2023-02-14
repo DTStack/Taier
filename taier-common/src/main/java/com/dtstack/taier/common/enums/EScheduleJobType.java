@@ -115,7 +115,7 @@ public enum EScheduleJobType {
     TIDB(22, "TiDB", EJobType.SQL.getType(), 4, null, EComputeType.BATCH, EJobClientType.DATASOURCE_PLUGIN),
     VERTICA(23, "Vertica", EJobType.SQL.getType(), 4, null, EComputeType.BATCH, EJobClientType.DATASOURCE_PLUGIN),
     MAXCOMPUTE(24, "MaxCompute", EJobType.SQL.getType(), 4, null, EComputeType.BATCH, EJobClientType.DATASOURCE_PLUGIN),
-
+    DATAX(24,"DataX", EJobType.PYTHON.getType(),14, EComponentType.SCRIPT, EComputeType.BATCH, EJobClientType.DATASOURCE_PLUGIN),
     ;
 
     private final Integer type;
