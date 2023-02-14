@@ -289,7 +289,8 @@ public class ScheduleActionService {
                 || EScheduleJobType.VIRTUAL.getType().equals(task.getTaskType())) {
             pipeline = unnecessaryPreprocessJobPipeline;
         } else if (EScheduleJobType.PYTHON.getType().equals(task.getTaskType())
-                || EScheduleJobType.SHELL.getType().equals(task.getTaskType())) {
+                || EScheduleJobType.SHELL.getType().equals(task.getTaskType())
+                || EScheduleJobType.DATAX.getType().equals(task.getTaskType())) {
             handleExeArgsIfNeed(actionParam, task, taskParamsToReplace, scheduleJob);
             return;
         } else {
