@@ -82,6 +82,7 @@ const sidebars = {
                         'functions/task/clickhouse-sql',
                         'functions/task/python',
                         'functions/task/shell',
+                        'functions/task/hadoop-mr',
                     ],
                  },
                 'functions/maintenance',
