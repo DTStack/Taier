@@ -1,146 +1,146 @@
 /* Reset some ant design styles */
-@import './variables.scss';
+@import "./variables.scss";
 
-[data-prefers-color='dark'] {
-	.ant-tooltip-inner,
-	.ant-dropdown-menu,
-	.ant-table-filter-dropdown-btns,
-	.ant-table-filter-dropdown,
-	.ant-select-dropdown {
-		color: var(--menu-foreground);
-		background: var(--menu-background);
-	}
+[data-prefers-color="dark"] {
+    .ant-tooltip-inner,
+    .ant-dropdown-menu,
+    .ant-table-filter-dropdown-btns,
+    .ant-table-filter-dropdown,
+    .ant-select-dropdown {
+        color: var(--menu-foreground);
+        background: var(--menu-background);
+    }
 
-	.ant-tooltip-arrow-content {
-		--antd-arrow-background-color: var(--menu-background);
-	}
+    .ant-tooltip-arrow-content {
+        --antd-arrow-background-color: var(--menu-background);
+    }
 
-	.ant-drawer-header,
-	.ant-drawer-body,
-	.ant-modal-header,
-	.ant-modal-body,
-	.ant-modal-footer,
-	.ant-modal-content,
-	.ant-table-footer,
-	.ant-table-container,
-	.ant-drawer .ant-table tbody > tr > td.ant-table-cell-fix-left,
-	.ant-drawer .ant-table tbody > tr > td.ant-table-cell-fix-right,
-	.ant-table-cell-fix-right,
-	.ant-table-cell-fix-left,
-	.ant-drawer .ant-table,
-	.ant-modal .ant-table,
-	.ant-card,
-	.ant-table-filter-trigger:hover,
-	.ant-popover-inner,
-	.ant-popover-arrow-content::before,
-	.ant-message-notice-content {
-		background: var(--editorGroupHeader-tabsBackground);
-	}
+    .ant-drawer-header,
+    .ant-drawer-body,
+    .ant-modal-header,
+    .ant-modal-body,
+    .ant-modal-footer,
+    .ant-modal-content,
+    .ant-table-footer,
+    .ant-table-container,
+    .ant-drawer .ant-table tbody > tr > td.ant-table-cell-fix-left,
+    .ant-drawer .ant-table tbody > tr > td.ant-table-cell-fix-right,
+    .ant-table-cell-fix-right,
+    .ant-table-cell-fix-left,
+    .ant-drawer .ant-table,
+    .ant-modal .ant-table,
+    .ant-card,
+    .ant-table-filter-trigger:hover,
+    .ant-popover-inner,
+    .ant-popover-arrow-content::before,
+    .ant-message-notice-content {
+        background: var(--editorGroupHeader-tabsBackground);
+    }
 
-	.ant-drawer .ant-table thead > tr > th,
-	.ant-table-thead > tr > th,
-	.ant-table-small .ant-table-thead > tr > th,
-	.ant-modal .ant-table.ant-table-small thead > tr > th,
-	.ant-drawer .ant-table tbody > tr.ant-table-row:hover > td,
-	.ant-modal .ant-table tbody > tr.ant-table-row:hover > td,
-	.ant-table-tbody > tr.ant-table-placeholder:hover > td,
-	.ant-table-tbody > tr.ant-table-row:hover > td,
-	.ant-table-tbody > tr > td.ant-table-cell-row-hover,
-	.ant-table-tbody > tr.ant-table-row-selected > td,
-	.ant-drawer .ant-table tbody > tr.ant-table-row-selected > td.ant-table-cell-fix-left,
-	.ant-drawer .ant-table tbody > tr.ant-table-row-selected > td.ant-table-cell-fix-right,
-	.ant-descriptions-bordered .ant-descriptions-item-label {
-		background: var(--editor-background);
-	}
+    .ant-drawer .ant-table thead > tr > th,
+    .ant-table-thead > tr > th,
+    .ant-table-small .ant-table-thead > tr > th,
+    .ant-modal .ant-table.ant-table-small thead > tr > th,
+    .ant-drawer .ant-table tbody > tr.ant-table-row:hover > td,
+    .ant-modal .ant-table tbody > tr.ant-table-row:hover > td,
+    .ant-table-tbody > tr.ant-table-placeholder:hover > td,
+    .ant-table-tbody > tr.ant-table-row:hover > td,
+    .ant-table-tbody > tr > td.ant-table-cell-row-hover,
+    .ant-table-tbody > tr.ant-table-row-selected > td,
+    .ant-drawer .ant-table tbody > tr.ant-table-row-selected > td.ant-table-cell-fix-left,
+    .ant-drawer .ant-table tbody > tr.ant-table-row-selected > td.ant-table-cell-fix-right,
+    .ant-descriptions-bordered .ant-descriptions-item-label {
+        background: var(--editor-background);
+    }
 
-	.ant-notification-notice {
-		background: var(--notifications-background);
-	}
+    .ant-notification-notice {
+        background: var(--notifications-background);
+    }
 
-	.ant-select-status-error.ant-select:not(.ant-select-disabled):not(.ant-select-customize-input):not(.ant-pagination-size-changer) .ant-select-selector{
-		background-color: transparent;
-	}
+    .ant-select-status-error.ant-select:not(.ant-select-disabled):not(.ant-select-customize-input):not(.ant-pagination-size-changer) .ant-select-selector {
+        background-color: transparent;
+    }
 }
 
 [data-prefers-color] {
-	.ant-form-item-label > label,
-	.ant-form label,
-	.ant-select,
-	.ant-input,
-	.ant-input-affix-wrapper,
-	.ant-input-group-addon,
-	.ant-input-number,
-	.ant-select-item,
-	.ant-empty,
-	.ant-form-item,
-	.ant-picker-dropdown,
-	.ant-btn,
-	.ant-picker-input > input,
-	.ant-table,
-	.ant-checkbox-wrapper,
-	.ant-tooltip,
-	.ant-table-cell,
-	.ant-descriptions-item-label,
-	.ant-descriptions-item-content,
-	.ant-radio-button-wrapper,
-	.ant-dropdown-menu-item,
-	.ant-dropdown-menu-submenu-title,
-	.ant-form-item-explain,
-	.ant-form-item-extra,
-	.ant-modal-confirm-body .ant-modal-confirm-content,
-	.ant-picker,
-	.ant-input-number-group-addon,
-	.ant-collapse,
-	.ant-form,
-	.ant-select-dropdown,
-	.ant-tabs-tab,
-	.ant-badge-status-text {
-		font-size: $font-size;
-	}
+    .ant-form-item-label > label,
+    .ant-form label,
+    .ant-select,
+    .ant-input,
+    .ant-input-affix-wrapper,
+    .ant-input-group-addon,
+    .ant-input-number,
+    .ant-select-item,
+    .ant-empty,
+    .ant-form-item,
+    .ant-picker-dropdown,
+    .ant-btn,
+    .ant-picker-input > input,
+    .ant-table,
+    .ant-checkbox-wrapper,
+    .ant-tooltip,
+    .ant-table-cell,
+    .ant-descriptions-item-label,
+    .ant-descriptions-item-content,
+    .ant-radio-button-wrapper,
+    .ant-dropdown-menu-item,
+    .ant-dropdown-menu-submenu-title,
+    .ant-form-item-explain,
+    .ant-form-item-extra,
+    .ant-modal-confirm-body .ant-modal-confirm-content,
+    .ant-picker,
+    .ant-input-number-group-addon,
+    .ant-collapse,
+    .ant-form,
+    .ant-select-dropdown,
+    .ant-tabs-tab,
+    .ant-badge-status-text {
+        font-size: $font-size;
+    }
 
-	.ant-input {
-		line-height: calc(14 / 12 * 1.5715);
-	}
+    .ant-input {
+        line-height: calc(14 / 12 * 1.5715);
+    }
 
-	.ant-breadcrumb a,
-	.ant-breadcrumb > span:last-child {
-		color: var(--breadcrumb-foreground);
+    .ant-breadcrumb a,
+    .ant-breadcrumb > span:last-child {
+        color: var(--breadcrumb-foreground);
 
-		&:hover {
-			color: var(--breadcrumb-focusForeground);
-		}
-	}
+        &:hover {
+            color: var(--breadcrumb-focusForeground);
+        }
+    }
 }
 
 .ant-tooltip-inner {
-	max-width: 300px;
+    max-width: 300px;
 }
 
 .ant-collapse.ant-collapse-borderless {
-	background: transparent;
+    background: transparent;
 }
 
 // reset the transition property for antd components in force
 // for ant compoents should hidden immediately when visibility changed
-.mo-sidebar__pane *[class^='ant-'] {
-	transition: none !important;
+.mo-sidebar__pane *[class^="ant-"] {
+    transition: none !important;
 }
 
 // reset the hover color of A tag inside statusBar, which is polluted by Antd global style css
 .mo-statusBar a:hover {
-	color: inherit;
+    color: inherit;
 }
 
 .mo-workbench {
-	.ant-tree-show-line .ant-tree-indent-unit::before {
-		border-right-color: var(--tree-indentGuidesStroke);
-	}
+    .ant-tree-show-line .ant-tree-indent-unit::before {
+        border-right-color: var(--tree-indentGuidesStroke);
+    }
 
-	.ant-tree-switcher-leaf-line::before {
-		border-right-color: var(--tree-indentGuidesStroke);
-	}
+    .ant-tree-switcher-leaf-line::before {
+        border-right-color: var(--tree-indentGuidesStroke);
+    }
 
-	.ant-tree-switcher-leaf-line::after {
-		border-bottom-color: var(--tree-indentGuidesStroke);
-	}
+    .ant-tree-switcher-leaf-line::after {
+        border-bottom-color: var(--tree-indentGuidesStroke);
+    }
 }

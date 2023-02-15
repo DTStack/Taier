@@ -1,0 +1,38 @@
+.taier__confirm__container {
+    .ant-modal-content {
+        box-shadow: 0 12px 12px 0 var(--widget-shadow);
+        border-radius: 8px;
+    }
+
+    .ant-modal-body {
+        padding: 24px 12px;
+    }
+
+    .taier__confirm__icon {
+        display: block;
+        color: var(--terminal-ansiBrightYellow);
+        font-size: 42px;
+        margin-bottom: 8px;
+    }
+
+    .taier__confirm__title {
+        font-size: 14px;
+        padding: 0 8px;
+        text-align: center;
+        font-weight: bold;
+        color: var(--badge-foreground);
+    }
+
+    .taier__confirm__desc {
+        font-size: 12px;
+        text-align: center;
+        margin: 8px 0;
+        color: #8b8fa8;
+    }
+
+    .taier__confirm__btnGroups {
+        button:not(:last-child) {
+            margin-bottom: 8px;
+        }
+    }
+}

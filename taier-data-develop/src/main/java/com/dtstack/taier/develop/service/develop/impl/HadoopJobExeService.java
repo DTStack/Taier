@@ -108,7 +108,10 @@ public class HadoopJobExeService {
             JSONObject jobJson = syncJob.getJSONObject("job").getJSONObject("job");
             JSONObject settingJson = jobJson.getJSONObject("setting");
             JSONObject speedJson = settingJson.getJSONObject("speed");
-            return speedJson.getInteger("channel");
+            if (Objects.nonNull(speedJson.getInteger("channel"))) {
+                return speedJson.getInteger("channel");
+            }
+            return 1;
         } catch (Exception e) {
             LOG.error("", e);
             //默认1

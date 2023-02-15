@@ -16,30 +16,27 @@
  * limitations under the License.
  */
 
-import api from "@/api";
-import stream from "@/api";
-import { hiveWithAllTable } from "@/components/helpDoc/docs";
-import { DATA_SOURCE_ENUM, DATA_SOURCE_TEXT, formItemLayout, PARTITION_TYPE, SYNC_TYPE, WRITE_TABLE_TYPE } from "@/constant";
-import { getFlinkDisabledSource } from "@/utils/enums";
+import api from '@/api';
+import { hiveWithAllTable } from '@/components/helpDoc/docs';
+import { DATA_SOURCE_ENUM, DATA_SOURCE_TEXT, formItemLayout, PARTITION_TYPE, WRITE_TABLE_TYPE } from '@/constant';
+import { getFlinkDisabledSource } from '@/utils/enums';
 import { isKafka, isMysqlTypeSource, isHive } from '@/utils/is';
-import molecule from "@dtinsight/molecule";
+import molecule from '@dtinsight/molecule';
 import { connect as moleculeConnect } from '@dtinsight/molecule/esm/react';
-import { Button, Form, FormInstance, Radio, Select } from "antd";
-import { ExclamationCircleOutlined } from '@ant-design/icons'
-import React from "react";
-import { streamTaskActions } from "../taskFunc";
-import Kafka from "./component/kafka";
-import Hdfs from "./component/hdfs";
-import Hive from "./component/hive";
-import Emq from "./component/emq";
-import { targetDefaultValue } from "../helper";
-import Adb from "./component/adb";
+import { Button, Form, FormInstance, Select } from 'antd';
+import { ExclamationCircleOutlined } from '@ant-design/icons';
+import React from 'react';
+import { streamTaskActions } from '../taskFunc';
+import Kafka from './component/kafka';
+import Hdfs from './component/hdfs';
+import Hive from './component/hive';
+import Emq from './component/emq';
+import { targetDefaultValue } from '../helper';
+import Adb from './component/adb';
 
 const FormItem = Form.Item;
 const Option = Select.Option;
-const RadioGroup = Radio.Group;
 
-// eslint-disable-next-line
 const prefixRule = '${schema}_${table}';
 
 function getSourceInitialField(sourceType: any, data: any) {
@@ -55,7 +52,6 @@ function getSourceInitialField(sourceType: any, data: any) {
             return initialFields;
         }
         case DATA_SOURCE_ENUM.HIVE: {
-            // eslint-disable-next-line
             initialFields.partitionType = PARTITION_TYPE.DAY;
             initialFields.analyticalRules = isMysqlSource ? prefixRule : undefined;
             initialFields.partition = isMysqlSource ? 'pt' : undefined; // 后端（nanqi）要求自动建表默认加一个partition = pt。
@@ -81,12 +77,8 @@ function getSourceInitialField(sourceType: any, data: any) {
     return initialFields;
 }
 
-// 是否可以填选 partition key
-function canPartitionKeyWrite(sourceMap: any) {
-    return [DATA_SOURCE_ENUM.MYSQL, DATA_SOURCE_ENUM.UPDRDB, DATA_SOURCE_ENUM.ORACLE].includes(sourceMap.type) && sourceMap.rdbmsDaType === SYNC_TYPE.INTERVAL;
-}
 class CollectionTarget extends React.Component<any, any> {
-    formRef = React.createRef<FormInstance>()
+    formRef = React.createRef<FormInstance>();
     constructor(props: any) {
         super(props);
         this.state = {
@@ -95,16 +87,15 @@ class CollectionTarget extends React.Component<any, any> {
             loading: false,
             sourceId: null,
             schemaList: [],
-            adbTableList: []
-        }
+            adbTableList: [],
+        };
     }
 
     componentDidMount() {
         const { collectionData } = this.props;
         const { targetMap = {}, sourceMap = {} } = collectionData;
         const { sourceId, type, table } = targetMap;
-        const { type: dataSourceType, rdbmsDaType, transferType } = sourceMap;
-        console.log(sourceId)
+        const { transferType } = sourceMap;
         if (sourceId) {
             this.onSourceIdChange(type, sourceId, transferType);
             if (isHive(type) && table) {
@@ -115,13 +106,13 @@ class CollectionTarget extends React.Component<any, any> {
             const tableMappingList = table.map((item: string) => {
                 return {
                     source: item,
-                    sink: null
-                }
-            })
+                    sink: null,
+                };
+            });
             const fields = {
                 ...targetMap,
-                tableMappingList
-            }
+                tableMappingList,
+            };
             streamTaskActions.updateTargetMap(fields, false, true);
         }
     }
@@ -130,10 +121,10 @@ class CollectionTarget extends React.Component<any, any> {
         const res = await api.getAllSchemas({ sourceId, isSys: false, schema });
         if (res?.code === 1) {
             this.setState({
-                schemaList: res.data
-            })
+                schemaList: res.data,
+            });
         }
-    }
+    };
     getTableList = (sourceId: number, searchKey?: string) => {
         api.getOfflineTableList({
             sourceId,
@@ -142,11 +133,11 @@ class CollectionTarget extends React.Component<any, any> {
         }).then((res: any) => {
             if (res.code === 1) {
                 this.setState({
-                    tableList: res.data || []
+                    tableList: res.data || [],
                 });
             }
         });
-    }
+    };
     /**
      * @param syncSchema -  props 里的 schema 可能是老的，react 还没异步更新，用 syncSchema 传个最新的值
      */
@@ -154,23 +145,23 @@ class CollectionTarget extends React.Component<any, any> {
         const { collectionData } = this.props;
         const { targetMap = {} } = collectionData;
         const { sourceId, schema } = targetMap;
-        stream.listTablesBySchema({
+        api.listTablesBySchema({
             sourceId,
             searchKey,
-            schema: syncSchema || schema
+            schema: syncSchema || schema,
         }).then((res: any) => {
             if (res.code === 1) {
                 this.setState({
-                    adbTableList: res.data || []
+                    adbTableList: res.data || [],
                 });
             }
         });
-    }
+    };
     /**
      * 数据源改变
-     * @param type 
-     * @param sourceId 
-     * @param transferType 
+     * @param type
+     * @param sourceId
+     * @param transferType
      */
     onSourceIdChange(type: any, sourceId: any, transferType?: any) {
         this.setState({
@@ -178,13 +169,13 @@ class CollectionTarget extends React.Component<any, any> {
             partitions: [],
             sourceId,
             schemaList: [],
-            adbTableList: []
-        })
+            adbTableList: [],
+        });
         if (isHive(type)) {
             this.getTableList(sourceId);
         } else if (type === DATA_SOURCE_ENUM.ADB_FOR_PG) {
             this.getSchemaList(sourceId);
-            transferType === 1 && this.getSchemaTableList()
+            transferType === 1 && this.getSchemaTableList();
         }
     }
 
@@ -192,31 +183,31 @@ class CollectionTarget extends React.Component<any, any> {
      * hive表改变
      * @param sourceId 数据源ID
      * @param tableName 表名
-     * @returns 
+     * @returns
      */
     async onHiveTableChange(sourceId: any, tableName: any) {
         this.setState({
             partition: [],
-            partitions: []
-        })
+            partitions: [],
+        });
         if (!sourceId || !tableName) {
             return;
         }
         this.setState({
-            loading: true
-        })
-        let res = await api.getHivePartitions({
+            loading: true,
+        });
+        const res = await api.getHivePartitions({
             sourceId,
-            tableName
+            tableName,
         });
         this.setState({
-            loading: false
-        })
+            loading: false,
+        });
         if (res && res.code == 1) {
             const partitions = res.data;
             if (partitions && partitions.length) {
                 this.setState({
-                    partitions: res.data
+                    partitions: res.data,
                 });
             }
         }
@@ -226,7 +217,7 @@ class CollectionTarget extends React.Component<any, any> {
         if (!value) {
             streamTaskActions.updateTargetMap({ type: undefined, sourceId: value }, true);
             setTimeout(() => {
-                this.formRef.current?.setFieldsValue(this.props.collectionData?.targetMap)
+                this.formRef.current?.setFieldsValue(this.props.collectionData?.targetMap);
             });
             return;
         }
@@ -237,22 +228,21 @@ class CollectionTarget extends React.Component<any, any> {
          */
         streamTaskActions.updateTargetMap({ ...initialFields, sourceId: value }, true);
         setTimeout(() => {
-            this.formRef.current?.setFieldsValue(initialFields)
+            this.formRef.current?.setFieldsValue(initialFields);
         }, 0);
-    }
-
+    };
 
     prev() {
-        streamTaskActions.navtoStep(0)
+        streamTaskActions.navtoStep(0);
     }
 
     next() {
-        this.formRef.current?.validateFields().then(values => {
-            streamTaskActions.navtoStep(2)
-        })
+        this.formRef.current?.validateFields().then(() => {
+            streamTaskActions.navtoStep(2);
+        });
     }
 
-    renderDynamic = (sourceId: any) => {
+    renderDynamic = () => {
         const { collectionData } = this.props;
         const { targetMap = {} } = collectionData;
         switch (targetMap.type) {
@@ -263,46 +253,49 @@ class CollectionTarget extends React.Component<any, any> {
             case DATA_SOURCE_ENUM.KAFKA_10:
             case DATA_SOURCE_ENUM.KAFKA_11:
             case DATA_SOURCE_ENUM.KAFKA_HUAWEI: {
-                return <Kafka collectionData={collectionData} />
+                return <Kafka collectionData={collectionData} />;
             }
             case DATA_SOURCE_ENUM.HDFS: {
-                return <Hdfs collectionData={collectionData} />
+                return <Hdfs collectionData={collectionData} />;
             }
             case DATA_SOURCE_ENUM.HIVE: {
-                return <Hive collectionData={collectionData} />
+                return <Hive collectionData={collectionData} />;
             }
             case DATA_SOURCE_ENUM.EMQ: {
-                return <Emq collectionData={collectionData} />
+                return <Emq collectionData={collectionData} />;
             }
             case DATA_SOURCE_ENUM.ADB_FOR_PG: {
-                return <Adb collectionData={collectionData} />
+                return <Adb collectionData={collectionData} />;
             }
             default: {
                 return null;
             }
         }
-    }
+    };
 
     /**
      * 改变提交按钮状态
      */
     onFormValuesChange = () => {
         setTimeout(() => {
-            this.formRef.current?.validateFields().then(values => {
-                streamTaskActions.updateCurrentPage({
-                    invalidSubmit: false
+            this.formRef.current
+                ?.validateFields()
+                .then(() => {
+                    streamTaskActions.updateCurrentPage({
+                        invalidSubmit: false,
+                    });
+                })
+                .catch(() => {
+                    streamTaskActions.updateCurrentPage({
+                        invalidSubmit: true,
+                    });
                 });
-            }).catch(err => {
-                streamTaskActions.updateCurrentPage({
-                    invalidSubmit: true
-                });
-            })
-        }, 200)
-    }
+        }, 200);
+    };
 
     /**
      * 表单值改变监听
-     * @param fields 
+     * @param fields
      */
     handleValuesChange = (fields: any) => {
         if (fields.hasOwnProperty('analyticalRules')) {
@@ -313,7 +306,7 @@ class CollectionTarget extends React.Component<any, any> {
                     fields['analyticalRules'] = prefixRule + '_' + fields['analyticalRules'];
                 }
             } else {
-                fields['analyticalRules'] = prefixRule
+                fields['analyticalRules'] = prefixRule;
             }
         }
         // 建表模式
@@ -339,7 +332,7 @@ class CollectionTarget extends React.Component<any, any> {
         if (this.onFormValuesChange) {
             this.onFormValuesChange();
         }
-    }
+    };
     mapPropsToFields() {
         const { collectionData } = this.props;
         const targetMap = collectionData.targetMap;
@@ -350,73 +343,93 @@ class CollectionTarget extends React.Component<any, any> {
         Object.entries(targetMap).forEach(([key, value]) => {
             if (targetDefaultValue(key)) {
                 values = Object.assign({}, values, {
-                    [key]: value
+                    [key]: value,
                 });
             }
-        })
+        });
         return {
             ...values,
             analyticalRules: targetMap.analyticalRules ? targetMap.analyticalRules.replace(prefixRule, '') : '',
             fileType: targetMap.fileType || 'orc',
-            maxFileSize: Number.isNaN(parseInt(initMaxFileSize)) ? undefined : initMaxFileSize / (1024 * 1024)
-        }
+            maxFileSize: Number.isNaN(parseInt(initMaxFileSize)) ? undefined : initMaxFileSize / (1024 * 1024),
+        };
     }
 
     render(): React.ReactNode {
         const { readonly, collectionData, sourceList } = this.props;
         const { isEdit, sourceMap = {}, targetMap = {}, componentVersion } = collectionData;
         const { loading } = this.state;
-        return (<div>
-            <Form
-                ref={this.formRef}
-                {...formItemLayout}
-                onValuesChange={this.handleValuesChange}
-                initialValues={this.mapPropsToFields()}
-            >
-                <FormItem
-                    name='sourceId'
-                    rules={[{ required: true, message: '请选择数据源' }]}
-                    label="数据源"
-                    tooltip={targetMap?.type == DATA_SOURCE_ENUM.HIVE && sourceMap?.allTable ? { title: hiveWithAllTable, icon: <ExclamationCircleOutlined /> } : ''}
+        return (
+            <div>
+                <Form
+                    ref={this.formRef}
+                    {...formItemLayout}
+                    onValuesChange={this.handleValuesChange}
+                    initialValues={this.mapPropsToFields()}
                 >
-                    <Select
-                        getPopupContainer={(triggerNode: any) => triggerNode}
-                        disabled={isEdit}
-                        placeholder="请选择数据源"
-                        onChange={this.onSelectSource}
-                        style={{ width: '100%' }}
-                        allowClear
+                    <FormItem
+                        name="sourceId"
+                        rules={[{ required: true, message: '请选择数据源' }]}
+                        label="数据源"
+                        tooltip={
+                            targetMap?.type == DATA_SOURCE_ENUM.HIVE && sourceMap?.allTable
+                                ? { title: hiveWithAllTable, icon: <ExclamationCircleOutlined /> }
+                                : ''
+                        }
                     >
-                        {sourceList.filter((d: any) => isKafka(d.dataTypeCode)).map((item: any) => {
-                            const allow110List = [DATA_SOURCE_ENUM.TBDS_HBASE, DATA_SOURCE_ENUM.TBDS_KAFKA, DATA_SOURCE_ENUM.KAFKA_HUAWEI, DATA_SOURCE_ENUM.HBASE_HUAWEI];
-                            const { ONLY_ALLOW_FLINK_1_10_DISABLED } = getFlinkDisabledSource({
-                                version: componentVersion,
-                                value: item.dataTypeCode,
-                                allow110List
-                            });
-                            return <Option
-                                {...{ data: item }}
-                                key={item.dataInfoId}
-                                value={item.dataInfoId}
-                                disabled={ONLY_ALLOW_FLINK_1_10_DISABLED}
-                            >
-                                {item.dataName}({DATA_SOURCE_TEXT[item.dataTypeCode as DATA_SOURCE_ENUM]})
-                            </Option>
-                        }).filter(Boolean)}
-                    </Select>
-                </FormItem>
-                <FormItem noStyle dependencies={['sourceId']}>
-                    {(f) => this.renderDynamic(f.getFieldValue('sourceId'))}
-                </FormItem>
-                {/* {  this.renderDynamic() } */}
-            </Form>
-            {!readonly && (
-                <div className="steps-action">
-                    <Button style={{ marginRight: 8 }} onClick={() => this.prev()}>上一步</Button>
-                    <Button loading={loading} type="primary" onClick={() => this.next()}>下一步</Button>
-                </div>
-            )}
-        </div>)
+                        <Select
+                            getPopupContainer={(triggerNode: any) => triggerNode}
+                            disabled={isEdit}
+                            placeholder="请选择数据源"
+                            onChange={this.onSelectSource}
+                            style={{ width: '100%' }}
+                            allowClear
+                        >
+                            {sourceList
+                                .filter((d: any) => isKafka(d.dataTypeCode))
+                                .map((item: any) => {
+                                    const allow110List = [
+                                        DATA_SOURCE_ENUM.TBDS_HBASE,
+                                        DATA_SOURCE_ENUM.TBDS_KAFKA,
+                                        DATA_SOURCE_ENUM.KAFKA_HUAWEI,
+                                        DATA_SOURCE_ENUM.HBASE_HUAWEI,
+                                    ];
+                                    const { ONLY_ALLOW_FLINK_1_10_DISABLED } = getFlinkDisabledSource({
+                                        version: componentVersion,
+                                        value: item.dataTypeCode,
+                                        allow110List,
+                                    });
+                                    return (
+                                        <Option
+                                            {...{ data: item }}
+                                            key={item.dataInfoId}
+                                            value={item.dataInfoId}
+                                            disabled={ONLY_ALLOW_FLINK_1_10_DISABLED}
+                                        >
+                                            {item.dataName}({DATA_SOURCE_TEXT[item.dataTypeCode as DATA_SOURCE_ENUM]})
+                                        </Option>
+                                    );
+                                })
+                                .filter(Boolean)}
+                        </Select>
+                    </FormItem>
+                    <FormItem noStyle dependencies={['sourceId']}>
+                        {() => this.renderDynamic()}
+                    </FormItem>
+                    {/* {  this.renderDynamic() } */}
+                </Form>
+                {!readonly && (
+                    <div className="steps-action">
+                        <Button style={{ marginRight: 8 }} onClick={() => this.prev()}>
+                            上一步
+                        </Button>
+                        <Button loading={loading} type="primary" onClick={() => this.next()}>
+                            下一步
+                        </Button>
+                    </div>
+                )}
+            </div>
+        );
     }
 }
 

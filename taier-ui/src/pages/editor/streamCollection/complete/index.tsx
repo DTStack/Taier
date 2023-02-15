@@ -16,15 +16,15 @@
  * limitations under the License.
  */
 
-import { IDataSourceUsedInSyncProps } from "@/interface";
-import molecule from "@dtinsight/molecule";
+import { IDataSourceUsedInSyncProps } from '@/interface';
+import molecule from '@dtinsight/molecule';
 import { connect as moleculeConnect } from '@dtinsight/molecule/esm/react';
-import { Button, Card, FormProps } from "antd";
-import React from "react";
-import Channel from "../channel";
-import Source from "../source";
-import TargetSource from "../targetSource";
-import { streamTaskActions } from "../taskFunc";
+import { Button, Card, FormProps } from 'antd';
+import React from 'react';
+import Channel from '../channel';
+import Source from '../source';
+import TargetSource from '../targetSource';
+import { streamTaskActions } from '../taskFunc';
 
 function Mask() {
     return <div className="mask-lock-layer" />;
@@ -35,16 +35,16 @@ interface IProps extends FormProps {
     sourceList: IDataSourceUsedInSyncProps[];
 }
 class CollectionComplete extends React.Component<IProps, any> {
-    navtoStep (step: any) {
-        streamTaskActions.navtoStep(step)
+    navtoStep(step: any) {
+        streamTaskActions.navtoStep(step);
     }
-    prev () {
-        streamTaskActions.navtoStep(2)
+    prev() {
+        streamTaskActions.navtoStep(2);
     }
-    save () {
+    save() {
         this.props.saveJob();
     }
-    render (): React.ReactNode {
+    render(): React.ReactNode {
         const { collectionData, sourceList } = this.props;
         return (
             <div>
@@ -78,11 +78,15 @@ class CollectionComplete extends React.Component<IProps, any> {
                     </Card>
                 </div>
                 <div className="steps-action">
-                    <Button style={{ marginRight: 8 }} onClick={() => this.prev()}>上一步</Button>
-                    <Button type="primary" disabled={!collectionData.notSynced} onClick={() => this.save()}>保存</Button>
+                    <Button style={{ marginRight: 8 }} onClick={() => this.prev()}>
+                        上一步
+                    </Button>
+                    <Button type="primary" disabled={!collectionData.notSynced} onClick={() => this.save()}>
+                        保存
+                    </Button>
                 </div>
             </div>
-        )
+        );
     }
 }
 

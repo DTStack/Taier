@@ -20,6 +20,6 @@ sidebar_label: YARN
 ![YARN 配置](/img/readme/yarn.png)
 
 :::tip
-不同厂商的hadoop集群依赖jar包和参数不一样，可以根据选择的YARN 厂商版本去`自行开发适配`
+不同厂商的Hadoop集群依赖jar包和参数不一样，可以根据选择的YARN 厂商版本去`自行开发适配`
 目前来说 可以根据YARN的版本来选择 `Apache Hadoop2` 或 `Apache Hadoop3`
 :::

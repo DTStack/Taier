@@ -1,40 +1,40 @@
 .entry {
-	display: flex;
-	flex-direction: column;
-	align-items: center;
-	justify-content: center;
-	width: 100%;
-	text-align: center;
-	background-color: var(--panel-background);
-	pointer-events: none;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    text-align: center;
+    background-color: var(--panel-background);
+    pointer-events: none;
 
-	.logo {
-		opacity: 0.1;
-	}
+    .logo {
+        opacity: 0.1;
+    }
 
-	.commands {
-		width: 200px;
-		color: var(--foreground);
-		opacity: 0.5;
+    .commands {
+        width: 200px;
+        color: var(--foreground);
+        opacity: 0.5;
 
-		.command {
-			display: flex;
-			margin-bottom: 15px;
-		}
+        .command {
+            display: flex;
+            margin-bottom: 15px;
+        }
 
-		.label {
-			width: 60%;
-			margin-right: 10px;
-			text-align: right;
-		}
+        .label {
+            width: 60%;
+            margin-right: 10px;
+            text-align: right;
+        }
 
-		.keybindings {
-			text-align: left;
+        .keybindings {
+            text-align: left;
 
-			.keyCode {
-				margin: 0 2px;
-				box-shadow: inset 0 -1px 1px 0 var(--scrollbar-shadow);
-			}
-		}
-	}
+            .keyCode {
+                margin: 0 2px;
+                box-shadow: inset 0 -1px 1px 0 var(--scrollbar-shadow);
+            }
+        }
+    }
 }

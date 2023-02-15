@@ -1,79 +1,79 @@
 .dt-select-source {
-	height: 100%;
+    height: 100%;
 
-	.show-type {
-		display: flex;
-		height: calc(100% - 32px);
-		margin-top: 12px;
-		border: 1px solid var(--panel-border);
+    .show-type {
+        display: flex;
+        height: calc(100% - 32px);
+        margin-top: 12px;
+        border: 1px solid var(--panel-border);
 
-		.left-menu {
-			width: 134px;
-			overflow: auto;
+        .left-menu {
+            width: 134px;
+            overflow: auto;
 
-			.dt-datasource-menu {
-				font-size: 12px;
-				background-color: transparent;
-				border: none;
+            .dt-datasource-menu {
+                font-size: 12px;
+                background-color: transparent;
+                border: none;
 
-				.ant-menu-item {
-					width: 100%;
-					height: 32px;
-					margin: 0;
-					padding-left: 24px;
-					color: #666;
-					line-height: 32px;
+                .ant-menu-item {
+                    width: 100%;
+                    height: 32px;
+                    margin: 0;
+                    padding-left: 24px;
+                    color: #666;
+                    line-height: 32px;
 
-					&-selected {
-						color: #3f87ff;
-						background-color: var(--list-focusBackground);
+                    &-selected {
+                        color: #3f87ff;
+                        background-color: var(--list-focusBackground);
 
-						&::after {
-							content: initial;
-						}
-					}
-				}
-			}
-		}
+                        &::after {
+                            content: initial;
+                        }
+                    }
+                }
+            }
+        }
 
-		.right-menu {
-			flex: 1;
-			padding: 27px 40px;
-			overflow-y: auto;
-			border-left: 1px solid var(--panel-border);
+        .right-menu {
+            flex: 1;
+            padding: 27px 40px;
+            overflow-y: auto;
+            border-left: 1px solid var(--panel-border);
 
-			&-main {
-				width: 100%;
-				margin: 0 auto;
+            &-main {
+                width: 100%;
+                margin: 0 auto;
 
-				&-content {
-					display: flex;
-					flex-wrap: wrap;
-					margin-left: -16px;
-				}
-			}
+                &-content {
+                    display: flex;
+                    flex-wrap: wrap;
+                    margin-left: -16px;
+                }
+            }
 
-			&-item {
-				margin-left: 16px;
-				font-size: 12px;
-			}
+            &-item {
+                margin-left: 16px;
+                font-size: 12px;
+            }
 
-			img {
-				display: block;
-				width: 100%;
-				background: #fff;
-				box-shadow: 0 0 5px 0 rgba(0, 0, 0, 0.12);
+            img {
+                display: block;
+                width: 100%;
+                background: #fff;
+                box-shadow: 0 0 5px 0 rgba(0, 0, 0, 0.12);
 
-				&:hover {
-					background: #fff;
-					border: 1px solid #4285f5;
-				}
+                &:hover {
+                    background: #fff;
+                    border: 1px solid #4285f5;
+                }
 
-				&.selected {
-					border: 1px solid #4285f5;
-					box-shadow: 0 0 5px 0 rgba(0, 0, 0, 0.12);
-				}
-			}
-		}
-	}
+                &.selected {
+                    border: 1px solid #4285f5;
+                    box-shadow: 0 0 5px 0 rgba(0, 0, 0, 0.12);
+                }
+            }
+        }
+    }
 }

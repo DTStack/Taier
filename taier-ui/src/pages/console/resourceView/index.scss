@@ -1,53 +1,53 @@
 .c-resourceView__container {
-	display: flex;
-	justify-content: space-between;
+    display: flex;
+    justify-content: space-between;
 
-	.c-resourceCard__container {
-		display: flex;
-		justify-content: flex-start;
-		width: 100%;
-		height: 100%;
-		padding: 8px 8px 8px 31px;
-		border: 1px solid var(--panel-border);
+    .c-resourceCard__container {
+        display: flex;
+        justify-content: flex-start;
+        width: 100%;
+        height: 100%;
+        padding: 8px 8px 8px 31px;
+        border: 1px solid var(--panel-border);
 
-		&__title {
-			display: flex;
-			flex-direction: column;
-			justify-content: center;
-			margin-left: 6px;
-			color: var(--descriptionForeground);
-			font-weight: 600;
-			font-size: 12px;
+        &__title {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            margin-left: 6px;
+            color: var(--descriptionForeground);
+            font-weight: 600;
+            font-size: 12px;
 
-			p {
-				margin: 0;
-			}
-		}
-	}
+            p {
+                margin: 0;
+            }
+        }
+    }
 }
 
 .c-resourceView__table__container {
-	.resourceView__table__title {
-		color: #333;
-		font-size: 14px;
-		font-weight: 600;
-	}
+    .resourceView__table__title {
+        color: #333;
+        font-size: 14px;
+        font-weight: 600;
+    }
 
-	.resourceView__table__desc {
-		color: var(--descriptionForeground);
-		font-size: 12px;
-	}
+    .resourceView__table__desc {
+        color: var(--descriptionForeground);
+        font-size: 12px;
+    }
 
-	p {
-		margin: 12px 0;
-	}
+    p {
+        margin: 12px 0;
+    }
 
-	.resourceView__table-border {
-		border: 1px solid var(--tree-indentGuidesStroke);
-		border-bottom: 0;
-	}
+    .resourceView__table-border {
+        border: 1px solid var(--tree-indentGuidesStroke);
+        border-bottom: 0;
+    }
 
-	.resourceView__subTable .ant-table {
-		border-left: 1px solid var(--tree-indentGuidesStroke);
-	}
+    .resourceView__subTable .ant-table {
+        border-left: 1px solid var(--tree-indentGuidesStroke);
+    }
 }

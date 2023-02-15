@@ -1,48 +1,47 @@
 .dt-sketch {
-	display: flex;
-	flex-direction: column;
-	flex-wrap: nowrap;
-	height: 100%;
+    display: flex;
+    flex-flow: column nowrap;
+    height: 100%;
 
-	&-header {
-		display: flex;
-		margin-bottom: 8px;
-	}
+    &-header {
+        display: flex;
+        margin-bottom: 8px;
+    }
 
-	&-extra {
-		margin: 0 0 0 auto;
-	}
+    &-extra {
+        margin: 0 0 0 auto;
+    }
 
-	&-header-bar {
-		&:not(:empty) {
-			padding: 16px 10px;
-		}
-	}
+    &-header-bar {
+        &:not(:empty) {
+            padding: 16px 10px;
+        }
+    }
 
-	&-table {
-		flex: 1;
-		overflow: hidden;
+    &-table {
+        flex: 1;
+        overflow: hidden;
 
-		.ant-spin-container,
-		.ant-spin-nested-loading,
-		.ant-table {
-			height: 100%;
-		}
+        .ant-spin-container,
+        .ant-spin-nested-loading,
+        .ant-table {
+            height: 100%;
+        }
 
-		.ant-table-container {
-			height: calc(100% - 64px);
-		}
+        .ant-table-container {
+            height: calc(100% - 64px);
+        }
 
-		.ant-table-footer {
-			background-color: inherit;
-		}
-	}
+        .ant-table-footer {
+            background-color: inherit;
+        }
+    }
 
-	.flex-between {
-		display: flex;
+    .flex-between {
+        display: flex;
 
-		> :nth-child(2) {
-			margin: 0 0 0 auto;
-		}
-	}
+        > :nth-child(2) {
+            margin: 0 0 0 auto;
+        }
+    }
 }

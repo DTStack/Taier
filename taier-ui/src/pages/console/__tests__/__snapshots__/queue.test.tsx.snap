@@ -1,0 +1,421 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Test Queue Page Should match snapshot 1`] = `
+<DocumentFragment>
+  <div
+    class="dt-sketch dt-queue"
+  >
+    <div
+      class="dt-sketch-header"
+    >
+      <form
+        autocomplete="off"
+        class="ant-form ant-form-inline"
+      >
+        <div
+          class="ant-form-item ant-form-item-has-success"
+        >
+          <div
+            class="ant-row ant-form-item-row"
+          >
+            <div
+              class="ant-col ant-form-item-label"
+            >
+              <label
+                class=""
+                for="clusterId"
+                title="集群"
+              >
+                集群
+              </label>
+            </div>
+            <div
+              class="ant-col ant-form-item-control"
+            >
+              <div
+                class="ant-form-item-control-input"
+              >
+                <div
+                  class="ant-form-item-control-input-content"
+                >
+                  <div
+                    class="ant-select ant-select-in-form-item ant-select-status-success ant-select-single ant-select-show-arrow"
+                    style="width: 150px;"
+                  >
+                    <div
+                      class="ant-select-selector"
+                    >
+                      <span
+                        class="ant-select-selection-search"
+                      >
+                        <input
+                          aria-activedescendant="clusterId_list_0"
+                          aria-autocomplete="list"
+                          aria-controls="clusterId_list"
+                          aria-haspopup="listbox"
+                          aria-owns="clusterId_list"
+                          autocomplete="off"
+                          class="ant-select-selection-search-input"
+                          id="clusterId"
+                          readonly=""
+                          role="combobox"
+                          style="opacity: 0;"
+                          type="search"
+                          unselectable="on"
+                          value=""
+                        />
+                      </span>
+                      <span
+                        class="ant-select-selection-item"
+                        title="default"
+                      >
+                        default
+                      </span>
+                    </div>
+                    <span
+                      aria-hidden="true"
+                      class="ant-select-arrow"
+                      style="user-select: none;"
+                      unselectable="on"
+                    >
+                      <span
+                        aria-label="down"
+                        class="anticon anticon-down ant-select-suffix"
+                        role="img"
+                      >
+                        <svg
+                          aria-hidden="true"
+                          data-icon="down"
+                          fill="currentColor"
+                          focusable="false"
+                          height="1em"
+                          viewBox="64 64 896 896"
+                          width="1em"
+                        >
+                          <path
+                            d="M884 256h-75c-5.1 0-9.9 2.5-12.9 6.6L512 654.2 227.9 262.6c-3-4.1-7.8-6.6-12.9-6.6h-75c-6.5 0-10.3 7.4-6.5 12.7l352.6 486.1c12.8 17.6 39 17.6 51.7 0l352.6-486.1c3.9-5.3.1-12.7-6.4-12.7z"
+                          />
+                        </svg>
+                      </span>
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div
+          class="ant-form-item"
+        >
+          <div
+            class="ant-row ant-form-item-row"
+          >
+            <div
+              class="ant-col ant-form-item-label"
+            >
+              <label
+                class=""
+                for="clusterNode"
+                title="节点"
+              >
+                节点
+              </label>
+            </div>
+            <div
+              class="ant-col ant-form-item-control"
+            >
+              <div
+                class="ant-form-item-control-input"
+              >
+                <div
+                  class="ant-form-item-control-input-content"
+                >
+                  <div
+                    class="ant-select ant-select-in-form-item ant-select-single ant-select-allow-clear ant-select-show-arrow"
+                    style="width: 150px;"
+                  >
+                    <div
+                      class="ant-select-selector"
+                    >
+                      <span
+                        class="ant-select-selection-search"
+                      >
+                        <input
+                          aria-activedescendant="clusterNode_list_0"
+                          aria-autocomplete="list"
+                          aria-controls="clusterNode_list"
+                          aria-haspopup="listbox"
+                          aria-owns="clusterNode_list"
+                          autocomplete="off"
+                          class="ant-select-selection-search-input"
+                          id="clusterNode"
+                          readonly=""
+                          role="combobox"
+                          style="opacity: 0;"
+                          type="search"
+                          unselectable="on"
+                          value=""
+                        />
+                      </span>
+                      <span
+                        class="ant-select-selection-placeholder"
+                      >
+                        选择节点
+                      </span>
+                    </div>
+                    <span
+                      aria-hidden="true"
+                      class="ant-select-arrow"
+                      style="user-select: none;"
+                      unselectable="on"
+                    >
+                      <span
+                        aria-label="down"
+                        class="anticon anticon-down ant-select-suffix"
+                        role="img"
+                      >
+                        <svg
+                          aria-hidden="true"
+                          data-icon="down"
+                          fill="currentColor"
+                          focusable="false"
+                          height="1em"
+                          viewBox="64 64 896 896"
+                          width="1em"
+                        >
+                          <path
+                            d="M884 256h-75c-5.1 0-9.9 2.5-12.9 6.6L512 654.2 227.9 262.6c-3-4.1-7.8-6.6-12.9-6.6h-75c-6.5 0-10.3 7.4-6.5 12.7l352.6 486.1c12.8 17.6 39 17.6 51.7 0l352.6-486.1c3.9-5.3.1-12.7-6.4-12.7z"
+                          />
+                        </svg>
+                      </span>
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </form>
+      <div
+        class="dt-sketch-extra"
+      >
+        <button
+          class="ant-btn ant-btn-default dt-refresh"
+          type="button"
+        >
+          <span
+            aria-label="sync"
+            class="anticon anticon-sync"
+            role="img"
+            tabindex="-1"
+          >
+            <svg
+              aria-hidden="true"
+              data-icon="sync"
+              fill="currentColor"
+              focusable="false"
+              height="1em"
+              viewBox="64 64 896 896"
+              width="1em"
+            >
+              <path
+                d="M168 504.2c1-43.7 10-86.1 26.9-126 17.3-41 42.1-77.7 73.7-109.4S337 212.3 378 195c42.4-17.9 87.4-27 133.9-27s91.5 9.1 133.8 27A341.5 341.5 0 01755 268.8c9.9 9.9 19.2 20.4 27.8 31.4l-60.2 47a8 8 0 003 14.1l175.7 43c5 1.2 9.9-2.6 9.9-7.7l.8-180.9c0-6.7-7.7-10.5-12.9-6.3l-56.4 44.1C765.8 155.1 646.2 92 511.8 92 282.7 92 96.3 275.6 92 503.8a8 8 0 008 8.2h60c4.4 0 7.9-3.5 8-7.8zm756 7.8h-60c-4.4 0-7.9 3.5-8 7.8-1 43.7-10 86.1-26.9 126-17.3 41-42.1 77.8-73.7 109.4A342.45 342.45 0 01512.1 856a342.24 342.24 0 01-243.2-100.8c-9.9-9.9-19.2-20.4-27.8-31.4l60.2-47a8 8 0 00-3-14.1l-175.7-43c-5-1.2-9.9 2.6-9.9 7.7l-.7 181c0 6.7 7.7 10.5 12.9 6.3l56.4-44.1C258.2 868.9 377.8 932 512.2 932c229.2 0 415.5-183.7 419.8-411.8a8 8 0 00-8-8.2z"
+              />
+            </svg>
+          </span>
+        </button>
+      </div>
+    </div>
+    <div
+      class="dt-sketch-header-bar"
+    />
+    <div
+      class="ant-table-wrapper dt-sketch-table"
+    >
+      <div
+        class="ant-spin-nested-loading"
+      >
+        <div
+          class="ant-spin-container"
+        >
+          <div
+            class="ant-table"
+          >
+            <div
+              class="ant-table-container"
+            >
+              <div
+                class="ant-table-content"
+              >
+                <table
+                  style="table-layout: fixed;"
+                >
+                  <colgroup>
+                    <col
+                      style="width: 180px;"
+                    />
+                  </colgroup>
+                  <thead
+                    class="ant-table-thead"
+                  >
+                    <tr>
+                      <th
+                        class="ant-table-cell ant-table-cell-ellipsis"
+                        title="计算类型"
+                      >
+                        计算类型
+                      </th>
+                      <th
+                        class="ant-table-cell"
+                      >
+                        队列中(等待时长)
+                      </th>
+                      <th
+                        class="ant-table-cell"
+                      >
+                        已存储
+                      </th>
+                      <th
+                        class="ant-table-cell"
+                      >
+                        等待重试
+                      </th>
+                      <th
+                        class="ant-table-cell"
+                      >
+                        等待资源
+                      </th>
+                      <th
+                        class="ant-table-cell"
+                      >
+                        运行中
+                      </th>
+                      <th
+                        class="ant-table-cell"
+                      >
+                        操作
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody
+                    class="ant-table-tbody"
+                  >
+                    <tr
+                      class="ant-table-row ant-table-row-level-0"
+                      data-row-key="spark_sql_default_default_batch_Yarn"
+                    >
+                      <td
+                        class="ant-table-cell ant-table-cell-ellipsis"
+                      >
+                        <a>
+                          spark_sql_default_default_batch_Yarn
+                        </a>
+                      </td>
+                      <td
+                        class="ant-table-cell"
+                      >
+                        <a>
+                          0
+                        </a>
+                      </td>
+                      <td
+                        class="ant-table-cell"
+                      >
+                        <a>
+                          0
+                        </a>
+                      </td>
+                      <td
+                        class="ant-table-cell"
+                      >
+                        <a>
+                          0
+                        </a>
+                      </td>
+                      <td
+                        class="ant-table-cell"
+                      >
+                        <a>
+                          25
+                        </a>
+                      </td>
+                      <td
+                        class="ant-table-cell"
+                      >
+                        <a>
+                          0
+                        </a>
+                      </td>
+                      <td
+                        class="ant-table-cell"
+                      >
+                        <a>
+                          杀死全部
+                        </a>
+                      </td>
+                    </tr>
+                    <tr
+                      class="ant-table-row ant-table-row-level-0"
+                      data-row-key="shell_default_default_batch_"
+                    >
+                      <td
+                        class="ant-table-cell ant-table-cell-ellipsis"
+                      >
+                        <a>
+                          shell_default_default_batch_
+                        </a>
+                      </td>
+                      <td
+                        class="ant-table-cell"
+                      >
+                        <a>
+                          0
+                        </a>
+                      </td>
+                      <td
+                        class="ant-table-cell"
+                      >
+                        <a>
+                          0
+                        </a>
+                      </td>
+                      <td
+                        class="ant-table-cell"
+                      >
+                        <a>
+                          0
+                        </a>
+                      </td>
+                      <td
+                        class="ant-table-cell"
+                      >
+                        <a>
+                          7
+                        </a>
+                      </td>
+                      <td
+                        class="ant-table-cell"
+                      >
+                        <a>
+                          0
+                        </a>
+                      </td>
+                      <td
+                        class="ant-table-cell"
+                      >
+                        <a>
+                          杀死全部
+                        </a>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</DocumentFragment>
+`;

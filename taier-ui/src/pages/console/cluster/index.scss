@@ -1,22 +1,22 @@
 .c-clusterManage {
-	.ant-spin-nested-loading,
-	.ant-spin-container,
-	.ant-table {
-		height: 100%;
-	}
+    .ant-spin-nested-loading,
+    .ant-spin-container,
+    .ant-table {
+        height: 100%;
+    }
 
-	.ant-table-container {
-		height: calc(100% - 56px);
-	}
+    .ant-table-container {
+        height: calc(100% - 56px);
+    }
 
-	.ant-table-footer {
-		color: #333;
-		background: #fff;
-		border-top: 1px solid #e8e8e8;
-		border-radius: 0;
+    .ant-table-footer {
+        color: #333;
+        background: #fff;
+        border-top: 1px solid #e8e8e8;
+        border-radius: 0;
 
-		> .ant-pagination {
-			float: right;
-		}
-	}
+        > .ant-pagination {
+            float: right;
+        }
+    }
 }

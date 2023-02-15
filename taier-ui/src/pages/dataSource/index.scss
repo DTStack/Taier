@@ -1,67 +1,67 @@
 .datasource-container {
-	height: 100%;
+    height: 100%;
 
-	.datasource-content {
-		height: calc(100% - 106px);
-		padding-bottom: 44px;
-		overflow: scroll;
-		outline: 1px solid transparent;
-		outline-offset: -1px;
+    .datasource-content {
+        height: calc(100% - 106px);
+        padding-bottom: 44px;
+        overflow: scroll;
+        outline: 1px solid transparent;
+        outline-offset: -1px;
 
-		&:focus {
-			outline-color: var(--list-focusOutline);
-		}
+        &:focus {
+            outline-color: var(--list-focusOutline);
+        }
 
-		.datasource-list {
-			margin: 0;
-			padding: 0;
-			list-style-type: none;
+        .datasource-list {
+            margin: 0;
+            padding: 0;
+            list-style-type: none;
 
-			.datasource-record {
-				display: flex;
-				align-items: center;
-				height: 22px;
-				padding: 0 16px;
-				line-height: 22px;
-				outline: 1px solid transparent;
-				outline-offset: -1px;
-				cursor: pointer;
+            .datasource-record {
+                display: flex;
+                align-items: center;
+                height: 22px;
+                padding: 0 16px;
+                line-height: 22px;
+                outline: 1px solid transparent;
+                outline-offset: -1px;
+                cursor: pointer;
 
-				&:hover {
-					background-color: var(--list-hoverBackground);
-				}
+                &:hover {
+                    background-color: var(--list-hoverBackground);
+                }
 
-				&:focus {
-					background-color: var(--list-hoverBackground);
-				}
+                &:focus {
+                    background-color: var(--list-hoverBackground);
+                }
 
-				.datasource-title {
-					display: flex;
-					margin-left: 5px;
-					overflow: hidden;
+                .datasource-title {
+                    display: flex;
+                    margin-left: 5px;
+                    overflow: hidden;
 
-					.title {
-						flex-shrink: 0;
-					}
+                    .title {
+                        flex-shrink: 0;
+                    }
 
-					.desc {
-						flex: 1;
-						margin-left: 15px;
-						overflow: hidden;
-						color: var(--minimapSlider-background);
-						font-size: 10px;
-						font-style: italic;
-						white-space: nowrap;
-						text-overflow: ellipsis;
-					}
-				}
-			}
-		}
-	}
+                    .desc {
+                        flex: 1;
+                        margin-left: 15px;
+                        overflow: hidden;
+                        color: var(--minimapSlider-background);
+                        font-size: 10px;
+                        font-style: italic;
+                        white-space: nowrap;
+                        text-overflow: ellipsis;
+                    }
+                }
+            }
+        }
+    }
 }
 
 .datasource-detail {
-	width: 100%;
-	background: var(--editorGroupHeader-tabsBackground);
-	border: 1px solid var(--panel-border);
+    width: 100%;
+    background: var(--editorGroupHeader-tabsBackground);
+    border: 1px solid var(--panel-border);
 }

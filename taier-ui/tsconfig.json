@@ -1,41 +1,24 @@
 {
-	"compilerOptions": {
-		"target": "esnext",
-		"module": "esnext",
-		"moduleResolution": "node",
-		"resolveJsonModule": true,
-		"importHelpers": true,
-		"jsx": "react-jsx",
-		"esModuleInterop": true,
-		"sourceMap": true,
-		"baseUrl": "./",
-		"strict": true,
-		"paths": {
-			"@/*": ["src/*"],
-			"@@/*": ["src/.umi/*"]
-		},
-		"typeRoots": ["node_modules/@types", "node_modules/@typed-mxgraph"],
-		"experimentalDecorators": true,
-		"emitDecoratorMetadata": true,
-		"allowSyntheticDefaultImports": true
-	},
-	"include": [
-		"src/**/*",
-		"scripts/*",
-		".umirc.ts",
-		"typings.d.ts",
-		".eslintrc.js",
-		"tailwind.config.js"
-	],
-	"exclude": [
-		"node_modules",
-		"lib",
-		"es",
-		"dist",
-		"typings",
-		"**/__test__",
-		"test",
-		"docs",
-		"tests"
-	]
+    "compilerOptions": {
+        "target": "esnext",
+        "module": "esnext",
+        "moduleResolution": "node",
+        "resolveJsonModule": true,
+        "importHelpers": true,
+        "jsx": "react-jsx",
+        "esModuleInterop": true,
+        "sourceMap": true,
+        "baseUrl": "./",
+        "strict": true,
+        "paths": {
+            "@/*": ["src/*"],
+            "@@/*": ["src/.umi/*"]
+        },
+        "typeRoots": ["node_modules/@types", "node_modules/@typed-mxgraph"],
+        "experimentalDecorators": true,
+        "emitDecoratorMetadata": true,
+        "allowSyntheticDefaultImports": true
+    },
+    "include": ["src/**/*", "scripts/*", ".umirc.ts", "typings.d.ts", ".eslintrc.js", "tailwind.config.js"],
+    "exclude": ["node_modules", "lib", "es", "dist", "typings", "**/__test__", "test", "docs", "tests"]
 }

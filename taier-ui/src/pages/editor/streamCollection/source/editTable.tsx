@@ -18,15 +18,15 @@
 
 import * as React from 'react';
 import { Table } from 'antd';
-import { PlusCircleOutlined } from "@ant-design/icons"
-import { cloneDeep, debounce } from 'lodash'
+import { PlusCircleOutlined } from '@ant-design/icons';
+import { cloneDeep, debounce } from 'lodash';
 
 const initialState = {
-    dataSource: []
-}
+    dataSource: [],
+};
 
-type IState = typeof initialState
-interface IProps{
+type IState = typeof initialState;
+interface IProps {
     value?: any;
     onChange?: (value: any) => void;
     validator?: (value: any, requireFields: any) => void;
@@ -34,85 +34,94 @@ interface IProps{
 }
 
 class EditTable extends React.Component<IProps, IState> {
-    state=initialState
+    state = initialState;
     requireFields: [] = [];
 
-    componentDidMount () {
-        const { value, columns } = this.props
+    componentDidMount() {
+        const { value, columns } = this.props;
         this.setState({
-            dataSource: value ?? []
-        })
-        this.requireFields = columns.map(({ dataIndex, required }: any) => required ? dataIndex : '').filter(Boolean)
+            dataSource: value ?? [],
+        });
+        this.requireFields = columns.map(({ dataIndex, required }: any) => (required ? dataIndex : '')).filter(Boolean);
     }
 
     debounceChange = debounce(() => {
-        const { onChange, validator } = this.props
-        const { dataSource } = this.state
-        onChange && onChange(dataSource)
-        validator && validator(dataSource, this.requireFields)
-    }, 500)
+        const { onChange, validator } = this.props;
+        const { dataSource } = this.state;
+        onChange && onChange(dataSource);
+        validator && validator(dataSource, this.requireFields);
+    }, 500);
 
     addRow = () => {
-        const { columns } = this.props
-        const newRow: any = {}
-        columns.map(({ dataIndex }: any) => {
-            newRow[dataIndex] = undefined
-        })
-        const { dataSource } = this.state
+        const { columns } = this.props;
+        const newRow: any = {};
+        columns.forEach(({ dataIndex }: any) => {
+            newRow[dataIndex] = undefined;
+        });
+        const { dataSource } = this.state;
         this.setState({
-            dataSource: (dataSource || []).concat([newRow] as any)
-        })
-    }
+            dataSource: (dataSource || []).concat([newRow] as any),
+        });
+    };
 
     deleteParams = (target: any) => {
-        const { dataSource } = this.state
-        const newDataSource = dataSource.filter((data, index) => index !== target)
-        this.setState({
-            dataSource: newDataSource
-        }, this.debounceChange)
-    }
-    renderRequiredTitle = (title: any) => <span className='ant-form-item-required'>{title}</span>
+        const { dataSource } = this.state;
+        const newDataSource = dataSource.filter((data, index) => index !== target);
+        this.setState(
+            {
+                dataSource: newDataSource,
+            },
+            this.debounceChange
+        );
+    };
+    renderRequiredTitle = (title: any) => <span className="ant-form-item-required">{title}</span>;
 
     onTableCellChange = (data: any, index: any) => {
-        const { field, value } = data
-        const { dataSource } = this.state
-        const newDataSource: any = cloneDeep(dataSource)
-        newDataSource[index][field] = value
-        this.setState({
-            dataSource: newDataSource
-        }, this.debounceChange)
-    }
+        const { field, value } = data;
+        const { dataSource } = this.state;
+        const newDataSource: any = cloneDeep(dataSource);
+        newDataSource[index][field] = value;
+        this.setState(
+            {
+                dataSource: newDataSource,
+            },
+            this.debounceChange
+        );
+    };
 
     initColumns = () => {
-        const { columns } = this.props
+        const { columns } = this.props;
         return columns.map((col: any) => {
-            const { render, title, required } = col
-            let newTitle = required ? this.renderRequiredTitle(title) : title
+            const { render, title, required } = col;
+            const newTitle = required ? this.renderRequiredTitle(title) : title;
             return {
                 ...col,
                 title: newTitle,
-                render: (text: any, record: any, index: any) => render(text, record, index, this.onTableCellChange, () => { this.deleteParams(index) })
-            }
-        })
-    }
+                render: (text: any, record: any, index: any) =>
+                    render(text, record, index, this.onTableCellChange, () => {
+                        this.deleteParams(index);
+                    }),
+            };
+        });
+    };
 
-    render () {
-        const { dataSource } = this.state
+    render() {
+        const { dataSource } = this.state;
         return (
             <>
                 <Table
                     bordered
-                    rowKey= {(key, value) => `${key}${value}`}
+                    rowKey={(key, value) => `${key}${value}`}
                     dataSource={dataSource}
                     columns={this.initColumns()}
                     pagination={false}
                 />
-                <a className='c-ws-add' onClick={this.addRow}>
+                <a className="c-ws-add" onClick={this.addRow}>
                     <PlusCircleOutlined />
                     <span>新增参数</span>
                 </a>
             </>
-        )
+        );
     }
 }
-export default EditTable
+export default EditTable;

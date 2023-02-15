@@ -1,0 +1,15 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Test SvgIcon Component Should match snapshot 1`] = `
+<DocumentFragment>
+  <svg
+    aria-hidden="true"
+    class="icon-svg default-icon "
+    linkhref="iconicon_copy"
+  >
+    <use
+      xlink:href="#iconicon_copy"
+    />
+  </svg>
+</DocumentFragment>
+`;

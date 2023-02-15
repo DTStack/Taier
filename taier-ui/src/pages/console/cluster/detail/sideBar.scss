@@ -1,126 +1,127 @@
 $node-size: 24px;
 
 .cluster-sider.ant-layout-sider {
-	border-right: 1px solid var(--panel-border);
-	height: 100%;
-	background: transparent;
+    border-right: 1px solid var(--panel-border);
+    height: 100%;
+    background: transparent;
 
-	.ant-layout,
-	.ant-layout-content {
-		background: transparent;
-		position: relative;
+    .ant-layout,
+    .ant-layout-content {
+        background: transparent;
+        position: relative;
 
-		.ant-spin-container {
-			overflow: hidden;
-		}
-	}
+        .ant-spin-container {
+            overflow: hidden;
+        }
+    }
 
-	.ant-layout-footer {
-		background: inherit;
-		height: 40px;
-		line-height: 40px;
-		padding: 0;
-		border-top: 1px solid var(--panel-border);
-		display: flex;
-		justify-content: center;
-		box-shadow: 0 -3px 6px -3px var(--minimapSlider-hoverBackground);
-		overflow: hidden;
-	}
+    .ant-layout-footer {
+        background: inherit;
+        height: 40px;
+        line-height: 40px;
+        padding: 0;
+        border-top: 1px solid var(--panel-border);
+        display: flex;
+        justify-content: center;
+        box-shadow: 0 -3px 6px -3px var(--minimapSlider-hoverBackground);
+        overflow: hidden;
+    }
 
-	.cluster-component-tree {
-		min-width: 190px;
-	}
+    .cluster-component-tree {
+        min-width: 190px;
+    }
 
-	.ant-tree .ant-tree-node-content-wrapper {
-		padding-right: 0;
-	}
+    .ant-tree .ant-tree-node-content-wrapper {
+        padding-right: 0;
+    }
 
-	// 选中的节点
-	.ant-tree .ant-tree-node-content-wrapper.ant-tree-node-selected {
-		background: rgba(36, 145, 247, 0.1);
+    // 选中的节点
+    .ant-tree .ant-tree-node-content-wrapper.ant-tree-node-selected {
+        background: rgba(36, 145, 247, 0.1);
 
-		.component-node::after {
-			transform: scaleY(1);
-			opacity: 1;
-		}
+        .component-node::after {
+            transform: scaleY(1);
+            opacity: 1;
+        }
 
-		.component-name {
-			color: #177ddc;
-		}
+        .component-name {
+            color: #177ddc;
+        }
 
-		.component-remove {
-			opacity: 1;
-		}
-	}
+        .component-remove {
+            opacity: 1;
+        }
+    }
 
-	.cluster-component-collapse {
-		position: absolute;
-		right: 0;
-		padding: 0;
-		background-color: var(--editor-background);
-		top: 50%;
-		transform: translate(50%, -50%);
-		z-index: 999;
-	}
+    .cluster-component-collapse {
+        position: absolute;
+        right: 0;
+        padding: 0;
+        background-color: var(--editor-background);
+        top: 50%;
+        transform: translate(50%, -50%);
+        z-index: 999;
+    }
 
-	.cluster-component-btns {
-		width: 100%;
+    .cluster-component-btns {
+        width: 100%;
 
-		.ant-btn:first-child {
-			flex: 1;
-		}
+        .ant-btn:first-child {
+            flex: 1;
+        }
 
-		.ant-btn {
-			height: 40px;
-		}
-	}
+        .ant-btn {
+            height: 40px;
+        }
+    }
 
-	.component-node {
-		height: $node-size;
-		line-height: 0;
-		font-size: 12px;
-		position: relative;
+    .component-node {
+        height: $node-size;
+        line-height: 0;
+        font-size: 12px;
+        position: relative;
 
-		&::after {
-			position: absolute;
-			top: 0;
-			right: 0;
-			bottom: 0;
-			border-right: 3px solid #1890ff;
-			transform: scaleY(0.0001);
-			opacity: 0;
-			transition: transform 0.15s cubic-bezier(0.645, 0.045, 0.355, 1),
-				opacity 0.15s cubic-bezier(0.645, 0.045, 0.355, 1);
-			content: '';
-		}
+        &::after {
+            position: absolute;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            border-right: 3px solid #1890ff;
+            transform: scaleY(0.0001);
+            opacity: 0;
+            transition:
+                transform 0.15s cubic-bezier(0.645, 0.045, 0.355, 1),
+                opacity 0.15s cubic-bezier(0.645, 0.045, 0.355, 1);
+            content: "";
+        }
 
-		&:hover {
-			.component-remove {
-				opacity: 1;
-			}
-		}
+        &:hover {
+            .component-remove {
+                opacity: 1;
+            }
+        }
 
-		.component-name {
-			line-height: $node-size;
-			max-width: 73px;
-			white-space: nowrap;
-			overflow: hidden;
-			text-overflow: ellipsis;
-			display: block;
-		}
+        .component-name {
+            line-height: $node-size;
+            max-width: 73px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            display: block;
+        }
 
-		.component-remove {
-			transition: opacity 0.1s;
-			opacity: 0;
-		}
+        .component-remove {
+            transition: opacity 0.1s;
+            opacity: 0;
+        }
 
-		.ant-badge-status-text:empty {
-			margin: 0;
-		}
-	}
+        .ant-badge-status-text:empty {
+            margin: 0;
+        }
+    }
 
-	.component-config {
-		font-size: 12px;
-		width: 250px;
-	}
+    .component-config {
+        font-size: 12px;
+        width: 250px;
+    }
 }

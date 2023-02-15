@@ -1,0 +1,392 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Test Task Scaffolds Test AutoCompleteWithRequest Component Should match snapshot 1`] = `
+<DocumentFragment>
+  <form
+    class="ant-form ant-form-horizontal"
+  >
+    <div
+      class="ant-select ant-select-auto-complete ant-select-single ant-select-show-arrow ant-select-customize-input ant-select-show-search"
+      style="width: 100%;"
+    >
+      <div
+        class="ant-select-selector"
+      >
+        <span
+          class="ant-select-selection-search"
+        >
+          <input
+            aria-activedescendant="rc_select_TEST_OR_SSR_list_0"
+            aria-autocomplete="list"
+            aria-controls="rc_select_TEST_OR_SSR_list"
+            aria-haspopup="listbox"
+            aria-owns="rc_select_TEST_OR_SSR_list"
+            autocomplete="off"
+            class="ant-input ant-select-selection-search-input"
+            id="rc_select_TEST_OR_SSR"
+            placeholder="this is input"
+            role="combobox"
+            type="search"
+            value=""
+          />
+        </span>
+        <span
+          class="ant-select-selection-placeholder"
+        />
+      </div>
+      <span
+        aria-hidden="true"
+        class="ant-select-arrow"
+        style="user-select: none;"
+        unselectable="on"
+      >
+        <span
+          aria-label="down"
+          class="anticon anticon-down ant-select-suffix"
+          role="img"
+        >
+          <svg
+            aria-hidden="true"
+            data-icon="down"
+            fill="currentColor"
+            focusable="false"
+            height="1em"
+            viewBox="64 64 896 896"
+            width="1em"
+          >
+            <path
+              d="M884 256h-75c-5.1 0-9.9 2.5-12.9 6.6L512 654.2 227.9 262.6c-3-4.1-7.8-6.6-12.9-6.6h-75c-6.5 0-10.3 7.4-6.5 12.7l352.6 486.1c12.8 17.6 39 17.6 51.7 0l352.6-486.1c3.9-5.3.1-12.7-6.4-12.7z"
+            />
+          </svg>
+        </span>
+      </span>
+    </div>
+  </form>
+</DocumentFragment>
+`;
+
+exports[`Test Task Scaffolds Test InputWithColumns Component Should match snapshot 1`] = `
+<DocumentFragment>
+  <form
+    class="ant-form ant-form-horizontal"
+  >
+    <div
+      class="ant-form-item"
+    >
+      <div
+        class="ant-row ant-form-item-row"
+      >
+        <div
+          class="ant-col ant-form-item-label"
+        >
+          <label
+            class=""
+            for="sourceMap_type"
+            title="mockFormItem"
+          >
+            mockFormItem
+          </label>
+        </div>
+        <div
+          class="ant-col ant-form-item-control"
+        >
+          <div
+            class="ant-form-item-control-input"
+          >
+            <div
+              class="ant-form-item-control-input-content"
+            >
+              <input
+                class="ant-input"
+                id="sourceMap_type"
+                type="text"
+                value="9"
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <span
+      class="ant-input-affix-wrapper"
+    >
+      <input
+        class="ant-input"
+        event="[object Object]"
+        id="mock"
+        type="text"
+        value="1"
+      />
+      <span
+        class="ant-input-suffix"
+      >
+        <span
+          aria-label="cloud-sync"
+          class="anticon anticon-cloud-sync"
+          role="img"
+          tabindex="-1"
+        >
+          <svg
+            aria-hidden="true"
+            data-icon="cloud-sync"
+            fill="currentColor"
+            focusable="false"
+            height="1em"
+            viewBox="64 64 896 896"
+            width="1em"
+          >
+            <path
+              d="M811.4 368.9C765.6 248 648.9 162 512.2 162S258.8 247.9 213 368.8C126.9 391.5 63.5 470.2 64 563.6 64.6 668 145.6 752.9 247.6 762c4.7.4 8.7-3.3 8.7-8v-60.4c0-4-3-7.4-7-7.9-27-3.4-52.5-15.2-72.1-34.5-24-23.5-37.2-55.1-37.2-88.6 0-28 9.1-54.4 26.2-76.4 16.7-21.4 40.2-36.9 66.1-43.7l37.9-10 13.9-36.7c8.6-22.8 20.6-44.2 35.7-63.5 14.9-19.2 32.6-36 52.4-50 41.1-28.9 89.5-44.2 140-44.2s98.9 15.3 140 44.3c19.9 14 37.5 30.8 52.4 50 15.1 19.3 27.1 40.7 35.7 63.5l13.8 36.6 37.8 10c54.2 14.4 92.1 63.7 92.1 120 0 33.6-13.2 65.1-37.2 88.6-19.5 19.2-44.9 31.1-71.9 34.5-4 .5-6.9 3.9-6.9 7.9V754c0 4.7 4.1 8.4 8.8 8 101.7-9.2 182.5-94 183.2-198.2.6-93.4-62.7-172.1-148.6-194.9z"
+            />
+            <path
+              d="M376.9 656.4c1.8-33.5 15.7-64.7 39.5-88.6 25.4-25.5 60-39.8 96-39.8 36.2 0 70.3 14.1 96 39.8 1.4 1.4 2.7 2.8 4.1 4.3l-25 19.6a8 8 0 003 14.1l98.2 24c5 1.2 9.9-2.6 9.9-7.7l.5-101.3c0-6.7-7.6-10.5-12.9-6.3L663 532.7c-36.6-42-90.4-68.6-150.5-68.6-107.4 0-195 85.1-199.4 191.7-.2 4.5 3.4 8.3 8 8.3H369c4.2-.1 7.7-3.4 7.9-7.7zM703 664h-47.9c-4.2 0-7.7 3.3-8 7.6-1.8 33.5-15.7 64.7-39.5 88.6-25.4 25.5-60 39.8-96 39.8-36.2 0-70.3-14.1-96-39.8-1.4-1.4-2.7-2.8-4.1-4.3l25-19.6a8 8 0 00-3-14.1l-98.2-24c-5-1.2-9.9 2.6-9.9 7.7l-.4 101.4c0 6.7 7.6 10.5 12.9 6.3l23.2-18.2c36.6 42 90.4 68.6 150.5 68.6 107.4 0 195-85.1 199.4-191.7.2-4.5-3.4-8.3-8-8.3z"
+            />
+          </svg>
+        </span>
+      </span>
+    </span>
+  </form>
+</DocumentFragment>
+`;
+
+exports[`Test Task Scaffolds Test ResourcePicker Component Should match snapshot 1`] = `
+<DocumentFragment>
+  <input
+    data-testid="mockFolderPicker"
+  />
+</DocumentFragment>
+`;
+
+exports[`Test Task Scaffolds Test SelectWithCreate Component Should match snapshot 1`] = `
+<DocumentFragment>
+  <form
+    class="ant-form ant-form-horizontal"
+  >
+    <div
+      class="ant-select ant-select-single ant-select-show-arrow ant-select-show-search"
+      style="width: 100%;"
+    >
+      <div
+        class="ant-select-selector"
+      >
+        <span
+          class="ant-select-selection-search"
+        >
+          <input
+            aria-activedescendant="rc_select_TEST_OR_SSR_list_0"
+            aria-autocomplete="list"
+            aria-controls="rc_select_TEST_OR_SSR_list"
+            aria-haspopup="listbox"
+            aria-owns="rc_select_TEST_OR_SSR_list"
+            autocomplete="off"
+            class="ant-select-selection-search-input"
+            id="rc_select_TEST_OR_SSR"
+            role="combobox"
+            type="search"
+            value=""
+          />
+        </span>
+        <span
+          class="ant-select-selection-placeholder"
+        />
+      </div>
+      <span
+        aria-hidden="true"
+        class="ant-select-arrow"
+        style="user-select: none;"
+        unselectable="on"
+      >
+        <span
+          aria-label="console-sql"
+          class="anticon anticon-console-sql"
+          role="img"
+          tabindex="-1"
+        >
+          <svg
+            aria-hidden="true"
+            data-icon="console-sql"
+            fill="currentColor"
+            focusable="false"
+            height="1em"
+            viewBox="64 64 896 896"
+            width="1em"
+          >
+            <defs>
+              <style />
+            </defs>
+            <path
+              d="M301.3 496.7c-23.8 0-40.2-10.5-41.6-26.9H205c.9 43.4 36.9 70.3 93.9 70.3 59.1 0 95-28.4 95-75.5 0-35.8-20-55.9-64.5-64.5l-29.1-5.6c-23.8-4.7-33.8-11.9-33.8-24.2 0-15 13.3-24.5 33.4-24.5 20.1 0 35.3 11.1 36.6 27h53c-.9-41.7-37.5-70.3-90.3-70.3-54.4 0-89.7 28.9-89.7 73 0 35.5 21.2 58 62.5 65.8l29.7 5.9c25.8 5.2 35.6 11.9 35.6 24.4.1 14.7-14.5 25.1-36 25.1z"
+            />
+            <path
+              d="M928 140H96c-17.7 0-32 14.3-32 32v496c0 17.7 14.3 32 32 32h380v112H304c-8.8 0-16 7.2-16 16v48c0 4.4 3.6 8 8 8h432c4.4 0 8-3.6 8-8v-48c0-8.8-7.2-16-16-16H548V700h380c17.7 0 32-14.3 32-32V172c0-17.7-14.3-32-32-32zm-40 488H136V212h752v416z"
+            />
+            <path
+              d="M828.5 486.7h-95.8V308.5h-57.4V534h153.2zm-298.6 53.4c14.1 0 27.2-2 39.1-5.8l13.3 20.3h53.3L607.9 511c21.1-20 33-51.1 33-89.8 0-73.3-43.3-118.8-110.9-118.8s-111.2 45.3-111.2 118.8c-.1 73.7 43 118.9 111.1 118.9zm0-190c31.6 0 52.7 27.7 52.7 71.1 0 16.7-3.6 30.6-10 40.5l-5.2-6.9h-48.8L542 491c-3.9.9-8 1.4-12.2 1.4-31.7 0-52.8-27.5-52.8-71.2.1-43.6 21.2-71.1 52.9-71.1z"
+            />
+          </svg>
+        </span>
+      </span>
+    </div>
+    <p
+      data-testid="antd-mock-Modal-title"
+    >
+      建表语句
+    </p>
+    <textarea
+      data-testid="mockEditor"
+    />
+    <button
+      data-testid="antd-mock-Modal-confirm"
+    >
+      confirm
+    </button>
+  </form>
+</DocumentFragment>
+`;
+
+exports[`Test Task Scaffolds Test SelectWithPreviewer Component Should match snapshot 1`] = `
+<DocumentFragment>
+  <form
+    class="ant-form ant-form-horizontal"
+  >
+    <div
+      class="ant-select ant-select-single ant-select-show-arrow ant-select-show-search"
+      style="width: 100%;"
+    >
+      <div
+        class="ant-select-selector"
+      >
+        <span
+          class="ant-select-selection-search"
+        >
+          <input
+            aria-activedescendant="rc_select_TEST_OR_SSR_list_0"
+            aria-autocomplete="list"
+            aria-controls="rc_select_TEST_OR_SSR_list"
+            aria-haspopup="listbox"
+            aria-owns="rc_select_TEST_OR_SSR_list"
+            autocomplete="off"
+            class="ant-select-selection-search-input"
+            id="rc_select_TEST_OR_SSR"
+            role="combobox"
+            type="search"
+            value=""
+          />
+        </span>
+        <span
+          class="ant-select-selection-placeholder"
+        />
+      </div>
+      <span
+        aria-hidden="true"
+        class="ant-select-arrow"
+        style="user-select: none;"
+        unselectable="on"
+      >
+        <span
+          aria-label="fund-view"
+          class="anticon anticon-fund-view"
+          role="img"
+          style="pointer-events: none;"
+          tabindex="-1"
+        >
+          <svg
+            aria-hidden="true"
+            data-icon="fund-view"
+            fill="currentColor"
+            focusable="false"
+            height="1em"
+            viewBox="64 64 896 896"
+            width="1em"
+          >
+            <defs>
+              <style />
+            </defs>
+            <path
+              d="M956 686.5l-.1-.1-.1-.1C911.7 593 843.4 545 752.5 545s-159.2 48.1-203.4 141.3v.1a42.92 42.92 0 000 36.4C593.3 816 661.6 864 752.5 864s159.2-48.1 203.4-141.3c5.4-11.5 5.4-24.8.1-36.2zM752.5 800c-62.1 0-107.4-30-141.1-95.5C645 639 690.4 609 752.5 609c62.1 0 107.4 30 141.1 95.5C860 770 814.6 800 752.5 800z"
+            />
+            <path
+              d="M697 705a56 56 0 10112 0 56 56 0 10-112 0zM136 232h704v253h72V192c0-17.7-14.3-32-32-32H96c-17.7 0-32 14.3-32 32v520c0 17.7 14.3 32 32 32h352v-72H136V232z"
+            />
+            <path
+              d="M724.9 338.1l-36.8-36.8a8.03 8.03 0 00-11.3 0L493 485.3l-86.1-86.2a8.03 8.03 0 00-11.3 0L251.3 543.4a8.03 8.03 0 000 11.3l36.8 36.8c3.1 3.1 8.2 3.1 11.3 0l101.8-101.8 86.1 86.2c3.1 3.1 8.2 3.1 11.3 0l226.3-226.5c3.2-3.1 3.2-8.2 0-11.3z"
+            />
+          </svg>
+        </span>
+      </span>
+    </div>
+  </form>
+</DocumentFragment>
+`;
+
+exports[`Test Task Scaffolds Test SelectWithRequest Component Should match snapshot 1`] = `
+<DocumentFragment>
+  <form
+    class="ant-form ant-form-horizontal"
+  >
+    <div
+      class="ant-select ant-select-single ant-select-allow-clear ant-select-show-arrow ant-select-show-search"
+      style="width: 100%;"
+    >
+      <div
+        class="ant-select-selector"
+      >
+        <span
+          class="ant-select-selection-search"
+        >
+          <input
+            aria-activedescendant="rc_select_TEST_OR_SSR_list_0"
+            aria-autocomplete="list"
+            aria-controls="rc_select_TEST_OR_SSR_list"
+            aria-haspopup="listbox"
+            aria-owns="rc_select_TEST_OR_SSR_list"
+            autocomplete="off"
+            class="ant-select-selection-search-input"
+            id="rc_select_TEST_OR_SSR"
+            role="combobox"
+            type="search"
+            value=""
+          />
+        </span>
+        <span
+          class="ant-select-selection-placeholder"
+        />
+      </div>
+      <span
+        aria-hidden="true"
+        class="ant-select-arrow"
+        style="user-select: none;"
+        unselectable="on"
+      >
+        <span
+          aria-label="down"
+          class="anticon anticon-down ant-select-suffix"
+          role="img"
+        >
+          <svg
+            aria-hidden="true"
+            data-icon="down"
+            fill="currentColor"
+            focusable="false"
+            height="1em"
+            viewBox="64 64 896 896"
+            width="1em"
+          >
+            <path
+              d="M884 256h-75c-5.1 0-9.9 2.5-12.9 6.6L512 654.2 227.9 262.6c-3-4.1-7.8-6.6-12.9-6.6h-75c-6.5 0-10.3 7.4-6.5 12.7l352.6 486.1c12.8 17.6 39 17.6 51.7 0l352.6-486.1c3.9-5.3.1-12.7-6.4-12.7z"
+            />
+          </svg>
+        </span>
+      </span>
+    </div>
+  </form>
+</DocumentFragment>
+`;
+
+exports[`Test Task Scaffolds Test TextareaWithJSONValidator Component Should match snapshot 1`] = `
+<DocumentFragment>
+  <textarea
+    class="ant-input"
+  />
+</DocumentFragment>
+`;

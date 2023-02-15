@@ -1,29 +1,29 @@
 .produce-auth {
-	display: flex;
-	justify-content: center;
-	height: 100%;
-	color: #333;
-	font-weight: 400;
-	font-size: 12px;
-	line-height: 20px;
+    display: flex;
+    justify-content: center;
+    height: 100%;
+    color: #333;
+    font-weight: 400;
+    font-size: 12px;
+    line-height: 20px;
 
-	.text-show {
-		width: 50%;
-		height: 100%;
+    .text-show {
+        width: 50%;
+        height: 100%;
 
-		&:first-child p {
-			margin-bottom: 20px;
-			color: #666;
-		}
-	}
+        &:first-child p {
+            margin-bottom: 20px;
+            color: #666;
+        }
+    }
 
-	.version-sel {
-		margin: 20px 0;
-	}
+    .version-sel {
+        margin: 20px 0;
+    }
 
-	.version {
-		display: inline-block;
-		width: 60px;
-		text-align: right;
-	}
+    .version {
+        display: inline-block;
+        width: 60px;
+        text-align: right;
+    }
 }

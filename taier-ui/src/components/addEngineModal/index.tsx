@@ -24,7 +24,7 @@ import './index.scss';
 const FormItem = Form.Item;
 
 interface IEngineModalProps extends Omit<ModalProps, 'onOk'> {
-	onOk?: (values: { clusterName: string }) => void;
+    onOk?: (values: { clusterName: string }) => void;
 }
 
 /**
@@ -32,35 +32,37 @@ interface IEngineModalProps extends Omit<ModalProps, 'onOk'> {
  * 新增集群、增加组件、增加引擎共用组件
  */
 export default ({ onOk, ...restModalProps }: IEngineModalProps) => {
-	const [form] = Form.useForm();
+    const [form] = Form.useForm();
 
-	const handleSubmit = () => {
-		form.validateFields().then((values) => {
-			onOk?.({ clusterName: values.clusterName });
-		});
-	};
+    const handleSubmit = () => {
+        form.validateFields()
+            .then((values) => {
+                onOk?.({ clusterName: values.clusterName });
+            })
+            .catch(() => {});
+    };
 
-	return (
-		<Modal onOk={handleSubmit} className="c-clusterManage__modal" {...restModalProps}>
-			<Form form={form} autoComplete="off">
-				<FormItem
-					label="集群名称"
-					{...formItemLayout}
-					name="clusterName"
-					rules={[
-						{
-							required: true,
-							message: '集群标识不可为空！',
-						},
-						{
-							pattern: /^[a-z0-9_]{1,64}$/i,
-							message: '集群标识不能超过64字符，支持英文、数字、下划线',
-						},
-					]}
-				>
-					<Input placeholder="请输入集群标识" />
-				</FormItem>
-			</Form>
-		</Modal>
-	);
+    return (
+        <Modal onOk={handleSubmit} className="c-clusterManage__modal" {...restModalProps}>
+            <Form form={form} autoComplete="off">
+                <FormItem
+                    label="集群名称"
+                    {...formItemLayout}
+                    name="clusterName"
+                    rules={[
+                        {
+                            required: true,
+                            message: '集群标识不可为空！',
+                        },
+                        {
+                            pattern: /^[a-z0-9_]{1,64}$/i,
+                            message: '集群标识不能超过64字符，支持英文、数字、下划线',
+                        },
+                    ]}
+                >
+                    <Input placeholder="请输入集群标识" />
+                </FormItem>
+            </Form>
+        </Modal>
+    );
 };

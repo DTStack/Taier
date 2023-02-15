@@ -7,344 +7,347 @@ import { TreeViewUtil } from '@dtinsight/molecule/esm/common/treeUtil';
 import { fileIcon, getParentNode, runTask, syntaxValidate } from '../extensions';
 
 jest.mock('@/services/taskSaveService', () => {
-	return {
-		transformTabDataToParams: jest.fn(),
-	};
+    return {
+        transformTabDataToParams: jest.fn(),
+    };
 });
 
 jest.mock('@/services/taskResultService', () => {
-	return {
-		getState: jest.fn(() => ({ results: { test: 'test' } })),
-		clearLogs: jest.fn(),
-		appendLogs: jest.fn(),
-		createLog: jest.fn(),
-	};
+    return {
+        getState: jest.fn(() => ({ results: { test: 'test' } })),
+        clearLogs: jest.fn(),
+        appendLogs: jest.fn(),
+        createLog: jest.fn(),
+    };
 });
 
 jest.mock('@/services', () => {
-	return {
-		executeService: {
-			execDataSync: jest.fn(),
-			execSql: jest.fn(() => Promise.resolve()),
-		},
-		taskRenderService: {
-			renderTaskIcon: jest.fn((type) => type),
-		},
-	};
+    return {
+        executeService: {
+            execDataSync: jest.fn(),
+            execSql: jest.fn(() => Promise.resolve()),
+        },
+        taskRenderService: {
+            renderTaskIcon: jest.fn((type) => type),
+            getField: jest.fn(),
+            getRenderKind: jest.fn(),
+        },
+    };
 });
 
 jest.mock('@/api', () => {
-	return {
-		checkSyntax: jest.fn(),
-	};
+    return {
+        checkSyntax: jest.fn(),
+    };
 });
 
 describe('utils/extensions', () => {
-	beforeAll(() => {
-		(molecule.panel.getState as jest.Mock)
-			.mockReset()
-			.mockImplementation(() => ({ data: [{ id: 'panel.output.log' }] }));
-	});
+    beforeAll(() => {
+        (molecule.panel.getState as jest.Mock)
+            .mockReset()
+            .mockImplementation(() => ({ data: [{ id: 'panel.output.log' }] }));
+    });
 
-	it('Should render file icon', () => {
-		expect(fileIcon(null, CATALOGUE_TYPE.FUNCTION)).toBe('code');
-		expect(fileIcon(null, CATALOGUE_TYPE.RESOURCE)).toMatchSnapshot();
-		expect(fileIcon(TASK_TYPE_ENUM.SQL, CATALOGUE_TYPE.TASK)).toBe(TASK_TYPE_ENUM.SQL);
+    it('Should render file icon', () => {
+        expect(fileIcon(null, CATALOGUE_TYPE.FUNCTION)).toBe('code');
+        expect(fileIcon(null, CATALOGUE_TYPE.RESOURCE)).toMatchSnapshot();
+        expect(fileIcon(TASK_TYPE_ENUM.SQL, CATALOGUE_TYPE.TASK)).toBe(TASK_TYPE_ENUM.SQL);
 
-		expect(taskRenderService.renderTaskIcon).toBeCalled();
-	});
+        expect(taskRenderService.renderTaskIcon).toBeCalled();
+    });
 
-	it('Should run task with some effects', async () => {
-		// Mock the molecule.layout.getState
-		(molecule.layout.getState as jest.Mock)
-			.mockReset()
-			.mockImplementationOnce(() => ({ panel: { hidden: false } }))
-			.mockImplementation(() => ({ panel: { hidden: true } }));
+    it('Should run task with some effects', async () => {
+        // Mock the molecule.layout.getState
+        (molecule.layout.getState as jest.Mock)
+            .mockReset()
+            .mockImplementationOnce(() => ({ panel: { hidden: false } }))
+            .mockImplementation(() => ({ panel: { hidden: true } }));
 
-		(molecule.panel.getPanel as jest.Mock)
-			.mockReset()
-			.mockImplementationOnce(() => undefined)
-			.mockImplementation(() => ({ id: 'test' }));
+        (molecule.panel.getPanel as jest.Mock)
+            .mockReset()
+            .mockImplementationOnce(() => undefined)
+            .mockImplementation(() => ({ id: 'test' }));
 
-		runTask({
-			id: 1,
-			tab: {
-				id: 1,
-				data: {
-					id: 'test',
-					name: 'test',
-					taskParams: [],
-					taskType: TASK_TYPE_ENUM.SYNC,
-				},
-			},
-		});
+        (taskRenderService.getField as jest.Mock).mockReset().mockImplementation(() => ({
+            key: 0,
+            value: 'SparkSQL',
+            computeType: 1,
+            jobType: 0,
+        }));
 
-		// At first time called, the panel is visible because of the return value of molecule.layout.getState
-		expect(molecule.layout.togglePanelVisibility).not.toBeCalled();
-		// Whatever the log panel is hidden or visible, the activated panel must be the log panel
-		expect(molecule.panel.setState).toBeCalledWith({ current: { id: 'panel.output.log' } });
+        (taskRenderService.getRenderKind as jest.Mock).mockReset().mockImplementation(() => 'editor');
 
-		expect(executeService.execDataSync).toBeCalledWith('test', {
-			taskId: 'test',
-			name: 'test',
-			taskParams: [],
-		});
+        runTask({
+            id: 1,
+            tab: {
+                id: 1,
+                data: {
+                    id: 'test',
+                    name: 'test',
+                    taskParams: [],
+                    taskType: TASK_TYPE_ENUM.SYNC,
+                },
+            },
+        });
 
-		const current = {
-			id: 1,
-			tab: {
-				id: 1,
-				data: {
-					id: 'test',
-					name: 'test',
-					taskParams: [],
-					taskVariables: [],
-					taskType: TASK_TYPE_ENUM.SPARK_SQL,
-					value: 'show tables; select * from A;',
-				},
-			},
-		};
-		// First time the getSelection returns undefined, so execute all sqls
-		runTask(current);
+        // At first time called, the panel is visible because of the return value of molecule.layout.getState
+        expect(molecule.layout.togglePanelVisibility).not.toBeCalled();
+        // Whatever the log panel is hidden or visible, the activated panel must be the log panel
+        expect(molecule.panel.setState).toBeCalledWith({ current: { id: 'panel.output.log' } });
 
-		// Toggle the log panel and set this panel active since this panel is hidden
-		expect(molecule.layout.togglePanelVisibility).toBeCalled();
+        expect(executeService.execDataSync).toBeCalledWith('test', {
+            taskId: 'test',
+            name: 'test',
+            taskParams: [],
+        });
 
-		expect(executeService.execSql).toBeCalledWith(
-			'test',
-			current.tab.data,
-			{
-				taskVariables: [],
-				singleSession: false,
-				taskParams: [],
-			},
-			['show tables', 'select * from A'],
-		);
-		// Delay expect because then is a micro task
-		await new Promise<void>((resolve) => {
-			setTimeout(() => {
-				expect(molecule.panel.add).toBeCalledWith(
-					expect.objectContaining({
-						id: 'test',
-						name: '结果 1',
-						closable: true,
-					}),
-				);
-				expect(
-					(molecule.panel.add as jest.Mock).mock.calls[0][0].renderPane(),
-				).toMatchSnapshot();
-				resolve();
-			}, 0);
-		});
+        const current = {
+            id: 1,
+            tab: {
+                id: 1,
+                data: {
+                    id: 'test',
+                    name: 'test',
+                    taskParams: [],
+                    taskVariables: [],
+                    taskType: TASK_TYPE_ENUM.SPARK_SQL,
+                    value: 'show tables; select * from A;',
+                },
+            },
+        };
+        // First time the getSelection returns undefined, so execute all sqls
+        runTask(current);
 
-		// Second time the getSelection returns same point, so execute all sqls
-		runTask(current);
-		expect(executeService.execSql).toBeCalledWith(
-			'test',
-			current.tab.data,
-			{
-				taskVariables: [],
-				singleSession: false,
-				taskParams: [],
-			},
-			['show tables', 'select * from A'],
-		);
+        // Toggle the log panel and set this panel active since this panel is hidden
+        expect(molecule.layout.togglePanelVisibility).toBeCalled();
 
-		// Third time the getSelection returns correct selection, so execute selected sql
-		runTask(current);
-		expect(executeService.execSql).toBeCalledWith(
-			'test',
-			current.tab.data,
-			{
-				taskVariables: [],
-				singleSession: false,
-				taskParams: [],
-			},
-			['show tables'],
-		);
-	});
+        expect(executeService.execSql).toBeCalledWith(
+            'test',
+            current.tab.data,
+            {
+                taskVariables: [],
+                singleSession: false,
+                taskParams: [],
+            },
+            ['show tables', 'select * from A']
+        );
+        // Delay expect because then is a micro task
+        await new Promise<void>((resolve) => {
+            setTimeout(() => {
+                expect(molecule.panel.add).toBeCalledWith(
+                    expect.objectContaining({
+                        id: 'test',
+                        name: '结果 1',
+                        closable: true,
+                    })
+                );
+                expect((molecule.panel.add as jest.Mock).mock.calls[0][0].renderPane()).toMatchSnapshot();
+                resolve();
+            }, 0);
+        });
 
-	it('Should validate syntax failed', async () => {
-		(molecule.layout.togglePanelVisibility as jest.Mock).mockClear();
+        // Second time the getSelection returns same point, so execute all sqls
+        runTask(current);
+        expect(executeService.execSql).toBeCalledWith(
+            'test',
+            current.tab.data,
+            {
+                taskVariables: [],
+                singleSession: false,
+                taskParams: [],
+            },
+            ['show tables', 'select * from A']
+        );
 
-		(molecule.layout.getState as jest.Mock)
-			.mockReset()
-			.mockImplementation(() => ({ panel: { hidden: false } }));
+        // Third time the getSelection returns correct selection, so execute selected sql
+        runTask(current);
+        expect(executeService.execSql).toBeCalledWith(
+            'test',
+            current.tab.data,
+            {
+                taskVariables: [],
+                singleSession: false,
+                taskParams: [],
+            },
+            ['show tables']
+        );
+    });
 
-		(api.checkSyntax as jest.Mock).mockReset().mockImplementation(() => Promise.reject());
+    it('Should validate syntax failed', async () => {
+        (molecule.layout.togglePanelVisibility as jest.Mock).mockClear();
 
-		const originalTrace = console.trace;
-		console.trace = jest.fn();
+        (molecule.layout.getState as jest.Mock).mockReset().mockImplementation(() => ({ panel: { hidden: false } }));
 
-		syntaxValidate({
-			id: 1,
-			tab: {
-				id: 1,
-				data: {
-					id: 'test',
-				},
-			},
-		});
+        (api.checkSyntax as jest.Mock).mockReset().mockImplementation(() => Promise.reject());
 
-		// To disabled syntax button
-		expect(molecule.editor.updateActions).toBeCalledWith([
-			{
-				id: 'task.syntax',
-				icon: 'loading~spin',
-				disabled: true,
-			},
-		]);
+        const originalTrace = console.trace;
+        console.trace = jest.fn();
 
-		// At first time called, the molecule.layout.getState returns false
-		expect(molecule.layout.togglePanelVisibility).not.toBeCalled();
-		// Whatever the log panel is hidden or visible, the activated panel must be the log panel
-		expect(molecule.panel.setState).toBeCalledWith({ current: { id: 'panel.output.log' } });
+        syntaxValidate({
+            id: 1,
+            tab: {
+                id: 1,
+                data: {
+                    id: 'test',
+                },
+            },
+        });
 
-		await new Promise<void>((resolve) => {
-			setTimeout(() => {
-				// Reject would call console.trace
-				expect(console.trace).toBeCalled();
+        // To disabled syntax button
+        expect(molecule.editor.updateActions).toBeCalledWith([
+            {
+                id: 'task.syntax',
+                icon: 'loading~spin',
+                disabled: true,
+            },
+        ]);
 
-				expect(createLog).toBeCalledWith('语法检查失败！', 'error');
-				expect(taskResultService.appendLogs).toBeCalled();
+        // At first time called, the molecule.layout.getState returns false
+        expect(molecule.layout.togglePanelVisibility).not.toBeCalled();
+        // Whatever the log panel is hidden or visible, the activated panel must be the log panel
+        expect(molecule.panel.setState).toBeCalledWith({ current: { id: 'panel.output.log' } });
 
-				// To restore the button
-				expect(molecule.editor.updateActions).toBeCalledWith([
-					expect.objectContaining({
-						id: 'task.syntax',
-						disabled: false,
-					}),
-				]);
+        await new Promise<void>((resolve) => {
+            setTimeout(() => {
+                // Reject would call console.trace
+                expect(console.trace).toBeCalled();
 
-				console.trace = originalTrace;
-				resolve();
-			}, 0);
-		});
-	});
+                expect(createLog).toBeCalledWith('语法检查失败！', 'error');
+                expect(taskResultService.appendLogs).toBeCalled();
 
-	it('Should validate syntax success', async () => {
-		(molecule.layout.togglePanelVisibility as jest.Mock).mockClear();
+                // To restore the button
+                expect(molecule.editor.updateActions).toBeCalledWith([
+                    expect.objectContaining({
+                        id: 'task.syntax',
+                        disabled: false,
+                    }),
+                ]);
 
-		(molecule.layout.getState as jest.Mock)
-			.mockReset()
-			.mockImplementation(() => ({ panel: { hidden: true } }));
+                console.trace = originalTrace;
+                resolve();
+            }, 0);
+        });
+    });
 
-		(api.checkSyntax as jest.Mock)
-			.mockReset()
-			.mockImplementationOnce(() => Promise.resolve({ code: 100, message: 'test' }))
-			.mockImplementationOnce(() =>
-				Promise.resolve({ code: 1, data: { code: 100, errorMsg: 'errorMsg' } }),
-			)
-			.mockImplementation(() => Promise.resolve({ code: 1, data: { code: 1 } }));
+    it('Should validate syntax success', async () => {
+        (molecule.layout.togglePanelVisibility as jest.Mock).mockClear();
 
-		(createLog as jest.Mock).mockClear();
-		(taskResultService.appendLogs as jest.Mock).mockClear();
+        (molecule.layout.getState as jest.Mock).mockReset().mockImplementation(() => ({ panel: { hidden: true } }));
 
-		syntaxValidate({
-			id: 1,
-			tab: {
-				id: 1,
-				data: {
-					id: 'test',
-				},
-			},
-		});
+        (api.checkSyntax as jest.Mock)
+            .mockReset()
+            .mockImplementationOnce(() => Promise.resolve({ code: 100, message: 'test' }))
+            .mockImplementationOnce(() => Promise.resolve({ code: 1, data: { code: 100, errorMsg: 'errorMsg' } }))
+            .mockImplementation(() => Promise.resolve({ code: 1, data: { code: 1 } }));
 
-		expect(molecule.layout.togglePanelVisibility).toBeCalled();
+        (createLog as jest.Mock).mockClear();
+        (taskResultService.appendLogs as jest.Mock).mockClear();
 
-		await new Promise<void>((resolve) => {
-			setTimeout(() => {
-				expect(createLog).toBeCalledWith('test', 'error');
-				expect(taskResultService.appendLogs).toBeCalled();
+        syntaxValidate({
+            id: 1,
+            tab: {
+                id: 1,
+                data: {
+                    id: 'test',
+                },
+            },
+        });
 
-				expect(createLog).toBeCalledWith('语法检查失败！', 'error');
-				expect(taskResultService.appendLogs).toBeCalled();
-				resolve();
-			}, 0);
-		});
+        expect(molecule.layout.togglePanelVisibility).toBeCalled();
 
-		syntaxValidate({
-			id: 1,
-			tab: {
-				id: 1,
-				data: {
-					id: 'test',
-				},
-			},
-		});
+        await new Promise<void>((resolve) => {
+            setTimeout(() => {
+                expect(createLog).toBeCalledWith('test', 'error');
+                expect(taskResultService.appendLogs).toBeCalled();
 
-		await new Promise<void>((resolve) => {
-			setTimeout(() => {
-				expect(createLog).toBeCalledWith('errorMsg', 'error');
-				expect(taskResultService.appendLogs).toBeCalled();
+                expect(createLog).toBeCalledWith('语法检查失败！', 'error');
+                expect(taskResultService.appendLogs).toBeCalled();
+                resolve();
+            }, 0);
+        });
 
-				expect(createLog).toBeCalledWith('语法检查失败！', 'error');
-				expect(taskResultService.appendLogs).toBeCalled();
-				resolve();
-			}, 0);
-		});
+        syntaxValidate({
+            id: 1,
+            tab: {
+                id: 1,
+                data: {
+                    id: 'test',
+                },
+            },
+        });
 
-		// reset the count of log functions
-		(createLog as jest.Mock).mockClear();
-		(taskResultService.appendLogs as jest.Mock).mockClear();
+        await new Promise<void>((resolve) => {
+            setTimeout(() => {
+                expect(createLog).toBeCalledWith('errorMsg', 'error');
+                expect(taskResultService.appendLogs).toBeCalled();
 
-		// succeed
-		syntaxValidate({
-			id: 1,
-			tab: {
-				id: 1,
-				data: {
-					id: 'test',
-				},
-			},
-		});
+                expect(createLog).toBeCalledWith('语法检查失败！', 'error');
+                expect(taskResultService.appendLogs).toBeCalled();
+                resolve();
+            }, 0);
+        });
 
-		await new Promise<void>((resolve) => {
-			setTimeout(() => {
-				expect(createLog).toBeCalledWith('语法检查通过', 'info');
-				expect(taskResultService.appendLogs).toBeCalledTimes(2);
+        // reset the count of log functions
+        (createLog as jest.Mock).mockClear();
+        (taskResultService.appendLogs as jest.Mock).mockClear();
 
-				expect(createLog).not.toBeCalledWith('语法检查失败！', 'error');
-				expect(taskResultService.appendLogs).toBeCalledTimes(2);
-				resolve();
-			}, 0);
-		});
-	});
+        // succeed
+        syntaxValidate({
+            id: 1,
+            tab: {
+                id: 1,
+                data: {
+                    id: 'test',
+                },
+            },
+        });
 
-	it('Should support to find parent node', () => {
-		const mockNode = jest.fn();
-		(TreeViewUtil as jest.Mock)
-			.mockImplementationOnce(() => ({
-				getHashMap: jest.fn(),
-				getNode: jest.fn((node) => node),
-			}))
-			.mockImplementation(() => ({
-				getHashMap: jest.fn().mockImplementation(() => ({
-					parent: mockNode,
-				})),
-				getNode: jest.fn((node) => node),
-			}));
+        await new Promise<void>((resolve) => {
+            setTimeout(() => {
+                expect(createLog).toBeCalledWith('语法检查通过', 'info');
+                expect(taskResultService.appendLogs).toBeCalledTimes(2);
 
-		expect(
-			getParentNode(
-				{
-					id: '1',
-				},
-				{
-					id: '2',
-				},
-			),
-		).toBe(null);
+                expect(createLog).not.toBeCalledWith('语法检查失败！', 'error');
+                expect(taskResultService.appendLogs).toBeCalledTimes(2);
+                resolve();
+            }, 0);
+        });
+    });
 
-		expect(
-			getParentNode(
-				{
-					id: '1',
-				},
-				{
-					id: '1',
-				},
-			),
-		).toBe(mockNode);
-	});
+    it('Should support to find parent node', () => {
+        const mockNode = jest.fn();
+        (TreeViewUtil as jest.Mock)
+            .mockImplementationOnce(() => ({
+                getHashMap: jest.fn(),
+                getNode: jest.fn((node) => node),
+            }))
+            .mockImplementation(() => ({
+                getHashMap: jest.fn().mockImplementation(() => ({
+                    parent: mockNode,
+                })),
+                getNode: jest.fn((node) => node),
+            }));
+
+        expect(
+            getParentNode(
+                {
+                    id: '1',
+                },
+                {
+                    id: '2',
+                }
+            )
+        ).toBe(null);
+
+        expect(
+            getParentNode(
+                {
+                    id: '1',
+                },
+                {
+                    id: '1',
+                }
+            )
+        ).toBe(mockNode);
+    });
 });

@@ -1,0 +1,288 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Test TaskRenderService Should all icons 1`] = `
+<SparkSQLIcon
+  style={
+    Object {
+      "color": "#519aba",
+    }
+  }
+/>
+`;
+
+exports[`Test TaskRenderService Should all icons 2`] = `"sync"`;
+
+exports[`Test TaskRenderService Should all icons 3`] = `
+<HiveSQLIcon
+  style={
+    Object {
+      "color": "#4291f0",
+    }
+  }
+/>
+`;
+
+exports[`Test TaskRenderService Should all icons 4`] = `
+<FlinkSQLIcon
+  style={
+    Object {
+      "color": "#5655d8",
+    }
+  }
+/>
+`;
+
+exports[`Test TaskRenderService Should all icons 5`] = `
+<DataCollectionIcon
+  style={
+    Object {
+      "color": "#3F87FF",
+    }
+  }
+/>
+`;
+
+exports[`Test TaskRenderService Should all icons 6`] = `<FlinkIcon />`;
+
+exports[`Test TaskRenderService Should all icons 7`] = `<OceanBaseIcon />`;
+
+exports[`Test TaskRenderService Should all icons 8`] = `<VirtualIcon />`;
+
+exports[`Test TaskRenderService Should all icons 9`] = `
+<WorkflowIcon
+  style={
+    Object {
+      "color": "#2491F7",
+    }
+  }
+/>
+`;
+
+exports[`Test TaskRenderService Should all icons 10`] = `<PythonIcon />`;
+
+exports[`Test TaskRenderService Should all icons 11`] = `<ShellIcon />`;
+
+exports[`Test TaskRenderService Should all icons 12`] = `<ClickhouseIcon />`;
+
+exports[`Test TaskRenderService Should all icons 13`] = `<SparkIcon />`;
+
+exports[`Test TaskRenderService Should all icons 14`] = `<DorisIcon />`;
+
+exports[`Test TaskRenderService Should all icons 15`] = `<MysqlIcon />`;
+
+exports[`Test TaskRenderService Should all icons 16`] = `<GreenPlumIcon />`;
+
+exports[`Test TaskRenderService Should all icons 17`] = `<PostgreSqlIcon />`;
+
+exports[`Test TaskRenderService Should all icons 18`] = `
+<SqlServerIcon
+  style={
+    Object {
+      "color": "#bf4339",
+    }
+  }
+/>
+`;
+
+exports[`Test TaskRenderService Should all icons 19`] = `
+<TiDbIcon
+  style={
+    Object {
+      "color": "#bf4339",
+    }
+  }
+/>
+`;
+
+exports[`Test TaskRenderService Should all icons 20`] = `<VerticaIcon />`;
+
+exports[`Test TaskRenderService Should all icons 21`] = `"file"`;
+
+exports[`Test TaskRenderService Should filled with default value 1`] = `
+Object {
+  "supportSourceList": Object {
+    "dataAcquisitionReader": null,
+    "dataAcquisitionWriter": null,
+    "flinkSqlSides": Array [
+      1,
+    ],
+    "flinkSqlSinks": Array [
+      1,
+      39,
+      33,
+      46,
+    ],
+    "flinkSqlSources": Array [
+      26,
+      17,
+      37,
+      14,
+    ],
+    "readers": Array [
+      1,
+    ],
+    "writers": Array [
+      1,
+    ],
+  },
+  "supportTaskList": Array [
+    Object {
+      "computeType": 1,
+      "jobType": 0,
+      "key": 0,
+      "taskProperties": Object {
+        "actions": Array [
+          "SAVE_TASK",
+        ],
+        "actionsCondition": null,
+        "barItem": Array [
+          "task",
+          "dependency",
+          "task_params",
+          "env_params",
+        ],
+        "barItemCondition": null,
+        "dataTypeCodes": Array [
+          45,
+        ],
+        "formField": Array [
+          "datasource",
+          "queue",
+          "test",
+        ],
+        "renderCondition": null,
+        "renderKind": "editor",
+      },
+      "value": "SparkSQL",
+    },
+    Object {
+      "computeType": 0,
+      "jobType": 1,
+      "key": 11,
+      "taskProperties": Object {
+        "actions": Array [
+          "SAVE_TASK",
+          "SUBMIT_TASK",
+          "OPERATOR_TASK",
+        ],
+        "actionsCondition": null,
+        "barItem": Array [
+          "env_params",
+        ],
+        "barItemCondition": null,
+        "dataTypeCodes": null,
+        "formField": Array [
+          "resourceIdList",
+          "mainClass",
+          "exeArgs",
+          "componentVersion",
+        ],
+        "renderCondition": null,
+        "renderKind": "flink",
+      },
+      "value": "Flink",
+    },
+    Object {
+      "computeType": 1,
+      "jobType": 2,
+      "key": 2,
+      "taskProperties": Object {
+        "actions": Array [],
+        "actionsCondition": Object {
+          "actions": Array [
+            "SAVE_TASK",
+          ],
+          "key": "createModel",
+          "value": 0,
+        },
+        "barItem": Array [],
+        "barItemCondition": Object {
+          "barItem": Array [
+            "task",
+            "env_params",
+          ],
+          "key": "createModel",
+          "value": 0,
+        },
+        "dataTypeCodes": null,
+        "formField": Array [],
+        "renderCondition": null,
+        "renderKind": "dataSync1",
+      },
+      "value": "数据同步",
+    },
+  ],
+}
+`;
+
+exports[`Test TaskRenderService Should get form field components 1`] = `
+<DocumentFragment>
+  <form
+    class="ant-form ant-form-horizontal"
+  >
+    <div
+      data-disabled="false"
+      data-testid="datasource"
+    >
+      datasource
+    </div>
+    <div>
+      queue
+    </div>
+  </form>
+</DocumentFragment>
+`;
+
+exports[`Test TaskRenderService Should render specific tab on Editor 1`] = `
+Object {
+  "breadcrumb": undefined,
+  "data": Object {
+    "id": "sparkSQL",
+    "language": "sparksql",
+    "name": "sparkSQL",
+    "sqlText": "-- test",
+    "taskType": 0,
+    "value": "-- test",
+  },
+  "icon": <SparkSQLIcon
+    style={
+      Object {
+        "color": "#519aba",
+      }
+    }
+  />,
+  "id": "sparkSQL",
+  "name": "sparkSQL",
+}
+`;
+
+exports[`Test TaskRenderService Should render specific tab on Editor 2`] = `
+Object {
+  "breadcrumb": undefined,
+  "data": Object {
+    "id": "flink",
+    "name": "flink",
+    "taskType": 11,
+  },
+  "icon": <FlinkIcon />,
+  "id": "flink",
+  "name": "flink",
+  "renderPane": [Function],
+}
+`;
+
+exports[`Test TaskRenderService Should render specific tab on Editor 3`] = `
+Object {
+  "breadcrumb": undefined,
+  "data": Object {
+    "id": "sync",
+    "name": "sync",
+    "taskType": 2,
+    "value": undefined,
+  },
+  "icon": "sync",
+  "id": "sync",
+  "name": "sync",
+  "renderPane": [Function],
+}
+`;

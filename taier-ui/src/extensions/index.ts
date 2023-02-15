@@ -29,18 +29,20 @@ import { LocaleExtension } from './i18n';
 import ActionExtension from './action';
 import ColorThemeExtensions from './themes';
 import AuxiliaryBarExtensions from './auxiliaryBar';
+import ConfirmExtension from './confirm';
 
 export const extensions: IExtension[] = [
-	LocaleExtension,
-	DTStackTheme,
-	new ColorThemeExtensions(),
-	new ActionExtension(),
-	new InitializeExtension(),
-	new PanelExtension(),
-	new CatalogueExtension(),
-	new EditorExtension(),
-	new FolderTreeExtension(),
-	new ExtendsSparkSQL(),
-	new MenuExtension(),
-	new AuxiliaryBarExtensions()
+    LocaleExtension,
+    DTStackTheme,
+    new ConfirmExtension(),
+    new ColorThemeExtensions(),
+    new ActionExtension(),
+    new InitializeExtension(),
+    new PanelExtension(),
+    new CatalogueExtension(),
+    new EditorExtension(),
+    new FolderTreeExtension(),
+    new ExtendsSparkSQL(),
+    new MenuExtension(),
+    new AuxiliaryBarExtensions(),
 ];

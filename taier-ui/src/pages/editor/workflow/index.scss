@@ -1,130 +1,130 @@
 .workflow__widgets__title {
-	background: var(--editorGroupHeader-tabsBackground);
-	color: var(--menu-foreground);
-	font-size: 12px;
-	height: 30px;
-	line-height: 30px;
-	border-bottom: 1px solid var(--panel-border);
+    background: var(--editorGroupHeader-tabsBackground);
+    color: var(--menu-foreground);
+    font-size: 12px;
+    height: 30px;
+    line-height: 30px;
+    border-bottom: 1px solid var(--panel-border);
 }
 
 .workflow__widgets__content {
-	margin: 15px 0;
+    margin: 15px 0;
 
-	.workflow__widgets__componentName {
-		background: var(--taier-workflow-widget-background);
-		border: 1px solid var(--taier-workflow-widget-border);
-		color: var(--taier-workflow-widget-foreground);
-		cursor: move;
-		height: auto;
-		line-height: 30px;
-		margin: 0 auto;
-		white-space: break-spaces;
-		width: 110px;
-		font-size: 12px;
-		transition: background 0.3s;
+    .workflow__widgets__componentName {
+        background: var(--taier-workflow-widget-background);
+        border: 1px solid var(--taier-workflow-widget-border);
+        color: var(--taier-workflow-widget-foreground);
+        cursor: move;
+        height: auto;
+        line-height: 30px;
+        margin: 0 auto;
+        white-space: break-spaces;
+        width: 110px;
+        font-size: 12px;
+        transition: background 0.3s;
 
-		&:hover {
-			background: var(--list-hoverBackground);
-		}
-	}
+        &:hover {
+            background: var(--list-hoverBackground);
+        }
+    }
 }
 
 .workflow__preview__vertex {
-	border: 1px solid var(--taier-workflow-widget-border);
-	background: var(--taier-workflow-widget-background);
-	padding: 2px 0;
-	text-align: center;
-	width: 110px;
+    border: 1px solid var(--taier-workflow-widget-border);
+    background: var(--taier-workflow-widget-background);
+    padding: 2px 0;
+    text-align: center;
+    width: 110px;
 
-	.workflow__preview__title {
-		text-align: center;
-		display: block;
-		overflow: hidden;
-		text-overflow: ellipsis;
-		font-family: 'PingFangSC-Regular', sans-serif;
-		font-size: 12px;
-		color: var(--taier-workflow-widget-foreground);
-		letter-spacing: 0;
-		line-height: 18px;
-		font-weight: normal;
-		white-space: nowrap;
-	}
+    .workflow__preview__title {
+        text-align: center;
+        display: block;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        font-family: PingFangSC-Regular, sans-serif;
+        font-size: 12px;
+        color: var(--taier-workflow-widget-foreground);
+        letter-spacing: 0;
+        line-height: 18px;
+        font-weight: normal;
+        white-space: nowrap;
+    }
 
-	.workflow__preview__desc {
-		font-family: 'PingFang-SC-Medium', sans-serif;
-		font-size: 10px;
-		color: var(--taier-workflow-widget-description);
-		letter-spacing: 0;
-		line-height: 14px;
-	}
+    .workflow__preview__desc {
+        font-family: PingFang-SC-Medium, sans-serif;
+        font-size: 10px;
+        color: var(--taier-workflow-widget-description);
+        letter-spacing: 0;
+        line-height: 14px;
+    }
 }
 
 .workflow__vertex {
-	width: 210px;
-	height: 50px;
-	background: var(--taier-workflow-widget-background);
-	border: 1px solid var(--taier-workflow-widget-border);
+    width: 210px;
+    height: 50px;
+    background: var(--taier-workflow-widget-background);
+    border: 1px solid var(--taier-workflow-widget-border);
 
-	.workflow__vertex__suffixInput {
-		position: relative;
-		width: 110px;
-		line-height: 25px;
-		margin: 0 auto;
-		display: none;
+    .workflow__vertex__suffixInput {
+        position: relative;
+        width: 110px;
+        line-height: 25px;
+        margin: 0 auto;
+        display: none;
 
-		.workflow__vertex__input {
-			font-family: 'PingFangSC-Regular', sans-serif;
-			line-height: 25px;
-			color: var(--taier-workflow-widget-foreground);
-			font-size: 12px;
-			font-weight: normal;
-			width: 100%;
-			border: none;
-			outline: none;
-		}
+        .workflow__vertex__input {
+            font-family: PingFangSC-Regular, sans-serif;
+            line-height: 25px;
+            color: var(--taier-workflow-widget-foreground);
+            font-size: 12px;
+            font-weight: normal;
+            width: 100%;
+            border: none;
+            outline: none;
+        }
 
-		.workflow__vertex__input__icon {
-			position: absolute;
-			right: 12px;
-			cursor: pointer;
-			top: 8px;
-		}
-	}
+        .workflow__vertex__input__icon {
+            position: absolute;
+            right: 12px;
+            cursor: pointer;
+            top: 8px;
+        }
+    }
 
-	.workflow__vertex__title {
-		font-family: 'PingFangSC-Regular', sans-serif;
-		color: var(--taier-workflow-widget-foreground);
-		line-height: 25px;
-		font-size: 12px;
-		margin: 0 auto;
-		width: 110px;
-		white-space: nowrap;
-		letter-spacing: 0;
-		overflow: hidden;
-		text-overflow: ellipsis;
-		font-weight: normal;
-	}
+    .workflow__vertex__title {
+        font-family: PingFangSC-Regular, sans-serif;
+        color: var(--taier-workflow-widget-foreground);
+        line-height: 25px;
+        font-size: 12px;
+        margin: 0 auto;
+        width: 110px;
+        white-space: nowrap;
+        letter-spacing: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        font-weight: normal;
+    }
 
-	.workflow__vertex__taskType {
-		font-family: 'PingFang-SC-Medium', sans-serif;
-		font-size: 10px;
-		color: var(--taier-workflow-widget-description);
-		letter-spacing: 0;
-		width: 110px;
-		margin: 0 auto;
-		line-height: 20px;
-		font-weight: normal;
-	}
+    .workflow__vertex__taskType {
+        font-family: PingFang-SC-Medium, sans-serif;
+        font-size: 10px;
+        color: var(--taier-workflow-widget-description);
+        letter-spacing: 0;
+        width: 110px;
+        margin: 0 auto;
+        line-height: 20px;
+        font-weight: normal;
+    }
 }
 
 .workflow__vertex__input__validation {
-	position: relative;
-	outline: 1px solid var(--inputValidation-errorBorder);
-	background: var(--inputValidation-errorBackground);
-	color: var(--taier-workflow-widget-foreground);
-	font-size: 10px;
-	font-weight: normal;
-	overflow: hidden;
-	text-overflow: ellipsis;
-	line-height: 28px;
+    position: relative;
+    outline: 1px solid var(--inputValidation-errorBorder);
+    background: var(--inputValidation-errorBackground);
+    color: var(--taier-workflow-widget-foreground);
+    font-size: 10px;
+    font-weight: normal;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    line-height: 28px;
 }

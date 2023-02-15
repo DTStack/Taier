@@ -1,22 +1,22 @@
-@import './styles/common.scss';
-@import './styles/theme.scss';
-@import './styles/reset.scss';
-@import './styles/molecule.scss';
-@import './styles/variables.scss';
+@import "./styles/common.scss";
+@import "./styles/theme.scss";
+@import "./styles/reset.scss";
+@import "./styles/molecule.scss";
+@import "./styles/variables.scss";
 
 body {
-	margin: 0;
-	padding: 0;
-	// prevent scroll on body
-	overflow: hidden;
+    margin: 0;
+    padding: 0;
+    // prevent scroll on body
+    overflow: hidden;
 }
 
 code {
-	padding: 2px 5px;
-	font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New', monospace;
-	background: var(--textBlockQuote-background);
+    padding: 2px 5px;
+    font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New", monospace;
+    background: var(--textBlockQuote-background);
 }
 
 #root {
-	height: 100%;
+    height: 100%;
 }

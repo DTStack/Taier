@@ -22,7 +22,7 @@ let functionManagerService;
 class FunctionManagerService extends FolderTreeService {}
 
 if (!functionManagerService) {
-	functionManagerService = new FunctionManagerService();
+    functionManagerService = new FunctionManagerService();
 }
 
 export default functionManagerService as FunctionManagerService;

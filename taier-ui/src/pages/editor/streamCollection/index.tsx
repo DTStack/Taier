@@ -21,55 +21,49 @@ import { Scrollbar } from '@dtinsight/molecule/esm/components';
 import { connect as moleculeConnect } from '@dtinsight/molecule/esm/react';
 import molecule from '@dtinsight/molecule';
 import type { IEditor } from '@dtinsight/molecule/esm/model';
-import { Modal } from 'antd';
 import CollectionGuid from './steps';
 import taskSaveService from '@/services/taskSaveService';
 import './index.scss';
 
-const confirm = Modal.confirm;
-
 const initialState = {
-	showPublish: false,
-	showDebug: false,
-	notPublish: false,
-	runTitle: 'Command/Ctrl + R',
+    showPublish: false,
+    showDebug: false,
+    notPublish: false,
+    runTitle: 'Command/Ctrl + R',
 };
 type Istate = typeof initialState;
 
 class StreamCollection extends React.Component<IEditor & any, Istate> {
-	state = {
-		showPublish: false,
-		showDebug: false,
-		notPublish: false,
-		runTitle: 'Command/Ctrl + R',
-	};
+    state = {
+        showPublish: false,
+        showDebug: false,
+        notPublish: false,
+        runTitle: 'Command/Ctrl + R',
+    };
 
-	saveTask = taskSaveService.save;
+    saveTask = taskSaveService.save;
 
-	render() {
-		const currentTabData = this.props.current?.tab?.data;
-		return (
-			<Scrollbar>
-				<div className="ide-editor">
-					<div style={{ zIndex: 901 }} className="ide-content">
-						<div
-							style={{
-								width: '100%',
-								height: '100%',
-								minHeight: '400px',
-								position: 'relative',
-							}}
-						>
-							<CollectionGuid
-								saveTask={this.saveTask.bind(this)}
-								currentPage={currentTabData}
-							/>
-						</div>
-					</div>
-				</div>
-			</Scrollbar>
-		);
-	}
+    render() {
+        const currentTabData = this.props.current?.tab?.data;
+        return (
+            <Scrollbar>
+                <div className="ide-editor">
+                    <div style={{ zIndex: 901 }} className="ide-content">
+                        <div
+                            style={{
+                                width: '100%',
+                                height: '100%',
+                                minHeight: '400px',
+                                position: 'relative',
+                            }}
+                        >
+                            <CollectionGuid saveTask={this.saveTask.bind(this)} currentPage={currentTabData} />
+                        </div>
+                    </div>
+                </div>
+            </Scrollbar>
+        );
+    }
 }
 
 export default moleculeConnect(molecule.editor, StreamCollection);

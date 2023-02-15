@@ -21,39 +21,39 @@ import type { IDataSourceProps } from '@/interface';
 import './linkInfoCell.scss';
 
 export default function LinkInfoCell(props: { sourceData: IDataSourceProps }) {
-	const { sourceData } = props;
-	const arr = linkMapping(`${sourceData.dataType}${sourceData.dataVersion || ''}`);
+    const { sourceData } = props;
+    const arr = linkMapping(`${sourceData.dataType}${sourceData.dataVersion || ''}`);
 
-	let data: Record<string, string> = {};
-	try {
-		data = JSON.parse(sourceData.linkJson!) || {};
-	} catch (error) {
-		// don't handle this error
-	}
+    let data: Record<string, string> = {};
+    try {
+        data = JSON.parse(sourceData.linkJson!) || {};
+    } catch (error) {
+        // don't handle this error
+    }
 
-	if (arr) {
-		return (
-			<div>
-				{arr.map(([key, text]: any) => {
-					return (
-						<p
-							key={key}
-							style={{
-								display: 'flex',
-								lineHeight: 1.5,
-								marginBottom: 0,
-							}}
-						>
-							<span style={{ color: '#999', flexShrink: 0 }}>{text}：</span>
-							<span className="link-json" title={data[key] || ''}>
-								{data[key] || ''}
-							</span>
-						</p>
-					);
-				})}
-			</div>
-		);
-	}
+    if (arr) {
+        return (
+            <div>
+                {arr.map(([key, text]: any) => {
+                    return (
+                        <p
+                            key={key}
+                            style={{
+                                display: 'flex',
+                                lineHeight: 1.5,
+                                marginBottom: 0,
+                            }}
+                        >
+                            <span style={{ color: '#999', flexShrink: 0 }}>{text}：</span>
+                            <span className="link-json" title={data[key] || ''}>
+                                {data[key] || ''}
+                            </span>
+                        </p>
+                    );
+                })}
+            </div>
+        );
+    }
 
-	return null;
+    return null;
 }

@@ -1,14 +1,14 @@
 .resourceManager-container {
-	height: 100%;
+    height: 100%;
 
-	.resourceManager-content {
-		height: 100%;
-		padding: 1px;
-		outline: 1px solid transparent;
-		outline-offset: -1px;
+    .resourceManager-content {
+        height: 100%;
+        padding: 1px;
+        outline: 1px solid transparent;
+        outline-offset: -1px;
 
-		&:focus {
-			outline-color: var(--list-focusOutline);
-		}
-	}
+        &:focus {
+            outline-color: var(--list-focusOutline);
+        }
+    }
 }

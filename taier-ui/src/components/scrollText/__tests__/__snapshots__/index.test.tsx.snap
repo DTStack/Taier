@@ -1,0 +1,13 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Test ScrollText Component Should match snapshot 1`] = `
+<DocumentFragment>
+  <input
+    class="cell-input"
+    data-testid="test-scroll-text"
+    readonly=""
+    style="height: 28px; margin: 5px 5px 5px 0px; width: 100%; text-align: left; background-color: transparent; background-image: none;"
+    value=""
+  />
+</DocumentFragment>
+`;

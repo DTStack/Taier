@@ -21,54 +21,51 @@ import { CloseOutlined } from '@ant-design/icons';
 import './customParams.scss';
 
 interface ICustomParamsProps {
-	index: number;
+    index: number;
 }
 
 export const CustomParams = ({ index }: ICustomParamsProps) => {
-	return (
-		<Form.Item label="自定义参数" className="custom-params">
-			<Form.List name={[index, 'customParams']}>
-				{(fields, { add, remove }) => (
-					<>
-						{fields.map((field, i) => (
-							<Row key={field.key} justify="center" className="ant-form-item">
-								<Col span={10}>
-									<Form.Item
-										noStyle
-										name={[i, 'key']}
-										rules={[{ required: true, message: '请输入参数名' }]}
-									>
-										<Input className="w-full" />
-									</Form.Item>
-								</Col>
-								<Col span={2}>
-									<div className="text-center" style={{ lineHeight: '32px' }}>
-										:
-									</div>
-								</Col>
-								<Col span={10}>
-									<Form.Item
-										noStyle
-										name={[i, 'value']}
-										rules={[{ required: true, message: '请输入参数值' }]}
-									>
-										<Input className="w-full" />
-									</Form.Item>
-								</Col>
-								<Col span={2}>
-									<CloseOutlined
-										className="delete-action"
-										onClick={() => remove(field.name)}
-									/>
-								</Col>
-							</Row>
-						))}
-						<Button block type="link" onClick={() => add()}>
-							添加自定义参数
-						</Button>
-					</>
-				)}
-			</Form.List>
-		</Form.Item>
-	);
+    return (
+        <Form.Item label="自定义参数" className="custom-params">
+            <Form.List name={[index, 'customParams']}>
+                {(fields, { add, remove }) => (
+                    <>
+                        {fields.map((field, i) => (
+                            <Row key={field.key} justify="center" className="ant-form-item">
+                                <Col span={10}>
+                                    <Form.Item
+                                        noStyle
+                                        name={[i, 'key']}
+                                        rules={[{ required: true, message: '请输入参数名' }]}
+                                    >
+                                        <Input className="w-full" />
+                                    </Form.Item>
+                                </Col>
+                                <Col span={2}>
+                                    <div className="text-center" style={{ lineHeight: '32px' }}>
+                                        :
+                                    </div>
+                                </Col>
+                                <Col span={10}>
+                                    <Form.Item
+                                        noStyle
+                                        name={[i, 'value']}
+                                        rules={[{ required: true, message: '请输入参数值' }]}
+                                    >
+                                        <Input className="w-full" />
+                                    </Form.Item>
+                                </Col>
+                                <Col span={2}>
+                                    <CloseOutlined className="delete-action" onClick={() => remove(field.name)} />
+                                </Col>
+                            </Row>
+                        ))}
+                        <Button block type="link" onClick={() => add()}>
+                            添加自定义参数
+                        </Button>
+                    </>
+                )}
+            </Form.List>
+        </Form.Item>
+    );
 };

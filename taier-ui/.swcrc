@@ -1,0 +1,21 @@
+{
+	"$schema": "https://json.schemastore.org/swcrc",
+	"jsc": {
+		"parser": {
+			"syntax": "typescript",
+			"tsx": true,
+			"decorators": true,
+			"dynamicImport": true
+		},
+		"target": "es2022",
+		"loose": true,
+		"externalHelpers": false,
+		// Requires v1.2.50 or upper and requires target to be es2016 or upper.
+		"keepClassNames": false
+	},
+	"module": {
+		"type": "commonjs",
+		"strictMode": false
+	},
+	"minify": true
+}

@@ -1,0 +1,47 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Test Publish Component Should match snapshot 1`] = `
+<DocumentFragment>
+  <p
+    data-testid="antd-mock-Modal-title"
+  >
+    提交任务
+  </p>
+  <div
+    class="ant-alert ant-alert-warning ant-alert-no-icon"
+    data-show="true"
+    role="alert"
+  >
+    <div
+      class="ant-alert-content"
+    >
+      <div
+        class="ant-alert-message"
+      >
+        提交过的任务才能被调度执行及发布到其他项目
+      </div>
+    </div>
+  </div>
+  <br />
+  <div
+    class="ant-alert ant-alert-warning ant-alert-no-icon"
+    data-show="true"
+    role="alert"
+  >
+    <div
+      class="ant-alert-content"
+    >
+      <div
+        class="ant-alert-message"
+      >
+        新提交的任务需要第二天才能生成周期实例
+      </div>
+    </div>
+  </div>
+  <button
+    data-testid="antd-mock-Modal-confirm"
+  >
+    confirm
+  </button>
+</DocumentFragment>
+`;

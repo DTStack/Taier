@@ -19,54 +19,54 @@
 import { useEffect, useRef, useState } from 'react';
 
 interface IPagination {
-	current?: number;
-	pageSize?: number;
-	total?: number;
+    current?: number;
+    pageSize?: number;
+    total?: number;
 }
 
 export const usePagination = ({
-	current: initialCurrent = 1,
-	pageSize: initialPageSize = 20,
-	total: initialTotal = 0,
+    current: initialCurrent = 1,
+    pageSize: initialPageSize = 20,
+    total: initialTotal = 0,
 }: IPagination) => {
-	const [current, setCurrent] = useState(initialCurrent);
-	const [pageSize, setPageSize] = useState(initialPageSize);
-	const [total, setTotal] = useState(initialTotal);
+    const [current, setCurrent] = useState(initialCurrent);
+    const [pageSize, setPageSize] = useState(initialPageSize);
+    const [total, setTotal] = useState(initialTotal);
 
-	const setPagination = ({
-		current: c,
-		pageSize: p,
-		total: t,
-	}: {
-		current?: number;
-		pageSize?: number;
-		total?: number;
-	}) => {
-		if (c !== undefined) {
-			setCurrent(c);
-		}
-		if (p !== undefined) {
-			setPageSize(p);
-		}
-		if (t !== undefined) {
-			setTotal(t);
-		}
-	};
+    const setPagination = ({
+        current: c,
+        pageSize: p,
+        total: t,
+    }: {
+        current?: number;
+        pageSize?: number;
+        total?: number;
+    }) => {
+        if (c !== undefined) {
+            setCurrent(c);
+        }
+        if (p !== undefined) {
+            setPageSize(p);
+        }
+        if (t !== undefined) {
+            setTotal(t);
+        }
+    };
 
-	return {
-		current,
-		pageSize,
-		total,
-		setPagination,
-	};
+    return {
+        current,
+        pageSize,
+        total,
+        setPagination,
+    };
 };
 
 export function useConstant<T>(val: T) {
-	const ref = useRef(val);
+    const ref = useRef(val);
 
-	useEffect(() => {
-		ref.current = val;
-	});
+    useEffect(() => {
+        ref.current = val;
+    });
 
-	return ref;
+    return ref;
 }

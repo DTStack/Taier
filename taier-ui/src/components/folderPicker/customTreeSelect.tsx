@@ -19,10 +19,8 @@
 import { useEffect, useState } from 'react';
 import { omit } from 'lodash';
 import { TreeSelect, Input } from 'antd';
-
 import type { TreeSelectProps } from 'antd/lib/tree-select';
-import { Icon } from '@dtinsight/molecule/esm/components';
-import type molecule from '@dtinsight/molecule';
+import molecule from '@dtinsight/molecule';
 import type { CATALOGUE_TYPE } from '@/constant';
 import { fileIcon } from '@/utils/extensions';
 import { FileTypes } from '@dtinsight/molecule/esm/model';
@@ -30,12 +28,12 @@ import { FileTypes } from '@dtinsight/molecule/esm/model';
 const { TreeNode } = TreeSelect;
 
 export interface CustomTreeSelectProps extends Omit<TreeSelectProps, 'treeData'> {
-	dataType: CATALOGUE_TYPE;
-	value?: number;
-	treeData?: molecule.model.IFolderTreeNodeProps;
-	onChange?: TreeSelectProps['onChange'];
-	nodeNameField?: string;
-	showFile: boolean;
+    dataType: CATALOGUE_TYPE;
+    value?: number;
+    treeData?: molecule.model.IFolderTreeNodeProps;
+    onChange?: TreeSelectProps['onChange'];
+    nodeNameField?: string;
+    showFile: boolean;
 }
 
 /**
@@ -43,78 +41,78 @@ export interface CustomTreeSelectProps extends Omit<TreeSelectProps, 'treeData'>
  * 使用 Input 和 TreeSelect 组件分别承担 数据收集和选择、展示的功能
  */
 export default function CustomTreeSelect(props: CustomTreeSelectProps) {
-	const { value, showFile, treeData, nodeNameField, dataType, onChange } = props;
-	// 表单收集数据时真正的值，兼容 initialValue
-	const [realValue, setRealValue] = useState(value);
-	const [showName, setShowName] = useState(value);
+    const { value, showFile, treeData, nodeNameField, dataType, onChange } = props;
+    // 表单收集数据时真正的值，兼容 initialValue
+    const [realValue, setRealValue] = useState(value);
+    const [showName, setShowName] = useState(value);
 
-	useEffect(() => {
-		setRealValue(value);
-		setShowName(value);
-	}, [value]);
+    useEffect(() => {
+        setRealValue(value);
+        setShowName(value);
+    }, [value]);
 
-	const onTreeChange = (v: number, label: React.ReactNode[], extra: any) => {
-		if (onChange) {
-			onChange(v, label, extra);
-		}
-		setRealValue(v);
-	};
+    const onTreeChange = (v: number, label: React.ReactNode[], extra: any) => {
+        if (onChange) {
+            onChange(v, label, extra);
+        }
+        setRealValue(v);
+    };
 
-	const updateShowName = (_: any, node: any) => {
-		const nextNodeNameField = nodeNameField ?? 'name';
-		setShowName(node.props?.[nextNodeNameField]);
-	};
+    const updateShowName = (_: any, node: any) => {
+        const nextNodeNameField = nodeNameField ?? 'name';
+        setShowName(node.props?.[nextNodeNameField]);
+    };
 
-	const renderIcon = (isShowFile: boolean, type: string, catalogueType: CATALOGUE_TYPE) => {
-		if (isShowFile) {
-			return type === 'file' ? fileIcon({} as any, catalogueType) : <Icon type="folder" />;
-		}
-		return null;
-	};
+    const renderIcon = (isShowFile: boolean, type: string, catalogueType: CATALOGUE_TYPE) => {
+        if (isShowFile) {
+            return type === 'file' ? fileIcon({} as any, catalogueType) : <molecule.component.Icon type="folder" />;
+        }
+        return null;
+    };
 
-	// TODO: 将generateTreeNodes暴露出去以兼容不同的数据格式
-	const generateTreeNodes = () => {
-		const loop = (data: molecule.model.IFolderTreeNodeProps) => {
-			const { createUser, id, name, type } = data?.data || {};
-			const isLeaf = data.fileType === FileTypes.File;
-			if (!showFile && data.fileType === FileTypes.File) return null;
-			return (
-				<TreeNode
-					title={
-						<>
-							<span title={name}>{name}&nbsp;</span>
-							<i title={createUser} className="text-ccc">
-								{createUser}
-							</i>
-						</>
-					}
-					value={id}
-					name={name}
-					dataRef={data}
-					key={id}
-					isLeaf={isLeaf}
-					icon={renderIcon(showFile, type, dataType)}
-				>
-					{data?.children?.map((o) => loop(o))}
-				</TreeNode>
-			);
-		};
-		return treeData ? loop(treeData) : null;
-	};
+    // TODO: 将generateTreeNodes暴露出去以兼容不同的数据格式
+    const generateTreeNodes = () => {
+        const loop = (data: molecule.model.IFolderTreeNodeProps) => {
+            const { createUser, id, name, type } = data?.data || {};
+            const isLeaf = data.fileType === FileTypes.File;
+            if (!showFile && data.fileType === FileTypes.File) return null;
+            return (
+                <TreeNode
+                    title={
+                        <>
+                            <span title={name}>{name}&nbsp;</span>
+                            <i title={createUser} className="text-ccc">
+                                {createUser}
+                            </i>
+                        </>
+                    }
+                    value={id}
+                    name={name}
+                    dataRef={data}
+                    key={id}
+                    isLeaf={isLeaf}
+                    icon={renderIcon(showFile, type, dataType)}
+                >
+                    {data?.children?.map((o) => loop(o))}
+                </TreeNode>
+            );
+        };
+        return treeData ? loop(treeData) : null;
+    };
 
-	return (
-		<>
-			<Input type="hidden" value={realValue} />
-			<TreeSelect
-				{...omit(props, ['onChange', 'treeData', 'value', 'showFile', 'dataType'])}
-				value={showName}
-				onChange={onTreeChange}
-				onSelect={updateShowName}
-				treeIcon={showFile}
-				getPopupContainer={(node) => node.parentNode}
-			>
-				{generateTreeNodes()}
-			</TreeSelect>
-		</>
-	);
+    return (
+        <>
+            <Input type="hidden" value={realValue} />
+            <TreeSelect
+                {...omit(props, ['onChange', 'treeData', 'value', 'showFile', 'dataType'])}
+                value={showName}
+                onChange={onTreeChange}
+                onSelect={updateShowName}
+                treeIcon={showFile}
+                getPopupContainer={(node) => node.parentNode}
+            >
+                {generateTreeNodes()}
+            </TreeSelect>
+        </>
+    );
 }
