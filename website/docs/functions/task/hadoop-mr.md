@@ -39,7 +39,7 @@ import java.util.StringTokenizer;
 
 public class WordCount
 {
-    //conf值由数栈平台管理
+    //conf值由Taier平台管理
     //job.submit 提交后需要返回jobId，返回类型为String
     public static String main(Configuration conf,String[] args) throws Exception
     {
@@ -96,7 +96,7 @@ public class WordCount
     }
 }
 ```
-### 4. 已有MR任务集成到数栈，改动仅两步
+### 4. 已有MR任务集成到Taier，改动仅两步
 
 #### 4.1修改pom.xml文件
 ```java
