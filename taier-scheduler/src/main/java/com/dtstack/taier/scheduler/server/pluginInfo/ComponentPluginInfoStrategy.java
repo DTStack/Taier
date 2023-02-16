@@ -20,10 +20,21 @@ package com.dtstack.taier.scheduler.server.pluginInfo;
 
 import com.alibaba.fastjson.JSONObject;
 import com.dtstack.taier.common.enums.EComponentType;
+import com.dtstack.taier.common.enums.EScheduleJobType;
 
-public interface ComponentPluginInfoStrategy {
+public abstract class ComponentPluginInfoStrategy {
 
-    JSONObject convertPluginInfo(JSONObject clusterConfigJson, Long clusterId, Integer deployMode);
+    public EScheduleJobType jobType;
 
-    EComponentType getComponentTypeCode();
+    public abstract JSONObject convertPluginInfo(JSONObject clusterConfigJson, Long clusterId, Integer deployMode);
+
+    public abstract EComponentType getComponentTypeCode();
+
+    public EScheduleJobType getJobType() {
+        return jobType;
+    }
+
+    public void setJobType(EScheduleJobType jobType) {
+        this.jobType = jobType;
+    }
 }
