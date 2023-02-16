@@ -21,7 +21,7 @@ package com.dtstack.taier.scheduler.server.pluginInfo;
 import com.alibaba.fastjson.JSONObject;
 import com.dtstack.taier.common.enums.EComponentType;
 
-public class DefaultPluginInfoStrategy implements ComponentPluginInfoStrategy {
+public class DefaultPluginInfoStrategy extends ComponentPluginInfoStrategy {
 
     private EComponentType componentType;
 

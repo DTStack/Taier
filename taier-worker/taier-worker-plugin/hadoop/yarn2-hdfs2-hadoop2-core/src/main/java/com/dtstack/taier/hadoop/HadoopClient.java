@@ -140,16 +140,16 @@ public class HadoopClient extends AbstractClient {
     public JobResult cancelJob(JobIdentifier jobIdentifier) {
         try {
             return KerberosUtils.login(config, () -> {
-                String jobId = jobIdentifier.getEngineJobId();
+                String appJobId = jobIdentifier.getApplicationId();
 
                 try {
-                    getYarnClient().killApplication(generateApplicationId(jobId));
+                    getYarnClient().killApplication(generateApplicationId(appJobId));
                 } catch (YarnException | IOException e) {
                     return JobResult.createErrorResult(e);
                 }
 
                 JobResult jobResult = JobResult.newInstance(false);
-                jobResult.setData("jobid", jobId);
+                jobResult.setData("jobid", appJobId);
                 return jobResult;
             }, conf);
         } catch (Exception e) {
@@ -167,8 +167,8 @@ public class HadoopClient extends AbstractClient {
     public TaskStatus getJobStatus(JobIdentifier jobIdentifier) throws IOException {
         try {
             return KerberosUtils.login(config, () -> {
-                String jobId = jobIdentifier.getEngineJobId();
-                ApplicationId appId = generateApplicationId(jobId);
+                String appJobId = jobIdentifier.getApplicationId();
+                ApplicationId appId = generateApplicationId(appJobId);
 
                 try {
                     ApplicationReport report = getYarnClient().getApplicationReport(appId);
@@ -294,10 +294,11 @@ public class HadoopClient extends AbstractClient {
     public String getJobLog(JobIdentifier jobIdentifier) {
         try {
             return KerberosUtils.login(config, () -> {
-                String jobId = jobIdentifier.getEngineJobId();
+
+                String appJobId = jobIdentifier.getApplicationId();
 
                 try {
-                    ApplicationReport applicationReport = getYarnClient().getApplicationReport(generateApplicationId(jobId));
+                    ApplicationReport applicationReport = getYarnClient().getApplicationReport(generateApplicationId(appJobId));
                     return applicationReport.getDiagnostics();
                 } catch (Exception e) {
                     LOG.error("", e);

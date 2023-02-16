@@ -19,3 +19,5 @@ INSERT INTO `dict` (dict_code, dict_name, dict_value, dict_desc, type, sort, dat
 
 UPDATE `dict` SET dict_value = '112' WHERE dict_code = 'flink_version' and dict_name = '1.12-standalone' limit 1;
 COMMIT;
+
+INSERT INTO `dict` (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default, gmt_create, gmt_modified, is_deleted) VALUES ('25', 'HadoopMR', '{"actions": ["SAVE_TASK", "SUBMIT_TASK", "OPERATOR_TASK"], "formField": ["resourceIdList", "mainClass", "exeArgs"],"barItem":["dependency","task_params","env_params"], "renderKind": "spark"}', '', 30, 5, 'STRING', '', 0, '2023-02-09 10:28:45', '2023-02-09 10:28:45', 0);

@@ -92,6 +92,7 @@ const sidebars = {
                         'functions/task/postgre-sql',
                         'functions/task/sqlserver-sql',
                         'functions/task/maxcompute-sql',
+                        'functions/task/hadoop-mr',
                     ],
                  },
                 'functions/maintenance',
