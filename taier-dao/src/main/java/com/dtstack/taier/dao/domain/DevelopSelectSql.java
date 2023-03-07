@@ -62,6 +62,20 @@ public class DevelopSelectSql extends TenantEntity {
      */
     private int taskType;
 
+
+    /**
+     * 数据源id
+     */
+    private Long datasourceId;
+
+    public Long getDatasourceId() {
+        return datasourceId;
+    }
+
+    public void setDatasourceId(Long datasourceId) {
+        this.datasourceId = datasourceId;
+    }
+
     public int getIsSelectSql() {
         return isSelectSql;
     }
@@ -69,6 +83,7 @@ public class DevelopSelectSql extends TenantEntity {
     public void setIsSelectSql(int isSelectSql) {
         this.isSelectSql = isSelectSql;
     }
+
     /**
      * 如果是数据同步任务则需要解密
      *
