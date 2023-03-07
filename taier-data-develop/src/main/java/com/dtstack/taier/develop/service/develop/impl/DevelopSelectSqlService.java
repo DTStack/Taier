@@ -18,11 +18,12 @@
 
 package com.dtstack.taier.develop.service.develop.impl;
 
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.dtstack.taier.common.enums.EComputeType;
 import com.dtstack.taier.common.exception.TaierDefineException;
 import com.dtstack.taier.dao.domain.DevelopSelectSql;
 import com.dtstack.taier.dao.domain.Task;
-import com.dtstack.taier.dao.mapper.DevelopHiveSelectSqlMapper;
+import com.dtstack.taier.dao.mapper.DevelopSelectSqlMapper;
 import com.dtstack.taier.develop.dto.devlop.BuildSqlVO;
 import com.dtstack.taier.develop.service.develop.ITaskRunner;
 import com.dtstack.taier.develop.service.develop.TaskConfiguration;
@@ -36,6 +37,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.sql.Timestamp;
+import java.time.Instant;
 import java.util.Collections;
 
 /**
@@ -49,7 +52,7 @@ public class DevelopSelectSqlService {
     public static final Logger LOGGER = LoggerFactory.getLogger(DevelopSelectSqlService.class);
 
     @Autowired
-    private DevelopHiveSelectSqlMapper developHiveSelectSqlDao;
+    private DevelopSelectSqlMapper developSelectSqlDao;
 
     @Autowired
     private ScheduleActionService actionService;
@@ -60,8 +63,11 @@ public class DevelopSelectSqlService {
     private static final String TASK_NAME_PREFIX = "run_%s_task_%s";
 
 
-    public DevelopSelectSql getSelectSql(Long tenantId, String s, Integer o) {
-        return developHiveSelectSqlDao.getByJobId(s, tenantId, o);
+    public DevelopSelectSql getSelectSql(Long tenantId, String jobId, Integer isDeleted) {
+        return developSelectSqlDao.selectOne(Wrappers.lambdaQuery(DevelopSelectSql.class)
+                .eq(DevelopSelectSql::getTenantId, tenantId)
+                .eq(DevelopSelectSql::getJobId, jobId)
+                .eq(DevelopSelectSql::getIsDeleted, isDeleted));
     }
 
     public DevelopSelectSql getByJobId(String jobId, Long tenantId, Integer isDeleted) {
@@ -76,7 +82,9 @@ public class DevelopSelectSqlService {
         try {
             actionService.stop(Collections.singletonList(jobId), ComputeType.BATCH.getType());
             // 这里用逻辑删除，是为了在调度端删除可能生成的临时表
-            developHiveSelectSqlDao.deleteByJobId(jobId, tenantId);
+            developSelectSqlDao.delete(Wrappers.lambdaQuery(DevelopSelectSql.class)
+                    .eq(DevelopSelectSql::getTenantId, tenantId)
+                    .eq(DevelopSelectSql::getJobId, jobId));
         } catch (Exception e) {
             LOGGER.error(e.getMessage(), e);
         }
@@ -84,21 +92,25 @@ public class DevelopSelectSqlService {
 
     @Transactional(rollbackFor = Exception.class)
     public void addSelectSql(String jobId, String tempTable, int isSelectSql, Long tenantId, String sql, Long userId, Integer taskType) {
-        this.addSelectSql(jobId, tempTable, isSelectSql, tenantId, sql, userId, null, taskType);
+        this.addSelectSql(jobId, tempTable, isSelectSql, tenantId, sql, userId, null, taskType, null);
     }
 
     @Transactional(rollbackFor = Exception.class)
-    public void addSelectSql(String jobId, String tempTable, Integer isSelectSql, Long tenantId, String sql, Long userId, String parsedColumns, Integer taskType) {
-        DevelopSelectSql hiveSelectSql = new DevelopSelectSql();
-        hiveSelectSql.setJobId(jobId);
-        hiveSelectSql.setTempTableName(tempTable);
-        hiveSelectSql.setTenantId(tenantId);
-        hiveSelectSql.setIsSelectSql(isSelectSql);
-        hiveSelectSql.setSqlText(sql);
-        hiveSelectSql.setUserId(userId);
-        hiveSelectSql.setParsedColumns(parsedColumns);
-        hiveSelectSql.setTaskType(taskType);
-        developHiveSelectSqlDao.insert(hiveSelectSql);
+    public void addSelectSql(String jobId, String tempTable, Integer isSelectSql, Long tenantId, String sql, Long userId, String parsedColumns,
+                             Integer taskType, Long datasourceId) {
+        DevelopSelectSql selectSql = new DevelopSelectSql();
+        selectSql.setJobId(jobId);
+        selectSql.setTempTableName(tempTable);
+        selectSql.setTenantId(tenantId);
+        selectSql.setIsSelectSql(isSelectSql);
+        selectSql.setSqlText(sql);
+        selectSql.setUserId(userId);
+        selectSql.setParsedColumns(parsedColumns);
+        selectSql.setTaskType(taskType);
+        selectSql.setDatasourceId(datasourceId);
+        selectSql.setGmtCreate(Timestamp.from(Instant.now()));
+        selectSql.setGmtModified(Timestamp.from(Instant.now()));
+        developSelectSqlDao.insert(selectSql);
     }
 
     /**
@@ -119,7 +131,7 @@ public class DevelopSelectSqlService {
             sendSqlTask(buildSqlVO.getSql(), buildSqlVO.getTaskParam(), preJobId, task, taskType);
             // 记录job
             addSelectSql(preJobId, buildSqlVO.getTempTable(), buildSqlVO.getIsSelectSql(), task.getTenantId(),
-                    parseResult.getOriginSql(), userId, buildSqlVO.getParsedColumns(), taskType);
+                    parseResult.getOriginSql(), userId, buildSqlVO.getParsedColumns(), taskType, task.getDatasourceId());
             return preJobId;
         } catch (Exception e) {
             throw new TaierDefineException("任务执行sql失败", e);

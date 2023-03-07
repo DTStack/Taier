@@ -1242,35 +1242,39 @@ COMMIT;
 -- ----------------------------
 DROP TABLE IF EXISTS `develop_function_resource`;
 CREATE TABLE `develop_function_resource` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `function_id` int(11) NOT NULL COMMENT '函数id',
-  `resource_id` int(11) NOT NULL COMMENT '对应batch资源的id',
-  `gmt_create` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '新增时间',
-  `gmt_modified` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
-  `is_deleted` tinyint(1) NOT NULL DEFAULT '0' COMMENT '0正常 1逻辑删除',
-  `tenant_id` bigint(20) DEFAULT NULL,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `index_rdos_function_resource` (`function_id`,`resource_id`,`is_deleted`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin COMMENT='函数关联的资源表';
+                                             `id`           int(11)    NOT NULL AUTO_INCREMENT,
+                                             `function_id`  int(11)    NOT NULL COMMENT '函数id',
+                                             `resource_id`  int(11)    NOT NULL COMMENT '对应batch资源的id',
+                                             `gmt_create`   datetime   NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '新增时间',
+                                             `gmt_modified` datetime   NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
+                                             `is_deleted`   tinyint(1) NOT NULL DEFAULT '0' COMMENT '0正常 1逻辑删除',
+                                             `tenant_id`    bigint(20)          DEFAULT NULL,
+                                             PRIMARY KEY (`id`),
+                                             UNIQUE KEY `index_rdos_function_resource` (`function_id`, `resource_id`, `is_deleted`)
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8
+  COLLATE = utf8_bin COMMENT ='函数关联的资源表';
 
 -- ----------------------------
 -- Table structure for develop_hive_select_sql
 -- ----------------------------
-DROP TABLE IF EXISTS `develop_hive_select_sql`;
-CREATE TABLE `develop_hive_select_sql` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `job_id` varchar(64) COLLATE utf8_bin NOT NULL COMMENT '工作任务id',
-  `temp_table_name` varchar(256) COLLATE utf8_bin NOT NULL COMMENT '临时表名',
-  `is_select_sql` tinyint(1) NOT NULL DEFAULT '0' COMMENT '0-否 1-是',
-  `tenant_id` int(11) NOT NULL COMMENT '租户id',
-  `user_id` int(11) DEFAULT NULL COMMENT '执行用户',
-  `sql_text` longtext COLLATE utf8_bin COMMENT 'sql',
-  `parsed_columns` longtext COLLATE utf8_bin COMMENT '字段信息',
-  `task_type` int(11) DEFAULT NULL COMMENT '任务类型',
-  `gmt_create` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '新增时间',
-  `gmt_modified` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
-  `is_deleted` tinyint(1) NOT NULL DEFAULT '0' COMMENT '0正常 1逻辑删除',
-  PRIMARY KEY (`id`),
+DROP TABLE IF EXISTS `develop_select_sql`;
+CREATE TABLE `develop_select_sql`
+(
+    `id`              int(11)                       NOT NULL AUTO_INCREMENT,
+    `job_id`          varchar(64) COLLATE utf8_bin  NOT NULL COMMENT '工作任务id',
+    `temp_table_name` varchar(256) COLLATE utf8_bin NOT NULL COMMENT '临时表名',
+    `datasource_id`   int                                    default 0 null comment '数据源id',
+    `is_select_sql`   tinyint(1)                    NOT NULL DEFAULT '0' COMMENT '0-否 1-是',
+    `tenant_id`       int(11)                       NOT NULL COMMENT '租户id',
+    `user_id`         int(11)                                DEFAULT NULL COMMENT '执行用户',
+    `sql_text`        longtext COLLATE utf8_bin COMMENT 'sql',
+    `parsed_columns`  longtext COLLATE utf8_bin COMMENT '字段信息',
+    `task_type`       int(11)                                DEFAULT NULL COMMENT '任务类型',
+    `gmt_create`      datetime                      NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '新增时间',
+    `gmt_modified`    datetime                      NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
+    `is_deleted`      tinyint(1)                    NOT NULL DEFAULT '0' COMMENT '0正常 1逻辑删除',
+    PRIMARY KEY (`id`),
   UNIQUE KEY `idx` (`job_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin COMMENT='sql查询临时表';
 
