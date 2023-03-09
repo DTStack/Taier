@@ -97,7 +97,7 @@ public class DevelopSelectSqlController {
             @Override
             protected ExecuteResultVO process() {
                 try {
-                    DevelopSelectSql selectSql = developSelectSqlService.getByJobId(sqlVO.getJobId(), sqlVO.getTenantId(), null);
+                    DevelopSelectSql selectSql = developSelectSqlService.getByJobId(sqlVO.getJobId(), sqlVO.getTenantId(), 0);
                     Preconditions.checkNotNull(selectSql, "不存在该临时查询");
                     ITaskRunner taskRunner = taskConfiguration.get(selectSql.getTaskType());
                     Task task = developTaskService.getOneWithError(sqlVO.getTaskId());

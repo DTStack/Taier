@@ -19,6 +19,7 @@
 package com.dtstack.taier.develop.service.develop.impl;
 
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import com.dtstack.taier.common.enums.Deleted;
 import com.dtstack.taier.common.enums.EComputeType;
 import com.dtstack.taier.common.exception.TaierDefineException;
 import com.dtstack.taier.dao.domain.DevelopSelectSql;
@@ -67,7 +68,7 @@ public class DevelopSelectSqlService {
         return developSelectSqlDao.selectOne(Wrappers.lambdaQuery(DevelopSelectSql.class)
                 .eq(DevelopSelectSql::getTenantId, tenantId)
                 .eq(DevelopSelectSql::getJobId, jobId)
-                .eq(DevelopSelectSql::getIsDeleted, isDeleted));
+                .eq(DevelopSelectSql::getIsDeleted, null == isDeleted ? Deleted.NORMAL.getStatus() : isDeleted));
     }
 
     public DevelopSelectSql getByJobId(String jobId, Long tenantId, Integer isDeleted) {
