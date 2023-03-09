@@ -1,5 +1,6 @@
 ---
-title: Flink On Standalone sidebar_label: Flink On Standalone
+title: Flink On Standalone  
+sidebar_label: Flink On Standalone
 ---
 
 ## 启动Flink Standalone环境
