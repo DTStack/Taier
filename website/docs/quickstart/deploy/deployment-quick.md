@@ -4,6 +4,7 @@ sidebar_label: 单机部署
 ---
 
 ## 环境准备
+
 - [x] JDK1.8+
 - [x] Zookeeper
 - [x] MySQL初始化[Taier初始数据](https://github.com/DTStack/Taier/blob/master/sql/init.sql)
@@ -11,11 +12,17 @@ sidebar_label: 单机部署
 ## 服务部署
 
 - 下载 [taier源码包](https://github.com/DTStack/Taier/releases)
+
+:::caution 由于github上传大小限制 建议下载taier.tar.gz plugins相关包自行编译
+:::
+
 ```shell
 $ wget https://github.com/DTStack/Taier/releases/download/${current.version}/taier.tar.gz
 $ wget https://github.com/DTStack/Taier/releases/download/${current.version}/plugins.tar.gz
 ```
+
 - 解压taier源码包
+
 ```shell
 $ unzip taier.tar.gz
 $ unzip plugins.tar.gz
