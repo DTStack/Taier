@@ -18,12 +18,14 @@
 
 package com.dtstack.taier.dao.domain;
 
+import com.baomidou.mybatisplus.annotation.TableName;
 import com.dtstack.taier.common.enums.TempJobType;
 import com.google.common.base.Charsets;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 
+@TableName("develop_select_sql")
 public class DevelopSelectSql extends TenantEntity {
 
 
