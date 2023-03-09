@@ -92,22 +92,6 @@ public class CycleJobScheduler extends AbstractJobSummitScheduler {
         return submitInterceptorList;
     }
 
-//    @Override
-//    protected List<JudgeJobExecOperator> getJudgeJobExecOperator() {
-//        if (CollectionUtils.isNotEmpty(judgeJobExecOperators)) {
-//            return judgeJobExecOperators;
-//        }
-//        return Lists.newArrayList();
-//    }
-//
-//    @Override
-//    protected List<JudgeNoPassJobHandler> getJudgeNoPassJobHandler() {
-//        if (CollectionUtils.isNotEmpty(judgeNoPassJobHandlers)) {
-//            return judgeNoPassJobHandlers;
-//        }
-//        return Lists.newArrayList();
-//    }
-
     public EScheduleType getScheduleType() {
         return EScheduleType.NORMAL_SCHEDULE;
     }
