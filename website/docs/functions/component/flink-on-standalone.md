@@ -1,23 +1,25 @@
 ---
-title: Flink On Standalone
-sidebar_label: Flink On Standalone
+title: Flink On Standalone sidebar_label: Flink On Standalone
 ---
 
 ## 启动Flink Standalone环境
 
 **1、下载 flink**
+
 * flink官网下载 [release 1.12.7](https://flink.apache.org/downloads.html)
 
 **2、chunjun的插件**
-* 拉取最新的chunjun [master](https://github.com/DTStack/chunjun) 版本项目，打包 mvn clean package -DskipTests, 将生成的chunjun-dist 拷贝至 $FLINK_HOME/lib
-* chunjun 有些依赖包依赖是provided，需要将缺省的jar放到$FLINK_HOME/lib
-例如：在chunjun-core最新版本中将logback的依赖改为了provided,  需要将以下logback包放到$FLINK_HOME/lib
 
-  > logback-core-1.2.11.jar
-  > logback-classic-1.2.11.jar
+* 编译1.12版本的chunjun [master](https://github.com/DTStack/chunjun)插件，将生成的chunjun-dist 拷贝至 $FLINK_HOME/lib
+
+:::tip chunjun 有些依赖包依赖是provided，需要将缺省的jar放到$FLINK_HOME/lib  
+例如：在chunjun-core最新版本中将logback的依赖改为了provided, 需要将以下logback包放到$FLINK_HOME/lib logback-core-1.2.11.jar
+logback-classic-1.2.11.jar
+:::
 
 **3、flink1.12 standalone服务参数**
 所有节点都需要配置
+
 ```
 # 类加载配置
 classloader.resolve-order: parent-first
@@ -86,20 +88,21 @@ lib/
 | pluginLoadMode            | 加载文件的方式          | * | classpath |
 | jobmanager.rpc.address     | jobmanager rpc地址     | * |  |
 | jobmanager.rpc.port        | jobmanager rpc端口号   | *  |  |
-| rest.port                 | ui端口号	             |  * |  |
-| high-availability          | 高可用服务类型		    |   | NONE |
-| high-availability.zookeeper.quorum     | zookeeper集群地址	 |  |  |
-| high-availability.zookeeper.path.root  | flink存储状态在zookeeper的根节点路径		 |  |  |
+| rest.port                 | ui端口号                 |  * |  |
+| high-availability          | 高可用服务类型            |   | NONE |
+| high-availability.zookeeper.quorum     | zookeeper集群地址     |  |  |
+| high-availability.zookeeper.path.root  | flink存储状态在zookeeper的根节点路径         |  |  |
 | high-availability.storageDir          | flink高可用模式下存储元数据的文件系统路径(URI) |  |  |
-| high-availability.cluster-id          | flink集群的id， 用于区分多个flink集群		 |  |  |
+| high-availability.cluster-id          | flink集群的id， 用于区分多个flink集群         |  |  |
 | prometheusHost  | prometheus地址 | * |  |
 | prometheusPort  | prometheus端口 | * |  |
 | state.backend   | 状态后端       |   | jobmanager |
 
+:::caution flinkLibDir需要和$FLINK_HOME/lib文件一致  
+chunjunDistDir需要和$FLINK_HOME/lib/下chunjun插件包文件一致
+:::
 
-
-:::tip
-flink on standalone 离线任务需要手动将`环境参数`flinkTaskRunMode设置为`standalone`模式
+:::tip flink on standalone 离线任务需要手动将`环境参数`flinkTaskRunMode设置为`standalone`模式
 :::
 
 
