@@ -18,13 +18,26 @@ pidfile="${CMD_HOME}/run/$name.pid"
 gc_log=${CMD_HOME}/logs/taier.gc
 heapdump=${CMD_HOME}/taier.hprof
 
-touch $gc_log
-
 program=${LS_HOME}/bin/base.sh
 
 quiet() {
   "$@" > /dev/null 2>&1
   return $?
+}
+
+checkDir(){
+    if [ ! -d "$LS_LOG_DIR" ]; then
+      mkdir "$LS_LOG_DIR"
+
+    fi
+
+    if [ ! -d "$CMD_HOME/run" ]; then
+      mkdir "$CMD_HOME/run"
+    fi
+
+    if [ ! -f "$gc_log" ]; then
+      touch "$gc_log"
+    fi
 }
 
 start() {
@@ -35,6 +48,7 @@ start() {
   export PATH HOME LS_HEAP_SIZE JAVA_OPTS LS_USE_GC_LOGGING LS_GC_LOG_FILE
   #ulimit -n ${LS_OPEN_FILES}
 
+  checkDir
   nice -n ${LS_NICE} sh -c "
     cd $LS_HOME
     exec \"$program\" $args
