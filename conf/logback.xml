@@ -90,19 +90,23 @@
     </logger>
 
     <logger name="com.dtstack.taier.scheduler.server.scheduler" level="info" additivity="false">
-        <appender-ref ref="schedule" />
+        <appender-ref ref="schedule"/>
     </logger>
     <logger name="com.dtstack.taier.scheduler.server.queue.JopPriorityQueue" level="info" additivity="false">
-        <appender-ref ref="schedule" />
+        <appender-ref ref="schedule"/>
     </logger>
 
     <logger name="com.dtstack.taier.datasource" level="error" additivity="false">
-        <appender-ref ref="schedule" />
+        <appender-ref ref="schedule"/>
+    </logger>
+
+    <logger name="org.apache.hive.jdbc" level="error" additivity="false">
+        <appender-ref ref="allAppender"/>
     </logger>
 
     <root level="info">
-        <appender-ref ref="CONSOLE" />
-        <appender-ref ref="allAppender" />
+        <appender-ref ref="CONSOLE"/>
+        <appender-ref ref="allAppender"/>
     </root>
 
 </configuration>
