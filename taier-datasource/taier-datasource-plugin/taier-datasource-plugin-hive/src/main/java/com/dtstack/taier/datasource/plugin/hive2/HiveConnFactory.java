@@ -79,7 +79,7 @@ public class HiveConnFactory extends ConnFactory {
                         Properties properties = new Properties();
                         SSLUtil.SSLConfiguration sslConfiguration = SSLUtil.getSSLConfiguration(hiveSourceDTO);
                         dealSsl(properties, sslConfiguration);
-                        PropertiesUtil.convertToProp(hiveSourceDTO, properties);
+                        PropertiesUtil.convertToProp(hiveSourceDTO, properties, HIVE_CONF_PREFIX);
                         properties.put(DtClassConsistent.PublicConsistent.USER, hiveSourceDTO.getUsername() == null ? "" : hiveSourceDTO.getUsername());
                         properties.put(DtClassConsistent.PublicConsistent.PASSWORD, hiveSourceDTO.getPassword() == null ? "" : hiveSourceDTO.getPassword());
                         setQueue(properties, hiveSourceDTO);

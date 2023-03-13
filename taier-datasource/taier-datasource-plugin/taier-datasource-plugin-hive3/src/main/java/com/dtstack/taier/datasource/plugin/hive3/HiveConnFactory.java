@@ -52,6 +52,9 @@ import java.util.Properties;
 @Slf4j
 public class HiveConnFactory extends ConnFactory {
 
+    // Hive 属性前缀
+    private static final String HIVE_CONF_PREFIX = "hiveconf:";
+
     private static final String SSL_FLAG = "ssl";
 
     private static final String SSL_TRUST_STORE = "sslTrustStore";
@@ -79,7 +82,7 @@ public class HiveConnFactory extends ConnFactory {
                         dealSsl(properties, sslConfiguration);
                         properties.put(DtClassConsistent.PublicConsistent.USER, hiveSourceDTO.getUsername() == null ? "" : hiveSourceDTO.getUsername());
                         properties.put(DtClassConsistent.PublicConsistent.PASSWORD, hiveSourceDTO.getPassword() == null ? "" : hiveSourceDTO.getPassword());
-                        PropertiesUtil.convertToProp(hiveSourceDTO, properties);
+                        PropertiesUtil.convertToProp(hiveSourceDTO, properties, HIVE_CONF_PREFIX);
                         setQueue(properties, hiveSourceDTO);
                         String urlWithoutSchema = HiveDriverUtil.removeSchema(hiveSourceDTO.getUrl());
                         return DriverManager.getConnection(urlWithoutSchema, properties);
