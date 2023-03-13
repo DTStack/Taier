@@ -35,10 +35,14 @@ import java.util.Properties;
 public class PropertiesUtil {
 
     public static Properties convertToProp(RdbmsSourceDTO rdbmsSourceDTO) {
-        return convertToProp(rdbmsSourceDTO, null);
+        return convertToProp(rdbmsSourceDTO, null, null);
     }
 
     public static Properties convertToProp(RdbmsSourceDTO rdbmsSourceDTO, Properties properties) {
+        return convertToProp(rdbmsSourceDTO, properties, null);
+    }
+
+    public static Properties convertToProp(RdbmsSourceDTO rdbmsSourceDTO, Properties properties, String prefix) {
         if (Objects.isNull(properties)) {
             properties = new Properties();
         }
@@ -56,7 +60,8 @@ public class PropertiesUtil {
             for (String key : propertiesJson.keySet()) {
                 String value = propertiesJson.getString(key);
                 if (StringUtils.isNotBlank(value)) {
-                    properties.setProperty(key, value);
+                    String newKey = key.startsWith(prefix) ? key : prefix + key;
+                    properties.setProperty(newKey, value);
                 }
             }
         }
