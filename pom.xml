@@ -14,7 +14,7 @@
         <hadoop2.version>2.7.3</hadoop2.version>
         <hadoop3.version>3.0.0</hadoop3.version>
         <spring.version>5.2.3.RELEASE</spring.version>
-        <fastjson>1.2.76</fastjson>
+        <fastjson>1.2.83</fastjson>
         <jackson>2.9.6</jackson>
         <log4j.version>1.2.17</log4j.version>
         <slf4j-api.version>1.7.21</slf4j-api.version>
