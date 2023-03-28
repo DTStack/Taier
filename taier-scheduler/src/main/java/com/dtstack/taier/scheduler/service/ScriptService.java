@@ -8,15 +8,19 @@ import com.dtstack.taier.common.util.TaskParamsUtils;
 import com.dtstack.taier.dao.domain.ScheduleJob;
 import com.dtstack.taier.dao.domain.ScheduleTaskShade;
 import com.dtstack.taier.dao.dto.ScheduleTaskParamShade;
+import com.dtstack.taier.pluginapi.constrant.ConfigConstant;
 import com.dtstack.taier.pluginapi.enums.EDeployMode;
+import com.dtstack.taier.scheduler.PluginWrapper;
 import com.dtstack.taier.scheduler.executor.DatasourceOperator;
 import com.dtstack.taier.scheduler.server.pipeline.JobParamReplace;
 import com.dtstack.taier.scheduler.utils.FileUtil;
+import com.dtstack.taier.scheduler.utils.ScriptUtil;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -36,6 +40,9 @@ public class ScriptService {
     @Autowired
     private DatasourceOperator datasourceOperator;
 
+    @Autowired
+    private PluginWrapper pluginWrapper;
+
     /**
      * 处理脚本参数
      * on-yarn sqlText 上传到 hdfs 得到路径后，替换占位符
@@ -47,7 +54,7 @@ public class ScriptService {
      * @param scheduleJob
      * @throws Exception
      */
-    public void handScriptParams(Map<String, Object> actionParam, ScheduleTaskShade task, List<ScheduleTaskParamShade> taskParamsToReplace, ScheduleJob scheduleJob) {
+    public void handScriptParams(Map<String, Object> actionParam, ScheduleTaskShade task, List<ScheduleTaskParamShade> taskParamsToReplace, ScheduleJob scheduleJob) throws IOException {
 
         Integer taskType = task.getTaskType();
         String sqlText = Objects.toString(actionParam.get("sqlText"), "");
@@ -72,7 +79,7 @@ public class ScriptService {
             dealScriptExeParams(actionParam, task, scheduleJob, sqlText);
         }
         if (EDeployMode.STANDALONE.equals(deployMode)) {
-            dealScriptStandAloneParams(actionParam, task, scheduleJob);
+            dealScriptStandAloneParams(actionParam, task, scheduleJob, sqlText);
         }
     }
 
@@ -87,12 +94,9 @@ public class ScriptService {
     private void dealScriptExeParams(Map<String, Object> actionParam, ScheduleTaskShade task, ScheduleJob scheduleJob,
                                      String sqlText) {
         String exeArgs = Objects.toString(actionParam.get("exeArgs"), "");
-        if (!exeArgs.contains("${uploadPath}")) {
-            return;
-        }
+        JSONObject exeArgsJson = new JSONObject();
         String hdfsPath = uploadToHdfs(sqlText, task, scheduleJob);
-        // cyc scheduling，should in time replace placeHolder to hdfs path
-        exeArgs = exeArgs.replace("${uploadPath}", hdfsPath);
+        exeArgsJson.put("scriptFilePath", hdfsPath);
         actionParam.put("exeArgs", exeArgs);
     }
 
@@ -110,11 +114,39 @@ public class ScriptService {
         return datasourceOperator.uploadToHdfs(pluginInfo, task.getTenantId(), sqlText, hdfsPath);
     }
 
-    private void dealScriptStandAloneParams (Map<String, Object> actionParam, ScheduleTaskShade task, ScheduleJob scheduleJob) {
+    private void dealScriptStandAloneParams(Map<String, Object> actionParam, ScheduleTaskShade task, ScheduleJob scheduleJob,
+                                            String sqlText) throws IOException {
         // 获取组件信息
+        Map<String, Object> pluginInfo = pluginWrapper.wrapperPluginInfo(task.getTaskType(), task.getTaskParams(), task.getComputeType(),
+                task.getComponentVersion(), task.getTenantId(), task.getQueueName());
+        JSONObject pluginInfoJson = new JSONObject(pluginInfo);
+
+        String command = "";
+
         // 区分任务类型 shell、python2、python3
-        // 组装shell参数
-        actionParam.put("shellCommand", "echo 1");
+        String commandConfigPath = pluginInfoJson.getString(ConfigConstant.COMPONENT_EXECUTE_DIR);
+        if (EScheduleJobType.SHELL.getType().equals(task.getTaskType())) {
+            command = ScriptUtil.buildShellCommand(String.format("%s/%s/%s.sh", commandConfigPath, scheduleJob.getJobId(), scheduleJob.getJobName()), sqlText);
+        }
+        if (EScheduleJobType.PYTHON.getType().equals(task.getTaskType())) {
+            // 处理python任务版本信息
+            JSONObject exeArgsJson = JSONObject.parseObject(actionParam.get("exeArgs").toString());
+            String pythonVersion = exeArgsJson.getString(ConfigConstant.APP_TYPE);
+            String pythonBinPath = "";
+            if ("python3".equalsIgnoreCase(pythonVersion)) {
+                pythonBinPath = pluginInfoJson.getString(ConfigConstant.COMPONENT_PYTHON_3_BIN);
+            }
+            if ("python2".equalsIgnoreCase(pythonVersion)) {
+                pythonBinPath = pluginInfoJson.getString(ConfigConstant.COMPONENT_PYTHON_2_BIN);
+            }
+
+            if (StringUtils.isBlank(pythonBinPath)) {
+                throw new TaierDefineException(String.format("jobId: %s 未匹配到对应的python版本信息", scheduleJob.getJobId()));
+            }
+            command = ScriptUtil.buildPythonCommand(String.format("%s/%s/%s.py", commandConfigPath, scheduleJob.getJobId(), scheduleJob.getJobName()),
+                    sqlText, pythonBinPath);
+        }
+        actionParam.put("shellCommand", command);
     }
 
 

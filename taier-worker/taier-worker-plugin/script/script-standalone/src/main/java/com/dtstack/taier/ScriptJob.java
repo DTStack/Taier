@@ -35,7 +35,7 @@ public class ScriptJob implements Runnable {
     /**
      * 日志打印
      */
-    private StringBuilder logBuilder;
+    private StringBuilder logBuilder = new StringBuilder();
 
     /**
      * 开始时间
