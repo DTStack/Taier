@@ -57,6 +57,9 @@ public class ScriptClient extends AbstractClient {
     @Override
     public TaskStatus getJobStatus(JobIdentifier jobIdentifier) {
         ScriptJob scriptJob = ScriptExecutor.getJobMap().get(jobIdentifier.getJobId());
+        if (Objects.isNull(scriptJob)) {
+            return null;
+        }
         if (BooleanUtils.isTrue(scriptJob.getStatus())) {
             return TaskStatus.FINISHED;
         } else if (BooleanUtils.isFalse(scriptJob.getStatus())) {
