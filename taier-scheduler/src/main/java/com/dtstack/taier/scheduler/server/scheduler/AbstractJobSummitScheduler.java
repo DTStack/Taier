@@ -29,6 +29,7 @@ import com.dtstack.taier.scheduler.service.ScheduleJobService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.context.event.ApplicationStartedEvent;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -95,6 +96,19 @@ public abstract class AbstractJobSummitScheduler extends AbstractJobScanningSche
         }
     }
 
+    @Override
+    public void onApplicationEvent(ApplicationStartedEvent applicationStartedEvent) {
+        scheduleJobQueue = new LinkedBlockingQueue<>(env.getQueueSize());
+
+        String threadName = this.getClass().getSimpleName() + "_" + getSchedulerName() + "_startJobProcessor";
+        executorService = new ThreadPoolExecutor(env.getJobExecutorPoolCorePoolSize(), env.getJobExecutorPoolMaximumPoolSize(), env.getJobExecutorPoolKeepAliveTime(), TimeUnit.MILLISECONDS,
+                new LinkedBlockingQueue<>(env.getJobExecutorPoolQueueSize()),
+                new CustomThreadRunsPolicy<ScheduleJob>(threadName, getSchedulerName(), (job -> {
+                    scheduleJobService.updatePhaseStatusById(job.getId(), JobPhaseStatus.JOIN_THE_TEAM, JobPhaseStatus.CREATE);
+                    LOGGER.warn("start job processor reject job {},return job to db", job.getJobId());
+                })));
+    }
+
     /**
      * 提交实例
      *
@@ -130,19 +144,6 @@ public abstract class AbstractJobSummitScheduler extends AbstractJobScanningSche
         LOGGER.info("---stop {}----", getSchedulerName());
     }
 
-    @Override
-    public void afterPropertiesSet() throws Exception {
-        super.afterPropertiesSet();
-        scheduleJobQueue = new LinkedBlockingQueue<>(env.getQueueSize());
-
-        String threadName = this.getClass().getSimpleName() + "_" + getSchedulerName() + "_startJobProcessor";
-        executorService = new ThreadPoolExecutor(env.getJobExecutorPoolCorePoolSize(), env.getJobExecutorPoolMaximumPoolSize(), env.getJobExecutorPoolKeepAliveTime(), TimeUnit.MILLISECONDS,
-                new LinkedBlockingQueue<>(env.getJobExecutorPoolQueueSize()),
-                new CustomThreadRunsPolicy<ScheduleJob>(threadName, getSchedulerName(), (job -> {
-                    scheduleJobService.updatePhaseStatusById(job.getId(), JobPhaseStatus.JOIN_THE_TEAM, JobPhaseStatus.CREATE);
-                    LOGGER.warn("start job processor reject job {},return job to db", job.getJobId());
-                })));
-    }
 
 
     @Override

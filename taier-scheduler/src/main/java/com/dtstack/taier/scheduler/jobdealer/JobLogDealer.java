@@ -29,8 +29,9 @@ import com.dtstack.taier.scheduler.jobdealer.bo.JobLogInfo;
 import com.dtstack.taier.scheduler.service.ScheduleJobExpandService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.context.event.ApplicationStartedEvent;
+import org.springframework.context.ApplicationListener;
 import org.springframework.stereotype.Component;
 
 import java.util.concurrent.ExecutorService;
@@ -43,7 +44,7 @@ import java.util.concurrent.TimeUnit;
  * 获取任务重试日志  无需延迟
  */
 @Component
-public class JobLogDealer implements InitializingBean, Runnable {
+public class JobLogDealer implements ApplicationListener<ApplicationStartedEvent>, Runnable {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(JobLogDealer.class);
 
@@ -109,9 +110,8 @@ public class JobLogDealer implements InitializingBean, Runnable {
         }
     }
 
-
     @Override
-    public void afterPropertiesSet() throws Exception {
+    public void onApplicationEvent(ApplicationStartedEvent applicationStartedEvent) {
         logGetPool = new ThreadPoolExecutor(2, environmentContext.getLogPoolSize(), 60L, TimeUnit.SECONDS,
                 new LinkedBlockingQueue<>(100), new CustomThreadFactory(this.getClass().getSimpleName()));
         logExecutePool.execute(this);
