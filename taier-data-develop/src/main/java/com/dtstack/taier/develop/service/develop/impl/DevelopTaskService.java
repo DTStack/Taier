@@ -138,7 +138,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -560,10 +559,10 @@ public class DevelopTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
             String sqlText = taskSaver.processScheduleRunSqlText(task);
             actionParam.put("sqlText", sqlText);
         }
-        String taskExeArgs = buildExeArgs(task);
-        Optional.ofNullable(taskExeArgs).ifPresent(v -> actionParam.put("exeArgs", taskExeArgs));
+        actionParam.put("exeArgs", task.getExeArgs());
         actionParam.put("taskId", taskId);
         actionParam.put("taskType", task.getTaskType());
+        actionParam.put("version", task.getVersion());
         actionParam.put("name", task.getName());
         actionParam.put("computeType", task.getComputeType());
         actionParam.put("tenantId", task.getTenantId());
@@ -1378,15 +1377,6 @@ public class DevelopTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
             return new JSONObject();
         }
         return JSONObject.parseObject(dicts.get(0).getDictValue());
-    }
-
-    private String buildExeArgs(Task task) {
-        if (!scriptTaskRunner.support().contains(EScheduleJobType.getByTaskType(task.getTaskType()))) {
-            return null;
-        }
-        // add place holder
-        String fileDir = "${uploadPath}";
-        return developScriptService.buildExeArgs(task, fileDir);
     }
 
     public ParsingFTPFileVO parsingFtpTaskFile(DevelopTaskParsingFTPFileParamVO payload) throws IOException {
