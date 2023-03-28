@@ -115,7 +115,7 @@ public enum ErrorCode implements ExceptionEnums, Serializable {
     RESOURCE_NOT_SUPPORT_COMPONENT_VERSION(214, "resource component {} not support {} version {}","资源组件 {} 不支持 {} 版本 {}"),
     COMPONENT_CONFIG_NOT_SUPPORT_VERSION(215, "component {} config not support {} version {}","组件 {} 配置不支持版本 {}"),
     NOT_SUPPORT_COMPONENT(216, "not support component {} version {} ,pluginName is empty","不支持组件 {} 版本 {}，找不到插件名称"),
-    DEPEND_ON_COMPONENT_NOT_CONFIG(217, "depend_on_component_not_config","依赖组件未配置"),
+    DEPEND_ON_COMPONENT_NOT_CONFIG(217, "depend {} component  not config","依赖{}组件 未配置"),
     RESOURCE_COMPONENT_NOT_SUPPORT_DEPLOY_TYPE(218, "resource component {} not support deployType {}","资源组件不支持部署版本 {}"),
     COMPONENT_INVALID(219, "component_invalid","组件不支持"),
     CLUSTER_ID_EMPTY(220, "cluster id is empty","集群id为空"),

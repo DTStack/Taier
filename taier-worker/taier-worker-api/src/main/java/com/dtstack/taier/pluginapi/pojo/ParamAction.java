@@ -96,6 +96,8 @@ public class ParamAction {
 
 	private Long datasourceId;
 
+	private String shellCommand;
+
 	public Long getDatasourceId() {
 		return datasourceId;
 	}
@@ -291,6 +293,14 @@ public class ParamAction {
 
 	public void setRetryIntervalTime(Long retryIntervalTime) {
 		this.retryIntervalTime = retryIntervalTime;
+	}
+
+	public String getShellCommand() {
+		return shellCommand;
+	}
+
+	public void setShellCommand(String shellCommand) {
+		this.shellCommand = shellCommand;
 	}
 
 	@Override

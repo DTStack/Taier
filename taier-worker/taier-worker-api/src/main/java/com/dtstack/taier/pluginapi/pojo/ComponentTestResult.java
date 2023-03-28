@@ -71,4 +71,10 @@ public class ComponentTestResult {
         return JSONObject.toJSONString(this);
     }
 
+    public static ComponentTestResult ok() {
+        ComponentTestResult result = new ComponentTestResult();
+        result.setResult(true);
+        return result;
+    }
+
 }
