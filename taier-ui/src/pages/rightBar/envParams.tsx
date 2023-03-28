@@ -31,6 +31,7 @@ export default function EnvParams({ current }: IRightBarComponentProps) {
         <Editor
             value={current?.tab?.data.taskParams || ''}
             language="ini"
+            sync
             options={{
                 automaticLayout: true,
                 minimap: { enabled: false },
