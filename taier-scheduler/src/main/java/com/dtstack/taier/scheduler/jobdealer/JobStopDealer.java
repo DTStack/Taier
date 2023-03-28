@@ -53,8 +53,9 @@ import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.DisposableBean;
-import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.context.event.ApplicationStartedEvent;
+import org.springframework.context.ApplicationListener;
 import org.springframework.stereotype.Component;
 
 import java.sql.Timestamp;
@@ -79,7 +80,7 @@ import java.util.stream.Collectors;
  * create: 2020/5/26
  */
 @Component
-public class JobStopDealer implements InitializingBean, DisposableBean {
+public class JobStopDealer implements ApplicationListener<ApplicationStartedEvent>, DisposableBean {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(JobStopDealer.class);
 
@@ -220,9 +221,17 @@ public class JobStopDealer implements InitializingBean, DisposableBean {
         return TaskStatus.UNSUBMIT.getStatus().equals(scheduleJob.getStatus()) || SPECIAL_TASK_TYPES.contains(scheduleJob.getTaskType());
     }
 
+    @Override
+    public void destroy() throws Exception {
+        delayStopProcessor.close();
+        delayStopProcessorService.shutdownNow();
+        scheduledService.shutdownNow();
+        asyncDealStopJobService.shutdownNow();
+        LOGGER.info("job stop process thread is shutdown...");
+    }
 
     @Override
-    public void afterPropertiesSet() {
+    public void onApplicationEvent(ApplicationStartedEvent applicationStartedEvent) {
         LOGGER.info("Initializing " + this.getClass().getName());
 
         jobStoppedRetry = environmentContext.getJobStoppedRetry();
@@ -234,15 +243,6 @@ public class JobStopDealer implements InitializingBean, DisposableBean {
                 WAIT_INTERVAL,
                 WAIT_INTERVAL,
                 TimeUnit.MILLISECONDS);
-    }
-
-    @Override
-    public void destroy() throws Exception {
-        delayStopProcessor.close();
-        delayStopProcessorService.shutdownNow();
-        scheduledService.shutdownNow();
-        asyncDealStopJobService.shutdownNow();
-        LOGGER.info("job stop process thread is shutdown...");
     }
 
     private class AcquireStopJob implements Runnable {
