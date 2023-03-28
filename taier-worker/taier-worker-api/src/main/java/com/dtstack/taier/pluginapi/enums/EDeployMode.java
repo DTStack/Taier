@@ -23,7 +23,12 @@ import com.dtstack.taier.pluginapi.exception.PluginDefineException;
 public enum EDeployMode {
     PERJOB("perjob", 1),
     SESSION("session", 2),
-    STANDALONE("standalone", 3);
+    STANDALONE("standalone", 3),
+
+    /**
+     * on yarn 任务
+     */
+    RUN_ON_YARN("on_yarn", 4);
 
     private final String mode;
     private final Integer type;

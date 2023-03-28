@@ -17,6 +17,7 @@
         <module>yarn-hdfs-script-core</module>
         <module>yarn2-hdfs2-script</module>
         <module>yarn3-hdfs3-script</module>
+        <module>script-standalone</module>
     </modules>
 
     <build>

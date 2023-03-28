@@ -167,7 +167,7 @@ public class ConsoleComponentService {
                                             List<Resource> resources, String versionName,
                                             String kerberosFileName,
                                             EComponentType componentType, Integer storeType,
-                                            String principals, String principal, boolean isMetadata, Boolean isDefault, Integer deployType) {
+                                            String principals, String principal, Boolean isDefault, Integer deployType) {
 
         EComponentType storeComponent = null == storeType ? null : EComponentType.getByCode(storeType);
         PartCluster partCluster = clusterFactory.newImmediatelyLoadCluster(clusterId);
