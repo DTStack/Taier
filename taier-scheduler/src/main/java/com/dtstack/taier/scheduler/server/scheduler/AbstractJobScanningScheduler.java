@@ -35,8 +35,9 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.context.event.ApplicationStartedEvent;
+import org.springframework.context.ApplicationListener;
 
 import java.util.List;
 import java.util.Map;
@@ -51,7 +52,7 @@ import java.util.stream.Collectors;
  * @Email: dazhi@dtstack.com
  * @Description: 任务扫描执行器
  */
-public abstract class AbstractJobScanningScheduler implements Scheduler, InitializingBean {
+public abstract class AbstractJobScanningScheduler implements Scheduler, ApplicationListener<ApplicationStartedEvent> {
 
     private final Logger LOGGER = LoggerFactory.getLogger(AbstractJobScanningScheduler.class);
 
@@ -69,15 +70,17 @@ public abstract class AbstractJobScanningScheduler implements Scheduler, Initial
 
     /**
      * 获得实例列表
-     * @param startSort 开始id
+     *
+     * @param startSort   开始id
      * @param nodeAddress 查询的实例对应的节点
-     * @param isEq sql中是否包含第一个
+     * @param isEq        sql中是否包含第一个
      * @return 实例列表
      */
     protected abstract List<ScheduleJobDetails> listExecJob(Long startSort, String nodeAddress, Boolean isEq);
 
     /**
      * 获得排序最小序号
+     *
      * @return 最小序号
      */
     protected abstract Long getMinSort();
@@ -93,7 +96,7 @@ public abstract class AbstractJobScanningScheduler implements Scheduler, Initial
     /**
      * 扫描实例
      */
-    private void scanningJob () {
+    private void scanningJob() {
         try {
             if (!env.isOpenJobSchedule()) {
                 return;
@@ -103,7 +106,7 @@ public abstract class AbstractJobScanningScheduler implements Scheduler, Initial
             if (StringUtils.isBlank(nodeAddress)) {
                 return;
             }
-            LOGGER.info("scanningJob start scheduleType : {} nodeAddress:{}", getSchedulerName(),nodeAddress);
+            LOGGER.info("scanningJob start scheduleType : {} nodeAddress:{}", getSchedulerName(), nodeAddress);
 
             // 2. 获得排序最小序号
             Long minSort = getMinSort();
@@ -149,12 +152,11 @@ public abstract class AbstractJobScanningScheduler implements Scheduler, Initial
         }
     }
 
+
     @Override
-    public void afterPropertiesSet() throws Exception {
+    public void onApplicationEvent(ApplicationStartedEvent applicationStartedEvent) {
         LOGGER.info("Initializing scheduleType:{} acquireQueueJobInterval:{} queueSize:{}", getSchedulerName(), env.getJobAcquireQueueJobInterval(), env.getQueueSize());
         ScheduledExecutorService scheduledService = new ScheduledThreadPoolExecutor(1, new CustomThreadFactory(getSchedulerName() + "_AcquireJob"));
         scheduledService.scheduleWithFixedDelay(this::scanningJob, 0, env.getJobAcquireQueueJobInterval(), TimeUnit.MILLISECONDS);
     }
-
-
 }

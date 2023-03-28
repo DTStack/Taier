@@ -65,10 +65,10 @@ ALTER TABLE develop_hive_select_sql
 RENAME TABLE develop_hive_select_sql TO develop_select_sql;
 
 
-COMMIT;
 
 INSERT INTO `dict` (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default,
                     gmt_create, gmt_modified, is_deleted)
 VALUES ('25', 'HadoopMR',
         '{"actions": ["SAVE_TASK", "SUBMIT_TASK", "OPERATOR_TASK"], "formField": ["resourceIdList", "mainClass", "exeArgs"],"barItem":["dependency","task_params","env_params"], "renderKind": "spark"}',
         '', 30, 5, 'STRING', '', 0, '2023-02-09 10:28:45', '2023-02-09 10:28:45', 0);
+COMMIT;
