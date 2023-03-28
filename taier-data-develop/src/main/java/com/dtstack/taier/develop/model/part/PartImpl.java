@@ -97,7 +97,7 @@ public class PartImpl implements Part {
         if (CollectionUtils.isNotEmpty(dependsOn) && !EDeployType.STANDALONE.equals(deployType)) {
             for (EComponentScheduleType componentScheduleType : dependsOn) {
                 if (!componentScheduleGroup.containsKey(componentScheduleType)) {
-                    throw new TaierDefineException(ErrorCode.DEPEND_ON_COMPONENT_NOT_CONFIG);
+                    throw new TaierDefineException(String.format(ErrorCode.DEPEND_ON_COMPONENT_NOT_CONFIG.getMsg().replaceAll("\\{}", "%s"), componentScheduleType.name()));
                 }
             }
         }

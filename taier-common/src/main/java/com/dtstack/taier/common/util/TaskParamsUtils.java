@@ -25,9 +25,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Properties;
 
 
@@ -66,13 +63,29 @@ public class TaskParamsUtils {
     }
 
 
-    public Map<String, Object> convertPropertiesToMap(String taskParams) {
+    /**
+     * 解析脚本任务模式中的运行模式
+     *
+     * @param taskParams
+     * @return
+     */
+    public static EDeployMode parseScriptDeployTypeByTaskParams(String taskParams) {
         try {
-            Properties properties = PublicUtil.stringToProperties(taskParams);
-            return new HashMap<String, Object>((Map) properties);
-        } catch (IOException e) {
-            LOGGER.error("convertPropertiesToMap {} error", taskParams, e);
+            if (!StringUtils.isBlank(taskParams)) {
+                Properties properties = PublicUtil.stringToProperties(taskParams);
+                String flinkTaskRunMode = properties.getProperty("runMode");
+                if (!StringUtils.isEmpty(flinkTaskRunMode)) {
+                    if (flinkTaskRunMode.equalsIgnoreCase("yarn")) {
+                        return EDeployMode.RUN_ON_YARN;
+                    } else if (flinkTaskRunMode.equalsIgnoreCase("standalone")) {
+                        return EDeployMode.STANDALONE;
+                    }
+                }
+            }
+        } catch (Exception e) {
+            LOGGER.error(" parseDeployTypeByTaskParams {} error", taskParams, e);
         }
-        return new HashMap<>();
+        return EDeployMode.RUN_ON_YARN;
     }
+
 }

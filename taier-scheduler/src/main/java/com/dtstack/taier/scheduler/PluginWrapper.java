@@ -47,6 +47,9 @@ public class PluginWrapper {
         if (EScheduleJobType.SYNC.getType().equals(taskType)) {
             deployMode = TaskParamsUtils.parseDeployTypeByTaskParams(taskParam, computeType);
         }
+        if (EScheduleJobType.SHELL.getType().equals(taskType)) {
+            deployMode = TaskParamsUtils.parseScriptDeployTypeByTaskParams(taskParam);
+        }
         if (clusterService.hasStandalone(tenantId, EComponentType.FLINK.getTypeCode())) {
             deployMode = EDeployMode.STANDALONE;
         }

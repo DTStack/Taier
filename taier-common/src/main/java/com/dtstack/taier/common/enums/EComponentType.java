@@ -32,6 +32,7 @@ public enum EComponentType {
     HDFS(2, "HDFS", "hadoopConf", EComponentScheduleType.STORAGE),
     YARN(3, "YARN", "yarnConf", EComponentScheduleType.RESOURCE),
     SFTP(6, "SFTP", "sftpConf", EComponentScheduleType.COMMON),
+    DATAX(9, "DATAX", "dataXConf", EComponentScheduleType.COMPUTE),
     SCRIPT(8, "Script", "scriptConf", EComponentScheduleType.COMPUTE),
 
     ;

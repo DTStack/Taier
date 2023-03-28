@@ -111,8 +111,11 @@ public class UploadController {
                 if ("1.12-standalone".equals(versionName)) {
                     deployTypeCode = 0;
                 }
+                if ("standalone".equals(versionName)) {
+                    deployTypeCode = 0;
+                }
                 return consoleComponentService.addOrUpdateComponent(clusterId, finalComponentConfig, resources,
-                        finalVersionName, kerberosFileName, componentType, EComponentType.HDFS.getTypeCode(), principals, principal, isMetadata, isDefault, deployTypeCode);
+                        finalVersionName, kerberosFileName, componentType, EComponentType.HDFS.getTypeCode(), principals, principal, isMetadata, deployTypeCode);
             }
         }.execute();
 
