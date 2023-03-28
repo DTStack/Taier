@@ -8,6 +8,10 @@ import com.dtstack.taier.common.util.TaskParamsUtils;
 import com.dtstack.taier.dao.domain.ScheduleJob;
 import com.dtstack.taier.dao.domain.ScheduleTaskShade;
 import com.dtstack.taier.dao.dto.ScheduleTaskParamShade;
+import com.dtstack.taier.pluginapi.enums.EDeployMode;
+import com.dtstack.taier.scheduler.executor.DatasourceOperator;
+import com.dtstack.taier.scheduler.server.pipeline.JobParamReplace;
+import com.dtstack.taier.scheduler.utils.FileUtil;
 import com.dtstack.taier.pluginapi.constrant.ConfigConstant;
 import com.dtstack.taier.pluginapi.enums.EDeployMode;
 import com.dtstack.taier.scheduler.PluginWrapper;
@@ -54,6 +58,7 @@ public class ScriptService {
      * @param scheduleJob
      * @throws Exception
      */
+    public void handScriptParams(Map<String, Object> actionParam, ScheduleTaskShade task, List<ScheduleTaskParamShade> taskParamsToReplace, ScheduleJob scheduleJob) {
     public void handScriptParams(Map<String, Object> actionParam, ScheduleTaskShade task, List<ScheduleTaskParamShade> taskParamsToReplace, ScheduleJob scheduleJob) throws IOException {
 
         Integer taskType = task.getTaskType();
@@ -79,7 +84,7 @@ public class ScriptService {
             dealScriptExeParams(actionParam, task, scheduleJob, sqlText);
         }
         if (EDeployMode.STANDALONE.equals(deployMode)) {
-            dealScriptStandAloneParams(actionParam, task, scheduleJob, sqlText);
+            dealScriptStandAloneParams(actionParam, task, scheduleJob);
         }
     }
 
@@ -99,7 +104,6 @@ public class ScriptService {
         exeArgsJson.put("scriptFilePath", hdfsPath);
         actionParam.put("exeArgs", exeArgs);
     }
-
     /**
      * 将脚本上传到 hdfs
      *

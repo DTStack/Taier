@@ -33,11 +33,6 @@ public class ScriptJob implements Runnable {
     private Process process;
 
     /**
-     * 日志打印
-     */
-    private StringBuilder logBuilder = new StringBuilder();
-
-    /**
      * 开始时间
      */
     private Long execStartTime;
@@ -62,17 +57,6 @@ public class ScriptJob implements Runnable {
             process = Runtime.getRuntime().exec(command);
             processId = ProcessUtil.getProcessId(process);
 
-            BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
-            String line;
-            if ((line = reader.readLine()) != null) {
-                logBuilder.append(line);
-            }
-
-            BufferedReader errorReader = new BufferedReader(new InputStreamReader(process.getErrorStream()));
-            String errorLine;
-            if ((errorLine = errorReader.readLine()) != null) {
-                logBuilder.append(errorLine);
-            }
 
             int exitValue = process.waitFor();
             if (0 != exitValue) {
