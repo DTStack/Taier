@@ -119,128 +119,375 @@ INSERT INTO `console_component_config` VALUES (585, -2, -118, 5, 'INPUT', 0, 'ma
 INSERT INTO `console_component_config` VALUES (587, -2, -118, 5, 'INPUT', 0, 'minJobPoolSize', '', NULL, NULL, NULL, NULL, '2022-10-24 15:45:53', '2022-10-24 15:45:53', 0);
 INSERT INTO `console_component_config` VALUES (589, -2, -115, 0, 'CHECKBOX', 1, 'deploymode', '[\"perjob\",\"session\"]', NULL, '', '', NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
 INSERT INTO `console_component_config` VALUES (591, -2, -115, 0, 'GROUP', 1, 'perjob', 'perjob', NULL, 'deploymode', 'perjob', NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
-INSERT INTO `console_component_config` VALUES (593, -2, -115, 0, 'INPUT', 1, 'akka.ask.timeout', '60 s', NULL, 'deploymode$perjob', NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
-INSERT INTO `console_component_config` VALUES (595, -2, -115, 0, 'INPUT', 0, 'classloader.dtstack-cache', 'true', NULL, 'deploymode$perjob', NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
-INSERT INTO `console_component_config` VALUES (597, -2, -115, 0, 'INPUT', 0, 'classloader.resolve-order', 'child-first', NULL, 'deploymode$perjob', NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
-INSERT INTO `console_component_config` VALUES (599, -2, -115, 0, 'INPUT', 1, 'clusterMode', 'perjob', NULL, 'deploymode$perjob', NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
-INSERT INTO `console_component_config` VALUES (601, -2, -115, 0, 'INPUT', 0, 'env.java.opts', '-XX:+UseConcMarkSweepGC -XX:+CMSParallelRemarkEnabled -XX:+CMSIncrementalMode -XX:+CMSIncrementalPacing -XX:MaxMetaspaceSize=500m -Dfile.encoding=UTF-8', NULL, 'deploymode$perjob', NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
-INSERT INTO `console_component_config` VALUES (603, -2, -115, 0, 'INPUT', 1, 'flinkLibDir', '/data/insight_plugin1.12/flink_lib', NULL, 'deploymode$perjob', NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
-INSERT INTO `console_component_config` VALUES (605, -2, -115, 0, 'INPUT', 1, 'chunjunDistDir', '/data/insight_plugin1.12/chunjunplugin', NULL, 'deploymode$perjob', NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
-INSERT INTO `console_component_config` VALUES (607, -2, -115, 0, 'INPUT', 0, 'jobmanager.memory.process.size', '1600m', NULL, 'deploymode$perjob', NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
-INSERT INTO `console_component_config` VALUES (609, -2, -115, 0, 'INPUT', 0, 'high-availability', 'ZOOKEEPER', NULL, 'deploymode$perjob', NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
-INSERT INTO `console_component_config` VALUES (611, -2, -115, 0, 'INPUT', 1, 'taskmanager.memory.process.size', '2048m', NULL, 'deploymode$perjob', NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
-INSERT INTO `console_component_config` VALUES (613, -2, -115, 0, 'INPUT', 1, 'high-availability.storageDir', 'hdfs://ns1/dtInsight/flink112/ha', NULL, 'deploymode$perjob', NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
-INSERT INTO `console_component_config` VALUES (615, -2, -115, 0, 'INPUT', 1, 'high-availability.zookeeper.path.root', '/flink112', NULL, 'deploymode$perjob', NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
-INSERT INTO `console_component_config` VALUES (617, -2, -115, 0, 'INPUT', 1, 'high-availability.zookeeper.quorum', '', NULL, 'deploymode$perjob', NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
-INSERT INTO `console_component_config` VALUES (619, -2, -115, 0, 'INPUT', 0, 'taskmanager.numberOfTaskSlots', '1', NULL, 'deploymode$perjob', NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
-INSERT INTO `console_component_config` VALUES (621, -2, -115, 0, 'INPUT', 1, 'jobmanager.archive.fs.dir', 'hdfs://ns1/dtInsight/flink112/completed-jobs', NULL, 'deploymode$perjob', NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
-INSERT INTO `console_component_config` VALUES (623, -2, -115, 0, 'INPUT', 1, 'metrics.reporter.promgateway.class', 'org.apache.flink.metrics.prometheus.PrometheusPushGatewayReporter', NULL, 'deploymode$perjob', NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
-INSERT INTO `console_component_config` VALUES (625, -2, -115, 0, 'SELECT', 1, 'metrics.reporter.promgateway.deleteOnShutdown', 'true', NULL, 'deploymode$perjob', NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
-INSERT INTO `console_component_config` VALUES (627, -2, -115, 0, '', 1, 'false', 'false', NULL, 'deploymode$perjob$metrics.reporter.promgateway.deleteOnShutdown', NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
-INSERT INTO `console_component_config` VALUES (629, -2, -115, 0, '', 1, 'true', 'true', NULL, 'deploymode$perjob$metrics.reporter.promgateway.deleteOnShutdown', NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
-INSERT INTO `console_component_config` VALUES (631, -2, -115, 0, 'INPUT', 1, 'metrics.reporter.promgateway.host', '', NULL, 'deploymode$perjob', NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
-INSERT INTO `console_component_config` VALUES (633, -2, -115, 0, 'INPUT', 1, 'metrics.reporter.promgateway.jobName', '112job', NULL, 'deploymode$perjob', NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
-INSERT INTO `console_component_config` VALUES (635, -2, -115, 0, 'INPUT', 1, 'metrics.reporter.promgateway.port', '9091', NULL, 'deploymode$perjob', NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
-INSERT INTO `console_component_config` VALUES (637, -2, -115, 0, 'SELECT', 1, 'metrics.reporter.promgateway.randomJobNameSuffix', 'true', NULL, 'deploymode$perjob', NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
-INSERT INTO `console_component_config` VALUES (639, -2, -115, 0, '', 1, 'false', 'false', NULL, 'deploymode$perjob$metrics.reporter.promgateway.randomJobNameSuffix', NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
-INSERT INTO `console_component_config` VALUES (641, -2, -115, 0, '', 1, 'true', 'true', NULL, 'deploymode$perjob$metrics.reporter.promgateway.randomJobNameSuffix', NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
-INSERT INTO `console_component_config` VALUES (643, -2, -115, 0, 'INPUT', 0, 'monitorAcceptedApp', 'false', NULL, 'deploymode$perjob', NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
-INSERT INTO `console_component_config` VALUES (645, -2, -115, 0, 'INPUT', 0, 'pluginLoadMode', 'shipfile', NULL, 'deploymode$perjob', NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
-INSERT INTO `console_component_config` VALUES (647, -2, -115, 0, 'INPUT', 0, 'prometheusHost', '', NULL, 'deploymode$perjob', NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
-INSERT INTO `console_component_config` VALUES (649, -2, -115, 0, 'INPUT', 0, 'prometheusPort', '9090', NULL, 'deploymode$perjob', NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
-INSERT INTO `console_component_config` VALUES (651, -2, -115, 0, 'INPUT', 0, 'state.backend', 'RocksDB', NULL, 'deploymode$perjob', NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
-INSERT INTO `console_component_config` VALUES (653, -2, -115, 0, 'INPUT', 0, 'state.backend.incremental', 'true', NULL, 'deploymode$perjob', NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
-INSERT INTO `console_component_config` VALUES (655, -2, -115, 0, 'INPUT', 1, 'state.checkpoints.dir', 'hdfs://ns1/dtInsight/flink112/checkpoints', NULL, 'deploymode$perjob', NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
-INSERT INTO `console_component_config` VALUES (657, -2, -115, 0, 'INPUT', 1, 'state.checkpoints.num-retained', '11', NULL, 'deploymode$perjob', NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
-INSERT INTO `console_component_config` VALUES (659, -2, -115, 0, 'INPUT', 0, 'state.savepoints.dir', 'hdfs://ns1/dtInsight/flink112/savepoints', NULL, 'deploymode$perjob', NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
-INSERT INTO `console_component_config` VALUES (661, -2, -115, 0, 'INPUT', 0, 'yarn.application-attempt-failures-validity-interval', '3600000', NULL, 'deploymode$perjob', NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
-INSERT INTO `console_component_config` VALUES (663, -2, -115, 0, 'INPUT', 0, 'yarn.application-attempts', '3', NULL, 'deploymode$perjob', NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
-INSERT INTO `console_component_config` VALUES (665, -2, -115, 0, 'INPUT', 0, 'yarnAccepterTaskNumber', '3', NULL, 'deploymode$perjob', NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
-INSERT INTO `console_component_config` VALUES (667, -2, -115, 0, 'GROUP', 1, 'session', 'session', NULL, 'deploymode', 'session', NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
-INSERT INTO `console_component_config` VALUES (669, -2, -115, 0, 'INPUT', 1, 'checkSubmitJobGraphInterval', '60', NULL, 'deploymode$session', NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
-INSERT INTO `console_component_config` VALUES (671, -2, -115, 0, 'INPUT', 0, 'classloader.dtstack-cache', 'true', NULL, 'deploymode$session', NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
-INSERT INTO `console_component_config` VALUES (673, -2, -115, 0, 'INPUT', 0, 'classloader.resolve-order', 'parent-first', NULL, 'deploymode$session', NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
-INSERT INTO `console_component_config` VALUES (675, -2, -115, 0, 'INPUT', 1, 'clusterMode', 'session', NULL, 'deploymode$session', NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
-INSERT INTO `console_component_config` VALUES (677, -2, -115, 0, 'INPUT', 0, 'env.java.opts', '-XX:+UseConcMarkSweepGC -XX:+CMSParallelRemarkEnabled -XX:+CMSIncrementalMode -XX:+CMSIncrementalPacing -XX:MaxMetaspaceSize=500m -Dfile.encoding=UTF-8', NULL, 'deploymode$session', NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
-INSERT INTO `console_component_config` VALUES (679, -2, -115, 0, 'INPUT', 1, 'flinkLibDir', '/data/insight_plugin1.12/flink_lib', NULL, 'deploymode$session', NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
-INSERT INTO `console_component_config` VALUES (681, -2, -115, 0, 'INPUT', 1, 'chunjunDistDir', '/data/insight_plugin1.12/chunjunplugin', NULL, 'deploymode$session', NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
-INSERT INTO `console_component_config` VALUES (683, -2, -115, 0, 'INPUT', 1, 'slotmanager.number-of-slots.max', '10', NULL, 'deploymode$session', NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
-INSERT INTO `console_component_config` VALUES (685, -2, -115, 0, 'INPUT', 0, 'jobmanager.memory.process.size', '1600m', NULL, 'deploymode$session', NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
-INSERT INTO `console_component_config` VALUES (687, -2, -115, 0, 'INPUT', 0, 'high-availability', 'NONE', NULL, 'deploymode$session', NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
-INSERT INTO `console_component_config` VALUES (689, -2, -115, 0, 'INPUT', 1, 'taskmanager.memory.process.size', '2048m', NULL, 'deploymode$session', NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
-INSERT INTO `console_component_config` VALUES (691, -2, -115, 0, 'INPUT', 1, 'high-availability.storageDir', 'hdfs://ns1/dtInsight/flink112/ha', NULL, 'deploymode$session', NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
-INSERT INTO `console_component_config` VALUES (693, -2, -115, 0, 'INPUT', 1, 'high-availability.zookeeper.path.root', '/flink112', NULL, 'deploymode$session', NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
-INSERT INTO `console_component_config` VALUES (695, -2, -115, 0, 'INPUT', 0, 'high-availability.zookeeper.quorum', '', NULL, 'deploymode$session', NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
-INSERT INTO `console_component_config` VALUES (697, -2, -115, 0, 'INPUT', 1, 'jobmanager.archive.fs.dir', 'hdfs://ns1/dtInsight/flink112/completed-jobs', NULL, 'deploymode$session', NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
-INSERT INTO `console_component_config` VALUES (699, -2, -115, 0, 'INPUT', 1, 'metrics.reporter.promgateway.class', 'org.apache.flink.metrics.prometheus.PrometheusPushGatewayReporter', NULL, 'deploymode$session', NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
-INSERT INTO `console_component_config` VALUES (701, -2, -115, 0, 'SELECT', 1, 'metrics.reporter.promgateway.deleteOnShutdown', 'true', NULL, 'deploymode$session', NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
-INSERT INTO `console_component_config` VALUES (703, -2, -115, 0, '', 1, 'false', 'false', NULL, 'deploymode$session$metrics.reporter.promgateway.deleteOnShutdown', NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
-INSERT INTO `console_component_config` VALUES (705, -2, -115, 0, '', 1, 'true', 'true', NULL, 'deploymode$session$metrics.reporter.promgateway.deleteOnShutdown', NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
+INSERT INTO `console_component_config`
+VALUES (593, -2, -115, 0, 'INPUT', 1, 'akka.ask.timeout', '60 s', NULL, 'deploymode$perjob', NULL, NULL,
+        '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
+INSERT INTO `console_component_config`
+VALUES (595, -2, -115, 0, 'INPUT', 0, 'classloader.dtstack-cache', 'true', NULL, 'deploymode$perjob', NULL, NULL,
+        '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
+INSERT INTO `console_component_config`
+VALUES (597, -2, -115, 0, 'INPUT', 0, 'classloader.resolve-order', 'child-first', NULL, 'deploymode$perjob', NULL, NULL,
+        '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
+INSERT INTO `console_component_config`
+VALUES (599, -2, -115, 0, 'INPUT', 1, 'clusterMode', 'perjob', NULL, 'deploymode$perjob', NULL, NULL,
+        '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
+INSERT INTO `console_component_config`
+VALUES (601, -2, -115, 0, 'INPUT', 0, 'env.java.opts',
+        '-XX:+UseConcMarkSweepGC -XX:+CMSParallelRemarkEnabled -XX:+CMSIncrementalMode -XX:+CMSIncrementalPacing -XX:MaxMetaspaceSize=500m -Dfile.encoding=UTF-8',
+        NULL, 'deploymode$perjob', NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
+INSERT INTO `console_component_config`
+VALUES (603, -2, -115, 0, 'INPUT', 1, 'flinkLibDir', '/data/insight_plugin1.12/flink_lib', NULL, 'deploymode$perjob',
+        NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
+INSERT INTO `console_component_config`
+VALUES (605, -2, -115, 0, 'INPUT', 1, 'chunjunDistDir', '/data/insight_plugin1.12/chunjunplugin', NULL,
+        'deploymode$perjob', NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
+INSERT INTO `console_component_config`
+VALUES (607, -2, -115, 0, 'INPUT', 0, 'jobmanager.memory.process.size', '1600m', NULL, 'deploymode$perjob', NULL, NULL,
+        '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
+INSERT INTO `console_component_config`
+VALUES (609, -2, -115, 0, 'INPUT', 0, 'high-availability', 'ZOOKEEPER', NULL, 'deploymode$perjob', NULL, NULL,
+        '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
+INSERT INTO `console_component_config`
+VALUES (611, -2, -115, 0, 'INPUT', 1, 'taskmanager.memory.process.size', '2048m', NULL, 'deploymode$perjob', NULL, NULL,
+        '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
+INSERT INTO `console_component_config`
+VALUES (613, -2, -115, 0, 'INPUT', 1, 'high-availability.storageDir', 'hdfs:///dtInsight/flink112/ha', NULL,
+        'deploymode$perjob', NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
+INSERT INTO `console_component_config`
+VALUES (615, -2, -115, 0, 'INPUT', 1, 'high-availability.zookeeper.path.root', '/flink112', NULL, 'deploymode$perjob',
+        NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
+INSERT INTO `console_component_config`
+VALUES (617, -2, -115, 0, 'INPUT', 1, 'high-availability.zookeeper.quorum', '', NULL, 'deploymode$perjob', NULL, NULL,
+        '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
+INSERT INTO `console_component_config`
+VALUES (619, -2, -115, 0, 'INPUT', 0, 'taskmanager.numberOfTaskSlots', '1', NULL, 'deploymode$perjob', NULL, NULL,
+        '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
+INSERT INTO `console_component_config`
+VALUES (621, -2, -115, 0, 'INPUT', 1, 'jobmanager.archive.fs.dir', 'hdfs:///dtInsight/flink112/completed-jobs', NULL,
+        'deploymode$perjob', NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
+INSERT INTO `console_component_config`
+VALUES (623, -2, -115, 0, 'INPUT', 1, 'metrics.reporter.promgateway.class',
+        'org.apache.flink.metrics.prometheus.PrometheusPushGatewayReporter', NULL, 'deploymode$perjob', NULL, NULL,
+        '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
+INSERT INTO `console_component_config`
+VALUES (625, -2, -115, 0, 'SELECT', 1, 'metrics.reporter.promgateway.deleteOnShutdown', 'true', NULL,
+        'deploymode$perjob', NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
+INSERT INTO `console_component_config`
+VALUES (627, -2, -115, 0, '', 1, 'false', 'false', NULL,
+        'deploymode$perjob$metrics.reporter.promgateway.deleteOnShutdown', NULL, NULL, '2021-07-27 13:52:46',
+        '2021-07-27 13:52:46', 0);
+INSERT INTO `console_component_config`
+VALUES (629, -2, -115, 0, '', 1, 'true', 'true', NULL,
+        'deploymode$perjob$metrics.reporter.promgateway.deleteOnShutdown', NULL, NULL, '2021-07-27 13:52:46',
+        '2021-07-27 13:52:46', 0);
+INSERT INTO `console_component_config`
+VALUES (631, -2, -115, 0, 'INPUT', 1, 'metrics.reporter.promgateway.host', '', NULL, 'deploymode$perjob', NULL, NULL,
+        '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
+INSERT INTO `console_component_config`
+VALUES (633, -2, -115, 0, 'INPUT', 1, 'metrics.reporter.promgateway.jobName', '112job', NULL, 'deploymode$perjob', NULL,
+        NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
+INSERT INTO `console_component_config`
+VALUES (635, -2, -115, 0, 'INPUT', 1, 'metrics.reporter.promgateway.port', '9091', NULL, 'deploymode$perjob', NULL,
+        NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
+INSERT INTO `console_component_config`
+VALUES (637, -2, -115, 0, 'SELECT', 1, 'metrics.reporter.promgateway.randomJobNameSuffix', 'true', NULL,
+        'deploymode$perjob', NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
+INSERT INTO `console_component_config`
+VALUES (639, -2, -115, 0, '', 1, 'false', 'false', NULL,
+        'deploymode$perjob$metrics.reporter.promgateway.randomJobNameSuffix', NULL, NULL, '2021-07-27 13:52:46',
+        '2021-07-27 13:52:46', 0);
+INSERT INTO `console_component_config`
+VALUES (641, -2, -115, 0, '', 1, 'true', 'true', NULL,
+        'deploymode$perjob$metrics.reporter.promgateway.randomJobNameSuffix', NULL, NULL, '2021-07-27 13:52:46',
+        '2021-07-27 13:52:46', 0);
+INSERT INTO `console_component_config`
+VALUES (643, -2, -115, 0, 'INPUT', 0, 'monitorAcceptedApp', 'false', NULL, 'deploymode$perjob', NULL, NULL,
+        '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
+INSERT INTO `console_component_config`
+VALUES (645, -2, -115, 0, 'INPUT', 0, 'pluginLoadMode', 'shipfile', NULL, 'deploymode$perjob', NULL, NULL,
+        '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
+INSERT INTO `console_component_config`
+VALUES (647, -2, -115, 0, 'INPUT', 0, 'prometheusHost', '', NULL, 'deploymode$perjob', NULL, NULL,
+        '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
+INSERT INTO `console_component_config`
+VALUES (649, -2, -115, 0, 'INPUT', 0, 'prometheusPort', '9090', NULL, 'deploymode$perjob', NULL, NULL,
+        '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
+INSERT INTO `console_component_config`
+VALUES (651, -2, -115, 0, 'INPUT', 0, 'state.backend', 'RocksDB', NULL, 'deploymode$perjob', NULL, NULL,
+        '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
+INSERT INTO `console_component_config`
+VALUES (653, -2, -115, 0, 'INPUT', 0, 'state.backend.incremental', 'true', NULL, 'deploymode$perjob', NULL, NULL,
+        '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
+INSERT INTO `console_component_config`
+VALUES (655, -2, -115, 0, 'INPUT', 1, 'state.checkpoints.dir', 'hdfs:///dtInsight/flink112/checkpoints', NULL,
+        'deploymode$perjob', NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
+INSERT INTO `console_component_config`
+VALUES (657, -2, -115, 0, 'INPUT', 1, 'state.checkpoints.num-retained', '11', NULL, 'deploymode$perjob', NULL, NULL,
+        '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
+INSERT INTO `console_component_config`
+VALUES (659, -2, -115, 0, 'INPUT', 0, 'state.savepoints.dir', 'hdfs:///dtInsight/flink112/savepoints', NULL,
+        'deploymode$perjob', NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
+INSERT INTO `console_component_config`
+VALUES (661, -2, -115, 0, 'INPUT', 0, 'yarn.application-attempt-failures-validity-interval', '3600000', NULL,
+        'deploymode$perjob', NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
+INSERT INTO `console_component_config`
+VALUES (663, -2, -115, 0, 'INPUT', 0, 'yarn.application-attempts', '3', NULL, 'deploymode$perjob', NULL, NULL,
+        '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
+INSERT INTO `console_component_config`
+VALUES (665, -2, -115, 0, 'INPUT', 0, 'yarnAccepterTaskNumber', '3', NULL, 'deploymode$perjob', NULL, NULL,
+        '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
+INSERT INTO `console_component_config`
+VALUES (667, -2, -115, 0, 'GROUP', 1, 'session', 'session', NULL, 'deploymode', 'session', NULL, '2021-07-27 13:52:46',
+        '2021-07-27 13:52:46', 0);
+INSERT INTO `console_component_config`
+VALUES (669, -2, -115, 0, 'INPUT', 1, 'checkSubmitJobGraphInterval', '60', NULL, 'deploymode$session', NULL, NULL,
+        '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
+INSERT INTO `console_component_config`
+VALUES (671, -2, -115, 0, 'INPUT', 0, 'classloader.dtstack-cache', 'true', NULL, 'deploymode$session', NULL, NULL,
+        '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
+INSERT INTO `console_component_config`
+VALUES (673, -2, -115, 0, 'INPUT', 0, 'classloader.resolve-order', 'parent-first', NULL, 'deploymode$session', NULL,
+        NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
+INSERT INTO `console_component_config`
+VALUES (675, -2, -115, 0, 'INPUT', 1, 'clusterMode', 'session', NULL, 'deploymode$session', NULL, NULL,
+        '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
+INSERT INTO `console_component_config`
+VALUES (677, -2, -115, 0, 'INPUT', 0, 'env.java.opts',
+        '-XX:+UseConcMarkSweepGC -XX:+CMSParallelRemarkEnabled -XX:+CMSIncrementalMode -XX:+CMSIncrementalPacing -XX:MaxMetaspaceSize=500m -Dfile.encoding=UTF-8',
+        NULL, 'deploymode$session', NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
+INSERT INTO `console_component_config`
+VALUES (679, -2, -115, 0, 'INPUT', 1, 'flinkLibDir', '/data/insight_plugin1.12/flink_lib', NULL, 'deploymode$session',
+        NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
+INSERT INTO `console_component_config`
+VALUES (681, -2, -115, 0, 'INPUT', 1, 'chunjunDistDir', '/data/insight_plugin1.12/chunjunplugin', NULL,
+        'deploymode$session', NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
+INSERT INTO `console_component_config`
+VALUES (683, -2, -115, 0, 'INPUT', 1, 'slotmanager.number-of-slots.max', '10', NULL, 'deploymode$session', NULL, NULL,
+        '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
+INSERT INTO `console_component_config`
+VALUES (685, -2, -115, 0, 'INPUT', 0, 'jobmanager.memory.process.size', '1600m', NULL, 'deploymode$session', NULL, NULL,
+        '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
+INSERT INTO `console_component_config`
+VALUES (687, -2, -115, 0, 'INPUT', 0, 'high-availability', 'NONE', NULL, 'deploymode$session', NULL, NULL,
+        '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
+INSERT INTO `console_component_config`
+VALUES (689, -2, -115, 0, 'INPUT', 1, 'taskmanager.memory.process.size', '2048m', NULL, 'deploymode$session', NULL,
+        NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
+INSERT INTO `console_component_config`
+VALUES (691, -2, -115, 0, 'INPUT', 1, 'high-availability.storageDir', 'hdfs:///dtInsight/flink112/ha', NULL,
+        'deploymode$session', NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
+INSERT INTO `console_component_config`
+VALUES (693, -2, -115, 0, 'INPUT', 1, 'high-availability.zookeeper.path.root', '/flink112', NULL, 'deploymode$session',
+        NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
+INSERT INTO `console_component_config`
+VALUES (695, -2, -115, 0, 'INPUT', 0, 'high-availability.zookeeper.quorum', '', NULL, 'deploymode$session', NULL, NULL,
+        '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
+INSERT INTO `console_component_config`
+VALUES (697, -2, -115, 0, 'INPUT', 1, 'jobmanager.archive.fs.dir', 'hdfs:///dtInsight/flink112/completed-jobs', NULL,
+        'deploymode$session', NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
+INSERT INTO `console_component_config`
+VALUES (699, -2, -115, 0, 'INPUT', 1, 'metrics.reporter.promgateway.class',
+        'org.apache.flink.metrics.prometheus.PrometheusPushGatewayReporter', NULL, 'deploymode$session', NULL, NULL,
+        '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
+INSERT INTO `console_component_config`
+VALUES (701, -2, -115, 0, 'SELECT', 1, 'metrics.reporter.promgateway.deleteOnShutdown', 'true', NULL,
+        'deploymode$session', NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
+INSERT INTO `console_component_config`
+VALUES (703, -2, -115, 0, '', 1, 'false', 'false', NULL,
+        'deploymode$session$metrics.reporter.promgateway.deleteOnShutdown', NULL, NULL, '2021-07-27 13:52:46',
+        '2021-07-27 13:52:46', 0);
+INSERT INTO `console_component_config`
+VALUES (705, -2, -115, 0, '', 1, 'true', 'true', NULL,
+        'deploymode$session$metrics.reporter.promgateway.deleteOnShutdown', NULL, NULL, '2021-07-27 13:52:46',
+        '2021-07-27 13:52:46', 0);
 INSERT INTO `console_component_config` VALUES (707, -2, -115, 0, 'INPUT', 1, 'metrics.reporter.promgateway.host', '', NULL, 'deploymode$session', NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
 INSERT INTO `console_component_config` VALUES (709, -2, -115, 0, 'INPUT', 1, 'metrics.reporter.promgateway.jobName', '112job', NULL, 'deploymode$session', NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
 INSERT INTO `console_component_config` VALUES (711, -2, -115, 0, 'INPUT', 1, 'metrics.reporter.promgateway.port', '9091', NULL, 'deploymode$session', NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
 INSERT INTO `console_component_config` VALUES (713, -2, -115, 0, 'SELECT', 1, 'metrics.reporter.promgateway.randomJobNameSuffix', 'true', NULL, 'deploymode$session', NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
-INSERT INTO `console_component_config` VALUES (715, -2, -115, 0, '', 1, 'false', 'false', NULL, 'deploymode$session$metrics.reporter.promgateway.randomJobNameSuffix', NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
-INSERT INTO `console_component_config` VALUES (717, -2, -115, 0, '', 1, 'true', 'true', NULL, 'deploymode$session$metrics.reporter.promgateway.randomJobNameSuffix', NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
-INSERT INTO `console_component_config` VALUES (719, -2, -115, 0, 'INPUT', 0, 'monitorAcceptedApp', 'false', NULL, 'deploymode$session', NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
-INSERT INTO `console_component_config` VALUES (721, -2, -115, 0, 'INPUT', 0, 'pluginLoadMode', 'shipfile', NULL, 'deploymode$session', NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
-INSERT INTO `console_component_config` VALUES (723, -2, -115, 0, 'INPUT', 0, 'prometheusHost', '', NULL, 'deploymode$session', NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
-INSERT INTO `console_component_config` VALUES (725, -2, -115, 0, 'INPUT', 0, 'prometheusPort', '9090', NULL, 'deploymode$session', NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
-INSERT INTO `console_component_config` VALUES (727, -2, -115, 0, 'INPUT', 0, 'sessionRetryNum', '5', NULL, 'deploymode$session', NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
-INSERT INTO `console_component_config` VALUES (729, -2, -115, 0, 'INPUT', 1, 'sessionStartAuto', 'true', NULL, 'deploymode$session', NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
-INSERT INTO `console_component_config` VALUES (731, -2, -115, 0, 'INPUT', 0, 'state.backend', 'RocksDB', NULL, 'deploymode$session', NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
-INSERT INTO `console_component_config` VALUES (733, -2, -115, 0, 'INPUT', 0, 'state.backend.incremental', 'true', NULL, 'deploymode$session', NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
-INSERT INTO `console_component_config` VALUES (735, -2, -115, 0, 'INPUT', 1, 'state.checkpoints.dir', 'hdfs://ns1/dtInsight/flink112/checkpoints', NULL, 'deploymode$session', NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
-INSERT INTO `console_component_config` VALUES (737, -2, -115, 0, 'INPUT', 1, 'state.checkpoints.num-retained', '11', NULL, 'deploymode$session', NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
-INSERT INTO `console_component_config` VALUES (739, -2, -115, 0, 'INPUT', 0, 'state.savepoints.dir', 'hdfs://ns1/dtInsight/flink112/savepoints', NULL, 'deploymode$session', NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
-INSERT INTO `console_component_config` VALUES (741, -2, -115, 0, 'INPUT', 0, 'taskmanager.numberOfTaskSlots', '1', NULL, 'deploymode$session', NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
-INSERT INTO `console_component_config` VALUES (743, -2, -115, 0, 'INPUT', 0, 'yarn.application-attempt-failures-validity-interval', '3600000', NULL, 'deploymode$session', NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
-INSERT INTO `console_component_config` VALUES (745, -2, -115, 0, 'INPUT', 0, 'yarn.application-attempts', '3', NULL, 'deploymode$session', NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
-INSERT INTO `console_component_config` VALUES (747, -2, -115, 0, 'INPUT', 0, 'yarnAccepterTaskNumber', '3', NULL, 'deploymode$session', NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
-INSERT INTO `console_component_config` VALUES (749, -2, -115, 0, 'INPUT', 1, 'remoteChunjunDistDir', '/data/insight_plugin1.12/chunjunplugin', NULL, 'deploymode$perjob', NULL, NULL, '2021-07-27 13:56:15', '2021-07-27 13:56:15', 0);
-INSERT INTO `console_component_config` VALUES (751, -2, -115, 0, 'INPUT', 1, 'akka.tcp.timeout', '60 s', NULL, 'deploymode$perjob', NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
-INSERT INTO `console_component_config` VALUES (753, -2, -115, 0, 'INPUT', 1, 'remoteChunjunDistDir', '/data/insight_plugin1.12/chunjunplugin', NULL, 'deploymode$session', NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
-INSERT INTO `console_component_config` VALUES (755, -2, -115, 0, 'INPUT', 1, 'flinkSessionName', 'flink_session', NULL, 'deploymode$session', NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
-INSERT INTO `console_component_config` VALUES (757, -2, -115, 0, 'INPUT', 0, 'checkpoint.retain.time', '7', NULL, 'deploymode$perjob', NULL, NULL, '2021-08-24 17:22:06', '2021-08-24 17:22:06', 0);
-INSERT INTO `console_component_config` VALUES (759, -2, -115, 0, 'INPUT', 1, 'remoteFlinkLibDir', '/data/insight_plugin1.12/flink_lib', NULL, 'deploymode$perjob', NULL, NULL, '2021-08-24 20:40:39', '2021-08-24 20:40:39', 0);
+INSERT INTO `console_component_config`
+VALUES (715, -2, -115, 0, '', 1, 'false', 'false', NULL,
+        'deploymode$session$metrics.reporter.promgateway.randomJobNameSuffix', NULL, NULL, '2021-07-27 13:52:46',
+        '2021-07-27 13:52:46', 0);
+INSERT INTO `console_component_config`
+VALUES (717, -2, -115, 0, '', 1, 'true', 'true', NULL,
+        'deploymode$session$metrics.reporter.promgateway.randomJobNameSuffix', NULL, NULL, '2021-07-27 13:52:46',
+        '2021-07-27 13:52:46', 0);
+INSERT INTO `console_component_config`
+VALUES (719, -2, -115, 0, 'INPUT', 0, 'monitorAcceptedApp', 'false', NULL, 'deploymode$session', NULL, NULL,
+        '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
+INSERT INTO `console_component_config`
+VALUES (721, -2, -115, 0, 'INPUT', 0, 'pluginLoadMode', 'shipfile', NULL, 'deploymode$session', NULL, NULL,
+        '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
+INSERT INTO `console_component_config`
+VALUES (723, -2, -115, 0, 'INPUT', 0, 'prometheusHost', '', NULL, 'deploymode$session', NULL, NULL,
+        '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
+INSERT INTO `console_component_config`
+VALUES (725, -2, -115, 0, 'INPUT', 0, 'prometheusPort', '9090', NULL, 'deploymode$session', NULL, NULL,
+        '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
+INSERT INTO `console_component_config`
+VALUES (727, -2, -115, 0, 'INPUT', 0, 'sessionRetryNum', '5', NULL, 'deploymode$session', NULL, NULL,
+        '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
+INSERT INTO `console_component_config`
+VALUES (729, -2, -115, 0, 'INPUT', 1, 'sessionStartAuto', 'true', NULL, 'deploymode$session', NULL, NULL,
+        '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
+INSERT INTO `console_component_config`
+VALUES (731, -2, -115, 0, 'INPUT', 0, 'state.backend', 'RocksDB', NULL, 'deploymode$session', NULL, NULL,
+        '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
+INSERT INTO `console_component_config`
+VALUES (733, -2, -115, 0, 'INPUT', 0, 'state.backend.incremental', 'true', NULL, 'deploymode$session', NULL, NULL,
+        '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
+INSERT INTO `console_component_config`
+VALUES (735, -2, -115, 0, 'INPUT', 1, 'state.checkpoints.dir', 'hdfs:///dtInsight/flink112/checkpoints', NULL,
+        'deploymode$session', NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
+INSERT INTO `console_component_config`
+VALUES (737, -2, -115, 0, 'INPUT', 1, 'state.checkpoints.num-retained', '11', NULL, 'deploymode$session', NULL, NULL,
+        '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
+INSERT INTO `console_component_config`
+VALUES (739, -2, -115, 0, 'INPUT', 0, 'state.savepoints.dir', 'hdfs:///dtInsight/flink112/savepoints', NULL,
+        'deploymode$session', NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
+INSERT INTO `console_component_config`
+VALUES (741, -2, -115, 0, 'INPUT', 0, 'taskmanager.numberOfTaskSlots', '1', NULL, 'deploymode$session', NULL, NULL,
+        '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
+INSERT INTO `console_component_config`
+VALUES (743, -2, -115, 0, 'INPUT', 0, 'yarn.application-attempt-failures-validity-interval', '3600000', NULL,
+        'deploymode$session', NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
+INSERT INTO `console_component_config`
+VALUES (745, -2, -115, 0, 'INPUT', 0, 'yarn.application-attempts', '3', NULL, 'deploymode$session', NULL, NULL,
+        '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
+INSERT INTO `console_component_config`
+VALUES (747, -2, -115, 0, 'INPUT', 0, 'yarnAccepterTaskNumber', '3', NULL, 'deploymode$session', NULL, NULL,
+        '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
+INSERT INTO `console_component_config`
+VALUES (749, -2, -115, 0, 'INPUT', 1, 'remoteChunjunDistDir', '/data/insight_plugin1.12/chunjunplugin', NULL,
+        'deploymode$perjob', NULL, NULL, '2021-07-27 13:56:15', '2021-07-27 13:56:15', 0);
+INSERT INTO `console_component_config`
+VALUES (751, -2, -115, 0, 'INPUT', 1, 'akka.tcp.timeout', '60 s', NULL, 'deploymode$perjob', NULL, NULL,
+        '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
+INSERT INTO `console_component_config`
+VALUES (753, -2, -115, 0, 'INPUT', 1, 'remoteChunjunDistDir', '/data/insight_plugin1.12/chunjunplugin', NULL,
+        'deploymode$session', NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
+INSERT INTO `console_component_config`
+VALUES (755, -2, -115, 0, 'INPUT', 1, 'flinkSessionName', 'flink_session', NULL, 'deploymode$session', NULL, NULL,
+        '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
+INSERT INTO `console_component_config`
+VALUES (757, -2, -115, 0, 'INPUT', 0, 'checkpoint.retain.time', '7', NULL, 'deploymode$perjob', NULL, NULL,
+        '2021-08-24 17:22:06', '2021-08-24 17:22:06', 0);
+INSERT INTO `console_component_config`
+VALUES (759, -2, -115, 0, 'INPUT', 1, 'remoteFlinkLibDir', '/data/insight_plugin1.12/flink_lib', NULL,
+        'deploymode$perjob', NULL, NULL, '2021-08-24 20:40:39', '2021-08-24 20:40:39', 0);
 INSERT INTO `console_component_config` VALUES (761, -2, -115, 0, 'INPUT', 1, 'remoteFlinkLibDir', '/data/insight_plugin1.12/flink_lib', NULL, 'deploymode$session', NULL, NULL, '2021-08-24 20:41:46', '2021-08-24 20:41:46', 0);
-INSERT INTO `console_component_config` VALUES (763, -2, -115, 0, 'INPUT', 0, 'restart-strategy', 'failure-rate', NULL, 'deploymode$perjob', NULL, NULL, '2021-09-24 12:07:31', '2021-09-24 12:07:31', 0);
-INSERT INTO `console_component_config` VALUES (765, -2, -115, 0, 'INPUT', 0, 'restart-strategy.failure-rate.delay', '10s', NULL, 'deploymode$perjob', NULL, NULL, '2021-09-24 12:07:31', '2021-09-24 12:07:31', 0);
-INSERT INTO `console_component_config` VALUES (767, -2, -115, 0, 'INPUT', 0, 'restart-strategy.failure-rate.failure-rate-interval', '5 min', NULL, 'deploymode$perjob', NULL, NULL, '2021-09-24 12:07:31', '2021-09-24 12:07:31', 0);
-INSERT INTO `console_component_config` VALUES (769, -2, -115, 0, 'INPUT', 0, 'restart-strategy.failure-rate.max-failures-per-interval', '3', NULL, 'deploymode$perjob', NULL, NULL, '2021-09-24 12:07:31', '2021-09-24 12:07:31', 0);
-INSERT INTO `console_component_config` VALUES (771, -2, -108, 1, 'CHECKBOX', 1, 'deploymode', '[\"perjob\"]', NULL, '', '', NULL, '2021-02-25 18:12:53', '2021-02-25 18:12:53', 0);
-INSERT INTO `console_component_config` VALUES (773, -2, -108, 1, 'GROUP', 1, 'perjob', 'perjob', NULL, 'deploymode', 'perjob', NULL, '2021-02-25 18:12:53', '2021-02-25 18:12:53', 0);
-INSERT INTO `console_component_config` VALUES (775, -2, -108, 1, 'INPUT', 0, 'addColumnSupport', 'true', NULL, 'deploymode$perjob', NULL, NULL, '2021-02-25 18:12:53', '2021-02-25 18:12:53', 0);
-INSERT INTO `console_component_config` VALUES (777, -2, -108, 1, 'INPUT', 1, 'spark.cores.max', '1', NULL, 'deploymode$perjob', NULL, NULL, '2021-02-25 18:12:53', '2021-02-25 18:12:53', 0);
-INSERT INTO `console_component_config` VALUES (779, -2, -108, 1, 'INPUT', 0, 'spark.driver.extraJavaOptions', '-Dfile.encoding=utf-8', NULL, 'deploymode$perjob', NULL, NULL, '2021-02-25 18:12:53', '2021-02-25 18:12:53', 0);
-INSERT INTO `console_component_config` VALUES (781, -2, -108, 1, 'INPUT', 0, 'spark.eventLog.compress', 'true', NULL, 'deploymode$perjob', NULL, NULL, '2021-02-25 18:12:53', '2021-02-25 18:12:53', 0);
-INSERT INTO `console_component_config` VALUES (783, -2, -108, 1, 'INPUT', 0, 'spark.eventLog.dir', 'hdfs://ns1/tmp/spark-yarn-logs', NULL, 'deploymode$perjob', NULL, NULL, '2021-02-25 18:12:53', '2021-02-25 18:12:53', 0);
-INSERT INTO `console_component_config` VALUES (785, -2, -108, 1, 'INPUT', 0, 'spark.eventLog.enabled', 'true', NULL, 'deploymode$perjob', NULL, NULL, '2021-02-25 18:12:53', '2021-02-25 18:12:53', 0);
-INSERT INTO `console_component_config` VALUES (787, -2, -108, 1, 'INPUT', 1, 'spark.executor.cores', '1', NULL, 'deploymode$perjob', NULL, NULL, '2021-02-25 18:12:53', '2021-02-25 18:12:53', 0);
-INSERT INTO `console_component_config` VALUES (789, -2, -108, 1, 'INPUT', 0, 'spark.executor.extraJavaOptions', '-Dfile.encoding=utf-8', NULL, 'deploymode$perjob', NULL, NULL, '2021-02-25 18:12:53', '2021-02-25 18:12:53', 0);
-INSERT INTO `console_component_config` VALUES (791, -2, -108, 1, 'INPUT', 1, 'spark.executor.heartbeatInterval', '10s', NULL, 'deploymode$perjob', NULL, NULL, '2021-02-25 18:12:53', '2021-02-25 18:12:53', 0);
-INSERT INTO `console_component_config` VALUES (793, -2, -108, 1, 'INPUT', 1, 'spark.executor.instances', '1', NULL, 'deploymode$perjob', NULL, NULL, '2021-02-25 18:12:53', '2021-02-25 18:12:53', 0);
-INSERT INTO `console_component_config` VALUES (795, -2, -108, 1, 'INPUT', 1, 'spark.executor.memory', '512m', NULL, 'deploymode$perjob', NULL, NULL, '2021-02-25 18:12:53', '2021-02-25 18:12:53', 0);
-INSERT INTO `console_component_config` VALUES (797, -2, -108, 1, 'INPUT', 1, 'spark.network.timeout', '700s', NULL, 'deploymode$perjob', NULL, NULL, '2021-02-25 18:12:53', '2021-02-25 18:12:53', 0);
-INSERT INTO `console_component_config` VALUES (799, -2, -108, 1, 'INPUT', 1, 'spark.rpc.askTimeout', '600s', NULL, 'deploymode$perjob', NULL, NULL, '2021-02-25 18:12:53', '2021-02-25 18:12:53', 0);
-INSERT INTO `console_component_config` VALUES (801, -2, -108, 1, 'INPUT', 1, 'spark.speculation', 'true', NULL, 'deploymode$perjob', NULL, NULL, '2021-02-25 18:12:53', '2021-02-25 18:12:53', 0);
-INSERT INTO `console_component_config` VALUES (803, -2, -108, 1, 'INPUT', 1, 'spark.submit.deployMode', 'cluster', NULL, 'deploymode$perjob', NULL, NULL, '2021-02-25 18:12:53', '2021-02-25 18:12:53', 0);
-INSERT INTO `console_component_config` VALUES (805, -2, -108, 1, 'INPUT', 0, 'spark.yarn.appMasterEnv.PYSPARK_DRIVER_PYTHON', '/data/miniconda2/bin/python3', NULL, 'deploymode$perjob', NULL, NULL, '2021-02-25 18:12:53', '2021-02-25 18:12:53', 0);
-INSERT INTO `console_component_config` VALUES (807, -2, -108, 1, 'INPUT', 0, 'spark.yarn.appMasterEnv.PYSPARK_PYTHON', '/data/miniconda2/bin/python3', NULL, 'deploymode$perjob', NULL, NULL, '2021-02-25 18:12:53', '2021-02-25 18:12:53', 0);
-INSERT INTO `console_component_config` VALUES (809, -2, -108, 1, 'INPUT', 1, 'spark.yarn.maxAppAttempts', '1', NULL, 'deploymode$perjob', NULL, NULL, '2021-02-25 18:12:53', '2021-02-25 18:12:53', 0);
-INSERT INTO `console_component_config` VALUES (811, -2, -108, 1, 'INPUT', 1, 'sparkPythonExtLibPath', 'hdfs://ns1/dtInsight/pythons/pyspark.zip,hdfs://ns1/dtInsight/pythons/py4j-0.10.7-src.zip', NULL, 'deploymode$perjob', NULL, NULL, '2021-02-25 18:12:53', '2021-02-25 18:12:53', 0);
-INSERT INTO `console_component_config` VALUES (813, -2, -108, 1, 'INPUT', 1, 'sparkSqlProxyPath', 'hdfs://ns1/dtInsight/spark/spark-sql-proxy.jar', NULL, 'deploymode$perjob', NULL, NULL, '2021-02-25 18:12:53', '2021-02-25 18:12:53', 0);
-INSERT INTO `console_component_config` VALUES (815, -2, -108, 1, 'INPUT', 1, 'sparkYarnArchive', 'hdfs://ns1/dtInsight/sparkjars/jars', NULL, 'deploymode$perjob', NULL, NULL, '2021-02-25 18:12:53', '2021-02-25 18:12:53', 0);
-INSERT INTO `console_component_config` VALUES (817, -2, -108, 1, 'INPUT', 0, 'yarnAccepterTaskNumber', '3', NULL, 'deploymode$perjob', NULL, NULL, '2021-02-25 18:12:53', '2021-02-25 18:12:53', 0);
-INSERT INTO `console_component_config` VALUES (819, -2, -120, 0, 'INPUT', 0, 'jobmanager.rpc.address', '', NULL, NULL, NULL, NULL, '2022-10-11 14:04:45', '2022-10-11 14:04:45', 0);
-INSERT INTO `console_component_config` VALUES (821, -2, -120, 0, 'INPUT', 0, 'jobmanager.rpc.port', '', NULL, NULL, NULL, NULL, '2022-10-11 14:04:45', '2022-10-11 14:04:45', 0);
-INSERT INTO `console_component_config` VALUES (823, -2, -120, 0, 'INPUT', 1, 'prometheusHost', '', NULL, NULL, NULL, NULL, '2022-10-11 14:04:45', '2022-10-11 14:04:45', 0);
-INSERT INTO `console_component_config` VALUES (825, -2, -120, 0, 'INPUT', 1, 'prometheusPort', '', NULL, NULL, NULL, NULL, '2022-10-11 14:04:45', '2022-10-11 14:04:45', 0);
-INSERT INTO `console_component_config` VALUES (827, -2, -120, 0, 'INPUT', 0, 'high-availability', '', NULL, NULL, NULL, NULL, '2022-10-11 14:04:45', '2022-10-11 14:04:45', 0);
-INSERT INTO `console_component_config` VALUES (829, -2, -120, 0, 'INPUT', 0, 'high-availability.zookeeper.quorum', '', NULL, NULL, NULL, NULL, '2022-10-11 14:04:45', '2022-10-11 14:04:45', 0);
-INSERT INTO `console_component_config` VALUES (831, -2, -120, 0, 'INPUT', 0, 'high-availability.zookeeper.path.root', '', NULL, NULL, NULL, NULL, '2022-10-11 14:04:45', '2022-10-11 14:04:45', 0);
-INSERT INTO `console_component_config` VALUES (833, -2, -120, 0, 'INPUT', 0, 'high-availability.storageDir', '', NULL, NULL, NULL, NULL, '2022-10-11 14:04:45', '2022-10-11 14:04:45', 0);
-INSERT INTO `console_component_config` VALUES (835, -2, -120, 0, 'INPUT', 0, 'high-availability.cluster-id', '', NULL, NULL, NULL, NULL, '2022-10-11 14:04:45', '2022-10-11 14:04:45', 0);
+INSERT INTO `console_component_config`
+VALUES (763, -2, -115, 0, 'INPUT', 0, 'restart-strategy', 'failure-rate', NULL, 'deploymode$perjob', NULL, NULL,
+        '2021-09-24 12:07:31', '2021-09-24 12:07:31', 0);
+INSERT INTO `console_component_config`
+VALUES (765, -2, -115, 0, 'INPUT', 0, 'restart-strategy.failure-rate.delay', '10s', NULL, 'deploymode$perjob', NULL,
+        NULL, '2021-09-24 12:07:31', '2021-09-24 12:07:31', 0);
+INSERT INTO `console_component_config`
+VALUES (767, -2, -115, 0, 'INPUT', 0, 'restart-strategy.failure-rate.failure-rate-interval', '5 min', NULL,
+        'deploymode$perjob', NULL, NULL, '2021-09-24 12:07:31', '2021-09-24 12:07:31', 0);
+INSERT INTO `console_component_config`
+VALUES (769, -2, -115, 0, 'INPUT', 0, 'restart-strategy.failure-rate.max-failures-per-interval', '3', NULL,
+        'deploymode$perjob', NULL, NULL, '2021-09-24 12:07:31', '2021-09-24 12:07:31', 0);
+INSERT INTO `console_component_config`
+VALUES (771, -2, -108, 1, 'CHECKBOX', 1, 'deploymode', '[\"perjob\"]', NULL, '', '', NULL, '2021-02-25 18:12:53',
+        '2021-02-25 18:12:53', 0);
+INSERT INTO `console_component_config`
+VALUES (773, -2, -108, 1, 'GROUP', 1, 'perjob', 'perjob', NULL, 'deploymode', 'perjob', NULL, '2021-02-25 18:12:53',
+        '2021-02-25 18:12:53', 0);
+INSERT INTO `console_component_config`
+VALUES (775, -2, -108, 1, 'INPUT', 0, 'addColumnSupport', 'true', NULL, 'deploymode$perjob', NULL, NULL,
+        '2021-02-25 18:12:53', '2021-02-25 18:12:53', 0);
+INSERT INTO `console_component_config`
+VALUES (777, -2, -108, 1, 'INPUT', 1, 'spark.cores.max', '1', NULL, 'deploymode$perjob', NULL, NULL,
+        '2021-02-25 18:12:53', '2021-02-25 18:12:53', 0);
+INSERT INTO `console_component_config`
+VALUES (779, -2, -108, 1, 'INPUT', 0, 'spark.driver.extraJavaOptions', '-Dfile.encoding=utf-8', NULL,
+        'deploymode$perjob', NULL, NULL, '2021-02-25 18:12:53', '2021-02-25 18:12:53', 0);
+INSERT INTO `console_component_config`
+VALUES (781, -2, -108, 1, 'INPUT', 0, 'spark.eventLog.compress', 'true', NULL, 'deploymode$perjob', NULL, NULL,
+        '2021-02-25 18:12:53', '2021-02-25 18:12:53', 0);
+INSERT INTO `console_component_config`
+VALUES (783, -2, -108, 1, 'INPUT', 0, 'spark.eventLog.dir', 'hdfs:///tmp/spark-yarn-logs', NULL, 'deploymode$perjob',
+        NULL, NULL, '2021-02-25 18:12:53', '2021-02-25 18:12:53', 0);
+INSERT INTO `console_component_config`
+VALUES (785, -2, -108, 1, 'INPUT', 0, 'spark.eventLog.enabled', 'true', NULL, 'deploymode$perjob', NULL, NULL,
+        '2021-02-25 18:12:53', '2021-02-25 18:12:53', 0);
+INSERT INTO `console_component_config`
+VALUES (787, -2, -108, 1, 'INPUT', 1, 'spark.executor.cores', '1', NULL, 'deploymode$perjob', NULL, NULL,
+        '2021-02-25 18:12:53', '2021-02-25 18:12:53', 0);
+INSERT INTO `console_component_config`
+VALUES (789, -2, -108, 1, 'INPUT', 0, 'spark.executor.extraJavaOptions', '-Dfile.encoding=utf-8', NULL,
+        'deploymode$perjob', NULL, NULL, '2021-02-25 18:12:53', '2021-02-25 18:12:53', 0);
+INSERT INTO `console_component_config`
+VALUES (791, -2, -108, 1, 'INPUT', 1, 'spark.executor.heartbeatInterval', '10s', NULL, 'deploymode$perjob', NULL, NULL,
+        '2021-02-25 18:12:53', '2021-02-25 18:12:53', 0);
+INSERT INTO `console_component_config`
+VALUES (793, -2, -108, 1, 'INPUT', 1, 'spark.executor.instances', '1', NULL, 'deploymode$perjob', NULL, NULL,
+        '2021-02-25 18:12:53', '2021-02-25 18:12:53', 0);
+INSERT INTO `console_component_config`
+VALUES (795, -2, -108, 1, 'INPUT', 1, 'spark.executor.memory', '512m', NULL, 'deploymode$perjob', NULL, NULL,
+        '2021-02-25 18:12:53', '2021-02-25 18:12:53', 0);
+INSERT INTO `console_component_config`
+VALUES (797, -2, -108, 1, 'INPUT', 1, 'spark.network.timeout', '700s', NULL, 'deploymode$perjob', NULL, NULL,
+        '2021-02-25 18:12:53', '2021-02-25 18:12:53', 0);
+INSERT INTO `console_component_config`
+VALUES (799, -2, -108, 1, 'INPUT', 1, 'spark.rpc.askTimeout', '600s', NULL, 'deploymode$perjob', NULL, NULL,
+        '2021-02-25 18:12:53', '2021-02-25 18:12:53', 0);
+INSERT INTO `console_component_config`
+VALUES (801, -2, -108, 1, 'INPUT', 1, 'spark.speculation', 'true', NULL, 'deploymode$perjob', NULL, NULL,
+        '2021-02-25 18:12:53', '2021-02-25 18:12:53', 0);
+INSERT INTO `console_component_config`
+VALUES (803, -2, -108, 1, 'INPUT', 1, 'spark.submit.deployMode', 'cluster', NULL, 'deploymode$perjob', NULL, NULL,
+        '2021-02-25 18:12:53', '2021-02-25 18:12:53', 0);
+INSERT INTO `console_component_config`
+VALUES (805, -2, -108, 1, 'INPUT', 0, 'spark.yarn.appMasterEnv.PYSPARK_DRIVER_PYTHON', '/data/miniconda2/bin/python3',
+        NULL, 'deploymode$perjob', NULL, NULL, '2021-02-25 18:12:53', '2021-02-25 18:12:53', 0);
+INSERT INTO `console_component_config`
+VALUES (807, -2, -108, 1, 'INPUT', 0, 'spark.yarn.appMasterEnv.PYSPARK_PYTHON', '/data/miniconda2/bin/python3', NULL,
+        'deploymode$perjob', NULL, NULL, '2021-02-25 18:12:53', '2021-02-25 18:12:53', 0);
+INSERT INTO `console_component_config`
+VALUES (809, -2, -108, 1, 'INPUT', 1, 'spark.yarn.maxAppAttempts', '1', NULL, 'deploymode$perjob', NULL, NULL,
+        '2021-02-25 18:12:53', '2021-02-25 18:12:53', 0);
+INSERT INTO `console_component_config`
+VALUES (811, -2, -108, 1, 'INPUT', 1, 'sparkPythonExtLibPath',
+        'hdfs:///dtInsight/pythons/pyspark.zip,hdfs:///dtInsight/pythons/py4j-0.10.7-src.zip', NULL,
+        'deploymode$perjob', NULL, NULL, '2021-02-25 18:12:53', '2021-02-25 18:12:53', 0);
+INSERT INTO `console_component_config`
+VALUES (813, -2, -108, 1, 'INPUT', 1, 'sparkSqlProxyPath', 'hdfs:///dtInsight/spark/spark-sql-proxy.jar', NULL,
+        'deploymode$perjob', NULL, NULL, '2021-02-25 18:12:53', '2021-02-25 18:12:53', 0);
+INSERT INTO `console_component_config`
+VALUES (815, -2, -108, 1, 'INPUT', 1, 'sparkYarnArchive', 'hdfs:///dtInsight/sparkjars/jars', NULL, 'deploymode$perjob',
+        NULL, NULL, '2021-02-25 18:12:53', '2021-02-25 18:12:53', 0);
+INSERT INTO `console_component_config`
+VALUES (817, -2, -108, 1, 'INPUT', 0, 'yarnAccepterTaskNumber', '3', NULL, 'deploymode$perjob', NULL, NULL,
+        '2021-02-25 18:12:53', '2021-02-25 18:12:53', 0);
+INSERT INTO `console_component_config`
+VALUES (819, -2, -120, 0, 'INPUT', 0, 'jobmanager.rpc.address', '', NULL, NULL, NULL, NULL, '2022-10-11 14:04:45',
+        '2022-10-11 14:04:45', 0);
+INSERT INTO `console_component_config`
+VALUES (821, -2, -120, 0, 'INPUT', 0, 'jobmanager.rpc.port', '', NULL, NULL, NULL, NULL, '2022-10-11 14:04:45',
+        '2022-10-11 14:04:45', 0);
+INSERT INTO `console_component_config`
+VALUES (823, -2, -120, 0, 'INPUT', 1, 'prometheusHost', '', NULL, NULL, NULL, NULL, '2022-10-11 14:04:45',
+        '2022-10-11 14:04:45', 0);
+INSERT INTO `console_component_config`
+VALUES (825, -2, -120, 0, 'INPUT', 1, 'prometheusPort', '', NULL, NULL, NULL, NULL, '2022-10-11 14:04:45',
+        '2022-10-11 14:04:45', 0);
+INSERT INTO `console_component_config`
+VALUES (827, -2, -120, 0, 'INPUT', 0, 'high-availability', '', NULL, NULL, NULL, NULL, '2022-10-11 14:04:45',
+        '2022-10-11 14:04:45', 0);
+INSERT INTO `console_component_config`
+VALUES (829, -2, -120, 0, 'INPUT', 0, 'high-availability.zookeeper.quorum', '', NULL, NULL, NULL, NULL,
+        '2022-10-11 14:04:45', '2022-10-11 14:04:45', 0);
+INSERT INTO `console_component_config`
+VALUES (831, -2, -120, 0, 'INPUT', 0, 'high-availability.zookeeper.path.root', '', NULL, NULL, NULL, NULL,
+        '2022-10-11 14:04:45', '2022-10-11 14:04:45', 0);
+INSERT INTO `console_component_config`
+VALUES (833, -2, -120, 0, 'INPUT', 0, 'high-availability.storageDir', '', NULL, NULL, NULL, NULL, '2022-10-11 14:04:45',
+        '2022-10-11 14:04:45', 0);
+INSERT INTO `console_component_config`
+VALUES (835, -2, -120, 0, 'INPUT', 0, 'high-availability.cluster-id', '', NULL, NULL, NULL, NULL, '2022-10-11 14:04:45',
+        '2022-10-11 14:04:45', 0);
 INSERT INTO `console_component_config` VALUES (837, -2, -120, 0, 'INPUT', 1, 'flinkLibDir', '/data/insight_plugin/flink112_lib', NULL, NULL, NULL, NULL, '2022-10-11 14:04:45', '2022-10-11 14:04:45', 0);
 INSERT INTO `console_component_config` VALUES (839, -2, -120, 0, 'INPUT', 1, 'chunjunDistDir', '/data/insight_plugin112/chunjunplugin', NULL, NULL, NULL, NULL, '2022-10-11 14:04:45', '2022-10-11 14:04:45', 0);
 INSERT INTO `console_component_config` VALUES (841, -2, -120, 0, 'INPUT', 1, 'remoteChunjunDistDir', '/data/insight_plugin112/chunjunplugin', NULL, NULL, NULL, NULL, '2022-10-11 14:04:45', '2022-10-11 14:04:45', 0);
@@ -995,35 +1242,39 @@ COMMIT;
 -- ----------------------------
 DROP TABLE IF EXISTS `develop_function_resource`;
 CREATE TABLE `develop_function_resource` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `function_id` int(11) NOT NULL COMMENT '函数id',
-  `resource_id` int(11) NOT NULL COMMENT '对应batch资源的id',
-  `gmt_create` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '新增时间',
-  `gmt_modified` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
-  `is_deleted` tinyint(1) NOT NULL DEFAULT '0' COMMENT '0正常 1逻辑删除',
-  `tenant_id` bigint(20) DEFAULT NULL,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `index_rdos_function_resource` (`function_id`,`resource_id`,`is_deleted`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin COMMENT='函数关联的资源表';
+                                             `id`           int(11)    NOT NULL AUTO_INCREMENT,
+                                             `function_id`  int(11)    NOT NULL COMMENT '函数id',
+                                             `resource_id`  int(11)    NOT NULL COMMENT '对应batch资源的id',
+                                             `gmt_create`   datetime   NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '新增时间',
+                                             `gmt_modified` datetime   NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
+                                             `is_deleted`   tinyint(1) NOT NULL DEFAULT '0' COMMENT '0正常 1逻辑删除',
+                                             `tenant_id`    bigint(20)          DEFAULT NULL,
+                                             PRIMARY KEY (`id`),
+                                             UNIQUE KEY `index_rdos_function_resource` (`function_id`, `resource_id`, `is_deleted`)
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8
+  COLLATE = utf8_bin COMMENT ='函数关联的资源表';
 
 -- ----------------------------
 -- Table structure for develop_hive_select_sql
 -- ----------------------------
-DROP TABLE IF EXISTS `develop_hive_select_sql`;
-CREATE TABLE `develop_hive_select_sql` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `job_id` varchar(64) COLLATE utf8_bin NOT NULL COMMENT '工作任务id',
-  `temp_table_name` varchar(256) COLLATE utf8_bin NOT NULL COMMENT '临时表名',
-  `is_select_sql` tinyint(1) NOT NULL DEFAULT '0' COMMENT '0-否 1-是',
-  `tenant_id` int(11) NOT NULL COMMENT '租户id',
-  `user_id` int(11) DEFAULT NULL COMMENT '执行用户',
-  `sql_text` longtext COLLATE utf8_bin COMMENT 'sql',
-  `parsed_columns` longtext COLLATE utf8_bin COMMENT '字段信息',
-  `task_type` int(11) DEFAULT NULL COMMENT '任务类型',
-  `gmt_create` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '新增时间',
-  `gmt_modified` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
-  `is_deleted` tinyint(1) NOT NULL DEFAULT '0' COMMENT '0正常 1逻辑删除',
-  PRIMARY KEY (`id`),
+DROP TABLE IF EXISTS `develop_select_sql`;
+CREATE TABLE `develop_select_sql`
+(
+    `id`              int(11)                       NOT NULL AUTO_INCREMENT,
+    `job_id`          varchar(64) COLLATE utf8_bin  NOT NULL COMMENT '工作任务id',
+    `temp_table_name` varchar(256) COLLATE utf8_bin NOT NULL COMMENT '临时表名',
+    `datasource_id`   int                                    default 0 null comment '数据源id',
+    `is_select_sql`   tinyint(1)                    NOT NULL DEFAULT '0' COMMENT '0-否 1-是',
+    `tenant_id`       int(11)                       NOT NULL COMMENT '租户id',
+    `user_id`         int(11)                                DEFAULT NULL COMMENT '执行用户',
+    `sql_text`        longtext COLLATE utf8_bin COMMENT 'sql',
+    `parsed_columns`  longtext COLLATE utf8_bin COMMENT '字段信息',
+    `task_type`       int(11)                                DEFAULT NULL COMMENT '任务类型',
+    `gmt_create`      datetime                      NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '新增时间',
+    `gmt_modified`    datetime                      NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
+    `is_deleted`      tinyint(1)                    NOT NULL DEFAULT '0' COMMENT '0正常 1逻辑删除',
+    PRIMARY KEY (`id`),
   UNIQUE KEY `idx` (`job_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin COMMENT='sql查询临时表';
 
@@ -1928,3 +2179,7 @@ INSERT INTO `user` VALUES (1, 'admin@dtstack.com', '0192023A7BBD73250516F069DF18
 COMMIT;
 
 SET FOREIGN_KEY_CHECKS = 1;
+
+
+
+INSERT INTO `dict` (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default, gmt_create, gmt_modified, is_deleted) VALUES ('25', 'HadoopMR', '{"actions": ["SAVE_TASK", "SUBMIT_TASK", "OPERATOR_TASK"], "formField": ["resourceIdList", "mainClass", "exeArgs"],"barItem":["dependency","task_params","env_params"], "renderKind": "spark"}', '', 30, 5, 'STRING', '', 0, '2023-02-09 10:28:45', '2023-02-09 10:28:45', 0);

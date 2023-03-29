@@ -265,6 +265,12 @@ public class EnvironmentContext implements InitializingBean {
     @Value("${upload.file.limit.size:500}")
     private Long uploadFileLimitSize;
 
+    @Value("${temp.select.expire.time:24}")
+    private Integer tempSelectExpireTime;
+
+    @Value("${schedule.scanning.cycle.day:1}")
+    private Integer scanningCycleJobDay;
+
     @Override
     public void afterPropertiesSet() throws Exception {
         // 读取全局配置并初始化 datasource
@@ -606,5 +612,13 @@ public class EnvironmentContext implements InitializingBean {
 
     public long getMaxUploadFileSize() {
         return uploadFileLimitSize;
+    }
+
+    public Integer getTempSelectExpireTime() {
+        return tempSelectExpireTime;
+    }
+
+    public int getScanningCycleJobDay() {
+        return scanningCycleJobDay;
     }
 }

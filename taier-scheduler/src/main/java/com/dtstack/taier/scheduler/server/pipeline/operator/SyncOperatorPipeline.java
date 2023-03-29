@@ -293,7 +293,7 @@ public class SyncOperatorPipeline extends IPipeline.AbstractPipeline {
         JSONObject parameter = jobObj.getJSONArray("content").getJSONObject(0)
                 .getJSONObject("writer").getJSONObject("parameter");
 
-        JSONArray sourceIds = jobJSON.getJSONArray("sourceIds");
+        JSONArray sourceIds = parameter.getJSONArray("sourceIds");
         if (CollectionUtils.isEmpty(sourceIds)) {
             return jobJSON.toJSONString();
         }
@@ -332,7 +332,7 @@ public class SyncOperatorPipeline extends IPipeline.AbstractPipeline {
             String join = Joiner.on("',").withKeyValueSeparator("='").join(formattedMap);
             partition = join + "'";
             String sql = String.format("alter table %s add if not exists partition (%s)", table, partition);
-            int retryFrequency = EScheduleType.TEMP_JOB.getType().equals(scheduleType) ? 0 : environmentContext.getRetryFrequency();
+            int retryFrequency = EScheduleType.TEMP_JOB.getType().equals(scheduleType) ? 1 : environmentContext.getRetryFrequency();
             try {
                 RetryUtil.executeWithRetry(() -> {
                     LOGGER.info("create partition tenantId {} {}", tenantId, sql);

@@ -116,6 +116,9 @@ public enum EScheduleJobType {
     VERTICA(23, "Vertica", EJobType.SQL.getType(), 4, null, EComputeType.BATCH, EJobClientType.DATASOURCE_PLUGIN),
     MAXCOMPUTE(24, "MaxCompute", EJobType.SQL.getType(), 4, null, EComputeType.BATCH, EJobClientType.DATASOURCE_PLUGIN),
     DATAX(24,"DataX", EJobType.PYTHON.getType(),14, EComponentType.SCRIPT, EComputeType.BATCH, EJobClientType.DATASOURCE_PLUGIN),
+
+    HADOOP_MR(25, "HadoopMR", EJobType.MR.getType(), 16, EComponentType.HDFS, EComputeType.BATCH, EJobClientType.WORKER_PLUGIN),
+
     ;
 
     private final Integer type;

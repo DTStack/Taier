@@ -25,6 +25,7 @@ import com.dtstack.taier.datasource.api.base.ClientCache;
 import com.dtstack.taier.datasource.api.client.IClient;
 import com.dtstack.taier.datasource.api.dto.SqlQueryDTO;
 import com.dtstack.taier.datasource.api.dto.source.ISourceDTO;
+import com.dtstack.taier.datasource.api.dto.source.RdbmsSourceDTO;
 import com.dtstack.taier.pluginapi.JobClient;
 import com.dtstack.taier.pluginapi.enums.TaskStatus;
 import com.dtstack.taier.pluginapi.pojo.JudgeResult;
@@ -82,6 +83,14 @@ public class RdbJobExecutor {
         LOGGER.info("jobId:{} taskType:{} submit to job start run", jobClient.getJobId(), jobClient.getTaskType());
         // executeBatchQuery 执行不成功 会执行抛异常，不会返回false
         ISourceDTO sourceDTO = sourceDTOLoader.buildSourceDTO(jobClient.getDatasourceId());
+        if (sourceDTO instanceof RdbmsSourceDTO) {
+            RdbmsSourceDTO rdbmsSourceDTO = (RdbmsSourceDTO) sourceDTO;
+            try {
+                rdbmsSourceDTO.setProperties(JSONObject.toJSONString(jobClient.getConfProperties()));
+            } catch (Exception e) {
+            }
+            sourceDTO = rdbmsSourceDTO;
+        }
         IClient client = ClientCache.getClient(sourceDTO.getSourceType());
         client.executeBatchQuery(sourceDTO, SqlQueryDTO.builder().sql(jobClient.getSql()).build());
         try {

@@ -35,3 +35,7 @@ sidebar_label: 集群配置
 | Spark SQL    | Spark、Spark-Thrift   | 是 |
 | Python    | Script   | 是 |
 | Shell    | Script   | 是 |
+
+:::tip 新建对应的组件任务 能选择的类型需要先在集群配置对应依赖的计算组件   
+SQL类型的任务 需要新建对应类型的数据源
+:::

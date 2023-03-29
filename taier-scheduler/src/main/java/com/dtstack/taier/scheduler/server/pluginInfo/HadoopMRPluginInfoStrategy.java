@@ -20,34 +20,31 @@ package com.dtstack.taier.scheduler.server.pluginInfo;
 
 import com.alibaba.fastjson.JSONObject;
 import com.dtstack.taier.common.enums.EComponentType;
-import com.dtstack.taier.common.exception.TaierDefineException;
+import com.dtstack.taier.common.enums.EScheduleJobType;
 import org.apache.commons.lang3.StringUtils;
-
-import java.util.Objects;
 
 import static com.dtstack.taier.pluginapi.constrant.ConfigConstant.TYPE_NAME;
 import static com.dtstack.taier.pluginapi.constrant.ConfigConstant.TYPE_NAME_KEY;
 
-public class ScriptPluginInfoStrategy extends ComponentPluginInfoStrategy {
+public class HadoopMRPluginInfoStrategy extends ComponentPluginInfoStrategy {
 
     @Override
     public JSONObject convertPluginInfo(JSONObject clusterConfigJson, Long clusterId, Integer deployMode) {
-        JSONObject confConfig = clusterConfigJson.getJSONObject(EComponentType.SCRIPT.getConfName());
-        String typeName = confConfig.getString(TYPE_NAME);
-        if (!StringUtils.isBlank(typeName)) {
-            clusterConfigJson.put(TYPE_NAME_KEY, typeName);
+
+        if (EScheduleJobType.HADOOP_MR == getJobType()){
+            JSONObject hadoopConf = clusterConfigJson.getJSONObject(EComponentType.HDFS.getConfName());
+            String typeName = hadoopConf.getString(TYPE_NAME);
+            if (!StringUtils.isBlank(typeName)) {
+                clusterConfigJson.put(TYPE_NAME_KEY, typeName);
+            }
+            return clusterConfigJson;
+        } else {
+            return clusterConfigJson.getJSONObject(EComponentType.HDFS.getConfName());
         }
-        if (Objects.isNull(confConfig)) {
-            throw new TaierDefineException(String.format("scriptConf is not configured"));
-        }
-        clusterConfigJson.remove(EComponentType.SCRIPT.getConfName());
-        // put flat all script config
-        clusterConfigJson.putAll(confConfig);
-        return clusterConfigJson;
     }
 
     @Override
     public EComponentType getComponentTypeCode() {
-        return EComponentType.SCRIPT;
+        return EComponentType.HDFS;
     }
 }

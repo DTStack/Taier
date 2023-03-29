@@ -29,7 +29,7 @@ import java.util.Objects;
 import static com.dtstack.taier.pluginapi.constrant.ConfigConstant.TYPE_NAME;
 import static com.dtstack.taier.pluginapi.constrant.ConfigConstant.TYPE_NAME_KEY;
 
-public class FlinkPluginInfoStrategy implements ComponentPluginInfoStrategy {
+public class FlinkPluginInfoStrategy extends ComponentPluginInfoStrategy {
 
     @Override
     public JSONObject convertPluginInfo(JSONObject clusterConfigJson, Long clusterId, Integer deployMode) {
