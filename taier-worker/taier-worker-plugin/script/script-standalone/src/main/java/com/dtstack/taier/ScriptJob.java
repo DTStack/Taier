@@ -3,9 +3,6 @@ package com.dtstack.taier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-
 public class ScriptJob implements Runnable {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ScriptJob.class);
@@ -48,16 +45,15 @@ public class ScriptJob implements Runnable {
         this.command = command;
     }
 
-    public ScriptJob() {}
+    public ScriptJob() {
+    }
 
     @Override
     public void run() {
         execStartTime = System.currentTimeMillis();
         try {
-            process = Runtime.getRuntime().exec(command);
+            Process process = Runtime.getRuntime().exec(new String[]{"sh", "-c", command});
             processId = ProcessUtil.getProcessId(process);
-
-
             int exitValue = process.waitFor();
             if (0 != exitValue) {
                 status = false;
@@ -78,10 +74,6 @@ public class ScriptJob implements Runnable {
 
     public Integer getProcessId() {
         return processId;
-    }
-
-    public StringBuilder getLogBuilder() {
-        return logBuilder;
     }
 
     public Long getExecEndTime() {
