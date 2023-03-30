@@ -39,7 +39,6 @@ import type { IOfflineTaskProps } from '@/interface';
 import { isTaskTab } from '@/utils/is';
 import { Component } from '@dtinsight/molecule/esm/react';
 import http from '@/api/http';
-import { setAuxiliaryBar } from '@/extensions/auxiliaryBar';
 
 export interface ITaskRenderState {
     supportTaskList: ISupportJobTypes[];
@@ -414,7 +413,6 @@ export default class TaskRenderService extends Component<ITaskRenderState> {
             molecule.editor.setActive(groupId, record.id.toString());
             window.setTimeout(() => {
                 editorActionBarService.performSyncTaskActions();
-                setAuxiliaryBar();
             }, 0);
             return;
         }

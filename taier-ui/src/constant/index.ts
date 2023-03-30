@@ -147,6 +147,10 @@ export enum ID_COLLECTIONS {
      * 新增租户
      */
     ADD_TENANT = 'add.tenant',
+    /**
+     * 任务切换事件
+     */
+    TASK_SWITCH_EVENT = 'task.switch.event',
 }
 
 export const OFFSET_RESET_FORMAT = 'YYYY-MM-DD HH:mm:ss';
