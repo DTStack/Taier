@@ -80,8 +80,7 @@ public class ScriptClient extends AbstractClient {
 
     @Override
     public String getJobLog(JobIdentifier jobIdentifier) {
-        ScriptJob scriptJob = ScriptExecutor.getJobMap().get(jobIdentifier.getJobId());
-        return Objects.isNull(scriptJob) ? "" : scriptJob.getLogBuilder().toString();
+        return null;
     }
 
     @Override

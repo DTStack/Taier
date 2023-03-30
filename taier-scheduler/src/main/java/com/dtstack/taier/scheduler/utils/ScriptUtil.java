@@ -24,7 +24,7 @@ public class ScriptUtil {
     private static final String PYTHON_PREFIX = "# coding=utf8";
 
     // python3 /a/b/b/python_failure.py  > /a/b/c.log 2>&1
-    private static final String SHELL_COMMAND = "%s %s";
+    private static final String SHELL_COMMAND = "%s %s > %s 2>&1";
 
     private static final String WINDOWS_EXECUTE = "cmd";
 
@@ -35,14 +35,15 @@ public class ScriptUtil {
      *
      * @param commandPath shell脚本存储文件绝对路径
      * @param command     shell命令
+     * @param logFilePath 脚本输出文件路径
      * @return
      * @throws IOException
      */
-    public static String buildShellCommand(String commandPath, String command) throws IOException {
+    public static String buildShellCommand(String commandPath, String command, String logFilePath) throws IOException {
         String fullCommand = String.format("%s\n%s\n", ProcessUtils.isWindows() ? WINDOWS_SHELL_PREFIX : LINUX_SHELL_PREFIX, command);
         LOGGER.info("build full shell command is : {}", fullCommand);
         FileUtils.writeStringToFile(new File(commandPath), fullCommand, StandardCharsets.UTF_8);
-        return String.format(SHELL_COMMAND, ProcessUtils.isWindows() ? WINDOWS_EXECUTE : LINUX_EXECUTE, commandPath);
+        return String.format(SHELL_COMMAND, ProcessUtils.isWindows() ? WINDOWS_EXECUTE : LINUX_EXECUTE, commandPath, logFilePath);
     }
 
     /**
@@ -51,14 +52,15 @@ public class ScriptUtil {
      * @param commandPath   python脚本存储文件绝对路径
      * @param command       python命令
      * @param pythonBinPath python命令所在路径
+     * @param logFilePath   脚本输出文件路径
      * @return
      * @throws IOException
      */
-    public static String buildPythonCommand(String commandPath, String command, String pythonBinPath) throws IOException {
+    public static String buildPythonCommand(String commandPath, String command, String pythonBinPath, String logFilePath) throws IOException {
         String fullCommand = String.format("%s\n%s\n", PYTHON_PREFIX, command);
         LOGGER.info("build full python command is : {}", fullCommand);
         FileUtils.writeStringToFile(new File(commandPath), fullCommand, StandardCharsets.UTF_8);
-        return String.format(SHELL_COMMAND, pythonBinPath, commandPath);
+        return String.format(SHELL_COMMAND, pythonBinPath, commandPath, logFilePath);
     }
 
 }
