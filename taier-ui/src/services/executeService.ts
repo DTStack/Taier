@@ -167,7 +167,10 @@ export default class ExecuteService extends Component<IExecuteStates> implements
             return API.stopSQLImmediately({
                 taskId: currentTabData.id,
                 jobId,
-            }).then(() => Promise.resolve());
+            }).then(() => {
+                this.runningSql.delete(currentTabId);
+                return Promise.resolve();
+            });
         }
 
         return Promise.resolve();
@@ -235,6 +238,7 @@ export default class ExecuteService extends Component<IExecuteStates> implements
 
         const res = await API.stopDataSyncImmediately({ jobId });
         if (res && res.code === 1) {
+            this.runningSql.delete(currentTabId);
             this.taskResultService.appendLogs(currentTabId.toString(), createLog('执行停止', 'warning'));
         }
     };
