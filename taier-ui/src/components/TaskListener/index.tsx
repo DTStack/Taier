@@ -10,6 +10,6 @@ import { useEffect } from 'react';
 export default connect(molecule.editor, ({ current }: molecule.model.IEditor) => {
     useEffect(() => {
         EventBus.emit(ID_COLLECTIONS.TASK_SWITCH_EVENT);
-    }, [current]);
+    }, [current?.id, current?.activeTab]);
     return <></>;
 });
