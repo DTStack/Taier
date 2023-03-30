@@ -16,26 +16,11 @@
  * limitations under the License.
  */
 
-package com.dtstack.taier.scheduler.server.pluginInfo;
+package com.dtstack.taier.dao.mapper;
 
-import com.alibaba.fastjson.JSONObject;
-import com.dtstack.taier.common.enums.EComponentType;
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.dtstack.taier.dao.domain.DevelopSelectSql;
 
-public class DefaultPluginInfoStrategy extends ComponentPluginInfoStrategy {
+public interface DevelopSelectSqlMapper extends BaseMapper<DevelopSelectSql> {
 
-    private EComponentType componentType;
-
-    public DefaultPluginInfoStrategy(EComponentType componentType) {
-        this.componentType = componentType;
-    }
-
-    @Override
-    public JSONObject convertPluginInfo(JSONObject clusterConfigJson, Long clusterId, Integer deployMode) {
-        return clusterConfigJson.getJSONObject(componentType.getConfName());
-    }
-
-    @Override
-    public EComponentType getComponentTypeCode() {
-        return componentType;
-    }
 }

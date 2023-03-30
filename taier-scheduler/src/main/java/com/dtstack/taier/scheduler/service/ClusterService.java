@@ -35,11 +35,12 @@ import com.dtstack.taier.dao.mapper.ComponentMapper;
 import com.dtstack.taier.dao.mapper.ConsoleKerberosMapper;
 import com.dtstack.taier.pluginapi.constrant.ConfigConstant;
 import com.dtstack.taier.scheduler.server.pluginInfo.ComponentPluginInfoStrategy;
-import com.dtstack.taier.scheduler.server.pluginInfo.DefaultPluginInfoStrategy;
 import com.dtstack.taier.scheduler.server.pluginInfo.FlinkPluginInfoStrategy;
-import com.dtstack.taier.scheduler.server.pluginInfo.KerberosPluginInfo;
-import com.dtstack.taier.scheduler.server.pluginInfo.ScriptPluginInfoStrategy;
 import com.dtstack.taier.scheduler.server.pluginInfo.SparkPluginInfoStrategy;
+import com.dtstack.taier.scheduler.server.pluginInfo.DefaultPluginInfoStrategy;
+import com.dtstack.taier.scheduler.server.pluginInfo.ScriptPluginInfoStrategy;
+import com.dtstack.taier.scheduler.server.pluginInfo.KerberosPluginInfo;
+import com.dtstack.taier.scheduler.server.pluginInfo.HadoopMRPluginInfoStrategy;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -90,6 +91,7 @@ public class ClusterService {
         }
         JSONObject clusterConfigJson = buildClusterConfig(clusterId, componentVersion, componentType);
         ComponentPluginInfoStrategy pluginInfoStrategy = convertPluginInfo(componentType);
+        pluginInfoStrategy.setJobType(engineJobType);
         KerberosPluginInfo kerberosPluginInfo = new KerberosPluginInfo(pluginInfoStrategy, consoleKerberosMapper, componentMapper);
         JSONObject pluginJson = kerberosPluginInfo.configSecurity(clusterConfigJson, clusterId, deployMode);
         if (StringUtils.isBlank(queueName)) {
@@ -107,6 +109,8 @@ public class ClusterService {
                 return new SparkPluginInfoStrategy();
             case SCRIPT:
                 return new ScriptPluginInfoStrategy();
+            case HDFS:
+                return new HadoopMRPluginInfoStrategy();
             default:
                 return new DefaultPluginInfoStrategy(componentType);
         }

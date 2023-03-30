@@ -56,10 +56,10 @@ services:
 $ docker-compose up -d
 ```
 
-:::tip
-当命令执行完成后，在浏览器上直接访问 镜像ip:8090 进行[快速上手](./quickstart/start.md)
+:::tip 当命令执行完成后，在浏览器上直接访问 镜像ip:8090 进行[快速上手](./quickstart/start.md)
 :::
 
-:::caution 
-有使用Flink相关功能，需要下载Chunjun、Flink插件包。自行挂载相关目录，并在[Flink组件](./functions/component/flink.md)上配置对应目录
+:::caution
+由于docker镜像大小问题，Chunjun、Flink插件包相关文件并未打包到容器内，有使用Flink相关功能，需要下载Chunjun、Flink插件包。自行挂载相关目录，并在[Flink组件](./functions/component/flink.md)
+上配置对应目录
 :::

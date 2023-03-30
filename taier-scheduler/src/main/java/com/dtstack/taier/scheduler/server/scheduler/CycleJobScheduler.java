@@ -82,7 +82,7 @@ public class CycleJobScheduler extends AbstractJobSummitScheduler {
 
     @Override
     protected Long getMinSort() {
-        String triggerTime = new DateTime().toString(DATA_YMD);
+        String triggerTime = new DateTime().minusDays(env.getScanningCycleJobDay()).toString(DATA_YMD);
         triggerTime += "000000";
         return JobExecuteOrderUtil.buildJobExecuteOrder(triggerTime,0);
     }
@@ -91,22 +91,6 @@ public class CycleJobScheduler extends AbstractJobSummitScheduler {
     protected List<SubmitInterceptor> getInterceptor() {
         return submitInterceptorList;
     }
-
-//    @Override
-//    protected List<JudgeJobExecOperator> getJudgeJobExecOperator() {
-//        if (CollectionUtils.isNotEmpty(judgeJobExecOperators)) {
-//            return judgeJobExecOperators;
-//        }
-//        return Lists.newArrayList();
-//    }
-//
-//    @Override
-//    protected List<JudgeNoPassJobHandler> getJudgeNoPassJobHandler() {
-//        if (CollectionUtils.isNotEmpty(judgeNoPassJobHandlers)) {
-//            return judgeNoPassJobHandlers;
-//        }
-//        return Lists.newArrayList();
-//    }
 
     public EScheduleType getScheduleType() {
         return EScheduleType.NORMAL_SCHEDULE;

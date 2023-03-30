@@ -99,7 +99,7 @@ public abstract class AbstractTaskSaver implements ITaskSaver {
 
     private static final String ADD_FILE_FORMAT = "ADD JAR WITH %s AS %s;";
 
-    private static final List<Integer> ADD_JAR_JOB_TYPE = Arrays.asList(EScheduleJobType.SPARK.getVal());
+    private static final List<Integer> ADD_JAR_JOB_TYPE = Arrays.asList(EScheduleJobType.SPARK.getVal(), EScheduleJobType.HADOOP_MR.getVal());
 
     @Autowired
     public DevelopTaskService developTaskService;
@@ -339,7 +339,7 @@ public abstract class AbstractTaskSaver implements ITaskSaver {
 
 
     protected String getAddJarSql(Integer taskType, String mainClass, List<DevelopResource> resourceList, String sql) {
-        if (EScheduleJobType.SPARK.getVal().equals(taskType)) {
+        if (EScheduleJobType.SPARK.getVal().equals(taskType) || EScheduleJobType.HADOOP_MR.getVal().equals(taskType)) {
             if (resourceList.size() != 1) {
                 //批处理必须关联一个资源
                 throw new TaierDefineException("spark task ref resource size must be one");

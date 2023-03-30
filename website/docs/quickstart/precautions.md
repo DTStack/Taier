@@ -108,12 +108,30 @@ com.dtstack.taier.datasource.api.exception.InitializeException: get classloader 
 	at com.dtstack.taier.datasource.api.base.ClientCache.getClientByType(ClientCache.java:74)
 	at com.dtstack.taier.datasource.api.base.ClientCache.getClient(ClientCache.java:78)
 ```
-:::tip
-确保taier部署环境存在同级目录datasource-plugins
+
+:::tip 确保taier部署环境存在同级目录datasource-plugins
 :::
 
 ### 数据同步任务运行class not found
+
 ![login_error](../../static/img/example/class_not_find.png)  
-:::tip
-chunjun的connector部分依赖包是provided,运行时候需要下载对应jar包放在flink组件配置的`flinkLibDir`目录下
+:::tip chunjun的connector部分依赖包是provided,运行时候需要下载对应jar包放在flink组件配置的`flinkLibDir`目录下
+:::
+
+### 数据同步运行serialVersionUID错误
+
+![login_error](../../static/img/example/versionuid.png)  
+:::tip chunjun的connector更换过之后，需要重启Taier和Flink Session
+:::
+
+### 数据同步运行 session拉启失败
+
+![login_error](../../static/img/example/session_launch.png)  
+:::tip 检查Node Manager 是否健康 以及 是否能手动拉启Flink Session
+:::
+
+### 数据同步运行 数据写入 但是界面指标展示为0
+
+:::tip 界面指标展示需要依赖Promethous服务器和Taier服务器、数据库时间一致  
+Chunjun的指标信息推送为异步 数据过少 可能任务已经结束 指标还未推送
 :::
