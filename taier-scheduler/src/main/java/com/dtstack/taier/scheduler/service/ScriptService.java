@@ -8,11 +8,6 @@ import com.dtstack.taier.common.util.TaskParamsUtils;
 import com.dtstack.taier.dao.domain.ScheduleJob;
 import com.dtstack.taier.dao.domain.ScheduleTaskShade;
 import com.dtstack.taier.dao.dto.ScheduleTaskParamShade;
-import com.dtstack.taier.pluginapi.enums.EDeployMode;
-import com.dtstack.taier.scheduler.executor.DatasourceOperator;
-import com.dtstack.taier.scheduler.server.pipeline.JobParamReplace;
-import com.dtstack.taier.scheduler.utils.FileUtil;
-import com.dtstack.taier.scheduler.utils.ScriptUtil;
 import com.dtstack.taier.pluginapi.constrant.ConfigConstant;
 import com.dtstack.taier.pluginapi.enums.EDeployMode;
 import com.dtstack.taier.scheduler.PluginWrapper;
@@ -87,7 +82,7 @@ public class ScriptService {
             dealScriptExeParams(actionParam, task, scheduleJob, sqlText);
         }
         if (EDeployMode.STANDALONE.equals(deployMode)) {
-            dealScriptStandAloneParams(actionParam, task, scheduleJob);
+            dealScriptStandAloneParams(actionParam, task, scheduleJob, sqlText);
         }
     }
 
