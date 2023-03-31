@@ -51,6 +51,15 @@ public class TaskParamsUtils {
                         return EDeployMode.STANDALONE;
                     }
                 }
+
+                String scriptMode = properties.getProperty("runMode");
+                if (!StringUtils.isEmpty(scriptMode)) {
+                    if (scriptMode.equalsIgnoreCase("yarn")) {
+                        return EDeployMode.RUN_ON_YARN;
+                    } else if (scriptMode.equalsIgnoreCase("standalone")) {
+                        return EDeployMode.STANDALONE;
+                    }
+                }
             }
         } catch (Exception e) {
             LOGGER.error(" parseDeployTypeByTaskParams {} error", taskParams, e);
@@ -60,32 +69,6 @@ public class TaskParamsUtils {
         } else {
             return EDeployMode.SESSION;
         }
-    }
-
-
-    /**
-     * 解析脚本任务模式中的运行模式
-     *
-     * @param taskParams
-     * @return
-     */
-    public static EDeployMode parseScriptDeployTypeByTaskParams(String taskParams) {
-        try {
-            if (!StringUtils.isBlank(taskParams)) {
-                Properties properties = PublicUtil.stringToProperties(taskParams);
-                String flinkTaskRunMode = properties.getProperty("runMode");
-                if (!StringUtils.isEmpty(flinkTaskRunMode)) {
-                    if (flinkTaskRunMode.equalsIgnoreCase("yarn")) {
-                        return EDeployMode.RUN_ON_YARN;
-                    } else if (flinkTaskRunMode.equalsIgnoreCase("standalone")) {
-                        return EDeployMode.STANDALONE;
-                    }
-                }
-            }
-        } catch (Exception e) {
-            LOGGER.error(" parseDeployTypeByTaskParams {} error", taskParams, e);
-        }
-        return EDeployMode.RUN_ON_YARN;
     }
 
 }

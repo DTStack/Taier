@@ -44,11 +44,10 @@ public class PluginWrapper {
 
     public Map<String, Object> wrapperPluginInfo(Integer taskType, String taskParam, Integer computeType, String componentVersion, Long tenantId, String queueName) {
         EDeployMode deployMode = EDeployMode.PERJOB;
-        if (EScheduleJobType.SYNC.getType().equals(taskType)) {
+        if (EScheduleJobType.SYNC.getType().equals(taskType)
+            || EScheduleJobType.SHELL.getType().equals(taskType)
+            || EScheduleJobType.PYTHON.getType().equals(taskType)) {
             deployMode = TaskParamsUtils.parseDeployTypeByTaskParams(taskParam, computeType);
-        }
-        if (EScheduleJobType.SHELL.getType().equals(taskType)) {
-            deployMode = TaskParamsUtils.parseScriptDeployTypeByTaskParams(taskParam);
         }
         if (clusterService.hasStandalone(tenantId, EComponentType.FLINK.getTypeCode())) {
             deployMode = EDeployMode.STANDALONE;

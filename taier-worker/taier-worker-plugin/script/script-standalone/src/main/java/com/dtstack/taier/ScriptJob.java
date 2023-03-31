@@ -1,11 +1,15 @@
 package com.dtstack.taier;
 
+import com.alibaba.fastjson.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class ScriptJob implements Runnable {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ScriptJob.class);
+
+    // sh aaa.sh > /a/b/c.log  2>&1
+    private final String LINUX_SHELL_COMMAND = " %s > %s 2>&1";
 
     private String jobId;
 
@@ -20,9 +24,9 @@ public class ScriptJob implements Runnable {
     private Integer processId;
 
     /**
-     * shell 运行命令
+     * shell 运行参数
      */
-    private String command;
+    private String shellParams;
 
     /**
      * 进程
@@ -39,10 +43,19 @@ public class ScriptJob implements Runnable {
      */
     private Long execEndTime;
 
+    private String shellCommand;
 
-    public ScriptJob(String jobId, String command) {
+    private String shellFullCommand;
+
+    private String shellLogPath;
+
+
+    public ScriptJob(String jobId, String shellParams) {
         this.jobId = jobId;
-        this.command = command;
+        this.shellParams = shellParams;
+        JSONObject shellParamObj = JSONObject.parseObject(shellParams);
+        this.shellCommand = shellParamObj.getString("shellCommand");
+        this.shellLogPath = shellParamObj.getString("shellLogPath");
     }
 
     public ScriptJob() {
@@ -52,7 +65,12 @@ public class ScriptJob implements Runnable {
     public void run() {
         execStartTime = System.currentTimeMillis();
         try {
-            Process process = Runtime.getRuntime().exec(new String[]{"sh", "-c", command});
+            if (ProcessUtil.isWindows()) {
+                // todo windows需要适配
+            } else {
+                shellFullCommand = String.format(LINUX_SHELL_COMMAND, shellCommand, shellLogPath);
+                process = Runtime.getRuntime().exec(new String[]{"sh", "-c", shellFullCommand});
+            }
             processId = ProcessUtil.getProcessId(process);
             int exitValue = process.waitFor();
             if (0 != exitValue) {
@@ -64,6 +82,7 @@ public class ScriptJob implements Runnable {
             LOGGER.error("jobId: {} script job start failure", jobId, e);
             status = false;
         } finally {
+            LOGGER.info("jobId: {} script job start end", jobId);
             execEndTime = System.currentTimeMillis();
         }
     }
@@ -79,4 +98,13 @@ public class ScriptJob implements Runnable {
     public Long getExecEndTime() {
         return execEndTime;
     }
+
+    public String getShellFullCommand() {
+        return shellFullCommand;
+    }
+
+    public String getShellLogPath() {
+        return shellLogPath;
+    }
+
 }

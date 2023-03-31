@@ -1,5 +1,6 @@
 package com.dtstack.taier;
 
+import com.alibaba.fastjson.JSONObject;
 import com.dtstack.taier.pluginapi.JobClient;
 import com.dtstack.taier.pluginapi.JobIdentifier;
 import com.dtstack.taier.pluginapi.client.AbstractClient;
@@ -28,11 +29,18 @@ public class ScriptClient extends AbstractClient {
     @Override
     public JobResult submitJob(JobClient jobClient) {
         ScriptExecutor.buildExecutor();
-        ScriptJob scriptJob = new ScriptJob(jobClient.getJobId(), jobClient.getShellCommand());
+        ScriptJob scriptJob = new ScriptJob(jobClient.getJobId(), jobClient.getShellParams());
         ScriptExecutor.getJobMap().put(jobClient.getJobId(), scriptJob);
         ScriptExecutor.getSqlExecutor().execute(scriptJob);
-        return JobResult.createSuccessResult(jobClient.getJobId(), String.valueOf(ScriptExecutor.getJobMap()
+
+        JSONObject extraInfo = new JSONObject();
+        extraInfo.put("shellLogPath", scriptJob.getShellLogPath());
+        extraInfo.put("runMode", "standalone");
+
+        JobResult jobResult = JobResult.createSuccessResult(jobClient.getJobId(), String.valueOf(ScriptExecutor.getJobMap()
                 .getOrDefault(jobClient.getJobId(), new ScriptJob()).getProcessId()));
+        jobResult.setExtraInfoJson(extraInfo);
+        return jobResult;
     }
 
     @Override
@@ -87,8 +95,8 @@ public class ScriptClient extends AbstractClient {
     public JudgeResult judgeSlots(JobClient jobClient) {
         ThreadPoolExecutor sqlExecutor = ScriptExecutor.getSqlExecutor();
         if (Objects.nonNull(sqlExecutor)) {
-            if (sqlExecutor.getQueue().size() == 1) {
-                return JudgeResult.notOk("当前脚本任务运行线程数超过限制，默认值20");
+            if (sqlExecutor.getQueue().size() == sqlExecutor.getCorePoolSize()) {
+                return JudgeResult.notOk(String.format("当前脚本任务运行线程数超过限制，默认值 %s", ScriptExecutor.DEFAULT_POOL_SIZE));
             }
         }
         return JudgeResult.ok();

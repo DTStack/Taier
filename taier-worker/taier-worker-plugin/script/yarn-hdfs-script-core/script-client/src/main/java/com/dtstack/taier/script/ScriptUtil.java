@@ -18,8 +18,8 @@
 
 package com.dtstack.taier.script;
 
+import com.alibaba.fastjson.JSONObject;
 import com.dtstack.taier.pluginapi.JobClient;
-import com.dtstack.taier.pluginapi.util.DtStringUtil;
 import com.google.common.collect.Lists;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang.StringUtils;
@@ -48,7 +48,6 @@ public class ScriptUtil {
      */
     public static ScriptConfiguration buildScriptConf(JobClient jobClient, ScriptConfiguration dtconf) throws IOException {
         String exeArgs = jobClient.getClassArgs();
-        List<String> args = DtStringUtil.splitIngoreBlank(exeArgs);
         ScriptConfiguration execDtconf = new ScriptConfiguration(false);
 
         for (Map.Entry<String, String> param : dtconf) {
@@ -60,21 +59,20 @@ public class ScriptUtil {
             execDtconf.set(key,value);
         }
 
-        // exeArgs, 来自 com.dtstack.taier.develop.service.develop.saver.ScriptTaskSaver.populateExeArgs
-        // 上下两个为一组 k/v
-        for (int i = 0; i < args.size() - 1; i += 2) {
-            // 替换前缀「--」为 「script」、替换「-」为「.」，比如「--app-type」为 「script.app.type」
-            String key = args.get(i).replace("--", "script.").replace("-", ".");
-            String values = args.get(i + 1);
-            if ("script.launch.cmd".equals(args.get(i)) || "script.cmd.opts".equals(args.get(i))) {
-                dtconf.set(key, new String(DECODER.decodeBuffer(args.get(i + 1)), "UTF-8"));
+        JSONObject exeArgsJson = JSONObject.parseObject(exeArgs);
+        for (String key : exeArgsJson.getInnerMap().keySet()) {
+            String newKey = key.replace("--", "script.").replace("-", ".");
+            if ("script.launch.cmd".equalsIgnoreCase(newKey)
+                    || "script.cmd.opts".equalsIgnoreCase(newKey)) {
+                dtconf.set(newKey, new String(DECODER.decodeBuffer(exeArgsJson.getString(key)), "UTF-8"));
                 continue;
             }
-            if (ScriptConfiguration.SCRIPT_SHIP_FILES.equals(args.get(i)) && StringUtils.isNotBlank(dtconf.get(ScriptConfiguration.SCRIPT_SHIP_FILES))) {
-                dtconf.set(key, args.get(i + 1) + "," + dtconf.get(ScriptConfiguration.SCRIPT_SHIP_FILES));
+            if (ScriptConfiguration.SCRIPT_SHIP_FILES.equals(key)
+                    && StringUtils.isNotBlank(dtconf.get(ScriptConfiguration.SCRIPT_SHIP_FILES))) {
+                dtconf.set(newKey, exeArgsJson.getString(key) + "," + dtconf.get(ScriptConfiguration.SCRIPT_SHIP_FILES));
                 continue;
             }
-            execDtconf.set(key, values);
+            execDtconf.set(newKey, exeArgsJson.getString(key));
         }
 
         // taskParams，任务新增时设置

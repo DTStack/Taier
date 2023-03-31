@@ -8,10 +8,6 @@ import com.dtstack.taier.common.util.TaskParamsUtils;
 import com.dtstack.taier.dao.domain.ScheduleJob;
 import com.dtstack.taier.dao.domain.ScheduleTaskShade;
 import com.dtstack.taier.dao.dto.ScheduleTaskParamShade;
-import com.dtstack.taier.pluginapi.enums.EDeployMode;
-import com.dtstack.taier.scheduler.executor.DatasourceOperator;
-import com.dtstack.taier.scheduler.server.pipeline.JobParamReplace;
-import com.dtstack.taier.scheduler.utils.FileUtil;
 import com.dtstack.taier.pluginapi.constrant.ConfigConstant;
 import com.dtstack.taier.pluginapi.enums.EDeployMode;
 import com.dtstack.taier.scheduler.PluginWrapper;
@@ -79,14 +75,14 @@ public class ScriptService {
         EDeployMode deployMode = EDeployMode.STANDALONE;
         if (EScheduleJobType.SHELL.getType().equals(taskType)
                 || EScheduleJobType.PYTHON.getType().equals(taskType)) {
-            deployMode = TaskParamsUtils.parseScriptDeployTypeByTaskParams(task.getTaskParams());
+            deployMode = TaskParamsUtils.parseDeployTypeByTaskParams(task.getTaskParams(), null);
         }
 
         if (EDeployMode.RUN_ON_YARN.equals(deployMode)) {
             dealScriptExeParams(actionParam, task, scheduleJob, sqlText);
         }
         if (EDeployMode.STANDALONE.equals(deployMode)) {
-            dealScriptStandAloneParams(actionParam, task, scheduleJob);
+            dealScriptStandAloneParams(actionParam, task, scheduleJob, sqlText);
         }
     }
 
@@ -101,10 +97,10 @@ public class ScriptService {
     private void dealScriptExeParams(Map<String, Object> actionParam, ScheduleTaskShade task, ScheduleJob scheduleJob,
                                      String sqlText) {
         String exeArgs = Objects.toString(actionParam.get("exeArgs"), "");
-        JSONObject exeArgsJson = new JSONObject();
+        JSONObject exeArgsJson = JSONObject.parseObject(exeArgs);
         String hdfsPath = uploadToHdfs(sqlText, task, scheduleJob);
-        exeArgsJson.put("scriptFilePath", hdfsPath);
-        actionParam.put("exeArgs", exeArgs);
+        exeArgsJson.put("--files", hdfsPath);
+        actionParam.put("exeArgs", exeArgsJson.toJSONString());
     }
     /**
      * 将脚本上传到 hdfs
@@ -137,7 +133,7 @@ public class ScriptService {
         FileUtils.writeStringToFile(new File(logFilePath), "", StandardCharsets.UTF_8);
 
         if (EScheduleJobType.SHELL.getType().equals(task.getTaskType())) {
-            command = ScriptUtil.buildShellCommand(String.format("%s/%s/%s.sh", commandFilePath, scheduleJob.getJobId(), scheduleJob.getJobName()), sqlText, logFilePath);
+            command = ScriptUtil.buildShellCommand(String.format("%s/%s/%s.sh", commandFilePath, scheduleJob.getJobId(), scheduleJob.getJobName()), sqlText);
         }
         if (EScheduleJobType.PYTHON.getType().equals(task.getTaskType())) {
             // 处理python任务版本信息
@@ -154,9 +150,14 @@ public class ScriptService {
                 throw new TaierDefineException(String.format("jobId: %s 未匹配到对应的python版本信息", scheduleJob.getJobId()));
             }
             command = ScriptUtil.buildPythonCommand(String.format("%s/%s/%s.py", commandFilePath, scheduleJob.getJobId(), scheduleJob.getJobName()),
-                    sqlText, pythonBinPath, logFilePath);
+                    sqlText, pythonBinPath);
         }
-        actionParam.put("shellCommand", command);
+
+        JSONObject shellParams = new JSONObject();
+        shellParams.put("shellCommand", command);
+        shellParams.put("shellLogPath", logFilePath);
+
+        actionParam.put("shellParams", shellParams.toJSONString());
     }
 
 
