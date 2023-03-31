@@ -20,7 +20,7 @@ public class ScriptExecutor {
     /**
      * sql 执行默认核心线程数
      */
-    private static final Integer DEFAULT_POOL_SIZE = 10;
+    protected static final Integer DEFAULT_POOL_SIZE = 10;
 
     public static ThreadPoolExecutor sqlExecutor = null;
 

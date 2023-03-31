@@ -20,6 +20,7 @@ package com.dtstack.taier.develop.controller.console;
 
 import com.alibaba.fastjson.JSONObject;
 import com.dtstack.taier.common.enums.EComponentType;
+import com.dtstack.taier.common.enums.EDeployType;
 import com.dtstack.taier.common.exception.TaierDefineException;
 import com.dtstack.taier.common.lang.coc.APITemplate;
 import com.dtstack.taier.common.lang.web.R;
@@ -111,9 +112,13 @@ public class UploadController {
                 if ("1.12-standalone".equals(versionName)) {
                     deployTypeCode = 0;
                 }
-                if ("standalone".equals(versionName)) {
-                    deployTypeCode = 0;
+                if (EComponentType.SCRIPT.equals(componentType)) {
+                    deployTypeCode = EDeployType.YARN.getType();
+                    if ("standalone".equals(versionName)) {
+                        deployTypeCode = EDeployType.STANDALONE.getType();
+                    }
                 }
+
                 return consoleComponentService.addOrUpdateComponent(clusterId, finalComponentConfig, resources,
                         finalVersionName, kerberosFileName, componentType, EComponentType.HDFS.getTypeCode(), principals, principal, isMetadata, deployTypeCode);
             }

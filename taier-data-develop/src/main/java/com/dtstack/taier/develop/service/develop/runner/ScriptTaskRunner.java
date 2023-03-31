@@ -43,15 +43,19 @@ import com.dtstack.taier.develop.service.task.TaskTemplateService;
 import com.dtstack.taier.develop.sql.ParseResult;
 import com.dtstack.taier.develop.utils.develop.common.IDownload;
 import com.dtstack.taier.develop.utils.develop.hive.service.LogPluginDownload;
+import com.dtstack.taier.pluginapi.enums.EDeployMode;
 import com.dtstack.taier.pluginapi.enums.TaskStatus;
 import com.dtstack.taier.pluginapi.util.RetryUtil;
 import com.dtstack.taier.scheduler.service.ClusterService;
 import com.google.common.collect.ImmutableList;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -131,6 +135,16 @@ public class ScriptTaskRunner implements ITaskRunner {
         if (StringUtils.isBlank(scheduleJob.getApplicationId())) {
             return null;
         }
+        // 判断是否运行在本地
+        ScheduleJobExpand jobExpand = jobExpandService.selectOneByJobId(jobId);
+        String jobExtraInfo = jobExpand.getJobExtraInfo();
+        if (StringUtils.isNotBlank(jobExtraInfo)) {
+            JSONObject extraInfo = JSONObject.parseObject(jobExtraInfo);
+            String runMode = extraInfo.getString("runMode");
+            if (EDeployMode.STANDALONE.getMode().equalsIgnoreCase(runMode)) {
+                return null;
+            }
+        }
         IDownload iDownload = null;
         try {
             iDownload = RetryUtil.executeWithRetry(() -> {
@@ -180,31 +194,48 @@ public class ScriptTaskRunner implements ITaskRunner {
     public String scheduleRunLog(String jobId) {
         ScheduleJobExpand jobExpand = jobExpandService.selectOneByJobId(jobId);
         String logInfo = jobExpand.getLogInfo();
-        String engineLog = jobExpand.getEngineLog();
 
         StringBuilder logBuild = new StringBuilder();
         if (StringUtils.isNotBlank(logInfo)) {
             JSONObject baseLogJSON = JSONObject.parseObject(logInfo);
             logBuild.append("====================基本日志====================").append("\n");
             logBuild.append(baseLogJSON.getString("msg_info")).append("\n");
-            if (StringUtils.isNotBlank(engineLog) && isJSON(engineLog)) {
-                try {
-                    JSONObject appLogJSON = JSONObject.parseObject(engineLog);
-                    JSONArray appLogs = appLogJSON.getJSONArray("appLog");
-                    if (appLogs != null) {
-                        logBuild.append("====================appLogs====================").append("\n");
-                        for (Object log : appLogs) {
-                            logBuild.append(((JSONObject) log).getString("value")).append("\n");
+
+            JSONObject extraInfo = JSONObject.parseObject(jobExpand.getJobExtraInfo());
+            if (Objects.nonNull(extraInfo)
+                    && EDeployMode.STANDALONE.getMode().equalsIgnoreCase(extraInfo.getString("runMode"))) {
+                logBuild.append("====================运行日志====================").append("\n");
+                String jobExtraInfo = jobExpand.getJobExtraInfo();
+                if (StringUtils.isNotBlank(jobExtraInfo)) {
+                    String shellLogPath = extraInfo.getString("shellLogPath");
+                    try {
+                        String content = FileUtils.readFileToString(new File(shellLogPath));
+                        logBuild.append(content);
+                    } catch (IOException e) {
+                        LOGGER.error("读取本地文件失败, 失败原因：{}", e.getMessage(), e);
+                    }
+                }
+            } else {
+                String engineLog = jobExpand.getEngineLog();
+                if (StringUtils.isNotBlank(engineLog) && isJSON(engineLog)) {
+                    try {
+                        JSONObject appLogJSON = JSONObject.parseObject(engineLog);
+                        JSONArray appLogs = appLogJSON.getJSONArray("appLog");
+                        if (appLogs != null) {
+                            logBuild.append("====================appLogs====================").append("\n");
+                            for (Object log : appLogs) {
+                                logBuild.append(((JSONObject) log).getString("value")).append("\n");
+                            }
+                        } else {
+                            logBuild.append(engineLog).append("\n");
                         }
-                    } else {
+                    } catch (JSONException e) {
+                        LOGGER.error("", e);
                         logBuild.append(engineLog).append("\n");
                     }
-                } catch (JSONException e) {
-                    LOGGER.error("", e);
+                } else if (StringUtils.isNotBlank(engineLog)) {
                     logBuild.append(engineLog).append("\n");
                 }
-            } else if (StringUtils.isNotBlank(engineLog)) {
-                logBuild.append(engineLog).append("\n");
             }
         }
         return logBuild.toString();

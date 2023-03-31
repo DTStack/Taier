@@ -143,7 +143,7 @@ public class JobClient implements Serializable {
 
     private Long datasourceId;
 
-    private String shellCommand;
+    private String shellParams;
 
     public Long getDatasourceId() {
         return datasourceId;
@@ -215,7 +215,7 @@ public class JobClient implements Serializable {
         this.taskType = paramAction.getTaskType();
         this.queueName = paramAction.getQueueName();
         this.datasourceId = paramAction.getDatasourceId();
-        this.shellCommand = paramAction.getShellCommand();
+        this.shellParams = paramAction.getShellParams();
         this.maxRetryNum = paramAction.getMaxRetryNum() == null ? 0 : paramAction.getMaxRetryNum();
         if (taskParams != null) {
             this.confProperties = PublicUtil.stringToProperties(taskParams);
@@ -265,7 +265,7 @@ public class JobClient implements Serializable {
         action.setTaskType(taskType);
         action.setQueueName(queueName);
         action.setDatasourceId(datasourceId);
-        action.setShellCommand(shellCommand);
+        action.setShellParams(shellParams);
         return action;
     }
 
@@ -545,12 +545,12 @@ public class JobClient implements Serializable {
         this.jobId = jobId;
     }
 
-    public String getShellCommand() {
-        return shellCommand;
+    public String getShellParams() {
+        return shellParams;
     }
 
-    public void setShellCommand(String shellCommand) {
-        this.shellCommand = shellCommand;
+    public void setShellParams(String shellParams) {
+        this.shellParams = shellParams;
     }
 
     public String toString() {
