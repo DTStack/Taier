@@ -18,6 +18,7 @@
 
 package com.dtstack.taier.develop.controller.operation;
 
+import com.dtstack.taier.common.env.EnvironmentContext;
 import com.dtstack.taier.common.exception.TaierDefineException;
 import com.dtstack.taier.common.lang.web.R;
 import com.dtstack.taier.dao.domain.ScheduleJob;
@@ -27,16 +28,17 @@ import com.dtstack.taier.develop.service.schedule.JobService;
 import com.dtstack.taier.develop.vo.schedule.ActionJobKillVO;
 import com.dtstack.taier.develop.vo.schedule.QueryJobLogVO;
 import com.dtstack.taier.develop.vo.schedule.ReturnJobLogVO;
+import com.dtstack.taier.pluginapi.constrant.ConfigConstant;
 import com.dtstack.taier.pluginapi.enums.TaskStatus;
 import com.dtstack.taier.scheduler.enums.RestartType;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
+import org.apache.http.HttpStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -44,8 +46,10 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @Auther: dazhi
@@ -65,6 +69,9 @@ public class OperationActionController {
 
     @Autowired
     private ActionService actionService;
+
+    @Autowired
+    private EnvironmentContext environmentContext;
 
     @ApiOperation(value = "重跑任务")
     @PostMapping(value = "/restartJob")
@@ -109,7 +116,18 @@ public class OperationActionController {
 
     @ApiOperation(value = "查看实例日志")
     @PostMapping(value = "/queryJobLog")
-    public R<ReturnJobLogVO> queryJobLog(@RequestBody @Valid QueryJobLogVO vo, BindingResult bindingResult) {
+    public R<ReturnJobLogVO> queryJobLog(@RequestBody @Valid QueryJobLogVO vo, HttpServletResponse response) {
+        ScheduleJob job = jobService.getScheduleJob(vo.getJobId());
+        if (Objects.isNull(job)) {
+            return null;
+        }
+        // nodeAddress 127.0.0.1:8090
+        String nodeAddress = job.getNodeAddress();
+        if (!environmentContext.getLocalAddress().equalsIgnoreCase(nodeAddress)) {
+            response.setHeader("location", String.format("http://%s%s%s", nodeAddress, ConfigConstant.REQUEST_PREFIX, "/action/queryJobLog"));
+            response.setStatus(HttpStatus.SC_TEMPORARY_REDIRECT);
+            return null;
+        }
         return R.ok(actionService.queryJobLog(vo.getJobId(), vo.getPageInfo()));
     }
 
