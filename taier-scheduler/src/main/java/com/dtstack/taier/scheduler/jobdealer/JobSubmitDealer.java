@@ -30,7 +30,7 @@ import com.dtstack.taier.common.exception.TaierDefineException;
 import com.dtstack.taier.common.exception.WorkerAccessException;
 import com.dtstack.taier.common.queue.DelayBlockingQueue;
 import com.dtstack.taier.common.util.SleepUtil;
-import com.dtstack.taier.dao.domain.ScheduleEngineJobCache;
+import com.dtstack.taier.dao.domain.ScheduleJobCache;
 import com.dtstack.taier.pluginapi.CustomThreadFactory;
 import com.dtstack.taier.pluginapi.JobClient;
 import com.dtstack.taier.pluginapi.constrant.JobResultConstant;
@@ -230,7 +230,7 @@ public class JobSubmitDealer implements Runnable {
     }
 
     private boolean checkIsFinished(JobClient jobClient) {
-        ScheduleEngineJobCache engineJobCache = ScheduleJobCacheService.getByJobId(jobClient.getJobId());
+        ScheduleJobCache engineJobCache = ScheduleJobCacheService.getByJobId(jobClient.getJobId());
         try {
             if (null == jobClient.getQueueSourceType() || EQueueSourceType.NORMAL.getCode() == jobClient.getQueueSourceType()) {
                 if (null == engineJobCache) {

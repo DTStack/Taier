@@ -31,13 +31,13 @@ import java.util.Objects;
  * @Email:dazhi@dtstack.com
  * @Description:
  */
-@TableName("schedule_engine_job_retry")
-public class ScheduleEngineJobRetry {
+@TableName("schedule_job_retry")
+public class ScheduleJobRetry {
 
     /**
      * 唯一标识
      */
-    @TableId(value="id", type= IdType.AUTO)
+    @TableId(value = "id", type = IdType.AUTO)
     private Long id;
 
     /**
@@ -222,7 +222,7 @@ public class ScheduleEngineJobRetry {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        ScheduleEngineJobRetry that = (ScheduleEngineJobRetry) o;
+        ScheduleJobRetry that = (ScheduleJobRetry) o;
         return Objects.equals(id, that.id) && Objects.equals(status, that.status) && Objects.equals(jobId, that.jobId) && Objects.equals(engineJobId, that.engineJobId) && Objects.equals(applicationId, that.applicationId) && Objects.equals(execStartTime, that.execStartTime) && Objects.equals(execEndTime, that.execEndTime) && Objects.equals(retryNum, that.retryNum) && Objects.equals(logInfo, that.logInfo) && Objects.equals(engineLog, that.engineLog) && Objects.equals(gmtCreate, that.gmtCreate) && Objects.equals(gmtModified, that.gmtModified) && Objects.equals(isDeleted, that.isDeleted) && Objects.equals(retryTaskParams, that.retryTaskParams);
     }
 

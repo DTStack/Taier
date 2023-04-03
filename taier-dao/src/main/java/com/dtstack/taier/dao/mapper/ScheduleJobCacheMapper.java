@@ -20,27 +20,27 @@ package com.dtstack.taier.dao.mapper;
 
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.dtstack.taier.dao.domain.ScheduleEngineJobCache;
+import com.dtstack.taier.dao.domain.ScheduleJobCache;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 import java.util.Map;
 
-public interface ScheduleEngineJobCacheMapper extends BaseMapper<ScheduleEngineJobCache> {
+public interface ScheduleJobCacheMapper extends BaseMapper<ScheduleJobCache> {
 
-    ScheduleEngineJobCache getOne(@Param("jobId")String jobId);
+    ScheduleJobCache getOne(@Param("jobId") String jobId);
 
     List<String> listNames(@Param("jobName") String jobName);
 
     List<String> getJobResources();
 
-    List<ScheduleEngineJobCache> listByJobResource(@Param("jobResource") String jobResource, @Param("stage") Integer stage, @Param("nodeAddress") String nodeAddress, @Param("start") Integer start, @Param("pageSize") Integer pageSize);
+    List<ScheduleJobCache> listByJobResource(@Param("jobResource") String jobResource, @Param("stage") Integer stage, @Param("nodeAddress") String nodeAddress, @Param("start") Integer start, @Param("pageSize") Integer pageSize);
 
-    List<Map<String,Object>> groupByJobResourceFilterByCluster(@Param("nodeAddress") String nodeAddress, @Param("clusterName") String clusterName);
+    List<Map<String, Object>> groupByJobResourceFilterByCluster(@Param("nodeAddress") String nodeAddress, @Param("clusterName") String clusterName);
 
     Long countByJobResource(@Param("jobResource") String jobResource, @Param("stage") Integer stage, @Param("nodeAddress") String nodeAddress);
 
-    List<ScheduleEngineJobCache> listByStage(@Param("startId") Long id, @Param("nodeAddress") String nodeAddress, @Param("stage") Integer stage, @Param("jobResource") String jobResource,@Param("selectJobInfo") Boolean selectJobInfo);
+    List<ScheduleJobCache> listByStage(@Param("startId") Long id, @Param("nodeAddress") String nodeAddress, @Param("stage") Integer stage, @Param("jobResource") String jobResource, @Param("selectJobInfo") Boolean selectJobInfo);
 
     Long minPriorityByStage(@Param("jobResource") String jobResource, @Param("stages") List<Integer> stages, @Param("nodeAddress") String nodeAddress);
 

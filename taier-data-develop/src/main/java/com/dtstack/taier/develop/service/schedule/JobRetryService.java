@@ -20,8 +20,8 @@ package com.dtstack.taier.develop.service.schedule;
 
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.dtstack.taier.dao.domain.ScheduleEngineJobRetry;
-import com.dtstack.taier.dao.mapper.ScheduleEngineJobRetryMapper;
+import com.dtstack.taier.dao.domain.ScheduleJobRetry;
+import com.dtstack.taier.dao.mapper.ScheduleJobRetryMapper;
 import org.springframework.stereotype.Service;
 
 /**
@@ -31,10 +31,10 @@ import org.springframework.stereotype.Service;
  * @Description:
  */
 @Service
-public class JobRetryService extends ServiceImpl<ScheduleEngineJobRetryMapper, ScheduleEngineJobRetry> {
+public class JobRetryService extends ServiceImpl<ScheduleJobRetryMapper, ScheduleJobRetry> {
 
-    public void removeByJobId(String jobId){
-        getBaseMapper().delete(Wrappers.lambdaQuery(ScheduleEngineJobRetry.class).eq(
-                ScheduleEngineJobRetry::getJobId,jobId));
+    public void removeByJobId(String jobId) {
+        getBaseMapper().delete(Wrappers.lambdaQuery(ScheduleJobRetry.class).eq(
+                ScheduleJobRetry::getJobId, jobId));
     }
 }
