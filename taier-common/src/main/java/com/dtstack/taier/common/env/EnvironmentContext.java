@@ -303,7 +303,7 @@ public class EnvironmentContext implements InitializingBean {
         }
 
         String address = environment.getProperty("http.address", AddressUtil.getOneIp());
-        String port = environment.getProperty("http.port", "8090");
+        String port = environment.getProperty("server.port", "8090");
         localAddress = String.format("%s:%s", address, port);
         return localAddress;
     }
