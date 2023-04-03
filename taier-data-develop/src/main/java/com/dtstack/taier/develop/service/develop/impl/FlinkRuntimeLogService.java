@@ -31,7 +31,7 @@ import com.dtstack.taier.common.exception.DtCenterDefException;
 import com.dtstack.taier.common.exception.ErrorCode;
 import com.dtstack.taier.common.exception.TaierDefineException;
 import com.dtstack.taier.common.util.AssertUtils;
-import com.dtstack.taier.dao.domain.ScheduleEngineJobCache;
+import com.dtstack.taier.dao.domain.ScheduleJobCache;
 import com.dtstack.taier.dao.domain.ScheduleJob;
 import com.dtstack.taier.dao.domain.ScheduleJobHistory;
 import com.dtstack.taier.dao.domain.Task;
@@ -424,7 +424,7 @@ public class FlinkRuntimeLogService {
             throw new TaierDefineException(String.format("job %s not running in perjob", jobId), ErrorCode.INVALID_TASK_RUN_MODE);
         }
         try {
-            ScheduleEngineJobCache engineJobCache = ScheduleJobCacheService.getByJobId(jobId);
+            ScheduleJobCache engineJobCache = ScheduleJobCacheService.getByJobId(jobId);
             if (engineJobCache == null) {
                 throw new TaierDefineException(String.format("job:%s not exist in job cache table ", jobId), ErrorCode.JOB_CACHE_NOT_EXIST);
             }

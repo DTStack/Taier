@@ -32,12 +32,12 @@ import com.dtstack.taier.common.exception.TaierDefineException;
 import com.dtstack.taier.common.util.AddressUtil;
 import com.dtstack.taier.common.util.DtJobIdWorker;
 import com.dtstack.taier.common.util.GenerateErrorMsgUtil;
-import com.dtstack.taier.dao.domain.ScheduleEngineJobRetry;
+import com.dtstack.taier.dao.domain.ScheduleJobRetry;
 import com.dtstack.taier.dao.domain.ScheduleJob;
 import com.dtstack.taier.dao.domain.ScheduleJobExpand;
 import com.dtstack.taier.dao.domain.ScheduleTaskShade;
 import com.dtstack.taier.dao.dto.ScheduleTaskParamShade;
-import com.dtstack.taier.dao.mapper.ScheduleEngineJobRetryMapper;
+import com.dtstack.taier.dao.mapper.ScheduleJobRetryMapper;
 import com.dtstack.taier.pluginapi.JobClient;
 import com.dtstack.taier.pluginapi.constrant.ConfigConstant;
 import com.dtstack.taier.pluginapi.enums.ComputeType;
@@ -92,7 +92,7 @@ public class ScheduleActionService {
     private ScheduleJobCacheService scheduleJobCacheService;
 
     @Autowired
-    private ScheduleEngineJobRetryMapper engineJobRetryMapper;
+    private ScheduleJobRetryMapper engineJobRetryMapper;
 
     @Autowired
     private JobDealer jobDealer;
@@ -143,8 +143,8 @@ public class ScheduleActionService {
                 JobClient jobClient = new JobClient(paramActionExt);
                 jobClient.setType(getOrDefault(paramActionExt.getType(), EScheduleType.TEMP_JOB.getType()));
                 jobDealer.addSubmitJob(jobClient);
-                engineJobRetryMapper.delete(Wrappers.lambdaQuery(ScheduleEngineJobRetry.class)
-                        .eq(ScheduleEngineJobRetry::getJobId, jobClient.getJobId()));
+                engineJobRetryMapper.delete(Wrappers.lambdaQuery(ScheduleJobRetry.class)
+                        .eq(ScheduleJobRetry::getJobId, jobClient.getJobId()));
                 return true;
             }
             LOGGER.warn("jobId：" + paramActionExt.getJobId() + " duplicate submissions are not allowed");
@@ -344,8 +344,8 @@ public class ScheduleActionService {
         }
         boolean result = TaskStatus.canStart(scheduleJob.getStatus());
         if (result) {
-            engineJobRetryMapper.delete(Wrappers.lambdaQuery(ScheduleEngineJobRetry.class)
-                    .eq(ScheduleEngineJobRetry::getJobId, jobId));
+            engineJobRetryMapper.delete(Wrappers.lambdaQuery(ScheduleJobRetry.class)
+                    .eq(ScheduleJobRetry::getJobId, jobId));
             if (!TaskStatus.ENGINEACCEPTED.getStatus().equals(scheduleJob.getStatus())) {
                 scheduleJob.setStatus(TaskStatus.ENGINEACCEPTED.getStatus());
                 scheduleJobService.updateByJobId(scheduleJob);
@@ -424,8 +424,8 @@ public class ScheduleActionService {
             throw new TaierDefineException("jobId is not allow null", ErrorCode.INVALID_PARAMETERS);
         }
         List<ActionRetryLogVO> logs = new ArrayList<>(5);
-        List<ScheduleEngineJobRetry> jobRetries = engineJobRetryMapper.selectList(Wrappers.lambdaQuery(ScheduleEngineJobRetry.class)
-                .eq(ScheduleEngineJobRetry::getJobId, jobId).last(" limit 5"));
+        List<ScheduleJobRetry> jobRetries = engineJobRetryMapper.selectList(Wrappers.lambdaQuery(ScheduleJobRetry.class)
+                .eq(ScheduleJobRetry::getJobId, jobId).last(" limit 5"));
         if (CollectionUtils.isNotEmpty(jobRetries)) {
             jobRetries.forEach(jobRetry -> {
                 ActionRetryLogVO vo = new ActionRetryLogVO();
@@ -451,10 +451,10 @@ public class ScheduleActionService {
         }
         ScheduleJob scheduleJob = scheduleJobService.getByJobId(jobId);
         //数组库中存储的retryNum为0开始的索引位置
-        ScheduleEngineJobRetry jobRetry = engineJobRetryMapper
-                .selectOne(Wrappers.lambdaQuery(ScheduleEngineJobRetry.class)
-                        .eq(ScheduleEngineJobRetry::getJobId, jobId)
-                        .eq(ScheduleEngineJobRetry::getRetryNum, retryNum - 1));
+        ScheduleJobRetry jobRetry = engineJobRetryMapper
+                .selectOne(Wrappers.lambdaQuery(ScheduleJobRetry.class)
+                        .eq(ScheduleJobRetry::getJobId, jobId)
+                        .eq(ScheduleJobRetry::getRetryNum, retryNum - 1));
         ActionRetryLogVO vo = new ActionRetryLogVO();
         if (jobRetry != null) {
             vo.setRetryNum(jobRetry.getRetryNum());

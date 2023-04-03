@@ -25,7 +25,6 @@ import com.dtstack.taier.common.exception.TaierDefineException;
 import com.dtstack.taier.dao.domain.ScheduleTaskShade;
 import com.dtstack.taier.pluginapi.util.DateUtil;
 import com.dtstack.taier.pluginapi.util.RetryUtil;
-import com.dtstack.taier.scheduler.druid.DtDruidRemoveAbandoned;
 import com.dtstack.taier.scheduler.server.ScheduleJobDetails;
 import com.dtstack.taier.scheduler.service.JobGraphTriggerService;
 import com.dtstack.taier.scheduler.utils.JobExecuteOrderUtil;
@@ -167,7 +166,6 @@ public class CycleJobBuilder extends AbstractJobBuilder {
      * @param scheduleJobDetails 实例详情
      */
     @Transactional(rollbackFor = Exception.class)
-    @DtDruidRemoveAbandoned
     public void savaJobList(List<ScheduleJobDetails> scheduleJobDetails) {
         List<ScheduleJobDetails> savaJobDetails = Lists.newArrayList();
         for (ScheduleJobDetails scheduleJobDetail : scheduleJobDetails) {
@@ -186,7 +184,6 @@ public class CycleJobBuilder extends AbstractJobBuilder {
      * 保存生成的jobGraph记录
      */
     @Transactional(rollbackFor = Exception.class)
-    @DtDruidRemoveAbandoned
     public boolean saveJobGraph(String triggerDay) {
         LOGGER.info("start saveJobGraph to db {}", triggerDay);
         //记录当天job已经生成

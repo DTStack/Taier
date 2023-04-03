@@ -18,14 +18,14 @@
 
 package com.dtstack.taier.scheduler.jobdealer;
 
-import com.dtstack.taier.dao.domain.ScheduleEngineJobCache;
+import com.dtstack.taier.dao.domain.ScheduleJobCache;
 import com.dtstack.taier.dao.domain.ScheduleJob;
-import com.dtstack.taier.dao.mapper.ScheduleEngineJobRetryMapper;
+import com.dtstack.taier.dao.mapper.ScheduleJobRetryMapper;
 import com.dtstack.taier.pluginapi.JobClient;
 import com.dtstack.taier.pluginapi.enums.TaskStatus;
 import com.dtstack.taier.pluginapi.pojo.ParamAction;
 import com.dtstack.taier.pluginapi.util.PublicUtil;
-import com.dtstack.taier.scheduler.jobdealer.bo.EngineJobRetry;
+import com.dtstack.taier.scheduler.jobdealer.bo.JobRetry;
 import com.dtstack.taier.scheduler.jobdealer.cache.ShardCache;
 import com.dtstack.taier.scheduler.service.ScheduleJobCacheService;
 import com.dtstack.taier.scheduler.service.ScheduleJobService;
@@ -56,7 +56,7 @@ public class JobRestartDealer {
     private ScheduleJobService scheduleJobService;
 
     @Autowired
-    private ScheduleEngineJobRetryMapper engineJobRetryMapper;
+    private ScheduleJobRetryMapper engineJobRetryMapper;
 
     @Autowired
     private ShardCache shardCache;
@@ -113,9 +113,9 @@ public class JobRestartDealer {
      * @param jobCache
      * @return
      */
-    public boolean checkAndRestart(Integer status, ScheduleJob scheduleJob, ScheduleEngineJobCache jobCache, BiConsumer<ScheduleJob,JobClient> saveRetryFunction){
+    public boolean checkAndRestart(Integer status, ScheduleJob scheduleJob, ScheduleJobCache jobCache, BiConsumer<ScheduleJob, JobClient> saveRetryFunction) {
         Pair<Boolean, JobClient> checkResult = checkJobInfo(scheduleJob.getJobId(), jobCache, status);
-        if(!checkResult.getKey()){
+        if (!checkResult.getKey()) {
             return false;
         }
 
@@ -141,11 +141,10 @@ public class JobRestartDealer {
     }
 
 
-
-    private Pair<Boolean, JobClient> checkJobInfo(String jobId, ScheduleEngineJobCache jobCache, Integer status) {
+    private Pair<Boolean, JobClient> checkJobInfo(String jobId, ScheduleJobCache jobCache, Integer status) {
         Pair<Boolean, JobClient> check = new Pair<>(false, null);
 
-        if(!TaskStatus.FAILED.getStatus().equals(status) && !TaskStatus.SUBMITFAILD.getStatus().equals(status)){
+        if (!TaskStatus.FAILED.getStatus().equals(status) && !TaskStatus.SUBMITFAILD.getStatus().equals(status)) {
             return check;
         }
 
@@ -168,7 +167,7 @@ public class JobRestartDealer {
     }
 
     private boolean restartJob(JobClient jobClient,BiConsumer<ScheduleJob,JobClient> saveRetryFunction){
-        ScheduleEngineJobCache jobCache = ScheduleJobCacheService.getByJobId(jobClient.getJobId());
+        ScheduleJobCache jobCache = ScheduleJobCacheService.getByJobId(jobClient.getJobId());
         if (jobCache == null) {
             LOGGER.info("jobId:{} restart but jobCache is null.", jobClient.getJobId());
             return false;
@@ -207,7 +206,7 @@ public class JobRestartDealer {
 
     public void jobRetryRecord(ScheduleJob scheduleJob, JobClient jobClient,String engineLog) {
         try {
-            EngineJobRetry batchJobRetry = EngineJobRetry.toEntity(scheduleJob, jobClient,engineLog);
+            JobRetry batchJobRetry = JobRetry.toEntity(scheduleJob, jobClient, engineLog);
             batchJobRetry.setStatus(TaskStatus.RESTARTING.getStatus());
             engineJobRetryMapper.insert(batchJobRetry);
         } catch (Throwable e ){
