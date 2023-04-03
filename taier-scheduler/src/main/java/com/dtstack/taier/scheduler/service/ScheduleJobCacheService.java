@@ -20,8 +20,8 @@ package com.dtstack.taier.scheduler.service;
 
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.dtstack.taier.dao.domain.ScheduleEngineJobCache;
-import com.dtstack.taier.dao.mapper.ScheduleEngineJobCacheMapper;
+import com.dtstack.taier.dao.domain.ScheduleJobCache;
+import com.dtstack.taier.dao.mapper.ScheduleJobCacheMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -29,62 +29,62 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
-public class ScheduleJobCacheService extends ServiceImpl<ScheduleEngineJobCacheMapper, ScheduleEngineJobCache> {
+public class ScheduleJobCacheService extends ServiceImpl<ScheduleJobCacheMapper, ScheduleJobCache> {
 
     @Autowired
-    private ScheduleEngineJobCacheMapper scheduleEngineJobCacheMapper;
+    private ScheduleJobCacheMapper scheduleJobCacheMapper;
 
-    public ScheduleEngineJobCache getJobCacheByJobId(String jobId) {
-        return scheduleEngineJobCacheMapper.selectOne(Wrappers.lambdaQuery(ScheduleEngineJobCache.class)
-                .eq(ScheduleEngineJobCache::getJobId, jobId));
+    public ScheduleJobCache getJobCacheByJobId(String jobId) {
+        return scheduleJobCacheMapper.selectOne(Wrappers.lambdaQuery(ScheduleJobCache.class)
+                .eq(ScheduleJobCache::getJobId, jobId));
     }
 
     public int deleteByJobId(String jobId) {
-        return scheduleEngineJobCacheMapper.delete(Wrappers.lambdaQuery(ScheduleEngineJobCache.class)
-                .eq(ScheduleEngineJobCache::getJobId, jobId));
+        return scheduleJobCacheMapper.delete(Wrappers.lambdaQuery(ScheduleJobCache.class)
+                .eq(ScheduleJobCache::getJobId, jobId));
     }
 
-    public List<ScheduleEngineJobCache> listByStage(long startId, String localAddress, Integer stage, String jobResource, Boolean selectJobInfo) {
-        return scheduleEngineJobCacheMapper.listByStage(startId, localAddress, stage, jobResource, selectJobInfo);
+    public List<ScheduleJobCache> listByStage(long startId, String localAddress, Integer stage, String jobResource, Boolean selectJobInfo) {
+        return scheduleJobCacheMapper.listByStage(startId, localAddress, stage, jobResource, selectJobInfo);
     }
 
     public int updateStage(String jobId, int stage, String nodeAddress, long priority, String waitReason) {
-        ScheduleEngineJobCache engineJobCache = new ScheduleEngineJobCache();
+        ScheduleJobCache engineJobCache = new ScheduleJobCache();
         engineJobCache.setJobId(jobId);
         engineJobCache.setNodeAddress(nodeAddress);
         engineJobCache.setStage(stage);
         engineJobCache.setJobPriority(priority);
         engineJobCache.setWaitReason(waitReason);
-        return scheduleEngineJobCacheMapper.update(engineJobCache, Wrappers.lambdaQuery(ScheduleEngineJobCache.class)
-                .eq(ScheduleEngineJobCache::getJobId, jobId));
+        return scheduleJobCacheMapper.update(engineJobCache, Wrappers.lambdaQuery(ScheduleJobCache.class)
+                .eq(ScheduleJobCache::getJobId, jobId));
     }
 
     public List<String> getAllNodeAddress() {
-        return this.lambdaQuery().select(ScheduleEngineJobCache::getNodeAddress).groupBy(ScheduleEngineJobCache::getNodeAddress)
-                .list().stream().map(ScheduleEngineJobCache::getNodeAddress).collect(Collectors.toList());
+        return this.lambdaQuery().select(ScheduleJobCache::getNodeAddress).groupBy(ScheduleJobCache::getNodeAddress)
+                .list().stream().map(ScheduleJobCache::getNodeAddress).collect(Collectors.toList());
     }
 
     public int countByStage(String jobResource, List<Integer> stages, String nodeAddress) {
-        return scheduleEngineJobCacheMapper.selectCount(Wrappers.lambdaQuery(ScheduleEngineJobCache.class)
-                .eq(ScheduleEngineJobCache::getJobResource, jobResource).eq(ScheduleEngineJobCache::getNodeAddress, nodeAddress)
-                .in(ScheduleEngineJobCache::getStage, stages));
+        return scheduleJobCacheMapper.selectCount(Wrappers.lambdaQuery(ScheduleJobCache.class)
+                .eq(ScheduleJobCache::getJobResource, jobResource).eq(ScheduleJobCache::getNodeAddress, nodeAddress)
+                .in(ScheduleJobCache::getStage, stages));
     }
 
     public Long minPriorityByStage(String jobResource, List<Integer> stages, String nodeAddress) {
-        return scheduleEngineJobCacheMapper.minPriorityByStage(jobResource, stages, nodeAddress);
+        return scheduleJobCacheMapper.minPriorityByStage(jobResource, stages, nodeAddress);
 
     }
 
     public int updateStageBatch(List<String> jobIds, int stage, String nodeAddress) {
-        ScheduleEngineJobCache engineJobCache = new ScheduleEngineJobCache();
+        ScheduleJobCache engineJobCache = new ScheduleJobCache();
         engineJobCache.setNodeAddress(nodeAddress);
         engineJobCache.setStage(stage);
-        return scheduleEngineJobCacheMapper.update(engineJobCache, Wrappers.lambdaQuery(ScheduleEngineJobCache.class)
-                .in(ScheduleEngineJobCache::getJobId, jobIds));
+        return scheduleJobCacheMapper.update(engineJobCache, Wrappers.lambdaQuery(ScheduleJobCache.class)
+                .in(ScheduleJobCache::getJobId, jobIds));
     }
 
     public void insert(String jobId, Integer computeType, int stage, String jobInfo, String nodeAddress, String jobName, long priority, String jobResource, Long tenantId) {
-        ScheduleEngineJobCache engineJobCache = new ScheduleEngineJobCache();
+        ScheduleJobCache engineJobCache = new ScheduleJobCache();
         engineJobCache.setJobId(jobId);
         engineJobCache.setNodeAddress(nodeAddress);
         engineJobCache.setStage(stage);
@@ -98,31 +98,31 @@ public class ScheduleJobCacheService extends ServiceImpl<ScheduleEngineJobCacheM
     }
 
 
-    public ScheduleEngineJobCache getByJobId(String jobId) {
+    public ScheduleJobCache getByJobId(String jobId) {
         return getBaseMapper()
-                .selectOne(Wrappers.lambdaQuery(ScheduleEngineJobCache.class)
-                        .eq(ScheduleEngineJobCache::getJobId, jobId));
+                .selectOne(Wrappers.lambdaQuery(ScheduleJobCache.class)
+                        .eq(ScheduleJobCache::getJobId, jobId));
     }
 
-    public List<ScheduleEngineJobCache> listByStage(Long startId, String nodeAddress, Integer stage, String resource) {
+    public List<ScheduleJobCache> listByStage(Long startId, String nodeAddress, Integer stage, String resource) {
         return getBaseMapper().listByStage(startId, nodeAddress, stage, resource, Boolean.FALSE);
     }
 
     public int updateNodeAddressFailover(String nodeAddress, List<String> jobIds, Integer stage) {
-        ScheduleEngineJobCache jobCache = new ScheduleEngineJobCache();
+        ScheduleJobCache jobCache = new ScheduleJobCache();
         jobCache.setNodeAddress(nodeAddress);
         jobCache.setStage(stage);
         return getBaseMapper()
-                .update(jobCache, Wrappers.lambdaQuery(ScheduleEngineJobCache.class)
-                        .in(ScheduleEngineJobCache::getJobId, jobIds));
+                .update(jobCache, Wrappers.lambdaQuery(ScheduleJobCache.class)
+                        .in(ScheduleJobCache::getJobId, jobIds));
 
     }
 
 
-    public List<ScheduleEngineJobCache> getByJobIds(List<String> jobIds) {
+    public List<ScheduleJobCache> getByJobIds(List<String> jobIds) {
         return getBaseMapper()
-                .selectList(Wrappers.lambdaQuery(ScheduleEngineJobCache.class)
-                        .in(ScheduleEngineJobCache::getJobId, jobIds));
+                .selectList(Wrappers.lambdaQuery(ScheduleJobCache.class)
+                        .in(ScheduleJobCache::getJobId, jobIds));
     }
 
 

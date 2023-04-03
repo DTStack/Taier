@@ -19,7 +19,7 @@
 package com.dtstack.taier.dao.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.dtstack.taier.dao.domain.ScheduleEngineJobRetry;
+import com.dtstack.taier.dao.domain.ScheduleJobRetry;
 
 /**
  * @Auther: dazhi
@@ -27,6 +27,6 @@ import com.dtstack.taier.dao.domain.ScheduleEngineJobRetry;
  * @Email:dazhi@dtstack.com
  * @Description:
  */
-public interface ScheduleEngineJobRetryMapper extends BaseMapper<ScheduleEngineJobRetry> {
+public interface ScheduleJobRetryMapper extends BaseMapper<ScheduleJobRetry> {
 
 }

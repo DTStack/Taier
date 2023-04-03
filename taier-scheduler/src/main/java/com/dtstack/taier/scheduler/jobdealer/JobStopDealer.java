@@ -32,7 +32,7 @@ import com.dtstack.taier.common.enums.StoppedStatus;
 import com.dtstack.taier.common.env.EnvironmentContext;
 import com.dtstack.taier.common.exception.TaierDefineException;
 import com.dtstack.taier.common.queue.DelayBlockingQueue;
-import com.dtstack.taier.dao.domain.ScheduleEngineJobCache;
+import com.dtstack.taier.dao.domain.ScheduleJobCache;
 import com.dtstack.taier.dao.domain.ScheduleJob;
 import com.dtstack.taier.dao.domain.ScheduleJobOperatorRecord;
 import com.dtstack.taier.pluginapi.CustomThreadFactory;
@@ -245,107 +245,10 @@ public class JobStopDealer implements ApplicationListener<ApplicationStartedEven
                 TimeUnit.MILLISECONDS);
     }
 
-    private class AcquireStopJob implements Runnable {
-        @Override
-        public void run() {
-            long tmpStartId = 0L;
-            Timestamp operatorExpired = new Timestamp(System.currentTimeMillis() + OPERATOR_EXPIRED_INTERVAL);
-            while (true) {
-                try {
-                    //根据条件判断是否有数据存在
-                    List<ScheduleJobOperatorRecord> jobStopRecords = scheduleJobOperatorRecordService.listOperatorRecord(tmpStartId, environmentContext.getLocalAddress(), OperatorType.STOP.getType(), true);
-                    if (jobStopRecords.isEmpty()) {
-                        break;
-                    }
-
-                    //使用乐观锁防止多节点重复停止任务
-                    Iterator<ScheduleJobOperatorRecord> it = jobStopRecords.iterator();
-                    while (it.hasNext()) {
-                        ScheduleJobOperatorRecord jobStopRecord = it.next();
-                        tmpStartId = jobStopRecord.getId();
-                        //已经被修改过version的任务代表其他节点正在处理，可以忽略
-                        Integer update = scheduleJobOperatorRecordService.updateOperatorExpiredVersion(jobStopRecord.getId(), operatorExpired, jobStopRecord.getVersion());
-                        if (update != 1) {
-                            it.remove();
-                        }
-                    }
-                    //经乐观锁判断，经过remove后所剩下的数据
-                    if (jobStopRecords.isEmpty()) {
-                        break;
-                    }
-                    List<String> jobIds = jobStopRecords.stream().map(ScheduleJobOperatorRecord::getJobId).collect(Collectors.toList());
-                    List<ScheduleEngineJobCache> jobCaches = ScheduleJobCacheService.getByJobIds(jobIds);
-
-                    //为了下面兼容异常状态的任务停止
-                    Map<String, ScheduleEngineJobCache> jobCacheMap = new HashMap<>(jobCaches.size());
-                    for (ScheduleEngineJobCache jobCache : jobCaches) {
-                        jobCacheMap.put(jobCache.getJobId(), jobCache);
-                    }
-
-                    for (ScheduleJobOperatorRecord jobStopRecord : jobStopRecords) {
-                        ScheduleEngineJobCache jobCache = jobCacheMap.get(jobStopRecord.getJobId());
-                        if (jobCache != null) {
-                            //停止任务的时效性，发起停止操作要比任务存入jobCache表的时间要迟
-                            if (jobCache.getGmtCreate().after(jobStopRecord.getGmtCreate())) {
-                                scheduleJobOperatorRecordService.removeById(jobStopRecord.getId());
-                                continue;
-                            }
-
-                            boolean forceCancelFlag = ForceCancelFlag.YES.getFlag().equals(jobStopRecord.getForceCancelFlag());
-                            JobElement jobElement = new JobElement(jobCache.getJobId(), jobStopRecord.getId(), forceCancelFlag);
-                            asyncDealStopJobService.submit(() -> asyncDealStopJob(new StoppedJob<>(jobElement, jobStoppedRetry, jobStoppedDelay)));
-                        } else {
-                            //jobCache表没有记录，可能任务已经停止。在update表时增加where条件不等于stopped
-                            ScheduleJob scheduleJob = new ScheduleJob();
-                            scheduleJob.setStatus(TaskStatus.CANCELED.getStatus());
-                            scheduleJobService.lambdaUpdate()
-                                    .eq(ScheduleJob::getJobId, jobStopRecord.getJobId())
-                                    .eq(ScheduleJob::getIsDeleted, Deleted.NORMAL.getStatus())
-                                    .in(ScheduleJob::getStatus, TaskStatus.getUnfinishedStatuses())
-                                    .update(scheduleJob);
-                            LOGGER.info("[Unnormal Job] jobId:{} update job status:{}, job is finished.", jobStopRecord.getJobId(), TaskStatus.CANCELED.getStatus());
-                            shardCache.updateLocalMemTaskStatus(jobStopRecord.getJobId(), TaskStatus.CANCELED.getStatus());
-                            scheduleJobOperatorRecordService.removeById(jobStopRecord.getId());
-                        }
-                    }
-
-                    Thread.sleep(500);
-                } catch (Throwable e) {
-                    LOGGER.error("when acquire stop jobs happens error:", e);
-                }
-            }
-        }
-    }
-
-    private class DelayStopProcessor implements Runnable {
-        private volatile Boolean open = Boolean.TRUE;
-
-        @Override
-        public void run() {
-            LOGGER.info("DelayStopProcessor thread is start...");
-            while (open) {
-                try {
-                    StoppedJob<JobElement> stoppedJob = stopJobQueue.take();
-                    asyncDealStopJobService.submit(() -> asyncDealStopJob(stoppedJob));
-                } catch (InterruptedException ie) {
-                    LOGGER.warn("interruption of stopJobQueue.take...");
-                    break;
-                } catch (Exception e) {
-                    LOGGER.error("", e);
-                }
-            }
-        }
-
-        public void close() {
-            open = Boolean.FALSE;
-        }
-
-    }
-
     private void asyncDealStopJob(StoppedJob<JobElement> stoppedJob) {
         try {
             if (!checkExpired(stoppedJob.getJob())) {
-                ScheduleEngineJobCache jobCache = ScheduleJobCacheService.getByJobId(stoppedJob.getJob().jobId);
+                ScheduleJobCache jobCache = ScheduleJobCacheService.getByJobId(stoppedJob.getJob().jobId);
                 StoppedStatus stoppedStatus = this.stopJob(stoppedJob.getJob());
                 switch (stoppedStatus) {
                     case STOPPED:
@@ -384,8 +287,33 @@ public class JobStopDealer implements ApplicationListener<ApplicationStartedEven
         }
     }
 
+    private class DelayStopProcessor implements Runnable {
+        private volatile Boolean open = Boolean.TRUE;
+
+        @Override
+        public void run() {
+            LOGGER.info("DelayStopProcessor thread is start...");
+            while (open) {
+                try {
+                    StoppedJob<JobElement> stoppedJob = stopJobQueue.take();
+                    asyncDealStopJobService.submit(() -> asyncDealStopJob(stoppedJob));
+                } catch (InterruptedException ie) {
+                    LOGGER.warn("interruption of stopJobQueue.take...");
+                    break;
+                } catch (Exception e) {
+                    LOGGER.error("", e);
+                }
+            }
+        }
+
+        public void close() {
+            open = Boolean.FALSE;
+        }
+
+    }
+
     private StoppedStatus stopJob(JobElement jobElement) throws Exception {
-        ScheduleEngineJobCache jobCache = ScheduleJobCacheService.getByJobId(jobElement.jobId);
+        ScheduleJobCache jobCache = ScheduleJobCacheService.getByJobId(jobElement.jobId);
         ScheduleJob scheduleJob = scheduleJobService.lambdaQuery()
                 .eq(ScheduleJob::getJobId, jobElement.jobId)
                 .eq(ScheduleJob::getIsDeleted, Deleted.NORMAL.getStatus())
@@ -448,6 +376,17 @@ public class JobStopDealer implements ApplicationListener<ApplicationStartedEven
         }
     }
 
+    private boolean checkExpired(JobElement jobElement) {
+        ScheduleJobCache jobCache = ScheduleJobCacheService.getByJobId(jobElement.jobId);
+        ScheduleJobOperatorRecord scheduleJobOperatorRecord = scheduleJobOperatorRecordService.getById(jobElement.stopJobId);
+
+        if (jobCache != null && scheduleJobOperatorRecord != null && scheduleJobOperatorRecord.getGmtCreate() != null) {
+            return jobCache.getGmtCreate().after(scheduleJobOperatorRecord.getGmtCreate());
+        } else {
+            return true;
+        }
+    }
+
     private void removeMemStatusAndJobCache(String jobId) {
         shardCache.removeIfPresent(jobId);
         ScheduleJobCacheService.deleteByJobId(jobId);
@@ -456,14 +395,75 @@ public class JobStopDealer implements ApplicationListener<ApplicationStartedEven
         LOGGER.info("jobId:{} delete jobCache and update job status:{}, job set finished.", jobId, TaskStatus.CANCELED.getStatus());
     }
 
-    private boolean checkExpired(JobElement jobElement) {
-        ScheduleEngineJobCache jobCache = ScheduleJobCacheService.getByJobId(jobElement.jobId);
-        ScheduleJobOperatorRecord scheduleJobOperatorRecord = scheduleJobOperatorRecordService.getById(jobElement.stopJobId);
+    private class AcquireStopJob implements Runnable {
+        @Override
+        public void run() {
+            long tmpStartId = 0L;
+            Timestamp operatorExpired = new Timestamp(System.currentTimeMillis() + OPERATOR_EXPIRED_INTERVAL);
+            while (true) {
+                try {
+                    //根据条件判断是否有数据存在
+                    List<ScheduleJobOperatorRecord> jobStopRecords = scheduleJobOperatorRecordService.listOperatorRecord(tmpStartId, environmentContext.getLocalAddress(), OperatorType.STOP.getType(), true);
+                    if (jobStopRecords.isEmpty()) {
+                        break;
+                    }
 
-        if (jobCache != null && scheduleJobOperatorRecord != null && scheduleJobOperatorRecord.getGmtCreate() != null) {
-            return jobCache.getGmtCreate().after(scheduleJobOperatorRecord.getGmtCreate());
-        } else {
-            return true;
+                    //使用乐观锁防止多节点重复停止任务
+                    Iterator<ScheduleJobOperatorRecord> it = jobStopRecords.iterator();
+                    while (it.hasNext()) {
+                        ScheduleJobOperatorRecord jobStopRecord = it.next();
+                        tmpStartId = jobStopRecord.getId();
+                        //已经被修改过version的任务代表其他节点正在处理，可以忽略
+                        Integer update = scheduleJobOperatorRecordService.updateOperatorExpiredVersion(jobStopRecord.getId(), operatorExpired, jobStopRecord.getVersion());
+                        if (update != 1) {
+                            it.remove();
+                        }
+                    }
+                    //经乐观锁判断，经过remove后所剩下的数据
+                    if (jobStopRecords.isEmpty()) {
+                        break;
+                    }
+                    List<String> jobIds = jobStopRecords.stream().map(ScheduleJobOperatorRecord::getJobId).collect(Collectors.toList());
+                    List<ScheduleJobCache> jobCaches = ScheduleJobCacheService.getByJobIds(jobIds);
+
+                    //为了下面兼容异常状态的任务停止
+                    Map<String, ScheduleJobCache> jobCacheMap = new HashMap<>(jobCaches.size());
+                    for (ScheduleJobCache jobCache : jobCaches) {
+                        jobCacheMap.put(jobCache.getJobId(), jobCache);
+                    }
+
+                    for (ScheduleJobOperatorRecord jobStopRecord : jobStopRecords) {
+                        ScheduleJobCache jobCache = jobCacheMap.get(jobStopRecord.getJobId());
+                        if (jobCache != null) {
+                            //停止任务的时效性，发起停止操作要比任务存入jobCache表的时间要迟
+                            if (jobCache.getGmtCreate().after(jobStopRecord.getGmtCreate())) {
+                                scheduleJobOperatorRecordService.removeById(jobStopRecord.getId());
+                                continue;
+                            }
+
+                            boolean forceCancelFlag = ForceCancelFlag.YES.getFlag().equals(jobStopRecord.getForceCancelFlag());
+                            JobElement jobElement = new JobElement(jobCache.getJobId(), jobStopRecord.getId(), forceCancelFlag);
+                            asyncDealStopJobService.submit(() -> asyncDealStopJob(new StoppedJob<>(jobElement, jobStoppedRetry, jobStoppedDelay)));
+                        } else {
+                            //jobCache表没有记录，可能任务已经停止。在update表时增加where条件不等于stopped
+                            ScheduleJob scheduleJob = new ScheduleJob();
+                            scheduleJob.setStatus(TaskStatus.CANCELED.getStatus());
+                            scheduleJobService.lambdaUpdate()
+                                    .eq(ScheduleJob::getJobId, jobStopRecord.getJobId())
+                                    .eq(ScheduleJob::getIsDeleted, Deleted.NORMAL.getStatus())
+                                    .in(ScheduleJob::getStatus, TaskStatus.getUnfinishedStatuses())
+                                    .update(scheduleJob);
+                            LOGGER.info("[Unnormal Job] jobId:{} update job status:{}, job is finished.", jobStopRecord.getJobId(), TaskStatus.CANCELED.getStatus());
+                            shardCache.updateLocalMemTaskStatus(jobStopRecord.getJobId(), TaskStatus.CANCELED.getStatus());
+                            scheduleJobOperatorRecordService.removeById(jobStopRecord.getId());
+                        }
+                    }
+
+                    Thread.sleep(500);
+                } catch (Throwable e) {
+                    LOGGER.error("when acquire stop jobs happens error:", e);
+                }
+            }
         }
     }
 

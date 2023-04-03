@@ -18,7 +18,7 @@
 
 package com.dtstack.taier.scheduler.jobdealer.cache;
 
-import com.dtstack.taier.dao.domain.ScheduleEngineJobCache;
+import com.dtstack.taier.dao.domain.ScheduleJobCache;
 import com.dtstack.taier.pluginapi.exception.ExceptionUtil;
 import com.dtstack.taier.scheduler.jobdealer.JobStatusDealer;
 import com.dtstack.taier.scheduler.service.ScheduleJobCacheService;
@@ -49,7 +49,7 @@ public class ShardCache implements ApplicationContextAware {
 
     private ShardManager getShardManager(String jobId) {
         ScheduleJobCacheService ScheduleJobCacheService = applicationContext.getBean(ScheduleJobCacheService.class);
-        ScheduleEngineJobCache engineJobCache = ScheduleJobCacheService.getByJobId(jobId);
+        ScheduleJobCache engineJobCache = ScheduleJobCacheService.getByJobId(jobId);
         if (engineJobCache == null) {
             return null;
         }

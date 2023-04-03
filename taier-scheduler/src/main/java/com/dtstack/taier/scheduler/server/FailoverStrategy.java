@@ -24,7 +24,7 @@ import com.dtstack.taier.common.enums.EJobCacheStage;
 import com.dtstack.taier.common.enums.EScheduleType;
 import com.dtstack.taier.common.env.EnvironmentContext;
 import com.dtstack.taier.common.util.GenerateErrorMsgUtil;
-import com.dtstack.taier.dao.domain.ScheduleEngineJobCache;
+import com.dtstack.taier.dao.domain.ScheduleJobCache;
 import com.dtstack.taier.dao.domain.ScheduleJob;
 import com.dtstack.taier.dao.domain.ScheduleJobOperatorRecord;
 import com.dtstack.taier.pluginapi.CustomThreadFactory;
@@ -332,13 +332,13 @@ public class FailoverStrategy {
             LOGGER.warn("----- nodeAddress:{} JobCache mission begins to resume----", nodeAddress);
             long startId = 0L;
             while (true) {
-                List<ScheduleEngineJobCache> jobCaches = ScheduleJobCacheService.listByStage(startId, nodeAddress, null, null);
+                List<ScheduleJobCache> jobCaches = ScheduleJobCacheService.listByStage(startId, nodeAddress, null, null);
                 if (CollectionUtils.isEmpty(jobCaches)) {
                     break;
                 }
                 Map<String, List<String>> jobResources = Maps.newHashMap();
                 List<String> submittedJobs = Lists.newArrayList();
-                for (ScheduleEngineJobCache jobCache : jobCaches) {
+                for (ScheduleJobCache jobCache : jobCaches) {
                     try {
                         if (EJobCacheStage.unSubmitted().contains(jobCache.getStage())) {
                             List<String> jobIds = jobResources.computeIfAbsent(jobCache.getJobResource(), k -> Lists.newArrayList());
@@ -357,7 +357,7 @@ public class FailoverStrategy {
                 distributeSubmittedJobs(submittedJobs);
             }
             //在迁移任务的时候，可能出现要迁移的节点也宕机了，任务没有正常接收
-            List<ScheduleEngineJobCache> jobCaches = ScheduleJobCacheService.listByStage(0L, nodeAddress, null, null);
+            List<ScheduleJobCache> jobCaches = ScheduleJobCacheService.listByStage(0L, nodeAddress, null, null);
             if (CollectionUtils.isNotEmpty(jobCaches)) {
                 //如果尚有任务未迁移完成，重置 nodeAddress 继续恢复
                 zkService.updateSynchronizedLocalBrokerHeartNode(nodeAddress, BrokerHeartNode.initNullBrokerHeartNode(), true);

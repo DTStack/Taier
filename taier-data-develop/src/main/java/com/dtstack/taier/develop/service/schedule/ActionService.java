@@ -26,7 +26,7 @@ import com.dtstack.taier.common.enums.EScheduleJobType;
 import com.dtstack.taier.common.env.EnvironmentContext;
 import com.dtstack.taier.common.exception.TaierDefineException;
 import com.dtstack.taier.common.util.DataFilter;
-import com.dtstack.taier.dao.domain.ScheduleEngineJobRetry;
+import com.dtstack.taier.dao.domain.ScheduleJobRetry;
 import com.dtstack.taier.dao.domain.ScheduleJob;
 import com.dtstack.taier.dao.domain.ScheduleJobExpand;
 import com.dtstack.taier.dao.domain.ScheduleTaskShade;
@@ -181,16 +181,16 @@ public class ActionService {
         // 如果RetryNum>1 说明实例已经进行了一次重试，所以取查询重试日志
         if (scheduleJob.getRetryNum() > 1) {
             // 查询重试日志
-            ScheduleEngineJobRetry scheduleEngineJobRetry = jobRetryService.lambdaQuery()
-                    .eq(ScheduleEngineJobRetry::getJobId, jobId)
-                    .eq(ScheduleEngineJobRetry::getRetryNum, pageInfo)
-                    .eq(ScheduleEngineJobRetry::getIsDeleted, Deleted.NORMAL.getStatus())
-                    .orderBy(true, false, ScheduleEngineJobRetry::getId)
+            ScheduleJobRetry scheduleJobRetry = jobRetryService.lambdaQuery()
+                    .eq(ScheduleJobRetry::getJobId, jobId)
+                    .eq(ScheduleJobRetry::getRetryNum, pageInfo)
+                    .eq(ScheduleJobRetry::getIsDeleted, Deleted.NORMAL.getStatus())
+                    .orderBy(true, false, ScheduleJobRetry::getId)
                     .one();
 
-            if (scheduleEngineJobRetry != null) {
-                jobLogVO.setLogInfo(scheduleEngineJobRetry.getLogInfo());
-                jobLogVO.setEngineLog(scheduleEngineJobRetry.getEngineLog());
+            if (scheduleJobRetry != null) {
+                jobLogVO.setLogInfo(scheduleJobRetry.getLogInfo());
+                jobLogVO.setEngineLog(scheduleJobRetry.getEngineLog());
             }
             jobLogVO.setPageIndex(pageInfo);
             jobLogVO.setPageSize(scheduleJob.getMaxRetryNum());

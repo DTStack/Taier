@@ -1279,27 +1279,6 @@ CREATE TABLE `develop_select_sql`
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin COMMENT='sql查询临时表';
 
 -- ----------------------------
--- Table structure for develop_read_write_lock
--- ----------------------------
-DROP TABLE IF EXISTS `develop_read_write_lock`;
-CREATE TABLE `develop_read_write_lock` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `lock_name` varchar(128) COLLATE utf8_bin NOT NULL COMMENT '锁名称',
-  `tenant_id` int(11) DEFAULT NULL COMMENT '租户Id',
-  `relation_id` int(11) NOT NULL COMMENT 'Id',
-  `type` varchar(64) COLLATE utf8_bin NOT NULL COMMENT '任务类型 ',
-  `create_user_id` int(11) DEFAULT NULL COMMENT '创建人Id',
-  `modify_user_id` int(11) NOT NULL COMMENT '修改的用户',
-  `version` int(11) NOT NULL DEFAULT '1' COMMENT '乐观锁,0是特殊含义',
-  `gmt_create` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '新增时间',
-  `gmt_modified` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
-  `is_deleted` tinyint(1) NOT NULL DEFAULT '0' COMMENT '0正常 1逻辑删除',
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `index_lock` (`relation_id`,`type`),
-  UNIQUE KEY `index_read_write_lock` (`lock_name`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin COMMENT='读写锁记录表';
-
--- ----------------------------
 -- Table structure for develop_resource
 -- ----------------------------
 DROP TABLE IF EXISTS `develop_resource`;
@@ -1499,24 +1478,6 @@ CREATE TABLE `develop_task_version` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin COMMENT='任务具体版本信息表';
 
 -- ----------------------------
--- Table structure for develop_tenant_component
--- ----------------------------
-DROP TABLE IF EXISTS `develop_tenant_component`;
-CREATE TABLE `develop_tenant_component` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `tenant_id` int(11) NOT NULL COMMENT '租户id',
-  `task_type` tinyint(1) NOT NULL COMMENT '任务类型',
-  `component_identity` varchar(256) COLLATE utf8_bin NOT NULL COMMENT '组件的标识信息，也就是组件配置的dbname',
-  `status` tinyint(1) NOT NULL DEFAULT '0' COMMENT '项目状态0：初始化，1：正常,2:禁用,3:失败',
-  `create_user_id` int(11) DEFAULT NULL COMMENT '创建人id',
-  `modify_user_id` int(11) DEFAULT NULL COMMENT '修改人id',
-  `gmt_create` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '新增时间',
-  `gmt_modified` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
-  `is_deleted` tinyint(1) NOT NULL DEFAULT '0' COMMENT '0正常 1逻辑删除',
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin COMMENT='项目与engine的关联关系表';
-
--- ----------------------------
 -- Table structure for dict
 -- ----------------------------
 DROP TABLE IF EXISTS `dict`;
@@ -1714,52 +1675,71 @@ INSERT INTO `dict` VALUES (361, '15', 'DorisSQL', '{\"actions\":[\"SAVE_TASK\",\
 INSERT INTO `dict` VALUES (363, '17', 'MySQL', '{"actions":["SAVE_TASK","RUN_TASK","STOP_TASK","SUBMIT_TASK","OPERATOR_TASK"],"barItem":["task","dependency","task_params","env_params"],"formField":["datasource"],"renderKind":"editor","dataTypeCodes":[1]}', '', 30, 0, 'STRING', '', 0, '2022-10-24 15:46:53', '2022-10-24 15:46:53', 0);
 INSERT INTO `dict` VALUES (367,'18', 'Greenplum', '{"actions":["SAVE_TASK","RUN_TASK","STOP_TASK","SUBMIT_TASK","OPERATOR_TASK"],"barItem":["task","dependency","task_params","env_params"],"formField":["datasource"],"renderKind":"editor","dataTypeCodes":[36]}', '', 30, 0, 'STRING', '', 0, '2022-10-24 15:46:53', '2022-10-24 15:46:53', 0);
 INSERT INTO `dict` VALUES (369,'19', 'GaussDB', '{"actions":["SAVE_TASK","RUN_TASK","STOP_TASK","SUBMIT_TASK","OPERATOR_TASK"],"barItem":["task","dependency","task_params","env_params"],"formField":["datasource"],"renderKind":"editor","dataTypeCodes":[21]}', '', 30, 0, 'STRING', '', 0, '2022-10-24 15:46:53', '2022-10-24 15:46:53', 0);
-INSERT INTO `dict` VALUES (371,'20', 'PostgreSQL', '{"actions":["SAVE_TASK","RUN_TASK","STOP_TASK","SUBMIT_TASK","OPERATOR_TASK"],"barItem":["task","dependency","task_params","env_params"],"formField":["datasource"],"renderKind":"editor","dataTypeCodes":[4]}', '', 30, 0, 'STRING', '', 0, '2022-10-24 15:46:53', '2022-10-24 15:46:53', 0);
-INSERT INTO `dict` VALUES (373,'21', 'SQLServer', '{"actions":["SAVE_TASK","RUN_TASK","STOP_TASK","SUBMIT_TASK","OPERATOR_TASK"],"barItem":["task","dependency","task_params","env_params"],"formField":["datasource"],"renderKind":"editor","dataTypeCodes":[3]}', '', 30, 0, 'STRING', '', 0, '2022-10-24 15:46:53', '2022-10-24 15:46:53', 0);
-INSERT INTO `dict` VALUES (375,'22', 'TiDB', '{"actions":["SAVE_TASK","RUN_TASK","STOP_TASK","SUBMIT_TASK","OPERATOR_TASK"],"barItem":["task","dependency","task_params","env_params"],"formField":["datasource"],"renderKind":"editor","dataTypeCodes":[31]}', '', 30, 0, 'STRING', '', 0, '2022-10-24 15:46:53', '2022-10-24 15:46:53', 0);
-INSERT INTO `dict` VALUES (377,'23', 'Vertica', '{"actions":["SAVE_TASK","RUN_TASK","STOP_TASK","SUBMIT_TASK","OPERATOR_TASK"],"barItem":["task","dependency","task_params","env_params"],"formField":["datasource"],"renderKind":"editor","dataTypeCodes":[43]}', '', 30, 0, 'STRING', '', 0, '2022-10-24 15:46:53', '2022-10-24 15:46:53', 0);
-INSERT INTO `dict` VALUES (379,'24', 'MaxCompute', '{"actions":["SAVE_TASK","RUN_TASK","STOP_TASK","SUBMIT_TASK","OPERATOR_TASK"],"barItem":["task","dependency","task_params","env_params"],"formField":["datasource"],"renderKind":"editor","dataTypeCodes":[10]}', '', 30, 0, 'STRING', '', 0, '2022-10-24 15:46:53', '2022-10-24 15:46:53', 0);
+INSERT INTO `dict`
+VALUES (371, '20', 'PostgreSQL',
+        '{"actions":["SAVE_TASK","RUN_TASK","STOP_TASK","SUBMIT_TASK","OPERATOR_TASK"],"barItem":["task","dependency","task_params","env_params"],"formField":["datasource"],"renderKind":"editor","dataTypeCodes":[4]}',
+        '', 30, 0, 'STRING', '', 0, '2022-10-24 15:46:53', '2022-10-24 15:46:53', 0);
+INSERT INTO `dict`
+VALUES (373, '21', 'SQLServer',
+        '{"actions":["SAVE_TASK","RUN_TASK","STOP_TASK","SUBMIT_TASK","OPERATOR_TASK"],"barItem":["task","dependency","task_params","env_params"],"formField":["datasource"],"renderKind":"editor","dataTypeCodes":[3]}',
+        '', 30, 0, 'STRING', '', 0, '2022-10-24 15:46:53', '2022-10-24 15:46:53', 0);
+INSERT INTO `dict`
+VALUES (375, '22', 'TiDB',
+        '{"actions":["SAVE_TASK","RUN_TASK","STOP_TASK","SUBMIT_TASK","OPERATOR_TASK"],"barItem":["task","dependency","task_params","env_params"],"formField":["datasource"],"renderKind":"editor","dataTypeCodes":[31]}',
+        '', 30, 0, 'STRING', '', 0, '2022-10-24 15:46:53', '2022-10-24 15:46:53', 0);
+INSERT INTO `dict`
+VALUES (377, '23', 'Vertica',
+        '{"actions":["SAVE_TASK","RUN_TASK","STOP_TASK","SUBMIT_TASK","OPERATOR_TASK"],"barItem":["task","dependency","task_params","env_params"],"formField":["datasource"],"renderKind":"editor","dataTypeCodes":[43]}',
+        '', 30, 0, 'STRING', '', 0, '2022-10-24 15:46:53', '2022-10-24 15:46:53', 0);
+INSERT INTO `dict`
+VALUES (379, '24', 'MaxCompute',
+        '{"actions":["SAVE_TASK","RUN_TASK","STOP_TASK","SUBMIT_TASK","OPERATOR_TASK"],"barItem":["task","dependency","task_params","env_params"],"formField":["datasource"],"renderKind":"editor","dataTypeCodes":[10]}',
+        '', 30, 0, 'STRING', '', 0, '2022-10-24 15:46:53', '2022-10-24 15:46:53', 0);
 COMMIT;
 
 -- ----------------------------
--- Table structure for schedule_engine_job_cache
+-- Table structure for schedule_job_cache
 -- ----------------------------
-DROP TABLE IF EXISTS `schedule_engine_job_cache`;
-CREATE TABLE `schedule_engine_job_cache` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `job_id` varchar(64) COLLATE utf8_bin NOT NULL COMMENT '任务id',
-  `job_name` varchar(256) COLLATE utf8_bin DEFAULT NULL COMMENT '任务名称',
-  `compute_type` tinyint(2) NOT NULL COMMENT '计算类型stream/batch',
-  `stage` tinyint(2) NOT NULL COMMENT '处于master等待队列：1 还是exe等待队列 2',
-  `job_info` longtext COLLATE utf8_bin NOT NULL COMMENT 'job信息',
-  `node_address` varchar(256) COLLATE utf8_bin DEFAULT NULL COMMENT '节点地址',
-  `job_resource` varchar(256) COLLATE utf8_bin DEFAULT NULL COMMENT 'job的计算引擎资源类型',
-  `job_priority` bigint(20) DEFAULT NULL COMMENT '任务优先级',
-  `is_failover` tinyint(1) NOT NULL DEFAULT '0' COMMENT '0：不是，1：由故障恢复来的任务',
-  `wait_reason` text COLLATE utf8_bin COMMENT '任务等待原因',
-  `tenant_id` int(11) DEFAULT NULL COMMENT '租户id',
-  `gmt_create` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '新增时间',
-  `gmt_modified` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
-  `is_deleted` tinyint(1) NOT NULL DEFAULT '0' COMMENT '0正常 1逻辑删除',
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `index_job_id` (`job_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+DROP TABLE IF EXISTS `schedule_job_cache`;
+CREATE TABLE `schedule_job_cache`
+(
+    `id`           int(11)                      NOT NULL AUTO_INCREMENT,
+    `job_id`       varchar(64) COLLATE utf8_bin NOT NULL COMMENT '任务id',
+    `job_name`     varchar(256) COLLATE utf8_bin         DEFAULT NULL COMMENT '任务名称',
+    `compute_type` tinyint(2)                   NOT NULL COMMENT '计算类型stream/batch',
+    `stage`        tinyint(2)                   NOT NULL COMMENT '处于master等待队列：1 还是exe等待队列 2',
+    `job_info`     longtext COLLATE utf8_bin    NOT NULL COMMENT 'job信息',
+    `node_address` varchar(256) COLLATE utf8_bin         DEFAULT NULL COMMENT '节点地址',
+    `job_resource` varchar(256) COLLATE utf8_bin         DEFAULT NULL COMMENT 'job的计算引擎资源类型',
+    `job_priority` bigint(20)                            DEFAULT NULL COMMENT '任务优先级',
+    `is_failover`  tinyint(1)                   NOT NULL DEFAULT '0' COMMENT '0：不是，1：由故障恢复来的任务',
+    `wait_reason`  text COLLATE utf8_bin COMMENT '任务等待原因',
+    `tenant_id`    int(11)                               DEFAULT NULL COMMENT '租户id',
+    `gmt_create`   datetime                     NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '新增时间',
+    `gmt_modified` datetime                     NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
+    `is_deleted`   tinyint(1)                   NOT NULL DEFAULT '0' COMMENT '0正常 1逻辑删除',
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `index_job_id` (`job_id`)
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8
+  COLLATE = utf8_bin;
 
 -- ----------------------------
--- Table structure for schedule_engine_job_retry
+-- Table structure for schedule_job_retry
 -- ----------------------------
-DROP TABLE IF EXISTS `schedule_engine_job_retry`;
-CREATE TABLE `schedule_engine_job_retry` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `status` tinyint(1) NOT NULL DEFAULT '0' COMMENT '任务状态 UNSUBMIT(0),CREATED(1),SCHEDULED(2),DEPLOYING(3),RUNNING(4),FINISHED(5),CANCELING(6),CANCELED(7),FAILED(8)',
-  `job_id` varchar(64) COLLATE utf8_bin NOT NULL COMMENT '离线任务id',
-  `engine_job_id` varchar(256) COLLATE utf8_bin DEFAULT NULL COMMENT '离线任务计算引擎id',
-  `application_id` varchar(256) COLLATE utf8_bin DEFAULT NULL COMMENT '独立运行的任务需要记录额外的id',
-  `exec_start_time` datetime DEFAULT NULL COMMENT '执行开始时间',
-  `exec_end_time` datetime DEFAULT NULL COMMENT '执行结束时间',
-  `retry_num` int(10) NOT NULL DEFAULT '0' COMMENT '执行时，重试的次数',
-  `log_info` mediumtext COLLATE utf8_bin COMMENT '错误信息',
-  `engine_log` longtext COLLATE utf8_bin COMMENT '引擎错误信息',
+DROP TABLE IF EXISTS `schedule_job_retry`;
+CREATE TABLE `schedule_job_retry`
+(
+    `id`              int(11)                      NOT NULL AUTO_INCREMENT,
+    `status`          tinyint(1)                   NOT NULL DEFAULT '0' COMMENT '任务状态 UNSUBMIT(0),CREATED(1),SCHEDULED(2),DEPLOYING(3),RUNNING(4),FINISHED(5),CANCELING(6),CANCELED(7),FAILED(8)',
+    `job_id`          varchar(64) COLLATE utf8_bin NOT NULL COMMENT '离线任务id',
+    `engine_job_id`   varchar(256) COLLATE utf8_bin         DEFAULT NULL COMMENT '离线任务计算引擎id',
+    `application_id`  varchar(256) COLLATE utf8_bin         DEFAULT NULL COMMENT '独立运行的任务需要记录额外的id',
+    `exec_start_time` datetime                              DEFAULT NULL COMMENT '执行开始时间',
+    `exec_end_time`   datetime                              DEFAULT NULL COMMENT '执行结束时间',
+    `retry_num`       int(10)                      NOT NULL DEFAULT '0' COMMENT '执行时，重试的次数',
+    `log_info`        mediumtext COLLATE utf8_bin COMMENT '错误信息',
+    `engine_log`      longtext COLLATE utf8_bin COMMENT '引擎错误信息',
   `gmt_create` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '新增时间',
   `gmt_modified` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
   `is_deleted` tinyint(1) NOT NULL DEFAULT '0' COMMENT '0正常 1逻辑删除',
@@ -1932,24 +1912,6 @@ CREATE TABLE `schedule_job_operator_record` (
   `is_deleted` tinyint(1) NOT NULL DEFAULT '0' COMMENT '0正常 1逻辑删除',
   PRIMARY KEY (`id`),
   UNIQUE KEY `job_id` (`job_id`,`operator_type`,`is_deleted`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
-
--- ----------------------------
--- Table structure for schedule_plugin_job_info
--- ----------------------------
-DROP TABLE IF EXISTS `schedule_plugin_job_info`;
-CREATE TABLE `schedule_plugin_job_info` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `job_id` varchar(64) COLLATE utf8_bin NOT NULL COMMENT '任务id',
-  `job_info` longtext COLLATE utf8_bin NOT NULL COMMENT '任务信息',
-  `log_info` text COLLATE utf8_bin COMMENT '任务信息',
-  `status` tinyint(2) NOT NULL COMMENT '任务状态',
-  `gmt_create` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '新增时间',
-  `gmt_modified` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
-  `is_deleted` tinyint(1) NOT NULL DEFAULT '0' COMMENT '0正常 1逻辑删除',
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `index_job_id` (`job_id`),
-  KEY `idx_gmt_modified` (`gmt_modified`) COMMENT '修改时间'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 -- ----------------------------

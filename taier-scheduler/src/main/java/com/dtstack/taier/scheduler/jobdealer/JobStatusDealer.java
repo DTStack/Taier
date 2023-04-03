@@ -28,7 +28,7 @@ import com.dtstack.taier.common.enums.EScheduleType;
 import com.dtstack.taier.common.env.EnvironmentContext;
 import com.dtstack.taier.common.util.LogCountUtil;
 import com.dtstack.taier.common.util.TaskParamsUtils;
-import com.dtstack.taier.dao.domain.ScheduleEngineJobCache;
+import com.dtstack.taier.dao.domain.ScheduleJobCache;
 import com.dtstack.taier.dao.domain.ScheduleJob;
 import com.dtstack.taier.dao.domain.ScheduleJobHistory;
 import com.dtstack.taier.dao.mapper.ScheduleJobHistoryMapper;
@@ -159,7 +159,7 @@ public class JobStatusDealer implements Runnable {
 
     private void dealJob(String jobId) throws Exception {
         ScheduleJob scheduleJob = scheduleJobService.getByJobId(jobId);
-        ScheduleEngineJobCache engineJobCache = scheduleJobCacheService.getJobCacheByJobId(jobId);
+        ScheduleJobCache engineJobCache = scheduleJobCacheService.getJobCacheByJobId(jobId);
         if (scheduleJob == null || engineJobCache == null ||
                 (StringUtils.isBlank(scheduleJob.getApplicationId()) && StringUtils.isBlank(scheduleJob.getEngineJobId()))) {
             shardCache.updateLocalMemTaskStatus(jobId, TaskStatus.CANCELED.getStatus());

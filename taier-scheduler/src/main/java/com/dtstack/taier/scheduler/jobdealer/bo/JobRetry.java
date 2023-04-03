@@ -20,16 +20,17 @@ package com.dtstack.taier.scheduler.jobdealer.bo;
 
 
 import com.dtstack.taier.dao.domain.ScheduleJob;
+import com.dtstack.taier.dao.domain.ScheduleJobRetry;
 import com.dtstack.taier.pluginapi.JobClient;
 import com.dtstack.taier.pluginapi.exception.ExceptionUtil;
 
 /**
  * @author toutian
  */
-public class EngineJobRetry extends com.dtstack.taier.dao.domain.ScheduleEngineJobRetry {
+public class JobRetry extends ScheduleJobRetry {
 
-    public static EngineJobRetry toEntity(ScheduleJob scheduleJob, JobClient jobClient,String engineLog) {
-        EngineJobRetry scheduleJobRetry = new EngineJobRetry();
+    public static JobRetry toEntity(ScheduleJob scheduleJob, JobClient jobClient, String engineLog) {
+        JobRetry scheduleJobRetry = new JobRetry();
         scheduleJobRetry.setJobId(scheduleJob.getJobId());
         scheduleJobRetry.setExecStartTime(scheduleJob.getExecStartTime());
         scheduleJobRetry.setExecEndTime(scheduleJob.getExecEndTime());

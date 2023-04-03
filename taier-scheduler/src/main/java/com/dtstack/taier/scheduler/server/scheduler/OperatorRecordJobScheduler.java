@@ -20,7 +20,7 @@ package com.dtstack.taier.scheduler.server.scheduler;
 
 import com.dtstack.taier.common.enums.Deleted;
 import com.dtstack.taier.common.enums.OperatorType;
-import com.dtstack.taier.dao.domain.ScheduleEngineJobCache;
+import com.dtstack.taier.dao.domain.ScheduleJobCache;
 import com.dtstack.taier.dao.domain.ScheduleJob;
 import com.dtstack.taier.dao.domain.ScheduleJobJob;
 import com.dtstack.taier.dao.domain.ScheduleJobOperatorRecord;
@@ -116,13 +116,13 @@ public abstract class OperatorRecordJobScheduler extends AbstractJobSummitSchedu
         //      第二是job运行完成后，这个时候Operator需要删除
 
         // 查询cache表的数据
-        Map<String, ScheduleEngineJobCache> scheduleEngineJobCacheMaps = scheduleJobCacheService
+        Map<String, ScheduleJobCache> scheduleEngineJobCacheMaps = scheduleJobCacheService
                 .lambdaQuery()
-                .in(ScheduleEngineJobCache::getJobId, deleteJobIdList)
-                .eq(ScheduleEngineJobCache::getIsDeleted, Deleted.NORMAL.getStatus())
+                .in(ScheduleJobCache::getJobId, deleteJobIdList)
+                .eq(ScheduleJobCache::getIsDeleted, Deleted.NORMAL.getStatus())
                 .list()
                 .stream()
-                .collect(Collectors.toMap(ScheduleEngineJobCache::getJobId, g -> (g)));
+                .collect(Collectors.toMap(ScheduleJobCache::getJobId, g -> (g)));
 
         // 查询需要删除的OperatorRecord的实例信息
         Map<String, ScheduleJob> scheduleJobMap = scheduleJobService
@@ -135,9 +135,9 @@ public abstract class OperatorRecordJobScheduler extends AbstractJobSummitSchedu
         List<String> needDeleteJobIdList = Lists.newArrayList();
 
         for (String jobId : deleteJobIdList) {
-            ScheduleEngineJobCache scheduleEngineJobCache = scheduleEngineJobCacheMaps.get(jobId);
+            ScheduleJobCache scheduleJobCache = scheduleEngineJobCacheMaps.get(jobId);
 
-            if (scheduleEngineJobCache != null) {
+            if (scheduleJobCache != null) {
                 // cache是空的 两种情况 就是上面2的两种情况，这时我们需要判断job的状态
                 ScheduleJob scheduleJob = scheduleJobMap.get(jobId);
 
