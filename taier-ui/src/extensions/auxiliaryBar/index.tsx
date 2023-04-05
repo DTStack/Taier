@@ -31,7 +31,7 @@ export default class AuxiliaryBarExtensions implements IExtension {
 /**
  * Call it for opening auxiliary bar
  */
-const setAuxiliaryBar = () => {
+export const setAuxiliaryBar = () => {
     window.requestAnimationFrame(() => {
         const bars = taskRenderService
             .renderRightBar()

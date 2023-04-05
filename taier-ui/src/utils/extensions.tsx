@@ -31,6 +31,7 @@ import stream from '@/api';
 import { TreeViewUtil } from '@dtinsight/molecule/esm/common/treeUtil';
 import taskSaveService from '@/services/taskSaveService';
 import md5 from 'md5';
+import { EventBus } from '@dtinsight/molecule/esm/common/event';
 
 /**
  * 根据不同任务渲染不同的图标
@@ -236,21 +237,7 @@ export function getParentNode(treeList: IFolderTreeNodeProps, currentNode: IFold
  * This function for executing func after switching task
  */
 export function onTaskSwitch(func: () => void) {
-    [
-        molecule.editorTree.onSelect,
-        molecule.editorTree.onClose,
-        molecule.editorTree.onCloseAll,
-        molecule.editorTree.onCloseOthers,
-        molecule.editorTree.onCloseSaved,
-    ].forEach((subscribe) => subscribe.call(molecule.editorTree, func));
-
-    [
-        molecule.editor.onOpenTab,
-        molecule.editor.onSelectTab,
-        molecule.editor.onCloseAll,
-        molecule.editor.onCloseOther,
-        molecule.editor.onCloseTab,
-        molecule.editor.onCloseToLeft,
-        molecule.editor.onCloseToRight,
-    ].forEach((subscribe) => subscribe.call(molecule.editor, func));
+    EventBus.subscribe(ID_COLLECTIONS.TASK_SWITCH_EVENT, () => {
+        func();
+    });
 }

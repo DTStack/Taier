@@ -118,21 +118,21 @@ export default class RightBarService extends Component<void> implements IRightBa
 
         switch (kind) {
             case RightBarKind.TASK:
-                return <TaskInfo current={current} />;
+                return <TaskInfo key={current?.activeTab} current={current} />;
             case RightBarKind.DEPENDENCY:
-                return <SchedulingConfig current={current} />;
+                return <SchedulingConfig key={current?.activeTab} current={current} />;
             case RightBarKind.TASK_PARAMS:
-                return <TaskParams current={current} />;
+                return <TaskParams key={current?.activeTab} current={current} />;
             case RightBarKind.ENV_PARAMS:
-                return <EnvParams current={current} />;
+                return <EnvParams key={current?.activeTab} current={current} />;
             case RightBarKind.TASK_CONFIG:
-                return this.withForm(<TaskConfig key="config" current={current} />);
+                return this.withForm(<TaskConfig key={`${current?.activeTab}_config`} current={current} />);
             case RightBarKind.FLINKSQL_SOURCE:
-                return this.withForm(<FlinkSourcePanel key="source" current={current} />);
+                return this.withForm(<FlinkSourcePanel key={`${current?.activeTab}_source`} current={current} />);
             case RightBarKind.FLINKSQL_RESULT:
-                return this.withForm(<FlinkResultPanel key="result" current={current} />);
+                return this.withForm(<FlinkResultPanel key={`${current?.activeTab}_result`} current={current} />);
             case RightBarKind.FLINKSQL_DIMENSION:
-                return this.withForm(<FlinkDimensionPanel key="dimension" current={current} />);
+                return this.withForm(<FlinkDimensionPanel key={`${current?.activeTab}_dimension`} current={current} />);
             default:
                 return null;
         }
