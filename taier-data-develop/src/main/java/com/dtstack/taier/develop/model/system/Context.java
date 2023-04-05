@@ -32,19 +32,19 @@ import com.dtstack.taier.develop.model.system.config.ComponentModel;
 import com.dtstack.taier.develop.model.system.config.ComponentModelExtraParameters;
 import com.dtstack.taier.develop.model.system.config.ComponentModelTypeConfig;
 import com.dtstack.taier.develop.model.system.config.SystemConfigMapperException;
+import com.google.common.collect.HashBasedTable;
+import com.google.common.collect.Table;
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.function.BiFunction;
+import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -69,51 +69,63 @@ public class Context {
     /**
      * 资源组件 - version-依赖资源组件typeName
      */
-    private final Map<EComponentType, Map<String, ComponentModelTypeConfig>> componentModelTypeConfig;
+    private final Table<EComponentType, String, ComponentModelTypeConfig> componentModelTypeConfig;
 
     /**
      * 资源组件 - version-额外参数信息
      */
-    private final Map<EComponentType, Map<String, ComponentModelExtraParameters>> componentModelExtraParams;
+    private final Table<EComponentType, String, ComponentModelExtraParameters> componentModelExtraParams;
+
+    /**
+     * 组件+版本 对应datasourceType关系
+     */
+    private final Table<Integer, String, Integer> componentDatasourceMapping;
 
     /**
      * 组件 tip 缓存 - {componentTypeCode, {key, ScheduleDict}}
      */
-    private final Map<Integer, Map<String, Dict>> tipDictCache;
+    private final Table<Integer, String, Dict> tipDictCache;
 
     @Autowired
     public Context(DictMapper dictMapper) {
         this.dictMapper = dictMapper;
         this.baseTemplates = Collections.unmodifiableMap(initBaseTemplates());
         this.componentConfigs = Collections.unmodifiableMap(initComponentModels());
-        this.componentModelTypeConfig = Collections.unmodifiableMap(initComponentModelTypeConfig());
-        this.componentModelExtraParams = Collections.unmodifiableMap(initComponentModelExtraParams());
-        this.tipDictCache = Collections.unmodifiableMap(initTipDictCache());
+        this.componentModelTypeConfig = initComponentModelTypeConfig();
+        this.componentModelExtraParams = initComponentModelExtraParams();
+        this.tipDictCache = initTipDictCache();
+        this.componentDatasourceMapping = initComponentDatasourceMapping();
     }
 
-    private Map<EComponentType, Map<String, ComponentModelTypeConfig>> initComponentModelTypeConfig() {
-        List<Dict> dicts = dictMapper.listDictByType(DictType.RESOURCE_MODEL_CONFIG.type);
-        return parseComponentConfig(dicts, ComponentModelTypeConfig::new);
+    private Table<Integer, String, Integer> initComponentDatasourceMapping() {
+        return parseTable(DictType.COMPONENT_DATASOURCE_MAPPING.type, ((table, dict) ->
+                table.put(Integer.valueOf(dict.getDictName()), dict.getDependName(), Integer.valueOf(dict.getDictValue()))));
     }
 
-    private Map<EComponentType, Map<String, ComponentModelExtraParameters>> initComponentModelExtraParams() {
-        List<Dict> dicts = dictMapper.listDictByType(DictType.EXTRA_VERSION_TEMPLATE.type);
-        return parseComponentConfig(dicts, ComponentModelExtraParameters::new);
+
+    private Table<EComponentType, String, ComponentModelTypeConfig> initComponentModelTypeConfig() {
+        return parseTable(DictType.RESOURCE_MODEL_CONFIG.type, ((table, dict) ->
+                table.put(Enum.valueOf(EComponentType.class, dict.getDependName()), dict.getDictName(), new ComponentModelTypeConfig(dict.getDictName(), dict.getDictValue()))));
     }
 
-    private Map<Integer, Map<String, Dict>> initTipDictCache() {
-        List<Dict> dicts = dictMapper.listDictByType(DictType.TIPS.type);
-        return dicts.stream().collect(Collectors.groupingBy(dict -> Integer.valueOf(dict.getDictDesc()),
-                Collectors.toMap(Dict::getDictName, Function.identity(), (x, y) -> y)
-        ));
+    private Table<EComponentType, String, ComponentModelExtraParameters> initComponentModelExtraParams() {
+        return parseTable(DictType.EXTRA_VERSION_TEMPLATE.type, ((table, dict) ->
+                table.put(Enum.valueOf(EComponentType.class, dict.getDependName()), dict.getDictName(), new ComponentModelExtraParameters(dict.getDictName(), dict.getDictValue()))));
     }
 
-    private <T> Map<EComponentType, Map<String, T>> parseComponentConfig(List<Dict> dicts, BiFunction<String, String, T> function) {
-        return dicts.stream().collect(Collectors.groupingBy(scheduleDict -> Enum.valueOf(EComponentType.class, scheduleDict.getDependName()),
-                Collectors.collectingAndThen(Collectors.toCollection(ArrayList<Dict>::new),
-                        scheduleDicts -> scheduleDicts.stream().collect(Collectors.toMap(Dict::getDictName,
-                                d -> function.apply(d.getDictName(), d.getDictValue()))))));
+    private Table<Integer, String, Dict> initTipDictCache() {
+        return parseTable(DictType.TIPS.type, (table, dict) -> table.put(Integer.valueOf(dict.getDictDesc()), dict.getDictName(), dict));
     }
+
+    private <R, C, V> Table<R, C, V> parseTable(Integer dictType, BiConsumer<Table<R, C, V>, Dict> applyFunc) {
+        List<Dict> dicts = dictMapper.listDictByType(dictType);
+        Table<R, C, V> table = HashBasedTable.create();
+        if (CollectionUtils.isNotEmpty(dicts)) {
+            dicts.forEach(dict -> applyFunc.accept(table, dict));
+        }
+        return table;
+    }
+
 
     private Map<EComponentType, ComponentModel> initComponentModels() {
         List<Dict> dicts = dictMapper.listDictByType(DictType.COMPONENT_MODEL.type);
@@ -234,11 +246,7 @@ public class Context {
     }
 
     public Optional<JSONObject> getModelConfig(EComponentType type, String versionName) {
-        Map<String, ComponentModelTypeConfig> resourceModelConfigMap = componentModelTypeConfig.get(type);
-        if (MapUtils.isEmpty(resourceModelConfigMap)) {
-            throw new InvalidComponentException(type, "is not config resource model");
-        }
-        ComponentModelTypeConfig resourceModelConfig = resourceModelConfigMap.get(versionName);
+        ComponentModelTypeConfig resourceModelConfig = componentModelTypeConfig.get(type, versionName);
         if (null == resourceModelConfig || null == resourceModelConfig.getComponentModelConfig()) {
             throw new InvalidComponentException(type, String.format(" version %s is not support resource model", versionName));
         }
@@ -246,11 +254,7 @@ public class Context {
     }
 
     public Optional<JSONObject> getModelExtraVersionParameters(EComponentType resourceType, String resourceVersion) {
-        Map<String, ComponentModelExtraParameters> componentModelExtraParametersMap = componentModelExtraParams.get(resourceType);
-        if (null == componentModelExtraParametersMap) {
-            return Optional.empty();
-        }
-        ComponentModelExtraParameters parameters = componentModelExtraParametersMap.get(resourceVersion);
+        ComponentModelExtraParameters parameters = componentModelExtraParams.get(resourceType, resourceVersion);
         if (null == parameters) {
             return Optional.empty();
         }
@@ -259,6 +263,7 @@ public class Context {
 
     /**
      * 填充 tip
+     *
      * @param componentConfigs
      * @param componentType
      */
@@ -266,12 +271,8 @@ public class Context {
         if (CollectionUtils.isEmpty(componentConfigs)) {
             return;
         }
-        Map<String, Dict> key2Dict = this.tipDictCache.get(componentType);
-        if (MapUtils.isEmpty(key2Dict)) {
-            return;
-        }
         for (ComponentConfig componentConfig : componentConfigs) {
-            Dict dict = key2Dict.get(componentConfig.getKey());
+            Dict dict = this.tipDictCache.get(componentType, componentConfig.getKey());
             if (dict == null) {
                 continue;
             }
@@ -281,5 +282,9 @@ public class Context {
             }
             componentConfig.setKeyDescribe(dict.getDictValue());
         }
+    }
+
+    public Integer getDataSourceTypeByComponentAndVersion(Integer componentType, String versionName) {
+        return componentDatasourceMapping.get(componentType, versionName);
     }
 }
