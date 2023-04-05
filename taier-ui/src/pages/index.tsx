@@ -42,6 +42,7 @@ import ClusterDetail from './console/cluster/detail';
 import { getCookie } from '@/utils';
 import { taskRenderService } from '@/services';
 import { connect } from '@dtinsight/molecule/esm/react';
+import TaskListener from '@/components/TaskListener';
 import type { ITaskRenderState } from '@/services/taskRenderService';
 import '@dtinsight/molecule/esm/style/mo.css';
 import './index.scss';
@@ -292,6 +293,7 @@ export default connect(taskRenderService, ({ supportTaskList }: ITaskRenderState
             <MoleculeProvider />
             <Login />
             <CustomDrawer id="root" renderContent={() => null} />
+            <TaskListener />
         </Context.Provider>
     );
 });
