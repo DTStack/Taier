@@ -199,6 +199,7 @@ public class ClusterService {
         //返回版本
         configObj.put(ConfigConstant.VERSION, component.getVersionValue());
         configObj.put(ConfigConstant.VERSION_NAME, component.getVersionName());
+        configObj.put(ConfigConstant.DATA_SOURCE_TYPE, component.getDatasourceType());
         return configObj;
     }
 

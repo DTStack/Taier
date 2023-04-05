@@ -20,11 +20,11 @@ package com.dtstack.taier.scheduler.executor;
 
 import com.alibaba.fastjson.JSONObject;
 import com.dtstack.taier.common.enums.EComponentType;
-import com.dtstack.taier.common.util.DatasourceTypeUtil;
 import com.dtstack.taier.datasource.api.base.ClientCache;
 import com.dtstack.taier.datasource.api.client.IClient;
 import com.dtstack.taier.datasource.api.dto.FileStatus;
 import com.dtstack.taier.datasource.api.dto.source.ISourceDTO;
+import com.dtstack.taier.pluginapi.constrant.ConfigConstant;
 import com.dtstack.taier.pluginapi.exception.ExceptionUtil;
 import com.dtstack.taier.pluginapi.pojo.ComponentTestResult;
 import com.dtstack.taier.pluginapi.pojo.FileResult;
@@ -54,13 +54,10 @@ public class DatasourceOperator {
     @Autowired
     private ClusterService clusterService;
 
-    public static final String DATA_SOURCE_TYPE = "dataSourceType";
-
-    public ComponentTestResult testConnect(Integer componentType, String pluginInfo, String versionName) {
+    public ComponentTestResult testConnect(Integer dataSourceType, String pluginInfo) {
         // 获取对应的数据源类型
-        Integer dataSourceType = DatasourceTypeUtil.getTypeByComponentAndVersion(componentType, versionName);
         JSONObject jsonObject = JSONObject.parseObject(pluginInfo);
-        jsonObject.put(DATA_SOURCE_TYPE, dataSourceType);
+        jsonObject.put(ConfigConstant.DATA_SOURCE_TYPE, dataSourceType);
         ISourceDTO sourceDTO = PluginInfoToSourceDTO.getSourceDTO(jsonObject.toJSONString());
         IClient client = ClientCache.getClient(dataSourceType);
         ComponentTestResult componentTestResult = new ComponentTestResult();
@@ -115,8 +112,7 @@ public class DatasourceOperator {
         // 获取组件信息
         com.dtstack.taier.dao.domain.Component component = componentService.getComponentByClusterId(clusterId, EComponentType.HDFS.getTypeCode(), null);
         // 获取对应的数据源类型
-        Integer dataSourceType = DatasourceTypeUtil.getTypeByComponentAndVersion(EComponentType.HDFS.getTypeCode(), component.getVersionName());
-        pluginInfo.put(DatasourceOperator.DATA_SOURCE_TYPE, dataSourceType);
+        pluginInfo.put(ConfigConstant.DATA_SOURCE_TYPE, component.getDatasourceType());
     }
 
     /**

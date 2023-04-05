@@ -50,6 +50,16 @@ public class Component extends BaseEntity {
 
     private String versionName;
 
+    private Integer datasourceType;
+
+    public Integer getDatasourceType() {
+        return datasourceType;
+    }
+
+    public void setDatasourceType(Integer datasourceType) {
+        this.datasourceType = datasourceType;
+    }
+
     public String getVersionName() {
         return versionName;
     }

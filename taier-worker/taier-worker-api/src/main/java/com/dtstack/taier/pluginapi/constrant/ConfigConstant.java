@@ -54,13 +54,10 @@ public class ConfigConstant {
     public static final String VERSION_NAME = "versionName";
     public static final String CUSTOMER_PRIORITY_VAL = "job.priority";
 
+    public static final String DATA_SOURCE_TYPE = "dataSourceType";
 
-    public static final String JDBCURL = "jdbcUrl";
     public static final String USERNAME = "username";
     public static final String PASSWORD = "password";
-    public static final String INITIAL_SIZE = "initialSize";
-    public static final String MINIDLE = "minIdle";
-    public static final String MAXACTIVE = "maxActive";
 
     public static final String SQL_CHECKPOINT_TIMEOUT = "sql.checkpoint.timeout";
     public static final String FLINK_CHECKPOINT_TIMEOUT = "flink.checkpoint.timeout";

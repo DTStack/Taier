@@ -70,10 +70,10 @@ ALTER TABLE develop_hive_select_sql
 RENAME TABLE develop_hive_select_sql TO develop_select_sql;
 
 -- delete unused table
-drop table if exists develop_read_write_lock;
-drop table if exists develop_tenant_component;
-drop table if exists task_template;
-drop table if exists schedule_plugin_job_info;
+DROP TABLE IF EXISTS develop_read_write_lock;
+DROP TABLE IF EXISTS develop_tenant_component;
+DROP TABLE IF EXISTS task_template;
+DROP TABLE IF EXISTS schedule_plugin_job_info;
 RENAME TABLE schedule_engine_job_cache TO schedule_job_cache;
 RENAME TABLE schedule_engine_job_retry TO schedule_job_retry;
 
@@ -84,4 +84,107 @@ INSERT INTO `dict` (dict_code, dict_name, dict_value, dict_desc, type, sort, dat
 VALUES ('25', 'HadoopMR',
         '{"actions": ["SAVE_TASK", "SUBMIT_TASK", "OPERATOR_TASK"], "formField": ["resourceIdList", "mainClass", "exeArgs"],"barItem":["dependency","task_params","env_params"], "renderKind": "spark"}',
         '', 30, 5, 'STRING', '', 0, '2023-02-09 10:28:45', '2023-02-09 10:28:45', 0);
+
+DELETE
+FROM `dict`
+WHERE type = 18;
+INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default,
+                  gmt_create, gmt_modified, is_deleted)
+VALUES ('component_datasource_mapping', '2', '6', null, 18, 1, 'STRING', 'Apache Hadoop 2.x', 0, '2023-04-01 10:19:00',
+        '2023-04-01 10:19:00', 0);
+INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default,
+                  gmt_create, gmt_modified, is_deleted)
+VALUES ('component_datasource_mapping', '2', '63', null, 18, 1, 'STRING', 'Apache Hadoop 3.x', 0, '2023-04-01 10:19:00',
+        '2023-04-01 10:19:00', 0);
+INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default,
+                  gmt_create, gmt_modified, is_deleted)
+VALUES ('component_datasource_mapping', '2', '6', null, 18, 1, 'STRING', 'HDP 2.6.x', 0, '2023-04-01 10:19:00',
+        '2023-04-01 10:19:00', 0);
+INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default,
+                  gmt_create, gmt_modified, is_deleted)
+VALUES ('component_datasource_mapping', '2', '6', null, 18, 1, 'STRING', 'HDP 3.x', 0, '2023-04-01 10:19:00',
+        '2023-04-01 10:19:00', 0);
+INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default,
+                  gmt_create, gmt_modified, is_deleted)
+VALUES ('component_datasource_mapping', '2', '6', null, 18, 1, 'STRING', 'CDH 5.x', 0, '2023-04-01 10:19:00',
+        '2023-04-01 10:19:00', 0);
+INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default,
+                  gmt_create, gmt_modified, is_deleted)
+VALUES ('component_datasource_mapping', '2', '6', null, 18, 1, 'STRING', 'CDH 6.0.x', 0, '2023-04-01 10:19:00',
+        '2023-04-01 10:19:00', 0);
+INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default,
+                  gmt_create, gmt_modified, is_deleted)
+VALUES ('component_datasource_mapping', '2', '6', null, 18, 1, 'STRING', 'CDH 6.1.x', 0, '2023-04-01 10:19:00',
+        '2023-04-01 10:19:00', 0);
+INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default,
+                  gmt_create, gmt_modified, is_deleted)
+VALUES ('component_datasource_mapping', '2', '6', null, 18, 1, 'STRING', 'CDH 6.2.x', 0, '2023-04-01 10:19:00',
+        '2023-04-01 10:19:00', 0);
+INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default,
+                  gmt_create, gmt_modified, is_deleted)
+VALUES ('component_datasource_mapping', '2', '1003', null, 18, 1, 'STRING', 'CDP 7.x', 0, '2023-04-01 10:19:00',
+        '2023-04-01 10:19:00', 0);
+INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default,
+                  gmt_create, gmt_modified, is_deleted)
+VALUES ('component_datasource_mapping', '2', '6', null, 18, 1, 'STRING', 'TDH 5.2.x', 0, '2023-04-01 10:19:00',
+        '2023-04-01 10:19:00', 0);
+INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default,
+                  gmt_create, gmt_modified, is_deleted)
+VALUES ('component_datasource_mapping', '2', '6', null, 18, 1, 'STRING', 'TDH 7.x', 0, '2023-04-01 10:19:00',
+        '2023-04-01 10:19:00', 0);
+INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default,
+                  gmt_create, gmt_modified, is_deleted)
+VALUES ('component_datasource_mapping', '2', '6', null, 18, 1, 'STRING', 'TDH 6.x', 0, '2023-04-01 10:19:00',
+        '2023-04-01 10:19:00', 0);
+INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default,
+                  gmt_create, gmt_modified, is_deleted)
+VALUES ('component_datasource_mapping', '3', '80', null, 18, 1, 'STRING', 'Apache Hadoop 2.x', 0, '2023-04-01 10:19:00',
+        '2023-04-01 10:19:00', 0);
+INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default,
+                  gmt_create, gmt_modified, is_deleted)
+VALUES ('component_datasource_mapping', '3', '81', null, 18, 1, 'STRING', 'Apache Hadoop 3.x', 0, '2023-04-01 10:19:00',
+        '2023-04-01 10:19:00', 0);
+INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default,
+                  gmt_create, gmt_modified, is_deleted)
+VALUES ('component_datasource_mapping', '3', '80', null, 18, 1, 'STRING', 'HDP 2.6.x', 0, '2023-04-01 10:19:00',
+        '2023-04-01 10:19:00', 0);
+INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default,
+                  gmt_create, gmt_modified, is_deleted)
+VALUES ('component_datasource_mapping', '3', '81', null, 18, 1, 'STRING', 'HDP 3.x', 0, '2023-04-01 10:19:00',
+        '2023-04-01 10:19:00', 0);
+INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default,
+                  gmt_create, gmt_modified, is_deleted)
+VALUES ('component_datasource_mapping', '3', '80', null, 18, 1, 'STRING', 'CDH 5.x', 0, '2023-04-01 10:19:00',
+        '2023-04-01 10:19:00', 0);
+INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default,
+                  gmt_create, gmt_modified, is_deleted)
+VALUES ('component_datasource_mapping', '3', '80', null, 18, 1, 'STRING', 'CDH 6.0.x', 0, '2023-04-01 10:19:00',
+        '2023-04-01 10:19:00', 0);
+INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default,
+                  gmt_create, gmt_modified, is_deleted)
+VALUES ('component_datasource_mapping', '3', '80', null, 18, 1, 'STRING', 'CDH 6.1.x', 0, '2023-04-01 10:19:00',
+        '2023-04-01 10:19:00', 0);
+INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default,
+                  gmt_create, gmt_modified, is_deleted)
+VALUES ('component_datasource_mapping', '3', '80', null, 18, 1, 'STRING', 'CDH 6.2.x', 0, '2023-04-01 10:19:00',
+        '2023-04-01 10:19:00', 0);
+INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default,
+                  gmt_create, gmt_modified, is_deleted)
+VALUES ('component_datasource_mapping', '3', '81', null, 18, 1, 'STRING', 'CDP 7.x', 0, '2023-04-01 10:19:00',
+        '2023-04-01 10:19:00', 0);
+INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default,
+                  gmt_create, gmt_modified, is_deleted)
+VALUES ('component_datasource_mapping', '3', '80', null, 18, 1, 'STRING', 'TDH 5.2.x', 0, '2023-04-01 10:19:00',
+        '2023-04-01 10:19:00', 0);
+INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default,
+                  gmt_create, gmt_modified, is_deleted)
+VALUES ('component_datasource_mapping', '3', '80', null, 18, 1, 'STRING', 'TDH 7.x', 0, '2023-04-01 10:19:00',
+        '2023-04-01 10:19:00', 0);
+INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default,
+                  gmt_create, gmt_modified, is_deleted)
+VALUES ('component_datasource_mapping', '3', '80', null, 18, 1, 'STRING', 'TDH 6.x', 0, '2023-04-01 10:19:00',
+        '2023-04-01 10:19:00', 0);
+
+ALTER TABLE console_component
+    ADD datasource_type int null comment '数据插件类型';
 COMMIT;

@@ -40,7 +40,7 @@ public interface ComponentMapper extends BaseMapper<Component> {
      * 此接口返回的component_version为schedule_dict的dict_name
      * e.g 1.10 - 110
      */
-    List<Component> getComponentVersionByEngineType(@Param("tenantId") Long tenantId, @Param("componentTypeCode") Integer componentTypeCode);
+    List<Component> getComponentVersionByComponentType(@Param("tenantId") Long tenantId, @Param("componentTypeCode") Integer componentTypeCode);
 
     int updateDefault(@Param("clusterId")Long clusterId, @Param("componentType")Integer componentType, @Param("isDefault") boolean isDefault);
 

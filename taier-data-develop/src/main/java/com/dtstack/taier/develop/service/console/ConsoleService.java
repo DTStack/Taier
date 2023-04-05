@@ -26,7 +26,6 @@ import com.dtstack.taier.common.enums.OperatorType;
 import com.dtstack.taier.common.exception.ErrorCode;
 import com.dtstack.taier.common.exception.TaierDefineException;
 import com.dtstack.taier.common.util.ComponentVersionUtil;
-import com.dtstack.taier.common.util.DatasourceTypeUtil;
 import com.dtstack.taier.dao.domain.Cluster;
 import com.dtstack.taier.dao.domain.Component;
 import com.dtstack.taier.dao.domain.KerberosConfig;
@@ -50,13 +49,13 @@ import com.dtstack.taier.develop.mapstruct.vo.DatasourceMapstructTransfer;
 import com.dtstack.taier.develop.vo.console.ConsoleJobInfoVO;
 import com.dtstack.taier.develop.vo.console.ConsoleJobVO;
 import com.dtstack.taier.pluginapi.JobClient;
+import com.dtstack.taier.pluginapi.constrant.ConfigConstant;
 import com.dtstack.taier.pluginapi.enums.TaskStatus;
 import com.dtstack.taier.pluginapi.pojo.ClusterResource;
 import com.dtstack.taier.pluginapi.pojo.ParamAction;
 import com.dtstack.taier.pluginapi.util.DateUtil;
 import com.dtstack.taier.pluginapi.util.PublicUtil;
 import com.dtstack.taier.scheduler.datasource.convert.engine.PluginInfoToSourceDTO;
-import com.dtstack.taier.scheduler.executor.DatasourceOperator;
 import com.dtstack.taier.scheduler.jobdealer.JobDealer;
 import com.dtstack.taier.scheduler.server.queue.GroupPriorityQueue;
 import com.dtstack.taier.scheduler.service.ComponentService;
@@ -471,11 +470,10 @@ public class ConsoleService {
                 Map sftpMap = componentService.getComponentByClusterId(cluster.getId(), EComponentType.SFTP.getTypeCode(), false, Map.class,null);
                 pluginInfo = componentService.wrapperConfig(yarnComponent.getComponentTypeCode(),componentConfig.toJSONString(),sftpMap,kerberosConfig);
             }
-            Integer datasourceType = DatasourceTypeUtil.getTypeByComponentAndVersion(yarnComponent.getComponentTypeCode(), yarnComponent.getVersionName());
-            pluginInfo.put(DatasourceOperator.DATA_SOURCE_TYPE, datasourceType);
+            pluginInfo.put(ConfigConstant.DATA_SOURCE_TYPE, yarnComponent.getDatasourceType());
 
 
-            IYarn yarn = ClientCache.getYarn(datasourceType);
+            IYarn yarn = ClientCache.getYarn(yarnComponent.getDatasourceType());
             ISourceDTO sourceDTO = PluginInfoToSourceDTO.getSourceDTO(pluginInfo.toJSONString());
             YarnResourceDTO yarnResource = yarn.getYarnResource(sourceDTO);
             return datasourceMapstructTransfer.yarnResourceDTOtoClusterResource(yarnResource);
