@@ -25,6 +25,7 @@ import {
     SqlServerIcon,
     TiDbIcon,
     VerticaIcon,
+    HadoopMRIcon,
 } from '@/components/icon';
 import scaffolds from '@/components/scaffolds/create';
 import editorActionsScaffolds from '@/components/scaffolds/editorActions';
@@ -258,6 +259,8 @@ export default class TaskRenderService extends Component<ITaskRenderState> {
                 return <TiDbIcon style={{ color: '#bf4339' }} />;
             case TASK_TYPE_ENUM.VERTICA:
                 return <VerticaIcon />;
+            case TASK_TYPE_ENUM.HADOOP_MR:
+                return <HadoopMRIcon />;
             default:
                 return 'file';
         }
