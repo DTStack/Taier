@@ -196,6 +196,7 @@ public class ConsoleComponentService {
         addComponent.setComponentName(componentType.getName());
         addComponent.setComponentTypeCode(componentType.getTypeCode());
         addComponent.setDeployType(deployType);
+        addComponent.setDatasourceType(context.getDataSourceTypeByComponentAndVersion(componentType.getTypeCode(), versionName));
 
         addComponent.setVersionName(versionName);
 
@@ -1132,7 +1133,8 @@ public class ConsoleComponentService {
             if (EComponentType.SFTP.getTypeCode().equals(componentType)) {
                 componentTestResult = testSftp(pluginInfo);
             } else {
-                componentTestResult = datasourceOperator.testConnect(componentType, pluginInfo.toJSONString(), versionName);
+                Integer dataSourceType = context.getDataSourceTypeByComponentAndVersion(componentType, versionName);
+                componentTestResult = datasourceOperator.testConnect(dataSourceType, pluginInfo.toJSONString());
                 if (null == componentTestResult) {
                     componentTestResult = new ComponentTestResult();
                     componentTestResult.setResult(false);
