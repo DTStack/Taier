@@ -79,12 +79,6 @@ public class DevelopScriptService {
 
 
     public ExecuteResultVO runScriptWithTask(Long userId, Long tenantId, String sqlText, Task task) throws Exception {
-        if (EScheduleJobType.DATAX.getType().equals(task.getTaskType())){
-            //init process builder
-            ProcessBuilder processBuilder = new ProcessBuilder("b", "/Users/dtstack/ide/Taier/datax/job");
-            Process process = processBuilder.start();
-            int rc = process.waitFor();
-        }
         Map<String, Object> actionParam = readyForScriptImmediatelyJob(task, sqlText, tenantId);
         String extraInfo = JSON.toJSONString(actionParam);
         ParamTaskAction paramTaskAction = new ParamTaskAction();
@@ -108,6 +102,32 @@ public class DevelopScriptService {
         return resultVO;
     }
 
+    public ExecuteResultVO runDataxtWithTask(Long userId, Long tenantId, String sqlText, Task task) throws Exception {
+        Map<String, Object> actionParam = readyForDataxImmediatelyJob(task, sqlText, tenantId);
+        String extraInfo = JSON.toJSONString(actionParam);
+        ParamTaskAction paramTaskAction = new ParamTaskAction();
+
+        ScheduleTaskShade scheduleTaskShade = JSON.parseObject(extraInfo, ScheduleTaskShade.class);
+        scheduleTaskShade.setExtraInfo(extraInfo);
+        scheduleTaskShade.setTaskId(task.getId());
+        scheduleTaskShade.setScheduleConf(task.getScheduleConf());
+        scheduleTaskShade.setComponentVersion(task.getComponentVersion());
+        scheduleTaskShade.setSqlText(sqlText);
+        paramTaskAction.setTask(scheduleTaskShade);
+        ParamActionExt paramActionExt = actionService.paramActionExt(paramTaskAction.getTask(), paramTaskAction.getJobId(), paramTaskAction.getFlowJobId());
+        paramActionExt.setSqlText(sqlText);
+        actionService.start(paramActionExt);
+        String name = MathUtil.getString(actionParam.get("name"));
+        developSelectSqlService.addSelectSql(paramActionExt.getJobId(), name,
+                TempJobType.PYTHON_SHELL.getType(), task.getTenantId(),
+                null, userId, task.getTaskType()
+        );
+        ExecuteResultVO resultVO = new ExecuteResultVO(paramActionExt.getJobId());
+        // indicating frontEnd should polling
+        resultVO.setContinue(true);
+        return resultVO;
+    }
+
     private Map<String, Object> readyForScriptImmediatelyJob(Task task, String sqlText, Long tenantId) {
         Map<String, Object> actionParam = Maps.newHashMap();
         actionParam.put("taskType", task.getTaskType());
@@ -120,6 +140,22 @@ public class DevelopScriptService {
         List<DevelopTaskParam> taskParamsToReplace = developTaskParamService.getTaskParam(task.getId());
         actionParam.put("taskParamsToReplace", JSON.toJSONString(taskParamsToReplace));
         actionParam.put("exeArgs", task.getExeArgs());
+        actionParam.put("sqlText", sqlText);
+        actionParam.put("taskParams", task.getTaskParams());
+        return actionParam;
+    }
+
+    private Map<String, Object> readyForDataxImmediatelyJob(Task task, String sqlText, Long tenantId) {
+        Map<String, Object> actionParam = Maps.newHashMap();
+        actionParam.put("taskType", task.getTaskType());
+        String name = String.format(CommonConstant.TASK_NAME_PREFIX, task.getName(), System.currentTimeMillis());
+        actionParam.put("name", name);
+        actionParam.put("computeType", task.getComputeType());
+        actionParam.put("tenantId", tenantId);
+        actionParam.put("isFailRetry", false);
+        actionParam.put("maxRetryNum", 0);
+        List<DevelopTaskParam> taskParamsToReplace = developTaskParamService.getTaskParam(task.getId());
+        actionParam.put("taskParamsToReplace", JSON.toJSONString(taskParamsToReplace));
         actionParam.put("sqlText", sqlText);
         actionParam.put("taskParams", task.getTaskParams());
         return actionParam;

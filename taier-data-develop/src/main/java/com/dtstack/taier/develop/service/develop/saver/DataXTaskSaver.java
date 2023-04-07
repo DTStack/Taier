@@ -1,11 +1,9 @@
 package com.dtstack.taier.develop.service.develop.saver;
 
 import com.dtstack.taier.common.enums.EScheduleJobType;
-import com.dtstack.taier.common.exception.TaierDefineException;
 import com.dtstack.taier.develop.dto.devlop.TaskResourceParam;
 import com.dtstack.taier.develop.dto.devlop.TaskVO;
 import com.dtstack.taier.develop.service.user.UserService;
-import com.dtstack.taier.develop.utils.develop.CreateJsonFileUtil;
 import com.google.common.collect.Lists;
 import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
@@ -54,11 +52,6 @@ public class DataXTaskSaver extends AbstractTaskSaver{
 
     @Override
     public void afterProcessing(TaskResourceParam taskResourceParam, TaskVO taskVO) {
-        String job_home = "/Users/dtstack/ide/Taier/job";
-        boolean successCreateJson = CreateJsonFileUtil.createJsonFile(taskVO.getSqlText(), job_home, taskVO.getName());
-        if (!successCreateJson){
-            throw new TaierDefineException("创建datax.json文件失败");
-        }
     }
 
     /**

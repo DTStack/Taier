@@ -81,6 +81,9 @@ public class ClientCache {
             if (StringUtils.isBlank(typeName)) {
                 throw new TaierDefineException("typeName  is empty");
             }
+            if ("datax".equals(typeName)) {
+                typeName = "script-standalone";
+            }
             String md5plugin = MD5Util.getMd5String(pluginInfo);
             String md5sum = null;
             if (!properties.containsKey(MD5_SUM_KEY) || (md5sum = MathUtil.getString(properties.get(MD5_SUM_KEY))) == null) {

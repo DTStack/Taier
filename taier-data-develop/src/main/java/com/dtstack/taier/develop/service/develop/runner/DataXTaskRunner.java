@@ -74,7 +74,7 @@ public class DataXTaskRunner implements ITaskRunner {
     public ExecuteResultVO startSqlImmediately(Long userId, Long tenantId, String sql, Task task, List<Map<String, Object>> taskVariables) throws Exception {
         task.setTaskParams(TaskTemplateService.formatEnvTaskParams(task.getTaskParams()));
         sql = jobParamReplace.paramReplace(sql, taskVariables, DateTime.now().toString("yyyyMMddHHmmss"));
-        return developScriptService.runScriptWithTask(userId, tenantId, sql, task);
+        return developScriptService.runDataxtWithTask(userId, tenantId, sql, task);
     }
 
     @Override

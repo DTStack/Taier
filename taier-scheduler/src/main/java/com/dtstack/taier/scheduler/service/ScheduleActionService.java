@@ -51,10 +51,12 @@ import com.dtstack.taier.scheduler.server.builder.ScheduleConf;
 import com.dtstack.taier.scheduler.server.builder.cron.ScheduleConfManager;
 import com.dtstack.taier.scheduler.server.builder.cron.ScheduleCorn;
 import com.dtstack.taier.scheduler.server.pipeline.IPipeline;
+import com.dtstack.taier.scheduler.server.pipeline.JobParamReplace;
 import com.dtstack.taier.scheduler.server.pipeline.PipelineBuilder;
 import com.dtstack.taier.scheduler.server.pipeline.operator.SyncOperatorPipeline;
 import com.dtstack.taier.scheduler.server.pipeline.operator.UnnecessaryPreprocessJobPipeline;
 import com.dtstack.taier.scheduler.server.pipeline.params.UploadParamPipeline;
+import com.dtstack.taier.scheduler.utils.FileUtil;
 import com.dtstack.taier.scheduler.vo.action.ActionJobEntityVO;
 import com.dtstack.taier.scheduler.vo.action.ActionLogVO;
 import com.dtstack.taier.scheduler.vo.action.ActionRetryLogVO;
@@ -118,6 +120,9 @@ public class ScheduleActionService {
 
     @Autowired
     private ScriptService scriptService;
+
+    @Autowired
+    private DataxService dataxService;
 
     private final ObjectMapper objMapper = new ObjectMapper();
 
@@ -252,6 +257,7 @@ public class ScheduleActionService {
         actionParam.put("tenantId", task.getTenantId());
         actionParam.put("queueName", task.getQueueName());
         actionParam.put("datasourceId", task.getDatasourceId());
+        actionParam.put("sqlText", task.getSqlText());
         actionParam.putAll(parseRetryParam(task));
         return PublicUtil.mapToObject(actionParam, ParamActionExt.class);
     }
@@ -290,11 +296,13 @@ public class ScheduleActionService {
                 || EScheduleJobType.VIRTUAL.getType().equals(task.getTaskType())) {
             pipeline = unnecessaryPreprocessJobPipeline;
         } else if (EScheduleJobType.PYTHON.getType().equals(task.getTaskType())
-                || EScheduleJobType.SHELL.getType().equals(task.getTaskType())
-                || EScheduleJobType.DATAX.getType().equals(task.getTaskType())) {
+                || EScheduleJobType.SHELL.getType().equals(task.getTaskType())) {
             scriptService.handScriptParams(actionParam, task, taskParamsToReplace, scheduleJob);
             return;
-        } else {
+        } else if (EScheduleJobType.DATAX.getType().equals(task.getTaskType())){
+            dataxService.handDataxParams(actionParam, task, taskParamsToReplace, scheduleJob);
+            return;
+        }else {
             pipeline = PipelineBuilder.buildDefaultSqlPipeline();
         }
 

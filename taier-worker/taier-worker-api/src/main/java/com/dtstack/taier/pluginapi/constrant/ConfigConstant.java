@@ -110,5 +110,8 @@ public class ConfigConstant {
 
     public static final String COMPONENT_EXECUTE_DIR = "execute.dir";
 
+    public static final String DATAX_TASK_TEMP = "datax.task.temp";
+
+    public static final String DATAX_LOCAL_PATH = "datax.local.path";
 
 }
