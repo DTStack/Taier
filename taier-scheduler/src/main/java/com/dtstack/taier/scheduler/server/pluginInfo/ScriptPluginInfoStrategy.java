@@ -33,12 +33,12 @@ public class ScriptPluginInfoStrategy extends ComponentPluginInfoStrategy {
     @Override
     public JSONObject convertPluginInfo(JSONObject clusterConfigJson, Long clusterId, Integer deployMode) {
         JSONObject confConfig = clusterConfigJson.getJSONObject(EComponentType.SCRIPT.getConfName());
+        if (Objects.isNull(confConfig)) {
+            throw new TaierDefineException("Component Script is not configured");
+        }
         String typeName = confConfig.getString(TYPE_NAME);
         if (!StringUtils.isBlank(typeName)) {
             clusterConfigJson.put(TYPE_NAME_KEY, typeName);
-        }
-        if (Objects.isNull(confConfig)) {
-            throw new TaierDefineException(String.format("scriptConf is not configured"));
         }
         clusterConfigJson.remove(EComponentType.SCRIPT.getConfName());
         // put flat all script config

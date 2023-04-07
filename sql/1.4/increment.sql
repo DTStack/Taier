@@ -187,18 +187,11 @@ VALUES ('component_datasource_mapping', '3', '80', null, 18, 1, 'STRING', 'TDH 6
 
 ALTER TABLE console_component
     ADD datasource_type int null comment '数据插件类型';
-COMMIT;
-
-INSERT INTO `dict` (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default,
-                    gmt_create, gmt_modified, is_deleted)
-VALUES ('25', 'HadoopMR',
-        '{"actions": ["SAVE_TASK", "SUBMIT_TASK", "OPERATOR_TASK"], "formField": ["resourceIdList", "mainClass", "exeArgs"],"barItem":["dependency","task_params","env_params"], "renderKind": "spark"}',
-        '', 30, 5, 'STRING', '', 0, '2023-02-09 10:28:45', '2023-02-09 10:28:45', 0);
-
 
 -- script 支持 standalone
 UPDATE console_component t
-SET t.version_name = 'on-yarn', gmt_modified = now()
+SET t.version_name = 'on-yarn',
+    gmt_modified   = now()
 WHERE component_type_code = 8;
 
 -- 处理组件配置是否有多版本之类的
@@ -207,6 +200,10 @@ set dict_value = '{"owner": "COMPUTE", "dependsOn": ["RESOURCE", "STORAGE"], "al
 where type = 12
   and dict_name = 'SCRIPT';
 
+DELETE
+FROM `dict`
+WHERE type = 34
+  and dict_code = 'script_version';
 -- 处理组件配置树
 INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default,
                   gmt_create, gmt_modified, is_deleted)
@@ -215,18 +212,30 @@ INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_
                   gmt_create, gmt_modified, is_deleted)
 VALUES ('script_version', 'standalone', '', null, 34, 2, 'INTEGER', '', 0, now(), now(), 0);
 
+DELETE
+FROM `dict`
+WHERE dict_name = 'script-standalone'
+  and dict_code = 'typename_mapping';
 -- 处理组件默认版本
 INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name,
                   is_default, gmt_create, gmt_modified, is_deleted)
 VALUES ('typename_mapping', 'script-standalone', '-320', null, 6, 0, 'LONG', '', 0, now(), now(), 0);
 
-
+DELETE
+FROM `dict`
+WHERE dict_name = 'standalone'
+  and dict_code = 'component_model_config'
+  and type = 14;
 -- 处理组件配置模版获取
 INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name,
                   is_default, gmt_create, gmt_modified, is_deleted)
 VALUES ('component_model_config', 'standalone', '{"standalone":"script-standalone"}', null, 14, 1,
         'STRING', 'SCRIPT', 0, now(), now(), 0);
 
+DELETE
+FROM `console_component_config`
+WHERE `cluster_id` = -2
+  AND `component_id` IN (-320, -233);
 -- 组件模版参数
 insert into console_component_config (cluster_id, component_id, component_type_code, type, required, `key`,
                                       value, `values`, dependencyKey, dependencyValue, `desc`, gmt_create,
@@ -268,13 +277,24 @@ job.priority=10
 ## 指定work运行机架
 # script.worker.racks=
 ## 日志级别可选ALL, DEBUG, ERROR, FATAL, INFO, OFF, TRACE, WARN
-logLevel=INFO' WHERE t.task_type in (12, 13);
+logLevel=INFO'
+WHERE t.task_type in (12, 13);
 
+DELETE
+FROM `dict`
+WHERE dict_code = 'component_model'
+  and dict_name = 'DATAX';
 
+INSERT INTO `dict` (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default,
+                    gmt_create, gmt_modified, is_deleted)
+VALUES ('component_model', 'DATAX',
+        '{"owner": "COMPUTE", "dependsOn": [], "nameTemplate": "DATAX", "allowKerberos": "false", "allowCoexistence": false, "uploadConfigType": "0"}',
+        null, 12, 0, 'STRING', '', 0, '2023-02-07 11:26:57', '2023-02-07 16:54:54', 0);
 
-INSERT INTO `dict` (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default, gmt_create, gmt_modified, is_deleted) VALUES ('component_model', 'DATAX', '{"owner": "COMPUTE", "dependsOn": [], "nameTemplate": "datax", "allowKerberos": "false", "allowCoexistence": false, "uploadConfigType": "0"}', null, 12, 0, 'STRING', '', 0, '2023-02-07 11:26:57', '2023-02-07 16:54:54', 0);
-INSERT INTO `console_component` (component_name, component_type_code, store_type, is_metadata, is_default, cluster_id, gmt_create, gmt_modified, is_deleted) VALUES ('DATAX', 9, 2, 0, 1, -1, '2023-02-27 15:46:53', '2023-02-27 15:46:53', 0);
-
+DELETE
+FROM `dict`
+WHERE dict_code = 'typename_mapping'
+  and dict_name = 'DATAX';
 -- 处理组件默认版本
 INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name,
                   is_default, gmt_create, gmt_modified, is_deleted)
@@ -284,10 +304,22 @@ VALUES ('typename_mapping', 'DATAX', '-233', null, 6, 0, 'LONG', '', 0, now(), n
 insert into console_component_config (cluster_id, component_id, component_type_code, type, required, `key`,
                                       value, `values`, dependencyKey, dependencyValue, `desc`, gmt_create,
                                       gmt_modified, is_deleted)
-values (-2, -233, 8, 'INPUT', 1, 'datax.local.path', '/data/taier', null, null, null, null, now(), now(), 0);
+values (-2, -233, 8, 'INPUT', 1, 'DataX.local.path', '/data/taier', null, null, null, null, now(), now(), 0);
 
 insert into console_component_config (cluster_id, component_id, component_type_code, type, required, `key`,
                                       value, `values`, dependencyKey, dependencyValue, `desc`, gmt_create,
                                       gmt_modified, is_deleted)
-values (-2, -233, 8, 'INPUT', 1, 'datax.task.temp', '/data/taier', null, null, null, null, now(), now(), 0);
-INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default, gmt_create, gmt_modified, is_deleted) VALUES ('26', 'DATAX', '{"actions": ["SAVE_TASK", "RUN_TASK", "STOP_TASK", "SUBMIT_TASK", "OPERATOR_TASK"], "barItem": ["task", "dependency", "task_params", "env_params"], "formField": ["datasource"], "renderKind": "editor","dataTypeCodes":["27","7","50"]}', null, 30, 0, 'STRING', '', 0, '2023-03-03 07:27:25', '2022-03-03 07:27:25', 0);
+values (-2, -233, 8, 'INPUT', 1, 'DataX.task.temp', '/data/taier', null, null, null, null, now(), now(), 0);
+
+DELETE
+FROM `dict`
+WHERE dict_code = '26'
+  and dict_name = 'DATAX';
+
+INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default,
+                  gmt_create, gmt_modified, is_deleted)
+VALUES ('26', 'DATAX',
+        '{"actions": ["SAVE_TASK", "RUN_TASK", "STOP_TASK", "SUBMIT_TASK", "OPERATOR_TASK"], "barItem": ["task", "dependency", "task_params", "env_params"], "formField": ["datasource"], "renderKind": "editor","dataTypeCodes":["27","7","50"]}',
+        null, 30, 0, 'STRING', '', 0, '2023-03-03 07:27:25', '2022-03-03 07:27:25', 0);
+
+COMMIT;

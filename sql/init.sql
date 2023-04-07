@@ -2243,7 +2243,7 @@ CREATE TABLE `user` (
 -- ----------------------------
 BEGIN;
 INSERT INTO `user` VALUES (1, 'admin@dtstack.com', '0192023A7BBD73250516F069DF18B500', '', 'admin@dtstack.com', 0, '2017-06-05 20:35:16', '2017-06-05 20:35:16', 0);
-COMMIT;
+
 
 SET FOREIGN_KEY_CHECKS = 1;
 
@@ -2252,7 +2252,7 @@ SET FOREIGN_KEY_CHECKS = 1;
 INSERT INTO `dict` (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default, gmt_create, gmt_modified, is_deleted) VALUES ('25', 'HadoopMR', '{"actions": ["SAVE_TASK", "SUBMIT_TASK", "OPERATOR_TASK"], "formField": ["resourceIdList", "mainClass", "exeArgs"],"barItem":["dependency","task_params","env_params"], "renderKind": "spark"}', '', 30, 5, 'STRING', '', 0, '2023-02-09 10:28:45', '2023-02-09 10:28:45', 0);
 
 
---script 支持 standalone
+-- script 支持 standalone
 
 -- 处理组件配置是否有多版本之类的
 update dict
@@ -2321,4 +2321,6 @@ job.priority=10
 # script.worker.racks=
 
 ## 日志级别可选ALL, DEBUG, ERROR, FATAL, INFO, OFF, TRACE, WARN
-logLevel=INFO' WHERE t.task_type in (12, 13);
+logLevel=INFO'
+WHERE t.task_type in (12, 13);
+COMMIT;
