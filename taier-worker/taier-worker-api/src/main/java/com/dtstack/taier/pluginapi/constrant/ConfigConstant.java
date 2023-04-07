@@ -99,4 +99,16 @@ public class ConfigConstant {
     public static final String CHECK_POINTS_DIR = "state.checkpoints.dir";
     public static final String SAVE_POINTS_DIR = "state.savepoints.dir";
     public static final String APP_TYPE = "--app-type";
+
+
+    public static final String COMPONENT_PYTHON_2_BIN = "script.python2.path";
+
+    public static final String COMPONENT_PYTHON_3_BIN = "script.python3.path";
+
+    public static final String COMPONENT_EXECUTE_DIR = "execute.dir";
+
+    public static final String DATAX_TASK_TEMP = "datax.task.temp";
+
+    public static final String DATAX_LOCAL_PATH = "datax.local.path";
+
 }

@@ -34,8 +34,13 @@ import com.dtstack.taier.dao.mapper.ClusterTenantMapper;
 import com.dtstack.taier.dao.mapper.ComponentMapper;
 import com.dtstack.taier.dao.mapper.ConsoleKerberosMapper;
 import com.dtstack.taier.pluginapi.constrant.ConfigConstant;
+import com.dtstack.taier.pluginapi.enums.EDeployMode;
 import com.dtstack.taier.scheduler.server.pluginInfo.ComponentPluginInfoStrategy;
+import com.dtstack.taier.scheduler.server.pluginInfo.DefaultPluginInfoStrategy;
 import com.dtstack.taier.scheduler.server.pluginInfo.FlinkPluginInfoStrategy;
+import com.dtstack.taier.scheduler.server.pluginInfo.HadoopMRPluginInfoStrategy;
+import com.dtstack.taier.scheduler.server.pluginInfo.KerberosPluginInfo;
+import com.dtstack.taier.scheduler.server.pluginInfo.ScriptPluginInfoStrategy;
 import com.dtstack.taier.scheduler.server.pluginInfo.SparkPluginInfoStrategy;
 import com.dtstack.taier.scheduler.server.pluginInfo.DefaultPluginInfoStrategy;
 import com.dtstack.taier.scheduler.server.pluginInfo.ScriptPluginInfoStrategy;
@@ -89,7 +94,7 @@ public class ClusterService {
         if (null == clusterId) {
             clusterId = DEFAULT_CLUSTER_ID;
         }
-        JSONObject clusterConfigJson = buildClusterConfig(clusterId, componentVersion, componentType);
+        JSONObject clusterConfigJson = buildClusterConfig(clusterId, componentVersion, componentType, deployMode);
         ComponentPluginInfoStrategy pluginInfoStrategy = convertPluginInfo(componentType);
         pluginInfoStrategy.setJobType(engineJobType);
         KerberosPluginInfo kerberosPluginInfo = new KerberosPluginInfo(pluginInfoStrategy, consoleKerberosMapper, componentMapper);
@@ -117,21 +122,30 @@ public class ClusterService {
     }
 
 
-    public JSONObject buildClusterConfig(Long clusterId, String componentVersion, EComponentType computeComponentType) {
+    public JSONObject buildClusterConfig(Long clusterId, String componentVersion, EComponentType computeComponentType, Integer deployMode) {
         Cluster cluster = clusterMapper.getOne(clusterId);
         if (null == cluster) {
             throw new TaierDefineException(ErrorCode.CANT_NOT_FIND_CLUSTER);
         }
         JSONObject config = new JSONObject();
         List<Component> components = componentService.listAllComponents(clusterId);
+        EDeployType deployType = null;
+        if (EDeployMode.STANDALONE.getType().equals(deployMode)) {
+            deployType = EDeployType.STANDALONE;
+        }
         for (Component component : components) {
             EComponentType componentType = EComponentType.getByCode(component.getComponentTypeCode());
             if (!EComponentScheduleType.COMPUTE.equals(EComponentType.getByCode(component.getComponentTypeCode()).getComponentScheduleType())) {
                 JSONObject componentConfig = componentService.getComponentByClusterId(clusterId, componentType.getTypeCode(), false, JSONObject.class, null);
                 config.put(componentType.getConfName(), componentConfig);
             } else if (componentType.equals(computeComponentType)) {
-                JSONObject componentConfig = componentService.getComponentByClusterId(clusterId, componentType.getTypeCode(), false, JSONObject.class, componentVersion);
-                config.put(componentType.getConfName(), componentConfig);
+                if (Objects.isNull(deployType)) {
+                    JSONObject componentConfig = componentService.getComponentByClusterId(clusterId, componentType.getTypeCode(), false, JSONObject.class, componentVersion, component.getId());
+                    config.put(componentType.getConfName(), componentConfig);
+                } else if (deployType.getType().equals(component.getDeployType())) {
+                    JSONObject componentConfig = componentService.getComponentByClusterId(clusterId, componentType.getTypeCode(), false, JSONObject.class, componentVersion, component.getId());
+                    config.put(componentType.getConfName(), componentConfig);
+                }
             }
             // ignore other compute component
         }

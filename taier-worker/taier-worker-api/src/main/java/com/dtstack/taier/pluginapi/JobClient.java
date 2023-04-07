@@ -18,6 +18,7 @@
 
 package com.dtstack.taier.pluginapi;
 
+import com.alibaba.fastjson.JSONObject;
 import com.dtstack.taier.pluginapi.constrant.ConfigConstant;
 import com.dtstack.taier.pluginapi.enums.ComputeType;
 import com.dtstack.taier.pluginapi.enums.EJobType;
@@ -142,6 +143,8 @@ public class JobClient implements Serializable {
 
     private Long datasourceId;
 
+    private String shellParams;
+
     public Long getDatasourceId() {
         return datasourceId;
     }
@@ -212,6 +215,7 @@ public class JobClient implements Serializable {
         this.taskType = paramAction.getTaskType();
         this.queueName = paramAction.getQueueName();
         this.datasourceId = paramAction.getDatasourceId();
+        this.shellParams = paramAction.getShellParams();
         this.maxRetryNum = paramAction.getMaxRetryNum() == null ? 0 : paramAction.getMaxRetryNum();
         if (taskParams != null) {
             this.confProperties = PublicUtil.stringToProperties(taskParams);
@@ -261,6 +265,7 @@ public class JobClient implements Serializable {
         action.setTaskType(taskType);
         action.setQueueName(queueName);
         action.setDatasourceId(datasourceId);
+        action.setShellParams(shellParams);
         return action;
     }
 
@@ -540,28 +545,22 @@ public class JobClient implements Serializable {
         this.jobId = jobId;
     }
 
-    @Override
+    public String getShellParams() {
+        return shellParams;
+    }
+
+    public void setShellParams(String shellParams) {
+        this.shellParams = shellParams;
+    }
+
     public String toString() {
-        return "JobClient{" +
-                "jobClientCallBack=" + jobClientCallBack +
-                ", attachJarInfos=" + attachJarInfos +
-                ", coreJarInfo=" + coreJarInfo +
-                ", confProperties=" + confProperties +
-                ", sql='" + sql + '\'' +
-                ", jobName='" + jobName + '\'' +
-                ", jobId='" + jobId + '\'' +
-                ", engineTaskId='" + engineTaskId + '\'' +
-                ", applicationId='" + applicationId + '\'' +
-                ", jobType=" + jobType +
-                ", computeType=" + computeType +
-                ", jobResult=" + jobResult +
-                ", externalPath='" + externalPath + '\'' +
-                ", classArgs='" + classArgs + '\'' +
-                ", groupName='" + groupName + '\'' +
-                ", generateTime=" + generateTime +
-                ", maxRetryNum=" + maxRetryNum +
-                ", lackingCount=" + lackingCount +
-                ", tenantId=" + tenantId +
-                '}';
+        String jsonStr = "";
+        try{
+            jsonStr = JSONObject.toJSONString(this);
+        } catch (Exception e){
+            //不应该发生
+            e.printStackTrace();
+        }
+        return jsonStr;
     }
 }

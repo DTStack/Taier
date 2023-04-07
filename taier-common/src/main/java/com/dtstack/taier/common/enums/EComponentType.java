@@ -32,6 +32,7 @@ public enum EComponentType {
     HDFS(2, "HDFS", "hadoopConf", EComponentScheduleType.STORAGE),
     YARN(3, "YARN", "yarnConf", EComponentScheduleType.RESOURCE),
     SFTP(6, "SFTP", "sftpConf", EComponentScheduleType.COMMON),
+    DATAX(9, "DATAX", "dataXConf", EComponentScheduleType.COMPUTE),
     SCRIPT(8, "Script", "scriptConf", EComponentScheduleType.COMPUTE),
 
     ;
@@ -133,7 +134,7 @@ public enum EComponentType {
     public static final List<EComponentType> noControlComponents = Lists.newArrayList(EComponentType.YARN, EComponentType.HDFS);
 
     // 不需要测试联通性的组件
-    public static final List<EComponentType> unnecessaryCheckConnectComponents = Lists.newArrayList(EComponentType.SPARK, EComponentType.SCRIPT, EComponentType.FLINK);
+    public static final List<EComponentType> unnecessaryCheckConnectComponents = Lists.newArrayList(EComponentType.SPARK, EComponentType.SCRIPT, EComponentType.FLINK, EComponentType.DATAX);
 
 }
 
