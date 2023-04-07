@@ -44,8 +44,8 @@ public class ConfigConstant {
     public static final String DEFAULT_GROUP_NAME = String.join(SPLIT, RESOURCE_NAMESPACE_OR_QUEUE_DEFAULT, RESOURCE_NAMESPACE_OR_QUEUE_DEFAULT);
 
     public static final String USER_DIR = System.getProperty("user.dir");
-    public static final String LOCAL_KEYTAB_DIR_PARENT = USER_DIR + "/kerberos/keytab";
-    public static final String LOCAL_KRB5_MERGE_DIR_PARENT = USER_DIR + "/kerberos/merge";
+    public static final String LOCAL_KEYTAB_DIR_PARENT = USER_DIR + ConfigConstant.SP + "kerberos" + ConfigConstant.SP + "keytab";
+    public static final String LOCAL_KRB5_MERGE_DIR_PARENT = USER_DIR + ConfigConstant.SP + "kerberos" + ConfigConstant.SP + "merge";
     public static final String MERGE_KRB5_NAME = "mergeKrb5.conf";
     public static final String MERGE_KRB5_CONTENT_KEY = "mergeKrbContent";
 

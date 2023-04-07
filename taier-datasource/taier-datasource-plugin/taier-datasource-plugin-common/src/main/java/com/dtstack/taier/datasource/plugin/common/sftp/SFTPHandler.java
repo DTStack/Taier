@@ -18,6 +18,7 @@
 
 package com.dtstack.taier.datasource.plugin.common.sftp;
 
+import com.dtstack.taier.datasource.api.constant.ConfigConstants;
 import com.dtstack.taier.datasource.api.exception.SourceException;
 import com.google.common.collect.Maps;
 import com.jcraft.jsch.ChannelSftp;
@@ -198,7 +199,7 @@ public class SFTPHandler {
                     }
                     SftpATTRS attrs = str.getAttrs();
                     boolean isdir = attrs.isDir();
-                    String localFilePath = localDir + "/" + filename;
+                    String localFilePath = localDir + File.separator + filename;
                     String ftpFilePath = ftpDir + "/" + filename;
                     if (isdir) {
                         File dir2 = new File(localFilePath);
@@ -242,7 +243,7 @@ public class SFTPHandler {
         if (dir.exists()) {
             return true;
         } else {
-            String parentDir = localDir.substring(0, localDir.lastIndexOf("/"));
+            String parentDir = localDir.substring(0, localDir.lastIndexOf(File.separator));
             mkLocalDir(parentDir);
             return dir.mkdir();
         }

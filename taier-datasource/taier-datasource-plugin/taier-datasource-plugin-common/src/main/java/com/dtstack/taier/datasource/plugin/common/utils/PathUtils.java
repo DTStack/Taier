@@ -55,7 +55,7 @@ public class PathUtils {
      * @return
      */
     public static String removeMultiSeparatorChar(String path) {
-        return path.replaceAll("//*", "/");
+        return path.replaceAll("//*", File.separator);
     }
 
     /**
