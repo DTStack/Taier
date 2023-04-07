@@ -22,6 +22,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.dtstack.taier.common.constant.CommonConstant;
 import com.dtstack.taier.common.enums.Deleted;
+import com.dtstack.taier.common.enums.EComponentType;
 import com.dtstack.taier.common.enums.EScheduleJobType;
 import com.dtstack.taier.common.env.EnvironmentContext;
 import com.dtstack.taier.common.exception.TaierDefineException;
@@ -33,6 +34,7 @@ import com.dtstack.taier.dao.domain.ScheduleTaskShade;
 import com.dtstack.taier.dao.dto.ScheduleTaskParamShade;
 import com.dtstack.taier.develop.service.develop.impl.DevelopServerLogService;
 import com.dtstack.taier.develop.vo.schedule.ReturnJobLogVO;
+import com.dtstack.taier.pluginapi.enums.EDeployMode;
 import com.dtstack.taier.scheduler.dto.schedule.ActionJobKillDTO;
 import com.dtstack.taier.scheduler.enums.RestartType;
 import com.dtstack.taier.scheduler.jobdealer.JobStopDealer;
@@ -40,12 +42,16 @@ import com.dtstack.taier.scheduler.server.action.restart.RestartJobRunnable;
 import com.dtstack.taier.scheduler.server.pipeline.JobParamReplace;
 import com.dtstack.taier.scheduler.service.ScheduleTaskShadeInfoService;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 
+import java.io.File;
+import java.io.IOException;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -205,6 +211,25 @@ public class ActionService {
             if (scheduleJobExpand != null) {
                 jobLogVO.setLogInfo(scheduleJobExpand.getLogInfo());
                 jobLogVO.setEngineLog(scheduleJobExpand.getEngineLog());
+            }
+            if (EComponentType.SCRIPT.equals(EScheduleJobType.getByTaskType(scheduleJob.getTaskType()).getComponentType())) {
+                String jobExtraInfo = scheduleJobExpand.getJobExtraInfo();
+                String content = "";
+                if (StringUtils.isNotBlank(jobExtraInfo)) {
+                    JSONObject jobExpandJson = JSONObject.parseObject(jobExtraInfo);
+                    String runMode = jobExpandJson.getString("runMode");
+                    if (EDeployMode.STANDALONE.getMode().equalsIgnoreCase(runMode)) {
+                        String shellLogPath = jobExpandJson.getString("shellLogPath");
+                        try {
+                            content = FileUtils.readFileToString(new File(shellLogPath));
+                        } catch (IOException e) {
+                            LOGGER.error("读取本地文件失败, 失败原因：{}", e.getMessage(), e);
+                        }
+                        JSONObject job = JSONObject.parseObject(jobLogVO.getLogInfo());
+                        job.put("msg_info", job.getString("msg_info") +  "\n\n====================运行日志====================\n" + content);
+                        jobLogVO.setLogInfo(job.toString());
+                    }
+                }
             }
         }
 

@@ -118,6 +118,12 @@ public class ScheduleActionService {
     @Autowired
     private ScheduleJobExpandService scheduleJobExpandService;
 
+    @Autowired
+    private ScriptService scriptService;
+
+    @Autowired
+    private DataxService dataxService;
+
     private final ObjectMapper objMapper = new ObjectMapper();
 
     private static final PropertyFilter propertyFilter = (object, name, value) ->
@@ -251,6 +257,7 @@ public class ScheduleActionService {
         actionParam.put("tenantId", task.getTenantId());
         actionParam.put("queueName", task.getQueueName());
         actionParam.put("datasourceId", task.getDatasourceId());
+        actionParam.put("sqlText", task.getSqlText());
         actionParam.putAll(parseRetryParam(task));
         return PublicUtil.mapToObject(actionParam, ParamActionExt.class);
     }
@@ -290,9 +297,12 @@ public class ScheduleActionService {
             pipeline = unnecessaryPreprocessJobPipeline;
         } else if (EScheduleJobType.PYTHON.getType().equals(task.getTaskType())
                 || EScheduleJobType.SHELL.getType().equals(task.getTaskType())) {
-            handleExeArgsIfNeed(actionParam, task, taskParamsToReplace, scheduleJob);
+            scriptService.handScriptParams(actionParam, task, taskParamsToReplace, scheduleJob);
             return;
-        } else {
+        } else if (EScheduleJobType.DATAX.getType().equals(task.getTaskType())){
+            dataxService.handDataxParams(actionParam, task, taskParamsToReplace, scheduleJob);
+            return;
+        }else {
             pipeline = PipelineBuilder.buildDefaultSqlPipeline();
         }
 
@@ -522,48 +532,5 @@ public class ScheduleActionService {
         return sdf.format(calendar.getTime());
     }
 
-    /**
-     * sqlText 上传到 hdfs 得到路径后，替换占位符
-     *
-     * @param actionParam
-     * @param task
-     * @param taskParamsToReplace
-     * @param scheduleJob
-     * @throws Exception
-     */
-    private void handleExeArgsIfNeed(Map<String, Object> actionParam, ScheduleTaskShade task, List<ScheduleTaskParamShade> taskParamsToReplace, ScheduleJob scheduleJob) throws Exception {
-        String exeArgs = Objects.toString(actionParam.get("exeArgs"), "");
-        if (!exeArgs.contains("${uploadPath}")) {
-            return;
-        }
-        Integer taskType = task.getTaskType();
-        String sqlText = Objects.toString(actionParam.get("sqlText"), "");
-        if (StringUtils.isEmpty(sqlText)) {
-            throw new TaierDefineException("sqlText can't null or empty string");
-        }
-        if (CollectionUtils.isNotEmpty(taskParamsToReplace)) {
-            sqlText = JobParamReplace.paramReplace(sqlText, taskParamsToReplace, scheduleJob.getCycTime());
-        }
-        if (taskType.equals(EScheduleJobType.SHELL.getVal())) {
-            sqlText = sqlText.replaceAll("\r\n", System.getProperty("line.separator"));
-        }
-        String hdfsPath = uploadToHdfs(sqlText, task, scheduleJob);
-        // cyc scheduling，should in time replace placeHolder to hdfs path
-        exeArgs = exeArgs.replace("${uploadPath}", hdfsPath);
-        actionParam.put("exeArgs", exeArgs);
-    }
 
-    /**
-     * 将脚本上传到 hdfs
-     *
-     * @param sqlText
-     * @param task
-     * @param scheduleJob
-     * @return
-     */
-    private String uploadToHdfs(String sqlText, ScheduleTaskShade task, ScheduleJob scheduleJob) {
-        JSONObject pluginInfo = clusterService.pluginInfoJSON(task.getTenantId(), task.getTaskType(), null, null, null);
-        String hdfsPath = environmentContext.getHdfsTaskPath() + (FileUtil.getUploadFileName(task.getTaskType(), scheduleJob.getJobId()));
-        return datasourceOperator.uploadToHdfs(pluginInfo, task.getTenantId(), sqlText, hdfsPath);
-    }
 }

@@ -25,9 +25,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Properties;
 
 
@@ -54,6 +51,15 @@ public class TaskParamsUtils {
                         return EDeployMode.STANDALONE;
                     }
                 }
+
+                String scriptMode = properties.getProperty("runMode");
+                if (!StringUtils.isEmpty(scriptMode)) {
+                    if (scriptMode.equalsIgnoreCase("yarn")) {
+                        return EDeployMode.RUN_ON_YARN;
+                    } else if (scriptMode.equalsIgnoreCase("standalone")) {
+                        return EDeployMode.STANDALONE;
+                    }
+                }
             }
         } catch (Exception e) {
             LOGGER.error(" parseDeployTypeByTaskParams {} error", taskParams, e);
@@ -65,14 +71,4 @@ public class TaskParamsUtils {
         }
     }
 
-
-    public Map<String, Object> convertPropertiesToMap(String taskParams) {
-        try {
-            Properties properties = PublicUtil.stringToProperties(taskParams);
-            return new HashMap<String, Object>((Map) properties);
-        } catch (IOException e) {
-            LOGGER.error("convertPropertiesToMap {} error", taskParams, e);
-        }
-        return new HashMap<>();
-    }
 }
