@@ -72,3 +72,25 @@ INSERT INTO `dict` (dict_code, dict_name, dict_value, dict_desc, type, sort, dat
 VALUES ('25', 'HadoopMR',
         '{"actions": ["SAVE_TASK", "SUBMIT_TASK", "OPERATOR_TASK"], "formField": ["resourceIdList", "mainClass", "exeArgs"],"barItem":["dependency","task_params","env_params"], "renderKind": "spark"}',
         '', 30, 5, 'STRING', '', 0, '2023-02-09 10:28:45', '2023-02-09 10:28:45', 0);
+
+
+
+INSERT INTO `dict` (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default, gmt_create, gmt_modified, is_deleted) VALUES ('component_model', 'DATAX', '{"owner": "COMPUTE", "dependsOn": [], "nameTemplate": "datax", "allowKerberos": "false", "allowCoexistence": false, "uploadConfigType": "0"}', null, 12, 0, 'STRING', '', 0, '2023-02-07 11:26:57', '2023-02-07 16:54:54', 0);
+INSERT INTO `console_component` (component_name, component_type_code, store_type, is_metadata, is_default, cluster_id, gmt_create, gmt_modified, is_deleted) VALUES ('DATAX', 9, 2, 0, 1, -1, '2023-02-27 15:46:53', '2023-02-27 15:46:53', 0);
+
+-- 处理组件默认版本
+INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name,
+                  is_default, gmt_create, gmt_modified, is_deleted)
+VALUES ('typename_mapping', 'DATAX', '-233', null, 6, 0, 'LONG', '', 0, now(), now(), 0);
+
+-- 组件模版参数
+insert into console_component_config (cluster_id, component_id, component_type_code, type, required, `key`,
+                                      value, `values`, dependencyKey, dependencyValue, `desc`, gmt_create,
+                                      gmt_modified, is_deleted)
+values (-2, -233, 8, 'INPUT', 1, 'datax.local.path', '/data/taier', null, null, null, null, now(), now(), 0);
+
+insert into console_component_config (cluster_id, component_id, component_type_code, type, required, `key`,
+                                      value, `values`, dependencyKey, dependencyValue, `desc`, gmt_create,
+                                      gmt_modified, is_deleted)
+values (-2, -233, 8, 'INPUT', 1, 'datax.task.temp', '/data/taier', null, null, null, null, now(), now(), 0);
+INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default, gmt_create, gmt_modified, is_deleted) VALUES ('26', 'DATAX', '{"actions": ["SAVE_TASK", "RUN_TASK", "STOP_TASK", "SUBMIT_TASK", "OPERATOR_TASK"], "barItem": ["task", "dependency", "task_params", "env_params"], "formField": ["datasource"], "renderKind": "editor","dataTypeCodes":["27","7","50"]}', null, 30, 0, 'STRING', '', 0, '2023-03-03 07:27:25', '2022-03-03 07:27:25', 0);

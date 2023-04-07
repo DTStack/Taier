@@ -1,4 +1,4 @@
-package com.dtstack.taier.develop.utils.develop;
+package com.dtstack.taier.scheduler.utils;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -16,9 +16,7 @@ public class CreateJsonFileUtil {
     /**
      * 生成.json格式文件
      */
-    public static boolean createJsonFile(String jsonString, String filePath, String fileName) {
-        // 标记文件生成是否成功
-        boolean flag = true;
+    public static String createJsonFile(String jsonString, String filePath, String fileName) {
 
         // 拼接文件完整路径
         String fullPath = filePath + File.separator + fileName + ".json";
@@ -44,12 +42,12 @@ public class CreateJsonFileUtil {
             write.flush();
             write.close();
         } catch (Exception e) {
-            flag = false;
+            fullPath = "";
             e.printStackTrace();
         }
 
         // 返回是否成功的标记
-        return flag;
+        return fullPath;
     }
 
 }

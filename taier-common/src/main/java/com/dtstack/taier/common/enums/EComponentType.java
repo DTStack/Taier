@@ -134,7 +134,7 @@ public enum EComponentType {
     public static final List<EComponentType> noControlComponents = Lists.newArrayList(EComponentType.YARN, EComponentType.HDFS);
 
     // 不需要测试联通性的组件
-    public static final List<EComponentType> unnecessaryCheckConnectComponents = Lists.newArrayList(EComponentType.SPARK, EComponentType.SCRIPT, EComponentType.FLINK);
+    public static final List<EComponentType> unnecessaryCheckConnectComponents = Lists.newArrayList(EComponentType.SPARK, EComponentType.SCRIPT, EComponentType.FLINK, EComponentType.DATAX);
 
 }
 
