@@ -72,3 +72,89 @@ INSERT INTO `dict` (dict_code, dict_name, dict_value, dict_desc, type, sort, dat
 VALUES ('25', 'HadoopMR',
         '{"actions": ["SAVE_TASK", "SUBMIT_TASK", "OPERATOR_TASK"], "formField": ["resourceIdList", "mainClass", "exeArgs"],"barItem":["dependency","task_params","env_params"], "renderKind": "spark"}',
         '', 30, 5, 'STRING', '', 0, '2023-02-09 10:28:45', '2023-02-09 10:28:45', 0);
+
+
+-- script 支持 standalone
+UPDATE console_component t
+SET t.version_name = 'on-yarn', gmt_modified = now()
+WHERE component_type_code = 8;
+
+-- 处理组件配置是否有多版本之类的
+update dict
+set dict_value = '{"owner": "COMPUTE", "dependsOn": ["RESOURCE", "STORAGE"], "allowKerberos": "true", "allowCoexistence": true, "uploadConfigType": "0", "versionDictionary": "SCRIPT_VERSION"}'
+where type = 12
+  and dict_name = 'SCRIPT';
+
+-- 处理组件配置树
+INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default,
+                  gmt_create, gmt_modified, is_deleted)
+VALUES ('script_version', 'on-yarn', '', null, 34, 2, 'INTEGER', '', 0, now(), now(), 0);
+INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default,
+                  gmt_create, gmt_modified, is_deleted)
+VALUES ('script_version', 'standalone', '', null, 34, 2, 'INTEGER', '', 0, now(), now(), 0);
+
+-- 处理组件默认版本
+INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name,
+                  is_default, gmt_create, gmt_modified, is_deleted)
+VALUES ('typename_mapping', 'script-standalone', '-320', null, 6, 0, 'LONG', '', 0, now(), now(), 0);
+
+
+-- 处理组件配置模版获取
+INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name,
+                  is_default, gmt_create, gmt_modified, is_deleted)
+VALUES ('component_model_config', 'standalone', '{"standalone":"script-standalone"}', null, 14, 1,
+        'STRING', 'SCRIPT', 0, now(), now(), 0);
+
+-- 组件模版参数
+insert into console_component_config (cluster_id, component_id, component_type_code, type, required, `key`,
+                                      value, `values`, dependencyKey, dependencyValue, `desc`, gmt_create,
+                                      gmt_modified, is_deleted)
+values (-2, -320, 8, 'INPUT', 1, 'script.python3.path', '/data/miniconda3/bin/python3', null, null, null, null, now(),
+        now(), 0),
+       (-2, -320, 8, 'INPUT', 1, 'script.python2.path', '/data/miniconda3/bin/python2', null, null, null, null, now(),
+        now(), 0),
+       (-2, -320, 8, 'INPUT', 1, 'execute.dir', '/tmp/dir', null, null, null, null, now(), now(), 0);
+
+-- 索引处理
+alter table console_component
+drop key index_component;
+
+alter table console_component
+    add key console_component_pk (cluster_id, component_type_code, version_value);
+
+-- 组件配置参数注释
+INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default, gmt_create, gmt_modified, is_deleted)
+VALUES ('tips', 'log.dir', '临时脚本、运行日志存放路径', '8', 25, 0, 'STRING', '', 0, now(), now(), 0);
+
+UPDATE task_param_template t
+SET t.params = '## 任务运行方式：
+## yarn: 将任务运行在Hadoop集群上
+## standalone：将任务运行在本地，单独运行
+runMode=yarn
+
+## 每个worker所占内存，比如512m
+# script.worker.memory=512m
+
+## 每个worker所占的cpu核的数量
+# script.worker.cores=1
+
+## worker数量
+# script.worker.num=1
+
+## 是否独占机器节点
+# script.worker.exclusive=false
+
+## 任务优先级, 值越小，优先级越高，范围:1-1000
+job.priority=10
+
+## 指定work运行节点，需要注意不要写ip应填写对应的hostname
+# script.worker.nodes=
+
+## 指定work运行机架
+# script.worker.racks=
+
+## 日志级别可选ALL, DEBUG, ERROR, FATAL, INFO, OFF, TRACE, WARN
+logLevel=INFO' WHERE t.task_type in (12, 13);
+
+
+
