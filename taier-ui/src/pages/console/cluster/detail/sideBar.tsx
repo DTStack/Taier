@@ -263,8 +263,10 @@ export default function SideBar({
                           const subVersionKey = joinVersions(i.componentCode, v.key);
                           const subVersionDisabled = !!findTreeNode(subVersionKey);
 
+                          const isRenderVersionTag = /^\d/.test(v.key);
+
                           return {
-                              title: `${i.name}${v.key}`,
+                              title: `${i.name}[${isRenderVersionTag ? 'v' : ''}${v.key}]`,
                               key: subVersionKey,
                               selectable: true,
                               tooltip: tooltipContent,
@@ -370,7 +372,9 @@ export default function SideBar({
                                 <Badge status="processing" />
                             </Tooltip>
                         )}
-                        <span className="component-name">{node.title}</span>
+                        <Tooltip title={node.title}>
+                            <span className="component-name">{node.title}</span>
+                        </Tooltip>
                         <Tooltip title={`删除 ${node.title} 组件`}>
                             <MinusSquareOutlined
                                 className="component-remove"
@@ -460,13 +464,17 @@ export default function SideBar({
                                           `${child.componentCode}-${version.key}`
                                   )
                               )
-                              ?.map((versions) => ({
-                                  title: `${child.name}${versions.key}`,
-                                  // 多版本的组件 id 用当前的 versionName 和 componentCode 拼接字符串
-                                  key: joinVersions(child.componentCode, versions.key),
-                                  isLeaf: true,
-                                  data: versions,
-                              }))
+                              ?.map((versions) => {
+                                  const isRenderVersionTag = /^\d/.test(versions.key);
+
+                                  return {
+                                      title: `${child.name}[${isRenderVersionTag ? 'v' : ''}${versions.key}]`,
+                                      // 多版本的组件 id 用当前的 versionName 和 componentCode 拼接字符串
+                                      key: joinVersions(child.componentCode, versions.key),
+                                      isLeaf: true,
+                                      data: versions,
+                                  };
+                              })
                         : [],
                     data: child,
                 })),
