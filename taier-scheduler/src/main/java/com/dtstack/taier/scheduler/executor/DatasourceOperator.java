@@ -20,6 +20,9 @@ package com.dtstack.taier.scheduler.executor;
 
 import com.alibaba.fastjson.JSONObject;
 import com.dtstack.taier.common.enums.EComponentType;
+import com.dtstack.taier.common.exception.ErrorCode;
+import com.dtstack.taier.common.exception.TaierDefineException;
+import com.dtstack.taier.common.util.DatasourceTypeUtil;
 import com.dtstack.taier.datasource.api.base.ClientCache;
 import com.dtstack.taier.datasource.api.client.IClient;
 import com.dtstack.taier.datasource.api.dto.FileStatus;
@@ -37,6 +40,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.Objects;
 
 /**
  * rdb executor
@@ -111,6 +115,9 @@ public class DatasourceOperator {
         Long clusterId = clusterService.getClusterIdByTenantId(tenantId);
         // 获取组件信息
         com.dtstack.taier.dao.domain.Component component = componentService.getComponentByClusterId(clusterId, EComponentType.HDFS.getTypeCode(), null);
+        if (Objects.isNull(component)) {
+            throw new TaierDefineException(String.format(ErrorCode.DEPEND_ON_COMPONENT_NOT_CONFIG.getMsg().replaceAll("\\{}", "%s"), EComponentType.HDFS.getName()));
+        }
         // 获取对应的数据源类型
         pluginInfo.put(ConfigConstant.DATA_SOURCE_TYPE, component.getDatasourceType());
     }

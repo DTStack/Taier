@@ -87,6 +87,9 @@ public class ScriptTaskSaver extends AbstractTaskSaver {
         if (EScheduleJobType.SHELL.getType().equals(taskType)) {
             return "shell";
         }
+        if (EScheduleJobType.DATAX.getType().equals(taskType)) {
+            return "dataX";
+        }
         if (EScheduleJobType.PYTHON.getType().equals(taskType) && Objects.nonNull(pythonVersion)) {
             switch (pythonVersion) {
                 case 2:

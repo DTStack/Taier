@@ -18,10 +18,12 @@
 
 package com.dtstack.taier.develop.controller.develop;
 
+import com.dtstack.taier.common.env.EnvironmentContext;
 import com.dtstack.taier.common.exception.TaierDefineException;
 import com.dtstack.taier.common.lang.coc.APITemplate;
 import com.dtstack.taier.common.lang.web.R;
 import com.dtstack.taier.dao.domain.DevelopSelectSql;
+import com.dtstack.taier.dao.domain.ScheduleJob;
 import com.dtstack.taier.dao.domain.Task;
 import com.dtstack.taier.develop.dto.devlop.ExecuteResultVO;
 import com.dtstack.taier.develop.service.develop.ITaskRunner;
@@ -29,9 +31,13 @@ import com.dtstack.taier.develop.service.develop.TaskConfiguration;
 import com.dtstack.taier.develop.service.develop.impl.DevelopSelectSqlService;
 import com.dtstack.taier.develop.service.develop.impl.DevelopTaskService;
 import com.dtstack.taier.develop.vo.develop.query.DevelopSelectSqlVO;
+import com.dtstack.taier.pluginapi.constrant.ConfigConstant;
+import com.dtstack.taier.scheduler.service.ScheduleJobService;
+import com.google.common.base.Preconditions;
 import com.dtstack.taier.pluginapi.enums.TaskStatus;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import org.apache.http.HttpStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -39,6 +45,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.function.Function;
+
+import javax.servlet.http.HttpServletResponse;
+import java.util.Objects;
 
 @Api(value = "执行选中的sql或者脚本", tags = {"执行选中的sql或者脚本"})
 @RestController
@@ -53,6 +62,12 @@ public class DevelopSelectSqlController {
 
     @Autowired
     private DevelopTaskService developTaskService;
+
+    @Autowired
+    private ScheduleJobService scheduleJobService;
+
+    @Autowired
+    private EnvironmentContext environmentContext;
 
     @PostMapping(value = "selectData")
     @ApiOperation("获取执行结果")
@@ -90,15 +105,31 @@ public class DevelopSelectSqlController {
 
     @PostMapping(value = "selectRunLog")
     @ApiOperation("获取执行日志")
-    public R<ExecuteResultVO> selectRunLog(@RequestBody DevelopSelectSqlVO sqlVO) {
+    public R<ExecuteResultVO> selectRunLog(@RequestBody DevelopSelectSqlVO sqlVO, HttpServletResponse response) {
+
         return new APITemplate<ExecuteResultVO>() {
             @Override
             protected ExecuteResultVO process() {
-                return getEmptyOrRunnerResult(sqlVO, (selectSql -> {
+                try {
+                    ScheduleJob job = scheduleJobService.getByJobId(sqlVO.getJobId());
+                    if (Objects.isNull(job)) {
+                        return null;
+                    }
+                    // nodeAddress 127.0.0.1:8090
+                    String nodeAddress = job.getNodeAddress();
+                    if (!environmentContext.getLocalAddress().equalsIgnoreCase(nodeAddress)) {
+                        response.setHeader("location", String.format("http://%s%s%s", nodeAddress, ConfigConstant.REQUEST_PREFIX, "/batchSelectSql/selectRunLog"));
+                        response.setStatus(HttpStatus.SC_TEMPORARY_REDIRECT);
+                        return null;
+                    }
+                    DevelopSelectSql selectSql = developSelectSqlService.getByJobId(sqlVO.getJobId(), sqlVO.getTenantId(), 0);
+                    Preconditions.checkNotNull(selectSql, "不存在该临时查询");
                     ITaskRunner taskRunner = taskConfiguration.get(selectSql.getTaskType());
                     Task task = developTaskService.getOneWithError(sqlVO.getTaskId());
                     return taskRunner.runLog(selectSql.getJobId(), task.getTaskType(), task.getTenantId(), sqlVO.getLimitNum());
-                }));
+                } catch (Exception e) {
+                    throw new TaierDefineException(e.getMessage());
+                }
             }
         }.execute();
     }

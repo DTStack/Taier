@@ -1,21 +1,3 @@
-/*
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package com.dtstack.taier.develop.service.develop.runner;
 
 import com.alibaba.fastjson.JSON;
@@ -43,19 +25,16 @@ import com.dtstack.taier.develop.service.task.TaskTemplateService;
 import com.dtstack.taier.develop.sql.ParseResult;
 import com.dtstack.taier.develop.utils.develop.common.IDownload;
 import com.dtstack.taier.develop.utils.develop.hive.service.LogPluginDownload;
-import com.dtstack.taier.pluginapi.enums.EDeployMode;
 import com.dtstack.taier.pluginapi.enums.TaskStatus;
 import com.dtstack.taier.pluginapi.util.RetryUtil;
 import com.dtstack.taier.scheduler.service.ClusterService;
 import com.google.common.collect.ImmutableList;
-import org.apache.commons.io.FileUtils;
+import com.google.common.collect.Lists;
 import org.apache.commons.lang.StringUtils;
 import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.io.File;
-import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -66,7 +45,7 @@ import java.util.Objects;
  * @date 2022-08-14 16:28
  */
 @Component
-public class ScriptTaskRunner implements ITaskRunner {
+public class DataXTaskRunner implements ITaskRunner {
 
     @Autowired
     private DevelopScriptService developScriptService;
@@ -88,14 +67,14 @@ public class ScriptTaskRunner implements ITaskRunner {
 
     @Override
     public List<EScheduleJobType> support() {
-        return ImmutableList.of(EScheduleJobType.PYTHON, EScheduleJobType.SHELL);
+        return Lists.newArrayList(EScheduleJobType.DATAX);
     }
 
     @Override
     public ExecuteResultVO startSqlImmediately(Long userId, Long tenantId, String sql, Task task, List<Map<String, Object>> taskVariables) throws Exception {
         task.setTaskParams(TaskTemplateService.formatEnvTaskParams(task.getTaskParams()));
         sql = jobParamReplace.paramReplace(sql, taskVariables, DateTime.now().toString("yyyyMMddHHmmss"));
-        return developScriptService.runScriptWithTask(userId, tenantId, sql, task);
+        return developScriptService.runDataxtWithTask(userId, tenantId, sql, task);
     }
 
     @Override
@@ -116,7 +95,7 @@ public class ScriptTaskRunner implements ITaskRunner {
         StringBuilder log = new StringBuilder();
         IDownload download = logDownLoad(tenantId, jobId, Objects.isNull(limitNum) ? environmentContext.getLogsLimitNum() : limitNum);
         if (Objects.nonNull(download)) {
-            LOGGER.error("-----download log file error-----");
+            LOGGER.error("-----日志文件导出失败-----");
             while (!download.reachedEnd()) {
                 Object row = download.readNext();
                 log.append(row);
@@ -134,16 +113,6 @@ public class ScriptTaskRunner implements ITaskRunner {
         ScheduleJob scheduleJob = jobService.getScheduleJob(jobId);
         if (StringUtils.isBlank(scheduleJob.getApplicationId())) {
             return null;
-        }
-        // 判断是否运行在本地
-        ScheduleJobExpand jobExpand = jobExpandService.selectOneByJobId(jobId);
-        String jobExtraInfo = jobExpand.getJobExtraInfo();
-        if (StringUtils.isNotBlank(jobExtraInfo)) {
-            JSONObject extraInfo = JSONObject.parseObject(jobExtraInfo);
-            String runMode = extraInfo.getString("runMode");
-            if (EDeployMode.STANDALONE.getMode().equalsIgnoreCase(runMode)) {
-                return null;
-            }
         }
         IDownload iDownload = null;
         try {
@@ -194,48 +163,31 @@ public class ScriptTaskRunner implements ITaskRunner {
     public String scheduleRunLog(String jobId) {
         ScheduleJobExpand jobExpand = jobExpandService.selectOneByJobId(jobId);
         String logInfo = jobExpand.getLogInfo();
+        String engineLog = jobExpand.getEngineLog();
 
         StringBuilder logBuild = new StringBuilder();
         if (StringUtils.isNotBlank(logInfo)) {
             JSONObject baseLogJSON = JSONObject.parseObject(logInfo);
             logBuild.append("====================基本日志====================").append("\n");
             logBuild.append(baseLogJSON.getString("msg_info")).append("\n");
-
-            JSONObject extraInfo = JSONObject.parseObject(jobExpand.getJobExtraInfo());
-            if (Objects.nonNull(extraInfo)
-                    && EDeployMode.STANDALONE.getMode().equalsIgnoreCase(extraInfo.getString("runMode"))) {
-                logBuild.append("====================运行日志====================").append("\n");
-                String jobExtraInfo = jobExpand.getJobExtraInfo();
-                if (StringUtils.isNotBlank(jobExtraInfo)) {
-                    String shellLogPath = extraInfo.getString("shellLogPath");
-                    try {
-                        String content = FileUtils.readFileToString(new File(shellLogPath));
-                        logBuild.append(content);
-                    } catch (IOException e) {
-                        LOGGER.error("读取本地文件失败, 失败原因：{}", e.getMessage(), e);
-                    }
-                }
-            } else {
-                String engineLog = jobExpand.getEngineLog();
-                if (StringUtils.isNotBlank(engineLog) && isJSON(engineLog)) {
-                    try {
-                        JSONObject appLogJSON = JSONObject.parseObject(engineLog);
-                        JSONArray appLogs = appLogJSON.getJSONArray("appLog");
-                        if (appLogs != null) {
-                            logBuild.append("====================appLogs====================").append("\n");
-                            for (Object log : appLogs) {
-                                logBuild.append(((JSONObject) log).getString("value")).append("\n");
-                            }
-                        } else {
-                            logBuild.append(engineLog).append("\n");
+            if (StringUtils.isNotBlank(engineLog) && isJSON(engineLog)) {
+                try {
+                    JSONObject appLogJSON = JSONObject.parseObject(engineLog);
+                    JSONArray appLogs = appLogJSON.getJSONArray("appLog");
+                    if (appLogs != null) {
+                        logBuild.append("====================appLogs====================").append("\n");
+                        for (Object log : appLogs) {
+                            logBuild.append(((JSONObject) log).getString("value")).append("\n");
                         }
-                    } catch (JSONException e) {
-                        LOGGER.error("", e);
+                    } else {
                         logBuild.append(engineLog).append("\n");
                     }
-                } else if (StringUtils.isNotBlank(engineLog)) {
+                } catch (JSONException e) {
+                    LOGGER.error("", e);
                     logBuild.append(engineLog).append("\n");
                 }
+            } else if (StringUtils.isNotBlank(engineLog)) {
+                logBuild.append(engineLog).append("\n");
             }
         }
         return logBuild.toString();
@@ -246,7 +198,7 @@ public class ScriptTaskRunner implements ITaskRunner {
             JSON.parse(str);
             return true;
         } catch (Exception ex) {
-            LOGGER.error("parse error",ex);
+            LOGGER.error("字符串解析失败");
         }
         return false;
     }
