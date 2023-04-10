@@ -18,23 +18,16 @@
 
 package com.dtstack.taier.scheduler.server.listener;
 
-import com.dtstack.taier.common.env.EnvironmentContext;
-import com.dtstack.taier.common.util.LogCountUtil;
-import com.dtstack.taier.pluginapi.CustomThreadFactory;
 import com.dtstack.taier.scheduler.jobdealer.JobDealer;
 import com.dtstack.taier.scheduler.server.queue.GroupInfo;
 import com.dtstack.taier.scheduler.server.queue.QueueInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ScheduledThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
 
 
 /**
@@ -43,72 +36,21 @@ import java.util.concurrent.TimeUnit;
  * create: 2019/10/22
  */
 @Component
-public class QueueListener implements InitializingBean, Runnable {
+public class QueueListener {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(QueueListener.class);
 
-    private int logOutput = 0;
-    private final static int MULTIPLES = 10;
-    private final static int CHECK_INTERVAL = 5000;
-
-    @Autowired
-    private JobSchedulerListener jobExecutorTrigger;
 
     @Autowired
     private JobDealer jobDealer;
 
     @Autowired
-    private EnvironmentContext environmentContext;
+    private JobSchedulerListener jobExecutorTrigger;
 
     private boolean checkJobMaxPriorityStrategy = false;
 
-    private ScheduledExecutorService scheduledService;
-
     private volatile Map<Integer, Map<String, QueueInfo>> allNodesJobQueueTypes = new HashMap<>();
     private volatile Map<String, Map<String, GroupInfo>> allNodesGroupQueueJobResources = new HashMap<>();
-
-    @Override
-    public void afterPropertiesSet() throws Exception {
-        checkJobMaxPriorityStrategy = environmentContext.isCheckJobMaxPriorityStrategy();
-
-        scheduledService = new ScheduledThreadPoolExecutor(1, new CustomThreadFactory(this.getClass().getSimpleName()));
-        scheduledService.scheduleWithFixedDelay(
-                this,
-                0,
-                CHECK_INTERVAL,
-                TimeUnit.MILLISECONDS);
-    }
-
-    @Override
-    public void run() {
-        logOutput++;
-        if (LogCountUtil.count(logOutput, MULTIPLES)) {
-            LOGGER.info("QueueListener start again....");
-        }
-        try {
-            Map<String, Map<Integer, QueueInfo>> allNodesJobQueueInfo = jobExecutorTrigger.getAllNodesJobQueueInfo();
-            if (allNodesJobQueueInfo != null) {
-                Map<Integer, Map<String, QueueInfo>> tmpAllNodesJobQueueTypes = new HashMap<>();
-                allNodesJobQueueInfo.forEach((address, typeJobQueueInfo) -> {
-                    typeJobQueueInfo.forEach((type, queueInfo) -> {
-                        Map<String, QueueInfo> nodesJobQueue = tmpAllNodesJobQueueTypes.computeIfAbsent(type, k -> {
-                            Map<String, QueueInfo> value = new HashMap<>();
-                            value.put(address, queueInfo);
-                            return value;
-                        });
-                        nodesJobQueue.put(address, queueInfo);
-                    });
-                });
-                this.allNodesJobQueueTypes = tmpAllNodesJobQueueTypes;
-            }
-        } catch (Throwable e) {
-            LOGGER.error("allNodesJobQueueInfo error:", e);
-        }
-
-        if (checkJobMaxPriorityStrategy) {
-            computeAllNodesGroupQueueJobResources();
-        }
-    }
 
 
     private void computeAllNodesGroupQueueJobResources() {
@@ -134,6 +76,25 @@ public class QueueListener implements InitializingBean, Runnable {
     }
 
     public Map<Integer, Map<String, QueueInfo>> getAllNodesJobQueueInfo() {
+        try {
+            Map<String, Map<Integer, QueueInfo>> allNodesJobQueueInfo = jobExecutorTrigger.getAllNodesJobQueueInfo();
+            if (allNodesJobQueueInfo != null) {
+                Map<Integer, Map<String, QueueInfo>> tmpAllNodesJobQueueTypes = new HashMap<>();
+                allNodesJobQueueInfo.forEach((address, typeJobQueueInfo) -> {
+                    typeJobQueueInfo.forEach((type, queueInfo) -> {
+                        Map<String, QueueInfo> nodesJobQueue = tmpAllNodesJobQueueTypes.computeIfAbsent(type, k -> {
+                            Map<String, QueueInfo> value = new HashMap<>();
+                            value.put(address, queueInfo);
+                            return value;
+                        });
+                        nodesJobQueue.put(address, queueInfo);
+                    });
+                });
+                this.allNodesJobQueueTypes = tmpAllNodesJobQueueTypes;
+            }
+        } catch (Throwable e) {
+            LOGGER.error("allNodesJobQueueInfo error:", e);
+        }
         return allNodesJobQueueTypes;
     }
 

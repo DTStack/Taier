@@ -99,6 +99,7 @@ public abstract class AbstractJobSummitScheduler extends AbstractJobScanningSche
     @Override
     public void onApplicationEvent(ApplicationStartedEvent applicationStartedEvent) {
         scheduleJobQueue = new LinkedBlockingQueue<>(env.getQueueSize());
+        super.onApplicationEvent(applicationStartedEvent);
 
         String threadName = this.getClass().getSimpleName() + "_" + getSchedulerName() + "_startJobProcessor";
         executorService = new ThreadPoolExecutor(env.getJobExecutorPoolCorePoolSize(), env.getJobExecutorPoolMaximumPoolSize(), env.getJobExecutorPoolKeepAliveTime(), TimeUnit.MILLISECONDS,
