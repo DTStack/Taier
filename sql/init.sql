@@ -2296,7 +2296,7 @@ VALUES ('tips', 'log.dir', '临时脚本、运行日志存放路径', '8', 25, 0
 UPDATE task_param_template t
 SET t.params = '## 任务运行方式：
 ## yarn: 将任务运行在Hadoop集群上
-## standalone：将任务运行在本地，单独运行
+## standalone: 将任务运行在本地，单独运行
 runMode=yarn
 
 ## 每个worker所占内存，比如512m
@@ -2323,4 +2323,11 @@ job.priority=10
 ## 日志级别可选ALL, DEBUG, ERROR, FATAL, INFO, OFF, TRACE, WARN
 logLevel=INFO'
 WHERE t.task_type in (12, 13);
+
+UPDATE console_component t
+SET t.version_name = 'on-yarn',
+    t.gmt_modified = now(),
+    t.deploy_type = 1
+WHERE t.component_type_code = 8;
+
 COMMIT;

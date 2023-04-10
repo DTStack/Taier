@@ -191,8 +191,9 @@ ALTER TABLE console_component
 -- script 支持 standalone
 UPDATE console_component t
 SET t.version_name = 'on-yarn',
-    gmt_modified   = now()
-WHERE component_type_code = 8;
+    t.gmt_modified = now(),
+    t.deploy_type = 1
+WHERE t.component_type_code = 8;
 
 -- 处理组件配置是否有多版本之类的
 update dict
@@ -260,7 +261,7 @@ VALUES ('tips', 'log.dir', '临时脚本、运行日志存放路径', '8', 25, 0
 UPDATE task_param_template t
 SET t.params = '## 任务运行方式：
 ## yarn: 将任务运行在Hadoop集群上
-## standalone：将任务运行在本地，单独运行
+## standalone: 将任务运行在本地，单独运行
 runMode=yarn
 ## 每个worker所占内存，比如512m
 # script.worker.memory=512m
