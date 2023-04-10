@@ -2374,5 +2374,4 @@ VALUES ('26', 'DATAX',
 
 
 
-
 COMMIT;
