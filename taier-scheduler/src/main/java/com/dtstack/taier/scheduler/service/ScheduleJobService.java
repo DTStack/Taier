@@ -229,10 +229,10 @@ public class ScheduleJobService extends ServiceImpl<ScheduleJobMapper, ScheduleJ
                 LOGGER.debug("insertJobList count:{} batchJobs:{} finalBatchNodeSize:{}", count, jobBuilderBeanCollection.size(), finalBatchNodeSize);
                 if (count % jobBatchSize == 0 || count == (jobBuilderBeanCollection.size() - 1) || jobJobWaitForSave.size() > jobJobBatchSize) {
                     minJobId = persistJobs(jobWaitForSave, jobJobWaitForSave, minJobId, jobJobBatchSize);
-                    LOGGER.info("insertJobList count:{} batchJobs:{} finalBatchNodeSize:{} jobJobSize:{}", count, jobBuilderBeanCollection.size(), finalBatchNodeSize, jobJobWaitForSave.size());
+                    LOGGER.info("insertJobList nodeAddress: {} count:{} batchJobs:{} finalBatchNodeSize:{} jobJobSize:{}", nodeAddress, count, jobBuilderBeanCollection.size(), finalBatchNodeSize, jobJobWaitForSave.size());
                 }
             }
-            LOGGER.info("insertJobList count:{} batchJobs:{} finalBatchNodeSize:{}", count, jobBuilderBeanCollection.size(), finalBatchNodeSize);
+            LOGGER.info("insertJobList nodeAddress: {} count:{} batchJobs:{} finalBatchNodeSize:{}", nodeAddress, count, jobBuilderBeanCollection.size(), finalBatchNodeSize);
             //结束前persist一次，flush所有jobs
             minJobId = persistJobs(jobWaitForSave, jobJobWaitForSave, minJobId, jobJobBatchSize);
 
