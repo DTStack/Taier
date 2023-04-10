@@ -65,6 +65,7 @@ public class JobUpStreamSubmitInterceptor extends SubmitInterceptorAdapter {
         if (CollectionUtils.isNotEmpty(jobJobList)) {
             List<String> parentJobKeys = jobJobList.stream()
                     .map(ScheduleJobJob::getParentJobKey)
+                    .filter(key -> !key.equals(scheduleJob.getJobKey()))
                     .collect(Collectors.toList());
 
             Map<String, ScheduleJob> scheduleJobMap = scheduleJobService.lambdaQuery()
