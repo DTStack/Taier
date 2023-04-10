@@ -52,6 +52,8 @@ public interface ScriptConstants {
     APP_TYPE("APP_TYPE"),
 
     APP_ENV("APP_ENV"),
+    
+    PROJECT_TYPE("PROJECT_TYPE"),
 
     SCRIPT_CONTAINER_MAX_MEMORY("SCRIPT_MAX_MEMORY"),
 
