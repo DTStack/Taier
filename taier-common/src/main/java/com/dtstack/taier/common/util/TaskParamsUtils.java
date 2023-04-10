@@ -54,9 +54,9 @@ public class TaskParamsUtils {
 
                 String scriptMode = properties.getProperty("runMode");
                 if (!StringUtils.isEmpty(scriptMode)) {
-                    if (scriptMode.equalsIgnoreCase("yarn")) {
+                    if (scriptMode.equalsIgnoreCase(EDeployMode.RUN_ON_YARN.getMode())) {
                         return EDeployMode.RUN_ON_YARN;
-                    } else if (scriptMode.equalsIgnoreCase("standalone")) {
+                    } else if (scriptMode.equalsIgnoreCase(EDeployMode.STANDALONE.getMode())) {
                         return EDeployMode.STANDALONE;
                     }
                 }
