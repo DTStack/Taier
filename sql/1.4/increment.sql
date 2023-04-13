@@ -310,7 +310,9 @@ values (-2, -233, 8, 'INPUT', 1, 'DataX.local.path', '/data/taier', null, null, 
 insert into console_component_config (cluster_id, component_id, component_type_code, type, required, `key`,
                                       value, `values`, dependencyKey, dependencyValue, `desc`, gmt_create,
                                       gmt_modified, is_deleted)
-values (-2, -233, 8, 'INPUT', 1, 'DataX.task.temp', '/data/taier', null, null, null, null, now(), now(), 0);
+values (-2, -233, 8, 'INPUT', 1, 'DataX.task.temp', '/data/taier', null, null, null, null, now(), now(), 0),
+       (-2, -233, 8, 'INPUT', 1, 'execute.dir', '/tmp/dir', null, null, null, null, now(), now(), 0),
+       (-2, -233, 8, 'INPUT', 1, 'DATAX.python.path', 'python3', null, null, null, null, now(), now(), 0);
 
 DELETE
 FROM `dict`
@@ -322,5 +324,6 @@ INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_
 VALUES ('26', 'DATAX',
         '{"actions": ["SAVE_TASK", "RUN_TASK", "STOP_TASK", "SUBMIT_TASK", "OPERATOR_TASK"], "barItem": ["task", "dependency", "task_params", "env_params"], "formField": ["datasource"], "renderKind": "editor","dataTypeCodes":["27","7","50"]}',
         null, 30, 0, 'STRING', '', 0, '2023-03-03 07:27:25', '2022-03-03 07:27:25', 0);
+
 
 COMMIT;
