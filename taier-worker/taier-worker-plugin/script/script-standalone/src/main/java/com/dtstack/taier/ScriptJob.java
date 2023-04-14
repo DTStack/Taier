@@ -66,7 +66,7 @@ public class ScriptJob implements Runnable {
         execStartTime = System.currentTimeMillis();
         try {
             if (ProcessUtil.isWindows()) {
-                // todo windows需要适配
+                process = Runtime.getRuntime().exec(new String[]{"bash", "-c", shellFullCommand});
             } else {
                 shellFullCommand = String.format(LINUX_SHELL_COMMAND, shellCommand, shellLogPath);
                 process = Runtime.getRuntime().exec(new String[]{"sh", "-c", shellFullCommand});
