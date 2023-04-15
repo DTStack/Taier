@@ -5,97 +5,121 @@ SET FOREIGN_KEY_CHECKS = 0;
 -- Table structure for console_cluster
 -- ----------------------------
 DROP TABLE IF EXISTS `console_cluster`;
-CREATE TABLE `console_cluster` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `cluster_name` varchar(128) COLLATE utf8_bin NOT NULL COMMENT '集群名称',
-  `gmt_create` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-  `gmt_modified` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
-  `is_deleted` tinyint(1) NOT NULL DEFAULT '0' COMMENT '0正常 1逻辑删除',
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `uk_cluster_name` (`cluster_name`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+CREATE TABLE `console_cluster`
+(
+    `id`           int(11)                       NOT NULL AUTO_INCREMENT,
+    `cluster_name` varchar(128) COLLATE utf8_bin NOT NULL COMMENT '集群名称',
+    `gmt_create`   datetime                      NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    `gmt_modified` datetime                      NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
+    `is_deleted`   tinyint(1)                    NOT NULL DEFAULT '0' COMMENT '0正常 1逻辑删除',
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `uk_cluster_name` (`cluster_name`)
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8
+  COLLATE = utf8_bin COMMENT ='集群表';
 
 -- ----------------------------
 -- Records of console_cluster
 -- ----------------------------
 BEGIN;
-INSERT INTO `console_cluster` VALUES (-1, 'default', '2022-01-28 10:26:01', '2022-02-11 11:11:32', 0);
+INSERT INTO `console_cluster`
+VALUES (-1, 'default', '2022-01-28 10:26:01', '2022-02-11 11:11:32', 0);
 COMMIT;
 
 -- ----------------------------
 -- Table structure for console_cluster_tenant
 -- ----------------------------
 DROP TABLE IF EXISTS `console_cluster_tenant`;
-CREATE TABLE `console_cluster_tenant` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `tenant_id` int(11) NOT NULL COMMENT '租户id',
-  `cluster_id` int(11) NOT NULL COMMENT '集群id',
-  `gmt_create` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '新增时间',
-  `gmt_modified` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
-  `is_deleted` tinyint(1) NOT NULL DEFAULT '0' COMMENT '0正常 1逻辑删除',
-  `queue_name` varchar(32) COLLATE utf8_bin DEFAULT NULL COMMENT '队列名称',
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+CREATE TABLE `console_cluster_tenant`
+(
+    `id`           int(11)    NOT NULL AUTO_INCREMENT,
+    `tenant_id`    int(11)    NOT NULL COMMENT '租户id',
+    `cluster_id`   int(11)    NOT NULL COMMENT '集群id',
+    `gmt_create`   datetime   NOT NULL          DEFAULT CURRENT_TIMESTAMP COMMENT '新增时间',
+    `gmt_modified` datetime   NOT NULL          DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
+    `is_deleted`   tinyint(1) NOT NULL          DEFAULT '0' COMMENT '0正常 1逻辑删除',
+    `queue_name`   varchar(32) COLLATE utf8_bin DEFAULT NULL COMMENT '队列名称',
+    PRIMARY KEY (`id`)
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8
+  COLLATE = utf8_bin COMMENT ='集群租户关系表';
 
 -- ----------------------------
 -- Table structure for console_component
 -- ----------------------------
 DROP TABLE IF EXISTS `console_component`;
-CREATE TABLE `console_component` (
-                                     `id`                  int(11)                      NOT NULL AUTO_INCREMENT,
-                                     `component_name`      varchar(24) COLLATE utf8_bin NOT NULL COMMENT '组件名称',
-                                     `component_type_code` tinyint(1)                   NOT NULL COMMENT '组件类型',
-                                     `version_value`       varchar(25) COLLATE utf8_bin          DEFAULT '' COMMENT '组件hadoop版本',
-                                     `upload_file_name`    varchar(126) COLLATE utf8_bin         DEFAULT '' COMMENT '上传文件zip名称',
-                                     `kerberos_file_name`  varchar(126) COLLATE utf8_bin         DEFAULT '' COMMENT '上传kerberos文件zip名称',
-                                     `store_type`          tinyint(1)                            DEFAULT '4' COMMENT '组件存储类型: HDFS、NFS 默认HDFS',
-                                     `is_metadata`         tinyint(1)                            DEFAULT '0' COMMENT '/*1 metadata*/',
-                                     `is_default`          tinyint(1)                   NOT NULL DEFAULT '1' COMMENT '组件默认版本',
-                                     `deploy_type`         tinyint(1)                            DEFAULT NULL COMMENT '/* 0 standalone 1 yarn  */',
-                                     `cluster_id`          int(11)                               DEFAULT NULL COMMENT '集群id',
-                                     `version_name`        varchar(25) COLLATE utf8_bin          DEFAULT NULL,
-                                     `datasource_type`     int                          null comment '数据插件类型',
-                                     `gmt_create`          datetime                     NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-                                     `gmt_modified`        datetime                     NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
-                                     `is_deleted`          tinyint(1)                   NOT NULL DEFAULT '0' COMMENT '0正常 1逻辑删除',
-                                     PRIMARY KEY (`id`),
-                                     UNIQUE KEY `index_component` (`cluster_id`, `component_type_code`, `version_value`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+CREATE TABLE `console_component`
+(
+    `id`                  int(11)                      NOT NULL AUTO_INCREMENT,
+    `component_name`      varchar(24) COLLATE utf8_bin NOT NULL COMMENT '组件名称',
+    `component_type_code` tinyint(1)                   NOT NULL COMMENT '组件类型',
+    `version_value`       varchar(25) COLLATE utf8_bin          DEFAULT '' COMMENT '组件hadoop版本',
+    `upload_file_name`    varchar(126) COLLATE utf8_bin         DEFAULT '' COMMENT '上传文件zip名称',
+    `kerberos_file_name`  varchar(126) COLLATE utf8_bin         DEFAULT '' COMMENT '上传kerberos文件zip名称',
+    `store_type`          tinyint(1)                            DEFAULT '4' COMMENT '组件存储类型: HDFS、NFS 默认HDFS',
+    `is_metadata`         tinyint(1)                            DEFAULT '0' COMMENT '/*1 metadata*/',
+    `is_default`          tinyint(1)                   NOT NULL DEFAULT '1' COMMENT '组件默认版本',
+    `deploy_type`         tinyint(1)                            DEFAULT NULL COMMENT '/* 0 standalone 1 yarn  */',
+    `cluster_id`          int(11)                               DEFAULT NULL COMMENT '集群id',
+    `version_name`        varchar(25) COLLATE utf8_bin          DEFAULT NULL,
+    `datasource_type`     int                          null comment '数据插件类型',
+    `gmt_create`          datetime                     NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    `gmt_modified`        datetime                     NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
+    `is_deleted`          tinyint(1)                   NOT NULL DEFAULT '0' COMMENT '0正常 1逻辑删除',
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `index_component` (`cluster_id`, `component_type_code`, `version_value`)
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8
+  COLLATE = utf8_bin COMMENT ='集群组件表';
 
 -- ----------------------------
 -- Table structure for console_component_config
 -- ----------------------------
 DROP TABLE IF EXISTS `console_component_config`;
-CREATE TABLE `console_component_config` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `cluster_id` int(11) NOT NULL COMMENT '集群id',
-  `component_id` int(11) NOT NULL COMMENT '组件id',
-  `component_type_code` tinyint(1) NOT NULL COMMENT '组件类型',
-  `type` varchar(128) COLLATE utf8_bin NOT NULL COMMENT '配置类型',
-  `required` tinyint(1) NOT NULL COMMENT 'true/false',
-  `key` varchar(256) COLLATE utf8_bin NOT NULL COMMENT '配置键',
-  `value` text COLLATE utf8_bin COMMENT '默认配置项',
-  `values` varchar(512) COLLATE utf8_bin DEFAULT NULL COMMENT '可配置项',
-  `dependencyKey` varchar(256) COLLATE utf8_bin DEFAULT NULL COMMENT '依赖键',
-  `dependencyValue` varchar(256) COLLATE utf8_bin DEFAULT NULL COMMENT '依赖值',
-  `desc` varchar(512) COLLATE utf8_bin DEFAULT NULL COMMENT '描述',
-  `gmt_create` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-  `gmt_modified` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
-  `is_deleted` tinyint(1) NOT NULL DEFAULT '0' COMMENT '0正常 1逻辑删除',
-  PRIMARY KEY (`id`),
-  KEY `index_cluster_id` (`cluster_id`),
-  KEY `index_componentId` (`component_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=893 DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+CREATE TABLE `console_component_config`
+(
+    `id`                  int(11)                       NOT NULL AUTO_INCREMENT,
+    `cluster_id`          int(11)                       NOT NULL COMMENT '集群id',
+    `component_id`        int(11)                       NOT NULL COMMENT '组件id',
+    `component_type_code` tinyint(1)                    NOT NULL COMMENT '组件类型',
+    `type`                varchar(128) COLLATE utf8_bin NOT NULL COMMENT '配置类型',
+    `required`            tinyint(1) NOT NULL COMMENT 'true/false',
+    `key`                 varchar(256) COLLATE utf8_bin NOT NULL COMMENT '配置键',
+    `value`               text COLLATE utf8_bin COMMENT '默认配置项',
+    `values`              varchar(512) COLLATE utf8_bin          DEFAULT NULL COMMENT '可配置项',
+    `dependencyKey`       varchar(256) COLLATE utf8_bin          DEFAULT NULL COMMENT '依赖键',
+    `dependencyValue`     varchar(256) COLLATE utf8_bin          DEFAULT NULL COMMENT '依赖值',
+    `desc`                varchar(512) COLLATE utf8_bin          DEFAULT NULL COMMENT '描述',
+    `gmt_create`          datetime                      NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    `gmt_modified`        datetime                      NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
+    `is_deleted`          tinyint(1)                    NOT NULL DEFAULT '0' COMMENT '0正常 1逻辑删除',
+    PRIMARY KEY (`id`),
+    KEY `index_cluster_id` (`cluster_id`),
+    KEY `index_componentId` (`component_id`)
+) ENGINE = InnoDB
+  AUTO_INCREMENT = 893
+  DEFAULT CHARSET = utf8
+  COLLATE = utf8_bin COMMENT ='组件配置参数表';
 
 -- ----------------------------
 -- Records of console_component_config
 -- ----------------------------
 BEGIN;
-INSERT INTO `console_component_config` VALUES (535, -2, -117, 5, 'INPUT', 1, 'jdbcUrl', '', NULL, NULL, NULL, NULL, '2022-10-24 15:45:52', '2022-10-24 15:45:52', 0);
-INSERT INTO `console_component_config` VALUES (537, -2, -117, 5, 'INPUT', 0, 'username', '', NULL, NULL, NULL, NULL, '2022-10-24 15:45:52', '2022-10-24 15:45:52', 0);
-INSERT INTO `console_component_config` VALUES (539, -2, -117, 5, 'PASSWORD', 0, 'password', '', NULL, NULL, NULL, NULL, '2022-10-24 15:45:52', '2022-10-24 15:45:52', 0);
-INSERT INTO `console_component_config` VALUES (541, -2, -117, 5, 'INPUT', 0, 'queue', '', NULL, NULL, NULL, NULL, '2022-10-24 15:45:53', '2022-10-24 15:45:53', 0);
-INSERT INTO `console_component_config` VALUES (543, -2, -117, 5, 'INPUT', 0, 'maxJobPoolSize', '', NULL, NULL, NULL, NULL, '2022-10-24 15:45:53', '2022-10-24 15:45:53', 0);
+INSERT INTO `console_component_config`
+VALUES (535, -2, -117, 5, 'INPUT', 1, 'jdbcUrl', '', NULL, NULL, NULL, NULL, '2022-10-24 15:45:52',
+        '2022-10-24 15:45:52', 0);
+INSERT INTO `console_component_config`
+VALUES (537, -2, -117, 5, 'INPUT', 0, 'username', '', NULL, NULL, NULL, NULL, '2022-10-24 15:45:52',
+        '2022-10-24 15:45:52', 0);
+INSERT INTO `console_component_config`
+VALUES (539, -2, -117, 5, 'PASSWORD', 0, 'password', '', NULL, NULL, NULL, NULL, '2022-10-24 15:45:52',
+        '2022-10-24 15:45:52', 0);
+INSERT INTO `console_component_config`
+VALUES (541, -2, -117, 5, 'INPUT', 0, 'queue', '', NULL, NULL, NULL, NULL, '2022-10-24 15:45:53', '2022-10-24 15:45:53',
+        0);
+INSERT INTO `console_component_config`
+VALUES (543, -2, -117, 5, 'INPUT', 0, 'maxJobPoolSize', '', NULL, NULL, NULL, NULL, '2022-10-24 15:45:53',
+        '2022-10-24 15:45:53', 0);
 INSERT INTO `console_component_config` VALUES (545, -2, -117, 5, 'INPUT', 0, 'minJobPoolSize', '', NULL, NULL, NULL, NULL, '2022-10-24 15:45:53', '2022-10-24 15:45:53', 0);
 INSERT INTO `console_component_config` VALUES (547, -2, -101, 6, 'INPUT', 1, 'host', '', NULL, NULL, NULL, NULL, '2022-10-24 15:45:53', '2022-10-24 15:45:53', 0);
 INSERT INTO `console_component_config` VALUES (549, -2, -101, 6, 'RADIO_LINKAGE', 1, 'auth', '1', NULL, NULL, NULL, NULL, '2022-10-24 15:45:53', '2022-10-24 15:45:53', 0);
@@ -524,52 +548,58 @@ COMMIT;
 -- ----------------------------
 DROP TABLE IF EXISTS `console_kerberos`;
 CREATE TABLE `console_kerberos` (
-  `id` bigint(20) NOT NULL AUTO_INCREMENT,
-  `cluster_id` int(11) NOT NULL COMMENT '集群id',
-  `open_kerberos` tinyint(1) NOT NULL COMMENT '是否开启kerberos配置',
-  `name` varchar(100) COLLATE utf8_bin NOT NULL COMMENT 'kerberos文件名称',
-  `remote_path` varchar(200) COLLATE utf8_bin NOT NULL COMMENT 'sftp存储路径',
-  `principal` varchar(50) COLLATE utf8_bin NOT NULL COMMENT 'principal',
-  `gmt_create` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-  `gmt_modified` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
-  `is_deleted` tinyint(1) NOT NULL DEFAULT '0' COMMENT '0正常 1逻辑删除',
-  `krb_name` varchar(26) COLLATE utf8_bin DEFAULT NULL COMMENT 'krb5_conf名称',
-  `component_type` int(11) DEFAULT NULL COMMENT '组件类型',
-  `principals` text COLLATE utf8_bin COMMENT 'keytab用户文件列表',
-  `merge_krb_content` text COLLATE utf8_bin COMMENT '合并后的krb5',
-  `component_version` varchar(25) COLLATE utf8_bin DEFAULT NULL COMMENT '组件版本',
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+                                    `id`                bigint(20)                    NOT NULL AUTO_INCREMENT,
+                                    `cluster_id`        int(11)                       NOT NULL COMMENT '集群id',
+                                    `open_kerberos`     tinyint(1)                    NOT NULL COMMENT '是否开启kerberos配置',
+                                    `name`              varchar(100) COLLATE utf8_bin NOT NULL COMMENT 'kerberos文件名称',
+                                    `remote_path`       varchar(200) COLLATE utf8_bin NOT NULL COMMENT 'sftp存储路径',
+                                    `principal`         varchar(50) COLLATE utf8_bin  NOT NULL COMMENT 'principal',
+                                    `gmt_create`        datetime                      NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+                                    `gmt_modified`      datetime                      NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
+                                    `is_deleted`        tinyint(1)                    NOT NULL DEFAULT '0' COMMENT '0正常 1逻辑删除',
+                                    `krb_name`          varchar(26) COLLATE utf8_bin           DEFAULT NULL COMMENT 'krb5_conf名称',
+                                    `component_type`    int(11)                                DEFAULT NULL COMMENT '组件类型',
+                                    `principals`        text COLLATE utf8_bin COMMENT 'keytab用户文件列表',
+                                    `merge_krb_content` text COLLATE utf8_bin COMMENT '合并后的krb5',
+                                    `component_version` varchar(25) COLLATE utf8_bin           DEFAULT NULL COMMENT '组件版本',
+                                    PRIMARY KEY (`id`)
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8
+  COLLATE = utf8_bin COMMENT ='组件kerberos配置表';
 
 -- ----------------------------
 -- Table structure for console_queue
 -- ----------------------------
 DROP TABLE IF EXISTS `console_queue`;
-CREATE TABLE `console_queue` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `queue_name` varchar(126) COLLATE utf8_bin NOT NULL COMMENT '队列名称',
-  `capacity` varchar(24) COLLATE utf8_bin NOT NULL COMMENT '最小容量',
-  `max_capacity` varchar(24) COLLATE utf8_bin NOT NULL COMMENT '最大容量',
-  `queue_state` varchar(24) COLLATE utf8_bin NOT NULL COMMENT '运行状态',
-  `parent_queue_id` int(11) NOT NULL COMMENT '父队列id',
-  `queue_path` varchar(256) COLLATE utf8_bin NOT NULL COMMENT '队列路径',
-  `cluster_id` int(11) DEFAULT NULL COMMENT '集群id',
-  `gmt_create` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-  `gmt_modified` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
-  `is_deleted` tinyint(1) NOT NULL DEFAULT '0' COMMENT '0正常 1逻辑删除',
-  PRIMARY KEY (`id`),
-  KEY `console_queue_cluster_id_index` (`cluster_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+CREATE TABLE `console_queue`
+(
+    `id`              int(11)                       NOT NULL AUTO_INCREMENT,
+    `queue_name`      varchar(126) COLLATE utf8_bin NOT NULL COMMENT '队列名称',
+    `capacity`        varchar(24) COLLATE utf8_bin  NOT NULL COMMENT '最小容量',
+    `max_capacity`    varchar(24) COLLATE utf8_bin  NOT NULL COMMENT '最大容量',
+    `queue_state`     varchar(24) COLLATE utf8_bin  NOT NULL COMMENT '运行状态',
+    `parent_queue_id` int(11)                       NOT NULL COMMENT '父队列id',
+    `queue_path`      varchar(256) COLLATE utf8_bin NOT NULL COMMENT '队列路径',
+    `cluster_id`      int(11)                                DEFAULT NULL COMMENT '集群id',
+    `gmt_create`      datetime                      NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    `gmt_modified`    datetime                      NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
+    `is_deleted`      tinyint(1)                    NOT NULL DEFAULT '0' COMMENT '0正常 1逻辑删除',
+    PRIMARY KEY (`id`),
+    KEY `console_queue_cluster_id_index` (`cluster_id`)
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8
+  COLLATE = utf8_bin COMMENT ='集群队列表';
 
 -- ----------------------------
 -- Table structure for datasource_classify
 -- ----------------------------
 DROP TABLE IF EXISTS `datasource_classify`;
-CREATE TABLE `datasource_classify` (
-  `id` int(11) unsigned NOT NULL AUTO_INCREMENT COMMENT '自增id',
-  `classify_code` varchar(64) COLLATE utf8_bin NOT NULL COMMENT '类型栏唯一编码',
-  `sorted` int(5) NOT NULL DEFAULT '0' COMMENT '类型栏排序字段 默认从0开始',
-  `classify_name` varchar(64) COLLATE utf8_bin NOT NULL COMMENT '类型名称 包含全部和常用栏',
+CREATE TABLE `datasource_classify`
+(
+    `id`            int(11) unsigned             NOT NULL AUTO_INCREMENT COMMENT '自增id',
+    `classify_code` varchar(64) COLLATE utf8_bin NOT NULL COMMENT '类型栏唯一编码',
+    `sorted`        int(5)                       NOT NULL DEFAULT '0' COMMENT '类型栏排序字段 默认从0开始',
+    `classify_name` varchar(64) COLLATE utf8_bin NOT NULL COMMENT '类型名称 包含全部和常用栏',
   `is_deleted` tinyint(4) NOT NULL DEFAULT '0' COMMENT '是否删除,1删除，0未删除',
   `gmt_create` datetime DEFAULT CURRENT_TIMESTAMP,
   `gmt_modified` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -1827,7 +1857,8 @@ CREATE TABLE `schedule_job_cache`
     UNIQUE KEY `index_job_id` (`job_id`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8
-  COLLATE = utf8_bin;
+  COLLATE = utf8_bin
+    COMMENT ='控制台队列表';
 
 -- ----------------------------
 -- Table structure for schedule_job_retry
@@ -1835,263 +1866,295 @@ CREATE TABLE `schedule_job_cache`
 DROP TABLE IF EXISTS `schedule_job_retry`;
 CREATE TABLE `schedule_job_retry`
 (
-    `id`              int(11)                      NOT NULL AUTO_INCREMENT,
-    `status`          tinyint(1)                   NOT NULL DEFAULT '0' COMMENT '任务状态 UNSUBMIT(0),CREATED(1),SCHEDULED(2),DEPLOYING(3),RUNNING(4),FINISHED(5),CANCELING(6),CANCELED(7),FAILED(8)',
-    `job_id`          varchar(64) COLLATE utf8_bin NOT NULL COMMENT '离线任务id',
-    `engine_job_id`   varchar(256) COLLATE utf8_bin         DEFAULT NULL COMMENT '离线任务计算引擎id',
-    `application_id`  varchar(256) COLLATE utf8_bin         DEFAULT NULL COMMENT '独立运行的任务需要记录额外的id',
-    `exec_start_time` datetime                              DEFAULT NULL COMMENT '执行开始时间',
-    `exec_end_time`   datetime                              DEFAULT NULL COMMENT '执行结束时间',
-    `retry_num`       int(10)                      NOT NULL DEFAULT '0' COMMENT '执行时，重试的次数',
-    `log_info`        mediumtext COLLATE utf8_bin COMMENT '错误信息',
-    `engine_log`      longtext COLLATE utf8_bin COMMENT '引擎错误信息',
-  `gmt_create` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '新增时间',
-  `gmt_modified` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
-  `is_deleted` tinyint(1) NOT NULL DEFAULT '0' COMMENT '0正常 1逻辑删除',
-  `retry_task_params` text COLLATE utf8_bin COMMENT '重试任务参数',
-  PRIMARY KEY (`id`),
-  KEY `idx_job_id` (`job_id`) COMMENT '任务实例 id'
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+    `id`                int(11)                      NOT NULL AUTO_INCREMENT,
+    `status`            tinyint(1)                   NOT NULL DEFAULT '0' COMMENT '任务状态 UNSUBMIT(0),CREATED(1),SCHEDULED(2),DEPLOYING(3),RUNNING(4),FINISHED(5),CANCELING(6),CANCELED(7),FAILED(8)',
+    `job_id`            varchar(64) COLLATE utf8_bin NOT NULL COMMENT '离线任务id',
+    `engine_job_id`     varchar(256) COLLATE utf8_bin         DEFAULT NULL COMMENT '离线任务计算引擎id',
+    `application_id`    varchar(256) COLLATE utf8_bin         DEFAULT NULL COMMENT '独立运行的任务需要记录额外的id',
+    `exec_start_time`   datetime                              DEFAULT NULL COMMENT '执行开始时间',
+    `exec_end_time`     datetime                              DEFAULT NULL COMMENT '执行结束时间',
+    `retry_num`         int(10)                      NOT NULL DEFAULT '0' COMMENT '执行时，重试的次数',
+    `log_info`          mediumtext COLLATE utf8_bin COMMENT '错误信息',
+    `engine_log`        longtext COLLATE utf8_bin COMMENT '引擎错误信息',
+    `gmt_create`        datetime                     NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '新增时间',
+    `gmt_modified`      datetime                     NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
+    `is_deleted`        tinyint(1)                   NOT NULL DEFAULT '0' COMMENT '0正常 1逻辑删除',
+    `retry_task_params` text COLLATE utf8_bin COMMENT '重试任务参数',
+    PRIMARY KEY (`id`),
+    KEY `idx_job_id` (`job_id`) COMMENT '任务实例 id'
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8
+  COLLATE = utf8_bin COMMENT ='实例重试表';
 
 -- ----------------------------
 -- Table structure for schedule_fill_data_job
 -- ----------------------------
 DROP TABLE IF EXISTS `schedule_fill_data_job`;
-CREATE TABLE `schedule_fill_data_job` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `tenant_id` int(11) NOT NULL COMMENT '租户id',
-  `job_name` varchar(64) COLLATE utf8_bin NOT NULL DEFAULT '' COMMENT '补数据任务名称',
-  `run_day` varchar(64) COLLATE utf8_bin NOT NULL COMMENT '补数据运行日期yyyy-MM-dd',
-  `from_day` varchar(64) COLLATE utf8_bin DEFAULT NULL COMMENT '补数据开始业务日期yyyy-MM-dd',
-  `to_day` varchar(64) COLLATE utf8_bin DEFAULT NULL COMMENT '补数据结束业务日期yyyy-MM-dd',
-  `gmt_create` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '新增时间',
-  `gmt_modified` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
-  `create_user_id` int(11) NOT NULL COMMENT '发起操作的用户',
-  `is_deleted` tinyint(1) NOT NULL DEFAULT '0' COMMENT '0正常 1逻辑删除',
-  `fill_data_info` mediumtext COLLATE utf8_bin COMMENT '补数据信息',
-  `fill_generate_status` tinyint(2) NOT NULL DEFAULT '0' COMMENT '补数据生成状态：0默认值，按照原来的接口逻辑走。1 表示正在生成，2 完成生成补数据实例，3生成补数据失败',
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `index_task_id` (`tenant_id`,`job_name`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+CREATE TABLE `schedule_fill_data_job`
+(
+    `id`                   int(11)                      NOT NULL AUTO_INCREMENT,
+    `tenant_id`            int(11)                      NOT NULL COMMENT '租户id',
+    `job_name`             varchar(64) COLLATE utf8_bin NOT NULL DEFAULT '' COMMENT '补数据任务名称',
+    `run_day`              varchar(64) COLLATE utf8_bin NOT NULL COMMENT '补数据运行日期yyyy-MM-dd',
+    `from_day`             varchar(64) COLLATE utf8_bin          DEFAULT NULL COMMENT '补数据开始业务日期yyyy-MM-dd',
+    `to_day`               varchar(64) COLLATE utf8_bin          DEFAULT NULL COMMENT '补数据结束业务日期yyyy-MM-dd',
+    `gmt_create`           datetime                     NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '新增时间',
+    `gmt_modified`         datetime                     NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
+    `create_user_id`       int(11)                      NOT NULL COMMENT '发起操作的用户',
+    `is_deleted`           tinyint(1)                   NOT NULL DEFAULT '0' COMMENT '0正常 1逻辑删除',
+    `fill_data_info`       mediumtext COLLATE utf8_bin COMMENT '补数据信息',
+    `fill_generate_status` tinyint(2)                   NOT NULL DEFAULT '0' COMMENT '补数据生成状态：0默认值，按照原来的接口逻辑走。1 表示正在生成，2 完成生成补数据实例，3生成补数据失败',
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `index_task_id` (`tenant_id`, `job_name`)
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8
+  COLLATE = utf8_bin COMMENT ='补数据表';
 
 -- ----------------------------
 -- Table structure for schedule_job
 -- ----------------------------
 DROP TABLE IF EXISTS `schedule_job`;
-CREATE TABLE `schedule_job` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `tenant_id` int(11) NOT NULL COMMENT '租户id',
-  `job_id` varchar(64) COLLATE utf8_bin NOT NULL COMMENT '工作任务id',
-  `job_key` varchar(128) COLLATE utf8_bin NOT NULL DEFAULT '' COMMENT '工作任务key',
-  `job_name` varchar(256) COLLATE utf8_bin NOT NULL DEFAULT '' COMMENT '工作任务名称',
-  `task_id` int(11) NOT NULL COMMENT '任务id',
-  `gmt_create` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '新增时间',
-  `gmt_modified` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
-  `create_user_id` int(11) NOT NULL COMMENT '发起操作的用户',
-  `is_deleted` tinyint(1) NOT NULL DEFAULT '0' COMMENT '0正常 1逻辑删除',
-  `type` tinyint(1) NOT NULL DEFAULT '2' COMMENT '0正常调度 1补数据 2临时运行',
-  `is_restart` tinyint(1) NOT NULL DEFAULT '0' COMMENT '0：非重启任务, 1：重启任务',
-  `cyc_time` varchar(64) COLLATE utf8_bin NOT NULL COMMENT '调度时间 yyyyMMddHHmmss',
-  `dependency_type` tinyint(2) NOT NULL DEFAULT '0' COMMENT '依赖类型',
-  `flow_job_id` varchar(64) COLLATE utf8_bin NOT NULL DEFAULT '0' COMMENT '工作流实例id',
-  `period_type` tinyint(2) DEFAULT NULL COMMENT '周期类型',
-  `status` tinyint(1) NOT NULL DEFAULT '0' COMMENT '任务状态 UNSUBMIT(0),CREATED(1),SCHEDULED(2),DEPLOYING(3),RUNNING(4),FINISHED(5),CANCELING(6),CANCELED(7),FAILED(8)',
-  `task_type` tinyint(1) NOT NULL COMMENT '任务类型 -1:虚节点, 0:sparksql, 1:spark, 2:数据同步, 3:pyspark, 4:R, 5:深度学习, 6:python, 7:shell, 8:机器学习, 9:hadoopMR, 10:工作流, 12:carbonSQL, 13:notebook, 14:算法实验, 15:libra sql, 16:kylin, 17:hiveSQL',
-  `fill_id` int(11) DEFAULT '0' COMMENT '补数据id，默认为0',
-  `exec_start_time` datetime DEFAULT NULL COMMENT '执行开始时间',
-  `exec_end_time` datetime DEFAULT NULL COMMENT '执行结束时间',
-  `exec_time` int(11) DEFAULT '0' COMMENT '执行时间',
-  `submit_time` datetime DEFAULT NULL COMMENT '提交时间',
-  `max_retry_num` int(10) NOT NULL DEFAULT '0' COMMENT '最大重试次数',
-  `retry_num` int(10) NOT NULL DEFAULT '0' COMMENT '执行时，重试的次数',
-  `node_address` varchar(64) COLLATE utf8_bin DEFAULT NULL COMMENT '节点地址',
-  `version_id` int(10) DEFAULT '0' COMMENT '任务运行时候版本号',
-  `next_cyc_time` varchar(64) COLLATE utf8_bin DEFAULT NULL COMMENT '下一次调度时间 yyyyMMddHHmmss',
-  `engine_job_id` varchar(256) COLLATE utf8_bin DEFAULT NULL COMMENT '离线任务计算引擎id',
-  `application_id` varchar(256) COLLATE utf8_bin DEFAULT NULL COMMENT '独立运行的任务需要记录额外的id',
-  `compute_type` tinyint(1) NOT NULL DEFAULT '1' COMMENT '计算类型STREAM(0), BATCH(1)',
-  `phase_status` tinyint(1) NOT NULL DEFAULT '0' COMMENT '运行状态: CREATE(0):创建,JOIN_THE_TEAM(1):入队,LEAVE_THE_TEAM(2):出队',
-  `job_execute_order` bigint(20) NOT NULL DEFAULT '0' COMMENT '按照计算时间排序字段',
-  `fill_type` tinyint(2) NOT NULL DEFAULT '0' COMMENT '0 默认值 周期实例，立即运行等非补数据实例的默认值 1 可执行补数据实例 2 中间实例 3 黑名单',
-  `submit_user_name` varchar(64) COLLATE utf8_bin DEFAULT NULL COMMENT '提交用户名',
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `idx_jobKey` (`job_key`),
-  UNIQUE KEY `index_job_id` (`job_id`,`is_deleted`),
-  KEY `idx_cyc_time` (`cyc_time`),
-  KEY `idx_exec_start_time` (`exec_start_time`),
-  KEY `idx_name_type` (`job_name`(128),`type`),
-  KEY `index_engine_job_id` (`engine_job_id`(128)),
-  KEY `index_fill_id` (`fill_id`),
-  KEY `index_flow_job_id` (`flow_job_id`),
-  KEY `index_gmt_modified` (`gmt_modified`),
-  KEY `index_job_execute_order` (`job_execute_order`),
-  KEY `index_task_id` (`task_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+CREATE TABLE `schedule_job`
+(
+    `id`                int(11)                       NOT NULL AUTO_INCREMENT,
+    `tenant_id`         int(11)                       NOT NULL COMMENT '租户id',
+    `job_id`            varchar(64) COLLATE utf8_bin  NOT NULL COMMENT '工作任务id',
+    `job_key`           varchar(128) COLLATE utf8_bin NOT NULL DEFAULT '' COMMENT '工作任务key',
+    `job_name`          varchar(256) COLLATE utf8_bin NOT NULL DEFAULT '' COMMENT '工作任务名称',
+    `task_id`           int(11) NOT NULL COMMENT '任务id',
+    `gmt_create`        datetime NOT NULL                      DEFAULT CURRENT_TIMESTAMP COMMENT '新增时间',
+    `gmt_modified`      datetime NOT NULL                      DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
+    `create_user_id`    int(11) NOT NULL COMMENT '发起操作的用户',
+    `is_deleted`        tinyint(1) NOT NULL                    DEFAULT '0' COMMENT '0正常 1逻辑删除',
+    `type`              tinyint(1) NOT NULL                    DEFAULT '2' COMMENT '0正常调度 1补数据 2临时运行',
+    `is_restart`        tinyint(1) NOT NULL                    DEFAULT '0' COMMENT '0：非重启任务, 1：重启任务',
+    `cyc_time`          varchar(64) COLLATE utf8_bin NOT NULL COMMENT '调度时间 yyyyMMddHHmmss',
+    `dependency_type`   tinyint(2) NOT NULL                    DEFAULT '0' COMMENT '依赖类型',
+    `flow_job_id`       varchar(64) COLLATE utf8_bin NOT NULL  DEFAULT '0' COMMENT '工作流实例id',
+    `period_type`       tinyint(2)                             DEFAULT NULL COMMENT '周期类型',
+    `status`            tinyint(1) NOT NULL                    DEFAULT '0' COMMENT '任务状态 UNSUBMIT(0),CREATED(1),SCHEDULED(2),DEPLOYING(3),RUNNING(4),FINISHED(5),CANCELING(6),CANCELED(7),FAILED(8)',
+    `task_type`         tinyint(1) NOT NULL COMMENT '任务类型 -1:虚节点, 0:sparksql, 1:spark, 2:数据同步, 3:pyspark, 4:R, 5:深度学习, 6:python, 7:shell, 8:机器学习, 9:hadoopMR, 10:工作流, 12:carbonSQL, 13:notebook, 14:算法实验, 15:libra sql, 16:kylin, 17:hiveSQL',
+    `fill_id`           int(11)                                DEFAULT '0' COMMENT '补数据id，默认为0',
+    `exec_start_time`   datetime                               DEFAULT NULL COMMENT '执行开始时间',
+    `exec_end_time`     datetime                               DEFAULT NULL COMMENT '执行结束时间',
+    `exec_time`         int(11)                                DEFAULT '0' COMMENT '执行时间',
+    `submit_time`       datetime                               DEFAULT NULL COMMENT '提交时间',
+    `max_retry_num`     int(10)                       NOT NULL DEFAULT '0' COMMENT '最大重试次数',
+    `retry_num`         int(10)                       NOT NULL DEFAULT '0' COMMENT '执行时，重试的次数',
+    `node_address`      varchar(64) COLLATE utf8_bin           DEFAULT NULL COMMENT '节点地址',
+    `version_id`        int(10)                                DEFAULT '0' COMMENT '任务运行时候版本号',
+    `next_cyc_time`     varchar(64) COLLATE utf8_bin           DEFAULT NULL COMMENT '下一次调度时间 yyyyMMddHHmmss',
+    `engine_job_id`     varchar(128) COLLATE utf8_bin          DEFAULT NULL COMMENT '离线任务计算引擎id',
+    `application_id`    varchar(128) COLLATE utf8_bin          DEFAULT NULL COMMENT '独立运行的任务需要记录额外的id',
+    `compute_type`      tinyint(1)                    NOT NULL DEFAULT '1' COMMENT '计算类型STREAM(0), BATCH(1)',
+    `phase_status`      tinyint(1)                    NOT NULL DEFAULT '0' COMMENT '运行状态: CREATE(0):创建,JOIN_THE_TEAM(1):入队,LEAVE_THE_TEAM(2):出队',
+    `job_execute_order` bigint(20)                    NOT NULL DEFAULT '0' COMMENT '按照计算时间排序字段',
+    `fill_type`         tinyint(2)                    NOT NULL DEFAULT '0' COMMENT '0 默认值 周期实例，立即运行等非补数据实例的默认值 1 可执行补数据实例 2 中间实例 3 黑名单',
+    `submit_user_name`  varchar(64) COLLATE utf8_bin           DEFAULT NULL COMMENT '提交用户名',
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `idx_jobKey` (`job_key`),
+    UNIQUE KEY `index_job_id` (`job_id`, `is_deleted`),
+    KEY `idx_cyc_time` (`cyc_time`),
+    KEY `idx_exec_start_time` (`exec_start_time`),
+    KEY `idx_name_type` (`job_name`(128), `type`),
+    KEY `index_engine_job_id` (`engine_job_id`(128)),
+    KEY `index_fill_id` (`fill_id`),
+    KEY `index_flow_job_id` (`flow_job_id`),
+    KEY `index_gmt_modified` (`gmt_modified`),
+    KEY `index_job_execute_order` (`job_execute_order`),
+    KEY `index_task_id` (`task_id`)
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8
+  COLLATE = utf8_bin COMMENT ='实例表';
 
 -- ----------------------------
 -- Table structure for schedule_job_expand
 -- ----------------------------
 DROP TABLE IF EXISTS `schedule_job_expand`;
-CREATE TABLE `schedule_job_expand` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `job_id` varchar(64) COLLATE utf8_bin NOT NULL COMMENT '工作任务id',
-  `retry_task_params` mediumtext COLLATE utf8_bin COMMENT '重试任务参数',
-  `job_graph` mediumtext COLLATE utf8_bin COMMENT 'jobGraph构建json',
-  `job_extra_info` mediumtext COLLATE utf8_bin COMMENT '任务提交额外信息',
-  `engine_log` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin,
-  `log_info` longtext COLLATE utf8_bin COMMENT '错误信息',
-  `gmt_create` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '新增时间',
-  `gmt_modified` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
-  `is_deleted` tinyint(1) NOT NULL DEFAULT '0' COMMENT '0正常 1逻辑删除',
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `index_job_id` (`job_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+CREATE TABLE `schedule_job_expand`
+(
+    `id`                int(11)                      NOT NULL AUTO_INCREMENT,
+    `job_id`            varchar(64) COLLATE utf8_bin NOT NULL COMMENT '工作任务id',
+    `retry_task_params` mediumtext COLLATE utf8_bin COMMENT '重试任务参数',
+    `job_graph`         mediumtext COLLATE utf8_bin COMMENT 'jobGraph构建json',
+    `job_extra_info`    mediumtext COLLATE utf8_bin COMMENT '任务提交额外信息',
+    `engine_log`        longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin,
+    `log_info`          longtext COLLATE utf8_bin COMMENT '错误信息',
+    `gmt_create`        datetime                     NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '新增时间',
+    `gmt_modified`      datetime                     NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
+    `is_deleted`        tinyint(1)                   NOT NULL DEFAULT '0' COMMENT '0正常 1逻辑删除',
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `index_job_id` (`job_id`)
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8
+  COLLATE = utf8_bin COMMENT ='实例扩展表';
 
 -- ----------------------------
 -- Table structure for schedule_job_graph_trigger
 -- ----------------------------
 DROP TABLE IF EXISTS `schedule_job_graph_trigger`;
-CREATE TABLE `schedule_job_graph_trigger` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `trigger_type` tinyint(3) NOT NULL COMMENT '0:正常调度 1补数据',
-  `trigger_time` datetime NOT NULL COMMENT '调度时间',
-  `gmt_create` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '新增时间',
-  `gmt_modified` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
-  `is_deleted` int(10) NOT NULL DEFAULT '0' COMMENT '0正常 1逻辑删除',
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `index_trigger_time` (`trigger_time`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+CREATE TABLE `schedule_job_graph_trigger`
+(
+    `id`           int(11)    NOT NULL AUTO_INCREMENT,
+    `trigger_type` tinyint(3) NOT NULL COMMENT '0:正常调度 1补数据',
+    `trigger_time` datetime   NOT NULL COMMENT '调度时间',
+    `gmt_create`   datetime   NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '新增时间',
+    `gmt_modified` datetime   NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
+    `is_deleted`   int(10)    NOT NULL DEFAULT '0' COMMENT '0正常 1逻辑删除',
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `index_trigger_time` (`trigger_time`)
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8
+  COLLATE = utf8_bin COMMENT ='实例生成记录表';
 
 -- ----------------------------
 -- Table structure for schedule_job_history
 -- ----------------------------
 DROP TABLE IF EXISTS `schedule_job_history`;
-CREATE TABLE `schedule_job_history` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `job_id` varchar(32) NOT NULL COMMENT '工作任务id',
-  `exec_start_time` datetime DEFAULT NULL COMMENT '执行开始时间',
-  `exec_end_time` datetime DEFAULT NULL COMMENT '执行结束时间',
-  `engine_job_id` varchar(256) DEFAULT NULL COMMENT '额外id',
-  `application_id` varchar(256) DEFAULT NULL COMMENT 'applicationId',
-  `gmt_create` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '新增时间',
-  `gmt_modified` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
-  `is_deleted` tinyint(1) NOT NULL DEFAULT '0' COMMENT '0正常 1逻辑删除',
-  PRIMARY KEY (`id`),
-  KEY `index_engine_job_id` (`engine_job_id`(128)),
-  KEY `index_job_id` (`job_id`,`is_deleted`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+CREATE TABLE `schedule_job_history`
+(
+    `id`              int(11)     NOT NULL AUTO_INCREMENT,
+    `job_id`          varchar(32) NOT NULL COMMENT '工作任务id',
+    `exec_start_time` datetime             DEFAULT NULL COMMENT '执行开始时间',
+    `exec_end_time`   datetime             DEFAULT NULL COMMENT '执行结束时间',
+    `engine_job_id`   varchar(256)         DEFAULT NULL COMMENT '额外id',
+    `application_id`  varchar(256)         DEFAULT NULL COMMENT 'applicationId',
+    `gmt_create`      datetime    NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '新增时间',
+    `gmt_modified`    datetime    NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
+    `is_deleted`      tinyint(1)  NOT NULL DEFAULT '0' COMMENT '0正常 1逻辑删除',
+    PRIMARY KEY (`id`),
+    KEY `index_engine_job_id` (`engine_job_id`(128)),
+    KEY `index_job_id` (`job_id`, `is_deleted`)
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8 COMMENT ='实例历史记录表';
 
 -- ----------------------------
 -- Table structure for schedule_job_job
 -- ----------------------------
 DROP TABLE IF EXISTS `schedule_job_job`;
-CREATE TABLE `schedule_job_job` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `tenant_id` int(11) NOT NULL COMMENT '租户id',
-  `job_key` varchar(256) COLLATE utf8_bin NOT NULL COMMENT 'batch 任务key',
-  `parent_job_key` varchar(256) COLLATE utf8_bin DEFAULT NULL COMMENT '对应batch任务父节点的key',
-  `job_key_type` int(11) NOT NULL DEFAULT '2' COMMENT 'parentJobKey类型： RelyType 1. 自依赖实例key 2. 上游任务key 3. 上游任务的下一个周期key',
-  `rule` int(11) DEFAULT NULL COMMENT 'parentJobKey类型： RelyType 1. 自依赖实例key 2. 上游任务key 3. 上游任务的下一个周期key',
-  `gmt_modified` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
-  `gmt_create` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '新增时间',
-  `is_deleted` tinyint(1) NOT NULL DEFAULT '0' COMMENT '0正常 1逻辑删除',
-  PRIMARY KEY (`id`),
-  KEY `idx_job_jobKey` (`parent_job_key`(128)),
-  KEY `idx_job_parentJobKey` (`job_key`(255),`parent_job_key`(255))
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+CREATE TABLE `schedule_job_job`
+(
+    `id`             int(11)                       NOT NULL AUTO_INCREMENT,
+    `tenant_id`      int(11)                       NOT NULL COMMENT '租户id',
+    `job_key`        varchar(256) COLLATE utf8_bin NOT NULL COMMENT 'batch 任务key',
+    `parent_job_key` varchar(256) COLLATE utf8_bin          DEFAULT NULL COMMENT '对应batch任务父节点的key',
+    `job_key_type`   int(11)                       NOT NULL DEFAULT '2' COMMENT 'parentJobKey类型： RelyType 1. 自依赖实例key 2. 上游任务key 3. 上游任务的下一个周期key',
+    `rule`           int(11)                                DEFAULT NULL COMMENT 'parentJobKey类型： RelyType 1. 自依赖实例key 2. 上游任务key 3. 上游任务的下一个周期key',
+    `gmt_modified`   datetime                      NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
+    `gmt_create`     datetime                      NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '新增时间',
+    `is_deleted`     tinyint(1)                    NOT NULL DEFAULT '0' COMMENT '0正常 1逻辑删除',
+    PRIMARY KEY (`id`),
+    KEY `idx_job_jobKey` (`parent_job_key`(128)),
+    KEY `idx_job_parentJobKey` (`job_key`(255), `parent_job_key`(255))
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8
+  COLLATE = utf8_bin COMMENT ='实例依赖关系表';
 
 -- ----------------------------
 -- Table structure for schedule_job_operator_record
 -- ----------------------------
 DROP TABLE IF EXISTS `schedule_job_operator_record`;
-CREATE TABLE `schedule_job_operator_record` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `job_id` varchar(255) COLLATE utf8_bin NOT NULL COMMENT '任务id',
-  `version` int(10) DEFAULT '0' COMMENT '版本号',
-  `operator_expired` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '操作过期时间',
-  `operator_type` tinyint(1) NOT NULL DEFAULT '0' COMMENT '操作类型 0杀死 1重跑 2 补数据',
-  `force_cancel_flag` tinyint(1) NOT NULL DEFAULT '0' COMMENT '强制标志 0非强制 1强制',
-  `node_address` varchar(255) COLLATE utf8_bin DEFAULT NULL COMMENT '节点地址',
-  `gmt_modified` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
-  `gmt_create` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '新增时间',
-  `is_deleted` tinyint(1) NOT NULL DEFAULT '0' COMMENT '0正常 1逻辑删除',
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `job_id` (`job_id`,`operator_type`,`is_deleted`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+CREATE TABLE `schedule_job_operator_record`
+(
+    `id`                int(11)                       NOT NULL AUTO_INCREMENT,
+    `job_id`            varchar(255) COLLATE utf8_bin NOT NULL COMMENT '任务id',
+    `version`           int(10)                                DEFAULT '0' COMMENT '版本号',
+    `operator_expired`  datetime                      NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '操作过期时间',
+    `operator_type`     tinyint(1)                    NOT NULL DEFAULT '0' COMMENT '操作类型 0杀死 1重跑 2 补数据',
+    `force_cancel_flag` tinyint(1)                    NOT NULL DEFAULT '0' COMMENT '强制标志 0非强制 1强制',
+    `node_address`      varchar(255) COLLATE utf8_bin          DEFAULT NULL COMMENT '节点地址',
+    `gmt_modified`      datetime                      NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
+    `gmt_create`        datetime                      NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '新增时间',
+    `is_deleted`        tinyint(1)                    NOT NULL DEFAULT '0' COMMENT '0正常 1逻辑删除',
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `job_id` (`job_id`, `operator_type`, `is_deleted`)
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8
+  COLLATE = utf8_bin COMMENT ='实例操作记录表';
 
 -- ----------------------------
 -- Table structure for schedule_task_shade
 -- ----------------------------
 DROP TABLE IF EXISTS `schedule_task_shade`;
-CREATE TABLE `schedule_task_shade` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `tenant_id` int(11) NOT NULL DEFAULT '-1' COMMENT '租户id',
-  `name` varchar(256) COLLATE utf8_bin NOT NULL DEFAULT '' COMMENT '任务名称',
-  `task_type` tinyint(1) NOT NULL COMMENT '任务类型 -1:虚节点, 0:sparksql, 1:spark, 2:数据同步, 3:pyspark, 4:R, 5:深度学习, 6:python, 7:shell, 8:机器学习, 9:hadoopMR, 10:工作流, 12:carbonSQL, 13:notebook, 14:算法实验, 15:libra sql, 16:kylin, 17:hiveSQL',
-  `compute_type` tinyint(1) NOT NULL COMMENT '计算类型 0实时，1 离线',
-  `sql_text` longtext COLLATE utf8_bin NOT NULL COMMENT 'sql 文本',
-  `task_params` text COLLATE utf8_bin NOT NULL COMMENT '任务参数',
-  `task_id` int(11) NOT NULL COMMENT '任务id',
-  `schedule_conf` varchar(512) COLLATE utf8_bin NOT NULL COMMENT '调度配置 json格式',
-  `period_type` tinyint(2) DEFAULT NULL COMMENT '周期类型',
-  `schedule_status` tinyint(1) NOT NULL DEFAULT '0' COMMENT '0未开始,1正常调度,2暂停',
-  `gmt_create` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '新增时间',
-  `gmt_modified` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
-  `modify_user_id` int(11) NOT NULL COMMENT '最后修改task的用户',
-  `create_user_id` int(11) NOT NULL COMMENT '新建task的用户',
-  `version_id` int(11) NOT NULL DEFAULT '0' COMMENT 'task版本',
-  `is_deleted` tinyint(1) NOT NULL DEFAULT '0' COMMENT '0正常 1逻辑删除',
-  `task_desc` varchar(256) COLLATE utf8_bin NOT NULL COMMENT '任务描述',
-  `exe_args` text COLLATE utf8_bin COMMENT '额外参数',
-  `flow_id` int(11) NOT NULL DEFAULT '0' COMMENT '工作流id',
-  `component_version` varchar(25) COLLATE utf8_bin DEFAULT NULL,
-  `queue_name` varchar(64) COLLATE utf8_bin DEFAULT NULL COMMENT 'yarn队列名称',
-  `datasource_id` int(11) DEFAULT NULL COMMENT '数据源id',
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `index_task_id` (`task_id`),
-  KEY `index_name` (`name`(128))
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+CREATE TABLE `schedule_task_shade`
+(
+    `id`                int(11)                       NOT NULL AUTO_INCREMENT,
+    `tenant_id`         int(11)                       NOT NULL DEFAULT '-1' COMMENT '租户id',
+    `name`              varchar(256) COLLATE utf8_bin NOT NULL DEFAULT '' COMMENT '任务名称',
+    `task_type`         tinyint(1)                    NOT NULL COMMENT '任务类型 -1:虚节点, 0:sparksql, 1:spark, 2:数据同步, 3:pyspark, 4:R, 5:深度学习, 6:python, 7:shell, 8:机器学习, 9:hadoopMR, 10:工作流, 12:carbonSQL, 13:notebook, 14:算法实验, 15:libra sql, 16:kylin, 17:hiveSQL',
+    `compute_type`      tinyint(1)                    NOT NULL COMMENT '计算类型 0实时，1 离线',
+    `sql_text`          longtext COLLATE utf8_bin     NOT NULL COMMENT 'sql 文本',
+    `task_params`       text COLLATE utf8_bin         NOT NULL COMMENT '任务参数',
+    `task_id`           int(11)                       NOT NULL COMMENT '任务id',
+    `schedule_conf`     varchar(512) COLLATE utf8_bin NOT NULL COMMENT '调度配置 json格式',
+    `period_type`       tinyint(2)                             DEFAULT NULL COMMENT '周期类型',
+    `schedule_status`   tinyint(1)                    NOT NULL DEFAULT '0' COMMENT '0未开始,1正常调度,2暂停',
+    `gmt_create`        datetime                      NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '新增时间',
+    `gmt_modified`      datetime                      NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
+    `modify_user_id`    int(11)                       NOT NULL COMMENT '最后修改task的用户',
+    `create_user_id`    int(11)                       NOT NULL COMMENT '新建task的用户',
+    `version_id`        int(11)                       NOT NULL DEFAULT '0' COMMENT 'task版本',
+    `is_deleted`        tinyint(1)                    NOT NULL DEFAULT '0' COMMENT '0正常 1逻辑删除',
+    `task_desc`         varchar(256) COLLATE utf8_bin NOT NULL COMMENT '任务描述',
+    `exe_args`          text COLLATE utf8_bin COMMENT '额外参数',
+    `flow_id`           int(11)                       NOT NULL DEFAULT '0' COMMENT '工作流id',
+    `component_version` varchar(25) COLLATE utf8_bin           DEFAULT NULL,
+    `queue_name`        varchar(64) COLLATE utf8_bin           DEFAULT NULL COMMENT 'yarn队列名称',
+    `datasource_id`     int(11)                                DEFAULT NULL COMMENT '数据源id',
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `index_task_id` (`task_id`),
+    KEY `index_name` (`name`(128))
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8
+  COLLATE = utf8_bin COMMENT ='已提交任务表';
 
 -- ----------------------------
 -- Table structure for schedule_task_shade_info
 -- ----------------------------
 DROP TABLE IF EXISTS `schedule_task_shade_info`;
-CREATE TABLE `schedule_task_shade_info` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `task_id` int(11) NOT NULL COMMENT '任务id',
-  `info` text COLLATE utf8_bin COMMENT '任务运行信息',
-  `gmt_create` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '新增时间',
-  `gmt_modified` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
-  `is_deleted` tinyint(1) NOT NULL DEFAULT '0' COMMENT '0正常 1逻辑删除',
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `index_task_id` (`task_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+CREATE TABLE `schedule_task_shade_info`
+(
+    `id`           int(11)    NOT NULL AUTO_INCREMENT,
+    `task_id`      int(11)    NOT NULL COMMENT '任务id',
+    `info`         text COLLATE utf8_bin COMMENT '任务运行信息',
+    `gmt_create`   datetime   NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '新增时间',
+    `gmt_modified` datetime   NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
+    `is_deleted`   tinyint(1) NOT NULL DEFAULT '0' COMMENT '0正常 1逻辑删除',
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `index_task_id` (`task_id`)
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8
+  COLLATE = utf8_bin COMMENT ='提交任务扩展表';
 
 -- ----------------------------
 -- Table structure for schedule_task_task_shade
 -- ----------------------------
 DROP TABLE IF EXISTS `schedule_task_task_shade`;
-CREATE TABLE `schedule_task_task_shade` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `tenant_id` int(11) NOT NULL COMMENT '租户id',
-  `task_id` int(11) NOT NULL COMMENT 'batch 任务id',
-  `parent_task_id` int(11) DEFAULT NULL COMMENT '对应batch任务父节点的id',
-  `gmt_create` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '新增时间',
-  `gmt_modified` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
-  `is_deleted` tinyint(1) NOT NULL DEFAULT '0' COMMENT '0正常 1逻辑删除',
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `index_batch_task_task` (`task_id`,`parent_task_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+CREATE TABLE `schedule_task_task_shade`
+(
+    `id`             int(11)    NOT NULL AUTO_INCREMENT,
+    `tenant_id`      int(11)    NOT NULL COMMENT '租户id',
+    `task_id`        int(11)    NOT NULL COMMENT 'batch 任务id',
+    `parent_task_id` int(11)             DEFAULT NULL COMMENT '对应batch任务父节点的id',
+    `gmt_create`     datetime   NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '新增时间',
+    `gmt_modified`   datetime   NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
+    `is_deleted`     tinyint(1) NOT NULL DEFAULT '0' COMMENT '0正常 1逻辑删除',
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `index_batch_task_task` (`task_id`, `parent_task_id`)
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8
+  COLLATE = utf8_bin COMMENT ='已提交任务依赖关系表';
 
 -- ----------------------------
 -- Table structure for stream_metric_support
 -- ----------------------------
 DROP TABLE IF EXISTS `stream_metric_support`;
-CREATE TABLE `stream_metric_support` (
-  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '自增id',
-  `name` varchar(255) NOT NULL COMMENT '指标中文名称',
-  `task_type` tinyint(4) NOT NULL COMMENT '指标支持的任务类型',
-  `value` varchar(255) NOT NULL COMMENT '指标key',
+CREATE TABLE `stream_metric_support`
+(
+    `id`              int(11)      NOT NULL AUTO_INCREMENT COMMENT '自增id',
+    `name`            varchar(255) NOT NULL COMMENT '指标中文名称',
+    `task_type`       tinyint(4)   NOT NULL COMMENT '指标支持的任务类型',
+    `value`           varchar(255) NOT NULL COMMENT '指标key',
   `metric_tag` int(11) NOT NULL COMMENT 'metric匹配模式',
   `component_version` varchar(255) NOT NULL DEFAULT '1.10' COMMENT '组件版本',
   `gmt_create` datetime DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
@@ -2151,46 +2214,66 @@ COMMIT;
 -- ----------------------------
 DROP TABLE IF EXISTS `task_dirty_data_manage`;
 CREATE TABLE `task_dirty_data_manage` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `task_id` int(11) NOT NULL COMMENT '任务id',
-  `output_type` varchar(25) NOT NULL COMMENT '输出类型1.log2.jdbc',
-  `max_rows` int(11) NOT NULL COMMENT '脏数据最大值',
-  `max_collect_failed_rows` int(11) NOT NULL COMMENT '失败条数',
-  `link_info` text NOT NULL COMMENT '连接信息json',
-  `log_print_interval` int(11) NOT NULL DEFAULT '0' COMMENT '日志打印频率',
-  `tenant_id` int(11) NOT NULL COMMENT '租户id',
-  `gmt_create` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '新增时间',
-  `gmt_modified` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
-  `is_deleted` tinyint(1) NOT NULL DEFAULT '0' COMMENT '0正常 1逻辑删除',
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `index_task_id` (`task_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+                                          `id`                      int(11)     NOT NULL AUTO_INCREMENT,
+                                          `task_id`                 int(11)     NOT NULL COMMENT '任务id',
+                                          `output_type`             varchar(25) NOT NULL COMMENT '输出类型1.log2.jdbc',
+                                          `max_rows`                int(11)     NOT NULL COMMENT '脏数据最大值',
+                                          `max_collect_failed_rows` int(11)     NOT NULL COMMENT '失败条数',
+                                          `link_info`               text        NOT NULL COMMENT '连接信息json',
+                                          `log_print_interval`      int(11)     NOT NULL DEFAULT '0' COMMENT '日志打印频率',
+                                          `tenant_id`               int(11)     NOT NULL COMMENT '租户id',
+                                          `gmt_create`              datetime    NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '新增时间',
+                                          `gmt_modified`            datetime    NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
+                                          `is_deleted`              tinyint(1)  NOT NULL DEFAULT '0' COMMENT '0正常 1逻辑删除',
+                                          PRIMARY KEY (`id`),
+                                          UNIQUE KEY `index_task_id` (`task_id`)
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8 COMMENT ='脏数据配置表';
 
 -- ----------------------------
 -- Table structure for task_param_template
 -- ----------------------------
 DROP TABLE IF EXISTS `task_param_template`;
-CREATE TABLE `task_param_template` (
-  `id` bigint(20) NOT NULL AUTO_INCREMENT,
-  `task_type` int(11) DEFAULT '0' COMMENT '任务类型',
-  `task_name` varchar(20) COLLATE utf8_bin DEFAULT NULL COMMENT '任务名称',
-  `task_version` varchar(20) COLLATE utf8_bin DEFAULT NULL COMMENT '任务版本',
-  `params` text COLLATE utf8_bin COMMENT '参数模版',
-  `gmt_create` datetime DEFAULT CURRENT_TIMESTAMP,
-  `gmt_modified` datetime DEFAULT CURRENT_TIMESTAMP,
-  `is_deleted` tinyint(1) NOT NULL DEFAULT '0' COMMENT '0正常 1逻辑删除',
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+CREATE TABLE `task_param_template`
+(
+    `id`           bigint(20) NOT NULL AUTO_INCREMENT,
+    `task_type`    int(11)                      DEFAULT '0' COMMENT '任务类型',
+    `task_name`    varchar(20) COLLATE utf8_bin DEFAULT NULL COMMENT '任务名称',
+    `task_version` varchar(20) COLLATE utf8_bin DEFAULT NULL COMMENT '任务版本',
+    `params`       text COLLATE utf8_bin COMMENT '参数模版',
+    `gmt_create`   datetime                     DEFAULT CURRENT_TIMESTAMP,
+    `gmt_modified` datetime                     DEFAULT CURRENT_TIMESTAMP,
+    `is_deleted`   tinyint(1) NOT NULL          DEFAULT '0' COMMENT '0正常 1逻辑删除',
+    PRIMARY KEY (`id`)
+) ENGINE = InnoDB
+  AUTO_INCREMENT = 11
+  DEFAULT CHARSET = utf8
+  COLLATE = utf8_bin COMMENT ='任务参数模版表';
 
 -- ----------------------------
 -- Records of task_param_template
 -- ----------------------------
 BEGIN;
-INSERT INTO `task_param_template` VALUES (1, 0, 'SPARK_SQL', '2.1', '## Driver程序使用的CPU核数,默认为1\n# driver.cores=1\n\n## Driver程序使用内存大小,默认512m\n# driver.memory=512m\n\n## 对Spark每个action结果集大小的限制，最少是1M，若设为0则不限制大小。\n## 若Job结果超过限制则会异常退出，若结果集限制过大也可能造成OOM问题，默认1g\n# driver.maxResultSize=1g\n\n## 启动的executor的数量，默认为1\nexecutor.instances=1\n\n## 每个executor使用的CPU核数，默认为1\nexecutor.cores=1\n\n## 每个executor内存大小,默认512m\nexecutor.memory=512m\n\n## 任务优先级, 值越小，优先级越高，范围:1-1000\njob.priority=10\n\n## spark 日志级别可选ALL, DEBUG, ERROR, FATAL, INFO, OFF, TRACE, WARN\n# logLevel = INFO\n\n## spark中所有网络交互的最大超时时间\n# spark.network.timeout=120s\n\n## executor的OffHeap内存，和spark.executor.memory配置使用\n# spark.yarn.executor.memoryOverhead', '2021-11-18 10:36:13', '2021-11-18 10:36:13', 0);
-INSERT INTO `task_param_template` VALUES (3, 1, 'SPARK', '2.1', '## Driver程序使用的CPU核数,默认为1\n# driver.cores=1\n\n## Driver程序使用内存大小,默认512m\n# driver.memory=512m\n\n## 对Spark每个action结果集大小的限制，最少是1M，若设为0则不限制大小。\n## 若Job结果超过限制则会异常退出，若结果集限制过大也可能造成OOM问题，默认1g\n# driver.maxResultSize=1g\n\n## 启动的executor的数量，默认为1\nexecutor.instances=1\n\n## 每个executor使用的CPU核数，默认为1\nexecutor.cores=1\n\n## 每个executor内存大小,默认512m\nexecutor.memory=512m\n\n## 任务优先级, 值越小，优先级越高，范围:1-1000\njob.priority=10\n\n## spark 日志级别可选ALL, DEBUG, ERROR, FATAL, INFO, OFF, TRACE, WARN\n# logLevel = INFO\n\n## spark中所有网络交互的最大超时时间\n# spark.network.timeout=120s\n\n## executor的OffHeap内存，和spark.executor.memory配置使用\n# spark.yarn.executor.memoryOverhead', '2021-11-18 10:36:13', '2021-11-18 10:36:13', 0);
-INSERT INTO `task_param_template` VALUES (5, 2, 'SYNC', '1.12', '## 任务运行方式：\n## per_job:单独为任务创建flink yarn session，适用于低频率，大数据量同步\n## session：多个任务共用一个flink yarn session，适用于高频率、小数据量同步，默认per_job\n## standalone：多个任务共用一个flink standalone\n## flinkTaskRunMode=per_job\n## per_job模式下jobManager配置的内存大小，默认1024（单位M)\n## jobmanager.memory.mb=1024\n## per_job模式下taskManager配置的内存大小，默认1024（单位M）\n## taskmanager.memory.mb=1024\n## per_job模式下每个taskManager 对应 slot的数量\n## slots=1\n## checkpoint保存时间间隔\n## flink.checkpoint.interval=300000\n## 任务优先级, 范围:1-1000\n## job.priority=10', '2021-11-18 10:37:24', '2021-11-18 10:37:24', 0);
-INSERT INTO `task_param_template` VALUES (7, 5, 'FlinkSQL', '1.12', '## 资源相关\nparallelism.default=1\ntaskmanager.numberOfTaskSlots=1\njobmanager.memory.process.size=1g\ntaskmanager.memory.process.size=2g\n\n## 时间相关\n## 设置Flink时间选项，有ProcessingTime,EventTime,IngestionTime可选\n## 非脚本模式会根据Kafka自动设置。脚本模式默认为ProcessingTime\n# pipeline.time-characteristic=EventTime\n\n## Checkpoint相关\n## 生成checkpoint时间间隔（以毫秒为单位），默认:5分钟,注释掉该选项会关闭checkpoint生成\nexecution.checkpointing.interval=5min\n## 状态恢复语义,可选参数EXACTLY_ONCE,AT_LEAST_ONCE；默认为EXACTLY_ONCE\n# execution.checkpointing.mode=EXACTLY_ONCE\n##任务取消后保留hdfs上的checkpoint文件\nexecution.checkpointing.externalized-checkpoint-retention=RETAIN_ON_CANCELLATION\n\n# Flink SQL独有，状态过期时间\ntable.exec.state.ttl=1d\n\nlog.level=INFO\n\n## 使用Iceberg和Hive维表开启\n# table.dynamic-table-options.enabled=true\n\n## Kerberos相关\n# security.kerberos.login.contexts=Client,KafkaClient\n\n\n## 高阶参数\n## 窗口提前触发时间\n# table.exec.emit.early-fire.enabled=true\n# table.exec.emit.early-fire.delay=1s\n\n## 当一个源在超时时间内没有收到任何元素时，它将被标记为临时空闲\n# table.exec.source.idle-timeout=10ms\n\n## 是否开启minibatch\n## 可以减少状态开销。这可能会增加一些延迟，因为它会缓冲一些记录而不是立即处理它们。这是吞吐量和延迟之间的权衡\n# table.exec.mini-batch.enabled=true\n## 状态缓存时间\n# table.exec.mini-batch.allow-latency=5s\n## 状态最大缓存条数\n# table.exec.mini-batch.size=5000\n\n## 是否开启Local-Global 聚合。前提需要开启minibatch\n## 聚合是为解决数据倾斜问题提出的，类似于 MapReduce 中的 Combine + Reduce 模式\n# table.optimizer.agg-phase-strategy=TWO_PHASE\n\n## 是否开启拆分 distinct 聚合\n## Local-Global 可以解决数据倾斜，但是在处理 distinct 聚合时，其性能并不令人满意。\n## 如：SELECT day, COUNT(DISTINCT user_id) FROM T GROUP BY day 如果 distinct key （即 user_id）的值分布稀疏，建议开启\n# table.optimizer.distinct-agg.split.enabled=true\n\n\n## Flink算子chaining开关。默认为true。排查性能问题时会暂时设置成false，但降低性能。\n# pipeline.operator-chaining=true', '2022-04-13 14:30:53', '2022-04-13 14:30:53', 0);
-INSERT INTO `task_param_template` VALUES (9, 6, '实时采集', '1.12', '## 资源相关\nparallelism.default=1\ntaskmanager.numberOfTaskSlots=1\njobmanager.memory.process.size=1g\ntaskmanager.memory.process.size=2g\n\n## 时间相关\n## 设置Flink时间选项，有ProcessingTime,EventTime,IngestionTime可选\n## 非脚本模式会根据Kafka自动设置。脚本模式默认为ProcessingTime\n# pipeline.time-characteristic=EventTime\n\n## Checkpoint相关\n## 生成checkpoint时间间隔（以毫秒为单位），默认:5分钟,注释掉该选项会关闭checkpoint生成\nexecution.checkpointing.interval=5min\n## 状态恢复语义,可选参数EXACTLY_ONCE,AT_LEAST_ONCE；默认为EXACTLY_ONCE\n# execution.checkpointing.mode=EXACTLY_ONCE\n##任务取消后保留hdfs上的checkpoint文件\nexecution.checkpointing.externalized-checkpoint-retention=RETAIN_ON_CANCELLATION\n\n# Flink SQL独有，状态过期时间\ntable.exec.state.ttl=1d\n\nlog.level=INFO\n\n## 使用Iceberg和Hive维表开启\n# table.dynamic-table-options.enabled=true\n\n## Kerberos相关\n# security.kerberos.login.contexts=Client,KafkaClient\n\n\n## 高阶参数\n## 窗口提前触发时间\n# table.exec.emit.early-fire.enabled=true\n# table.exec.emit.early-fire.delay=1s\n\n## 当一个源在超时时间内没有收到任何元素时，它将被标记为临时空闲\n# table.exec.source.idle-timeout=10ms\n\n## 是否开启minibatch\n## 可以减少状态开销。这可能会增加一些延迟，因为它会缓冲一些记录而不是立即处理它们。这是吞吐量和延迟之间的权衡\n# table.exec.mini-batch.enabled=true\n## 状态缓存时间\n# table.exec.mini-batch.allow-latency=5s\n## 状态最大缓存条数\n# table.exec.mini-batch.size=5000\n\n## 是否开启Local-Global 聚合。前提需要开启minibatch\n## 聚合是为解决数据倾斜问题提出的，类似于 MapReduce 中的 Combine + Reduce 模式\n# table.optimizer.agg-phase-strategy=TWO_PHASE\n\n## 是否开启拆分 distinct 聚合\n## Local-Global 可以解决数据倾斜，但是在处理 distinct 聚合时，其性能并不令人满意。\n## 如：SELECT day, COUNT(DISTINCT user_id) FROM T GROUP BY day 如果 distinct key （即 user_id）的值分布稀疏，建议开启\n# table.optimizer.distinct-agg.split.enabled=true\n\n\n## Flink算子chaining开关。默认为true。排查性能问题时会暂时设置成false，但降低性能。\n# pipeline.operator-chaining=true', '2022-04-13 14:30:53', '2022-04-13 14:30:53', 0);
+INSERT INTO `task_param_template`
+VALUES (1, 0, 'SPARK_SQL', '2.1',
+        '## Driver程序使用的CPU核数,默认为1\n# driver.cores=1\n\n## Driver程序使用内存大小,默认512m\n# driver.memory=512m\n\n## 对Spark每个action结果集大小的限制，最少是1M，若设为0则不限制大小。\n## 若Job结果超过限制则会异常退出，若结果集限制过大也可能造成OOM问题，默认1g\n# driver.maxResultSize=1g\n\n## 启动的executor的数量，默认为1\nexecutor.instances=1\n\n## 每个executor使用的CPU核数，默认为1\nexecutor.cores=1\n\n## 每个executor内存大小,默认512m\nexecutor.memory=512m\n\n## 任务优先级, 值越小，优先级越高，范围:1-1000\njob.priority=10\n\n## spark 日志级别可选ALL, DEBUG, ERROR, FATAL, INFO, OFF, TRACE, WARN\n# logLevel = INFO\n\n## spark中所有网络交互的最大超时时间\n# spark.network.timeout=120s\n\n## executor的OffHeap内存，和spark.executor.memory配置使用\n# spark.yarn.executor.memoryOverhead',
+        '2021-11-18 10:36:13', '2021-11-18 10:36:13', 0);
+INSERT INTO `task_param_template`
+VALUES (3, 1, 'SPARK', '2.1',
+        '## Driver程序使用的CPU核数,默认为1\n# driver.cores=1\n\n## Driver程序使用内存大小,默认512m\n# driver.memory=512m\n\n## 对Spark每个action结果集大小的限制，最少是1M，若设为0则不限制大小。\n## 若Job结果超过限制则会异常退出，若结果集限制过大也可能造成OOM问题，默认1g\n# driver.maxResultSize=1g\n\n## 启动的executor的数量，默认为1\nexecutor.instances=1\n\n## 每个executor使用的CPU核数，默认为1\nexecutor.cores=1\n\n## 每个executor内存大小,默认512m\nexecutor.memory=512m\n\n## 任务优先级, 值越小，优先级越高，范围:1-1000\njob.priority=10\n\n## spark 日志级别可选ALL, DEBUG, ERROR, FATAL, INFO, OFF, TRACE, WARN\n# logLevel = INFO\n\n## spark中所有网络交互的最大超时时间\n# spark.network.timeout=120s\n\n## executor的OffHeap内存，和spark.executor.memory配置使用\n# spark.yarn.executor.memoryOverhead',
+        '2021-11-18 10:36:13', '2021-11-18 10:36:13', 0);
+INSERT INTO `task_param_template`
+VALUES (5, 2, 'SYNC', '1.12',
+        '## 任务运行方式：\n## per_job:单独为任务创建flink yarn session，适用于低频率，大数据量同步\n## session：多个任务共用一个flink yarn session，适用于高频率、小数据量同步，默认per_job\n## standalone：多个任务共用一个flink standalone\n## flinkTaskRunMode=per_job\n## per_job模式下jobManager配置的内存大小，默认1024（单位M)\n## jobmanager.memory.mb=1024\n## per_job模式下taskManager配置的内存大小，默认1024（单位M）\n## taskmanager.memory.mb=1024\n## per_job模式下每个taskManager 对应 slot的数量\n## slots=1\n## checkpoint保存时间间隔\n## flink.checkpoint.interval=300000\n## 任务优先级, 范围:1-1000\n## job.priority=10',
+        '2021-11-18 10:37:24', '2021-11-18 10:37:24', 0);
+INSERT INTO `task_param_template`
+VALUES (7, 5, 'FlinkSQL', '1.12',
+        '## 资源相关\nparallelism.default=1\ntaskmanager.numberOfTaskSlots=1\njobmanager.memory.process.size=1g\ntaskmanager.memory.process.size=2g\n\n## 时间相关\n## 设置Flink时间选项，有ProcessingTime,EventTime,IngestionTime可选\n## 非脚本模式会根据Kafka自动设置。脚本模式默认为ProcessingTime\n# pipeline.time-characteristic=EventTime\n\n## Checkpoint相关\n## 生成checkpoint时间间隔（以毫秒为单位），默认:5分钟,注释掉该选项会关闭checkpoint生成\nexecution.checkpointing.interval=5min\n## 状态恢复语义,可选参数EXACTLY_ONCE,AT_LEAST_ONCE；默认为EXACTLY_ONCE\n# execution.checkpointing.mode=EXACTLY_ONCE\n##任务取消后保留hdfs上的checkpoint文件\nexecution.checkpointing.externalized-checkpoint-retention=RETAIN_ON_CANCELLATION\n\n# Flink SQL独有，状态过期时间\ntable.exec.state.ttl=1d\n\nlog.level=INFO\n\n## 使用Iceberg和Hive维表开启\n# table.dynamic-table-options.enabled=true\n\n## Kerberos相关\n# security.kerberos.login.contexts=Client,KafkaClient\n\n\n## 高阶参数\n## 窗口提前触发时间\n# table.exec.emit.early-fire.enabled=true\n# table.exec.emit.early-fire.delay=1s\n\n## 当一个源在超时时间内没有收到任何元素时，它将被标记为临时空闲\n# table.exec.source.idle-timeout=10ms\n\n## 是否开启minibatch\n## 可以减少状态开销。这可能会增加一些延迟，因为它会缓冲一些记录而不是立即处理它们。这是吞吐量和延迟之间的权衡\n# table.exec.mini-batch.enabled=true\n## 状态缓存时间\n# table.exec.mini-batch.allow-latency=5s\n## 状态最大缓存条数\n# table.exec.mini-batch.size=5000\n\n## 是否开启Local-Global 聚合。前提需要开启minibatch\n## 聚合是为解决数据倾斜问题提出的，类似于 MapReduce 中的 Combine + Reduce 模式\n# table.optimizer.agg-phase-strategy=TWO_PHASE\n\n## 是否开启拆分 distinct 聚合\n## Local-Global 可以解决数据倾斜，但是在处理 distinct 聚合时，其性能并不令人满意。\n## 如：SELECT day, COUNT(DISTINCT user_id) FROM T GROUP BY day 如果 distinct key （即 user_id）的值分布稀疏，建议开启\n# table.optimizer.distinct-agg.split.enabled=true\n\n\n## Flink算子chaining开关。默认为true。排查性能问题时会暂时设置成false，但降低性能。\n# pipeline.operator-chaining=true',
+        '2022-04-13 14:30:53', '2022-04-13 14:30:53', 0);
+INSERT INTO `task_param_template`
+VALUES (9, 6, '实时采集', '1.12',
+        '## 资源相关\nparallelism.default=1\ntaskmanager.numberOfTaskSlots=1\njobmanager.memory.process.size=1g\ntaskmanager.memory.process.size=2g\n\n## 时间相关\n## 设置Flink时间选项，有ProcessingTime,EventTime,IngestionTime可选\n## 非脚本模式会根据Kafka自动设置。脚本模式默认为ProcessingTime\n# pipeline.time-characteristic=EventTime\n\n## Checkpoint相关\n## 生成checkpoint时间间隔（以毫秒为单位），默认:5分钟,注释掉该选项会关闭checkpoint生成\nexecution.checkpointing.interval=5min\n## 状态恢复语义,可选参数EXACTLY_ONCE,AT_LEAST_ONCE；默认为EXACTLY_ONCE\n# execution.checkpointing.mode=EXACTLY_ONCE\n##任务取消后保留hdfs上的checkpoint文件\nexecution.checkpointing.externalized-checkpoint-retention=RETAIN_ON_CANCELLATION\n\n# Flink SQL独有，状态过期时间\ntable.exec.state.ttl=1d\n\nlog.level=INFO\n\n## 使用Iceberg和Hive维表开启\n# table.dynamic-table-options.enabled=true\n\n## Kerberos相关\n# security.kerberos.login.contexts=Client,KafkaClient\n\n\n## 高阶参数\n## 窗口提前触发时间\n# table.exec.emit.early-fire.enabled=true\n# table.exec.emit.early-fire.delay=1s\n\n## 当一个源在超时时间内没有收到任何元素时，它将被标记为临时空闲\n# table.exec.source.idle-timeout=10ms\n\n## 是否开启minibatch\n## 可以减少状态开销。这可能会增加一些延迟，因为它会缓冲一些记录而不是立即处理它们。这是吞吐量和延迟之间的权衡\n# table.exec.mini-batch.enabled=true\n## 状态缓存时间\n# table.exec.mini-batch.allow-latency=5s\n## 状态最大缓存条数\n# table.exec.mini-batch.size=5000\n\n## 是否开启Local-Global 聚合。前提需要开启minibatch\n## 聚合是为解决数据倾斜问题提出的，类似于 MapReduce 中的 Combine + Reduce 模式\n# table.optimizer.agg-phase-strategy=TWO_PHASE\n\n## 是否开启拆分 distinct 聚合\n## Local-Global 可以解决数据倾斜，但是在处理 distinct 聚合时，其性能并不令人满意。\n## 如：SELECT day, COUNT(DISTINCT user_id) FROM T GROUP BY day 如果 distinct key （即 user_id）的值分布稀疏，建议开启\n# table.optimizer.distinct-agg.split.enabled=true\n\n\n## Flink算子chaining开关。默认为true。排查性能问题时会暂时设置成false，但降低性能。\n# pipeline.operator-chaining=true',
+        '2022-04-13 14:30:53', '2022-04-13 14:30:53', 0);
 INSERT INTO `task_param_template` VALUES (11, 7, 'HiveSQL', '', '## 指定mapreduce在yarn上的任务名称，默认为任务名称，可以重复\n#hiveconf:mapreduce.job.name=\n\n## 指定mapreduce运行的队列，默认走控制台配置的queue\n# hiveconf:mapreduce.job.queuename=default_queue_name\n\n## hivevar配置,用户自定义变量\n#hivevar:ageParams=30## 指定mapreduce在yarn上的任务名称，默认为任务名称，可以重复\n#hiveconf:mapreduce.job.name=\n\n## 指定mapreduce运行的队列，默认走控制台配置的queue\n# hiveconf:mapreduce.job.queuename=default_queue_name\n\n## hivevar配置,用户自定义变量\n#hivevar:ageParams=30', '2021-11-18 10:36:13', '2021-11-18 10:36:13', 0);
 INSERT INTO `task_param_template` VALUES (13, 11, 'Flink', '1.12', '## 资源相关\nparallelism.default=1\ntaskmanager.numberOfTaskSlots=1\njobmanager.memory.process.size=1g\ntaskmanager.memory.process.size=2g', '2022-10-24 15:45:58', '2022-10-24 15:45:58', 0);
 INSERT INTO `task_param_template` VALUES (15, 12, 'PYTHON', '', '## 每个worker所占内存，比如512m\n# script.worker.memory=512m\n\n## 每个worker所占的cpu核的数量\n# script.worker.cores=1\n\n## worker数量\n# script.worker.num=1\n\n## 是否独占机器节点\n# script.worker.exclusive=false\n\n## 任务优先级, 值越小，优先级越高，范围:1-1000\njob.priority=10\n\n## 指定work运行节点，需要注意不要写ip应填写对应的hostname\n# script.worker.nodes=\n\n## 指定work运行机架\n# script.worker.racks=\n\n## 日志级别可选ALL, DEBUG, ERROR, FATAL, INFO, OFF, TRACE, WARN\nlogLevel=INFO', '2022-10-24 15:46:52', '2022-10-24 15:46:52', 0);
@@ -2201,23 +2284,28 @@ COMMIT;
 -- Table structure for tenant
 -- ----------------------------
 DROP TABLE IF EXISTS `tenant`;
-CREATE TABLE `tenant` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `tenant_name` varchar(256) COLLATE utf8_bin NOT NULL COMMENT '用户名称',
-  `tenant_desc` varchar(256) COLLATE utf8_bin DEFAULT '' COMMENT '租户描述',
-  `gmt_create` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '新增时间',
-  `gmt_modified` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
-  `create_user_id` int(11) NOT NULL,
-  `is_deleted` tinyint(1) NOT NULL DEFAULT '0' COMMENT '0正常 1逻辑删除',
-  `tenant_identity` varchar(64) COLLATE utf8_bin DEFAULT '' COMMENT '租户标识',
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+CREATE TABLE `tenant`
+(
+    `id`              int(11)                       NOT NULL AUTO_INCREMENT,
+    `tenant_name`     varchar(256) COLLATE utf8_bin NOT NULL COMMENT '用户名称',
+    `tenant_desc`     varchar(256) COLLATE utf8_bin          DEFAULT '' COMMENT '租户描述',
+    `gmt_create`      datetime                      NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '新增时间',
+    `gmt_modified`    datetime                      NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
+    `create_user_id`  int(11)                       NOT NULL,
+    `is_deleted`      tinyint(1)                    NOT NULL DEFAULT '0' COMMENT '0正常 1逻辑删除',
+    `tenant_identity` varchar(64) COLLATE utf8_bin           DEFAULT '' COMMENT '租户标识',
+    PRIMARY KEY (`id`)
+) ENGINE = InnoDB
+  AUTO_INCREMENT = 3
+  DEFAULT CHARSET = utf8
+  COLLATE = utf8_bin COMMENT ='租户表';
 
 -- ----------------------------
 -- Records of tenant
 -- ----------------------------
 BEGIN;
-INSERT INTO `tenant` VALUES (1, 'taier', NULL, '2021-08-13 16:39:40', '2021-08-13 16:39:40', 1, 0, '');
+INSERT INTO `tenant`
+VALUES (1, 'taier', NULL, '2021-08-13 16:39:40', '2021-08-13 16:39:40', 1, 0, '');
 COMMIT;
 
 -- ----------------------------
@@ -2225,34 +2313,33 @@ COMMIT;
 -- ----------------------------
 DROP TABLE IF EXISTS `user`;
 CREATE TABLE `user` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `user_name` varchar(256) COLLATE utf8_bin NOT NULL COMMENT '用户名称',
-  `password` varchar(128) COLLATE utf8_bin NOT NULL,
-  `phone_number` varchar(256) COLLATE utf8_bin DEFAULT NULL COMMENT '用户手机号',
-  `email` varchar(256) COLLATE utf8_bin NOT NULL COMMENT '用户手机号',
-  `status` tinyint(1) NOT NULL DEFAULT '0' COMMENT '用户状态0：正常，1：禁用',
-  `gmt_create` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '新增时间',
-  `gmt_modified` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
-  `is_deleted` tinyint(1) NOT NULL DEFAULT '0' COMMENT '0正常 1逻辑删除',
-  PRIMARY KEY (`id`),
-  KEY `index_user_name` (`user_name`(128))
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+                        `id`           int(11)                       NOT NULL AUTO_INCREMENT,
+                        `user_name`    varchar(256) COLLATE utf8_bin NOT NULL COMMENT '用户名称',
+                        `password`     varchar(128) COLLATE utf8_bin NOT NULL,
+                        `phone_number` varchar(256) COLLATE utf8_bin          DEFAULT NULL COMMENT '用户手机号',
+                        `email`        varchar(256) COLLATE utf8_bin NOT NULL COMMENT '用户手机号',
+                        `status`       tinyint(1)                    NOT NULL DEFAULT '0' COMMENT '用户状态0：正常，1：禁用',
+                        `gmt_create`   datetime                      NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '新增时间',
+                        `gmt_modified` datetime                      NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
+                        `is_deleted`   tinyint(1)                    NOT NULL DEFAULT '0' COMMENT '0正常 1逻辑删除',
+                        PRIMARY KEY (`id`),
+                        KEY `index_user_name` (`user_name`(128))
+) ENGINE = InnoDB
+  AUTO_INCREMENT = 3
+  DEFAULT CHARSET = utf8
+  COLLATE = utf8_bin COMMENT ='用户表';
 
 -- ----------------------------
 -- Records of user
 -- ----------------------------
 BEGIN;
-INSERT INTO `user` VALUES (1, 'admin@dtstack.com', '0192023A7BBD73250516F069DF18B500', '', 'admin@dtstack.com', 0, '2017-06-05 20:35:16', '2017-06-05 20:35:16', 0);
+INSERT INTO `user`
+VALUES (1, 'admin@dtstack.com', '0192023A7BBD73250516F069DF18B500', '', 'admin@dtstack.com', 0, '2017-06-05 20:35:16',
+        '2017-06-05 20:35:16', 0);
 COMMIT;
 
 SET FOREIGN_KEY_CHECKS = 1;
-
-
-
-INSERT INTO `dict` (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default, gmt_create, gmt_modified, is_deleted) VALUES ('25', 'HadoopMR', '{"actions": ["SAVE_TASK", "SUBMIT_TASK", "OPERATOR_TASK"], "formField": ["resourceIdList", "mainClass", "exeArgs"],"barItem":["dependency","task_params","env_params"], "renderKind": "spark"}', '', 30, 5, 'STRING', '', 0, '2023-02-09 10:28:45', '2023-02-09 10:28:45', 0);
-
-
---script 支持 standalone
+-- script 支持 standalone
 
 -- 处理组件配置是否有多版本之类的
 update dict
