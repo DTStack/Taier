@@ -18,8 +18,8 @@
 
 package com.dtstack.taier.scheduler.server.builder;
 
-import com.dtstack.taier.common.enums.EScheduleJobType;
 import com.dtstack.taier.common.enums.Deleted;
+import com.dtstack.taier.common.enums.EScheduleJobType;
 import com.dtstack.taier.common.enums.Restarted;
 import com.dtstack.taier.common.env.EnvironmentContext;
 import com.dtstack.taier.common.exception.TaierDefineException;
@@ -32,8 +32,8 @@ import com.dtstack.taier.pluginapi.util.DateUtil;
 import com.dtstack.taier.scheduler.server.ScheduleJobDetails;
 import com.dtstack.taier.scheduler.server.builder.cron.ScheduleConfManager;
 import com.dtstack.taier.scheduler.server.builder.cron.ScheduleCorn;
-import com.dtstack.taier.scheduler.server.builder.dependency.JobDependency;
 import com.dtstack.taier.scheduler.server.builder.dependency.DependencyManager;
+import com.dtstack.taier.scheduler.server.builder.dependency.JobDependency;
 import com.dtstack.taier.scheduler.service.ScheduleActionService;
 import com.dtstack.taier.scheduler.service.ScheduleJobService;
 import com.dtstack.taier.scheduler.service.ScheduleTaskShadeService;
@@ -157,6 +157,9 @@ public abstract class AbstractJobBuilder implements JobBuilder, InitializingBean
      * @return 名称
      */
     private String getName(ScheduleTaskShade scheduleTaskShade, String name, String cycTime) {
+        if (StringUtils.isBlank(name)) {
+            return getPrefix() + "_" + scheduleTaskShade.getName() + "_" + cycTime;
+        }
         return getPrefix() + "_" + name + "_" + scheduleTaskShade.getName() + "_" + cycTime;
     }
 
