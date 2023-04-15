@@ -8,7 +8,7 @@ import TaskInfo from '@/pages/rightBar/taskInfo';
 import TaskParams from '@/pages/rightBar/taskParams';
 import { isTaskTab } from '@/utils/is';
 import molecule from '@dtinsight/molecule';
-import { Component } from '@dtinsight/molecule/esm/react';
+import { Component, connect } from '@dtinsight/molecule/esm/react';
 import type { FormInstance } from 'antd';
 import { Form } from 'antd';
 import classNames from 'classnames';
@@ -106,35 +106,38 @@ export default class RightBarService extends Component<void> implements IRightBa
      * 根据右侧栏的 key 值返回对应的 JSX 组件
      */
     public createContent = (kind: string) => {
-        const { current } = molecule.editor.getState();
-        /**
-         * 当前的 tab 是否不合法，如不合法则展示 Empty
-         */
-        const isInValidTab = !isTaskTab(current?.tab?.id);
+        const Container = connect(molecule.editor, ({ current }: molecule.model.IEditor) => {
+            /**
+             * 当前的 tab 是否不合法，如不合法则展示 Empty
+             */
+            const isInValidTab = !isTaskTab(current?.tab?.id);
+            if (isInValidTab)
+                return <div className={classNames('text-center', 'pt-10px')}>无法获取{this.getTextByKind(kind)}</div>;
 
-        if (isInValidTab) {
-            return <div className={classNames('text-center', 'pt-10px')}>无法获取{this.getTextByKind(kind)}</div>;
-        }
+            switch (kind) {
+                case RightBarKind.TASK:
+                    return <TaskInfo key={current?.activeTab} current={current} />;
+                case RightBarKind.DEPENDENCY:
+                    return <SchedulingConfig key={current?.activeTab} current={current} />;
+                case RightBarKind.TASK_PARAMS:
+                    return <TaskParams key={current?.activeTab} current={current} />;
+                case RightBarKind.ENV_PARAMS:
+                    return <EnvParams key={current?.activeTab} current={current} />;
+                case RightBarKind.TASK_CONFIG:
+                    return this.withForm(<TaskConfig key={`${current?.activeTab}_config`} current={current} />);
+                case RightBarKind.FLINKSQL_SOURCE:
+                    return this.withForm(<FlinkSourcePanel key={`${current?.activeTab}_source`} current={current} />);
+                case RightBarKind.FLINKSQL_RESULT:
+                    return this.withForm(<FlinkResultPanel key={`${current?.activeTab}_result`} current={current} />);
+                case RightBarKind.FLINKSQL_DIMENSION:
+                    return this.withForm(
+                        <FlinkDimensionPanel key={`${current?.activeTab}_dimension`} current={current} />
+                    );
+                default:
+                    return null;
+            }
+        });
 
-        switch (kind) {
-            case RightBarKind.TASK:
-                return <TaskInfo key={current?.activeTab} current={current} />;
-            case RightBarKind.DEPENDENCY:
-                return <SchedulingConfig key={current?.activeTab} current={current} />;
-            case RightBarKind.TASK_PARAMS:
-                return <TaskParams key={current?.activeTab} current={current} />;
-            case RightBarKind.ENV_PARAMS:
-                return <EnvParams key={current?.activeTab} current={current} />;
-            case RightBarKind.TASK_CONFIG:
-                return this.withForm(<TaskConfig key={`${current?.activeTab}_config`} current={current} />);
-            case RightBarKind.FLINKSQL_SOURCE:
-                return this.withForm(<FlinkSourcePanel key={`${current?.activeTab}_source`} current={current} />);
-            case RightBarKind.FLINKSQL_RESULT:
-                return this.withForm(<FlinkResultPanel key={`${current?.activeTab}_result`} current={current} />);
-            case RightBarKind.FLINKSQL_DIMENSION:
-                return this.withForm(<FlinkDimensionPanel key={`${current?.activeTab}_dimension`} current={current} />);
-            default:
-                return null;
-        }
+        return <Container />;
     };
 }
