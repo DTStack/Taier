@@ -63,7 +63,7 @@ public class ClientFactory {
     public static IClient buildPluginClient(String pluginInfo, String pluginPath) throws Exception {
         Map<String, Object> params = PublicUtil.jsonStrToObject(pluginInfo, Map.class);
         String clientTypeStr = MathUtil.getString(params.get(ConfigConstant.TYPE_NAME_KEY));
-        if ("datax".equals(params.get(ConfigConstant.TYPE_NAME_KEY))){
+        if ("DataX".equals(params.get(ConfigConstant.TYPE_NAME_KEY))){
             clientTypeStr= "script-standalone";
         }
         if (StringUtils.isBlank(clientTypeStr)) {

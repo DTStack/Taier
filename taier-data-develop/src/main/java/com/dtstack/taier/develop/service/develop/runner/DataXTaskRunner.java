@@ -65,6 +65,9 @@ public class DataXTaskRunner implements ITaskRunner {
     @Autowired
     protected ClusterService clusterService;
 
+    @Autowired
+    private ScriptTaskRunner scriptTaskRunner;
+
     @Override
     public List<EScheduleJobType> support() {
         return Lists.newArrayList(EScheduleJobType.DATAX);
@@ -93,7 +96,7 @@ public class DataXTaskRunner implements ITaskRunner {
     public ExecuteResultVO runLog(String jobId, Integer taskType, Long tenantId, Integer limitNum) {
         ExecuteResultVO resultVO = new ExecuteResultVO();
         StringBuilder log = new StringBuilder();
-        IDownload download = logDownLoad(tenantId, jobId, Objects.isNull(limitNum) ? environmentContext.getLogsLimitNum() : limitNum);
+        IDownload download = scriptTaskRunner.logDownLoad(tenantId, jobId, Objects.isNull(limitNum) ? environmentContext.getLogsLimitNum() : limitNum);
         if (Objects.nonNull(download)) {
             LOGGER.error("-----日志文件导出失败-----");
             while (!download.reachedEnd()) {

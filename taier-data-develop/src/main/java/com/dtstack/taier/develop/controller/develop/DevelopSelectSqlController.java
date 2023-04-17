@@ -30,6 +30,7 @@ import com.dtstack.taier.develop.service.develop.ITaskRunner;
 import com.dtstack.taier.develop.service.develop.TaskConfiguration;
 import com.dtstack.taier.develop.service.develop.impl.DevelopSelectSqlService;
 import com.dtstack.taier.develop.service.develop.impl.DevelopTaskService;
+import com.dtstack.taier.develop.service.develop.runner.ScriptTaskRunner;
 import com.dtstack.taier.develop.vo.develop.query.DevelopSelectSqlVO;
 import com.dtstack.taier.pluginapi.constrant.ConfigConstant;
 import com.dtstack.taier.scheduler.service.ScheduleJobService;
@@ -68,6 +69,9 @@ public class DevelopSelectSqlController {
 
     @Autowired
     private EnvironmentContext environmentContext;
+
+    @Autowired
+    private ScriptTaskRunner scriptTaskRunner;
 
     @PostMapping(value = "selectData")
     @ApiOperation("获取执行结果")
@@ -126,7 +130,7 @@ public class DevelopSelectSqlController {
                     Preconditions.checkNotNull(selectSql, "不存在该临时查询");
                     ITaskRunner taskRunner = taskConfiguration.get(selectSql.getTaskType());
                     Task task = developTaskService.getOneWithError(sqlVO.getTaskId());
-                    return taskRunner.runLog(selectSql.getJobId(), task.getTaskType(), task.getTenantId(), sqlVO.getLimitNum());
+                    return scriptTaskRunner.runLog(selectSql.getJobId(), task.getTaskType(), task.getTenantId(), sqlVO.getLimitNum());
                 } catch (Exception e) {
                     throw new TaierDefineException(e.getMessage());
                 }

@@ -132,7 +132,7 @@ public class ScriptTaskRunner implements ITaskRunner {
     @Override
     public IDownload logDownLoad(Long tenantId, String jobId, Integer limitNum) {
         ScheduleJob scheduleJob = jobService.getScheduleJob(jobId);
-        if (StringUtils.isBlank(scheduleJob.getApplicationId())) {
+            if (StringUtils.isBlank(scheduleJob.getApplicationId())) {
             return null;
         }
         // 判断是否运行在本地

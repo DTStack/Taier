@@ -28,7 +28,7 @@ public enum EDeployMode {
     /**
      * on yarn 任务
      */
-    RUN_ON_YARN("on_yarn", 4);
+    RUN_ON_YARN("yarn", 4);
 
     private final String mode;
     private final Integer type;
