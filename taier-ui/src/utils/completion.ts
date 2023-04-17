@@ -5,35 +5,68 @@ interface ICompletionProps {
     description: string;
 }
 
+let keywords: ICompletionProps[] = [];
+let functions: ICompletionProps[] = [];
 export const Keywords = async (range: languages.CompletionItem['range']): Promise<languages.CompletionItem[]> => {
-    return Promise.all([
-        fetch('./assets/keywords.json', { method: 'get' }).then<ICompletionProps[]>((res) => res.json()),
-        fetch('./assets/functions.json', { method: 'get' }).then<ICompletionProps[]>((res) => res.json()),
-    ]).then(([keywordList, functionList]) => {
-        return [
-            ...keywordList.map((keyword) => ({
-                label: keyword.keyword,
-                kind: languages.CompletionItemKind.Keyword,
-                documentation: keyword.description,
-                insertText: keyword.keyword,
-                range,
-            })),
-            ...functionList.map((fn) => ({
-                label: fn.keyword,
-                kind: languages.CompletionItemKind.Function,
-                documentation: fn.description,
-                insertText: fn.keyword,
-                range,
-            })),
-            {
-                label: 'NULL',
-                kind: languages.CompletionItemKind.Value,
-                documentation: 'A field with a NULL value is a field with no value.',
-                insertText: 'NULL',
-                range,
-            },
-        ];
-    });
+    if (!keywords.length || !functions.length) {
+        return Promise.all([
+            fetch('./assets/keywords.json', { method: 'get' }).then<ICompletionProps[]>((res) => res.json()),
+            fetch('./assets/functions.json', { method: 'get' }).then<ICompletionProps[]>((res) => res.json()),
+        ])
+            .then(([keywordList, functionList]) => {
+                keywords = keywordList;
+                functions = functionList;
+            })
+            .then(() => {
+                return [
+                    ...keywords.map((keyword) => ({
+                        label: keyword.keyword,
+                        kind: languages.CompletionItemKind.Keyword,
+                        documentation: keyword.description,
+                        insertText: keyword.keyword,
+                        range,
+                    })),
+                    ...functions.map((fn) => ({
+                        label: fn.keyword,
+                        kind: languages.CompletionItemKind.Function,
+                        documentation: fn.description,
+                        insertText: fn.keyword,
+                        range,
+                    })),
+                    {
+                        label: 'NULL',
+                        kind: languages.CompletionItemKind.Value,
+                        documentation: 'A field with a NULL value is a field with no value.',
+                        insertText: 'NULL',
+                        range,
+                    },
+                ];
+            });
+    }
+
+    return [
+        ...keywords.map((keyword) => ({
+            label: keyword.keyword,
+            kind: languages.CompletionItemKind.Keyword,
+            documentation: keyword.description,
+            insertText: keyword.keyword,
+            range,
+        })),
+        ...functions.map((fn) => ({
+            label: fn.keyword,
+            kind: languages.CompletionItemKind.Function,
+            documentation: fn.description,
+            insertText: fn.keyword,
+            range,
+        })),
+        {
+            label: 'NULL',
+            kind: languages.CompletionItemKind.Value,
+            documentation: 'A field with a NULL value is a field with no value.',
+            insertText: 'NULL',
+            range,
+        },
+    ];
 };
 
 export const Snippets = (range: languages.CompletionItem['range']): languages.CompletionItem[] => [
