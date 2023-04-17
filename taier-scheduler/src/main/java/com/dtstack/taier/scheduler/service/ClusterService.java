@@ -42,10 +42,6 @@ import com.dtstack.taier.scheduler.server.pluginInfo.HadoopMRPluginInfoStrategy;
 import com.dtstack.taier.scheduler.server.pluginInfo.KerberosPluginInfo;
 import com.dtstack.taier.scheduler.server.pluginInfo.ScriptPluginInfoStrategy;
 import com.dtstack.taier.scheduler.server.pluginInfo.SparkPluginInfoStrategy;
-import com.dtstack.taier.scheduler.server.pluginInfo.DefaultPluginInfoStrategy;
-import com.dtstack.taier.scheduler.server.pluginInfo.ScriptPluginInfoStrategy;
-import com.dtstack.taier.scheduler.server.pluginInfo.KerberosPluginInfo;
-import com.dtstack.taier.scheduler.server.pluginInfo.HadoopMRPluginInfoStrategy;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -132,6 +128,9 @@ public class ClusterService {
         EDeployType deployType = null;
         if (EDeployMode.STANDALONE.getType().equals(deployMode)) {
             deployType = EDeployType.STANDALONE;
+        }
+        if (EDeployMode.RUN_ON_YARN.getType().equals(deployMode)) {
+            deployType = EDeployType.YARN;
         }
         for (Component component : components) {
             EComponentType componentType = EComponentType.getByCode(component.getComponentTypeCode());
