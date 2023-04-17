@@ -32,8 +32,8 @@ public enum EComponentType {
     HDFS(2, "HDFS", "hadoopConf", EComponentScheduleType.STORAGE),
     YARN(3, "YARN", "yarnConf", EComponentScheduleType.RESOURCE),
     SFTP(6, "SFTP", "sftpConf", EComponentScheduleType.COMMON),
-    DATAX(9, "DATAX", "dataXConf", EComponentScheduleType.COMPUTE),
     SCRIPT(8, "Script", "scriptConf", EComponentScheduleType.COMPUTE),
+    DATAX(9, "DataX", "dataXConf", EComponentScheduleType.COMPUTE),
 
     ;
 
@@ -53,13 +53,11 @@ public enum EComponentType {
     }
 
     private static final Map<Integer, EComponentType> COMPONENT_TYPE_CODE_MAP = new ConcurrentHashMap<>(16);
-    private static final Map<String, EComponentType> COMPONENT_TYPE_NAME_MAP = new ConcurrentHashMap<>(16);
     private static final Map<String, EComponentType> COMPONENT_TYPE_CONF_NAME_MAP = new ConcurrentHashMap<>(16);
 
     static {
         for (EComponentType componentType : EComponentType.values()) {
             COMPONENT_TYPE_CODE_MAP.put(componentType.getTypeCode(), componentType);
-            COMPONENT_TYPE_NAME_MAP.put(componentType.getName(), componentType);
             COMPONENT_TYPE_CONF_NAME_MAP.put(componentType.getConfName(), componentType);
         }
     }

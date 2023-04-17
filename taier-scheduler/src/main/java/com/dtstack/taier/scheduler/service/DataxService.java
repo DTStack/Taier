@@ -50,7 +50,7 @@ public class DataxService {
     /**
      * 创建DataX脚本
      */
-    private static final String CREATE_TEMP_DATAX_PY = "python %s/bin/datax.py   %s";
+    private static final String CREATE_TEMP_DATAX_PY = "%s %s/bin/datax.py   %s";
 
     /**
      * 处理脚本参数
@@ -104,6 +104,7 @@ public class DataxService {
         //写入datax的json文件
         String tempPath = pluginInfoJson.getString(ConfigConstant.DATAX_TASK_TEMP);
         String dataxPath = pluginInfoJson.getString(ConfigConstant.DATAX_LOCAL_PATH);
+        String pythonPath = pluginInfoJson.getString(ConfigConstant.DATAX_PYTHON_BIN);
         if (StringUtils.isEmpty(tempPath)){
             throw new TaierDefineException("datax.task.temp is null");
         }
@@ -115,7 +116,7 @@ public class DataxService {
         if (StringUtils.isBlank(taskTempPath)) {
             throw new TaierDefineException("创建datax.json文件失败");
         }
-        command= String.format(CREATE_TEMP_DATAX_PY, dataxPath, taskTempPath);
+        command= String.format(CREATE_TEMP_DATAX_PY, pythonPath, dataxPath, taskTempPath);
         JSONObject shellParams = new JSONObject();
         shellParams.put("shellCommand", command);
         shellParams.put("shellLogPath", logFilePath);

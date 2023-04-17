@@ -15,6 +15,7 @@
         <maven.compiler.source>8</maven.compiler.source>
         <maven.compiler.target>8</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <plugin.dir.name>script-standalone</plugin.dir.name>
     </properties>
 
     <dependencies>
@@ -37,5 +38,37 @@
         </dependency>
 
     </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <version>1.2</version>
+                <executions>
+                    <execution>
+                        <id>copy-resources</id>
+                        <!-- here the phase you need -->
+                        <phase>package</phase>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                        <configuration>
+                            <tasks>
+                                <move file="${basedir}/target/${project.name}-${project.version}.jar"
+                                      tofile="${basedir}/target/${plugin.dir.name}.jar"/>
+                                <copy todir="${basedir}/target/../../../../../worker-plugins/${plugin.dir.name}/"
+                                      file="${basedir}/target/${plugin.dir.name}.jar"/>
+                                <delete>
+                                    <fileset dir="${basedir}/target/../../../../../worker-plugins/${plugin.dir.name}/"
+                                             includes="${plugin.dir.name}-*.jar"
+                                             excludes="${plugin.dir.name}.jar"/>
+                                </delete>
+                            </tasks>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
 
 </project>

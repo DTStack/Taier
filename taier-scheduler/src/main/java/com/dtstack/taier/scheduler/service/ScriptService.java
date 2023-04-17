@@ -111,7 +111,7 @@ public class ScriptService {
      * @return
      */
     private String uploadToHdfs(String sqlText, ScheduleTaskShade task, ScheduleJob scheduleJob) {
-        JSONObject pluginInfo = clusterService.pluginInfoJSON(task.getTenantId(), task.getTaskType(), null, null, null);
+        JSONObject pluginInfo = clusterService.pluginInfoJSON(task.getTenantId(), task.getTaskType(), EDeployMode.RUN_ON_YARN.getType(), null, null);
         String hdfsPath = environmentContext.getHdfsTaskPath() + (FileUtil.getUploadFileName(task.getTaskType(), scheduleJob.getJobId()));
         return datasourceOperator.uploadToHdfs(pluginInfo, task.getTenantId(), sqlText, hdfsPath);
     }
