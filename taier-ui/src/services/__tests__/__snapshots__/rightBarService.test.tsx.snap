@@ -1,6 +1,8 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`Test RightBarService Should have correct component 1`] = `
+exports[`Test RightBarService Should have correct component 1`] = `<DocumentFragment />`;
+
+exports[`Test RightBarService Should have correct component 2`] = `
 <DocumentFragment>
   <div>
     taskInfo
@@ -8,7 +10,7 @@ exports[`Test RightBarService Should have correct component 1`] = `
 </DocumentFragment>
 `;
 
-exports[`Test RightBarService Should have correct component 2`] = `
+exports[`Test RightBarService Should have correct component 3`] = `
 <DocumentFragment>
   <div>
     schedulingConfig
@@ -16,7 +18,7 @@ exports[`Test RightBarService Should have correct component 2`] = `
 </DocumentFragment>
 `;
 
-exports[`Test RightBarService Should have correct component 3`] = `
+exports[`Test RightBarService Should have correct component 4`] = `
 <DocumentFragment>
   <div>
     taskParams
@@ -24,7 +26,7 @@ exports[`Test RightBarService Should have correct component 3`] = `
 </DocumentFragment>
 `;
 
-exports[`Test RightBarService Should have correct component 4`] = `
+exports[`Test RightBarService Should have correct component 5`] = `
 <DocumentFragment>
   <div>
     envParams
@@ -32,7 +34,7 @@ exports[`Test RightBarService Should have correct component 4`] = `
 </DocumentFragment>
 `;
 
-exports[`Test RightBarService Should have correct component 5`] = `
+exports[`Test RightBarService Should have correct component 6`] = `
 <DocumentFragment>
   <div>
     taskConfig
@@ -40,7 +42,7 @@ exports[`Test RightBarService Should have correct component 5`] = `
 </DocumentFragment>
 `;
 
-exports[`Test RightBarService Should have correct component 6`] = `
+exports[`Test RightBarService Should have correct component 7`] = `
 <DocumentFragment>
   <div>
     flinkSource
@@ -48,7 +50,7 @@ exports[`Test RightBarService Should have correct component 6`] = `
 </DocumentFragment>
 `;
 
-exports[`Test RightBarService Should have correct component 7`] = `
+exports[`Test RightBarService Should have correct component 8`] = `
 <DocumentFragment>
   <div>
     flinkResult
@@ -56,7 +58,7 @@ exports[`Test RightBarService Should have correct component 7`] = `
 </DocumentFragment>
 `;
 
-exports[`Test RightBarService Should have correct component 8`] = `
+exports[`Test RightBarService Should have correct component 9`] = `
 <DocumentFragment>
   <div>
     flinkDimension

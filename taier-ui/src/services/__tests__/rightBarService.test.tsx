@@ -1,5 +1,5 @@
 import { RightBarKind } from '@/interface';
-import molecule from '@dtinsight/molecule';
+import { connect } from '@dtinsight/molecule/esm/react';
 import { render } from '@testing-library/react';
 import { taskRenderService } from '..';
 import RightBarService from '../rightBarService';
@@ -40,7 +40,6 @@ jest.mock('@/pages/rightBar/taskConfig', () => {
 describe('Test RightBarService', () => {
     afterEach(() => {
         (taskRenderService.renderRightBar as jest.Mock).mockReset();
-        (molecule.editor.getState as jest.Mock).mockReset();
     });
 
     it('Should have rightBar text', () => {
@@ -70,11 +69,15 @@ describe('Test RightBarService', () => {
             '1',
         ]);
 
-        (molecule.editor.getState as jest.Mock).mockImplementation(() => ({
-            current: { tab: { id: 1 } },
-        }));
-
         const rightBarService = new RightBarService();
+
+        (connect as jest.Mock)
+            .mockReset()
+            .mockImplementationOnce((_, Children) => () => <Children current={{ tab: { id: '1' } }} />)
+            .mockImplementation((_, Children) => () => <Children current={{ tab: { id: 1 } }} />);
+
+        expect(render(rightBarService.createContent('1')!).asFragment()).toMatchSnapshot();
+
         expect(render(rightBarService.createContent(RightBarKind.TASK)!).asFragment()).toMatchSnapshot();
         expect(render(rightBarService.createContent(RightBarKind.DEPENDENCY)!).asFragment()).toMatchSnapshot();
         expect(render(rightBarService.createContent(RightBarKind.TASK_PARAMS)!).asFragment()).toMatchSnapshot();
@@ -83,7 +86,5 @@ describe('Test RightBarService', () => {
         expect(render(rightBarService.createContent(RightBarKind.FLINKSQL_SOURCE)!).asFragment()).toMatchSnapshot();
         expect(render(rightBarService.createContent(RightBarKind.FLINKSQL_RESULT)!).asFragment()).toMatchSnapshot();
         expect(render(rightBarService.createContent(RightBarKind.FLINKSQL_DIMENSION)!).asFragment()).toMatchSnapshot();
-
-        expect(rightBarService.createContent('1')).toBe(null);
     });
 });
