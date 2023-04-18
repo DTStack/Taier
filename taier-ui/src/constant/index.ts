@@ -269,6 +269,7 @@ export enum TASK_TYPE_ENUM {
     VERTICA = 23,
     MAX_COMPUTE = 24,
     HADOOP_MR = 25,
+    DATAX,
 }
 
 /**
