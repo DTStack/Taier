@@ -354,6 +354,7 @@ export function mappingTaskTypeToLanguage(taskType: TASK_TYPE_ENUM) {
             return TASK_LANGUAGE.SQL;
         case TASK_TYPE_ENUM.SYNC:
         case TASK_TYPE_ENUM.DATA_ACQUISITION:
+        case TASK_TYPE_ENUM.DATAX:
             return TASK_LANGUAGE.JSON;
         case TASK_TYPE_ENUM.PYTHON:
             return TASK_LANGUAGE.PYTHON;
