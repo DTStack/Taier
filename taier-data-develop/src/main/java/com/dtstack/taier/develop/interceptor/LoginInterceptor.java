@@ -37,7 +37,7 @@ public class LoginInterceptor extends HandlerInterceptorAdapter {
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
         String requestURI = request.getRequestURI();
-        if(requestURI.contains(CommonConstant.LOGIN)){
+        if(requestURI.contains(CommonConstant.LOGIN) || requestURI.contains(CommonConstant.QUERY_JOB_LOG)){
             return true;
         }
         if (LOGGER.isDebugEnabled()) {

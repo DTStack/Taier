@@ -26,6 +26,7 @@ import {
     TiDbIcon,
     VerticaIcon,
     HadoopMRIcon,
+    DataxIcon,
 } from '@/components/icon';
 import scaffolds from '@/components/scaffolds/create';
 import editorActionsScaffolds from '@/components/scaffolds/editorActions';
@@ -261,6 +262,8 @@ export default class TaskRenderService extends Component<ITaskRenderState> {
                 return <VerticaIcon />;
             case TASK_TYPE_ENUM.HADOOP_MR:
                 return <HadoopMRIcon />;
+            case TASK_TYPE_ENUM.DATAX:
+                return <DataxIcon />;
             default:
                 return 'file';
         }
