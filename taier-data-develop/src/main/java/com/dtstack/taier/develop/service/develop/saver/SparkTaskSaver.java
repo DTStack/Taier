@@ -27,6 +27,7 @@ import com.dtstack.taier.develop.dto.devlop.TaskResourceParam;
 import com.dtstack.taier.develop.dto.devlop.TaskVO;
 import com.dtstack.taier.develop.service.develop.impl.DevelopResourceService;
 import com.dtstack.taier.develop.service.develop.impl.DevelopTaskResourceService;
+import com.dtstack.taier.pluginapi.enums.ComputeType;
 import com.google.common.collect.Lists;
 import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
@@ -56,7 +57,8 @@ public class SparkTaskSaver extends AbstractTaskSaver {
     public TaskResourceParam beforeProcessing(TaskResourceParam taskResourceParam) {
         //校验资源类型和任务类型是否匹配
         developResourceService.checkResourceType(taskResourceParam.getResourceIdList(), taskResourceParam.getTaskType());
-        taskResourceParam.setTaskParams(taskResourceParam.getTaskParams() == null ? taskTemplateService.getTaskTemplate( taskResourceParam.getTaskType(), taskResourceParam.getComponentVersion()).getParams() : taskResourceParam.getTaskParams());
+        taskResourceParam.setTaskParams(taskResourceParam.getTaskParams() == null ? taskTemplateService.getTaskTemplate(taskResourceParam.getTaskType(), taskResourceParam.getComponentVersion()).getParams() : taskResourceParam.getTaskParams());
+        taskResourceParam.setComputeType(ComputeType.BATCH.getType());
         return taskResourceParam;
     }
 

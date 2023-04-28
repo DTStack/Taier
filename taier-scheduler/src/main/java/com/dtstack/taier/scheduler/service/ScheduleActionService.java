@@ -257,7 +257,7 @@ public class ScheduleActionService {
         actionParam.put("tenantId", task.getTenantId());
         actionParam.put("queueName", task.getQueueName());
         actionParam.put("datasourceId", task.getDatasourceId());
-        actionParam.put("sqlText", task.getSqlText());
+        actionParam.putIfAbsent("sqlText", task.getSqlText());
         actionParam.putAll(parseRetryParam(task));
         return PublicUtil.mapToObject(actionParam, ParamActionExt.class);
     }
