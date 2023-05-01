@@ -34,7 +34,6 @@ import com.dtstack.taier.dao.mapper.ClusterTenantMapper;
 import com.dtstack.taier.dao.mapper.ComponentMapper;
 import com.dtstack.taier.dao.mapper.ConsoleKerberosMapper;
 import com.dtstack.taier.pluginapi.constrant.ConfigConstant;
-import com.dtstack.taier.pluginapi.enums.EDeployMode;
 import com.dtstack.taier.scheduler.server.pluginInfo.ComponentPluginInfoStrategy;
 import com.dtstack.taier.scheduler.server.pluginInfo.DefaultPluginInfoStrategy;
 import com.dtstack.taier.scheduler.server.pluginInfo.FlinkPluginInfoStrategy;
@@ -125,23 +124,15 @@ public class ClusterService {
         }
         JSONObject config = new JSONObject();
         List<Component> components = componentService.listAllComponents(clusterId);
-        EDeployType deployType = null;
-        if (EDeployMode.STANDALONE.getType().equals(deployMode)) {
-            deployType = EDeployType.STANDALONE;
-        }
-        if (EDeployMode.RUN_ON_YARN.getType().equals(deployMode)) {
-            deployType = EDeployType.YARN;
-        }
+        EDeployType deployType = EDeployType.convertToDeployType(deployMode);
         for (Component component : components) {
             EComponentType componentType = EComponentType.getByCode(component.getComponentTypeCode());
             if (!EComponentScheduleType.COMPUTE.equals(EComponentType.getByCode(component.getComponentTypeCode()).getComponentScheduleType())) {
                 JSONObject componentConfig = componentService.getComponentByClusterId(clusterId, componentType.getTypeCode(), false, JSONObject.class, null);
                 config.put(componentType.getConfName(), componentConfig);
             } else if (componentType.equals(computeComponentType)) {
-                if (Objects.isNull(deployType)) {
-                    JSONObject componentConfig = componentService.getComponentByClusterId(clusterId, componentType.getTypeCode(), false, JSONObject.class, componentVersion, component.getId());
-                    config.put(componentType.getConfName(), componentConfig);
-                } else if (deployType.getType().equals(component.getDeployType())) {
+                if (deployType.getType().equals(component.getDeployType()) ||
+                        EDeployType.YARN.getType().equals(deployType.getType()) && null == component.getDeployType()) {
                     JSONObject componentConfig = componentService.getComponentByClusterId(clusterId, componentType.getTypeCode(), false, JSONObject.class, componentVersion, component.getId());
                     config.put(componentType.getConfName(), componentConfig);
                 }
@@ -182,13 +173,18 @@ public class ClusterService {
 
     public JSONObject getConfigByKey(Long tenantId, String componentConfName, String componentVersion) {
         Long clusterId = Optional.ofNullable(clusterTenantMapper.getClusterIdByTenantId(tenantId)).orElse(DEFAULT_CLUSTER_ID);
-        return getConfigByKeyByClusterId(clusterId, componentConfName, componentVersion);
+        return getConfigByKeyByClusterId(clusterId, componentConfName, componentVersion, null);
     }
 
-    public JSONObject getConfigByKeyByClusterId(Long clusterId, String componentConfName, String componentVersion) {
+    public JSONObject getConfigByKey(Long tenantId, String componentConfName, String componentVersion, EDeployType deployType) {
+        Long clusterId = Optional.ofNullable(clusterTenantMapper.getClusterIdByTenantId(tenantId)).orElse(DEFAULT_CLUSTER_ID);
+        return getConfigByKeyByClusterId(clusterId, componentConfName, componentVersion, deployType);
+    }
+
+    public JSONObject getConfigByKeyByClusterId(Long clusterId, String componentConfName, String componentVersion, EDeployType deployType) {
         //根据组件区分kerberos
         EComponentType componentType = EComponentType.getByConfName(componentConfName);
-        Component component = componentMapper.getByClusterIdAndComponentType(clusterId, componentType.getTypeCode(), componentVersion, null);
+        Component component = componentMapper.getByClusterIdAndComponentType(clusterId, componentType.getTypeCode(), componentVersion, deployType.getType());
         if (null == component) {
             return null;
         }
@@ -234,5 +230,12 @@ public class ClusterService {
         return clusterTenantMapper.getClusterIdByTenantId(tenantId);
     }
 
+    public boolean onlyStandaloneType(Long tenantId, EComponentType componentType) {
+        if (null == componentType) {
+            return false;
+        }
+        List<Component> components = componentService.listComponentsByComponentType(tenantId, componentType.getTypeCode());
+        return components.size() == 1 && EDeployType.STANDALONE.getType().equals(components.get(0).getDeployType());
+    }
 }
 
