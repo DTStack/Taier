@@ -30,7 +30,7 @@ Flink组件的配置信息依赖Chunjun的插件包
 - [Flink](https://flink.apache.org/)
   - 数据同步任务依赖
   - 版本: `1.12.7`
-  - 地址: https://repo1.maven.org/maven2/org/apache/flink
+  - 地址: https://archive.apache.org/dist/flink/flink-1.12.7/
 
 :::tip Flink组件的flinkLibDir配置依赖Flink相关的jar包，建议参考文档目录进行下载
 :::
