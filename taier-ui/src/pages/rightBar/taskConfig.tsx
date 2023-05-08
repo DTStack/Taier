@@ -1,11 +1,10 @@
-import { useContext, useEffect, useMemo, useState } from 'react';
+import { useContext, useMemo } from 'react';
 import { FormContext } from '@/services/rightBarService';
 import { Checkbox, Form, Input, InputNumber, Select, Collapse } from 'antd';
 import molecule from '@dtinsight/molecule';
 import { DATA_SOURCE_ENUM, DIRTY_DATA_SAVE, formItemLayout } from '@/constant';
 import { dirtyMaxRecord, dirtyFailRecord, dirtySaveType, logPrintTimes } from '@/components/helpDoc/docs';
-import api from '@/api';
-import type { IDataSourceProps } from '@/interface';
+import { dataSourceService } from '@/services';
 import type { IRightBarComponentProps } from '@/services/rightBarService';
 import type { FormInstance } from 'antd';
 
@@ -26,8 +25,6 @@ interface IFormFieldProps {
 export default function TaskConfig({ current }: IRightBarComponentProps) {
     const { form } = useContext(FormContext) as { form?: FormInstance<IFormFieldProps> };
 
-    const [dataSourceList, setDataSourceList] = useState<{ label: string; value: number }[]>([]);
-
     const handleFormValuesChange = () => {
         setTimeout(() => {
             const { openDirtyDataManage, ...restValues } = form?.getFieldsValue() || {};
@@ -45,16 +42,6 @@ export default function TaskConfig({ current }: IRightBarComponentProps) {
             });
         }, 0);
     };
-
-    useEffect(() => {
-        api.getAllDataSource({}).then((res) => {
-            if (res.code === 1) {
-                const mysqlDataSource =
-                    (res.data as IDataSourceProps[])?.filter((d) => d.dataTypeCode === DATA_SOURCE_ENUM.MYSQL) || [];
-                setDataSourceList(mysqlDataSource.map((i) => ({ label: i.dataName, value: i.dataInfoId })));
-            }
-        });
-    }, []);
 
     const initialValues = useMemo<IFormFieldProps>(() => {
         if (current?.tab?.data) {
@@ -75,6 +62,15 @@ export default function TaskConfig({ current }: IRightBarComponentProps) {
             openDirtyDataManage: false,
         };
     }, [current?.activeTab]);
+
+    const dataSourceList = useMemo(
+        () =>
+            dataSourceService
+                .getDataSource()
+                .filter((d) => d.dataTypeCode === DATA_SOURCE_ENUM.MYSQL)
+                .map((i) => ({ label: i.dataName, value: i.dataInfoId })),
+        []
+    );
 
     return (
         <molecule.component.Scrollbar>
