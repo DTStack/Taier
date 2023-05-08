@@ -2459,7 +2459,11 @@ INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_
 VALUES ('26', 'DATAX',
         '{"actions": ["SAVE_TASK", "RUN_TASK", "STOP_TASK", "SUBMIT_TASK", "OPERATOR_TASK"], "barItem": ["task", "dependency", "task_params", "env_params"], "renderKind": "editor","dataTypeCodes":["27","7","50"]}',
         null, 30, 0, 'STRING', '', 0, '2023-03-03 07:27:25', '2022-03-03 07:27:25', 0);
-
+DELETE
+FROM `dict`
+WHERE type = 14
+  and depend_name = 'DATAX';
+INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default, gmt_create, gmt_modified, is_deleted) VALUES ('component_model_config', 'standalone', '{"standalone":"DataX"}', null, 14, 1, 'STRING', 'DATAX', 0, '2023-05-07 11:44:33', '2023-05-07 11:44:33', 0);
 
 
 COMMIT;
