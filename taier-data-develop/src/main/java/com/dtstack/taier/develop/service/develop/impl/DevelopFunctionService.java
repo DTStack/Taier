@@ -50,10 +50,15 @@ import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
+import java.util.TreeSet;
 import java.util.stream.Collectors;
+
+import static java.util.stream.Collectors.collectingAndThen;
+import static java.util.stream.Collectors.toCollection;
 
 @Service
 public class DevelopFunctionService {
@@ -349,6 +354,10 @@ public class DevelopFunctionService {
      */
     public List<String> generateFuncSql(Set<String> funcNameSet, Long tenantId) {
         List<DevelopFunction> functionList = getFlinkFunctions(funcNameSet, tenantId);
+        functionList = functionList.stream().collect(
+                collectingAndThen(
+                        toCollection(() -> new TreeSet<>(Comparator.comparing(DevelopFunction::getName))), ArrayList::new)
+        );
         List<String> result = Lists.newArrayList();
         List<Long> resourceIds = new ArrayList<>();
         for (DevelopFunction function : functionList) {
