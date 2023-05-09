@@ -333,7 +333,7 @@ public class SessionStatusMonitor implements Runnable {
         try {
             Configuration newConf = new Configuration(sessionClientDeployer.getFlinkConfiguration());
             ApplicationId applicationId = sessionClientDeployer.acquireAppIdAndSetClusterId(newConf);
-            if (applicationId != null){
+            if (applicationId != null) {
                 LOG.info("------- Flink yarn-session application kill. ----");
                 sessionClientDeployer.getYarnClient().killApplication(applicationId);
                 LOG.info("------- Flink yarn-session application kill over. ----");
@@ -343,9 +343,12 @@ public class SessionStatusMonitor implements Runnable {
             YarnConfiguration yarnConf = sessionClientDeployer.getHadoopConfig().getYarnConfiguration();
             FileSystem fs = FileSystem.get(yarnConf);
             Path homeDir = fs.getHomeDirectory();
-            Path appRemotePath = new Path(String.format("%s/.flink/%s", homeDir, sessionClientDeployer.getClusterId().toString()));
-            if (fs.exists(appRemotePath)) {
-                fs.delete(appRemotePath, true);
+            ApplicationId clusterId = sessionClientDeployer.getClusterId();
+            if (clusterId != null) {
+                Path appRemotePath = new Path(String.format("%s/.flink/%s", homeDir, clusterId));
+                if (fs.exists(appRemotePath)) {
+                    fs.delete(appRemotePath, true);
+                }
             }
 
         } catch (Exception ex) {

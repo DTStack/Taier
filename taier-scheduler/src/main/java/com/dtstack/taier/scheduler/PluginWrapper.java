@@ -43,19 +43,23 @@ public class PluginWrapper {
     private ScheduleDictService scheduleDictService;
 
     public Map<String, Object> wrapperPluginInfo(Integer taskType, String taskParam, Integer computeType, String componentVersion, Long tenantId, String queueName) {
-        EDeployMode deployMode = EDeployMode.PERJOB;
-        if (EScheduleJobType.SYNC.getType().equals(taskType)
-            || EScheduleJobType.SHELL.getType().equals(taskType)
-            || EScheduleJobType.PYTHON.getType().equals(taskType)) {
-            deployMode = TaskParamsUtils.parseDeployTypeByTaskParams(taskParam, computeType);
-        }
-        if (clusterService.hasStandalone(tenantId, EComponentType.FLINK.getTypeCode())) {
-            deployMode = EDeployMode.STANDALONE;
-        }
+        EDeployMode deployMode = getDeployMode(taskType, taskParam, computeType, tenantId);
         String componentVersionValue = scheduleDictService.convertVersionNameToValue(componentVersion, taskType, deployMode.getType());
         JSONObject pluginInfo = clusterService.pluginInfoJSON(tenantId, taskType, deployMode.getType(), componentVersionValue, queueName);
         pluginInfo.put(DEPLOY_MODEL, deployMode.getType());
         return pluginInfo;
+    }
+
+    public EDeployMode getDeployMode(Integer taskType, String taskParam, Integer computeType, Long tenantId) {
+        EDeployMode deployMode = EDeployMode.PERJOB;
+        EScheduleJobType scheduleJobType = EScheduleJobType.getByTaskType(taskType);
+        if (EComponentType.FLINK.equals(scheduleJobType.getComponentType()) || EComponentType.SCRIPT.equals(scheduleJobType.getComponentType())) {
+            deployMode = TaskParamsUtils.parseDeployTypeByTaskParams(taskParam, computeType);
+        }
+        if (clusterService.onlyStandaloneType(tenantId, scheduleJobType.getComponentType())) {
+            deployMode = EDeployMode.STANDALONE;
+        }
+        return deployMode;
     }
 
     public Map<String, Object> wrapperPluginInfo(Integer taskType, String componentVersion, Long tenantId, Integer deployMode, String queueName) {
