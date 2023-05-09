@@ -18,10 +18,13 @@
 
 package com.dtstack.taier.common.enums;
 
+import com.dtstack.taier.pluginapi.enums.EDeployMode;
+
 /**
  * Reason:
  * Date: 2017/11/10
  * Company: www.dtstack.com
+ *
  * @author xuchao
  */
 public enum EDeployType {
@@ -36,7 +39,7 @@ public enum EDeployType {
 
     String name;
 
-    EDeployType(Integer type, String name){
+    EDeployType(Integer type, String name) {
         this.type = type;
         this.name = name;
     }
@@ -57,16 +60,6 @@ public enum EDeployType {
         this.name = name;
     }
 
-    public static EDeployType getDeployType(String name){
-        for(EDeployType eDeployType : EDeployType.values()){
-            if(eDeployType.getName().equals(name.toLowerCase())){
-                return eDeployType;
-            }
-        }
-
-        return null;
-    }
-
     public static EDeployType getDeployType(Integer type) {
         for (EDeployType eType : EDeployType.values()) {
             if (eType.getType().equals(type)) {
@@ -74,5 +67,18 @@ public enum EDeployType {
             }
         }
         return null;
+    }
+
+    public static EDeployType convertToDeployType(Integer mode) {
+        if (null == mode) {
+            return EDeployType.YARN;
+        }
+        EDeployMode deployMode = EDeployMode.getByType(mode);
+        switch (deployMode) {
+            case STANDALONE:
+                return EDeployType.STANDALONE;
+            default:
+                return EDeployType.YARN;
+        }
     }
 }

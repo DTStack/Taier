@@ -21,15 +21,11 @@ package com.dtstack.taier.scheduler.jobdealer;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.dtstack.taier.common.BlockCallerPolicy;
-import com.dtstack.taier.common.enums.EComponentType;
-import com.dtstack.taier.common.enums.EComputeType;
-import com.dtstack.taier.common.enums.EScheduleJobType;
 import com.dtstack.taier.common.enums.EScheduleType;
 import com.dtstack.taier.common.env.EnvironmentContext;
 import com.dtstack.taier.common.util.LogCountUtil;
-import com.dtstack.taier.common.util.TaskParamsUtils;
-import com.dtstack.taier.dao.domain.ScheduleJobCache;
 import com.dtstack.taier.dao.domain.ScheduleJob;
+import com.dtstack.taier.dao.domain.ScheduleJobCache;
 import com.dtstack.taier.dao.domain.ScheduleJobHistory;
 import com.dtstack.taier.dao.mapper.ScheduleJobHistoryMapper;
 import com.dtstack.taier.pluginapi.CustomThreadFactory;
@@ -39,6 +35,7 @@ import com.dtstack.taier.pluginapi.enums.EDeployMode;
 import com.dtstack.taier.pluginapi.enums.TaskStatus;
 import com.dtstack.taier.pluginapi.pojo.ParamAction;
 import com.dtstack.taier.pluginapi.util.PublicUtil;
+import com.dtstack.taier.scheduler.PluginWrapper;
 import com.dtstack.taier.scheduler.WorkerOperator;
 import com.dtstack.taier.scheduler.enums.EJobLogType;
 import com.dtstack.taier.scheduler.jobdealer.bo.JobLogInfo;
@@ -105,6 +102,7 @@ public class JobStatusDealer implements Runnable {
     private ScheduleJobHistoryMapper scheduleJobHistoryMapper;
     private JobLogDealer jobLogDealer;
     private ClusterService clusterService;
+    private PluginWrapper pluginWrapper;
 
     private int taskStatusDealerPoolSize;
 
@@ -187,8 +185,9 @@ public class JobStatusDealer implements Runnable {
             ParamAction paramAction = PublicUtil.jsonStrToObject(engineJobCache.getJobInfo(), ParamAction.class);
             Integer taskType = paramAction.getTaskType();
             Map<String, Object> pluginInfo = paramAction.getPluginInfo();
-            Integer deployType = getDeployType(scheduleJob, paramAction);
-            JobIdentifier jobIdentifier = new JobIdentifier(engineTaskId, appId, jobId, scheduleJob.getTenantId(), taskType, deployType, null, MapUtils.isEmpty(pluginInfo) ? null : JSONObject.toJSONString(pluginInfo), paramAction.getComponentVersion(), paramAction.getQueueName());
+            EDeployMode deployMode = pluginWrapper.getDeployMode(taskType, paramAction.getTaskParams(), paramAction.getComputeType(), paramAction.getTenantId());
+            JobIdentifier jobIdentifier = new JobIdentifier(engineTaskId, appId, jobId, scheduleJob.getTenantId(), taskType, deployMode.getType(),
+                    null, MapUtils.isEmpty(pluginInfo) ? null : JSONObject.toJSONString(pluginInfo), paramAction.getComponentVersion(), paramAction.getQueueName());
 
             TaskStatus taskStatus = workerOperator.getJobStatus(jobIdentifier);
 
@@ -230,15 +229,6 @@ public class JobStatusDealer implements Runnable {
         }
     }
 
-    private Integer getDeployType(ScheduleJob scheduleJob, ParamAction paramAction) {
-        Integer deployType = TaskParamsUtils.parseDeployTypeByTaskParams(paramAction.getTaskParams(), scheduleJob.getComputeType()).getType();
-        if (EScheduleJobType.SYNC.getType().equals(scheduleJob.getTaskType()) || EComputeType.STREAM.getType() == scheduleJob.getComputeType()) {
-            if (clusterService.hasStandalone(scheduleJob.getTenantId(), EComponentType.FLINK.getTypeCode())) {
-                deployType = EDeployMode.STANDALONE.getType();
-            }
-        }
-        return deployType;
-    }
 
     private void updateHistoryEndTime(String jobId, String appId) {
         ScheduleJobHistory scheduleJobHistory = new ScheduleJobHistory();
@@ -340,6 +330,7 @@ public class JobStatusDealer implements Runnable {
         this.scheduleJobCacheService = applicationContext.getBean(ScheduleJobCacheService.class);
         this.scheduleJobHistoryMapper = applicationContext.getBean(ScheduleJobHistoryMapper.class);
         this.jobLogDealer = applicationContext.getBean(JobLogDealer.class);
+        this.pluginWrapper = applicationContext.getBean(PluginWrapper.class);
     }
 
     public void start() {

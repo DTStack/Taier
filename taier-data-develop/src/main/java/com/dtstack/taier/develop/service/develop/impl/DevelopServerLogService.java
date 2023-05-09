@@ -23,6 +23,7 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.JSONPath;
 import com.dtstack.taier.common.enums.EComponentType;
+import com.dtstack.taier.common.enums.EDeployType;
 import com.dtstack.taier.common.enums.EScheduleJobType;
 import com.dtstack.taier.common.enums.EScheduleType;
 import com.dtstack.taier.common.env.EnvironmentContext;
@@ -641,20 +642,23 @@ public class DevelopServerLogService {
         return formatPerfLogInfo.buildReadableLog();
     }
 
-    public Pair<String,String> getPrometheusHostAndPort(final Long tenantId, final String taskParams,ComputeType computeType){
-        Boolean hasStandAlone = clusterService.hasStandalone(tenantId, EComponentType.FLINK.getTypeCode());
-        JSONObject flinkJsonObject ;
-        if (hasStandAlone) {
-            flinkJsonObject = clusterService.getConfigByKey(tenantId, EComponentType.FLINK.getConfName(), null);
-        }else {
-
-            JSONObject jsonObject = clusterService.getConfigByKey(tenantId, EComponentType.FLINK.getConfName(), null);
+    public Pair<String, String> getPrometheusHostAndPort(final Long tenantId, final String taskParams, ComputeType computeType) {
+        boolean onlyStandalone = clusterService.onlyStandaloneType(tenantId, EComponentType.FLINK);
+        JSONObject flinkJsonObject;
+        if (onlyStandalone) {
+            flinkJsonObject = clusterService.getConfigByKey(tenantId, EComponentType.FLINK.getConfName(), null, EDeployType.STANDALONE);
+        } else {
+            EDeployMode deployMode = TaskParamsUtils.parseDeployTypeByTaskParams(taskParams, computeType.getType());
+            EDeployType deployType = EDeployType.convertToDeployType(deployMode.getType());
+            JSONObject jsonObject = clusterService.getConfigByKey(tenantId, EComponentType.FLINK.getConfName(), null, deployType);
             if (null == jsonObject) {
                 LOGGER.info("console tenantId {} pluginInfo is null", tenantId);
                 return null;
             }
-            EDeployMode deployModeEnum = TaskParamsUtils.parseDeployTypeByTaskParams(taskParams,computeType.getType());
-            flinkJsonObject = jsonObject.getJSONObject(deployModeEnum.name().toLowerCase(Locale.ROOT));
+            flinkJsonObject = jsonObject.getJSONObject(deployMode.name().toLowerCase(Locale.ROOT));
+        }
+        if (null == flinkJsonObject) {
+            return null;
         }
         String prometheusHost = flinkJsonObject.getString("prometheusHost");
         String prometheusPort = flinkJsonObject.getString("prometheusPort");
@@ -662,7 +666,7 @@ public class DevelopServerLogService {
             LOGGER.info("prometheus http info is blank prometheusHost：{} prometheusPort：{}", prometheusHost, prometheusPort);
             return null;
         }
-        return new Pair<>(prometheusHost,prometheusPort);
+        return new Pair<>(prometheusHost, prometheusPort);
     }
 
 
