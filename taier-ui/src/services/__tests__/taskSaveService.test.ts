@@ -428,6 +428,9 @@ describe('Test TaskSaveService', () => {
                             taskDesc: '',
                             updateSource: false,
                             preSave: false,
+                            test: 1,
+                            scheduleConf:
+                                '{"beginHour":"0","endHour":"23","beginMin":"0","gapHour":"5","periodType":"1","isFailRetry":true,"beginDate":"2001-01-01","endDate":"2121-01-01","selfReliance":0,"endMin":"59","maxRetryNum":3}',
                         },
                     },
                 },

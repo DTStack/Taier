@@ -399,7 +399,7 @@ class TaskSaveService extends GlobalEvent {
                             params.nodePid = params.nodePid || molecule.folderTree.get(data.flowId)?.data.parentId;
                         }
 
-                        const isSupportSub = SUPPROT_SUB_LIBRARY_DB_ARRAY.includes(params.sourceMap.type || -1);
+                        const isSupportSub = SUPPROT_SUB_LIBRARY_DB_ARRAY.includes(params.sourceMap.type!);
 
                         if (params.settingMap) {
                             params.settingMap.speed = /[\u4e00-\u9fa5]/.test(params.settingMap!.speed)
@@ -575,15 +575,12 @@ class TaskSaveService extends GlobalEvent {
                 return Promise.reject();
             }
             case TASK_TYPE_ENUM.VIRTUAL: {
-                const { id, name, nodePid, taskDesc, flowId } = data;
+                const { flowId, ...restProps } = data;
 
-                const params: Record<string, number | string> = {
-                    id,
-                    name,
+                const params: Record<string, any> = {
+                    ...restProps,
                     computeType: IComputeType.BATCH,
-                    nodePid,
                     taskType,
-                    taskDesc,
                 };
 
                 // 是工作流，需要额外传 flowId 和 nodePid
@@ -664,25 +661,22 @@ class TaskSaveService extends GlobalEvent {
             }
             case TASK_TYPE_ENUM.SPARK:
             case TASK_TYPE_ENUM.FLINK: {
-                const { id, name, mainClass, componentVersion, exeArgs, nodePid, resourceIdList, taskDesc } = data;
-
-                const res = await api.addOfflineTask({
-                    id,
-                    name,
-                    resourceIdList,
-                    mainClass,
-                    exeArgs,
-                    componentVersion,
-                    nodePid,
+                const params = {
+                    ...data,
                     taskType,
-                    taskDesc,
                     updateSource: false,
                     preSave: false,
-                });
+                };
+                const res = await api.addOfflineTask(params);
 
                 if (res.code === 1) {
                     message.success('保存成功！');
-                    this.updateFolderAndTabAfterSave(molecule.folderTree.get(id)?.data.parentId, nodePid, id, name);
+                    this.updateFolderAndTabAfterSave(
+                        molecule.folderTree.get(params.id)?.data.parentId,
+                        params.nodePid,
+                        params.id,
+                        params.name
+                    );
                     this.emit(SaveEventKind.onSaveTask, res.data);
                     return res;
                 }
