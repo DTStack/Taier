@@ -1,15 +1,17 @@
 ---
-title: Script
-sidebar_label: Script
+title: Script-On-Yarn 
+sidebar_label: Script-On-Yarn
 ---
 
 ## 配置 Script
+
 已配置前置组件
+
 - [x] SFTP
 - [x] YARN
 - [x] HDFS
 
-Script 计算组件用于运行 Shell、Python 等脚本任务，若您有运行脚本任务的需求，请确保 Script 组件正确配置。
+Script-On-Yarn 计算组件用于运行 Shell、Python 等脚本任务， 若您有运行脚本任务的需求，请确保 Script-On-Yarn 组件正确配置
 
 ### 参数说明
 
@@ -27,6 +29,8 @@ Script 计算组件用于运行 Shell、Python 等脚本任务，若您有运行
 | script.python2.path      | /data/miniconda2/bin/python2             | python2.x 二进制可执行文件地址                                | 是       |
 | script.python3.path      | /data/miniconda3/bin/python3             | python3.x 二进制可执行文件地址                                 | 是       |
 
-:::caution
- 若您有运行 Python 任务的需求，请确保 script.python2.path、script.python3.path 对应的二进制可执行文件存在，否则无法运行 Python 任务
+:::tip 任务运行在Hadoop的计算节点上，适合复杂的脚本和大量的任务
+:::
+
+:::caution 若您有运行 Python 任务的需求，请确保 script.python2.path、script.python3.path 对应的二进制可执行文件存在，否则无法运行 Python 任务
 :::

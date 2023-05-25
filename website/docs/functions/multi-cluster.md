@@ -9,33 +9,36 @@ sidebar_label: 集群配置
 
 ## 环境依赖
 - [x] SFTP服务器
-- [x] Hadoop集群
 
 
 ## 组件依赖
-| 配置组件   | 前置组件 |
+| 配置组件   | 依赖组件 |
 | --------- | ------- |
 | SFTP      |  |
 | YARN      | SFTP |
 | HDFS      | SFTP、YARN |
 | Spark     | SFTP、YARN、HDFS |
-| Script     | SFTP、YARN、HDFS |
-| Flink-on-yarn     | SFTP、YARN、HDFS |
-| Flink-on-standalone     | SFTP |
+| Script(on-yarn)     | SFTP、YARN、HDFS |
+| Script(on-standalone)     | SFTP |
+| Flink(on-yarn)     | SFTP、YARN、HDFS |
+| Flink(on-standalone)     | SFTP |
 
 
 ### 组件任务支持关系
 
-| 任务类型    | 依赖组件  | 是否必须 |
-| --------- | -------- |---------|
-| 数据同步    | Flink   | 是 |
-| Flink SQL    | Flink   | 是 |
-| 实时采集    | Flink   | 是 |
-| Hive SQL    | Hive   | 是 |
-| Spark SQL    | Spark、Spark-Thrift   | 是 |
-| Python    | Script   | 是 |
-| Shell    | Script   | 是 |
+| 任务类型    | 依赖组件  | 支持向导模式 |支持脚本模式|
+| --------- | -------- |---------|---------|
+| 数据同步    | Flink   | ✅ |✅|
+| Flink SQL    | Flink   | ✅ |✅|
+| Flink Jar    | Flink   |  | |
+| 实时采集    | Flink   | ✅ |✅|
+| Spark SQL    | Spark、Spark-Thrift   |  | |
+| Spark Jar    | Spark   |  | |
+| Python    | Script   |  | |
+| Shell    | Script   |  | | 
+| DataX    | DataX   |  |✅|
 
-:::tip 新建对应的组件任务 能选择的类型需要先在集群配置对应依赖的计算组件   
-SQL类型的任务 需要新建对应类型的数据源
+:::tip 组件类型的任务 需要先在集群配置好对应的组件才能使用   
+向导模式可以通过页面交互的方式来完成任务的配置，不需要关心不同任务的json信息如何配置，但`强依赖Taier开发支持`   
+脚本模式可以直接使用`对应任务的json`来执行
 :::
