@@ -109,29 +109,72 @@ com.dtstack.taier.datasource.api.exception.InitializeException: get classloader 
 	at com.dtstack.taier.datasource.api.base.ClientCache.getClient(ClientCache.java:78)
 ```
 
-:::tip 确保taier部署环境存在同级目录datasource-plugins
+:::tip 
+确保taier部署环境存在同级目录datasource-plugins
 :::
 
 ### 数据同步任务运行class not found
 
 ![login_error](../../static/img/example/class_not_find.png)  
-:::tip chunjun的connector部分依赖包是provided,运行时候需要下载对应jar包放在flink组件配置的`flinkLibDir`目录下
+:::tip 
+chunjun的connector部分依赖包是provided,运行时候需要下载对应jar包放在flink组件配置的`flinkLibDir`目录下
 :::
 
 ### 数据同步运行serialVersionUID错误
 
 ![login_error](../../static/img/example/versionuid.png)  
-:::tip chunjun的connector更换过之后，需要重启Taier和Flink Session
+:::tip 
+chunjun的connector更换过之后，需要重启Taier和Flink Session
 :::
 
 ### 数据同步运行 session拉启失败
 
 ![login_error](../../static/img/example/session_launch.png)  
-:::tip 检查Node Manager 是否健康 以及 是否能手动拉启Flink Session
+:::tip 
+检查Node Manager 是否健康 以及 是否能手动拉启Flink Session
 :::
 
 ### 数据同步运行 数据写入 但是界面指标展示为0
 
-:::tip 界面指标展示需要依赖Promethous服务器和Taier服务器、数据库时间一致  
+:::tip 
+界面指标展示需要依赖Prometheus服务器和Taier服务器、数据库时间一致  
 Chunjun的指标信息推送为异步 数据过少 可能任务已经结束 指标还未推送
 :::
+
+### Flink Session 运行之后 不断被kill
+
+:::tip 
+查看/logs/taier_flink_monitor.log日志 是否有hosts等信息未配置导致
+:::
+
+### Taier-UI编译失败
+
+:::tip 
+手动通过npm等方式编译或者删除Taier-ui下node_modules目录再次编译
+:::
+
+### Taier等插件包编译失败
+
+:::tip 
+修改Maven仓库镜像地址为阿里云Maven镜像地址
+:::
+
+### Taier支持1.16吗
+
+:::tip 
+Taier支持高版本的Flink或Spark 需要提交插件开发适配才能支持，最新版本还未发布的话，就是暂未支持
+:::
+
+### 提交sparkjar运行，出现Error: Could not find or load main class org.apache.spark.deploy.yarn.ApplicationMaster
+
+:::tip
+[是否正确上传$SPARK_HOME/jars下的包到spark组件sparkYarnArchive配置到HDFS路径下](https://dtstack.github.io/Taier/docs/functions/component/spark#%E8%87%AA%E5%AE%9A%E4%B9%89%E5%8F%82%E6%95%B0)
+:::
+
+### 任务提交到Yarn默认用户为admin 如何调整
+
+:::tip 
+application.properties 配置hadoop.user.name=hdfs 重启Taier  更多参数参考 EnvironmentContext类
+:::
+
+### Yarn或Hdfs测试连通性不过
