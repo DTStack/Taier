@@ -43,7 +43,7 @@ const sidebars = {
                 'quickstart/build',
                 'quickstart/idea',
                 'quickstart/start',
-                'quickstart/precautions',
+                'quickstart/faq',
             ],
         },
         {

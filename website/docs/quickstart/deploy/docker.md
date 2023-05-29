@@ -56,7 +56,8 @@ services:
 $ docker-compose up -d
 ```
 
-:::tip 当命令执行完成后，在浏览器上直接访问 镜像ip:8090 进行[快速上手](./quickstart/start.md)
+:::tip 
+当命令执行完成后，在浏览器上直接访问 镜像ip:8090 进行[快速上手](./quickstart/start.md)
 :::
 
 :::caution

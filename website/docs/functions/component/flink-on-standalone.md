@@ -13,7 +13,8 @@ sidebar_label: Flink On Standalone
 
 * 编译1.12版本的chunjun [master](https://github.com/DTStack/chunjun)插件，将生成的chunjun-dist 拷贝至 $FLINK_HOME/lib
 
-:::tip chunjun 有些依赖包依赖是provided，需要将缺省的jar放到$FLINK_HOME/lib  
+:::tip 
+chunjun 有些依赖包依赖是provided，需要将缺省的jar放到$FLINK_HOME/lib  
 例如：在chunjun-core最新版本中将logback的依赖改为了provided, 需要将以下logback包放到$FLINK_HOME/lib logback-core-1.2.11.jar
 logback-classic-1.2.11.jar
 :::
@@ -99,11 +100,13 @@ lib/
 | prometheusPort  | prometheus端口 | * |  |
 | state.backend   | 状态后端       |   | jobmanager |
 
-:::caution flinkLibDir需要和$FLINK_HOME/lib文件一致  
+:::caution 
+flinkLibDir需要和$FLINK_HOME/lib文件一致  
 chunjunDistDir需要和$FLINK_HOME/lib/下chunjun插件包文件一致
 :::
 
-:::tip flink on standalone 离线任务需要手动将`环境参数`flinkTaskRunMode设置为`standalone`模式
+:::tip 
+flink on standalone 离线任务需要手动将`环境参数`flinkTaskRunMode设置为`standalone`模式
 :::
 
 
