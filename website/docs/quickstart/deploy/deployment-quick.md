@@ -17,7 +17,8 @@ sidebar_label: 单机部署
 $ wget https://github.com/DTStack/Taier/releases/download/${current.version}/taier.tar.gz
 ```
 
-:::caution ${current.version} 需要替换为对应版本值 如1.4
+:::caution 
+${current.version} 需要替换为对应版本值 如1.4
 :::
 
 - 解压taier.tar.gz源码包
@@ -39,7 +40,8 @@ $ unzip taier.tar.gz
 |-- run
 ```
 
-:::caution 由于plugins相关包过大 建议自行下载源码并通过build/mvn-build-plugins 脚本编译
+:::caution 
+由于plugins相关包过大 建议自行下载源码并通过build/mvn-build-plugins 脚本编译
 :::
 
 - plugins相关包路径
@@ -95,8 +97,9 @@ $ ./bin/taier.sh start
 $ ./bin/taier.sh stop
 ```
 
-:::tip 低版本升级到高版本 执行[高版本目录](https://github.com/DTStack/Taier/tree/master/sql)下的`1.4_increment.sql`。
+:::tip 
+低版本升级到高版本 执行[高版本目录](https://github.com/DTStack/Taier/tree/master/sql)下的`1.4_increment.sql`。
 初次部署 直接执行[最新版本](https://github.com/DTStack/Taier/tree/master/sql)下的`init.sql`
 > 如1.3版本升级到1.4版本 执行1.4目录下的`1.4_increment.sql`
-> 第一次部署执行 sql/init.sql
+> 在第一次部署执行 sql/init.sql 即可
 :::

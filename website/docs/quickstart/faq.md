@@ -136,9 +136,12 @@ chunjun的connector更换过之后，需要重启Taier和Flink Session
 
 ### 数据同步运行 数据写入 但是界面指标展示为0
 
-:::tip 
-界面指标展示需要依赖Prometheus服务器和Taier服务器、数据库时间一致  
-Chunjun的指标信息推送为异步 数据过少 可能任务已经结束 指标还未推送
+:::tip
+指标数据来源于prometheus地址，指标展示为0的话
+1. 普罗米修斯没有数据
+2. prometheus服务器和Taier服务器、数据库时间不一致,时间间隔取值不对
+3. Chunjun的指标信息推送为异步 数据过少 可能任务已经结束 指标还未推送
+4. Flink组件promgateway或prometheus地址、端口不正确
 :::
 
 ### Flink Session 运行之后 不断被kill
@@ -178,3 +181,17 @@ application.properties 配置hadoop.user.name=hdfs 重启Taier  更多参数参�
 :::
 
 ### Yarn或Hdfs测试连通性不过
+:::tip 
+确认集群对应的计算节点host信息是否在Taier的服务器或镜像配置正确  
+测试连通性是通过YarnClient和组件进行连接测试，确保网络连接正常
+:::
+
+### logback类加载不到
+:::tip
+参考[issue](https://github.com/DTStack/Taier/issues/985) 把logback-core-1.2.11.jar、logback-classic-1.2.11.jar 放入到`flinkLibDir`目录下 并重新拉起Flink Session
+:::
+
+### 任务提交显示资源不足
+:::tip
+确认集群的cpu、内存或flink slot数量是否足够
+:::

@@ -34,7 +34,8 @@ $ build/mvn-build.sh
 |-- datasource-plugins
 ```
 
-:::tip 插件编译失败，可以尝试maven的仓库地址设为[阿里云Maven地址](https://developer.aliyun.com/mvn/guide)
+:::tip 
+插件编译失败，可以尝试maven的仓库地址设为[阿里云Maven地址](https://developer.aliyun.com/mvn/guide)
 
 oracle 插件因为商业版本原因，官方没有提供 ojdbc 的驱动，开发者有两种可选方式进行解决：
 

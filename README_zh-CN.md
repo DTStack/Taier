@@ -98,8 +98,7 @@ $ docker-compose up -d
 |      自定义扩展     |           [文档](https://dtstack.github.io/Taier/docs/expand/task)           |
 
 ## 问题反馈
-
-在使用上有遇到 bug 或者优化点，强烈建议你提 [issue](https://github.com/DTStack/Taier/issues/new/choose) 我们将及时修复
+[常见问题](https://dtstack.github.io/Taier/docs/quickstart/faq) 在使用上有遇到 bug 或者优化点，强烈建议你提 [issue](https://github.com/DTStack/Taier/issues/new/choose) 我们将及时修复
 
 
 ## 联系我们
