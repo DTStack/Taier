@@ -95,11 +95,11 @@ $ docker-compose up -d
 |   Greenplum SQL   |     [Documentation](https://dtstack.github.io/Taier/docs/functions/task/greenplum-sql)|
 |   MaxCompute SQL  |    [Documentation](https://dtstack.github.io/Taier/docs/functions/task/maxcompute-sql)|
 |     GaussDB SQL   |      [Documentation](https://dtstack.github.io/Taier/docs/functions/task/guassdb-sql) |
+|     DataX         |      [Documentation](https://dtstack.github.io/Taier/docs/functions/task/datax) |
 | User-defined Task |           [Documentation](https://dtstack.github.io/Taier/docs/expand/task)           |
 
 ## Questions
-
-For questions, bugs and supports please open an [issue](https://github.com/DTStack/Taier/issues/new/choose), we'll reply you in time.
+[FAQ Reference](https://dtstack.github.io/Taier/docs/quickstart/faq) For questions, bugs and supports please open an [issue](https://github.com/DTStack/Taier/issues/new/choose), we'll reply you in time.
 
 ## Stay in touch
 

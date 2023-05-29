@@ -221,7 +221,8 @@ FlinkPluginRoot配置的是chunjun的插件包目录 需要配置`taier部署机
 
 ![Flink 配置](/img/readme/flink.png)
 
-:::caution Flink Session 任务第一次的时候 会去启动Session 任务提交会较慢。  
+:::caution 
+Flink Session 任务第一次的时候 会去启动Session 任务提交会较慢。  
 配置好数据同步任务之后运行，如果一直提示等待运行（No flink session found on yarn cluster),确保集群能手动正常启动session后，可以去`flink_monitor.log`
 查看相应日志，确认是否有部分参数配置错误
 :::

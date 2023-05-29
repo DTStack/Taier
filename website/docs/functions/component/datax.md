@@ -16,7 +16,8 @@ DataX 计算组件用于运行 DataX 脚本任务,DataX不依赖任务前置组�
 | execute.dir      |             | 执行目录文件夹                                | 是       |
 | DATAX.python.path      |             | python 二进制可执行文件地址                                 | 是       |
 
-:::tip DataX任务运行在Taier本地服务器,通过Taier来执行，并获取执行结果信息
+:::tip 
+DataX任务运行在Taier本地服务器,通过Taier来执行，并获取执行结果信息
 
 ```shell
 python datax.py task.temp/task.json
@@ -24,5 +25,6 @@ python datax.py task.temp/task.json
 
 :::
 
-:::caution DataX任务内容为DataX的运行脚本
+:::caution 
+DataX任务内容为DataX的运行脚本
 :::

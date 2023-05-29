@@ -30,6 +30,7 @@ $ build/mvn-build-plugins.sh
 - IDEA选择TaierApplication启动项目
   ![idea-run](/img/readme/idea-run.png)
 
-:::tip 源码中包含部分scala的代码，通过idea源码启动需要添加scala的sdk 建议scala版本为`2.11.1`  
+:::tip 
+源码中包含部分scala的代码，通过idea源码启动需要添加scala的sdk 建议scala版本为`2.11.1`  
 Module Setting > Global Libraries > scala sdk
 :::

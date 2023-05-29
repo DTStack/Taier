@@ -58,17 +58,17 @@ const config = {
             type: "doc",
             docId: "guides/introduction",
             position: "left",
-            label: "Docs",
+            label: "文档",
           },
           {
             position: "left",
             href: "https://github.com/DTStack/Taier/releases",
-            label: "Download",
+            label: "源码下载",
           },
           {
             position: "left",
-            href: "/docs/faq",
-            label: "FAQ",
+            href: "/docs/quickstart/faq",
+            label: "常见问题",
           },
           {
             href: "https://github.com/DTStack/Taier",
