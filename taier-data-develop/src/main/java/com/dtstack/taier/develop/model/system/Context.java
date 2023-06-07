@@ -104,7 +104,7 @@ public class Context {
 
 
     private Table<EComponentType, String, ComponentModelTypeConfig> initComponentModelTypeConfig() {
-        return parseTable(DictType.RESOURCE_MODEL_CONFIG.type, ((table, dict) ->
+         return parseTable(DictType.RESOURCE_MODEL_CONFIG.type, ((table, dict) ->
                 table.put(Enum.valueOf(EComponentType.class, dict.getDependName()), dict.getDictName(), new ComponentModelTypeConfig(dict.getDictName(), dict.getDictValue()))));
     }
 
