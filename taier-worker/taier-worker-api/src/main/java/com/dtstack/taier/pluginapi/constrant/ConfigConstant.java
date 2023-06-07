@@ -107,10 +107,10 @@ public class ConfigConstant {
 
     public static final String COMPONENT_EXECUTE_DIR = "execute.dir";
 
-    public static final String DATAX_TASK_TEMP = "DATAX.task.temp";
+    public static final String DATAX_TASK_TEMP = "DataX.task.temp";
 
-    public static final String DATAX_LOCAL_PATH = "DATAX.local.path";
+    public static final String DATAX_LOCAL_PATH = "DataX.local.path";
 
-    public static final String DATAX_PYTHON_BIN = "DATAX.python.path";
+    public static final String DATAX_PYTHON_BIN = "DataX.python.path";
 
 }

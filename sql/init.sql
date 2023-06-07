@@ -2426,7 +2426,7 @@ WHERE dict_code = 'component_model'
 INSERT INTO `dict` (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default,
                     gmt_create, gmt_modified, is_deleted)
 VALUES ('component_model', 'DATAX',
-        '{"owner": "COMPUTE", "dependsOn": [], "nameTemplate": "DATAX", "allowKerberos": "false", "allowCoexistence": false, "uploadConfigType": "0"}',
+        '{"owner": "COMPUTE", "dependsOn": [], "nameTemplate": "DataX", "allowKerberos": "false", "allowCoexistence": false, "uploadConfigType": "0"}',
         null, 12, 0, 'STRING', '', 0, '2023-02-07 11:26:57', '2023-02-07 16:54:54', 0);
 
 DELETE
@@ -2436,7 +2436,7 @@ WHERE dict_code = 'typename_mapping'
 -- 处理组件默认版本
 INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name,
                   is_default, gmt_create, gmt_modified, is_deleted)
-VALUES ('typename_mapping', 'DATAX', '-233', null, 6, 0, 'LONG', '', 0, now(), now(), 0);
+VALUES ('typename_mapping', 'DataX', '-233', null, 6, 0, 'LONG', '', 0, now(), now(), 0);
 
 -- 组件模版参数
 insert into console_component_config (cluster_id, component_id, component_type_code, type, required, `key`,
@@ -2465,5 +2465,11 @@ WHERE type = 14
   and depend_name = 'DATAX';
 INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default, gmt_create, gmt_modified, is_deleted) VALUES ('component_model_config', 'standalone', '{"standalone":"DataX"}', null, 14, 1, 'STRING', 'DATAX', 0, '2023-05-07 11:44:33', '2023-05-07 11:44:33', 0);
 
+
+insert into console_component_config (cluster_id, component_id, component_type_code, type, required, `key`,
+                                      value, `values`, dependencyKey, dependencyValue, `desc`, gmt_create,
+                                      gmt_modified, is_deleted)
+values (-2, -233, 8, 'INPUT', 1, 'execute.dir', '/tmp/dir', null, null, null, null, now(), now(), 0),
+       (-2, -233, 8, 'INPUT', 1, 'DataX.python.path', 'python3', null, null, null, null, now(), now(), 0);
 
 COMMIT;
