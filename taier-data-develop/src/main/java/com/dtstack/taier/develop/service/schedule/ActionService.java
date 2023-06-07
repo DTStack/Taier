@@ -212,7 +212,7 @@ public class ActionService {
                 jobLogVO.setLogInfo(scheduleJobExpand.getLogInfo());
                 jobLogVO.setEngineLog(scheduleJobExpand.getEngineLog());
             }
-            if (EComponentType.SCRIPT.equals(EScheduleJobType.getByTaskType(scheduleJob.getTaskType()).getComponentType())) {
+            if (EComponentType.SCRIPT.equals(EScheduleJobType.getByTaskType(scheduleJob.getTaskType()).getComponentType()) || EComponentType.DATAX.equals(EScheduleJobType.getByTaskType(scheduleJob.getTaskType()).getComponentType())) {
                 String jobExtraInfo = scheduleJobExpand.getJobExtraInfo();
                 String content = "";
                 if (StringUtils.isNotBlank(jobExtraInfo)) {

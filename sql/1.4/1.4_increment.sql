@@ -289,7 +289,7 @@ WHERE dict_code = 'component_model'
 INSERT INTO `dict` (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default,
                     gmt_create, gmt_modified, is_deleted)
 VALUES ('component_model', 'DATAX',
-        '{"owner": "COMPUTE", "dependsOn": [], "nameTemplate": "DATAX", "allowKerberos": "false", "allowCoexistence": false, "uploadConfigType": "0"}',
+        '{"owner": "COMPUTE", "dependsOn": [], "nameTemplate": "DataX", "allowKerberos": "false", "allowCoexistence": false, "uploadConfigType": "0"}',
         null, 12, 0, 'STRING', '', 0, '2023-02-07 11:26:57', '2023-02-07 16:54:54', 0);
 
 DELETE
@@ -299,7 +299,7 @@ WHERE dict_code = 'typename_mapping'
 -- 处理组件默认版本
 INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name,
                   is_default, gmt_create, gmt_modified, is_deleted)
-VALUES ('typename_mapping', 'DATAX', '-233', null, 6, 0, 'LONG', '', 0, now(), now(), 0);
+VALUES ('typename_mapping', 'DataX', '-233', null, 6, 0, 'LONG', '', 0, now(), now(), 0);
 
 -- 组件模版参数
 insert into console_component_config (cluster_id, component_id, component_type_code, type, required, `key`,
@@ -322,7 +322,7 @@ WHERE dict_code = '26'
 INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default,
                   gmt_create, gmt_modified, is_deleted)
 VALUES ('26', 'DATAX',
-        '{"actions": ["SAVE_TASK", "RUN_TASK", "STOP_TASK", "SUBMIT_TASK", "OPERATOR_TASK"], "barItem": ["task", "dependency", "task_params", "env_params"], "formField": ["datasource"], "renderKind": "editor","dataTypeCodes":["27","7","50"]}',
+        '{"actions": ["SAVE_TASK", "RUN_TASK", "STOP_TASK", "SUBMIT_TASK", "OPERATOR_TASK"], "barItem": ["task", "dependency", "task_params", "env_params"], "renderKind": "editor","dataTypeCodes":["27","7","50"]}',
         null, 30, 0, 'STRING', '', 0, '2023-03-03 07:27:25', '2022-03-03 07:27:25', 0);
 DELETE
 FROM `dict`
