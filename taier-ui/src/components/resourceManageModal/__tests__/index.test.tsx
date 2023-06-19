@@ -1,15 +1,16 @@
-import { fireConfirmOnModal, selectItem, toggleOpen } from '@/tests/utils';
+import { fireConfirmOnModal } from '@/tests/utils';
 import { cleanup, render, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import ResourceManageModal from '..';
 import api from '@/api';
+import { select } from 'ant-design-testing';
 
 jest.mock('@/api');
-jest.useFakeTimers();
 
 describe('Test ResourceManageModal Component', () => {
     beforeEach(() => {
         cleanup();
+        jest.useFakeTimers();
         document.body.innerHTML = '';
 
         (api.getClusterResources as jest.Mock).mockReset().mockResolvedValue({
@@ -18,6 +19,10 @@ describe('Test ResourceManageModal Component', () => {
                 queues: [{ queueName: 'test' }],
             },
         });
+    });
+
+    afterEach(() => {
+        jest.useRealTimers();
     });
 
     it('Should match snapshot', () => {
@@ -43,11 +48,12 @@ describe('Test ResourceManageModal Component', () => {
         const fn = jest.fn();
         const { container, getByTestId } = render(<ResourceManageModal visible clusterId={1} onOk={fn} />);
 
-        toggleOpen(container);
+        select.fireOpen(container);
         await waitFor(() => {
             expect(document.querySelectorAll('div.ant-select-item-option-content').length).toBe(1);
         });
-        selectItem(0);
+
+        select.fireSelect(document.body, 0);
 
         fireConfirmOnModal(getByTestId);
 

@@ -1,4 +1,3 @@
-import { selectItem, toggleOpen } from '@/tests/utils';
 import molecule from '@dtinsight/molecule';
 import { cleanup, fireEvent, render, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
@@ -7,8 +6,8 @@ import Create from '../create';
 import type { IOfflineTaskProps } from '@/interface';
 import api from '@/api';
 import { Form, Input } from 'antd';
+import { input, select } from 'ant-design-testing';
 
-jest.useFakeTimers();
 jest.mock('@/api');
 
 (molecule.folderTree.getState as jest.Mock).mockReset().mockImplementation(() => ({
@@ -54,7 +53,11 @@ jest.mock('@/context', () => {
 
 describe('Test Create Component', () => {
     beforeEach(() => {
+        jest.useFakeTimers();
         cleanup();
+    });
+    afterEach(() => {
+        jest.useRealTimers();
     });
     it('Should match snapshot', () => {
         const { asFragment } = render(<Create />);
@@ -68,7 +71,7 @@ describe('Test Create Component', () => {
             const { container } = render(<Create current={{ id: 'test', tab: { id: 1, data: {} } }} onSubmit={fn} />);
 
             // Edit name
-            fireEvent.change(container.querySelector('input#name')!, { target: { value: 'test' } });
+            input.fireChange(container, 'test');
             expect(molecule.editor.updateTab).lastCalledWith({
                 data: {
                     name: 'test',
@@ -82,8 +85,8 @@ describe('Test Create Component', () => {
             });
 
             // Select taskType
-            toggleOpen(container);
-            selectItem(0);
+            select.fireOpen(container);
+            select.fireSelect(container, 0);
             expect(molecule.editor.updateTab).lastCalledWith({
                 data: {
                     name: 'test',
@@ -130,9 +133,7 @@ describe('Test Create Component', () => {
             });
 
             // Edit name
-            fireEvent.change(container.querySelector('input#name')!, {
-                target: { value: new Array(200).fill('a').join('') },
-            });
+            input.fireChange(container, new Array(200).fill('a').join(''));
             // submit
             fireEvent.click(container.querySelector('button.ant-btn[type="submit"]')!);
 
@@ -141,9 +142,7 @@ describe('Test Create Component', () => {
             });
 
             // Edit name
-            fireEvent.change(container.querySelector('input#name')!, {
-                target: { value: 'a-b%' },
-            });
+            input.fireChange(container, 'a-b%');
             // submit
             fireEvent.click(container.querySelector('button.ant-btn[type="submit"]')!);
 

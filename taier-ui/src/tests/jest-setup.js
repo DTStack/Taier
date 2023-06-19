@@ -3,9 +3,12 @@ import 'reflect-metadata';
 import ResizeObserver from 'resize-observer-polyfill';
 import 'jest-canvas-mock';
 import timezoneMock from 'timezone-mock';
+import { provider } from 'ant-design-testing';
 
 global.React = React;
 global.ResizeObserver = ResizeObserver;
+
+provider({ prefixCls: 'ant' });
 
 // Set timezone
 timezoneMock.register('UTC');

@@ -1,4 +1,5 @@
-import { fireConfirmOnModal, fireInputChange } from '@/tests/utils';
+import { fireConfirmOnModal } from '@/tests/utils';
+import { input } from 'ant-design-testing';
 import { cleanup, render, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import AddTenantModal from '..';
@@ -28,8 +29,9 @@ describe('Test AddTenantModal', () => {
             expect(getByText('请输入租户标识!')).toBeInTheDocument();
         });
 
-        fireInputChange(container.querySelector('#tenantName')!, new Array(100).fill('1').join(''));
-        fireInputChange(container.querySelector('#tenantIdentity')!, '测试');
+        const formItems = container.querySelectorAll<HTMLElement>('.ant-form-item-control');
+        input.fireChange(formItems[0], new Array(100).fill('1').join(''));
+        input.fireChange(formItems[1], '测试');
 
         await waitFor(() => {
             expect(getByText('请输入 64 个字符以内')).toBeInTheDocument();
@@ -43,8 +45,10 @@ describe('Test AddTenantModal', () => {
         });
         const { getByTestId, container } = render(<AddTenantModal />);
 
-        fireInputChange(container.querySelector('#tenantName')!, 'DTStack');
-        fireInputChange(container.querySelector('#tenantIdentity')!, 'test');
+        const formItems = container.querySelectorAll<HTMLElement>('.ant-form-item-control');
+        input.fireChange(formItems[0], 'DTStack');
+        input.fireChange(formItems[1], 'test');
+
         fireConfirmOnModal(getByTestId);
         await waitFor(() => {
             expect(api.addTenant).toBeCalledWith({

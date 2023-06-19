@@ -1,11 +1,11 @@
 import api from '@/api';
-import { $, $$, selectItem, toggleOpen, triggerOkOnConfirm } from '@/tests/utils';
+import { $, $$, triggerOkOnConfirm } from '@/tests/utils';
 import { fireEvent, render, waitFor } from '@testing-library/react';
-import { act } from 'react-dom/test-utils';
 import Queue from '../queue';
 import '@testing-library/jest-dom';
 import { history } from 'umi';
 import { getAllCluster, getClusterDetail, getNodeAddressSelect } from './fixtures/mock';
+import { select } from 'ant-design-testing';
 
 jest.mock('@/api');
 jest.useFakeTimers();
@@ -53,19 +53,18 @@ describe('Test Queue Page', () => {
         });
 
         // Get data since the cluster changed
-        toggleOpen($$<HTMLDivElement>('.ant-form-item')[0]!);
-        await act(async () => {
-            selectItem(1);
-        });
+        select.fireOpen($$<HTMLDivElement>('.ant-form-item')[0]);
+        select.fireSelect(document.body, 1);
+        document.querySelector('div.ant-select-dropdown')?.remove();
+
         await waitFor(() => {
             expect(api.getClusterDetail).toBeCalledTimes(3);
         });
 
         // Get data since the node changed
-        toggleOpen($$<HTMLDivElement>('.ant-form-item')[1]!);
-        await act(async () => {
-            selectItem(0, 1);
-        });
+        select.fireOpen($$<HTMLDivElement>('.ant-form-item')[1]);
+        select.fireSelect(document.body, 0);
+
         await waitFor(() => {
             expect(api.getClusterDetail).toBeCalledTimes(4);
         });

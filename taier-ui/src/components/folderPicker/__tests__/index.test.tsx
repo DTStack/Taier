@@ -1,7 +1,6 @@
 import api from '@/api';
 import { CATALOGUE_TYPE } from '@/constant';
 import { catalogueService } from '@/services';
-import { toggleOpen } from '@/tests/utils';
 import molecule from '@dtinsight/molecule';
 import { cleanup, fireEvent, render } from '@testing-library/react';
 import { act } from 'react-dom/test-utils';
@@ -9,6 +8,7 @@ import FolderPicker from '..';
 import functionData from './fixtures/functionData';
 import resourceData from './fixtures/resourceData';
 import treeData from './fixtures/treeData';
+import { treeSelect } from 'ant-design-testing';
 
 jest.useFakeTimers();
 jest.mock('@/api');
@@ -77,7 +77,7 @@ describe('Test FolderPicker Component', () => {
     it('Should trigger loadData', async () => {
         const { container } = render(<FolderPicker showFile dataType={CATALOGUE_TYPE.FUNCTION} />);
 
-        toggleOpen(container);
+        treeSelect.fireOpen(container);
 
         await act(async () => {
             fireEvent.click(container.querySelector('.ant-select-tree-switcher')!);

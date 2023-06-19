@@ -1,9 +1,13 @@
-import { selectValue } from '@/tests/utils';
-import { fireEvent, render } from '@testing-library/react';
+import { cleanup, fireEvent, render } from '@testing-library/react';
 import { act } from 'react-dom/test-utils';
 import LifeCycleSelect from '..';
+import { select } from 'ant-design-testing';
 
 describe('Test LifeCycleSelect Component', () => {
+    beforeEach(() => {
+        cleanup();
+        document.body.innerHTML = '';
+    });
     it('Should match snapshot', () => {
         expect(render(<LifeCycleSelect width={100} />).asFragment()).toMatchSnapshot();
     });
@@ -24,7 +28,7 @@ describe('Test LifeCycleSelect Component', () => {
             fireEvent.click(container.querySelector('input')!);
         });
 
-        selectValue(1);
+        select.fireSelect(document.body, 1);
 
         expect(fn).toBeCalledWith(7);
     });
@@ -36,7 +40,7 @@ describe('Test LifeCycleSelect Component', () => {
             fireEvent.click(container.querySelector('input')!);
         });
 
-        selectValue(5);
+        select.fireSelect(document.body, 5);
 
         expect(
             container.querySelector('.ant-input-number')?.classList.contains('ant-input-number-readonly')

@@ -1,12 +1,18 @@
-import { selectItem, toggleOpen } from '@/tests/utils';
-import { render } from '@testing-library/react';
+import { cleanup, render } from '@testing-library/react';
 import Result from '../result';
-
-jest.useFakeTimers();
+import { select } from 'ant-design-testing';
 
 describe('Test Result Component', () => {
     beforeEach(() => {
+        cleanup();
+        document.body.innerHTML = '';
+        jest.useFakeTimers();
         jest.spyOn(global.Math, 'random').mockReturnValue(10);
+    });
+
+    afterEach(() => {
+        jest.useRealTimers();
+        jest.restoreAllMocks();
     });
 
     it('Should match snapshot', () => {
@@ -65,8 +71,8 @@ describe('Test Result Component', () => {
             />
         );
 
-        toggleOpen(container);
-        selectItem(0);
+        select.fireOpen(container);
+        select.fireSelect(document.body, 0);
 
         expect(fn).toBeCalled();
     });

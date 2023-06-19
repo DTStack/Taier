@@ -1,9 +1,8 @@
 import { CATALOGUE_TYPE } from '@/constant';
-import { selectItemInTree, toggleOpen } from '@/tests/utils';
 import { cleanup, render } from '@testing-library/react';
-import React from 'react';
 import CustomTreeSelect from '../customTreeSelect';
 import treeData from './fixtures/treeData';
+import { treeSelect } from 'ant-design-testing';
 
 jest.useFakeTimers();
 jest.mock('@/utils/extensions', () => {
@@ -28,8 +27,8 @@ describe('Test CustomTreeSelect Component', () => {
             <CustomTreeSelect showFile dataType={CATALOGUE_TYPE.TASK} treeData={treeData} onChange={fn} />
         );
 
-        toggleOpen(container);
-        selectItemInTree(0);
+        treeSelect.fireOpen(container);
+        treeSelect.fireSelect(document.body, 0);
 
         expect(fn.mock.calls[0][0]).toBe(31);
         expect(render(fn.mock.calls[0][1]).container.textContent).toBe('任务开发 ');

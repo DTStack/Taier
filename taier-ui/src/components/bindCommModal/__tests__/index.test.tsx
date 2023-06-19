@@ -1,5 +1,6 @@
 import api from '@/api';
-import { fireConfirmOnModal, selectItem, toggleOpen } from '@/tests/utils';
+import { fireConfirmOnModal } from '@/tests/utils';
+import { select } from 'ant-design-testing';
 import { cleanup, render, waitFor } from '@testing-library/react';
 import BindCommModal from '..';
 import '@testing-library/jest-dom';
@@ -51,6 +52,10 @@ describe('Test BindCommModal Component', () => {
         });
     });
 
+    afterEach(() => {
+        jest.useRealTimers();
+    });
+
     it('Should match snapshot', () => {
         const { asFragment } = render(
             <BindCommModal
@@ -81,8 +86,8 @@ describe('Test BindCommModal Component', () => {
             expect(getByText('集群不可为空！')).toBeInTheDocument();
         });
 
-        toggleOpen(container.querySelectorAll<HTMLElement>('.ant-form-item')[1]);
-        selectItem();
+        select.fireOpen(container.querySelectorAll<HTMLElement>('.ant-form-item')[1]);
+        select.fireSelect(document.body, 0);
 
         await waitFor(() => {
             expect(api.getEnginesByCluster).toBeCalled();
@@ -108,19 +113,21 @@ describe('Test BindCommModal Component', () => {
             expect(api.getTenantList).toBeCalled();
         });
 
-        toggleOpen(container.querySelectorAll<HTMLElement>('.ant-form-item')[0]);
-        selectItem();
+        select.fireOpen(container.querySelectorAll<HTMLElement>('.ant-form-item')[0]);
+        select.fireSelect(document.body, 0);
+        document.querySelector('div.ant-select-dropdown')?.remove();
 
-        toggleOpen(container.querySelectorAll<HTMLElement>('.ant-form-item')[1]);
-        selectItem(0, 1);
+        select.fireOpen(container.querySelectorAll<HTMLElement>('.ant-form-item')[1]);
+        select.fireSelect(document.body, 0);
+        document.querySelector('div.ant-select-dropdown')?.remove();
 
         await waitFor(() => {
             expect(api.getEnginesByCluster).toBeCalled();
             expect(api.getClusterResources).toBeCalled();
         });
 
-        toggleOpen(container.querySelectorAll<HTMLElement>('.ant-form-item')[2]);
-        selectItem(0, 2);
+        select.fireOpen(container.querySelectorAll<HTMLElement>('.ant-form-item')[2]);
+        select.fireSelect(document.body, 0);
 
         fireConfirmOnModal(getByTestId);
 

@@ -1,10 +1,11 @@
-import { toggleOpen, selectItem } from '@/tests/utils';
 import type { render } from '@testing-library/react';
 import { fireEvent } from '@testing-library/react';
+import { select } from 'ant-design-testing';
 
 export function fillFormContent(getAllByTestId: ReturnType<typeof render>['getAllByTestId']) {
-    toggleOpen();
-    selectItem(1);
+    document.body.querySelector('div.ant-select-dropdown')?.remove();
+    select.fireOpen(document);
+    select.fireSelect(document.body, 1);
 
     const radios = document.querySelector('#udfType')?.querySelectorAll('input') || [];
     const folderPickers = getAllByTestId('mockFolderPicker');
