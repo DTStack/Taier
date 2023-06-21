@@ -8,10 +8,6 @@ export const $$ = <T extends Element>(selector: string) => {
     return document.querySelectorAll<T>(selector);
 };
 
-export function fireConfirmOnModal(getByTestId: any) {
-    fireEvent.click(getByTestId('antd-mock-Modal-confirm'));
-}
-
 export async function sleep(delay = 300) {
     return new Promise<void>((resolve) => {
         setTimeout(() => {

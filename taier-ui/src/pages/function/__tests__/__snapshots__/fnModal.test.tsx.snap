@@ -1,792 +1,972 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`Test FnModal Component for Function Should match snapshots: create new function 1`] = `
-<DocumentFragment>
-  <p
-    data-testid="antd-mock-Modal-title"
-  >
-    新建自定义函数
-  </p>
-  <form
-    autocomplete="off"
-    class="ant-form ant-form-horizontal"
-  >
+exports[`Test FnModal Component for Function Should match snapshots create new function 1`] = `
+<body>
+  <div />
+  <div>
     <div
-      class="ant-form-item"
+      class="ant-modal-root"
     >
       <div
-        class="ant-row ant-form-item-row"
+        class="ant-modal-mask"
+      />
+      <div
+        class="ant-modal-wrap"
+        tabindex="-1"
       >
         <div
-          class="ant-col ant-form-item-label ant-col-xs-24 ant-col-sm-6"
-        >
-          <label
-            class="ant-form-item-required"
-            for="taskType"
-            title="函数类型"
-          >
-            函数类型
-          </label>
-        </div>
-        <div
-          class="ant-col ant-form-item-control ant-col-xs-24 ant-col-sm-16"
+          aria-labelledby="test-id"
+          aria-modal="true"
+          class="ant-modal"
+          role="dialog"
+          style="width: 520px;"
         >
           <div
-            class="ant-form-item-control-input"
+            aria-hidden="true"
+            style="width: 0px; height: 0px; overflow: hidden; outline: none;"
+            tabindex="0"
+          />
+          <div
+            class="ant-modal-content"
           >
+            <button
+              aria-label="Close"
+              class="ant-modal-close"
+              type="button"
+            >
+              <span
+                class="ant-modal-close-x"
+              >
+                <span
+                  aria-label="close"
+                  class="anticon anticon-close ant-modal-close-icon"
+                  role="img"
+                >
+                  <svg
+                    aria-hidden="true"
+                    data-icon="close"
+                    fill="currentColor"
+                    focusable="false"
+                    height="1em"
+                    viewBox="64 64 896 896"
+                    width="1em"
+                  >
+                    <path
+                      d="M563.8 512l262.5-312.9c4.4-5.2.7-13.1-6.1-13.1h-79.8c-4.7 0-9.2 2.1-12.3 5.7L511.6 449.8 295.1 191.7c-3-3.6-7.5-5.7-12.3-5.7H203c-6.8 0-10.5 7.9-6.1 13.1L459.4 512 196.9 824.9A7.95 7.95 0 00203 838h79.8c4.7 0 9.2-2.1 12.3-5.7l216.5-258.1 216.5 258.1c3 3.6 7.5 5.7 12.3 5.7h79.8c6.8 0 10.5-7.9 6.1-13.1L563.8 512z"
+                    />
+                  </svg>
+                </span>
+              </span>
+            </button>
             <div
-              class="ant-form-item-control-input-content"
+              class="ant-modal-header"
             >
               <div
-                aria-required="true"
-                class="ant-select ant-select-in-form-item ant-select-single ant-select-show-arrow"
+                class="ant-modal-title"
+                id="test-id"
               >
-                <div
-                  class="ant-select-selector"
-                >
-                  <span
-                    class="ant-select-selection-search"
-                  >
-                    <input
-                      aria-activedescendant="taskType_list_0"
-                      aria-autocomplete="list"
-                      aria-controls="taskType_list"
-                      aria-haspopup="listbox"
-                      aria-owns="taskType_list"
-                      aria-required="true"
-                      autocomplete="off"
-                      class="ant-select-selection-search-input"
-                      id="taskType"
-                      readonly=""
-                      role="combobox"
-                      style="opacity: 0;"
-                      type="search"
-                      unselectable="on"
-                      value=""
-                    />
-                  </span>
-                  <span
-                    class="ant-select-selection-item"
-                    title="未知"
-                  >
-                    未知
-                  </span>
-                </div>
-                <span
-                  aria-hidden="true"
-                  class="ant-select-arrow"
-                  style="user-select: none;"
-                  unselectable="on"
-                >
-                  <span
-                    aria-label="down"
-                    class="anticon anticon-down ant-select-suffix"
-                    role="img"
-                  >
-                    <svg
-                      aria-hidden="true"
-                      data-icon="down"
-                      fill="currentColor"
-                      focusable="false"
-                      height="1em"
-                      viewBox="64 64 896 896"
-                      width="1em"
-                    >
-                      <path
-                        d="M884 256h-75c-5.1 0-9.9 2.5-12.9 6.6L512 654.2 227.9 262.6c-3-4.1-7.8-6.6-12.9-6.6h-75c-6.5 0-10.3 7.4-6.5 12.7l352.6 486.1c12.8 17.6 39 17.6 51.7 0l352.6-486.1c3.9-5.3.1-12.7-6.4-12.7z"
-                      />
-                    </svg>
-                  </span>
-                </span>
+                新建自定义函数
               </div>
             </div>
-          </div>
-        </div>
-      </div>
-    </div>
-    <div
-      class="ant-form-item"
-    >
-      <div
-        class="ant-row ant-form-item-row"
-      >
-        <div
-          class="ant-col ant-form-item-label ant-col-xs-24 ant-col-sm-6"
-        >
-          <label
-            class="ant-form-item-required"
-            for="name"
-            title="函数名称"
-          >
-            函数名称
-          </label>
-        </div>
-        <div
-          class="ant-col ant-form-item-control ant-col-xs-24 ant-col-sm-16"
-        >
-          <div
-            class="ant-form-item-control-input"
-          >
             <div
-              class="ant-form-item-control-input-content"
+              class="ant-modal-body"
             >
-              <input
-                aria-required="true"
-                class="ant-input"
-                id="name"
-                placeholder="请输入函数名称"
-                type="text"
-                value=""
-              />
+              <form
+                autocomplete="off"
+                class="ant-form ant-form-horizontal"
+              >
+                <div
+                  class="ant-form-item"
+                >
+                  <div
+                    class="ant-row ant-form-item-row"
+                  >
+                    <div
+                      class="ant-col ant-form-item-label ant-col-xs-24 ant-col-sm-6"
+                    >
+                      <label
+                        class="ant-form-item-required"
+                        for="taskType"
+                        title="函数类型"
+                      >
+                        函数类型
+                      </label>
+                    </div>
+                    <div
+                      class="ant-col ant-form-item-control ant-col-xs-24 ant-col-sm-16"
+                    >
+                      <div
+                        class="ant-form-item-control-input"
+                      >
+                        <div
+                          class="ant-form-item-control-input-content"
+                        >
+                          <div
+                            aria-required="true"
+                            class="ant-select ant-select-in-form-item ant-select-single ant-select-show-arrow"
+                          >
+                            <div
+                              class="ant-select-selector"
+                            >
+                              <span
+                                class="ant-select-selection-search"
+                              >
+                                <input
+                                  aria-activedescendant="taskType_list_0"
+                                  aria-autocomplete="list"
+                                  aria-controls="taskType_list"
+                                  aria-haspopup="listbox"
+                                  aria-owns="taskType_list"
+                                  aria-required="true"
+                                  autocomplete="off"
+                                  class="ant-select-selection-search-input"
+                                  id="taskType"
+                                  readonly=""
+                                  role="combobox"
+                                  style="opacity: 0;"
+                                  type="search"
+                                  unselectable="on"
+                                  value=""
+                                />
+                              </span>
+                              <span
+                                class="ant-select-selection-item"
+                                title="未知"
+                              >
+                                未知
+                              </span>
+                            </div>
+                            <span
+                              aria-hidden="true"
+                              class="ant-select-arrow"
+                              style="user-select: none;"
+                              unselectable="on"
+                            >
+                              <span
+                                aria-label="down"
+                                class="anticon anticon-down ant-select-suffix"
+                                role="img"
+                              >
+                                <svg
+                                  aria-hidden="true"
+                                  data-icon="down"
+                                  fill="currentColor"
+                                  focusable="false"
+                                  height="1em"
+                                  viewBox="64 64 896 896"
+                                  width="1em"
+                                >
+                                  <path
+                                    d="M884 256h-75c-5.1 0-9.9 2.5-12.9 6.6L512 654.2 227.9 262.6c-3-4.1-7.8-6.6-12.9-6.6h-75c-6.5 0-10.3 7.4-6.5 12.7l352.6 486.1c12.8 17.6 39 17.6 51.7 0l352.6-486.1c3.9-5.3.1-12.7-6.4-12.7z"
+                                  />
+                                </svg>
+                              </span>
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div
+                  class="ant-form-item"
+                >
+                  <div
+                    class="ant-row ant-form-item-row"
+                  >
+                    <div
+                      class="ant-col ant-form-item-label ant-col-xs-24 ant-col-sm-6"
+                    >
+                      <label
+                        class="ant-form-item-required"
+                        for="name"
+                        title="函数名称"
+                      >
+                        函数名称
+                      </label>
+                    </div>
+                    <div
+                      class="ant-col ant-form-item-control ant-col-xs-24 ant-col-sm-16"
+                    >
+                      <div
+                        class="ant-form-item-control-input"
+                      >
+                        <div
+                          class="ant-form-item-control-input-content"
+                        >
+                          <input
+                            aria-required="true"
+                            class="ant-input"
+                            id="name"
+                            placeholder="请输入函数名称"
+                            type="text"
+                            value=""
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div
+                  class="ant-form-item"
+                >
+                  <div
+                    class="ant-row ant-form-item-row"
+                  >
+                    <div
+                      class="ant-col ant-form-item-label ant-col-xs-24 ant-col-sm-6"
+                    >
+                      <label
+                        class="ant-form-item-required"
+                        for="className"
+                        title="类名"
+                      >
+                        类名
+                      </label>
+                    </div>
+                    <div
+                      class="ant-col ant-form-item-control ant-col-xs-24 ant-col-sm-16"
+                    >
+                      <div
+                        class="ant-form-item-control-input"
+                      >
+                        <div
+                          class="ant-form-item-control-input-content"
+                        >
+                          <input
+                            aria-required="true"
+                            class="ant-input"
+                            id="className"
+                            placeholder="请输入类名"
+                            type="text"
+                            value=""
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div
+                  class="ant-form-item"
+                >
+                  <div
+                    class="ant-row ant-form-item-row"
+                  >
+                    <div
+                      class="ant-col ant-form-item-label ant-col-xs-24 ant-col-sm-6"
+                    >
+                      <label
+                        class="ant-form-item-required"
+                        title="资源"
+                      >
+                        资源
+                      </label>
+                    </div>
+                    <div
+                      class="ant-col ant-form-item-control ant-col-xs-24 ant-col-sm-16"
+                    >
+                      <div
+                        class="ant-form-item-control-input"
+                      >
+                        <div
+                          class="ant-form-item-control-input-content"
+                        >
+                          <input
+                            class="ant-input"
+                            data-testid="mockFolderPicker"
+                            id="resourceId"
+                            type="text"
+                            value=""
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div
+                  class="ant-form-item"
+                >
+                  <div
+                    class="ant-row ant-form-item-row"
+                  >
+                    <div
+                      class="ant-col ant-form-item-label ant-col-xs-24 ant-col-sm-6"
+                    >
+                      <label
+                        class=""
+                        for="purpose"
+                        title="用途"
+                      >
+                        用途
+                      </label>
+                    </div>
+                    <div
+                      class="ant-col ant-form-item-control ant-col-xs-24 ant-col-sm-16"
+                    >
+                      <div
+                        class="ant-form-item-control-input"
+                      >
+                        <div
+                          class="ant-form-item-control-input-content"
+                        >
+                          <input
+                            class="ant-input"
+                            id="purpose"
+                            placeholder="用途"
+                            type="text"
+                            value=""
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div
+                  class="ant-form-item"
+                >
+                  <div
+                    class="ant-row ant-form-item-row"
+                  >
+                    <div
+                      class="ant-col ant-form-item-label ant-col-xs-24 ant-col-sm-6"
+                    >
+                      <label
+                        class="ant-form-item-required"
+                        for="commandFormate"
+                        title="命令格式"
+                      >
+                        命令格式
+                      </label>
+                    </div>
+                    <div
+                      class="ant-col ant-form-item-control ant-col-xs-24 ant-col-sm-16"
+                    >
+                      <div
+                        class="ant-form-item-control-input"
+                      >
+                        <div
+                          class="ant-form-item-control-input-content"
+                        >
+                          <input
+                            aria-required="true"
+                            class="ant-input"
+                            id="commandFormate"
+                            placeholder="命令格式"
+                            type="text"
+                            value=""
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div
+                  class="ant-form-item"
+                >
+                  <div
+                    class="ant-row ant-form-item-row"
+                  >
+                    <div
+                      class="ant-col ant-form-item-label ant-col-xs-24 ant-col-sm-6"
+                    >
+                      <label
+                        class=""
+                        for="paramDesc"
+                        title="参数说明"
+                      >
+                        参数说明
+                      </label>
+                    </div>
+                    <div
+                      class="ant-col ant-form-item-control ant-col-xs-24 ant-col-sm-16"
+                    >
+                      <div
+                        class="ant-form-item-control-input"
+                      >
+                        <div
+                          class="ant-form-item-control-input-content"
+                        >
+                          <textarea
+                            class="ant-input"
+                            id="paramDesc"
+                            placeholder="请输入函数的参数说明"
+                            rows="4"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div
+                  class="ant-form-item"
+                >
+                  <div
+                    class="ant-row ant-form-item-row"
+                  >
+                    <div
+                      class="ant-col ant-form-item-label ant-col-xs-24 ant-col-sm-6"
+                    >
+                      <label
+                        class="ant-form-item-required"
+                        for="nodePid"
+                        title="选择存储位置"
+                      >
+                        选择存储位置
+                      </label>
+                    </div>
+                    <div
+                      class="ant-col ant-form-item-control ant-col-xs-24 ant-col-sm-16"
+                    >
+                      <div
+                        class="ant-form-item-control-input"
+                      >
+                        <div
+                          class="ant-form-item-control-input-content"
+                        >
+                          <input
+                            class="ant-input"
+                            data-testid="mockFolderPicker"
+                            id="nodePid"
+                            type="text"
+                            value=""
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </form>
+            </div>
+            <div
+              class="ant-modal-footer"
+            >
+              <button
+                class="ant-btn ant-btn-default"
+                type="button"
+              >
+                <span>
+                  Cancel
+                </span>
+              </button>
+              <button
+                class="ant-btn ant-btn-primary"
+                type="button"
+              >
+                <span>
+                  OK
+                </span>
+              </button>
             </div>
           </div>
-        </div>
-      </div>
-    </div>
-    <div
-      class="ant-form-item"
-    >
-      <div
-        class="ant-row ant-form-item-row"
-      >
-        <div
-          class="ant-col ant-form-item-label ant-col-xs-24 ant-col-sm-6"
-        >
-          <label
-            class="ant-form-item-required"
-            for="className"
-            title="类名"
-          >
-            类名
-          </label>
-        </div>
-        <div
-          class="ant-col ant-form-item-control ant-col-xs-24 ant-col-sm-16"
-        >
           <div
-            class="ant-form-item-control-input"
-          >
-            <div
-              class="ant-form-item-control-input-content"
-            >
-              <input
-                aria-required="true"
-                class="ant-input"
-                id="className"
-                placeholder="请输入类名"
-                type="text"
-                value=""
-              />
-            </div>
-          </div>
+            aria-hidden="true"
+            style="width: 0px; height: 0px; overflow: hidden; outline: none;"
+            tabindex="0"
+          />
         </div>
       </div>
     </div>
-    <div
-      class="ant-form-item"
-    >
-      <div
-        class="ant-row ant-form-item-row"
-      >
-        <div
-          class="ant-col ant-form-item-label ant-col-xs-24 ant-col-sm-6"
-        >
-          <label
-            class="ant-form-item-required"
-            title="资源"
-          >
-            资源
-          </label>
-        </div>
-        <div
-          class="ant-col ant-form-item-control ant-col-xs-24 ant-col-sm-16"
-        >
-          <div
-            class="ant-form-item-control-input"
-          >
-            <div
-              class="ant-form-item-control-input-content"
-            >
-              <input
-                class="ant-input"
-                data-testid="mockFolderPicker"
-                id="resourceId"
-                type="text"
-                value=""
-              />
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-    <div
-      class="ant-form-item"
-    >
-      <div
-        class="ant-row ant-form-item-row"
-      >
-        <div
-          class="ant-col ant-form-item-label ant-col-xs-24 ant-col-sm-6"
-        >
-          <label
-            class=""
-            for="purpose"
-            title="用途"
-          >
-            用途
-          </label>
-        </div>
-        <div
-          class="ant-col ant-form-item-control ant-col-xs-24 ant-col-sm-16"
-        >
-          <div
-            class="ant-form-item-control-input"
-          >
-            <div
-              class="ant-form-item-control-input-content"
-            >
-              <input
-                class="ant-input"
-                id="purpose"
-                placeholder="用途"
-                type="text"
-                value=""
-              />
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-    <div
-      class="ant-form-item"
-    >
-      <div
-        class="ant-row ant-form-item-row"
-      >
-        <div
-          class="ant-col ant-form-item-label ant-col-xs-24 ant-col-sm-6"
-        >
-          <label
-            class="ant-form-item-required"
-            for="commandFormate"
-            title="命令格式"
-          >
-            命令格式
-          </label>
-        </div>
-        <div
-          class="ant-col ant-form-item-control ant-col-xs-24 ant-col-sm-16"
-        >
-          <div
-            class="ant-form-item-control-input"
-          >
-            <div
-              class="ant-form-item-control-input-content"
-            >
-              <input
-                aria-required="true"
-                class="ant-input"
-                id="commandFormate"
-                placeholder="命令格式"
-                type="text"
-                value=""
-              />
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-    <div
-      class="ant-form-item"
-    >
-      <div
-        class="ant-row ant-form-item-row"
-      >
-        <div
-          class="ant-col ant-form-item-label ant-col-xs-24 ant-col-sm-6"
-        >
-          <label
-            class=""
-            for="paramDesc"
-            title="参数说明"
-          >
-            参数说明
-          </label>
-        </div>
-        <div
-          class="ant-col ant-form-item-control ant-col-xs-24 ant-col-sm-16"
-        >
-          <div
-            class="ant-form-item-control-input"
-          >
-            <div
-              class="ant-form-item-control-input-content"
-            >
-              <textarea
-                class="ant-input"
-                id="paramDesc"
-                placeholder="请输入函数的参数说明"
-                rows="4"
-              />
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-    <div
-      class="ant-form-item"
-    >
-      <div
-        class="ant-row ant-form-item-row"
-      >
-        <div
-          class="ant-col ant-form-item-label ant-col-xs-24 ant-col-sm-6"
-        >
-          <label
-            class="ant-form-item-required"
-            for="nodePid"
-            title="选择存储位置"
-          >
-            选择存储位置
-          </label>
-        </div>
-        <div
-          class="ant-col ant-form-item-control ant-col-xs-24 ant-col-sm-16"
-        >
-          <div
-            class="ant-form-item-control-input"
-          >
-            <div
-              class="ant-form-item-control-input-content"
-            >
-              <input
-                class="ant-input"
-                data-testid="mockFolderPicker"
-                id="nodePid"
-                type="text"
-                value=""
-              />
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </form>
-  <button
-    data-testid="antd-mock-Modal-confirm"
-  >
-    confirm
-  </button>
-</DocumentFragment>
+  </div>
+</body>
 `;
 
-exports[`Test FnModal Component for Function Should match snapshots: edit function 1`] = `
-<DocumentFragment>
-  <p
-    data-testid="antd-mock-Modal-title"
-  >
-    编辑自定义函数
-  </p>
-  <div
-    class="task_offline_message"
-  >
-    <span
-      aria-label="exclamation-circle"
-      class="anticon anticon-exclamation-circle"
-      role="img"
-      style="margin-right: 7px;"
-    >
-      <svg
-        aria-hidden="true"
-        data-icon="exclamation-circle"
-        fill="currentColor"
-        focusable="false"
-        height="1em"
-        viewBox="64 64 896 896"
-        width="1em"
-      >
-        <path
-          d="M512 64C264.6 64 64 264.6 64 512s200.6 448 448 448 448-200.6 448-448S759.4 64 512 64zm0 820c-205.4 0-372-166.6-372-372s166.6-372 372-372 372 166.6 372 372-166.6 372-372 372z"
-        />
-        <path
-          d="M464 688a48 48 0 1096 0 48 48 0 10-96 0zm24-112h48c4.4 0 8-3.6 8-8V296c0-4.4-3.6-8-8-8h-48c-4.4 0-8 3.6-8 8v272c0 4.4 3.6 8 8 8z"
-        />
-      </svg>
-    </span>
-    替换资源时，如果资源的新文件与现有文件名称保持一致，那么替换后关联函数对应任务可立即生效，否则关联函数对应任务需重新提交才可生效。
-  </div>
-  <form
-    autocomplete="off"
-    class="ant-form ant-form-horizontal"
-  >
+exports[`Test FnModal Component for Function Should match snapshots edit function 1`] = `
+<body>
+  <div />
+  <div>
     <div
-      class="ant-form-item ant-form-item-has-success"
+      class="ant-modal-root"
     >
       <div
-        class="ant-row ant-form-item-row"
+        class="ant-modal-mask"
+      />
+      <div
+        class="ant-modal-wrap"
+        tabindex="-1"
       >
         <div
-          class="ant-col ant-form-item-label ant-col-xs-24 ant-col-sm-6"
-        >
-          <label
-            class="ant-form-item-required"
-            for="taskType"
-            title="函数类型"
-          >
-            函数类型
-          </label>
-        </div>
-        <div
-          class="ant-col ant-form-item-control ant-col-xs-24 ant-col-sm-16"
+          aria-labelledby="test-id"
+          aria-modal="true"
+          class="ant-modal"
+          role="dialog"
+          style="width: 520px;"
         >
           <div
-            class="ant-form-item-control-input"
+            aria-hidden="true"
+            style="width: 0px; height: 0px; overflow: hidden; outline: none;"
+            tabindex="0"
+          />
+          <div
+            class="ant-modal-content"
           >
+            <button
+              aria-label="Close"
+              class="ant-modal-close"
+              type="button"
+            >
+              <span
+                class="ant-modal-close-x"
+              >
+                <span
+                  aria-label="close"
+                  class="anticon anticon-close ant-modal-close-icon"
+                  role="img"
+                >
+                  <svg
+                    aria-hidden="true"
+                    data-icon="close"
+                    fill="currentColor"
+                    focusable="false"
+                    height="1em"
+                    viewBox="64 64 896 896"
+                    width="1em"
+                  >
+                    <path
+                      d="M563.8 512l262.5-312.9c4.4-5.2.7-13.1-6.1-13.1h-79.8c-4.7 0-9.2 2.1-12.3 5.7L511.6 449.8 295.1 191.7c-3-3.6-7.5-5.7-12.3-5.7H203c-6.8 0-10.5 7.9-6.1 13.1L459.4 512 196.9 824.9A7.95 7.95 0 00203 838h79.8c4.7 0 9.2-2.1 12.3-5.7l216.5-258.1 216.5 258.1c3 3.6 7.5 5.7 12.3 5.7h79.8c6.8 0 10.5-7.9 6.1-13.1L563.8 512z"
+                    />
+                  </svg>
+                </span>
+              </span>
+            </button>
             <div
-              class="ant-form-item-control-input-content"
+              class="ant-modal-header"
             >
               <div
-                aria-required="true"
-                class="ant-select ant-select-in-form-item ant-select-status-success ant-select-single ant-select-show-arrow ant-select-disabled"
+                class="ant-modal-title"
+                id="test-id"
               >
-                <div
-                  class="ant-select-selector"
-                >
-                  <span
-                    class="ant-select-selection-search"
-                  >
-                    <input
-                      aria-activedescendant="taskType_list_0"
-                      aria-autocomplete="list"
-                      aria-controls="taskType_list"
-                      aria-expanded="false"
-                      aria-haspopup="listbox"
-                      aria-owns="taskType_list"
-                      aria-required="true"
-                      autocomplete="off"
-                      class="ant-select-selection-search-input"
-                      disabled=""
-                      id="taskType"
-                      readonly=""
-                      role="combobox"
-                      style="opacity: 0;"
-                      type="search"
-                      unselectable="on"
-                      value=""
-                    />
-                  </span>
-                  <span
-                    class="ant-select-selection-item"
-                    title="1"
-                  >
-                    1
-                  </span>
-                </div>
-                <span
-                  aria-hidden="true"
-                  class="ant-select-arrow"
-                  style="user-select: none;"
-                  unselectable="on"
-                >
-                  <span
-                    aria-label="down"
-                    class="anticon anticon-down ant-select-suffix"
-                    role="img"
-                  >
-                    <svg
-                      aria-hidden="true"
-                      data-icon="down"
-                      fill="currentColor"
-                      focusable="false"
-                      height="1em"
-                      viewBox="64 64 896 896"
-                      width="1em"
-                    >
-                      <path
-                        d="M884 256h-75c-5.1 0-9.9 2.5-12.9 6.6L512 654.2 227.9 262.6c-3-4.1-7.8-6.6-12.9-6.6h-75c-6.5 0-10.3 7.4-6.5 12.7l352.6 486.1c12.8 17.6 39 17.6 51.7 0l352.6-486.1c3.9-5.3.1-12.7-6.4-12.7z"
-                      />
-                    </svg>
-                  </span>
-                </span>
+                编辑自定义函数
               </div>
             </div>
-          </div>
-        </div>
-      </div>
-    </div>
-    <div
-      class="ant-form-item ant-form-item-has-success"
-    >
-      <div
-        class="ant-row ant-form-item-row"
-      >
-        <div
-          class="ant-col ant-form-item-label ant-col-xs-24 ant-col-sm-6"
-        >
-          <label
-            class="ant-form-item-required"
-            for="name"
-            title="函数名称"
-          >
-            函数名称
-          </label>
-        </div>
-        <div
-          class="ant-col ant-form-item-control ant-col-xs-24 ant-col-sm-16"
-        >
-          <div
-            class="ant-form-item-control-input"
-          >
             <div
-              class="ant-form-item-control-input-content"
+              class="ant-modal-body"
             >
-              <input
-                aria-required="true"
-                class="ant-input ant-input-disabled ant-input-status-success"
-                disabled=""
-                id="name"
-                placeholder="请输入函数名称"
-                type="text"
-                value="test"
-              />
+              <div
+                class="task_offline_message"
+              >
+                <span
+                  aria-label="exclamation-circle"
+                  class="anticon anticon-exclamation-circle"
+                  role="img"
+                  style="margin-right: 7px;"
+                >
+                  <svg
+                    aria-hidden="true"
+                    data-icon="exclamation-circle"
+                    fill="currentColor"
+                    focusable="false"
+                    height="1em"
+                    viewBox="64 64 896 896"
+                    width="1em"
+                  >
+                    <path
+                      d="M512 64C264.6 64 64 264.6 64 512s200.6 448 448 448 448-200.6 448-448S759.4 64 512 64zm0 820c-205.4 0-372-166.6-372-372s166.6-372 372-372 372 166.6 372 372-166.6 372-372 372z"
+                    />
+                    <path
+                      d="M464 688a48 48 0 1096 0 48 48 0 10-96 0zm24-112h48c4.4 0 8-3.6 8-8V296c0-4.4-3.6-8-8-8h-48c-4.4 0-8 3.6-8 8v272c0 4.4 3.6 8 8 8z"
+                    />
+                  </svg>
+                </span>
+                替换资源时，如果资源的新文件与现有文件名称保持一致，那么替换后关联函数对应任务可立即生效，否则关联函数对应任务需重新提交才可生效。
+              </div>
+              <form
+                autocomplete="off"
+                class="ant-form ant-form-horizontal"
+              >
+                <div
+                  class="ant-form-item ant-form-item-has-success"
+                >
+                  <div
+                    class="ant-row ant-form-item-row"
+                  >
+                    <div
+                      class="ant-col ant-form-item-label ant-col-xs-24 ant-col-sm-6"
+                    >
+                      <label
+                        class="ant-form-item-required"
+                        for="taskType"
+                        title="函数类型"
+                      >
+                        函数类型
+                      </label>
+                    </div>
+                    <div
+                      class="ant-col ant-form-item-control ant-col-xs-24 ant-col-sm-16"
+                    >
+                      <div
+                        class="ant-form-item-control-input"
+                      >
+                        <div
+                          class="ant-form-item-control-input-content"
+                        >
+                          <div
+                            aria-required="true"
+                            class="ant-select ant-select-in-form-item ant-select-status-success ant-select-single ant-select-show-arrow ant-select-disabled"
+                          >
+                            <div
+                              class="ant-select-selector"
+                            >
+                              <span
+                                class="ant-select-selection-search"
+                              >
+                                <input
+                                  aria-activedescendant="taskType_list_0"
+                                  aria-autocomplete="list"
+                                  aria-controls="taskType_list"
+                                  aria-expanded="false"
+                                  aria-haspopup="listbox"
+                                  aria-owns="taskType_list"
+                                  aria-required="true"
+                                  autocomplete="off"
+                                  class="ant-select-selection-search-input"
+                                  disabled=""
+                                  id="taskType"
+                                  readonly=""
+                                  role="combobox"
+                                  style="opacity: 0;"
+                                  type="search"
+                                  unselectable="on"
+                                  value=""
+                                />
+                              </span>
+                              <span
+                                class="ant-select-selection-item"
+                                title="1"
+                              >
+                                1
+                              </span>
+                            </div>
+                            <span
+                              aria-hidden="true"
+                              class="ant-select-arrow"
+                              style="user-select: none;"
+                              unselectable="on"
+                            >
+                              <span
+                                aria-label="down"
+                                class="anticon anticon-down ant-select-suffix"
+                                role="img"
+                              >
+                                <svg
+                                  aria-hidden="true"
+                                  data-icon="down"
+                                  fill="currentColor"
+                                  focusable="false"
+                                  height="1em"
+                                  viewBox="64 64 896 896"
+                                  width="1em"
+                                >
+                                  <path
+                                    d="M884 256h-75c-5.1 0-9.9 2.5-12.9 6.6L512 654.2 227.9 262.6c-3-4.1-7.8-6.6-12.9-6.6h-75c-6.5 0-10.3 7.4-6.5 12.7l352.6 486.1c12.8 17.6 39 17.6 51.7 0l352.6-486.1c3.9-5.3.1-12.7-6.4-12.7z"
+                                  />
+                                </svg>
+                              </span>
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div
+                  class="ant-form-item ant-form-item-has-success"
+                >
+                  <div
+                    class="ant-row ant-form-item-row"
+                  >
+                    <div
+                      class="ant-col ant-form-item-label ant-col-xs-24 ant-col-sm-6"
+                    >
+                      <label
+                        class="ant-form-item-required"
+                        for="name"
+                        title="函数名称"
+                      >
+                        函数名称
+                      </label>
+                    </div>
+                    <div
+                      class="ant-col ant-form-item-control ant-col-xs-24 ant-col-sm-16"
+                    >
+                      <div
+                        class="ant-form-item-control-input"
+                      >
+                        <div
+                          class="ant-form-item-control-input-content"
+                        >
+                          <input
+                            aria-required="true"
+                            class="ant-input ant-input-disabled ant-input-status-success"
+                            disabled=""
+                            id="name"
+                            placeholder="请输入函数名称"
+                            type="text"
+                            value="test"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div
+                  class="ant-form-item"
+                >
+                  <div
+                    class="ant-row ant-form-item-row"
+                  >
+                    <div
+                      class="ant-col ant-form-item-label ant-col-xs-24 ant-col-sm-6"
+                    >
+                      <label
+                        class="ant-form-item-required"
+                        for="className"
+                        title="类名"
+                      >
+                        类名
+                      </label>
+                    </div>
+                    <div
+                      class="ant-col ant-form-item-control ant-col-xs-24 ant-col-sm-16"
+                    >
+                      <div
+                        class="ant-form-item-control-input"
+                      >
+                        <div
+                          class="ant-form-item-control-input-content"
+                        >
+                          <input
+                            aria-required="true"
+                            class="ant-input"
+                            id="className"
+                            placeholder="请输入类名"
+                            type="text"
+                            value=""
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div
+                  class="ant-form-item"
+                >
+                  <div
+                    class="ant-row ant-form-item-row"
+                  >
+                    <div
+                      class="ant-col ant-form-item-label ant-col-xs-24 ant-col-sm-6"
+                    >
+                      <label
+                        class="ant-form-item-required"
+                        title="资源"
+                      >
+                        资源
+                      </label>
+                    </div>
+                    <div
+                      class="ant-col ant-form-item-control ant-col-xs-24 ant-col-sm-16"
+                    >
+                      <div
+                        class="ant-form-item-control-input"
+                      >
+                        <div
+                          class="ant-form-item-control-input-content"
+                        >
+                          <input
+                            class="ant-input"
+                            data-testid="mockFolderPicker"
+                            id="resourceId"
+                            type="text"
+                            value=""
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div
+                  class="ant-form-item"
+                >
+                  <div
+                    class="ant-row ant-form-item-row"
+                  >
+                    <div
+                      class="ant-col ant-form-item-label ant-col-xs-24 ant-col-sm-6"
+                    >
+                      <label
+                        class=""
+                        for="purpose"
+                        title="用途"
+                      >
+                        用途
+                      </label>
+                    </div>
+                    <div
+                      class="ant-col ant-form-item-control ant-col-xs-24 ant-col-sm-16"
+                    >
+                      <div
+                        class="ant-form-item-control-input"
+                      >
+                        <div
+                          class="ant-form-item-control-input-content"
+                        >
+                          <input
+                            class="ant-input"
+                            id="purpose"
+                            placeholder="用途"
+                            type="text"
+                            value=""
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div
+                  class="ant-form-item"
+                >
+                  <div
+                    class="ant-row ant-form-item-row"
+                  >
+                    <div
+                      class="ant-col ant-form-item-label ant-col-xs-24 ant-col-sm-6"
+                    >
+                      <label
+                        class="ant-form-item-required"
+                        for="commandFormate"
+                        title="命令格式"
+                      >
+                        命令格式
+                      </label>
+                    </div>
+                    <div
+                      class="ant-col ant-form-item-control ant-col-xs-24 ant-col-sm-16"
+                    >
+                      <div
+                        class="ant-form-item-control-input"
+                      >
+                        <div
+                          class="ant-form-item-control-input-content"
+                        >
+                          <input
+                            aria-required="true"
+                            class="ant-input"
+                            id="commandFormate"
+                            placeholder="命令格式"
+                            type="text"
+                            value=""
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div
+                  class="ant-form-item"
+                >
+                  <div
+                    class="ant-row ant-form-item-row"
+                  >
+                    <div
+                      class="ant-col ant-form-item-label ant-col-xs-24 ant-col-sm-6"
+                    >
+                      <label
+                        class=""
+                        for="paramDesc"
+                        title="参数说明"
+                      >
+                        参数说明
+                      </label>
+                    </div>
+                    <div
+                      class="ant-col ant-form-item-control ant-col-xs-24 ant-col-sm-16"
+                    >
+                      <div
+                        class="ant-form-item-control-input"
+                      >
+                        <div
+                          class="ant-form-item-control-input-content"
+                        >
+                          <textarea
+                            class="ant-input"
+                            id="paramDesc"
+                            placeholder="请输入函数的参数说明"
+                            rows="4"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div
+                  class="ant-form-item"
+                >
+                  <div
+                    class="ant-row ant-form-item-row"
+                  >
+                    <div
+                      class="ant-col ant-form-item-label ant-col-xs-24 ant-col-sm-6"
+                    >
+                      <label
+                        class="ant-form-item-required"
+                        for="nodePid"
+                        title="选择存储位置"
+                      >
+                        选择存储位置
+                      </label>
+                    </div>
+                    <div
+                      class="ant-col ant-form-item-control ant-col-xs-24 ant-col-sm-16"
+                    >
+                      <div
+                        class="ant-form-item-control-input"
+                      >
+                        <div
+                          class="ant-form-item-control-input-content"
+                        >
+                          <input
+                            class="ant-input"
+                            data-testid="mockFolderPicker"
+                            id="nodePid"
+                            type="text"
+                            value=""
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </form>
+            </div>
+            <div
+              class="ant-modal-footer"
+            >
+              <button
+                class="ant-btn ant-btn-default"
+                type="button"
+              >
+                <span>
+                  Cancel
+                </span>
+              </button>
+              <button
+                class="ant-btn ant-btn-primary"
+                type="button"
+              >
+                <span>
+                  OK
+                </span>
+              </button>
             </div>
           </div>
-        </div>
-      </div>
-    </div>
-    <div
-      class="ant-form-item"
-    >
-      <div
-        class="ant-row ant-form-item-row"
-      >
-        <div
-          class="ant-col ant-form-item-label ant-col-xs-24 ant-col-sm-6"
-        >
-          <label
-            class="ant-form-item-required"
-            for="className"
-            title="类名"
-          >
-            类名
-          </label>
-        </div>
-        <div
-          class="ant-col ant-form-item-control ant-col-xs-24 ant-col-sm-16"
-        >
           <div
-            class="ant-form-item-control-input"
-          >
-            <div
-              class="ant-form-item-control-input-content"
-            >
-              <input
-                aria-required="true"
-                class="ant-input"
-                id="className"
-                placeholder="请输入类名"
-                type="text"
-                value=""
-              />
-            </div>
-          </div>
+            aria-hidden="true"
+            style="width: 0px; height: 0px; overflow: hidden; outline: none;"
+            tabindex="0"
+          />
         </div>
       </div>
     </div>
-    <div
-      class="ant-form-item"
-    >
-      <div
-        class="ant-row ant-form-item-row"
-      >
-        <div
-          class="ant-col ant-form-item-label ant-col-xs-24 ant-col-sm-6"
-        >
-          <label
-            class="ant-form-item-required"
-            title="资源"
-          >
-            资源
-          </label>
-        </div>
-        <div
-          class="ant-col ant-form-item-control ant-col-xs-24 ant-col-sm-16"
-        >
-          <div
-            class="ant-form-item-control-input"
-          >
-            <div
-              class="ant-form-item-control-input-content"
-            >
-              <input
-                class="ant-input"
-                data-testid="mockFolderPicker"
-                id="resourceId"
-                type="text"
-                value=""
-              />
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-    <div
-      class="ant-form-item"
-    >
-      <div
-        class="ant-row ant-form-item-row"
-      >
-        <div
-          class="ant-col ant-form-item-label ant-col-xs-24 ant-col-sm-6"
-        >
-          <label
-            class=""
-            for="purpose"
-            title="用途"
-          >
-            用途
-          </label>
-        </div>
-        <div
-          class="ant-col ant-form-item-control ant-col-xs-24 ant-col-sm-16"
-        >
-          <div
-            class="ant-form-item-control-input"
-          >
-            <div
-              class="ant-form-item-control-input-content"
-            >
-              <input
-                class="ant-input"
-                id="purpose"
-                placeholder="用途"
-                type="text"
-                value=""
-              />
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-    <div
-      class="ant-form-item"
-    >
-      <div
-        class="ant-row ant-form-item-row"
-      >
-        <div
-          class="ant-col ant-form-item-label ant-col-xs-24 ant-col-sm-6"
-        >
-          <label
-            class="ant-form-item-required"
-            for="commandFormate"
-            title="命令格式"
-          >
-            命令格式
-          </label>
-        </div>
-        <div
-          class="ant-col ant-form-item-control ant-col-xs-24 ant-col-sm-16"
-        >
-          <div
-            class="ant-form-item-control-input"
-          >
-            <div
-              class="ant-form-item-control-input-content"
-            >
-              <input
-                aria-required="true"
-                class="ant-input"
-                id="commandFormate"
-                placeholder="命令格式"
-                type="text"
-                value=""
-              />
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-    <div
-      class="ant-form-item"
-    >
-      <div
-        class="ant-row ant-form-item-row"
-      >
-        <div
-          class="ant-col ant-form-item-label ant-col-xs-24 ant-col-sm-6"
-        >
-          <label
-            class=""
-            for="paramDesc"
-            title="参数说明"
-          >
-            参数说明
-          </label>
-        </div>
-        <div
-          class="ant-col ant-form-item-control ant-col-xs-24 ant-col-sm-16"
-        >
-          <div
-            class="ant-form-item-control-input"
-          >
-            <div
-              class="ant-form-item-control-input-content"
-            >
-              <textarea
-                class="ant-input"
-                id="paramDesc"
-                placeholder="请输入函数的参数说明"
-                rows="4"
-              />
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-    <div
-      class="ant-form-item"
-    >
-      <div
-        class="ant-row ant-form-item-row"
-      >
-        <div
-          class="ant-col ant-form-item-label ant-col-xs-24 ant-col-sm-6"
-        >
-          <label
-            class="ant-form-item-required"
-            for="nodePid"
-            title="选择存储位置"
-          >
-            选择存储位置
-          </label>
-        </div>
-        <div
-          class="ant-col ant-form-item-control ant-col-xs-24 ant-col-sm-16"
-        >
-          <div
-            class="ant-form-item-control-input"
-          >
-            <div
-              class="ant-form-item-control-input-content"
-            >
-              <input
-                class="ant-input"
-                data-testid="mockFolderPicker"
-                id="nodePid"
-                type="text"
-                value=""
-              />
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </form>
-  <button
-    data-testid="antd-mock-Modal-confirm"
-  >
-    confirm
-  </button>
-</DocumentFragment>
+  </div>
+</body>
 `;

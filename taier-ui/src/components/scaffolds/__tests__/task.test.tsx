@@ -14,11 +14,12 @@ import {
 } from '../task';
 import { Context } from '@/context/dataSync';
 import { act } from 'react-dom/test-utils';
-import { fireConfirmOnModal, showTooltip } from '@/tests/utils';
+import { showTooltip } from '@/tests/utils';
 import api from '@/api';
 import { NamePath } from 'antd/lib/form/interface';
 import '@testing-library/jest-dom';
 import { EventKind } from '@/pages/editor/dataSync';
+import { modal } from 'ant-design-testing';
 
 jest.useFakeTimers();
 
@@ -461,12 +462,12 @@ describe('Test Task Scaffolds', () => {
                 "CREATE TABLE `targetTable`(\n`i1` VARCHAR(255) COMMENT''\n)comment'';\n"
             );
 
-            await act(async () => {
-                fireConfirmOnModal(getByTestId);
-            });
+            modal.fireOk(document);
 
-            expect(api.createDdlTable).toBeCalled();
-            expect(container.querySelector<HTMLInputElement>('input#targetMap_table')!.value).toBe('xxxx');
+            await waitFor(() => {
+                expect(api.createDdlTable).toBeCalled();
+                expect(container.querySelector<HTMLInputElement>('input#targetMap_table')!.value).toBe('xxxx');
+            });
         });
     });
 

@@ -1,5 +1,4 @@
-import { fireConfirmOnModal } from '@/tests/utils';
-import { input } from 'ant-design-testing';
+import { input, modal } from 'ant-design-testing';
 import { cleanup, render, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import AddTenantModal from '..';
@@ -16,13 +15,22 @@ describe('Test AddTenantModal', () => {
         document.body.innerHTML = '';
     });
     it('Should match snapshot', () => {
-        const { asFragment } = render(<AddTenantModal />);
+        const { asFragment } = render(
+            <div id="add-tenant-modal">
+                <AddTenantModal />
+            </div>
+        );
         expect(asFragment()).toMatchSnapshot();
     });
 
     it('Should render error tips', async () => {
-        const { getByTestId, getByText, container } = render(<AddTenantModal />);
-        fireConfirmOnModal(getByTestId);
+        const { getByText, container } = render(
+            <div id="add-tenant-modal">
+                <AddTenantModal />
+            </div>
+        );
+
+        modal.fireOk(container);
 
         await waitFor(() => {
             expect(getByText('请输入租户名称!')).toBeInTheDocument();
@@ -43,19 +51,25 @@ describe('Test AddTenantModal', () => {
         (api.addTenant as jest.Mock).mockReset().mockResolvedValue({
             code: 1,
         });
-        const { getByTestId, container } = render(<AddTenantModal />);
+        jest.spyOn(HTMLElement.prototype, 'remove').mockImplementation();
+        const { container } = render(
+            <div id="add-tenant-modal">
+                <AddTenantModal />
+            </div>
+        );
 
         const formItems = container.querySelectorAll<HTMLElement>('.ant-form-item-control');
         input.fireChange(formItems[0], 'DTStack');
         input.fireChange(formItems[1], 'test');
 
-        fireConfirmOnModal(getByTestId);
+        modal.fireOk(container);
         await waitFor(() => {
             expect(api.addTenant).toBeCalledWith({
                 tenantName: 'DTStack',
                 tenantIdentity: 'test',
                 userId: 1,
             });
+            expect(HTMLElement.prototype.remove).toBeCalled();
         });
     });
 });

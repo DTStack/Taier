@@ -1,6 +1,7 @@
 import { cleanup, fireEvent, render, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import AddEngineModal from '..';
+import { modal } from 'ant-design-testing';
 
 describe('Test AddEngineModal Component', () => {
     beforeEach(() => {
@@ -8,20 +9,20 @@ describe('Test AddEngineModal Component', () => {
         document.body.innerHTML = '';
     });
     it('Should match snapshot', async () => {
-        const { asFragment } = render(<AddEngineModal title="新增集群" visible />);
-        expect(asFragment()).toMatchSnapshot();
+        render(<AddEngineModal title="新增集群" visible />);
+        expect(document.body).toMatchSnapshot();
     });
 
     it('Should validate form before confirm', async () => {
         const fn = jest.fn();
-        const { getByTestId, container, getByText } = render(<AddEngineModal title="新增集群" visible onOk={fn} />);
+        const { getByText } = render(<AddEngineModal title="新增集群" visible onOk={fn} />);
 
-        fireEvent.click(getByTestId('antd-mock-Modal-confirm'));
+        modal.fireOk(document);
         await waitFor(() => {
             expect(getByText('集群标识不可为空！')).toBeInTheDocument();
         });
 
-        fireEvent.change(container.querySelector('#clusterName')!, {
+        fireEvent.change(document.body.querySelector('#clusterName')!, {
             target: { value: 'abc-abc' },
         });
 
@@ -29,7 +30,7 @@ describe('Test AddEngineModal Component', () => {
             expect(getByText('集群标识不能超过64字符，支持英文、数字、下划线')).toBeInTheDocument();
         });
 
-        fireEvent.change(container.querySelector('#clusterName')!, {
+        fireEvent.change(document.body.querySelector('#clusterName')!, {
             target: { value: new Array(100).fill('a').join('') },
         });
 
@@ -37,10 +38,10 @@ describe('Test AddEngineModal Component', () => {
             expect(getByText('集群标识不能超过64字符，支持英文、数字、下划线')).toBeInTheDocument();
         });
 
-        fireEvent.change(container.querySelector('#clusterName')!, {
+        fireEvent.change(document.body.querySelector('#clusterName')!, {
             target: { value: 'abc' },
         });
-        fireEvent.click(getByTestId('antd-mock-Modal-confirm'));
+        modal.fireOk(document);
 
         await waitFor(() => {
             expect(fn).toBeCalledWith({ clusterName: 'abc' });

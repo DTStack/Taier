@@ -30,18 +30,6 @@ Object.defineProperty(window, 'matchMedia', {
 jest.mock('antd', () => {
     return {
         ...jest.requireActual('antd'),
-        // I don't care what Modal does, I just want it's children to render
-        Modal: jest.fn(({ children, title, onOk, footer }) => (
-            <>
-                <p data-testid="antd-mock-Modal-title">{title}</p>
-                {children}
-                {footer ?? (
-                    <button data-testid="antd-mock-Modal-confirm" onClick={onOk}>
-                        confirm
-                    </button>
-                )}
-            </>
-        )),
         message: {
             success: jest.fn(),
         },

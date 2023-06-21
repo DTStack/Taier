@@ -2,123 +2,214 @@
 
 exports[`Test AddTenantModal Should match snapshot 1`] = `
 <DocumentFragment>
-  <p
-    data-testid="antd-mock-Modal-title"
-  >
-    新增租户
-  </p>
-  <form
-    autocomplete="off"
-    class="ant-form ant-form-horizontal"
+  <div
+    id="add-tenant-modal"
   >
     <div
-      class="ant-form-item"
+      class="ant-modal-root"
     >
       <div
-        class="ant-row ant-form-item-row"
+        class="ant-modal-mask"
+      />
+      <div
+        class="ant-modal-wrap"
+        tabindex="-1"
       >
         <div
-          class="ant-col ant-form-item-label ant-col-xs-24 ant-col-sm-6"
-        >
-          <label
-            class="ant-form-item-required"
-            for="tenantName"
-            title="租户名称"
-          >
-            租户名称
-          </label>
-        </div>
-        <div
-          class="ant-col ant-form-item-control ant-col-xs-24 ant-col-sm-16"
+          aria-labelledby="test-id"
+          aria-modal="true"
+          class="ant-modal"
+          role="dialog"
+          style="width: 520px;"
         >
           <div
-            class="ant-form-item-control-input"
+            aria-hidden="true"
+            style="width: 0px; height: 0px; overflow: hidden; outline: none;"
+            tabindex="0"
+          />
+          <div
+            class="ant-modal-content"
           >
-            <div
-              class="ant-form-item-control-input-content"
+            <button
+              aria-label="Close"
+              class="ant-modal-close"
+              type="button"
             >
-              <input
-                aria-required="true"
-                class="ant-input"
-                id="tenantName"
-                placeholder="输入租户名称，64个字符以内"
-                style="width: 100%;"
-                type="text"
-                value=""
-              />
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-    <div
-      class="ant-form-item"
-    >
-      <div
-        class="ant-row ant-form-item-row"
-      >
-        <div
-          class="ant-col ant-form-item-label ant-col-xs-24 ant-col-sm-6"
-        >
-          <label
-            class="ant-form-item-required"
-            for="tenantIdentity"
-            title="租户标识"
-          >
-            租户标识
-            <span
-              aria-label="question-circle"
-              class="anticon anticon-question-circle ant-form-item-tooltip"
-              role="img"
-              title=""
-            >
-              <svg
-                aria-hidden="true"
-                data-icon="question-circle"
-                fill="currentColor"
-                focusable="false"
-                height="1em"
-                viewBox="64 64 896 896"
-                width="1em"
+              <span
+                class="ant-modal-close-x"
               >
-                <path
-                  d="M512 64C264.6 64 64 264.6 64 512s200.6 448 448 448 448-200.6 448-448S759.4 64 512 64zm0 820c-205.4 0-372-166.6-372-372s166.6-372 372-372 372 166.6 372 372-166.6 372-372 372z"
-                />
-                <path
-                  d="M623.6 316.7C593.6 290.4 554 276 512 276s-81.6 14.5-111.6 40.7C369.2 344 352 380.7 352 420v7.6c0 4.4 3.6 8 8 8h48c4.4 0 8-3.6 8-8V420c0-44.1 43.1-80 96-80s96 35.9 96 80c0 31.1-22 59.6-56.1 72.7-21.2 8.1-39.2 22.3-52.1 40.9-13.1 19-19.9 41.8-19.9 64.9V620c0 4.4 3.6 8 8 8h48c4.4 0 8-3.6 8-8v-22.7a48.3 48.3 0 0130.9-44.8c59-22.7 97.1-74.7 97.1-132.5.1-39.3-17.1-76-48.3-103.3zM472 732a40 40 0 1080 0 40 40 0 10-80 0z"
-                />
-              </svg>
-            </span>
-          </label>
-        </div>
-        <div
-          class="ant-col ant-form-item-control ant-col-xs-24 ant-col-sm-16"
-        >
-          <div
-            class="ant-form-item-control-input"
-          >
+                <span
+                  aria-label="close"
+                  class="anticon anticon-close ant-modal-close-icon"
+                  role="img"
+                >
+                  <svg
+                    aria-hidden="true"
+                    data-icon="close"
+                    fill="currentColor"
+                    focusable="false"
+                    height="1em"
+                    viewBox="64 64 896 896"
+                    width="1em"
+                  >
+                    <path
+                      d="M563.8 512l262.5-312.9c4.4-5.2.7-13.1-6.1-13.1h-79.8c-4.7 0-9.2 2.1-12.3 5.7L511.6 449.8 295.1 191.7c-3-3.6-7.5-5.7-12.3-5.7H203c-6.8 0-10.5 7.9-6.1 13.1L459.4 512 196.9 824.9A7.95 7.95 0 00203 838h79.8c4.7 0 9.2-2.1 12.3-5.7l216.5-258.1 216.5 258.1c3 3.6 7.5 5.7 12.3 5.7h79.8c6.8 0 10.5-7.9 6.1-13.1L563.8 512z"
+                    />
+                  </svg>
+                </span>
+              </span>
+            </button>
             <div
-              class="ant-form-item-control-input-content"
+              class="ant-modal-header"
             >
-              <input
-                aria-required="true"
-                class="ant-input"
-                id="tenantIdentity"
-                placeholder="输入租户标识, 64个字符以内"
-                style="width: 100%;"
-                type="text"
-                value=""
-              />
+              <div
+                class="ant-modal-title"
+                id="test-id"
+              >
+                新增租户
+              </div>
+            </div>
+            <div
+              class="ant-modal-body"
+            >
+              <form
+                autocomplete="off"
+                class="ant-form ant-form-horizontal"
+              >
+                <div
+                  class="ant-form-item"
+                >
+                  <div
+                    class="ant-row ant-form-item-row"
+                  >
+                    <div
+                      class="ant-col ant-form-item-label ant-col-xs-24 ant-col-sm-6"
+                    >
+                      <label
+                        class="ant-form-item-required"
+                        for="tenantName"
+                        title="租户名称"
+                      >
+                        租户名称
+                      </label>
+                    </div>
+                    <div
+                      class="ant-col ant-form-item-control ant-col-xs-24 ant-col-sm-16"
+                    >
+                      <div
+                        class="ant-form-item-control-input"
+                      >
+                        <div
+                          class="ant-form-item-control-input-content"
+                        >
+                          <input
+                            aria-required="true"
+                            class="ant-input"
+                            id="tenantName"
+                            placeholder="输入租户名称，64个字符以内"
+                            style="width: 100%;"
+                            type="text"
+                            value=""
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div
+                  class="ant-form-item"
+                >
+                  <div
+                    class="ant-row ant-form-item-row"
+                  >
+                    <div
+                      class="ant-col ant-form-item-label ant-col-xs-24 ant-col-sm-6"
+                    >
+                      <label
+                        class="ant-form-item-required"
+                        for="tenantIdentity"
+                        title="租户标识"
+                      >
+                        租户标识
+                        <span
+                          aria-label="question-circle"
+                          class="anticon anticon-question-circle ant-form-item-tooltip"
+                          role="img"
+                          title=""
+                        >
+                          <svg
+                            aria-hidden="true"
+                            data-icon="question-circle"
+                            fill="currentColor"
+                            focusable="false"
+                            height="1em"
+                            viewBox="64 64 896 896"
+                            width="1em"
+                          >
+                            <path
+                              d="M512 64C264.6 64 64 264.6 64 512s200.6 448 448 448 448-200.6 448-448S759.4 64 512 64zm0 820c-205.4 0-372-166.6-372-372s166.6-372 372-372 372 166.6 372 372-166.6 372-372 372z"
+                            />
+                            <path
+                              d="M623.6 316.7C593.6 290.4 554 276 512 276s-81.6 14.5-111.6 40.7C369.2 344 352 380.7 352 420v7.6c0 4.4 3.6 8 8 8h48c4.4 0 8-3.6 8-8V420c0-44.1 43.1-80 96-80s96 35.9 96 80c0 31.1-22 59.6-56.1 72.7-21.2 8.1-39.2 22.3-52.1 40.9-13.1 19-19.9 41.8-19.9 64.9V620c0 4.4 3.6 8 8 8h48c4.4 0 8-3.6 8-8v-22.7a48.3 48.3 0 0130.9-44.8c59-22.7 97.1-74.7 97.1-132.5.1-39.3-17.1-76-48.3-103.3zM472 732a40 40 0 1080 0 40 40 0 10-80 0z"
+                            />
+                          </svg>
+                        </span>
+                      </label>
+                    </div>
+                    <div
+                      class="ant-col ant-form-item-control ant-col-xs-24 ant-col-sm-16"
+                    >
+                      <div
+                        class="ant-form-item-control-input"
+                      >
+                        <div
+                          class="ant-form-item-control-input-content"
+                        >
+                          <input
+                            aria-required="true"
+                            class="ant-input"
+                            id="tenantIdentity"
+                            placeholder="输入租户标识, 64个字符以内"
+                            style="width: 100%;"
+                            type="text"
+                            value=""
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </form>
+            </div>
+            <div
+              class="ant-modal-footer"
+            >
+              <button
+                class="ant-btn ant-btn-default"
+                type="button"
+              >
+                <span>
+                  取 消
+                </span>
+              </button>
+              <button
+                class="ant-btn ant-btn-primary"
+                type="button"
+              >
+                <span>
+                  确 认
+                </span>
+              </button>
             </div>
           </div>
+          <div
+            aria-hidden="true"
+            style="width: 0px; height: 0px; overflow: hidden; outline: none;"
+            tabindex="0"
+          />
         </div>
       </div>
     </div>
-  </form>
-  <button
-    data-testid="antd-mock-Modal-confirm"
-  >
-    confirm
-  </button>
+  </div>
 </DocumentFragment>
 `;

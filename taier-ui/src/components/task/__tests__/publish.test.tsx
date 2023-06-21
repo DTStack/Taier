@@ -1,9 +1,9 @@
-import { fireConfirmOnModal } from '@/tests/utils';
 import { cleanup, render, waitFor } from '@testing-library/react';
 import { act } from 'react-dom/test-utils';
 import '@testing-library/jest-dom';
-import Publish from '../publish';
+import Publish, { CONTAINER_ID } from '../publish';
 import api from '@/api';
+import { modal } from 'ant-design-testing';
 
 jest.mock('@/api');
 
@@ -19,7 +19,11 @@ describe('Test Publish Component', () => {
     });
 
     it('Should match snapshot', () => {
-        const { asFragment } = render(<Publish taskId={1} />);
+        const { asFragment } = render(
+            <div id={CONTAINER_ID}>
+                <Publish taskId={1} />
+            </div>
+        );
 
         expect(asFragment()).toMatchSnapshot();
     });
@@ -28,11 +32,11 @@ describe('Test Publish Component', () => {
         (api.publishOfflineTask as jest.Mock).mockReset().mockResolvedValue({
             code: 1,
         });
-        const { getByTestId } = render(<Publish taskId={1} />);
-
         act(() => {
-            fireConfirmOnModal(getByTestId);
+            render(<Publish taskId={1} />);
         });
+
+        modal.fireOk(document);
 
         await waitFor(() => {
             expect(document.querySelector('.ant-message-notice-content')).not.toBeUndefined();

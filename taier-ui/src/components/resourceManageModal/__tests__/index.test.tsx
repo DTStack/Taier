@@ -1,9 +1,8 @@
-import { fireConfirmOnModal } from '@/tests/utils';
 import { cleanup, render, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import ResourceManageModal from '..';
 import api from '@/api';
-import { select } from 'ant-design-testing';
+import { modal, select } from 'ant-design-testing';
 
 jest.mock('@/api');
 
@@ -26,15 +25,15 @@ describe('Test ResourceManageModal Component', () => {
     });
 
     it('Should match snapshot', () => {
-        const { asFragment } = render(<ResourceManageModal visible clusterId={1} />);
+        render(<ResourceManageModal visible clusterId={1} />);
 
-        expect(asFragment()).toMatchSnapshot();
+        expect(document.body).toMatchSnapshot();
     });
 
     it('Should log Error', async () => {
-        const { getByTestId, getByText } = render(<ResourceManageModal visible clusterId={1} />);
+        const { getByText } = render(<ResourceManageModal visible clusterId={1} />);
 
-        fireConfirmOnModal(getByTestId);
+        modal.fireOk(document);
 
         await waitFor(() => {
             expect(getByText('资源队列不可为空！')).toBeInTheDocument();
@@ -46,16 +45,16 @@ describe('Test ResourceManageModal Component', () => {
             code: 1,
         });
         const fn = jest.fn();
-        const { container, getByTestId } = render(<ResourceManageModal visible clusterId={1} onOk={fn} />);
+        render(<ResourceManageModal visible clusterId={1} onOk={fn} />);
 
-        select.fireOpen(container);
+        select.fireOpen(document);
         await waitFor(() => {
             expect(document.querySelectorAll('div.ant-select-item-option-content').length).toBe(1);
         });
 
         select.fireSelect(document.body, 0);
 
-        fireConfirmOnModal(getByTestId);
+        modal.fireOk(document);
 
         await waitFor(() => {
             expect(fn).toBeCalled();
