@@ -1,4 +1,5 @@
 import { input, modal } from 'ant-design-testing';
+import * as form from 'ant-design-testing/dist/cjs/form';
 import { cleanup, render, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import AddTenantModal from '..';
@@ -37,7 +38,7 @@ describe('Test AddTenantModal', () => {
             expect(getByText('请输入租户标识!')).toBeInTheDocument();
         });
 
-        const formItems = container.querySelectorAll<HTMLElement>('.ant-form-item-control');
+        const formItems = form.queryFormItemControls(container);
         input.fireChange(formItems[0], new Array(100).fill('1').join(''));
         input.fireChange(formItems[1], '测试');
 
@@ -58,7 +59,7 @@ describe('Test AddTenantModal', () => {
             </div>
         );
 
-        const formItems = container.querySelectorAll<HTMLElement>('.ant-form-item-control');
+        const formItems = form.queryFormItemControls(container);
         input.fireChange(formItems[0], 'DTStack');
         input.fireChange(formItems[1], 'test');
 

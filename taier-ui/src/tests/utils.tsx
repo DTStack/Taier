@@ -1,5 +1,3 @@
-import { act, fireEvent } from '@testing-library/react';
-
 export const $ = <T extends Element>(selector: string) => {
     return document.querySelector<T>(selector);
 };
@@ -13,15 +11,5 @@ export async function sleep(delay = 300) {
         setTimeout(() => {
             resolve();
         }, delay);
-    });
-}
-
-export function showTooltip(ele: HTMLElement) {
-    fireEvent.mouseEnter(ele);
-}
-
-export async function triggerOkOnConfirm() {
-    await act(async () => {
-        fireEvent.click(document.querySelector('.ant-modal-confirm-btns')!.querySelectorAll('button')[1]);
     });
 }

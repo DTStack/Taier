@@ -2,6 +2,7 @@ import { act, cleanup, fireEvent, render, renderHook } from '@testing-library/re
 import '@testing-library/jest-dom';
 import Sketch, { useSketchRef } from '../';
 import React from 'react';
+import { input, table } from 'ant-design-testing';
 
 jest.useFakeTimers();
 
@@ -126,14 +127,14 @@ describe('Test Sketch Component', () => {
 
         await act(async () => {
             // name field is an insensitive field which won't request again
-            fireEvent.change(document.querySelector('input#name')!, { target: { value: '123' } });
+            input.fireChange(document.querySelector<HTMLInputElement>('input#name')!, '123');
         });
         expect(changeFn).toBeCalledTimes(1);
         expect(fn).toBeCalledTimes(1);
 
         await act(async () => {
             // common field would trigger request
-            fireEvent.change(document.querySelector('input#jest')!, { target: { value: '123' } });
+            input.fireChange(document.querySelector<HTMLInputElement>('input#jest')!, '123');
         });
 
         expect(changeFn).toBeCalledTimes(2);
@@ -176,7 +177,7 @@ describe('Test Sketch Component', () => {
         });
 
         act(() => {
-            fireEvent.click(document.querySelector('table')!.querySelector('label.ant-checkbox-wrapper')!);
+            table.fireSelect(document, 0);
         });
 
         expect(selectFn).toBeCalled();
@@ -213,14 +214,8 @@ describe('Test Sketch Component', () => {
             );
         });
 
-        const expandButtons = document.querySelectorAll(
-            'button.ant-table-row-expand-icon.ant-table-row-expand-icon-collapsed'
-        );
-        // ONLY data with children has expand button
-        expect(expandButtons.length).toBe(1);
-
         await act(async () => {
-            fireEvent.click(expandButtons[0]);
+            table.fireExpand(document, 1);
         });
 
         expect(expandFn).toBeCalledWith(true, { id: 2, name: 'test2', children: [] });

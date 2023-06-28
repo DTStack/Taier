@@ -3,6 +3,7 @@ import '@testing-library/jest-dom';
 import ResourceManageModal from '..';
 import api from '@/api';
 import { modal, select } from 'ant-design-testing';
+import { $$ } from '@/tests/utils';
 
 jest.mock('@/api');
 
@@ -49,7 +50,7 @@ describe('Test ResourceManageModal Component', () => {
 
         select.fireOpen(document);
         await waitFor(() => {
-            expect(document.querySelectorAll('div.ant-select-item-option-content').length).toBe(1);
+            expect($$('div.ant-select-item-option-content').length).toBe(1);
         });
 
         select.fireSelect(document.body, 0);

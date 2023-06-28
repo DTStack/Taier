@@ -14,12 +14,12 @@ import {
 } from '../task';
 import { Context } from '@/context/dataSync';
 import { act } from 'react-dom/test-utils';
-import { showTooltip } from '@/tests/utils';
 import api from '@/api';
 import { NamePath } from 'antd/lib/form/interface';
 import '@testing-library/jest-dom';
 import { EventKind } from '@/pages/editor/dataSync';
-import { modal } from 'ant-design-testing';
+import { input, modal, select, tooltip } from 'ant-design-testing';
+import * as form from 'ant-design-testing/dist/cjs/form';
 
 jest.useFakeTimers();
 
@@ -254,7 +254,7 @@ describe('Test Task Scaffolds', () => {
             });
 
             act(() => {
-                showTooltip(document.querySelector('.ant-select')!);
+                tooltip.fireOpen(select.query(document, 0)!);
             });
 
             await waitFor(() => {
@@ -466,7 +466,7 @@ describe('Test Task Scaffolds', () => {
 
             await waitFor(() => {
                 expect(api.createDdlTable).toBeCalled();
-                expect(container.querySelector<HTMLInputElement>('input#targetMap_table')!.value).toBe('xxxx');
+                expect((input.query(form.queryFormItems(container)[5]!, 0) as HTMLInputElement).value).toBe('xxxx');
             });
         });
     });

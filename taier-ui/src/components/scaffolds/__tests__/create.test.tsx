@@ -8,7 +8,7 @@ import scaffolds from '../create';
 import resourceManagerTree from '@/services/resourceManagerService';
 import { dataSourceService, taskRenderService } from '@/services';
 import molecule from '@dtinsight/molecule';
-import { input, select } from 'ant-design-testing';
+import { button, input, select } from 'ant-design-testing';
 
 jest.mock('@/api');
 jest.mock('@/services', () => ({
@@ -291,7 +291,7 @@ describe('Test Create Scaffolds', () => {
                 );
             });
 
-            fireEvent.click(container.querySelector('button')!);
+            button.fireClick(container);
 
             expect(molecule.sidebar.setActive).toBeCalledWith('dataSource');
             expect(molecule.activityBar.setActive).toBeCalledWith('dataSource');

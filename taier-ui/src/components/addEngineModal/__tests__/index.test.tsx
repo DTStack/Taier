@@ -1,7 +1,8 @@
-import { cleanup, fireEvent, render, waitFor } from '@testing-library/react';
+import { cleanup, render, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import AddEngineModal from '..';
-import { modal } from 'ant-design-testing';
+import { modal, input } from 'ant-design-testing';
+import { $ } from '@/tests/utils';
 
 describe('Test AddEngineModal Component', () => {
     beforeEach(() => {
@@ -22,25 +23,19 @@ describe('Test AddEngineModal Component', () => {
             expect(getByText('集群标识不可为空！')).toBeInTheDocument();
         });
 
-        fireEvent.change(document.body.querySelector('#clusterName')!, {
-            target: { value: 'abc-abc' },
-        });
+        input.fireChange($<HTMLElement>('#clusterName')!, 'abc-abc');
 
         await waitFor(() => {
             expect(getByText('集群标识不能超过64字符，支持英文、数字、下划线')).toBeInTheDocument();
         });
 
-        fireEvent.change(document.body.querySelector('#clusterName')!, {
-            target: { value: new Array(100).fill('a').join('') },
-        });
+        input.fireChange($<HTMLElement>('#clusterName')!, new Array(100).fill('a').join(''));
 
         await waitFor(() => {
             expect(getByText('集群标识不能超过64字符，支持英文、数字、下划线')).toBeInTheDocument();
         });
 
-        fireEvent.change(document.body.querySelector('#clusterName')!, {
-            target: { value: 'abc' },
-        });
+        input.fireChange($<HTMLElement>('#clusterName')!, 'abc');
         modal.fireOk(document);
 
         await waitFor(() => {

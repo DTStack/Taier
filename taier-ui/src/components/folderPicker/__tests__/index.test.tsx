@@ -2,7 +2,7 @@ import api from '@/api';
 import { CATALOGUE_TYPE } from '@/constant';
 import { catalogueService } from '@/services';
 import molecule from '@dtinsight/molecule';
-import { cleanup, fireEvent, render } from '@testing-library/react';
+import { cleanup, render, waitFor } from '@testing-library/react';
 import { act } from 'react-dom/test-utils';
 import FolderPicker from '..';
 import functionData from './fixtures/functionData';
@@ -45,6 +45,7 @@ jest.mock('@/utils/extensions', () => {
 
 describe('Test FolderPicker Component', () => {
     beforeEach(() => {
+        jest.useFakeTimers();
         cleanup();
         (molecule.folderTree.getState as jest.Mock).mockReset().mockImplementation(() => ({
             folderTree: {
@@ -53,6 +54,10 @@ describe('Test FolderPicker Component', () => {
         }));
 
         (catalogueService.loadTreeNode as jest.Mock).mockReset();
+    });
+
+    afterEach(() => {
+        jest.useRealTimers();
     });
 
     it('Should match snapshot', () => {
@@ -78,10 +83,13 @@ describe('Test FolderPicker Component', () => {
         const { container } = render(<FolderPicker showFile dataType={CATALOGUE_TYPE.FUNCTION} />);
 
         treeSelect.fireOpen(container);
+        treeSelect.fireTreeExpand(container, 0);
 
-        await act(async () => {
-            fireEvent.click(container.querySelector('.ant-select-tree-switcher')!);
+        await waitFor(async () => {
+            expect(catalogueService.loadTreeNode).toBeCalledWith(
+                { catalogueType: 'FunctionManager', id: 39 },
+                'function'
+            );
         });
-        expect(catalogueService.loadTreeNode).toBeCalledWith({ catalogueType: 'FunctionManager', id: 39 }, 'function');
     });
 });

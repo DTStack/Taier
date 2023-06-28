@@ -10,6 +10,7 @@ import '@testing-library/jest-dom';
 import { TreeViewUtil } from '@dtinsight/molecule/esm/common/treeUtil';
 import { fillFormContent } from './fixtures/utils';
 import { catalogueService } from '@/services';
+import { input, modal } from 'ant-design-testing';
 
 jest.useFakeTimers();
 jest.mock('@/api');
@@ -39,13 +40,6 @@ jest.mock('@/services/resourceManagerService', () => ({
 jest.mock('@/components/folderPicker', () => ({ id, value, onChange }: any) => (
     <Input data-testid="mockFolderPicker" id={id} value={value} onChange={(e) => onChange(e.target.value)} />
 ));
-// use the original Modal
-jest.mock('antd', () => {
-    const original = jest.requireActual('antd');
-    return {
-        ...original,
-    };
-});
 
 describe('Test Function Manage', () => {
     beforeEach(() => {
@@ -295,7 +289,7 @@ describe('Test Function Manage', () => {
         });
 
         // Click cancel button
-        fireEvent.click(document.querySelector('.ant-modal-footer')!.querySelectorAll('button')[0]);
+        modal.fireCancel(document, { closeByButton: true });
 
         await waitFor(() => {
             expect(document.querySelector('#test-id')).toBeNull();
@@ -308,7 +302,7 @@ describe('Test Function Manage', () => {
         });
 
         fillFormContent(getAllByTestId);
-        fireEvent.click(document.querySelector('.ant-modal-footer')!.querySelectorAll('button')[1]);
+        modal.fireOk(document);
 
         await waitFor(() => {
             expect(api.addOfflineFunction).toBeCalledWith({
@@ -358,12 +352,10 @@ describe('Test Function Manage', () => {
             expect(getByText('新建文件夹')).toBeInTheDocument();
         });
 
-        fireEvent.change(document.querySelector('input#dt_nodeName')!, {
-            target: { value: 'test' },
-        });
-        fireEvent.change(getByTestId('mockFolderPicker'), { target: { value: 1 } });
+        input.fireChange(document.querySelector<HTMLInputElement>('input#dt_nodeName')!, 'test');
+        input.fireChange(getByTestId('mockFolderPicker'), 1);
 
-        fireEvent.click(document.querySelector('.ant-modal-footer')!.querySelectorAll('button')[1]);
+        modal.fireOk(document);
 
         await waitFor(() => {
             expect(api.addOfflineCatalogue).toBeCalledWith({
@@ -422,8 +414,8 @@ describe('Test Function Manage', () => {
             expect(getByText('编辑自定义函数')).toBeInTheDocument();
         });
 
-        fireEvent.change(document.querySelector('input#nodePid')!, { target: { value: 11 } });
-        fireEvent.click(document.querySelector('.ant-modal-footer')!.querySelectorAll('button')[1]);
+        input.fireChange(document.querySelector<HTMLInputElement>('input#nodePid')!, 11);
+        modal.fireOk(document);
 
         await waitFor(() => {
             expect(api.addOfflineFunction).toBeCalledWith({
@@ -473,10 +465,8 @@ describe('Test Function Manage', () => {
             expect(getByText('编辑文件夹')).toBeInTheDocument();
         });
 
-        fireEvent.change(document.querySelector('input#dt_nodeName')!, {
-            target: { value: 'mock' },
-        });
-        fireEvent.click(document.querySelector('.ant-modal-footer')!.querySelectorAll('button')[1]);
+        input.fireChange(document.querySelector<HTMLInputElement>('input#dt_nodeName')!, 'mock');
+        modal.fireOk(document);
 
         await waitFor(() => {
             expect(api.editOfflineCatalogue).toBeCalledWith({
@@ -523,7 +513,7 @@ describe('Test Function Manage', () => {
         });
 
         await act(async () => {
-            fireEvent.click(document.querySelector('.ant-modal-confirm-btns')!.querySelectorAll('button')[1]);
+            modal.confirm.fireOk(document);
         });
 
         await waitFor(() => {

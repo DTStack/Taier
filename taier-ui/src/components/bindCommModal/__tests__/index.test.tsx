@@ -1,8 +1,10 @@
 import api from '@/api';
 import { modal, select } from 'ant-design-testing';
+import * as form from 'ant-design-testing/dist/cjs/form';
 import { cleanup, render, waitFor } from '@testing-library/react';
 import BindCommModal from '..';
 import '@testing-library/jest-dom';
+import { $ } from '@/tests/utils';
 
 jest.mock('@/api');
 
@@ -85,7 +87,7 @@ describe('Test BindCommModal Component', () => {
             expect(getByText('集群不可为空！')).toBeInTheDocument();
         });
 
-        select.fireOpen(document.body.querySelectorAll<HTMLElement>('.ant-form-item')[1]);
+        select.fireOpen(form.queryFormItems(document)[1]);
         select.fireSelect(document.body, 0);
 
         await waitFor(() => {
@@ -110,20 +112,21 @@ describe('Test BindCommModal Component', () => {
             expect(api.getTenantList).toBeCalled();
         });
 
-        select.fireOpen(document.body.querySelectorAll<HTMLElement>('.ant-form-item')[0]);
+        const [tenantIdItem, clusterIdItem] = form.queryFormItems(document.body);
+        select.fireOpen(tenantIdItem);
         select.fireSelect(document.body, 0);
-        document.querySelector('div.ant-select-dropdown')?.remove();
+        $('div.ant-select-dropdown')?.remove();
 
-        select.fireOpen(document.body.querySelectorAll<HTMLElement>('.ant-form-item')[1]);
+        select.fireOpen(clusterIdItem);
         select.fireSelect(document.body, 0);
-        document.querySelector('div.ant-select-dropdown')?.remove();
+        $('div.ant-select-dropdown')?.remove();
 
         await waitFor(() => {
             expect(api.getEnginesByCluster).toBeCalled();
             expect(api.getClusterResources).toBeCalled();
         });
 
-        select.fireOpen(document.body.querySelectorAll<HTMLElement>('.ant-form-item')[2]);
+        select.fireOpen(form.queryFormItems(document.body)[2]);
         select.fireSelect(document.body, 0);
 
         modal.fireOk(document.body);

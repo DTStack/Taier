@@ -1,6 +1,7 @@
 import type { CatalogueDataProps } from '@/interface';
-import { act, cleanup, fireEvent, render, waitFor } from '@testing-library/react';
+import { act, cleanup, render, waitFor } from '@testing-library/react';
 import Confirm, { confirm } from '..';
+import { button } from 'ant-design-testing';
 
 describe('Test Confirm Component', () => {
     beforeEach(() => {
@@ -39,7 +40,7 @@ describe('Test Confirm Component', () => {
 
             const buttons = document.body.querySelector('.taier__confirm__btnGroups')?.querySelectorAll('button') || [];
             act(() => {
-                fireEvent.click(buttons[0]);
+                button.fireClick(buttons[0]);
             });
             expect(saveFn).toBeCalledTimes(1);
         });
@@ -55,7 +56,7 @@ describe('Test Confirm Component', () => {
 
             const buttons = document.body.querySelector('.taier__confirm__btnGroups')?.querySelectorAll('button') || [];
             act(() => {
-                fireEvent.click(buttons[1]);
+                button.fireClick(buttons[1]);
             });
             expect(unSaveFn).toBeCalledTimes(1);
         });
@@ -71,7 +72,7 @@ describe('Test Confirm Component', () => {
 
             const buttons = document.body.querySelector('.taier__confirm__btnGroups')?.querySelectorAll('button') || [];
             act(() => {
-                fireEvent.click(buttons[2]);
+                button.fireClick(buttons[2]);
             });
             expect(cancelFn).toBeCalledTimes(1);
         });
