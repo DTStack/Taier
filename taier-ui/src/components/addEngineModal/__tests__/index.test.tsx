@@ -16,24 +16,16 @@ describe('Test AddEngineModal Component', () => {
 
     it('Should validate form before confirm', async () => {
         const fn = jest.fn();
-        const { getByText } = render(<AddEngineModal title="新增集群" visible onOk={fn} />);
+        const { findByText } = render(<AddEngineModal title="新增集群" visible onOk={fn} />);
 
         modal.fireOk(document);
-        await waitFor(() => {
-            expect(getByText('集群标识不可为空！')).toBeInTheDocument();
-        });
+        expect(await findByText('集群标识不可为空！')).toBeInTheDocument();
 
         input.fireChange($<HTMLElement>('#clusterName')!, 'abc-abc');
-
-        await waitFor(() => {
-            expect(getByText('集群标识不能超过64字符，支持英文、数字、下划线')).toBeInTheDocument();
-        });
+        expect(await findByText('集群标识不能超过64字符，支持英文、数字、下划线')).toBeInTheDocument();
 
         input.fireChange($<HTMLElement>('#clusterName')!, new Array(100).fill('a').join(''));
-
-        await waitFor(() => {
-            expect(getByText('集群标识不能超过64字符，支持英文、数字、下划线')).toBeInTheDocument();
-        });
+        expect(await findByText('集群标识不能超过64字符，支持英文、数字、下划线')).toBeInTheDocument();
 
         input.fireChange($<HTMLElement>('#clusterName')!, 'abc');
         modal.fireOk(document);

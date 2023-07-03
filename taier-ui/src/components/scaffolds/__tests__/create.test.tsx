@@ -1,5 +1,5 @@
 import api from '@/api';
-import { cleanup, fireEvent, render, waitFor } from '@testing-library/react';
+import { cleanup, render, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { Form, Input } from 'antd';
 import type { NamePath } from 'antd/lib/form/interface';
@@ -8,7 +8,7 @@ import scaffolds from '../create';
 import resourceManagerTree from '@/services/resourceManagerService';
 import { dataSourceService, taskRenderService } from '@/services';
 import molecule from '@dtinsight/molecule';
-import { button, input, select } from 'ant-design-testing';
+import { button, form, input, select } from 'ant-design-testing';
 
 jest.mock('@/api');
 jest.mock('@/services', () => ({
@@ -140,7 +140,7 @@ describe('Test Create Scaffolds', () => {
             input.fireChange(container, 1);
 
             await waitFor(() => {
-                expect(container.querySelector<HTMLInputElement>('input#componentVersion')!.value).toBe('1.2');
+                expect(input.query(form.queryFormItems(container, 1)!)!.value).toBe('1.2');
             });
         });
     });
@@ -159,7 +159,7 @@ describe('Test Create Scaffolds', () => {
         it('Should support validator', async () => {
             (resourceManagerTree.checkNotDir as jest.Mock).mockReset().mockRejectedValue(new Error('error message'));
 
-            const { container, getByText } = render(
+            const { container, findByText } = render(
                 <FormContainer>
                     <scaffolds.resourceIdList />
                 </FormContainer>
@@ -167,9 +167,7 @@ describe('Test Create Scaffolds', () => {
 
             input.fireChange(container, 1);
 
-            await waitFor(() => {
-                expect(getByText('error message')).toBeInTheDocument();
-            });
+            expect(await findByText('error message')).toBeInTheDocument();
         });
     });
 

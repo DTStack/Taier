@@ -3,7 +3,7 @@ import type { render } from '@testing-library/react';
 import { input, radio, select } from 'ant-design-testing';
 
 export function fillFormContent(getAllByTestId: ReturnType<typeof render>['getAllByTestId']) {
-    document.body.querySelector('div.ant-select-dropdown')?.remove();
+    select.queryDropdown(document)?.remove();
     select.fireOpen(document);
     select.fireSelect(document.body, 1);
 

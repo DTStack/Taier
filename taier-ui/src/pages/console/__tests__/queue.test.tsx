@@ -5,8 +5,7 @@ import Queue from '../queue';
 import '@testing-library/jest-dom';
 import { history } from 'umi';
 import { getAllCluster, getClusterDetail, getNodeAddressSelect } from './fixtures/mock';
-import { modal, select } from 'ant-design-testing';
-import * as form from 'ant-design-testing/dist/cjs/form';
+import { modal, select, form } from 'ant-design-testing';
 
 jest.mock('@/api');
 jest.useFakeTimers();
@@ -53,19 +52,17 @@ describe('Test Queue Page', () => {
             expect(api.getClusterDetail).toBeCalledTimes(2);
         });
 
-        const [clutserEle, clusterNodeEle] = form.queryFormItems(document);
         // Get data since the cluster changed
-        select.fireOpen(clutserEle);
+        select.fireOpen(form.queryFormItems(document, 0)!);
         select.fireSelect(document.body, 1);
-        document.querySelector('div.ant-select-dropdown')?.remove();
 
         await waitFor(() => {
             expect(api.getClusterDetail).toBeCalledTimes(3);
         });
 
         // Get data since the node changed
-        select.fireOpen(clusterNodeEle);
-        select.fireSelect(document.body, 0);
+        select.fireOpen(form.queryFormItems(document, 1)!);
+        select.fireSelect(select.queryDropdown(document.body, 1)!, 0);
 
         await waitFor(() => {
             expect(api.getClusterDetail).toBeCalledTimes(4);

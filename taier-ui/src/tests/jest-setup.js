@@ -26,12 +26,3 @@ Object.defineProperty(window, 'matchMedia', {
         dispatchEvent: jest.fn(),
     })),
 });
-
-jest.mock('antd', () => {
-    return {
-        ...jest.requireActual('antd'),
-        message: {
-            success: jest.fn(),
-        },
-    };
-});

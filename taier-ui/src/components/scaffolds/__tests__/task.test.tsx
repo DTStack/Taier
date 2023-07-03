@@ -18,8 +18,7 @@ import api from '@/api';
 import { NamePath } from 'antd/lib/form/interface';
 import '@testing-library/jest-dom';
 import { EventKind } from '@/pages/editor/dataSync';
-import { input, modal, select, tooltip } from 'ant-design-testing';
-import * as form from 'ant-design-testing/dist/cjs/form';
+import { input, modal, select, tooltip, form } from 'ant-design-testing';
 
 jest.useFakeTimers();
 
@@ -466,7 +465,7 @@ describe('Test Task Scaffolds', () => {
 
             await waitFor(() => {
                 expect(api.createDdlTable).toBeCalled();
-                expect((input.query(form.queryFormItems(container)[5]!, 0) as HTMLInputElement).value).toBe('xxxx');
+                expect(input.query(form.queryFormItems(container, 5)!, 0)!.value).toBe('xxxx');
             });
         });
     });

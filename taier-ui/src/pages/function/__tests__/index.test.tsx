@@ -289,7 +289,7 @@ describe('Test Function Manage', () => {
         });
 
         // Click cancel button
-        modal.fireCancel(document, { closeByButton: true });
+        modal.fireCancel(document);
 
         await waitFor(() => {
             expect(document.querySelector('#test-id')).toBeNull();

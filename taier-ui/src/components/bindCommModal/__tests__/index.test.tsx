@@ -1,6 +1,5 @@
 import api from '@/api';
-import { modal, select } from 'ant-design-testing';
-import * as form from 'ant-design-testing/dist/cjs/form';
+import { modal, select, form } from 'ant-design-testing';
 import { cleanup, render, waitFor } from '@testing-library/react';
 import BindCommModal from '..';
 import '@testing-library/jest-dom';
@@ -87,7 +86,7 @@ describe('Test BindCommModal Component', () => {
             expect(getByText('集群不可为空！')).toBeInTheDocument();
         });
 
-        select.fireOpen(form.queryFormItems(document)[1]);
+        select.fireOpen(form.queryFormItems(document, 1)!);
         select.fireSelect(document.body, 0);
 
         await waitFor(() => {
@@ -112,12 +111,11 @@ describe('Test BindCommModal Component', () => {
             expect(api.getTenantList).toBeCalled();
         });
 
-        const [tenantIdItem, clusterIdItem] = form.queryFormItems(document.body);
-        select.fireOpen(tenantIdItem);
+        select.fireOpen(form.queryFormItems(document.body, 0)!);
         select.fireSelect(document.body, 0);
         $('div.ant-select-dropdown')?.remove();
 
-        select.fireOpen(clusterIdItem);
+        select.fireOpen(form.queryFormItems(document.body, 1)!);
         select.fireSelect(document.body, 0);
         $('div.ant-select-dropdown')?.remove();
 
@@ -126,7 +124,7 @@ describe('Test BindCommModal Component', () => {
             expect(api.getClusterResources).toBeCalled();
         });
 
-        select.fireOpen(form.queryFormItems(document.body)[2]);
+        select.fireOpen(form.queryFormItems(document.body, 2)!);
         select.fireSelect(document.body, 0);
 
         modal.fireOk(document.body);

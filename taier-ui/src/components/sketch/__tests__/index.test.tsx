@@ -101,8 +101,8 @@ describe('Test Sketch Component', () => {
             polling: false,
         });
         const changeFn = jest.fn();
-        await act(async () => {
-            render(
+        const { container } = await act(async () => {
+            return render(
                 <Sketch
                     header={[
                         'input',
@@ -127,14 +127,14 @@ describe('Test Sketch Component', () => {
 
         await act(async () => {
             // name field is an insensitive field which won't request again
-            input.fireChange(document.querySelector<HTMLInputElement>('input#name')!, '123');
+            input.fireChange(input.query(container)!, '123');
         });
         expect(changeFn).toBeCalledTimes(1);
         expect(fn).toBeCalledTimes(1);
 
         await act(async () => {
             // common field would trigger request
-            input.fireChange(document.querySelector<HTMLInputElement>('input#jest')!, '123');
+            input.fireChange(input.query(container, 1)!, '123');
         });
 
         expect(changeFn).toBeCalledTimes(2);

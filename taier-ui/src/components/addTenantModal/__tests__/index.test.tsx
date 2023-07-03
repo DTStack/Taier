@@ -1,6 +1,5 @@
-import { input, modal } from 'ant-design-testing';
-import * as form from 'ant-design-testing/dist/cjs/form';
-import { cleanup, render, waitFor } from '@testing-library/react';
+import { input, modal, form } from 'ant-design-testing';
+import { cleanup, render } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import AddTenantModal from '..';
 import api from '@/api';
@@ -25,7 +24,7 @@ describe('Test AddTenantModal', () => {
     });
 
     it('Should render error tips', async () => {
-        const { getByText, container } = render(
+        const { findByText, container } = render(
             <div id="add-tenant-modal">
                 <AddTenantModal />
             </div>
@@ -33,19 +32,14 @@ describe('Test AddTenantModal', () => {
 
         modal.fireOk(container);
 
-        await waitFor(() => {
-            expect(getByText('请输入租户名称!')).toBeInTheDocument();
-            expect(getByText('请输入租户标识!')).toBeInTheDocument();
-        });
+        expect(await findByText('请输入租户名称!')).toBeInTheDocument();
+        expect(await findByText('请输入租户标识!')).toBeInTheDocument();
 
-        const formItems = form.queryFormItemControls(container);
-        input.fireChange(formItems[0], new Array(100).fill('1').join(''));
-        input.fireChange(formItems[1], '测试');
+        input.fireChange(form.queryFormItems(container, 0)!, new Array(100).fill('1').join(''));
+        input.fireChange(form.queryFormItems(container, 1)!, '测试');
 
-        await waitFor(() => {
-            expect(getByText('请输入 64 个字符以内')).toBeInTheDocument();
-            expect(getByText('租户标识只能由字母、数字、下划线组成，且长度不超过64个字符!')).toBeInTheDocument();
-        });
+        expect(await findByText('请输入 64 个字符以内')).toBeInTheDocument();
+        expect(await findByText('租户标识只能由字母、数字、下划线组成，且长度不超过64个字符!')).toBeInTheDocument();
     });
 
     it('Should call onSubmit', async () => {
@@ -53,24 +47,23 @@ describe('Test AddTenantModal', () => {
             code: 1,
         });
         jest.spyOn(HTMLElement.prototype, 'remove').mockImplementation();
-        const { container } = render(
+        const { container, findByText } = render(
             <div id="add-tenant-modal">
                 <AddTenantModal />
             </div>
         );
 
-        const formItems = form.queryFormItemControls(container);
-        input.fireChange(formItems[0], 'DTStack');
-        input.fireChange(formItems[1], 'test');
+        input.fireChange(form.queryFormItems(container, 0)!, 'DTStack');
+        input.fireChange(form.queryFormItems(container, 1)!, 'test');
 
         modal.fireOk(container);
-        await waitFor(() => {
-            expect(api.addTenant).toBeCalledWith({
-                tenantName: 'DTStack',
-                tenantIdentity: 'test',
-                userId: 1,
-            });
-            expect(HTMLElement.prototype.remove).toBeCalled();
+
+        expect(await findByText('新增成功')).toBeInTheDocument();
+        expect(api.addTenant).toBeCalledWith({
+            tenantName: 'DTStack',
+            tenantIdentity: 'test',
+            userId: 1,
         });
+        expect(HTMLElement.prototype.remove).toBeCalled();
     });
 });

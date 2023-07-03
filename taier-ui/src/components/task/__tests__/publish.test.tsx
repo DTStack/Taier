@@ -1,4 +1,4 @@
-import { cleanup, render, waitFor } from '@testing-library/react';
+import { cleanup, render } from '@testing-library/react';
 import { act } from 'react-dom/test-utils';
 import '@testing-library/jest-dom';
 import Publish, { CONTAINER_ID } from '../publish';
@@ -32,14 +32,15 @@ describe('Test Publish Component', () => {
         (api.publishOfflineTask as jest.Mock).mockReset().mockResolvedValue({
             code: 1,
         });
-        act(() => {
-            render(<Publish taskId={1} />);
+        const { findByText } = await act(() => {
+            return render(
+                <div id={CONTAINER_ID}>
+                    <Publish taskId={1} />
+                </div>
+            );
         });
 
         modal.fireOk(document);
-
-        await waitFor(() => {
-            expect(document.querySelector('.ant-message-notice-content')).not.toBeUndefined();
-        });
+        expect(await findByText('提交成功！')).toBeInTheDocument();
     });
 });

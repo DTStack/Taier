@@ -43,10 +43,8 @@ describe('Test FolderModal Component for function', () => {
             />
         );
 
-        const buttons = container.querySelectorAll<HTMLDivElement>('.ant-btn') || [];
-
         input.fireChange(container, 'test');
-        button.fireClick(buttons[1]);
+        button.fireClick(button.query(container, 1)!);
 
         await waitFor(() => {
             expect(fn).toBeCalledWith({ nodeName: 'test', nodePid: 1 });
@@ -78,9 +76,8 @@ describe('Test FolderModal Component for function', () => {
             />
         );
 
-        const buttons = container.querySelectorAll<HTMLDivElement>('.ant-btn') || [];
         input.fireChange(container, 'test');
-        button.fireClick(buttons[1]);
+        button.fireClick(button.query(container, 1)!);
 
         await waitFor(() => {
             expect(fn).toBeCalledWith({ nodeName: 'test', nodePid: 10 });
@@ -105,9 +102,8 @@ describe('Test FolderModal Component for function', () => {
             />
         );
 
-        const buttons = container.querySelectorAll<HTMLDivElement>('.ant-btn') || [];
         input.fireChange(container, 'test2');
-        button.fireClick(buttons[1]);
+        button.fireClick(button.query(container, 1)!);
 
         await waitFor(() => {
             expect(fn).toBeCalledWith({ id: 10, nodeName: 'test2', nodePid: 11, type: 'folder' });
@@ -127,8 +123,7 @@ describe('Test FolderModal Component for function', () => {
                 editOfflineCatalogue={jest.fn()}
             />
         );
-        const buttons = container.querySelectorAll<HTMLDivElement>('.ant-btn') || [];
-        button.fireClick(buttons[0]);
+        button.fireClick(button.query(container)!);
 
         expect(fn).toBeCalled();
     });
