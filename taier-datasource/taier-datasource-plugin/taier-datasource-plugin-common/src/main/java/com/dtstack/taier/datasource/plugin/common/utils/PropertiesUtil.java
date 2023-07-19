@@ -59,7 +59,7 @@ public class PropertiesUtil {
             JSONObject propertiesJson = JSONUtil.parseJsonObject(rdbmsSourceDTO.getProperties());
             for (String key : propertiesJson.keySet()) {
                 String value = propertiesJson.getString(key);
-                if (StringUtils.isNotBlank(value)) {
+                if (StringUtils.isNotBlank(value) && StringUtils.isNotBlank(prefix)) {
                     String newKey = key.startsWith(prefix) ? key : prefix + key;
                     properties.setProperty(newKey, value);
                 }
