@@ -1,14 +1,13 @@
-import { selectItem, toggleOpen } from '@/tests/utils';
 import molecule from '@dtinsight/molecule';
-import { cleanup, fireEvent, render, waitFor } from '@testing-library/react';
+import { cleanup, render, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { act } from 'react-dom/test-utils';
 import Create from '../create';
 import type { IOfflineTaskProps } from '@/interface';
 import api from '@/api';
 import { Form, Input } from 'antd';
+import { button, input, select } from 'ant-design-testing';
 
-jest.useFakeTimers();
 jest.mock('@/api');
 
 (molecule.folderTree.getState as jest.Mock).mockReset().mockImplementation(() => ({
@@ -54,7 +53,11 @@ jest.mock('@/context', () => {
 
 describe('Test Create Component', () => {
     beforeEach(() => {
+        jest.useFakeTimers();
         cleanup();
+    });
+    afterEach(() => {
+        jest.useRealTimers();
     });
     it('Should match snapshot', () => {
         const { asFragment } = render(<Create />);
@@ -68,7 +71,7 @@ describe('Test Create Component', () => {
             const { container } = render(<Create current={{ id: 'test', tab: { id: 1, data: {} } }} onSubmit={fn} />);
 
             // Edit name
-            fireEvent.change(container.querySelector('input#name')!, { target: { value: 'test' } });
+            input.fireChange(container, 'test');
             expect(molecule.editor.updateTab).lastCalledWith({
                 data: {
                     name: 'test',
@@ -82,8 +85,8 @@ describe('Test Create Component', () => {
             });
 
             // Select taskType
-            toggleOpen(container);
-            selectItem(0);
+            select.fireOpen(container);
+            select.fireSelect(container, 0);
             expect(molecule.editor.updateTab).lastCalledWith({
                 data: {
                     name: 'test',
@@ -98,7 +101,7 @@ describe('Test Create Component', () => {
 
             act(() => {
                 // submit
-                fireEvent.click(container.querySelector('button.ant-btn[type="submit"]')!);
+                button.fireClick(container);
             });
 
             await waitFor(() => {
@@ -118,7 +121,7 @@ describe('Test Create Component', () => {
             const { container, getByText } = render(<Create current={{ id: 'test', tab: { id: 1, data: {} } }} />);
 
             // submit
-            fireEvent.click(container.querySelector('button.ant-btn[type="submit"]')!);
+            button.fireClick(container);
 
             await waitFor(() => {
                 expect(getByText('任务名称不可为空！')).toBeInTheDocument();
@@ -130,22 +133,18 @@ describe('Test Create Component', () => {
             });
 
             // Edit name
-            fireEvent.change(container.querySelector('input#name')!, {
-                target: { value: new Array(200).fill('a').join('') },
-            });
+            input.fireChange(container, new Array(200).fill('a').join(''));
             // submit
-            fireEvent.click(container.querySelector('button.ant-btn[type="submit"]')!);
+            button.fireClick(container);
 
             await waitFor(() => {
                 expect(getByText('任务名称不得超过128个字符！')).toBeInTheDocument();
             });
 
             // Edit name
-            fireEvent.change(container.querySelector('input#name')!, {
-                target: { value: 'a-b%' },
-            });
+            input.fireChange(container, 'a-b%');
             // submit
-            fireEvent.click(container.querySelector('button.ant-btn[type="submit"]')!);
+            button.fireClick(container);
 
             await waitFor(() => {
                 expect(getByText('任务名称只能由字母、数字、中文、下划线组成!')).toBeInTheDocument();
@@ -157,12 +156,10 @@ describe('Test Create Component', () => {
             const { container, getByText } = render(<Create current={{ id: 'test', tab: { id: 1, data: {} } }} />);
 
             // Edit taskDesc
-            fireEvent.change(container.querySelector('textarea#taskDesc')!, {
-                target: { value: new Array(300).fill('a').join('') },
-            });
+            input.textarea.fireChange(container, new Array(300).fill('a').join(''));
 
             // submit
-            fireEvent.click(container.querySelector('button.ant-btn[type="submit"]')!);
+            button.fireClick(container);
 
             await waitFor(() => {
                 expect(getByText('描述请控制在200个字符以内！')).toBeInTheDocument();
@@ -217,7 +214,7 @@ describe('Test Create Component', () => {
 
             act(() => {
                 // submit
-                fireEvent.click(container.querySelector('button.ant-btn[type="submit"]')!);
+                button.fireClick(container);
             });
 
             await waitFor(() => {
@@ -264,7 +261,7 @@ describe('Test Create Component', () => {
 
             act(() => {
                 // submit
-                fireEvent.click(container.querySelector('button.ant-btn[type="submit"]')!);
+                button.fireClick(container);
             });
 
             await waitFor(() => {

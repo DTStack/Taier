@@ -1,6 +1,6 @@
 import { CATALOGUE_TYPE } from '@/constant';
 import { dataSourceService } from '@/services';
-import { render } from '@testing-library/react';
+import { cleanup, render } from '@testing-library/react';
 import DetailInfo, { DetailInfoModal } from '..';
 
 jest.mock('@/context', () => {
@@ -19,10 +19,14 @@ jest.mock('@/services', () => {
 });
 
 describe('Test DetailInfo Component', () => {
+    beforeEach(() => {
+        cleanup();
+        document.body.innerHTML = '';
+    });
+
     it('Should match snapshots', () => {
-        expect(
-            render(<DetailInfoModal type={CATALOGUE_TYPE.TASK} title="任务详情" visible loading={false} />).asFragment()
-        ).toMatchSnapshot();
+        render(<DetailInfoModal type={CATALOGUE_TYPE.TASK} title="任务详情" visible loading={false} />);
+        expect(document.body).toMatchSnapshot();
     });
 
     describe('Test DetailInfo Component', () => {

@@ -1,6 +1,8 @@
 import type { CatalogueDataProps } from '@/interface';
-import { act, cleanup, fireEvent, render } from '@testing-library/react';
+import { act, cleanup, render, waitFor } from '@testing-library/react';
 import Confirm, { confirm } from '..';
+import { button } from 'ant-design-testing';
+import { $ } from '@/tests/utils';
 
 describe('Test Confirm Component', () => {
     beforeEach(() => {
@@ -10,64 +12,73 @@ describe('Test Confirm Component', () => {
 
     describe('Test Inner Confirm', () => {
         it('Should match snapshot', () => {
-            const { asFragment } = render(<Confirm open tab={{ name: 'test' } as CatalogueDataProps} />);
-            expect(asFragment()).toMatchSnapshot();
+            render(<Confirm open tab={{ name: 'test' } as CatalogueDataProps} />);
+            expect(document.body).toMatchSnapshot();
         });
 
         it('Should focus on save button', () => {
-            const { container } = render(<Confirm open tab={{ name: 'test' } as CatalogueDataProps} />);
+            act(() => {
+                render(<Confirm open tab={{ name: 'test' } as CatalogueDataProps} />);
+            });
 
-            expect(document.activeElement).toEqual(container.querySelectorAll('button').item(0));
+            waitFor(() => {
+                expect(document.activeElement).toEqual(
+                    button.query($<HTMLElement>('.taier__confirm__btnGroups')!, 0)
+                );
+            });
         });
     });
 
-    it('Should call confirm with function', () => {
-        const saveFn = jest.fn();
-        const unSaveFn = jest.fn();
-        const cancelFn = jest.fn();
-
-        act(() => {
-            confirm({
-                tab: { name: 'test' } as CatalogueDataProps,
-                onSave: saveFn,
-                onUnSave: unSaveFn,
-                onCancel: cancelFn,
+    describe('Should call confirm with function', () => {
+        it('Should call saveFn', () => {
+            const saveFn = jest.fn();
+            act(() => {
+                confirm({
+                    tab: { name: 'test' } as CatalogueDataProps,
+                    onSave: saveFn,
+                });
             });
-        });
 
-        expect(document.body).toMatchSnapshot();
-
-        const buttons = document.body.querySelectorAll('button');
-
-        act(() => {
-            fireEvent.click(buttons[0]);
-        });
-        expect(saveFn).toBeCalledTimes(1);
-
-        act(() => {
-            confirm({
-                tab: { name: 'test' } as CatalogueDataProps,
-                onSave: saveFn,
-                onUnSave: unSaveFn,
-                onCancel: cancelFn,
+            act(() => {
+                button.fireClick(
+                    button.query($<HTMLElement>('.taier__confirm__btnGroups')!, 0)!
+                );
             });
+            expect(saveFn).toBeCalledTimes(1);
         });
-        act(() => {
-            fireEvent.click(buttons[1]);
-        });
-        expect(unSaveFn).toBeCalledTimes(1);
 
-        act(() => {
-            confirm({
-                tab: { name: 'test' } as CatalogueDataProps,
-                onSave: saveFn,
-                onUnSave: unSaveFn,
-                onCancel: cancelFn,
+        it('Should call unSaveFn', () => {
+            const unSaveFn = jest.fn();
+            act(() => {
+                confirm({
+                    tab: { name: 'test' } as CatalogueDataProps,
+                    onUnSave: unSaveFn,
+                });
             });
+
+            act(() => {
+                button.fireClick(
+                    button.query($<HTMLElement>('.taier__confirm__btnGroups')!, 1)!
+                );
+            });
+            expect(unSaveFn).toBeCalledTimes(1);
         });
-        act(() => {
-            fireEvent.click(buttons[2]);
+
+        it('Should call cancelFn', () => {
+            const cancelFn = jest.fn();
+            act(() => {
+                confirm({
+                    tab: { name: 'test' } as CatalogueDataProps,
+                    onCancel: cancelFn,
+                });
+            });
+
+            act(() => {
+                button.fireClick(
+                    button.query($<HTMLElement>('.taier__confirm__btnGroups')!, 2)!
+                );
+            });
+            expect(cancelFn).toBeCalledTimes(1);
         });
-        expect(cancelFn).toBeCalledTimes(1);
     });
 });

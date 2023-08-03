@@ -1,147 +1,105 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`Test Confirm Component Should call confirm with function 1`] = `
+exports[`Test Confirm Component Test Inner Confirm Should match snapshot 1`] = `
 <body>
-  <div
-    class="taier--confirm"
-  >
-    <p
-      data-testid="antd-mock-Modal-title"
-    />
-    <span
-      aria-label="warning"
-      class="anticon anticon-warning taier__confirm__icon"
-      role="img"
-    >
-      <svg
-        aria-hidden="true"
-        data-icon="warning"
-        fill="currentColor"
-        focusable="false"
-        height="1em"
-        viewBox="64 64 896 896"
-        width="1em"
-      >
-        <path
-          d="M464 720a48 48 0 1096 0 48 48 0 10-96 0zm16-304v184c0 4.4 3.6 8 8 8h48c4.4 0 8-3.6 8-8V416c0-4.4-3.6-8-8-8h-48c-4.4 0-8 3.6-8 8zm475.7 440l-416-720c-6.2-10.7-16.9-16-27.7-16s-21.6 5.3-27.7 16l-416 720C56 877.4 71.4 904 96 904h832c24.6 0 40-26.6 27.7-48zm-783.5-27.9L512 239.9l339.8 588.2H172.2z"
-        />
-      </svg>
-    </span>
+  <div />
+  <div>
     <div
-      class="taier__confirm__title"
+      class="ant-modal-root"
     >
-      是否要保存对 
-      test
-       的修改
-    </div>
-    <div
-      class="taier__confirm__desc"
-    >
-      如果不保存，将丢失修改
-    </div>
-    <div
-      class="taier__confirm__btnGroups"
-    >
-      <button
-        class="ant-btn ant-btn-primary ant-btn-block"
-        type="button"
+      <div
+        class="ant-modal-mask"
+      />
+      <div
+        class="ant-modal-wrap taier__confirm__container"
+        tabindex="-1"
       >
-        <span>
-          保 存
-        </span>
-      </button>
-      <button
-        class="ant-btn ant-btn-ghost ant-btn-block"
-        type="button"
-      >
-        <span>
-          不保存
-        </span>
-      </button>
-      <button
-        class="ant-btn ant-btn-ghost ant-btn-block"
-        type="button"
-      >
-        <span>
-          取 消
-        </span>
-      </button>
+        <div
+          aria-modal="true"
+          class="ant-modal"
+          role="dialog"
+          style="top: 200px; width: 250px;"
+        >
+          <div
+            aria-hidden="true"
+            style="width: 0px; height: 0px; overflow: hidden; outline: none;"
+            tabindex="0"
+          />
+          <div
+            class="ant-modal-content"
+          >
+            <div
+              class="ant-modal-body"
+            >
+              <span
+                aria-label="warning"
+                class="anticon anticon-warning taier__confirm__icon"
+                role="img"
+              >
+                <svg
+                  aria-hidden="true"
+                  data-icon="warning"
+                  fill="currentColor"
+                  focusable="false"
+                  height="1em"
+                  viewBox="64 64 896 896"
+                  width="1em"
+                >
+                  <path
+                    d="M464 720a48 48 0 1096 0 48 48 0 10-96 0zm16-304v184c0 4.4 3.6 8 8 8h48c4.4 0 8-3.6 8-8V416c0-4.4-3.6-8-8-8h-48c-4.4 0-8 3.6-8 8zm475.7 440l-416-720c-6.2-10.7-16.9-16-27.7-16s-21.6 5.3-27.7 16l-416 720C56 877.4 71.4 904 96 904h832c24.6 0 40-26.6 27.7-48zm-783.5-27.9L512 239.9l339.8 588.2H172.2z"
+                  />
+                </svg>
+              </span>
+              <div
+                class="taier__confirm__title"
+              >
+                是否要保存对 
+                test
+                 的修改
+              </div>
+              <div
+                class="taier__confirm__desc"
+              >
+                如果不保存，将丢失修改
+              </div>
+              <div
+                class="taier__confirm__btnGroups"
+              >
+                <button
+                  class="ant-btn ant-btn-primary ant-btn-block"
+                  type="button"
+                >
+                  <span>
+                    保 存
+                  </span>
+                </button>
+                <button
+                  class="ant-btn ant-btn-ghost ant-btn-block"
+                  type="button"
+                >
+                  <span>
+                    不保存
+                  </span>
+                </button>
+                <button
+                  class="ant-btn ant-btn-ghost ant-btn-block"
+                  type="button"
+                >
+                  <span>
+                    取 消
+                  </span>
+                </button>
+              </div>
+            </div>
+          </div>
+          <div
+            aria-hidden="true"
+            style="width: 0px; height: 0px; overflow: hidden; outline: none;"
+            tabindex="0"
+          />
+        </div>
+      </div>
     </div>
-    <button
-      data-testid="antd-mock-Modal-confirm"
-    >
-      confirm
-    </button>
   </div>
 </body>
-`;
-
-exports[`Test Confirm Component Test Inner Confirm Should match snapshot 1`] = `
-<DocumentFragment>
-  <p
-    data-testid="antd-mock-Modal-title"
-  />
-  <span
-    aria-label="warning"
-    class="anticon anticon-warning taier__confirm__icon"
-    role="img"
-  >
-    <svg
-      aria-hidden="true"
-      data-icon="warning"
-      fill="currentColor"
-      focusable="false"
-      height="1em"
-      viewBox="64 64 896 896"
-      width="1em"
-    >
-      <path
-        d="M464 720a48 48 0 1096 0 48 48 0 10-96 0zm16-304v184c0 4.4 3.6 8 8 8h48c4.4 0 8-3.6 8-8V416c0-4.4-3.6-8-8-8h-48c-4.4 0-8 3.6-8 8zm475.7 440l-416-720c-6.2-10.7-16.9-16-27.7-16s-21.6 5.3-27.7 16l-416 720C56 877.4 71.4 904 96 904h832c24.6 0 40-26.6 27.7-48zm-783.5-27.9L512 239.9l339.8 588.2H172.2z"
-      />
-    </svg>
-  </span>
-  <div
-    class="taier__confirm__title"
-  >
-    是否要保存对 test 的修改
-  </div>
-  <div
-    class="taier__confirm__desc"
-  >
-    如果不保存，将丢失修改
-  </div>
-  <div
-    class="taier__confirm__btnGroups"
-  >
-    <button
-      class="ant-btn ant-btn-primary ant-btn-block"
-      type="button"
-    >
-      <span>
-        保 存
-      </span>
-    </button>
-    <button
-      class="ant-btn ant-btn-ghost ant-btn-block"
-      type="button"
-    >
-      <span>
-        不保存
-      </span>
-    </button>
-    <button
-      class="ant-btn ant-btn-ghost ant-btn-block"
-      type="button"
-    >
-      <span>
-        取 消
-      </span>
-    </button>
-  </div>
-  <button
-    data-testid="antd-mock-Modal-confirm"
-  >
-    confirm
-  </button>
-</DocumentFragment>
 `;

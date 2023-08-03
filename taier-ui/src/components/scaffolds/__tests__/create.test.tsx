@@ -1,6 +1,5 @@
 import api from '@/api';
-import { selectItem, toggleOpen } from '@/tests/utils';
-import { cleanup, fireEvent, render, waitFor } from '@testing-library/react';
+import { cleanup, render, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { Form, Input } from 'antd';
 import type { NamePath } from 'antd/lib/form/interface';
@@ -9,8 +8,8 @@ import scaffolds from '../create';
 import resourceManagerTree from '@/services/resourceManagerService';
 import { dataSourceService, taskRenderService } from '@/services';
 import molecule from '@dtinsight/molecule';
+import { button, form, input, select } from 'ant-design-testing';
 
-jest.useFakeTimers();
 jest.mock('@/api');
 jest.mock('@/services', () => ({
     taskRenderService: {
@@ -47,6 +46,11 @@ describe('Test Create Scaffolds', () => {
     beforeEach(() => {
         cleanup();
         document.body.innerHTML = '';
+        jest.useFakeTimers();
+    });
+
+    afterEach(() => {
+        jest.useRealTimers();
     });
 
     describe('Test CreateModel Component', () => {
@@ -102,15 +106,13 @@ describe('Test Create Scaffolds', () => {
                 </FormContainer>
             );
 
-            await act(async () => {
-                fireEvent.change(container.querySelector('input#taskType')!, {
-                    target: { value: 1 },
-                });
+            input.fireChange(container, 1);
+
+            await waitFor(() => {
+                expect(api.getComponentVersionByTaskType).toBeCalledWith({ taskType: '1' });
             });
 
-            expect(api.getComponentVersionByTaskType).toBeCalledWith({ taskType: '1' });
-
-            toggleOpen(container);
+            select.fireOpen(container);
 
             expect(getByText('a-1.1')).toBeInTheDocument();
         });
@@ -135,13 +137,11 @@ describe('Test Create Scaffolds', () => {
                 </FormContainer>
             );
 
-            await act(async () => {
-                fireEvent.change(container.querySelector('input#taskType')!, {
-                    target: { value: 1 },
-                });
-            });
+            input.fireChange(container, 1);
 
-            expect(container.querySelector<HTMLInputElement>('input#componentVersion')!.value).toBe('1.2');
+            await waitFor(() => {
+                expect(input.query(form.queryFormItems(container, 1)!)!.value).toBe('1.2');
+            });
         });
     });
 
@@ -159,19 +159,15 @@ describe('Test Create Scaffolds', () => {
         it('Should support validator', async () => {
             (resourceManagerTree.checkNotDir as jest.Mock).mockReset().mockRejectedValue(new Error('error message'));
 
-            const { getByTestId, getByText } = render(
+            const { container, findByText } = render(
                 <FormContainer>
                     <scaffolds.resourceIdList />
                 </FormContainer>
             );
 
-            await act(async () => {
-                fireEvent.change(getByTestId('mockFolderPicker'), { target: { value: 1 } });
-            });
+            input.fireChange(container, 1);
 
-            await waitFor(() => {
-                expect(getByText('error message')).toBeInTheDocument();
-            });
+            expect(await findByText('error message')).toBeInTheDocument();
         });
     });
 
@@ -259,7 +255,7 @@ describe('Test Create Scaffolds', () => {
                 </FormContainer>
             );
 
-            toggleOpen(container);
+            select.fireOpen(container);
 
             await waitFor(() => {
                 expect(container.querySelectorAll('div.ant-select-item-option-content').length).toBe(1);
@@ -268,7 +264,7 @@ describe('Test Create Scaffolds', () => {
             });
         });
 
-        it('Should support render empty', () => {
+        it('Should support render empty', async () => {
             (taskRenderService.getState as jest.Mock).mockReset().mockImplementation(() => ({
                 supportTaskList: [
                     {
@@ -285,13 +281,15 @@ describe('Test Create Scaffolds', () => {
                 </FormContainer>
             );
 
-            toggleOpen(container);
+            select.fireOpen(container);
 
-            expect(container.querySelector('.ant-empty-description')?.textContent).toBe(
-                '未找到xxx所支持的对应数据源，请先至数据源中心配置'
-            );
+            await waitFor(() => {
+                expect(container.querySelector('.ant-empty-description')?.textContent).toBe(
+                    '未找到xxx所支持的对应数据源，请先至数据源中心配置'
+                );
+            });
 
-            fireEvent.click(container.querySelector('button')!);
+            button.fireClick(container);
 
             expect(molecule.sidebar.setActive).toBeCalledWith('dataSource');
             expect(molecule.activityBar.setActive).toBeCalledWith('dataSource');
@@ -323,18 +321,14 @@ describe('Test Create Scaffolds', () => {
                 </FormContainer>
             );
 
-            toggleOpen(container);
-            selectItem(0);
+            select.fireOpen(container);
+            select.fireSelect(container, 0);
 
             await waitFor(() => {
                 expect(container.querySelector<HTMLInputElement>('.ant-select-selection-item')?.title).toBe('a(1)');
             });
 
-            await act(async () => {
-                fireEvent.change(container.querySelector('input#taskType')!, {
-                    target: { value: 2 },
-                });
-            });
+            input.fireChange(container, 2);
 
             await waitFor(() => {
                 expect(container.querySelector<HTMLInputElement>('.ant-select-selection-item')).toBeNull();
@@ -373,7 +367,7 @@ describe('Test Create Scaffolds', () => {
                 );
             });
 
-            toggleOpen(document.body);
+            select.fireOpen(document.body);
 
             await waitFor(() => {
                 expect(document.querySelectorAll('div.ant-select-item-option-content').length).toBe(1);

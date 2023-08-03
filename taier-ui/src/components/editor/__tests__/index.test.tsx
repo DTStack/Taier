@@ -2,6 +2,7 @@ import * as monaco from '@dtinsight/molecule/esm/monaco';
 import { cleanup, render } from '@testing-library/react';
 import { act } from 'react-dom/test-utils';
 import Editor from '..';
+import { $ } from '@/tests/utils';
 
 describe('Test Editor Component', () => {
     beforeEach(() => {
@@ -48,15 +49,15 @@ describe('Test Editor Component', () => {
         }));
 
         const onChangeFn = jest.fn();
-        const { container } = render(<Editor onChange={onChangeFn} />);
+        render(<Editor onChange={onChangeFn} />);
 
-        expect(container.querySelector<HTMLElement>('.dt-placeholder')?.style.display).toBe('initial');
+        expect($<HTMLElement>('.dt-placeholder')?.style.display).toBe('initial');
 
         // Mock trigger onDidChangeModelContent
         emits[0]();
 
         expect(onChangeFn.mock.calls[0][0]).toBe('abc');
-        expect(container.querySelector<HTMLElement>('.dt-placeholder')?.style.display).toBe('none');
+        expect($<HTMLElement>('.dt-placeholder')?.style.display).toBe('none');
     });
 
     it('Should trigger onBlur event handler', () => {
@@ -103,14 +104,14 @@ describe('Test Editor Component', () => {
 
         const onBlurFn = jest.fn();
 
-        const { container } = render(<Editor onBlur={onBlurFn} />);
+        render(<Editor onBlur={onBlurFn} />);
 
-        expect(container.querySelector<HTMLElement>('.dt-placeholder')?.style.display).toBe('initial');
+        expect($<HTMLElement>('.dt-placeholder')?.style.display).toBe('initial');
 
         // Mock trigger onDidBlurEditorWidget
         emits[0]();
 
-        expect(container.querySelector<HTMLElement>('.dt-placeholder')?.style.display).toBe('none');
+        expect($<HTMLElement>('.dt-placeholder')?.style.display).toBe('none');
     });
 
     it('Should trigger onFocus event handler', () => {
@@ -272,15 +273,15 @@ describe('Test Editor Component', () => {
             revealLineInCenterIfOutsideViewport: fn,
         }));
 
-        const { rerender, container } = render(<Editor value="" sync />);
+        const { rerender } = render(<Editor value="" sync />);
 
-        expect(container.querySelector<HTMLElement>('.dt-placeholder')?.style.display).toBe('initial');
+        expect($<HTMLElement>('.dt-placeholder')?.style.display).toBe('initial');
 
         await act(async () => {
             rerender(<Editor value="ab" sync />);
         });
 
-        expect(container.querySelector<HTMLElement>('.dt-placeholder')?.style.display).toBe('none');
+        expect($<HTMLElement>('.dt-placeholder')?.style.display).toBe('none');
 
         expect(setValueFn).toBeCalledWith('ab');
         expect(fn).toBeCalled();

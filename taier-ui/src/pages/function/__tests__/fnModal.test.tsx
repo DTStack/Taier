@@ -1,8 +1,8 @@
-import { fireConfirmOnModal } from '@/tests/utils';
 import { cleanup, render, waitFor } from '@testing-library/react';
 import { Input } from 'antd';
 import FnModal from '../fnModal';
 import { fillFormContent } from './fixtures/utils';
+import { modal } from 'ant-design-testing';
 
 jest.useFakeTimers();
 jest.mock('@/services/resourceManagerService', () => ({
@@ -20,11 +20,17 @@ jest.mock('@/context', () => {
 
 describe('Test FnModal Component for Function', () => {
     beforeEach(() => {
+        document.body.innerHTML = '';
         cleanup();
     });
-    it('Should match snapshots', () => {
-        expect(render(<FnModal visible />).asFragment()).toMatchSnapshot('create new function');
-        expect(
+
+    describe('Should match snapshots', () => {
+        it('create new function', () => {
+            render(<FnModal visible />);
+            expect(document.body).toMatchSnapshot();
+        });
+
+        it('edit function', () => {
             render(
                 <FnModal
                     visible
@@ -34,23 +40,22 @@ describe('Test FnModal Component for Function', () => {
                         id: 1,
                     }}
                 />
-            ).asFragment()
-        ).toMatchSnapshot('edit function');
+            );
+            expect(document.body).toMatchSnapshot();
+        });
     });
 
     it('Should call onAddFunction when create a new function', async () => {
         const fn = jest.fn().mockResolvedValue(true);
         const onCloseFn = jest.fn();
-        const { container, getByTestId, getAllByTestId } = render(
-            <FnModal visible onAddFunction={fn} onClose={onCloseFn} />
-        );
+        const { container, getAllByTestId } = render(<FnModal visible onAddFunction={fn} onClose={onCloseFn} />);
         const dom = document.createElement('div');
         dom.id = 'molecule';
         container.appendChild(dom);
 
         fillFormContent(getAllByTestId);
 
-        fireConfirmOnModal(getByTestId);
+        modal.fireOk(document.body);
 
         await waitFor(() => {
             expect(fn).toBeCalledWith({
@@ -72,7 +77,7 @@ describe('Test FnModal Component for Function', () => {
     it('Should call onEditFunction when edit a function', async () => {
         const fn = jest.fn().mockResolvedValue(true);
         const onCloseFn = jest.fn();
-        const { getByTestId } = render(
+        render(
             <FnModal
                 visible
                 onEditFunction={fn}
@@ -92,7 +97,7 @@ describe('Test FnModal Component for Function', () => {
             />
         );
 
-        fireConfirmOnModal(getByTestId);
+        modal.fireOk(document.body);
 
         await waitFor(() => {
             expect(fn).toBeCalledWith({

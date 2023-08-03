@@ -227,19 +227,6 @@ exports[`Test Task Scaffolds Test SelectWithCreate Component Should match snapsh
         </span>
       </span>
     </div>
-    <p
-      data-testid="antd-mock-Modal-title"
-    >
-      建表语句
-    </p>
-    <textarea
-      data-testid="mockEditor"
-    />
-    <button
-      data-testid="antd-mock-Modal-confirm"
-    >
-      confirm
-    </button>
   </form>
 </DocumentFragment>
 `;

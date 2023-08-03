@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`utils/index disableRangeCreater 1`] = `
+exports[`utils/index Should have completion for sql 1`] = `
 Array [
   Object {
     "documentation": "Adds a column in an existing table",
