@@ -1,4 +1,4 @@
-import { cleanup, fireEvent, render, waitFor } from '@testing-library/react';
+import { cleanup, render, waitFor } from '@testing-library/react';
 import { Form, Button } from 'antd';
 import '@testing-library/jest-dom';
 import {
@@ -10,6 +10,7 @@ import {
     RangeItem,
     SelectItem,
 } from '../headerForm';
+import { button, input } from 'ant-design-testing';
 
 jest.mock('@/context', () => {
     const react = jest.requireActual('react');
@@ -17,10 +18,6 @@ jest.mock('@/context', () => {
         personList: [{ id: '1', userName: 'test' }],
     });
 });
-
-const submitForm = (getByTestId: ReturnType<typeof render>['getByTestId']) => {
-    fireEvent.click(getByTestId('confirmButton'));
-};
 
 const Container = ({
     children,
@@ -66,7 +63,7 @@ describe('Test HeaderForm Components', () => {
 
         it('Should log error', async () => {
             const fn = jest.fn();
-            const { getByTestId, getByText } = render(
+            const { container, getByText } = render(
                 <Container onFinishFailed={fn}>
                     <InputItem
                         formItemProps={{
@@ -81,7 +78,7 @@ describe('Test HeaderForm Components', () => {
                 </Container>
             );
 
-            submitForm(getByTestId);
+            button.fireClick(container);
 
             await waitFor(() => {
                 expect(getByText("It's required")).toBeInTheDocument();
@@ -92,7 +89,7 @@ describe('Test HeaderForm Components', () => {
 
         it('Should submit successfully', async () => {
             const fn = jest.fn();
-            const { getByTestId, container } = render(
+            const { container } = render(
                 <Container onFinish={fn}>
                     <InputItem
                         formItemProps={{
@@ -107,9 +104,8 @@ describe('Test HeaderForm Components', () => {
                 </Container>
             );
 
-            fireEvent.change(container.querySelector('input')!, { target: { value: 'test' } });
-
-            submitForm(getByTestId);
+            input.fireChange(container, 'test');
+            button.fireClick(container);
 
             await waitFor(() => {
                 expect(fn).toBeCalledWith({ name: 'test' });

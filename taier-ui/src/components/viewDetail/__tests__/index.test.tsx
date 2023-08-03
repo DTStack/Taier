@@ -1,10 +1,15 @@
-import { render } from '@testing-library/react';
+import { cleanup, render } from '@testing-library/react';
 import ViewDetail from '..';
 
 describe('Test ViewDetail Component', () => {
-    it('Should match snapshot', () => {
-        const { asFragment } = render(<ViewDetail />);
+    beforeEach(() => {
+        cleanup();
+        document.body.innerHTML = '';
+    });
 
-        expect(asFragment()).toMatchSnapshot();
+    it('Should match snapshot', () => {
+        render(<ViewDetail visible />);
+
+        expect(document.body).toMatchSnapshot();
     });
 });

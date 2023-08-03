@@ -1,8 +1,9 @@
-import { fireEvent, render, waitFor } from '@testing-library/react';
+import { render, waitFor } from '@testing-library/react';
 import { act } from 'react-dom/test-utils';
 import '@testing-library/jest-dom';
 import { Input } from 'antd';
 import EditFolder from '../editFolder';
+import { button, input } from 'ant-design-testing';
 
 jest.mock('../../../components/folderPicker', () => {
     return (props: any) => <Input data-testid="folderPicker" {...props} />;
@@ -20,17 +21,12 @@ describe('Test EditFolder Component', () => {
             const fn = jest.fn().mockResolvedValue(true);
             const { container, getByTestId } = render(<EditFolder tabId={1} onSubmitFolder={fn} />);
 
-            fireEvent.change(container.querySelector('input#dt_nodeName')!, {
-                target: { value: 'test' },
-            });
-
-            fireEvent.change(getByTestId('folderPicker'), {
-                target: { value: '1' },
-            });
+            input.fireChange(container, 'test');
+            input.fireChange(getByTestId('folderPicker'), '1');
 
             act(() => {
                 // submit
-                fireEvent.click(container.querySelector('button.ant-btn[type="submit"]')!);
+                button.fireClick(container);
             });
 
             await waitFor(() => {
@@ -45,20 +41,18 @@ describe('Test EditFolder Component', () => {
             const { container, getByText } = render(<EditFolder tabId={1} />);
 
             // submit
-            fireEvent.click(container.querySelector('button.ant-btn[type="submit"]')!);
+            button.fireClick(container);
 
             await waitFor(() => {
                 expect(getByText('文件夹名称不能为空')).toBeInTheDocument();
                 expect(getByText("'nodePid' is required")).toBeInTheDocument();
             });
 
-            fireEvent.change(container.querySelector('input#dt_nodeName')!, {
-                target: { value: new Array(100).fill('a').join('') },
-            });
+            input.fireChange(container, new Array(100).fill('a').join(''));
 
             act(() => {
                 // submit
-                fireEvent.click(container.querySelector('button.ant-btn[type="submit"]')!);
+                button.fireClick(container);
             });
 
             await waitFor(() => {

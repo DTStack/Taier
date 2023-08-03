@@ -1,3 +1,4 @@
+import { $, $$ } from '@/tests/utils';
 import progressBar from '..';
 import '@testing-library/jest-dom';
 
@@ -12,16 +13,16 @@ describe('Test ProgressBar Component', () => {
 
         jest.runOnlyPendingTimers();
 
-        expect(document.querySelector('.dtc-progress-progress-bar')).toBeInTheDocument();
+        expect($('.dtc-progress-progress-bar')).toBeInTheDocument();
 
         progressBar.show();
         jest.runOnlyPendingTimers();
 
-        expect(document.querySelectorAll('.dtc-progress-progress-bar').length).toBe(1);
+        expect($$('.dtc-progress-progress-bar').length).toBe(1);
 
         // Because calling the show function in twice
         progressBar.hide();
         progressBar.hide();
-        expect(document.querySelectorAll('.dtc-progress-progress-bar').length).toBe(0);
+        expect($$('.dtc-progress-progress-bar').length).toBe(0);
     });
 });

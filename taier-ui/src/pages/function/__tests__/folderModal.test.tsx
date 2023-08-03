@@ -1,7 +1,8 @@
 import { CATALOGUE_TYPE } from '@/constant';
-import { cleanup, fireEvent, render, waitFor } from '@testing-library/react';
+import { cleanup, render, waitFor } from '@testing-library/react';
 import { Input } from 'antd';
 import FolderModal from '../folderModal';
+import { button, input } from 'ant-design-testing';
 
 jest.mock('../../../components/folderPicker', () => ({ id, value, onChange }: any) => (
     <Input id={id} value={value} onChange={onChange} data-testid="mockFolderPicker" />
@@ -42,13 +43,8 @@ describe('Test FolderModal Component for function', () => {
             />
         );
 
-        const buttons = container.querySelectorAll<HTMLDivElement>('.ant-btn') || [];
-
-        fireEvent.change(container.querySelector('input#dt_nodeName')!, {
-            target: { value: 'test' },
-        });
-
-        fireEvent.click(buttons[1]);
+        input.fireChange(container, 'test');
+        button.fireClick(button.query(container, 1)!);
 
         await waitFor(() => {
             expect(fn).toBeCalledWith({ nodeName: 'test', nodePid: 1 });
@@ -80,13 +76,8 @@ describe('Test FolderModal Component for function', () => {
             />
         );
 
-        const buttons = container.querySelectorAll<HTMLDivElement>('.ant-btn') || [];
-
-        fireEvent.change(container.querySelector('input#dt_nodeName')!, {
-            target: { value: 'test' },
-        });
-
-        fireEvent.click(buttons[1]);
+        input.fireChange(container, 'test');
+        button.fireClick(button.query(container, 1)!);
 
         await waitFor(() => {
             expect(fn).toBeCalledWith({ nodeName: 'test', nodePid: 10 });
@@ -111,13 +102,8 @@ describe('Test FolderModal Component for function', () => {
             />
         );
 
-        const buttons = container.querySelectorAll<HTMLDivElement>('.ant-btn') || [];
-
-        fireEvent.change(container.querySelector('input#dt_nodeName')!, {
-            target: { value: 'test2' },
-        });
-
-        fireEvent.click(buttons[1]);
+        input.fireChange(container, 'test2');
+        button.fireClick(button.query(container, 1)!);
 
         await waitFor(() => {
             expect(fn).toBeCalledWith({ id: 10, nodeName: 'test2', nodePid: 11, type: 'folder' });
@@ -137,8 +123,7 @@ describe('Test FolderModal Component for function', () => {
                 editOfflineCatalogue={jest.fn()}
             />
         );
-        const buttons = container.querySelectorAll<HTMLDivElement>('.ant-btn') || [];
-        fireEvent.click(buttons[0]);
+        button.fireClick(button.query(container)!);
 
         expect(fn).toBeCalled();
     });

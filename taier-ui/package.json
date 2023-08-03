@@ -81,6 +81,7 @@
 		"@umijs/plugin-sass": "^1.1.1",
 		"@umijs/preset-react": "1.x",
 		"@umijs/test": "^3.5.20",
+		"ant-design-testing": "^0.1.0-beta.4",
 		"colors": "^1.4.0",
 		"commander": "^9.0.0",
 		"identity-obj-proxy": "^3.0.0",

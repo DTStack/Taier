@@ -1,8 +1,9 @@
-import { act, fireEvent, render } from '@testing-library/react';
+import { act, render } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import CustomDrawer, { updateDrawer } from '..';
 import { history } from 'umi';
 import { removePopUpMenu } from '@/utils';
+import { drawer } from 'ant-design-testing';
 
 jest.mock('umi', () => ({
     history: {
@@ -43,7 +44,7 @@ describe('Test CustomDrawer Component', () => {
 
         expect(getByTestId('content')).toBeInTheDocument();
 
-        fireEvent.click(document.body.querySelector('.ant-drawer-mask')!);
+        drawer.fireClose(document);
 
         expect(history.push).toBeCalledWith({ query: {} });
         expect(removePopUpMenu).toBeCalledTimes(1);

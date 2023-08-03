@@ -1,15 +1,16 @@
-import { fireConfirmOnModal, selectItem, toggleOpen } from '@/tests/utils';
 import { cleanup, render, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import ResourceManageModal from '..';
 import api from '@/api';
+import { modal, select } from 'ant-design-testing';
+import { $$ } from '@/tests/utils';
 
 jest.mock('@/api');
-jest.useFakeTimers();
 
 describe('Test ResourceManageModal Component', () => {
     beforeEach(() => {
         cleanup();
+        jest.useFakeTimers();
         document.body.innerHTML = '';
 
         (api.getClusterResources as jest.Mock).mockReset().mockResolvedValue({
@@ -20,16 +21,20 @@ describe('Test ResourceManageModal Component', () => {
         });
     });
 
-    it('Should match snapshot', () => {
-        const { asFragment } = render(<ResourceManageModal visible clusterId={1} />);
+    afterEach(() => {
+        jest.useRealTimers();
+    });
 
-        expect(asFragment()).toMatchSnapshot();
+    it('Should match snapshot', () => {
+        render(<ResourceManageModal visible clusterId={1} />);
+
+        expect(document.body).toMatchSnapshot();
     });
 
     it('Should log Error', async () => {
-        const { getByTestId, getByText } = render(<ResourceManageModal visible clusterId={1} />);
+        const { getByText } = render(<ResourceManageModal visible clusterId={1} />);
 
-        fireConfirmOnModal(getByTestId);
+        modal.fireOk(document);
 
         await waitFor(() => {
             expect(getByText('资源队列不可为空！')).toBeInTheDocument();
@@ -41,15 +46,16 @@ describe('Test ResourceManageModal Component', () => {
             code: 1,
         });
         const fn = jest.fn();
-        const { container, getByTestId } = render(<ResourceManageModal visible clusterId={1} onOk={fn} />);
+        render(<ResourceManageModal visible clusterId={1} onOk={fn} />);
 
-        toggleOpen(container);
+        select.fireOpen(document);
         await waitFor(() => {
-            expect(document.querySelectorAll('div.ant-select-item-option-content').length).toBe(1);
+            expect($$('div.ant-select-item-option-content').length).toBe(1);
         });
-        selectItem(0);
 
-        fireConfirmOnModal(getByTestId);
+        select.fireSelect(document.body, 0);
+
+        modal.fireOk(document);
 
         await waitFor(() => {
             expect(fn).toBeCalled();

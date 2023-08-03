@@ -1,9 +1,13 @@
-import { selectValue } from '@/tests/utils';
-import { fireEvent, render } from '@testing-library/react';
+import { cleanup, fireEvent, render } from '@testing-library/react';
 import { act } from 'react-dom/test-utils';
 import LifeCycleSelect from '..';
+import { inputNumber, select } from 'ant-design-testing';
 
 describe('Test LifeCycleSelect Component', () => {
+    beforeEach(() => {
+        cleanup();
+        document.body.innerHTML = '';
+    });
     it('Should match snapshot', () => {
         expect(render(<LifeCycleSelect width={100} />).asFragment()).toMatchSnapshot();
     });
@@ -11,9 +15,7 @@ describe('Test LifeCycleSelect Component', () => {
     it('Should readOnly', () => {
         const { container } = render(<LifeCycleSelect width={100} value={3} />);
 
-        expect(
-            container.querySelector('.ant-input-number')?.classList.contains('ant-input-number-readonly')
-        ).toBeTruthy();
+        expect(inputNumber.query(container, 0)?.classList.contains('ant-input-number-readonly')).toBeTruthy();
     });
 
     it('Should trigger onChange event handler', () => {
@@ -21,10 +23,10 @@ describe('Test LifeCycleSelect Component', () => {
         const { container } = render(<LifeCycleSelect width={100} value={3} onChange={fn} />);
 
         act(() => {
-            fireEvent.click(container.querySelector('input')!);
+            fireEvent.click(inputNumber.queryInput(container)!);
         });
 
-        selectValue(1);
+        select.fireSelect(document, 1);
 
         expect(fn).toBeCalledWith(7);
     });
@@ -33,13 +35,11 @@ describe('Test LifeCycleSelect Component', () => {
         const { container } = render(<LifeCycleSelect width={100} value={3} />);
 
         act(() => {
-            fireEvent.click(container.querySelector('input')!);
+            fireEvent.click(inputNumber.queryInput(container)!);
         });
 
-        selectValue(5);
+        select.fireSelect(document, 5);
 
-        expect(
-            container.querySelector('.ant-input-number')?.classList.contains('ant-input-number-readonly')
-        ).toBeFalsy();
+        expect(inputNumber.query(container, 0)?.classList.contains('ant-input-number-readonly')).toBeFalsy();
     });
 });

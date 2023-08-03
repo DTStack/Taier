@@ -2,7 +2,8 @@ module.exports = {
     transform: {
         '^.+\\.(t|j)sx?$': ['@swc/jest'],
     },
-    setupFiles: ['<rootDir>/src/tests/jest-setup.js'],
+    setupFilesAfterEnv: ['<rootDir>/src/tests/jest-setup.js'],
+    testEnvironment: "jsdom",
     modulePathIgnorePatterns: ['<rootDir>/src/.umi/'],
     moduleNameMapper: {
         '@/(.*)': '<rootDir>/src/$1',
