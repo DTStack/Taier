@@ -74,11 +74,11 @@ public class HttpClientUtil {
 
     private static int DEFAULT_RETRY_TIMES = 3;
     private static int SLEEP_TIME_MILLI_SECOND = 2000;
-    private static long HTTPCLIENT_CACHE_TTL_MILL_SECONDS = 60000;
+    private static long HTTPCLIENT_CACHE_TTL_MINUTES = 5;
     private static HttpClient simpleHttpClient = buildHttpClient(new BaseConfig());
     private static Cache<String, HttpClient> httpClientCache = CacheBuilder.newBuilder()
             .removalListener(new HttpClientRemovalListener())
-            .expireAfterAccess(HTTPCLIENT_CACHE_TTL_MILL_SECONDS, TimeUnit.MINUTES)
+            .expireAfterAccess(HTTPCLIENT_CACHE_TTL_MINUTES, TimeUnit.MINUTES)
             .build();
 
     private static Charset charset = Charset.forName("UTF-8");
