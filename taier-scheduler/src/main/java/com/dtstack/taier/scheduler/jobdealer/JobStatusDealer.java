@@ -21,6 +21,9 @@ package com.dtstack.taier.scheduler.jobdealer;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.dtstack.taier.common.BlockCallerPolicy;
+import com.dtstack.taier.common.enums.EJobCacheStage;
+import com.dtstack.taier.common.enums.EJobClientType;
+import com.dtstack.taier.common.enums.EScheduleJobType;
 import com.dtstack.taier.common.enums.EScheduleType;
 import com.dtstack.taier.common.env.EnvironmentContext;
 import com.dtstack.taier.common.util.LogCountUtil;
@@ -189,7 +192,13 @@ public class JobStatusDealer implements Runnable {
             JobIdentifier jobIdentifier = new JobIdentifier(engineTaskId, appId, jobId, scheduleJob.getTenantId(), taskType, deployMode.getType(),
                     null, MapUtils.isEmpty(pluginInfo) ? null : JSONObject.toJSONString(pluginInfo), paramAction.getComponentVersion(), paramAction.getQueueName());
 
-            TaskStatus taskStatus = workerOperator.getJobStatus(jobIdentifier);
+            TaskStatus taskStatus;
+            EJobClientType jobClientType = EJobClientType.getJobClientTypeByTask(taskType);
+            if(EJobClientType.DATASOURCE_PLUGIN == jobClientType){
+                taskStatus = TaskStatus.FAILED;
+            } else {
+                taskStatus = workerOperator.getJobStatus(jobIdentifier);
+            }
 
             if (LOGGER.isDebugEnabled()) {
                 LOGGER.debug("------ jobId:{} dealJob status:{}", jobId, taskStatus);
@@ -262,7 +271,7 @@ public class JobStatusDealer implements Runnable {
             }
         }
     }
-    
+
     private TaskStatus checkNotFoundStatus(TaskStatus taskStatus, String jobId) {
         JobStatusFrequency statusPair = updateJobStatusFrequency(jobId, taskStatus.getStatus());
         //如果状态为NotFound，则对频次进行判断
