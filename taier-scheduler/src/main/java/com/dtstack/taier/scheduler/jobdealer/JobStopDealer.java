@@ -97,7 +97,7 @@ public class JobStopDealer implements ApplicationListener<ApplicationStartedEven
     private EnvironmentContext environmentContext;
 
     @Autowired
-    private ScheduleJobCacheService ScheduleJobCacheService;
+    private ScheduleJobCacheService scheduleJobCacheService;
 
     @Autowired
     private ScheduleJobOperatorRecordService scheduleJobOperatorRecordService;
@@ -248,7 +248,7 @@ public class JobStopDealer implements ApplicationListener<ApplicationStartedEven
     private void asyncDealStopJob(StoppedJob<JobElement> stoppedJob) {
         try {
             if (!checkExpired(stoppedJob.getJob())) {
-                ScheduleJobCache jobCache = ScheduleJobCacheService.getByJobId(stoppedJob.getJob().jobId);
+                ScheduleJobCache jobCache = scheduleJobCacheService.getByJobId(stoppedJob.getJob().jobId);
                 StoppedStatus stoppedStatus = this.stopJob(stoppedJob.getJob());
                 switch (stoppedStatus) {
                     case STOPPED:
@@ -313,7 +313,7 @@ public class JobStopDealer implements ApplicationListener<ApplicationStartedEven
     }
 
     private StoppedStatus stopJob(JobElement jobElement) throws Exception {
-        ScheduleJobCache jobCache = ScheduleJobCacheService.getByJobId(jobElement.jobId);
+        ScheduleJobCache jobCache = scheduleJobCacheService.getByJobId(jobElement.jobId);
         ScheduleJob scheduleJob = scheduleJobService.lambdaQuery()
                 .eq(ScheduleJob::getJobId, jobElement.jobId)
                 .eq(ScheduleJob::getIsDeleted, Deleted.NORMAL.getStatus())
@@ -377,7 +377,7 @@ public class JobStopDealer implements ApplicationListener<ApplicationStartedEven
     }
 
     private boolean checkExpired(JobElement jobElement) {
-        ScheduleJobCache jobCache = ScheduleJobCacheService.getByJobId(jobElement.jobId);
+        ScheduleJobCache jobCache = scheduleJobCacheService.getByJobId(jobElement.jobId);
         ScheduleJobOperatorRecord scheduleJobOperatorRecord = scheduleJobOperatorRecordService.getById(jobElement.stopJobId);
 
         if (jobCache != null && scheduleJobOperatorRecord != null && scheduleJobOperatorRecord.getGmtCreate() != null) {
@@ -389,7 +389,7 @@ public class JobStopDealer implements ApplicationListener<ApplicationStartedEven
 
     private void removeMemStatusAndJobCache(String jobId) {
         shardCache.removeIfPresent(jobId);
-        ScheduleJobCacheService.deleteByJobId(jobId);
+        scheduleJobCacheService.deleteByJobId(jobId);
         //修改任务状态
         scheduleJobService.updateStatusAndLogInfoById(jobId, TaskStatus.CANCELED.getStatus(), "");
         LOGGER.info("jobId:{} delete jobCache and update job status:{}, job set finished.", jobId, TaskStatus.CANCELED.getStatus());
@@ -424,7 +424,7 @@ public class JobStopDealer implements ApplicationListener<ApplicationStartedEven
                         break;
                     }
                     List<String> jobIds = jobStopRecords.stream().map(ScheduleJobOperatorRecord::getJobId).collect(Collectors.toList());
-                    List<ScheduleJobCache> jobCaches = ScheduleJobCacheService.getByJobIds(jobIds);
+                    List<ScheduleJobCache> jobCaches = scheduleJobCacheService.getByJobIds(jobIds);
 
                     //为了下面兼容异常状态的任务停止
                     Map<String, ScheduleJobCache> jobCacheMap = new HashMap<>(jobCaches.size());
