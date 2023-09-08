@@ -70,7 +70,7 @@ const ComponentVersion = ({ onChange }: ICreateFormProps) => {
     const [versions, setVersions] = useState<{ label: string; value: string }[]>([]);
 
     useEffect(() => {
-        if (taskType) {
+        if (taskType !== undefined) {
             api.getComponentVersionByTaskType<{ componentVersion: string; default: boolean; componentName: string }[]>({
                 taskType,
             }).then((res) => {
