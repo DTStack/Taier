@@ -1,3 +1,8 @@
 .c-taskOperation__wrap {
     height: 100%;
+
+    &__dropdown-btn {
+        display: inline-flex;
+        width: unset;
+    }
 }

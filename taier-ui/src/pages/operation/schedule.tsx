@@ -626,6 +626,7 @@ export default () => {
                             </Menu>
                         }
                         trigger={['click']}
+                        className="c-taskOperation__wrap__dropdown-btn"
                         style={{ marginRight: 10 }}
                         icon={<DownOutlined />}
                     >
@@ -641,6 +642,7 @@ export default () => {
                             </Menu>
                         }
                         trigger={['click']}
+                        className="c-taskOperation__wrap__dropdown-btn"
                         icon={<DownOutlined />}
                     >
                         重跑当前任务
