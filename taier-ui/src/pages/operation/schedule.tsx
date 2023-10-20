@@ -17,7 +17,7 @@
  */
 
 import { useState, useMemo, useContext } from 'react';
-import { Tooltip, Dropdown, Menu, Modal, message, Button } from 'antd';
+import { Tooltip, Dropdown, Menu, Modal, message, Button, Space } from 'antd';
 import type moment from 'moment';
 import { history } from 'umi';
 import type { ColumnsType } from 'antd/lib/table';
@@ -615,37 +615,36 @@ export default () => {
                         return '';
                     },
                 }}
-                tableFooter={[
-                    <Dropdown.Button
-                        key="kill"
-                        type="primary"
-                        onClick={batchKillJobs}
-                        overlay={
-                            <Menu onClick={() => showKillJobsByDate(true)} style={{ width: 114 }}>
-                                <Menu.Item key="1">按业务日期杀</Menu.Item>
-                            </Menu>
-                        }
-                        trigger={['click']}
-                        style={{ marginRight: 10 }}
-                        icon={<DownOutlined />}
-                    >
-                        批量杀任务
-                    </Dropdown.Button>,
-                    <Dropdown.Button
-                        key="reload"
-                        type="primary"
-                        onClick={reloadCurrentJob}
-                        overlay={
-                            <Menu onClick={() => batchReloadJobs()}>
-                                <Menu.Item key="1">重跑当前及全部下游任务</Menu.Item>
-                            </Menu>
-                        }
-                        trigger={['click']}
-                        icon={<DownOutlined />}
-                    >
-                        重跑当前任务
-                    </Dropdown.Button>,
-                ]}
+                tableFooter={
+                    <Space size={10}>
+                        <Dropdown.Button
+                            type="primary"
+                            onClick={batchKillJobs}
+                            overlay={
+                                <Menu onClick={() => showKillJobsByDate(true)} style={{ width: 114 }}>
+                                    <Menu.Item key="1">按业务日期杀</Menu.Item>
+                                </Menu>
+                            }
+                            trigger={['click']}
+                            icon={<DownOutlined />}
+                        >
+                            批量杀任务
+                        </Dropdown.Button>
+                        <Dropdown.Button
+                            type="primary"
+                            onClick={reloadCurrentJob}
+                            overlay={
+                                <Menu onClick={() => batchReloadJobs()}>
+                                    <Menu.Item key="1">重跑当前及全部下游任务</Menu.Item>
+                                </Menu>
+                            }
+                            trigger={['click']}
+                            icon={<DownOutlined />}
+                        >
+                            重跑当前任务
+                        </Dropdown.Button>
+                    </Space>
+                }
             />
             <SlidePane
                 className="m-tabs bd-top bd-right m-slide-pane"
