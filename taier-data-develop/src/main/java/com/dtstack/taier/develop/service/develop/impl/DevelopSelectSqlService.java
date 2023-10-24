@@ -150,6 +150,7 @@ public class DevelopSelectSqlService {
         paramActionExt.setTenantId(task.getTenantId());
         paramActionExt.setQueueName(task.getQueueName());
         paramActionExt.setDatasourceId(task.getDatasourceId());
+        paramActionExt.setComponentVersion(task.getComponentVersion());
         actionService.start(paramActionExt);
         return jobId;
     }

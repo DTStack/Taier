@@ -31,12 +31,6 @@
             <version>1.0.0</version>
         </dependency>
 
-        <!--<dependency>-->
-        <!--    <groupId>com.dtstack.engine</groupId>-->
-        <!--    <artifactId>native-hadoop2</artifactId>-->
-        <!--    <version>1.0.0</version>-->
-        <!--</dependency>-->
-
         <!-- hadoop2 -->
         <dependency>
             <groupId>org.apache.hadoop</groupId>

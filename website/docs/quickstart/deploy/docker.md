@@ -61,6 +61,6 @@ $ docker-compose up -d
 :::
 
 :::caution
-由于docker镜像大小问题，Chunjun、Flink插件包相关文件并未打包到容器内，有使用Flink相关功能，需要下载Chunjun、Flink插件包。自行挂载相关目录，并在[Flink组件](./functions/component/flink.md)
+由于docker镜像大小问题，Chunjun、Flink插件包相关文件并未打包到容器内，有使用Flink相关功能，需要下载Chunjun、Flink插件包。自行挂载相关目录，并在[Flink组件](./functions/component/flink-on-yarn.md)
 上配置对应目录
 :::

@@ -25,11 +25,15 @@ import com.dtstack.taier.datasource.api.client.IKerberos;
 import com.dtstack.taier.datasource.api.client.IRestful;
 import com.dtstack.taier.datasource.api.client.ITable;
 import com.dtstack.taier.datasource.api.client.IYarn;
+import com.dtstack.taier.datasource.api.config.Configuration;
+import com.dtstack.taier.datasource.api.context.ClientEnvironment;
 import com.dtstack.taier.datasource.api.exception.InitializeException;
+import com.dtstack.taier.datasource.api.manager.ManagerFactory;
 import com.dtstack.taier.datasource.api.manager.list.ClientManager;
 import com.dtstack.taier.datasource.api.source.DataSourceType;
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.HashMap;
 import java.util.Objects;
 
 /**
@@ -76,6 +80,18 @@ public class ClientCache {
 
     public static IClient getClient(Integer dataSourceType) {
         return getClientByType(IClient.class, dataSourceType);
+    }
+
+    public static void main(String[] args) {
+        Configuration configuration = new Configuration(new HashMap<>());
+        ClientEnvironment clientEnvironment = new ClientEnvironment(configuration);
+        clientEnvironment.start();
+        ClientCache.setEnv(clientEnvironment.getManagerFactory().getManager(ClientManager.class));
+        ClientManager clientManager = new ClientManager();
+        clientManager.setManagerFactory(new ManagerFactory());
+        setEnv(clientManager);
+        IClient client = getClient(DataSourceType.KAFKA.getVal());
+        System.out.println(client);
     }
 
     /**
