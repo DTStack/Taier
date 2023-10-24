@@ -49,7 +49,8 @@ Spark在自定义参数中添加Spark官方参数来调整任务提交参数信�
 :::caution
 **sparkSqlProxyPath**是Spark SQL任务运行的jar,需要将pluginLibs/yarn2-hdfs2-spark210/spark-sql-proxy.jar 手动上传到HDFS对应的目录  
 **sparkYarnArchive**是Spark SQL程序运行时加载的外部包,需要将spark目录下的jar包上传到对应HDFS目录
-> 我们选择的是[spark2.1.3b](https://archive.apache.org/dist/spark/spark-2.1.3/spark-2.1.3-bin-hadoop2.7.tgz)
+> 我们选择的是[spark2.1.3](https://archive.apache.org/dist/spark/spark-2.1.3/spark-2.1.3-bin-hadoop2.7.tgz) 
+[spark3.2.0](https://archive.apache.org/dist/spark/spark-3.2.0/spark-3.2.0-bin-hadoop2.7.tgz)  
   TDH、CDH等Hadoop集群 需要根据具体环境实际调整
 :::
 

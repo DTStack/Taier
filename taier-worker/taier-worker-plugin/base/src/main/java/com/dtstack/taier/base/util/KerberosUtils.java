@@ -432,7 +432,7 @@ public class KerberosUtils {
     public static String getKeytabPath(BaseConfig config) {
         String fileName = config.getPrincipalFile();
         String remoteDir = config.getRemoteDir();
-        String localDir = USER_DIR + remoteDir;
+        String localDir = ConfigConstant.LOCAL_KEYTAB_DIR_PARENT + remoteDir;
 
         File path = new File(localDir);
         if (!path.exists()) {

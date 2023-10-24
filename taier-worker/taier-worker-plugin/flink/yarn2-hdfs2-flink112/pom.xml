@@ -247,6 +247,13 @@
 
     </dependencies>
 
+    <repositories>
+        <repository>
+            <id>spring-repo-plugins</id>
+            <url>https://repo.spring.io/ui/native/plugins-release/</url>
+        </repository>
+    </repositories>
+
     <build>
         <plugins>
             <plugin>
