@@ -13,6 +13,10 @@
 	"gitHooks": {
 		"pre-commit": "lint-staged"
 	},
+	"engines": {
+		"npm": ">=8.0.0 <9.0.0",
+		"node": ">=14.0.0 <18.0.0"
+	},
 	"lint-staged": {
 		"*.{md,json}": [
 			"prettier --write --no-error-on-unmatched-pattern"
