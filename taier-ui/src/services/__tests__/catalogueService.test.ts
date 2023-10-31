@@ -1,6 +1,7 @@
+import molecule from '@dtinsight/molecule';
+
 import api from '@/api';
 import { CATALOGUE_TYPE, MENU_TYPE_ENUM } from '@/constant';
-import molecule from '@dtinsight/molecule';
 import CatalogueService from '../catalogueService';
 import functionManagerService from '../functionManagerService';
 import resourceManagerService from '../resourceManagerService';

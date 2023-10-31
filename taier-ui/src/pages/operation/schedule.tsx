@@ -16,31 +16,32 @@
  * limitations under the License.
  */
 
-import { useState, useMemo, useContext } from 'react';
-import { Tooltip, Dropdown, Menu, Modal, message, Button, Space } from 'antd';
-import type moment from 'moment';
-import { history } from 'umi';
+import { useContext,useMemo, useState } from 'react';
+import { DownOutlined,SyncOutlined } from '@ant-design/icons';
+import { Button, Dropdown, Menu, message, Modal, Space,Tooltip } from 'antd';
 import type { ColumnsType } from 'antd/lib/table';
 import type { FilterValue } from 'antd/lib/table/interface';
-import context from '@/context';
-import { SyncOutlined, DownOutlined } from '@ant-design/icons';
-import SlidePane from '@/components/slidePane';
+import type moment from 'moment';
+import { history } from 'umi';
+
 import Api from '@/api';
 import Sketch, { useSketchRef } from '@/components/sketch';
+import SlidePane from '@/components/slidePane';
 import type { TASK_PERIOD_ENUM } from '@/constant';
 import {
-    TASK_TYPE_ENUM,
-    TASK_STATUS_FILTERS,
+    offlineTaskPeriodFilter,
     RESTART_STATUS_ENUM,
     STATISTICS_TYPE_ENUM,
     TASK_STATUS,
-    offlineTaskPeriodFilter,
+    TASK_STATUS_FILTERS,
+    TASK_TYPE_ENUM,
 } from '@/constant';
+import context from '@/context';
+import { DeletedKind } from '@/interface';
 import { getTodayTime, removePopUpMenu } from '@/utils';
 import { TaskStatus, TaskTimeType } from '@/utils/enums';
 import KillJobForm from './killJobForm';
 import TaskJobFlowView from './taskJobFlowView';
-import { DeletedKind } from '@/interface';
 import './schedule.scss';
 
 const { confirm } = Modal;

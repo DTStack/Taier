@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
 import { Table } from 'antd';
-import DetailTable from './delay/detailTable';
 import type { ColumnType } from 'antd/lib/table';
+
+import DetailTable from './delay/detailTable';
 
 interface IDataDelay {
     data: any;

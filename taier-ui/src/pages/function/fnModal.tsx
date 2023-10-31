@@ -17,13 +17,14 @@
  */
 
 import { useContext, useEffect, useMemo } from 'react';
-import { Radio, Modal, Input, message, Select, Form } from 'antd';
 import { ExclamationCircleOutlined } from '@ant-design/icons';
-import FolderPicker from '../../components/folderPicker';
+import { Form,Input, message, Modal, Radio, Select } from 'antd';
+
 import { CATALOGUE_TYPE, formItemLayout, TASK_TYPE_ENUM, UDF_TYPE_NAMES, UDF_TYPE_VALUES } from '@/constant';
+import context from '@/context';
 import type { IFunctionProps } from '@/interface';
 import resourceManagerTree from '@/services/resourceManagerService';
-import context from '@/context';
+import FolderPicker from '../../components/folderPicker';
 
 const FormItem = Form.Item;
 

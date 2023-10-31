@@ -1,8 +1,9 @@
 import { cleanup, render, waitFor } from '@testing-library/react';
+import { modal } from 'ant-design-testing';
 import { Input } from 'antd';
+
 import FnModal from '../fnModal';
 import { fillFormContent } from './fixtures/utils';
-import { modal } from 'ant-design-testing';
 
 jest.useFakeTimers();
 jest.mock('@/services/resourceManagerService', () => ({

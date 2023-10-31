@@ -1,12 +1,13 @@
 import { useContext, useMemo } from 'react';
-import { FormContext } from '@/services/rightBarService';
-import { Checkbox, Form, Input, InputNumber, Select, Collapse } from 'antd';
 import molecule from '@dtinsight/molecule';
+import type { FormInstance } from 'antd';
+import { Checkbox, Collapse,Form, Input, InputNumber, Select } from 'antd';
+
+import { dirtyFailRecord, dirtyMaxRecord, dirtySaveType, logPrintTimes } from '@/components/helpDoc/docs';
 import { DATA_SOURCE_ENUM, DIRTY_DATA_SAVE, formItemLayout } from '@/constant';
-import { dirtyMaxRecord, dirtyFailRecord, dirtySaveType, logPrintTimes } from '@/components/helpDoc/docs';
 import { dataSourceService } from '@/services';
 import type { IRightBarComponentProps } from '@/services/rightBarService';
-import type { FormInstance } from 'antd';
+import { FormContext } from '@/services/rightBarService';
 
 const { Panel } = Collapse;
 

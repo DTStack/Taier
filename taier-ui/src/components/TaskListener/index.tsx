@@ -1,8 +1,9 @@
-import { ID_COLLECTIONS } from '@/constant';
+import { useEffect } from 'react';
 import molecule from '@dtinsight/molecule';
 import { EventBus } from '@dtinsight/molecule/esm/common/event';
 import { connect } from '@dtinsight/molecule/esm/react';
-import { useEffect } from 'react';
+
+import { ID_COLLECTIONS } from '@/constant';
 
 /**
  * For get the latest current value after current changed and notice the non-jsx component

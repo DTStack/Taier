@@ -16,6 +16,11 @@
  * limitations under the License.
  */
 
+import React, { useEffect, useState } from 'react';
+import { DeleteOutlined,PlusOutlined, QuestionCircleOutlined } from '@ant-design/icons';
+import { Button, Card, Checkbox, DatePicker, Form, Input, InputNumber, Radio, Select, Tag, Tooltip } from 'antd';
+import { debounce, get } from 'lodash';
+
 import stream from '@/api';
 import {
     extralConfig,
@@ -33,16 +38,12 @@ import {
     SLOAR_CONFIG_TYPE,
     SYNC_TYPE,
 } from '@/constant';
-import { Button, Card, Checkbox, DatePicker, Form, Input, InputNumber, Radio, Select, Tag, Tooltip } from 'antd';
-import { isSqlServer } from '@/utils/is';
-import { QuestionCircleOutlined, PlusOutlined, DeleteOutlined } from '@ant-design/icons';
-import React, { useEffect, useState } from 'react';
-import { streamTaskActions } from '../../taskFunc';
-import { debounce, get } from 'lodash';
-import { isPostgre } from '../../helper';
-import TablePreview from './tablePreview';
-import EditMultipleTableModal from './editMultipleTableModal';
 import { IDataSourceUsedInSyncProps } from '@/interface';
+import { isSqlServer } from '@/utils/is';
+import { isPostgre } from '../../helper';
+import { streamTaskActions } from '../../taskFunc';
+import EditMultipleTableModal from './editMultipleTableModal';
+import TablePreview from './tablePreview';
 
 const FormItem = Form.Item;
 const Option = Select.Option;

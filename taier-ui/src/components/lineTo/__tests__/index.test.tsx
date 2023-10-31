@@ -1,8 +1,9 @@
 import { act, cleanup, fireEvent, waitFor } from '@testing-library/react';
-import LintTo from '..';
-import '@testing-library/jest-dom';
-import { sleep } from '@/tests/utils';
 import { mouse } from 'd3-selection';
+import '@testing-library/jest-dom';
+
+import { sleep } from '@/tests/utils';
+import LintTo from '..';
 
 jest.mock('d3-selection', () => {
     const original = jest.requireActual('d3-selection');

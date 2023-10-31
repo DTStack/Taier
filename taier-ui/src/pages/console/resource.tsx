@@ -16,18 +16,19 @@
  * limitations under the License.
  */
 
-import { useEffect, useState, useMemo, useRef } from 'react';
-import { Form, Select, Button, Tabs, Spin, message } from 'antd';
+import { useEffect, useMemo, useRef,useState } from 'react';
+import { Button, Form, message,Select, Spin, Tabs } from 'antd';
+
+import Api from '@/api';
+import type { IClusterProps } from '@/components/bindCommModal';
 import BindCommModal from '@/components/bindCommModal';
 import ResourceManageModal from '@/components/resourceManageModal';
-import Api from '@/api';
 import { formItemLayout } from '@/constant';
-import { isSparkEngine } from '@/utils/is';
-import Resource from './resourceView';
-import BindTenant from './bindTenant';
-import type { IClusterProps } from '@/components/bindCommModal';
-import type { ITableProps } from './bindTenant';
 import { catalogueService } from '@/services';
+import { isSparkEngine } from '@/utils/is';
+import type { ITableProps } from './bindTenant';
+import BindTenant from './bindTenant';
+import Resource from './resourceView';
 import './resource.scss';
 
 const FormItem = Form.Item;

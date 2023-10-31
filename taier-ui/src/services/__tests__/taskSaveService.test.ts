@@ -1,13 +1,14 @@
+import molecule from '@dtinsight/molecule';
+import { waitFor } from '@testing-library/react';
+import { message } from 'antd';
+
 import api from '@/api';
 import { DATA_SOURCE_ENUM, FLINK_VERSIONS, KAFKA_DATA_TYPE, SOURCE_TIME_TYPE } from '@/constant';
 import type { IOfflineTaskProps } from '@/interface';
 import { isEditing } from '@/pages/editor/workflow';
-import molecule from '@dtinsight/molecule';
-import { waitFor } from '@testing-library/react';
-import { message } from 'antd';
-import { catalogueService, rightBarService } from '..';
 import taskSaveService, { SaveEventKind } from '../taskSaveService';
 import viewStoreService from '../viewStoreService';
+import { catalogueService, rightBarService } from '..';
 import {
     guideAcquisition,
     guideFlinkSQL,

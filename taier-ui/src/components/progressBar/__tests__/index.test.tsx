@@ -1,6 +1,7 @@
+import '@testing-library/jest-dom';
+
 import { $, $$ } from '@/tests/utils';
 import progressBar from '..';
-import '@testing-library/jest-dom';
 
 jest.useFakeTimers();
 describe('Test ProgressBar Component', () => {

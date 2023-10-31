@@ -16,16 +16,17 @@
  * limitations under the License.
  */
 
+import React from 'react';
+import molecule from '@dtinsight/molecule';
+import { connect as moleculeConnect } from '@dtinsight/molecule/esm/react';
+import { AutoComplete, Button, Checkbox, Form, FormInstance, FormProps, Input, Select } from 'antd';
+import { get } from 'lodash';
+
 import stream from '@/api';
 import { dirtySource, jobSpeedLimit, recordDirtyStream, writerChannel } from '@/components/helpDoc/docs';
 import { DATA_SOURCE_ENUM, FLINK_VERSIONS, formItemLayout } from '@/constant';
 import { IDataSourceUsedInSyncProps } from '@/interface';
 import { isKafka } from '@/utils/is';
-import molecule from '@dtinsight/molecule';
-import { connect as moleculeConnect } from '@dtinsight/molecule/esm/react';
-import { AutoComplete, Button, Checkbox, Form, FormInstance, FormProps, Input, Select } from 'antd';
-import { get } from 'lodash';
-import React from 'react';
 import { SettingMap, streamTaskActions, UnlimitedSpeed } from '../taskFunc';
 
 interface IProps extends FormProps {

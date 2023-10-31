@@ -1,9 +1,10 @@
-import { Modal, Form, Input, InputNumber, Select } from 'antd';
+import type { ModalProps } from 'antd';
+import { Form, Input, InputNumber, Modal, Select } from 'antd';
+
 import { stringColumnFormat } from '@/components/helpDoc/docs';
 import { DATA_SOURCE_ENUM, formItemLayout, HBASE_FIELD_TYPES, HDFS_FIELD_TYPES } from '@/constant';
-import { isValidFormatType } from '@/utils';
-import type { ModalProps } from 'antd';
 import type { IDataColumnsProps } from '@/interface';
+import { isValidFormatType } from '@/utils';
 
 const FormItem = Form.Item;
 const { Option } = Select;

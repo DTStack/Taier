@@ -16,34 +16,35 @@
  * limitations under the License.
  */
 
+import { useEffect, useLayoutEffect,useState } from 'react';
+import molecule, { create, Workbench } from '@dtinsight/molecule';
+import { connect } from '@dtinsight/molecule/esm/react';
+import { Breadcrumb } from 'antd';
+import { history } from 'umi';
 import 'reflect-metadata';
-import { useState, useEffect, useLayoutEffect } from 'react';
+
+import api from '@/api';
+import CustomDrawer, { updateDrawer } from '@/components/customDrawer';
+import TaskListener from '@/components/TaskListener';
+import { CONSOLE, DRAWER_MENU_ENUM } from '@/constant';
 import type { IPersonLists } from '@/context';
 import Context from '@/context';
-import { history } from 'umi';
 import { extensions } from '@/extensions';
-import api from '@/api';
-import molecule, { create, Workbench } from '@dtinsight/molecule';
-import Task from '@/pages/operation/task';
-import StreamTask from '@/pages/operation/streamTask';
-import Schedule from '@/pages/operation/schedule';
-import Patch from '@/pages/operation/patch';
 import Layout from '@/layout';
-import CustomDrawer, { updateDrawer } from '@/components/customDrawer';
-import { Breadcrumb } from 'antd';
-import PatchDetail from './operation/patch/detail';
-import Login from './login';
-import { CONSOLE, DRAWER_MENU_ENUM } from '@/constant';
-import QueueManage from './console/queue';
-import TaskDetail from './console/taskDetail';
-import ResourceManage from './console/resource';
+import Patch from '@/pages/operation/patch';
+import Schedule from '@/pages/operation/schedule';
+import StreamTask from '@/pages/operation/streamTask';
+import Task from '@/pages/operation/task';
+import { taskRenderService } from '@/services';
+import type { ITaskRenderState } from '@/services/taskRenderService';
+import { getCookie } from '@/utils';
 import ClusterManage from './console/cluster';
 import ClusterDetail from './console/cluster/detail';
-import { getCookie } from '@/utils';
-import { taskRenderService } from '@/services';
-import { connect } from '@dtinsight/molecule/esm/react';
-import TaskListener from '@/components/TaskListener';
-import type { ITaskRenderState } from '@/services/taskRenderService';
+import QueueManage from './console/queue';
+import ResourceManage from './console/resource';
+import TaskDetail from './console/taskDetail';
+import PatchDetail from './operation/patch/detail';
+import Login from './login';
 import '@dtinsight/molecule/esm/style/mo.css';
 import './index.scss';
 

@@ -1,6 +1,4 @@
 import { useContext, useMemo, useRef, useState } from 'react';
-import { Spin, Layout, Tree, Button, Space, Tooltip, Badge, Popover, Modal } from 'antd';
-import { history } from 'umi';
 import {
     CloseCircleOutlined,
     DownOutlined,
@@ -10,17 +8,20 @@ import {
     RightOutlined,
     WarningOutlined,
 } from '@ant-design/icons';
-import {
-    CommonComponentIcon,
-    SchedulingComponentIcon,
-    StoreComponentIcon,
-    ComputeComponentIcon,
-} from '@/components/icon';
-import context from '@/context/cluster';
+import { Badge, Button, Layout, Modal,Popover, Space, Spin, Tooltip, Tree } from 'antd';
+import { history } from 'umi';
+
 import api from '@/api';
 import Editor from '@/components/editor';
-import type { IComponentProps } from '.';
+import {
+    CommonComponentIcon,
+    ComputeComponentIcon,
+    SchedulingComponentIcon,
+    StoreComponentIcon,
+} from '@/components/icon';
 import type { COMPONENT_TYPE_VALUE } from '@/constant';
+import context from '@/context/cluster';
+import type { IComponentProps } from '.';
 import './sideBar.scss';
 
 interface ISideBarProps {

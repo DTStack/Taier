@@ -1,24 +1,4 @@
 import { useContext, useMemo, useState } from 'react';
-import type { FormItemProps } from 'antd';
-import {
-    Popconfirm,
-    Space,
-    Checkbox,
-    Button,
-    Cascader,
-    message,
-    Select,
-    Tooltip,
-    Upload,
-    Form,
-    Input,
-    Layout,
-    Radio,
-    Collapse,
-    Spin,
-} from 'antd';
-import api from '@/api';
-import context from '@/context/cluster';
 import {
     CaretRightOutlined,
     DeleteOutlined,
@@ -28,8 +8,29 @@ import {
     RightOutlined,
     UploadOutlined,
 } from '@ant-design/icons';
-import { COMPONENT_TYPE_VALUE } from '@/constant';
+import type { FormItemProps } from 'antd';
+import {
+    Button,
+    Cascader,
+    Checkbox,
+    Collapse,
+    Form,
+    Input,
+    Layout,
+    message,
+    Popconfirm,
+    Radio,
+    Select,
+    Space,
+    Spin,
+    Tooltip,
+    Upload,
+} from 'antd';
 import type { RcFile } from 'antd/lib/upload';
+
+import api from '@/api';
+import { COMPONENT_TYPE_VALUE } from '@/constant';
+import context from '@/context/cluster';
 import type { IComponentProps } from '.';
 import './detail.scss';
 

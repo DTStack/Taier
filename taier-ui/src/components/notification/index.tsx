@@ -2,6 +2,7 @@ import { CheckCircleOutlined, CloseCircleOutlined } from '@ant-design/icons';
 import molecule from '@dtinsight/molecule';
 import { notification as antNotification } from 'antd';
 import type { ArgsProps } from 'antd/lib/notification';
+
 import './notification.scss';
 
 type INotificationConfigs = Pick<ArgsProps, 'message'> & { key: string };

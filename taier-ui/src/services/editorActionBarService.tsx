@@ -1,13 +1,14 @@
-import { container, singleton } from 'tsyringe';
-import { cloneDeep } from 'lodash';
-import { ID_COLLECTIONS } from '@/constant';
 import molecule from '@dtinsight/molecule';
-import editorActions from '@/components/scaffolds/editorActions';
 import { Component } from '@dtinsight/molecule/esm/react';
+import { cloneDeep } from 'lodash';
+import { container, singleton } from 'tsyringe';
+
+import editorActions from '@/components/scaffolds/editorActions';
+import { ID_COLLECTIONS } from '@/constant';
+import type { CatalogueDataProps, IOfflineTaskProps } from '@/interface';
+import type { IExecuteService } from './executeService';
 import ExecuteService from './executeService';
 import { taskRenderService } from '.';
-import type { IExecuteService } from './executeService';
-import type { CatalogueDataProps, IOfflineTaskProps } from '@/interface';
 
 const { RUNNING_TASK, RUN_TASK, STOP_TASK } = editorActions;
 

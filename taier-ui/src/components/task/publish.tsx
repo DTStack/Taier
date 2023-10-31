@@ -17,9 +17,10 @@
  */
 
 import { useState } from 'react';
-import { message, Modal, Alert } from 'antd';
-import ajax from '../../api';
+import { Alert,message, Modal } from 'antd';
+
 import { getTenantId, getUserId } from '@/utils';
+import ajax from '../../api';
 
 export const CONTAINER_ID = 'container_wrapper';
 

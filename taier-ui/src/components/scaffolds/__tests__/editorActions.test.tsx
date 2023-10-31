@@ -1,5 +1,6 @@
 import { render } from '@testing-library/react';
 import { omit } from 'lodash';
+
 import actions from '../editorActions';
 
 describe("Test editor's actions", () => {

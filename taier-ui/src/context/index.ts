@@ -17,8 +17,9 @@
  */
 
 import { createContext } from 'react';
+
 import type { DATA_SOURCE_ENUM, TASK_TYPE_ENUM } from '@/constant';
-import type { IJobType, IComputeType, IOfflineTaskProps } from '@/interface';
+import type { IComputeType, IJobType, IOfflineTaskProps } from '@/interface';
 
 export interface IPersonLists {
     email: string;

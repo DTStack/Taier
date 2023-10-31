@@ -1,6 +1,7 @@
+import { waitFor } from '@testing-library/react';
+
 import api from '@/api';
 import { PARAMS_ENUM } from '@/constant';
-import { waitFor } from '@testing-library/react';
 import TaskParamsService from '../taskParamsService';
 
 jest.mock('@/api');

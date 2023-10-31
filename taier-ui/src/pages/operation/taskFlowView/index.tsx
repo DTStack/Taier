@@ -17,19 +17,20 @@
  */
 
 import { useContext, useEffect, useState } from 'react';
-import { history } from 'umi';
-import Api from '@/api';
-import { DRAWER_MENU_ENUM, SCHEDULE_STATUS, TASK_TYPE_ENUM } from '@/constant';
-import type { IUpstreamJobProps, ITaskProps } from '@/interface';
-import { DIRECT_TYPE_ENUM } from '@/interface';
-import type { IContextMenuConfig } from '@/components/mxGraph/container';
-import MxGraphContainer from '@/components/mxGraph/container';
-import { formatDateTime, goToTaskDev } from '@/utils';
-import type { mxCell } from 'mxgraph';
-import context from '@/context';
 import ReactDOMServer from 'react-dom/server';
 import { PlusSquareOutlined } from '@ant-design/icons';
 import { Modal } from 'antd';
+import type { mxCell } from 'mxgraph';
+import { history } from 'umi';
+
+import Api from '@/api';
+import type { IContextMenuConfig } from '@/components/mxGraph/container';
+import MxGraphContainer from '@/components/mxGraph/container';
+import { DRAWER_MENU_ENUM, SCHEDULE_STATUS, TASK_TYPE_ENUM } from '@/constant';
+import context from '@/context';
+import type { ITaskProps,IUpstreamJobProps } from '@/interface';
+import { DIRECT_TYPE_ENUM } from '@/interface';
+import { formatDateTime, goToTaskDev } from '@/utils';
 
 interface ITaskFlowViewProps {
     tabData: ITaskProps | null;

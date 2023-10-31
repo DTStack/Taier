@@ -17,22 +17,23 @@
  */
 
 import type { CSSProperties } from 'react';
-import { useUpdateEffect } from 'react-use';
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { useUpdateEffect } from 'react-use';
+import molecule from '@dtinsight/molecule/esm';
+import type { IEditorTab } from '@dtinsight/molecule/esm/model';
 import type { FormInstance, RadioChangeEvent } from 'antd';
-import { Row, Col, Collapse, Radio, message } from 'antd';
+import { Col, Collapse, message,Radio, Row } from 'antd';
 import type { CheckboxChangeEvent } from 'antd/lib/checkbox';
-import moment from 'moment';
 import { isArray } from 'lodash';
+import moment from 'moment';
+
 import api from '@/api';
+import HelpDoc from '@/components/helpDoc';
 import { DATA_SYNC_MODE, SCHEDULE_DEPENDENCY, SCHEDULE_STATUS, TASK_PERIOD_ENUM, TASK_TYPE_ENUM } from '@/constant';
 import type { IOfflineTaskProps, IScheduleConfProps, ITaskVOProps } from '@/interface';
-import molecule from '@dtinsight/molecule/esm';
+import type { IRightBarComponentProps } from '@/services/rightBarService';
 import FormWrap from './scheduleForm';
 import TaskDependence from './taskDependence';
-import HelpDoc from '@/components/helpDoc';
-import type { IRightBarComponentProps } from '@/services/rightBarService';
-import type { IEditorTab } from '@dtinsight/molecule/esm/model';
 
 const { Panel } = Collapse;
 const RadioGroup = Radio.Group;

@@ -1,3 +1,6 @@
+import molecule from '@dtinsight/molecule';
+import { cloneDeep, isEmpty } from 'lodash';
+
 import {
     CAT_TYPE,
     COLLECT_TYPE,
@@ -12,9 +15,7 @@ import {
     SOURCE_TIME_TYPE,
     SYNC_TYPE,
 } from '@/constant';
-import { isKafka, isHaveTableColumn } from '@/utils/is';
-import molecule from '@dtinsight/molecule';
-import { cloneDeep, isEmpty } from 'lodash';
+import { isHaveTableColumn,isKafka } from '@/utils/is';
 
 export const UnlimitedSpeed = '不限制上传速率';
 

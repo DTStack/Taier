@@ -16,9 +16,9 @@
  * limitations under the License.
  */
 
-import type { IRightBarComponentProps } from '@/services/rightBarService';
 import DetailInfo from '@/components/detailInfo';
 import { CATALOGUE_TYPE } from '@/constant';
+import type { IRightBarComponentProps } from '@/services/rightBarService';
 
 export default function TaskInfo({ current }: IRightBarComponentProps) {
     return (

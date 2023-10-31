@@ -1,7 +1,8 @@
-import { useState, useEffect } from 'react';
-import { IStreamJobProps } from '@/interface';
-import Editor from '@/components/editor';
+import { useEffect,useState } from 'react';
+
 import stream from '@/api';
+import Editor from '@/components/editor';
+import { IStreamJobProps } from '@/interface';
 import { prettierJSONstring } from '@/utils';
 
 interface IProps {

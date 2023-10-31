@@ -1,8 +1,9 @@
-import { useState, useEffect, useRef } from 'react';
+import { useEffect, useRef,useState } from 'react';
 import { Radio } from 'antd';
+
 import stream from '@/api';
-import type { IStreamJobProps } from '@/interface';
 import { TASK_STATUS } from '@/constant';
+import type { IStreamJobProps } from '@/interface';
 import Common from './common';
 import DetailTable from './detailTable';
 import './index.scss';

@@ -1,11 +1,12 @@
 import * as React from 'react';
-import moment from 'moment';
 import CopyToClipboard from 'react-copy-to-clipboard';
 import { DateTime } from '@dtinsight/dt-utils';
-import { Table, DatePicker, TimePicker, message } from 'antd';
+import { DatePicker, message,Table, TimePicker } from 'antd';
+import moment from 'moment';
+
+import SvgIcon from '@/components/svgIcon';
 import type { IStreamJobProps } from '@/interface';
 import { disableRangeCreater } from '@/utils';
-import SvgIcon from '@/components/svgIcon';
 
 const Api = {} as any;
 

@@ -1,6 +1,8 @@
 import { cleanup, render, waitFor } from '@testing-library/react';
-import { Form, Button } from 'antd';
+import { button, input } from 'ant-design-testing';
+import { Button,Form } from 'antd';
 import '@testing-library/jest-dom';
+
 import {
     DatePickerItem,
     InputItem,
@@ -10,7 +12,6 @@ import {
     RangeItem,
     SelectItem,
 } from '../headerForm';
-import { button, input } from 'ant-design-testing';
 
 jest.mock('@/context', () => {
     const react = jest.requireActual('react');

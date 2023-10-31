@@ -1,3 +1,5 @@
+import type { UniqueId } from '@dtinsight/molecule/esm/common/types';
+
 import {
     DATA_SOURCE_ENUM,
     ENGINE_SOURCE_TYPE_ENUM,
@@ -6,7 +8,6 @@ import {
     KAFKA_DATA_TYPE,
     RDB_TYPE_ARRAY,
 } from '@/constant';
-import type { UniqueId } from '@dtinsight/molecule/esm/common/types';
 
 /**
  * 是否需要 schema

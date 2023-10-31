@@ -1,6 +1,6 @@
 // 读取 package.json 中的内容
-import MyTheme from './package.json';
 import dtstackTheme from './themes/dtstackTheme.json';
+import MyTheme from './package.json';
 
 // 读取详细的主题颜色内容
 const themes = [dtstackTheme];

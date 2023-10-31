@@ -16,8 +16,9 @@
  * limitations under the License.
  */
 
-import { Button, Col, Form, Input, Row } from 'antd';
 import { CloseOutlined } from '@ant-design/icons';
+import { Button, Col, Form, Input, Row } from 'antd';
+
 import './customParams.scss';
 
 interface ICustomParamsProps {

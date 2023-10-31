@@ -16,26 +16,27 @@
  * limitations under the License.
  */
 
+import { Utils } from '@dtinsight/dt-utils';
+import type { languages } from '@dtinsight/molecule/esm/monaco';
 import { endsWith, get, pickBy, range as lodashRange } from 'lodash';
 import moment from 'moment';
+import { history } from 'umi';
+
+import { updateDrawer } from '@/components/customDrawer';
 import {
     FAILED_STATUS,
     FINISH_STATUS,
     FROZEN_STATUS,
     PARENTFAILED_STATUS,
-    RUNNING_STATUS,
     RUN_FAILED_STATUS,
+    RUNNING_STATUS,
     STOP_STATUS,
     SUBMITTING_STATUS,
     TASK_STATUS,
     WAIT_STATUS,
 } from '@/constant';
-import { Utils } from '@dtinsight/dt-utils';
-import { history } from 'umi';
-import { updateDrawer } from '@/components/customDrawer';
-import type { languages } from '@dtinsight/molecule/esm/monaco';
-import { Keywords, Snippets } from './completion';
 import { taskRenderService } from '@/services';
+import { Keywords, Snippets } from './completion';
 
 /**
  * 返回今日 [00:00:00, 23:59:69]

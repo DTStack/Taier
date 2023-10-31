@@ -1,9 +1,10 @@
-import type { CatalogueDataProps } from '@/interface';
-import { createElement } from '@/utils';
-import { WarningOutlined } from '@ant-design/icons';
-import { Button, Modal } from 'antd';
 import { useLayoutEffect, useRef } from 'react';
 import ReactDOM from 'react-dom/client';
+import { WarningOutlined } from '@ant-design/icons';
+import { Button, Modal } from 'antd';
+
+import type { CatalogueDataProps } from '@/interface';
+import { createElement } from '@/utils';
 import './index.scss';
 
 interface IConfirmProps {

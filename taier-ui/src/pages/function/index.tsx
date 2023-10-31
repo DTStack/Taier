@@ -17,25 +17,26 @@
  */
 
 import React, { useState } from 'react';
-import type { IMenuItemProps, ITreeNodeItemProps } from '@dtinsight/molecule/esm/components';
-import { catalogueService } from '@/services';
-import { debounce } from 'lodash';
 import molecule from '@dtinsight/molecule';
-import { Content, Header } from '@dtinsight/molecule/esm/workbench/sidebar';
-import { connect } from '@dtinsight/molecule/esm/react';
-import functionManagerService from '../../services/functionManagerService';
-import type { IFolderTree } from '@dtinsight/molecule/esm/model';
-import { FileTypes } from '@dtinsight/molecule/esm/model';
-import { FolderTree } from '@dtinsight/molecule/esm/workbench/sidebar/explore';
-import { message, Modal } from 'antd';
-import ajax from '../../api';
-import FnModal from './fnModal';
-import FolderModal from './folderModal';
-import { CATALOGUE_TYPE, FUNCTOIN_ACTIONS, ID_COLLECTIONS, MENU_TYPE_ENUM, TASK_TYPE_ENUM } from '@/constant';
 import { TreeViewUtil } from '@dtinsight/molecule/esm/common/treeUtil';
 import type { UniqueId } from '@dtinsight/molecule/esm/common/types';
+import type { IMenuItemProps, ITreeNodeItemProps } from '@dtinsight/molecule/esm/components';
+import type { IFolderTree } from '@dtinsight/molecule/esm/model';
+import { FileTypes } from '@dtinsight/molecule/esm/model';
+import { connect } from '@dtinsight/molecule/esm/react';
+import { Content, Header } from '@dtinsight/molecule/esm/workbench/sidebar';
+import { FolderTree } from '@dtinsight/molecule/esm/workbench/sidebar/explore';
+import { message, Modal } from 'antd';
+import { debounce } from 'lodash';
+
 import { DetailInfoModal } from '@/components/detailInfo';
+import { CATALOGUE_TYPE, FUNCTOIN_ACTIONS, ID_COLLECTIONS, MENU_TYPE_ENUM, TASK_TYPE_ENUM } from '@/constant';
 import type { IFunctionProps } from '@/interface';
+import { catalogueService } from '@/services';
+import ajax from '../../api';
+import functionManagerService from '../../services/functionManagerService';
+import FnModal from './fnModal';
+import FolderModal from './folderModal';
 import './index.scss';
 
 const { confirm } = Modal;

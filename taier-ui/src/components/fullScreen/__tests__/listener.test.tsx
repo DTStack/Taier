@@ -1,5 +1,6 @@
-import { fireEvent, render } from '@testing-library/react';
 import { act } from 'react-dom/test-utils';
+import { fireEvent, render } from '@testing-library/react';
+
 import KeyCombiner from '../listener';
 
 describe('Test KeyCombiner Component', () => {

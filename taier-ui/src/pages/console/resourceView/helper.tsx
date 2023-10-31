@@ -17,11 +17,12 @@
  */
 
 import { useMemo } from 'react';
-import { cloneDeep } from 'lodash';
-import Chart from '@/components/chart';
-import type { SCHEDULE_TYPE } from '@/constant';
 import type { ColumnsType } from 'antd/lib/table';
+import { cloneDeep } from 'lodash';
+
+import Chart from '@/components/chart';
 import { useCurrentTheme } from '@/components/customHooks';
+import type { SCHEDULE_TYPE } from '@/constant';
 
 export interface ResouceProps {
     type: string;

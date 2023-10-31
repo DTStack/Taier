@@ -1,14 +1,15 @@
-import Mx from 'mxgraph';
 import type {
+    mxCell,
+    mxGraph,
     mxGraphExportObject,
     mxGraphOptions,
-    mxGraph,
-    StyleMap,
-    mxCell,
-    mxRectangle,
     mxGraphView,
     mxPoint,
+    mxRectangle,
+    StyleMap,
 } from 'mxgraph';
+import Mx from 'mxgraph';
+
 import './index.scss';
 
 interface IMxGraph extends mxGraph {

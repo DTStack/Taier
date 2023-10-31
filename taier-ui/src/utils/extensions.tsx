@@ -17,21 +17,22 @@
  */
 
 import molecule from '@dtinsight/molecule';
+import { EventBus } from '@dtinsight/molecule/esm/common/event';
+import { TreeViewUtil } from '@dtinsight/molecule/esm/common/treeUtil';
 import type { IFolderTreeNodeProps } from '@dtinsight/molecule/esm/model';
-import { SyntaxIcon, ResourceIcon } from '@/components/icon';
+import md5 from 'md5';
+
+import stream from '@/api';
+import { ResourceIcon,SyntaxIcon } from '@/components/icon';
+import Result from '@/components/task/result';
 import type { RESOURCE_TYPE } from '@/constant';
-import { ID_COLLECTIONS, CATALOGUE_TYPE, TASK_TYPE_ENUM } from '@/constant';
+import { CATALOGUE_TYPE, ID_COLLECTIONS, TASK_TYPE_ENUM } from '@/constant';
 import type { CatalogueDataProps, IOfflineTaskProps } from '@/interface';
 import { IJobType } from '@/interface';
 import { executeService, taskRenderService } from '@/services';
 import taskResultService, { createLog } from '@/services/taskResultService';
-import Result from '@/components/task/result';
-import { filterSql } from '.';
-import stream from '@/api';
-import { TreeViewUtil } from '@dtinsight/molecule/esm/common/treeUtil';
 import taskSaveService from '@/services/taskSaveService';
-import md5 from 'md5';
-import { EventBus } from '@dtinsight/molecule/esm/common/event';
+import { filterSql } from '.';
 
 /**
  * 根据不同任务渲染不同的图标

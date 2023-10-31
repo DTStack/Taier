@@ -1,14 +1,15 @@
+import React from 'react';
+import molecule from '@dtinsight/molecule';
+import { fireEvent, render, waitFor } from '@testing-library/react';
+import { Form, Modal } from 'antd';
+import '@testing-library/jest-dom';
+
 import api from '@/api';
 import notification from '@/components/notification';
 import { TASK_TYPE_ENUM } from '@/constant';
-import { fireEvent, render, waitFor } from '@testing-library/react';
-import { Form, Modal } from 'antd';
-import React from 'react';
-import TaskRenderService from '../taskRenderService';
-import '@testing-library/jest-dom';
-import molecule from '@dtinsight/molecule';
 import type { IOfflineTaskProps } from '@/interface';
 import { RightBarKind } from '@/interface';
+import TaskRenderService from '../taskRenderService';
 import { editorActionBarService } from '..';
 
 jest.mock('@/api');

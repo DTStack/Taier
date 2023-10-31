@@ -1,8 +1,9 @@
-import { CATALOGUE_TYPE } from '@/constant';
 import { cleanup, render } from '@testing-library/react';
+import { treeSelect } from 'ant-design-testing';
+
+import { CATALOGUE_TYPE } from '@/constant';
 import CustomTreeSelect from '../customTreeSelect';
 import treeData from './fixtures/treeData';
-import { treeSelect } from 'ant-design-testing';
 
 jest.useFakeTimers();
 jest.mock('@/utils/extensions', () => {

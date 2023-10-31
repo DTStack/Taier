@@ -1,6 +1,7 @@
-import { UDF_TYPE_VALUES } from '@/constant';
 import type { render } from '@testing-library/react';
 import { input, radio, select } from 'ant-design-testing';
+
+import { UDF_TYPE_VALUES } from '@/constant';
 
 export function fillFormContent(getAllByTestId: ReturnType<typeof render>['getAllByTestId']) {
     select.queryDropdown(document)?.remove();

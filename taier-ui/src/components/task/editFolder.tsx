@@ -17,12 +17,13 @@
  */
 
 import { useEffect, useState } from 'react';
-import { Button, Input, Form } from 'antd';
 import molecule from '@dtinsight/molecule/esm';
-import FolderPicker from '../../components/folderPicker';
+import { connect } from '@dtinsight/molecule/esm/react';
+import { Button, Form,Input } from 'antd';
+
 import { CATALOGUE_TYPE, formItemLayout, tailFormItemLayout } from '@/constant';
 import type { CatalogueDataProps } from '@/interface';
-import { connect } from '@dtinsight/molecule/esm/react';
+import FolderPicker from '../../components/folderPicker';
 import './editFolder.scss';
 
 interface IEditFolderProps extends molecule.model.IEditor {

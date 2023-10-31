@@ -17,9 +17,10 @@
  */
 
 import React, { useEffect, useState } from 'react';
-import { Modal, Select, message, Form } from 'antd';
-import { formItemLayout } from '@/constant';
+import { Form,message, Modal, Select } from 'antd';
+
 import api from '@/api';
+import { formItemLayout } from '@/constant';
 import './index.scss';
 
 const { Option } = Select;

@@ -1,4 +1,5 @@
 import { render } from '@testing-library/react';
+
 import HelpDoc from '..';
 
 describe('Test HelpDoc Component', () => {

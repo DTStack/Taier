@@ -16,10 +16,11 @@
  * limitations under the License.
  */
 
-import { IDataSourceProps } from '@/interface';
 import { Component } from '@dtinsight/molecule/esm/react';
 import Base64 from 'base-64';
+
 import api from '@/api';
+import { IDataSourceProps } from '@/interface';
 
 export interface IDataSourceState {
     dataSource: IDataSourceProps[];

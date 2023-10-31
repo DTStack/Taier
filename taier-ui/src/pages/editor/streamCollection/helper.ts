@@ -17,7 +17,8 @@
  */
 
 import { cloneDeep } from 'lodash';
-import { TASK_TYPE_ENUM, DATA_SOURCE_ENUM } from '@/constant';
+
+import { DATA_SOURCE_ENUM,TASK_TYPE_ENUM } from '@/constant';
 
 export function cleanCollectionParams(data: any) {
     const newData = cloneDeep(data);

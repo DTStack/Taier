@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import { Button, Input, Tooltip } from 'antd';
 import { MinusOutlined, PlusOutlined } from '@ant-design/icons';
-import { TIME_RANGE, UNIT_WEIGHT, COMPARE_ENUM } from './constants';
+import { Button, Input, Tooltip } from 'antd';
+
 import API from '@/api';
+import { COMPARE_ENUM,TIME_RANGE, UNIT_WEIGHT } from './constants';
 import './style.scss';
 
 interface IProps {

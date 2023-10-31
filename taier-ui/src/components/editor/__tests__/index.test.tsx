@@ -1,8 +1,9 @@
+import { act } from 'react-dom/test-utils';
 import * as monaco from '@dtinsight/molecule/esm/monaco';
 import { cleanup, render } from '@testing-library/react';
-import { act } from 'react-dom/test-utils';
-import Editor from '..';
+
 import { $ } from '@/tests/utils';
+import Editor from '..';
 
 describe('Test Editor Component', () => {
     beforeEach(() => {

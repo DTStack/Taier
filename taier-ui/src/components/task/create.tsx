@@ -17,22 +17,23 @@
  */
 
 import { useContext, useEffect, useMemo, useState } from 'react';
-import Context from '@/context';
-import { Button, Input, Select, Form, Spin, Empty } from 'antd';
 import molecule from '@dtinsight/molecule/esm';
-import FolderPicker from '../folderPicker';
+import { connect } from '@dtinsight/molecule/esm/react';
+import { Button, Empty,Form, Input, Select, Spin } from 'antd';
+
+import api from '@/api';
 import {
-    DATA_SYNC_MODE,
+    CATALOGUE_TYPE,
     CREATE_MODEL_TYPE,
-    TASK_TYPE_ENUM,
+    DATA_SYNC_MODE,
     FLINK_VERSIONS,
     PythonVersionKind,
-    CATALOGUE_TYPE,
+    TASK_TYPE_ENUM,
 } from '@/constant';
+import Context from '@/context';
 import type { CatalogueDataProps, IOfflineTaskProps } from '@/interface';
-import { connect } from '@dtinsight/molecule/esm/react';
-import api from '@/api';
 import { taskRenderService } from '@/services';
+import FolderPicker from '../folderPicker';
 import './create.scss';
 
 const FormItem = Form.Item;

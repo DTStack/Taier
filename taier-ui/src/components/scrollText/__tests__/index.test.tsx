@@ -1,4 +1,5 @@
 import { render } from '@testing-library/react';
+
 import ScrollText from '..';
 
 describe('Test ScrollText Component', () => {

@@ -16,11 +16,12 @@
  * limitations under the License.
  */
 
+import React from 'react';
+import { Checkbox, Form, Input, Radio, Select } from 'antd';
+
 import { isCleanSession } from '@/components/helpDoc/docs';
 import { DATA_SOURCE_ENUM, DATA_SOURCE_VERSION, QOS_TYPE } from '@/constant';
 import { IDataSourceUsedInSyncProps } from '@/interface';
-import { Checkbox, Form, Input, Radio, Select } from 'antd';
-import React from 'react';
 
 const FormItem = Form.Item;
 const Option = Select.Option;

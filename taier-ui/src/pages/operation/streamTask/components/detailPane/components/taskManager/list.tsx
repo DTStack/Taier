@@ -1,8 +1,9 @@
-import { useState, useEffect, useMemo } from 'react';
-import { Table, Breadcrumb } from 'antd';
-import { IStreamJobProps } from '@/interface';
+import { useEffect, useMemo,useState } from 'react';
+import { Breadcrumb,Table } from 'antd';
 import type { ColumnsType } from 'antd/lib/table';
+
 import stream from '@/api';
+import { IStreamJobProps } from '@/interface';
 
 interface IProps {
     data: IStreamJobProps | undefined;

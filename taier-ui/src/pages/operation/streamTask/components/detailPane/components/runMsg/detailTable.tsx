@@ -1,5 +1,6 @@
 import { Table } from 'antd';
 import type { ColumnsType } from 'antd/lib/table';
+
 import type { IFlinkJsonProps } from './index';
 
 interface IProps {

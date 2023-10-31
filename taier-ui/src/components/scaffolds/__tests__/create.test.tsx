@@ -1,14 +1,15 @@
-import api from '@/api';
+import { act } from 'react-dom/test-utils';
+import molecule from '@dtinsight/molecule';
 import { cleanup, render, waitFor } from '@testing-library/react';
-import '@testing-library/jest-dom';
+import { button, form, input, select } from 'ant-design-testing';
 import { Form, Input } from 'antd';
 import type { NamePath } from 'antd/lib/form/interface';
-import { act } from 'react-dom/test-utils';
-import scaffolds from '../create';
-import resourceManagerTree from '@/services/resourceManagerService';
+import '@testing-library/jest-dom';
+
+import api from '@/api';
 import { dataSourceService, taskRenderService } from '@/services';
-import molecule from '@dtinsight/molecule';
-import { button, form, input, select } from 'ant-design-testing';
+import resourceManagerTree from '@/services/resourceManagerService';
+import scaffolds from '../create';
 
 jest.mock('@/api');
 jest.mock('@/services', () => ({

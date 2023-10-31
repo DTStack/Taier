@@ -1,11 +1,12 @@
+import { fireEvent, render, waitFor } from '@testing-library/react';
+import { form,modal, select } from 'ant-design-testing';
+import { history } from 'umi';
+import '@testing-library/jest-dom';
+
 import api from '@/api';
 import { $, $$ } from '@/tests/utils';
-import { fireEvent, render, waitFor } from '@testing-library/react';
 import Queue from '../queue';
-import '@testing-library/jest-dom';
-import { history } from 'umi';
 import { getAllCluster, getClusterDetail, getNodeAddressSelect } from './fixtures/mock';
-import { modal, select, form } from 'ant-design-testing';
 
 jest.mock('@/api');
 jest.useFakeTimers();

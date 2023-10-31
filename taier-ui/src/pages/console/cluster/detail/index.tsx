@@ -1,19 +1,20 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { Empty, Form,Layout, message } from 'antd';
+import type { RcFile } from 'antd/lib/upload';
 import { history } from 'umi';
-import { Layout, Empty, message, Form } from 'antd';
+
 import api from '@/api';
 import req from '@/api/request';
-import Detail from './detail';
+import notification from '@/components/notification';
+import type { COMPONENT_TYPE_VALUE } from '@/constant';
 import { FILE_TYPE } from '@/constant';
 import context from '@/context/cluster';
-import Toolbar from './toolbar';
-import SideBar, { ComponentScheduleKind } from './sideBar';
-import notification from '@/components/notification';
 import { taskRenderService } from '@/services';
-import type { RcFile } from 'antd/lib/upload';
 import type { ILayoutData, ITemplateData } from './detail';
-import type { COMPONENT_TYPE_VALUE } from '@/constant';
-import type { ITreeNodeProps, ComponentKindType } from './sideBar';
+import Detail from './detail';
+import type { ComponentKindType,ITreeNodeProps } from './sideBar';
+import SideBar, { ComponentScheduleKind } from './sideBar';
+import Toolbar from './toolbar';
 import './index.scss';
 
 const { Content, Footer } = Layout;

@@ -19,6 +19,7 @@
 import React, { useEffect, useRef } from 'react';
 import { DoubleRightOutlined } from '@ant-design/icons';
 import classNames from 'classnames';
+
 import './index.scss';
 
 interface SlidePaneProps {

@@ -16,20 +16,21 @@
  * limitations under the License.
  */
 
-import { useState, useRef } from 'react';
-import type { FormInstance } from 'antd';
-import { Steps, Button, Spin, message } from 'antd';
-import Base64 from 'base-64';
-import { Scrollbar } from '@dtinsight/molecule/esm/components';
-import molecule from '@dtinsight/molecule';
-import { ID_COLLECTIONS } from '@/constant';
+import { useRef,useState } from 'react';
 import { SyncOutlined } from '@ant-design/icons';
-import { utf16to8 } from '@/utils';
+import molecule from '@dtinsight/molecule';
+import { Scrollbar } from '@dtinsight/molecule/esm/components';
+import type { FormInstance } from 'antd';
+import { Button, message,Spin, Steps } from 'antd';
+import Base64 from 'base-64';
+
 import API from '@/api';
-import Version from './version';
-import SelectSource from './selectSource';
-import InfoConfig from './InfoConfig';
+import { ID_COLLECTIONS } from '@/constant';
 import type { IDataSourceProps } from '@/interface';
+import { utf16to8 } from '@/utils';
+import InfoConfig from './InfoConfig';
+import SelectSource from './selectSource';
+import Version from './version';
 import './add.scss';
 
 const { Step } = Steps;

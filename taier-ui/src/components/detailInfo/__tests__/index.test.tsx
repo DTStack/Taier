@@ -1,6 +1,7 @@
+import { cleanup, render } from '@testing-library/react';
+
 import { CATALOGUE_TYPE } from '@/constant';
 import { dataSourceService } from '@/services';
-import { cleanup, render } from '@testing-library/react';
 import DetailInfo, { DetailInfoModal } from '..';
 
 jest.mock('@/context', () => {

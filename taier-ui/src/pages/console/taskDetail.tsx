@@ -17,20 +17,21 @@
  */
 
 import { useRef, useState } from 'react';
-import { history } from 'umi';
-import { message, Dropdown, Menu, Tooltip, Button, Space, Modal } from 'antd';
 import CopyToClipboard from 'react-copy-to-clipboard';
+import { CloseCircleOutlined,DownOutlined, SyncOutlined } from '@ant-design/icons';
 import { Utils } from '@dtinsight/dt-utils';
-import { formatDateTime } from '@/utils';
+import { Button, Dropdown, Menu, message, Modal,Space, Tooltip } from 'antd';
+import type { ColumnsType } from 'antd/lib/table';
+import { history } from 'umi';
+
 import type { IActionRef } from '@/components/sketch';
 import Sketch from '@/components/sketch';
 import type { TASK_STATUS } from '@/constant';
 import { JOB_STAGE_ENUM } from '@/constant';
-import type { ColumnsType } from 'antd/lib/table';
-import { SyncOutlined, DownOutlined, CloseCircleOutlined } from '@ant-design/icons';
-import ViewDetail from '../../components/viewDetail';
-import Api from '../../api';
+import { formatDateTime } from '@/utils';
 import { TaskStatus } from '@/utils/enums';
+import Api from '../../api';
+import ViewDetail from '../../components/viewDetail';
 
 const JOB_STAGE_OPTIONS = [
     {

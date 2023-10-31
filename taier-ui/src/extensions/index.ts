@@ -17,19 +17,20 @@
  */
 
 import type { IExtension } from '@dtinsight/molecule/esm/model';
-import InitializeExtension from './init';
+
+import ActionExtension from './action';
+import AuxiliaryBarExtensions from './auxiliaryBar';
 import CatalogueExtension from './catalogue';
-import PanelExtension from './panel';
+import ConfirmExtension from './confirm';
+import DTStackTheme from './dtstackTheme';
 import EditorExtension from './editor';
 import FolderTreeExtension from './folderTree';
+import { LocaleExtension } from './i18n';
+import InitializeExtension from './init';
 import { ExtendsSparkSQL } from './languages';
 import MenuExtension from './menu';
-import DTStackTheme from './dtstackTheme';
-import { LocaleExtension } from './i18n';
-import ActionExtension from './action';
+import PanelExtension from './panel';
 import ColorThemeExtensions from './themes';
-import AuxiliaryBarExtensions from './auxiliaryBar';
-import ConfirmExtension from './confirm';
 
 export const extensions: IExtension[] = [
     LocaleExtension,

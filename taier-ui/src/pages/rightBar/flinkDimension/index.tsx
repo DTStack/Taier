@@ -16,19 +16,20 @@
  * limitations under the License.
  */
 
-import { useRef, useContext, useEffect, useMemo, useState } from 'react';
+import { useContext, useEffect, useMemo, useRef, useState } from 'react';
+import { DeleteOutlined,PlusOutlined } from '@ant-design/icons';
+import molecule from '@dtinsight/molecule';
 import type { FormInstance } from 'antd';
 import { Button, Collapse, Form, Popconfirm } from 'antd';
 import classNames from 'classnames';
-import { PlusOutlined, DeleteOutlined } from '@ant-design/icons';
-import { DATA_SOURCE_ENUM, formItemLayout } from '@/constant';
+
 import stream from '@/api';
-import { isHaveSchema, isHaveTableColumn, isHaveTableList, isCacheExceptLRU } from '@/utils/is';
-import molecule from '@dtinsight/molecule';
+import { DATA_SOURCE_ENUM, formItemLayout } from '@/constant';
 import type { IDataColumnsProps, IDataSourceUsedInSyncProps, IFlinkSideProps } from '@/interface';
-import DimensionForm from './form';
 import type { IRightBarComponentProps } from '@/services/rightBarService';
 import { FormContext } from '@/services/rightBarService';
+import { isCacheExceptLRU,isHaveSchema, isHaveTableColumn, isHaveTableList } from '@/utils/is';
+import DimensionForm from './form';
 
 const { Panel } = Collapse;
 

@@ -1,11 +1,12 @@
-import { useState, useEffect } from 'react';
-import { Pagination, Tooltip, Breadcrumb } from 'antd';
+import { useEffect,useState } from 'react';
+import { SyncOutlined } from '@ant-design/icons';
+import { Breadcrumb,Pagination, Tooltip } from 'antd';
+import { isEmpty } from 'lodash';
+
+import stream from '@/api';
 import Editor from '@/components/editor';
 import { TASK_STATUS } from '@/constant';
-import { SyncOutlined } from '@ant-design/icons';
-import { isEmpty } from 'lodash';
 import { IStreamJobProps } from '@/interface';
-import stream from '@/api';
 import { ITaskList } from './list';
 import './log.scss';
 

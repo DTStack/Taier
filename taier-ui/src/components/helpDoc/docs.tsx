@@ -18,6 +18,7 @@
  */
 
 import React from 'react';
+
 import { HELP_DOC_URL } from '@/constant';
 
 export const dirtyMaxRecord = <span>脏数据达到最大值时，任务自动失败</span>;

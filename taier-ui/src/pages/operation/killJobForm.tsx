@@ -17,11 +17,12 @@
  */
 
 import { useEffect, useState } from 'react';
-import { Alert, Form, Modal, Radio, DatePicker, Row, Col, Checkbox, Select, message } from 'antd';
-import moment from 'moment';
-import Api from '@/api';
+import { Alert, Checkbox, Col, DatePicker, Form, message,Modal, Radio, Row, Select } from 'antd';
 import type { CheckboxChangeEvent } from 'antd/lib/checkbox';
 import type { CheckboxValueType } from 'antd/lib/checkbox/Group';
+import moment from 'moment';
+
+import Api from '@/api';
 import { formItemLayout } from '@/constant';
 
 const FormItem = Form.Item;

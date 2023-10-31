@@ -17,7 +17,8 @@
  */
 
 import { useEffect, useState } from 'react';
-import { Select, message } from 'antd';
+import { message,Select } from 'antd';
+
 import API from '@/api';
 import type { IDataSourceType } from './add';
 import './version.scss';

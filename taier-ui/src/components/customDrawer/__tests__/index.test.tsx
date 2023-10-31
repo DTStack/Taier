@@ -1,9 +1,10 @@
 import { act, render } from '@testing-library/react';
-import '@testing-library/jest-dom';
-import CustomDrawer, { updateDrawer } from '..';
-import { history } from 'umi';
-import { removePopUpMenu } from '@/utils';
 import { drawer } from 'ant-design-testing';
+import { history } from 'umi';
+import '@testing-library/jest-dom';
+
+import { removePopUpMenu } from '@/utils';
+import CustomDrawer, { updateDrawer } from '..';
 
 jest.mock('umi', () => ({
     history: {

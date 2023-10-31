@@ -16,13 +16,14 @@
  * limitations under the License.
  */
 
-import stream from '@/api';
-import { Collapse, Input, Row, Spin, Table } from 'antd';
-import { UpOutlined, DownOutlined, FrownOutlined } from '@ant-design/icons';
 import React from 'react';
-import { isShowCollapse } from '../../helper';
-import { assign } from 'lodash';
+import { DownOutlined, FrownOutlined,UpOutlined } from '@ant-design/icons';
 import { Utils } from '@dtinsight/dt-utils/lib';
+import { Collapse, Input, Row, Spin, Table } from 'antd';
+import { assign } from 'lodash';
+
+import stream from '@/api';
+import { isShowCollapse } from '../../helper';
 
 const Panel = Collapse.Panel;
 const TextArea = Input.TextArea;

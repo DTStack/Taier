@@ -17,16 +17,17 @@
  */
 
 import { Component } from '@dtinsight/molecule/esm/react';
-import type { ITaskResultService } from './taskResultService';
-import taskResultService, { createLog, createTitle } from './taskResultService';
-import type { CatalogueDataProps, IOfflineTaskProps, IResponseBodyProps } from '@/interface';
-import API from '@/api';
-import { checkExist } from '@/utils';
-import { TASK_STATUS_FILTERS, TASK_STATUS, TASK_TYPE_ENUM } from '@/constant';
+import md5 from 'md5';
 import moment from 'moment';
 import { singleton } from 'tsyringe';
+
+import API from '@/api';
 import notification from '@/components/notification';
-import md5 from 'md5';
+import { TASK_STATUS, TASK_STATUS_FILTERS, TASK_TYPE_ENUM } from '@/constant';
+import type { CatalogueDataProps, IOfflineTaskProps, IResponseBodyProps } from '@/interface';
+import { checkExist } from '@/utils';
+import type { ITaskResultService } from './taskResultService';
+import taskResultService, { createLog, createTitle } from './taskResultService';
 
 export enum EXECUTE_EVENT {
     onStartRun = 'onStartRun',
