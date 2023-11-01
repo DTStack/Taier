@@ -17,10 +17,10 @@
  */
 
 import * as React from 'react';
-
 import { Modal, Transfer } from 'antd';
-import './editMultipleTableModal.scss';
 import { cloneDeep } from 'lodash';
+
+import './editMultipleTableModal.scss';
 
 class EditMultipleTableModal extends React.Component<any, any> {
     constructor(props: any) {

@@ -16,8 +16,9 @@
  * limitations under the License.
  */
 
-import { Tooltip } from 'antd';
 import { QuestionCircleOutlined } from '@ant-design/icons';
+import { Tooltip } from 'antd';
+
 import * as Doc from './docs';
 
 export const relativeStyle: any = {

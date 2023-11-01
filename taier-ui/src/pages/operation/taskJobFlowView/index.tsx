@@ -19,27 +19,28 @@
 import { useContext, useEffect, useState } from 'react';
 import ReactDOMServer from 'react-dom/server';
 import { PlusSquareOutlined, ReloadOutlined } from '@ant-design/icons';
-import { Tooltip, Modal, message, Row, Col } from 'antd';
-import LogInfo from './taskLog';
-import { taskStatusText } from '@/utils/enums';
+import { Col,message, Modal, Row, Tooltip } from 'antd';
+import type { mxCell } from 'mxgraph';
+
 import Api from '@/api';
+import { DetailInfoModal } from '@/components/detailInfo';
+import type { IContextMenuConfig } from '@/components/mxGraph/container';
+import MxGraphContainer from '@/components/mxGraph/container';
 import {
-    TASK_STATUS,
-    RESTART_STATUS_ENUM,
     FAILED_STATUS,
     PARENTFAILED_STATUS,
+    RESTART_STATUS_ENUM,
     RUN_FAILED_STATUS,
+    TASK_STATUS,
     TASK_TYPE_ENUM,
 } from '@/constant';
-import type { IUpstreamJobProps } from '@/interface';
 import context from '@/context';
+import type { IUpstreamJobProps } from '@/interface';
 import { DIRECT_TYPE_ENUM } from '@/interface';
 import { formatDateTime, getVertexStyle, goToTaskDev } from '@/utils';
-import { DetailInfoModal } from '@/components/detailInfo';
-import MxGraphContainer from '@/components/mxGraph/container';
-import type { IContextMenuConfig } from '@/components/mxGraph/container';
+import { taskStatusText } from '@/utils/enums';
 import type { IScheduleTaskProps } from '../schedule';
-import type { mxCell } from 'mxgraph';
+import LogInfo from './taskLog';
 import './index.scss';
 
 interface ITaskJobFlowViewProps {

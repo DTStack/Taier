@@ -1,6 +1,7 @@
+import { TreeViewUtil } from '@dtinsight/molecule/esm/common/treeUtil';
+
 import BreadcrumbService from '../breadcrumbService';
 import { catalogueService } from '../';
-import { TreeViewUtil } from '@dtinsight/molecule/esm/common/treeUtil';
 
 class MockService {
     private cb = () => {};

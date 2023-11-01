@@ -16,10 +16,11 @@
  * limitations under the License.
  */
 
+import React, { useEffect, useState } from 'react';
+import { Form, Input, Radio, Select, Table } from 'antd';
+
 import stream from '@/api';
 import { writeDataSequence, writeDocForADB } from '@/components/helpDoc/docs';
-import { Form, Input, Radio, Select, Table } from 'antd';
-import React, { useEffect, useState } from 'react';
 import { streamTaskActions } from '../../taskFunc';
 
 const FormItem = Form.Item;

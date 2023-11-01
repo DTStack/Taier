@@ -1,14 +1,15 @@
+import { act } from 'react-dom/test-utils';
+import molecule from '@dtinsight/molecule';
+import { cleanup, render, waitFor } from '@testing-library/react';
+import { treeSelect } from 'ant-design-testing';
+
 import api from '@/api';
 import { CATALOGUE_TYPE } from '@/constant';
 import { catalogueService } from '@/services';
-import molecule from '@dtinsight/molecule';
-import { cleanup, render, waitFor } from '@testing-library/react';
-import { act } from 'react-dom/test-utils';
 import FolderPicker from '..';
 import functionData from './fixtures/functionData';
 import resourceData from './fixtures/resourceData';
 import treeData from './fixtures/treeData';
-import { treeSelect } from 'ant-design-testing';
 
 jest.useFakeTimers();
 jest.mock('@/api');

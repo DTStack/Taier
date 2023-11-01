@@ -1,32 +1,33 @@
-import { useEffect, useReducer, useState } from 'react';
-import { debounce, get } from 'lodash';
-import { formItemLayout } from '@/constant';
-import { Form, Collapse, InputNumber, Input, Radio, Switch, Empty } from 'antd';
-import { GlobalEvent } from '@dtinsight/molecule/esm/common/event';
-import KeyMap from './keyMap';
-import notification from '@/components/notification';
-import {
-    SelectWithPreviewer,
-    SelectWithCreate,
-    AutoCompleteWithRequest,
-    SelectWithRequest,
-    InputWithColumns,
-} from '@/components/scaffolds/task';
-import { Context } from '@/context/dataSync';
-import { convertObjToNamePath, getPlus, pickByTruly, visit } from '@/utils';
-import { useConstant } from '@/hooks';
-import molecule from '@dtinsight/molecule';
-import { connect } from '@dtinsight/molecule/esm/react';
-import { EditorEvent } from '@dtinsight/molecule/esm/model';
-import taskSaveService from '@/services/taskSaveService';
-import { Scrollbar } from '@dtinsight/molecule/esm/components';
-import api from '@/api';
-import { taskRenderService } from '@/services';
 import type { Reducer } from 'react';
-import type { IDataColumnsProps, IDataSourceUsedInSyncProps, IOfflineTaskProps } from '@/interface';
+import { useEffect, useReducer, useState } from 'react';
+import molecule from '@dtinsight/molecule';
+import { GlobalEvent } from '@dtinsight/molecule/esm/common/event';
+import { Scrollbar } from '@dtinsight/molecule/esm/components';
+import { EditorEvent } from '@dtinsight/molecule/esm/model';
+import { connect } from '@dtinsight/molecule/esm/react';
 import type { FormItemProps } from 'antd';
-import type { IOptionsFromRequest } from '@/components/scaffolds/task';
+import { Collapse, Empty,Form, Input, InputNumber, Radio, Switch } from 'antd';
 import type { Rule } from 'antd/lib/form';
+import { debounce, get } from 'lodash';
+
+import api from '@/api';
+import notification from '@/components/notification';
+import type { IOptionsFromRequest } from '@/components/scaffolds/task';
+import {
+    AutoCompleteWithRequest,
+    InputWithColumns,
+    SelectWithCreate,
+    SelectWithPreviewer,
+    SelectWithRequest,
+} from '@/components/scaffolds/task';
+import { formItemLayout } from '@/constant';
+import { Context } from '@/context/dataSync';
+import { useConstant } from '@/hooks';
+import type { IDataColumnsProps, IDataSourceUsedInSyncProps, IOfflineTaskProps } from '@/interface';
+import { taskRenderService } from '@/services';
+import taskSaveService from '@/services/taskSaveService';
+import { convertObjToNamePath, getPlus, pickByTruly, visit } from '@/utils';
+import KeyMap from './keyMap';
 import './index.scss';
 
 export const event = new (class extends GlobalEvent {})();

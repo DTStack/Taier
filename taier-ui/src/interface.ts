@@ -19,11 +19,15 @@
 import type {
     BINARY_ROW_KEY_FLAG,
     CODE_TYPE,
-    DATA_SOURCE_ENUM,
     CREATE_MODEL_TYPE,
+    DATA_SOURCE_ENUM,
+    DATA_SYNC_MODE,
+    DIRTY_DATA_SAVE,
+    FLINK_VERSIONS,
     KAFKA_DATA_TYPE,
     MENU_TYPE_ENUM,
     PARAMS_ENUM,
+    PythonVersionKind,
     RESOURCE_TYPE,
     SCHEDULE_DEPENDENCY,
     SCHEDULE_STATUS,
@@ -31,11 +35,7 @@ import type {
     TASK_PERIOD_ENUM,
     TASK_STATUS,
     TASK_TYPE_ENUM,
-    DATA_SYNC_MODE,
     UDF_TYPE_VALUES,
-    FLINK_VERSIONS,
-    DIRTY_DATA_SAVE,
-    PythonVersionKind,
 } from './constant';
 
 interface IUserProps {}

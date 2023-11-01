@@ -17,13 +17,14 @@
  */
 
 import { useEffect, useState } from 'react';
-import { omit } from 'lodash';
-import { TreeSelect, Input } from 'antd';
-import type { TreeSelectProps } from 'antd/lib/tree-select';
 import molecule from '@dtinsight/molecule';
+import { FileTypes } from '@dtinsight/molecule/esm/model';
+import { Input,TreeSelect } from 'antd';
+import type { TreeSelectProps } from 'antd/lib/tree-select';
+import { omit } from 'lodash';
+
 import type { CATALOGUE_TYPE } from '@/constant';
 import { fileIcon } from '@/utils/extensions';
-import { FileTypes } from '@dtinsight/molecule/esm/model';
 
 const { TreeNode } = TreeSelect;
 

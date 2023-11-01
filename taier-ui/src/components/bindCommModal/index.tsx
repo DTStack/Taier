@@ -16,13 +16,14 @@
  * limitations under the License.
  */
 
-import { useState, useEffect } from 'react';
-import { Modal, Select, Input, Form, Spin } from 'antd';
-import api from '@/api';
+import { useEffect,useState } from 'react';
 import { InfoCircleOutlined } from '@ant-design/icons';
-import { formItemLayout, ENGINE_SOURCE_TYPE_ENUM, ENGINE_SOURCE_TYPE } from '@/constant';
-import { useEnv } from '../customHooks';
+import { Form, Input, Modal, Select, Spin } from 'antd';
+
+import api from '@/api';
+import { ENGINE_SOURCE_TYPE,ENGINE_SOURCE_TYPE_ENUM, formItemLayout } from '@/constant';
 import { getEngineSourceTypeName } from '@/utils/enums';
+import { useEnv } from '../customHooks';
 import './index.scss';
 
 const { Option } = Select;

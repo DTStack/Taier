@@ -17,9 +17,10 @@
  */
 
 import React, { useLayoutEffect, useState } from 'react';
-import { history } from 'umi';
 import type { DrawerProps } from 'antd';
 import { Drawer } from 'antd';
+import { history } from 'umi';
+
 import { removePopUpMenu } from '@/utils';
 
 interface CustomDrawerProps extends DrawerProps {

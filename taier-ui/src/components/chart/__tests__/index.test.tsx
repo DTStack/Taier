@@ -1,4 +1,5 @@
 import { render } from '@testing-library/react';
+
 import config from './fixtures/config';
 
 describe('Test Chart Component', () => {

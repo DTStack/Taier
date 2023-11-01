@@ -16,8 +16,9 @@
  * limitations under the License.
  */
 
-import { InputNumber, Select } from 'antd';
 import { useEffect, useState } from 'react';
+import { InputNumber, Select } from 'antd';
+
 import './index.scss';
 
 const { Option } = Select;

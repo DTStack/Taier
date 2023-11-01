@@ -17,9 +17,10 @@
  */
 
 import { useEffect, useState } from 'react';
-import { Form, Select, Input } from 'antd';
-import API from '@/api';
 import { SearchOutlined } from '@ant-design/icons';
+import { Form, Input,Select } from 'antd';
+
+import API from '@/api';
 import './search.scss';
 
 interface IProps {

@@ -1,9 +1,10 @@
-import { render, waitFor } from '@testing-library/react';
 import { act } from 'react-dom/test-utils';
-import '@testing-library/jest-dom';
-import { Input } from 'antd';
-import EditFolder from '../editFolder';
+import { render, waitFor } from '@testing-library/react';
 import { button, input } from 'ant-design-testing';
+import { Input } from 'antd';
+import '@testing-library/jest-dom';
+
+import EditFolder from '../editFolder';
 
 jest.mock('../../../components/folderPicker', () => {
     return (props: any) => <Input data-testid="folderPicker" {...props} />;

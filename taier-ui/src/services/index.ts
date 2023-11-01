@@ -1,12 +1,13 @@
 import { container } from 'tsyringe';
+
+import BreadcrumbService from './breadcrumbService';
+import CatalogueService from './catalogueService';
+import DataSourceService from './dataSourceService';
 import EditorActionBarService from './editorActionBarService';
 import ExecuteService from './executeService';
-import CatalogueService from './catalogueService';
-import BreadcrumbService from './breadcrumbService';
 import RightBarService from './rightBarService';
-import TaskRenderService from './taskRenderService';
-import DataSourceService from './dataSourceService';
 import TaskParamsService from './taskParamsService';
+import TaskRenderService from './taskRenderService';
 
 const editorActionBarService = container.resolve(EditorActionBarService);
 const executeService = container.resolve(ExecuteService);
@@ -18,12 +19,12 @@ const dataSourceService = container.resolve(DataSourceService);
 const taskParamsService = container.resolve(TaskParamsService);
 
 export {
-    editorActionBarService,
-    catalogueService,
-    executeService,
     breadcrumbService,
-    rightBarService,
-    taskRenderService,
+    catalogueService,
     dataSourceService,
+    editorActionBarService,
+    executeService,
+    rightBarService,
     taskParamsService,
+    taskRenderService,
 };

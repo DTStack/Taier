@@ -3,8 +3,8 @@ module.exports = {
         '^.+\\.(t|j)sx?$': ['@swc/jest'],
     },
     setupFilesAfterEnv: ['<rootDir>/src/tests/jest-setup.js'],
-    testEnvironment: "jsdom",
-    modulePathIgnorePatterns: ['<rootDir>/src/.umi/'],
+    testEnvironment: 'jsdom',
+    modulePathIgnorePatterns: ['<rootDir>/src/.umi/', '<rootDir>/src/.umi-production'],
     moduleNameMapper: {
         '@/(.*)': '<rootDir>/src/$1',
         '^@dtinsight/molecule(/?)(.*)$': '<rootDir>/__mocks__/molecule.js',

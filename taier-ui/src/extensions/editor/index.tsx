@@ -17,29 +17,30 @@
  */
 
 import { createRoot } from 'react-dom/client';
-import { message, Modal } from 'antd';
 import molecule from '@dtinsight/molecule';
-import type { IExtension } from '@dtinsight/molecule/esm/model';
-import { onTaskSwitch, runTask, syntaxValidate } from '@/utils/extensions';
-import { DRAWER_MENU_ENUM, TASK_LANGUAGE, ID_COLLECTIONS, TASK_TYPE_ENUM } from '@/constant';
-import { history } from 'umi';
-import { debounce } from 'lodash';
-import Publish, { CONTAINER_ID } from '@/components/task/publish';
 import type { UniqueId } from '@dtinsight/molecule/esm/common/types';
-import { createSQLProposals, prettierJSONstring } from '@/utils';
+import type { IExtension } from '@dtinsight/molecule/esm/model';
+import { languages } from '@dtinsight/molecule/esm/monaco';
+import { message, Modal } from 'antd';
+import { debounce } from 'lodash';
+import type { mxCell } from 'mxgraph';
+import { history } from 'umi';
+
 import api from '@/api';
+import type { IGeometryPosition } from '@/components/mxGraph/container';
+import notification from '@/components/notification';
+import Publish, { CONTAINER_ID } from '@/components/task/publish';
+import { DRAWER_MENU_ENUM, ID_COLLECTIONS, TASK_LANGUAGE, TASK_TYPE_ENUM } from '@/constant';
 import type { CatalogueDataProps, IOfflineTaskProps } from '@/interface';
 import { IComputeType } from '@/interface';
+import { isEditing } from '@/pages/editor/workflow';
+import { editorActionBarService, executeService, taskParamsService,taskRenderService } from '@/services';
 import type { IParamsProps } from '@/services/taskParamsService';
-import { languages } from '@dtinsight/molecule/esm/monaco';
-import { editorActionBarService, taskRenderService, executeService, taskParamsService } from '@/services';
-import notification from '@/components/notification';
-import { mappingTaskTypeToLanguage } from '@/utils/enums';
 import taskSaveService from '@/services/taskSaveService';
 import viewStoreService from '@/services/viewStoreService';
-import type { mxCell } from 'mxgraph';
-import type { IGeometryPosition } from '@/components/mxGraph/container';
-import { isEditing } from '@/pages/editor/workflow';
+import { createSQLProposals, prettierJSONstring } from '@/utils';
+import { mappingTaskTypeToLanguage } from '@/utils/enums';
+import { onTaskSwitch, runTask, syntaxValidate } from '@/utils/extensions';
 
 function emitEvent() {
     molecule.editor.onActionsClick(async (menuId, current) => {

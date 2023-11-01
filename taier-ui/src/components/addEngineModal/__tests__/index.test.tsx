@@ -1,8 +1,9 @@
 import { cleanup, render, waitFor } from '@testing-library/react';
+import { input,modal } from 'ant-design-testing';
 import '@testing-library/jest-dom';
-import AddEngineModal from '..';
-import { modal, input } from 'ant-design-testing';
+
 import { $ } from '@/tests/utils';
+import AddEngineModal from '..';
 
 describe('Test AddEngineModal Component', () => {
     beforeEach(() => {

@@ -1,4 +1,5 @@
 import { waitFor } from '@testing-library/react';
+
 import viewStoreService from '../viewStoreService';
 
 describe('Test ViewStoreService', () => {

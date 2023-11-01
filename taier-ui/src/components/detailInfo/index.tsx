@@ -1,15 +1,16 @@
 import { useContext } from 'react';
-import { Badge, Button, Descriptions, message, Modal, Spin, Tooltip } from 'antd';
 import CopyToClipboard from 'react-copy-to-clipboard';
+import { Badge, Button, Descriptions, message, Modal, Spin, Tooltip } from 'antd';
+import { isNumber } from 'lodash';
 import moment from 'moment';
-import context from '@/context';
+
 import { CATALOGUE_TYPE } from '@/constant';
+import context from '@/context';
 import type { IDataSourceProps, IFunctionProps, IOfflineTaskProps } from '@/interface';
-import { formatDateTime } from '@/utils';
-import { TaskStatus, TaskTimeType } from '@/utils/enums';
 import LinkInfoCell from '@/pages/dataSource/linkInfoCell';
 import { dataSourceService } from '@/services';
-import { isNumber } from 'lodash';
+import { formatDateTime } from '@/utils';
+import { TaskStatus, TaskTimeType } from '@/utils/enums';
 import './index.scss';
 
 interface IDetailInfoProps {

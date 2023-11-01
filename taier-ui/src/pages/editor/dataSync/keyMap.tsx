@@ -1,19 +1,20 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { EditOutlined, ExclamationCircleOutlined, MinusOutlined } from '@ant-design/icons';
+import molecule from '@dtinsight/molecule';
 import { Button, Col, Form, message, Row, Space, Spin, Tooltip } from 'antd';
+import type { ColumnType } from 'antd/lib/table';
+import md5 from 'md5';
+
 import api from '@/api';
+import { useSize } from '@/components/customHooks';
 import LintTo from '@/components/lineTo';
 import { DATA_SOURCE_ENUM, DATA_SOURCE_TEXT } from '@/constant';
-import { EditOutlined, ExclamationCircleOutlined, MinusOutlined } from '@ant-design/icons';
-import { checkExist, isValidFormatType } from '@/utils';
-import { event, EventKind, updateValuesInData } from '.';
-import KeyModal from './modals/keyModal';
-import viewStoreService from '@/services/viewStoreService';
-import molecule from '@dtinsight/molecule';
-import md5 from 'md5';
-import TableFooter from './tableFooter';
-import { useSize } from '@/components/customHooks';
 import type { IDataColumnsProps } from '@/interface';
-import type { ColumnType } from 'antd/lib/table';
+import viewStoreService from '@/services/viewStoreService';
+import { checkExist, isValidFormatType } from '@/utils';
+import KeyModal from './modals/keyModal';
+import TableFooter from './tableFooter';
+import { event, EventKind, updateValuesInData } from '.';
 import './keyMap.scss';
 
 enum OperatorKind {

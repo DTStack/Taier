@@ -19,6 +19,7 @@
 import { useMemo } from 'react';
 import molecule from '@dtinsight/molecule';
 import { connect } from '@dtinsight/molecule/esm/react';
+
 import type { ITaskResultStates } from '@/services/taskResultService';
 import taskResultService from '@/services/taskResultService';
 import Editor from '../editor';

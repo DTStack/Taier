@@ -1,7 +1,8 @@
-import Create from '@/components/task/create';
-import taskSaveService from '@/services/taskSaveService';
 import molecule from '@dtinsight/molecule';
 import { connect } from '@dtinsight/molecule/esm/react';
+
+import Create from '@/components/task/create';
+import taskSaveService from '@/services/taskSaveService';
 
 const Flink = connect(molecule.editor, ({ current }: molecule.model.IEditor) => {
     if (!current) {

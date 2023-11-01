@@ -18,26 +18,27 @@
 
 import { createRoot } from 'react-dom/client';
 import molecule from '@dtinsight/molecule';
-import { CONSOLE, OPERATIONS, ID_COLLECTIONS, DRAWER_MENU_ENUM, RESOURCE_ACTIONS, FUNCTOIN_ACTIONS } from '@/constant';
-import EditorEntry from '@/components/editorEntry';
-import ResourceManager from '@/pages/resource';
-import { history } from 'umi';
-import classNames from 'classnames';
-import FunctionManager from '@/pages/function';
 import type { UniqueId } from '@dtinsight/molecule/esm/common/types';
-import DataSource from '@/pages/dataSource';
 import type { IActivityMenuItemProps, IExtension } from '@dtinsight/molecule/esm/model';
-import { Float, ColorThemeMode } from '@dtinsight/molecule/esm/model';
-import LogEditor from '@/components/logEditor';
-import http from '@/api/http';
-import resourceManagerService from '@/services/resourceManagerService';
-import functionManagerService from '@/services/functionManagerService';
-import { showLoginModal } from '@/pages/login';
-import { getCookie, deleteCookie } from '@/utils';
+import { ColorThemeMode,Float } from '@dtinsight/molecule/esm/model';
 import { Button, message } from 'antd';
+import classNames from 'classnames';
+import { history } from 'umi';
+
+import http from '@/api/http';
+import AddTenantModal from '@/components/addTenantModal';
+import EditorEntry from '@/components/editorEntry';
 import { Logo } from '@/components/icon';
 import Language from '@/components/language';
-import AddTenantModal from '@/components/addTenantModal';
+import LogEditor from '@/components/logEditor';
+import { CONSOLE, DRAWER_MENU_ENUM, FUNCTOIN_ACTIONS,ID_COLLECTIONS, OPERATIONS, RESOURCE_ACTIONS } from '@/constant';
+import DataSource from '@/pages/dataSource';
+import FunctionManager from '@/pages/function';
+import { showLoginModal } from '@/pages/login';
+import ResourceManager from '@/pages/resource';
+import functionManagerService from '@/services/functionManagerService';
+import resourceManagerService from '@/services/resourceManagerService';
+import { deleteCookie,getCookie } from '@/utils';
 
 function loadStyles(url: string) {
     const link = document.createElement('link');

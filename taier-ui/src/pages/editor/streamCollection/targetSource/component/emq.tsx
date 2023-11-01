@@ -16,10 +16,11 @@
  * limitations under the License.
  */
 
+import React from 'react';
+import { Checkbox, Form, Input, Select } from 'antd';
+
 import { isCleanSession } from '@/components/helpDoc/docs';
 import { QOS_TYPE } from '@/constant';
-import { Checkbox, Form, Input, Select } from 'antd';
-import React from 'react';
 
 const FormItem = Form.Item;
 const Option = Select.Option;

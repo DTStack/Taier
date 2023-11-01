@@ -16,24 +16,25 @@
  * limitations under the License.
  */
 
-import { useRef, useState, useMemo, useContext } from 'react';
-import { message, Modal, Button, Popconfirm, Tooltip, Space, Divider } from 'antd';
+import { useContext,useMemo, useRef, useState } from 'react';
 import { SyncOutlined } from '@ant-design/icons';
+import { DateTime } from '@dtinsight/dt-utils';
+import { Button, Divider,message, Modal, Popconfirm, Space, Tooltip } from 'antd';
+import type { ColumnsType, FilterValue } from 'antd/lib/table/interface';
 import { debounce } from 'lodash';
 import { history } from 'umi';
-import { DateTime } from '@dtinsight/dt-utils';
+
+import stream from '@/api';
 import type { IActionRef } from '@/components/sketch';
 import Sketch from '@/components/sketch';
+import { DATA_SOURCE_ENUM,FLINK_SQL_TYPE, TASK_STATUS, TASK_STATUS_FILTERS, TASK_TYPE_ENUM } from '@/constant';
+import context from '@/context';
 import type { IStreamJobProps } from '@/interface';
 import { IComputeType } from '@/interface';
-import type { ColumnsType, FilterValue } from 'antd/lib/table/interface';
-import { TASK_TYPE_ENUM, FLINK_SQL_TYPE, TASK_STATUS_FILTERS, TASK_STATUS, DATA_SOURCE_ENUM } from '@/constant';
-import stream from '@/api';
-import { TaskStatus } from '@/utils/enums';
 import { goToTaskDev } from '@/utils';
+import { TaskStatus } from '@/utils/enums';
 import DetailPane from './components/detailPane';
 import GoOnTask from './components/goOnTask';
-import context from '@/context';
 
 const { confirm } = Modal;
 

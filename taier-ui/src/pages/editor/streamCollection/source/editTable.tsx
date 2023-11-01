@@ -17,8 +17,8 @@
  */
 
 import * as React from 'react';
-import { Table } from 'antd';
 import { PlusCircleOutlined } from '@ant-design/icons';
+import { Table } from 'antd';
 import { cloneDeep, debounce } from 'lodash';
 
 const initialState = {

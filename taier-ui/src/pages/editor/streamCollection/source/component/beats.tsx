@@ -16,9 +16,10 @@
  * limitations under the License.
  */
 
-import { binlogPortHelp } from '@/components/helpDoc/docs';
-import { Form, Input } from 'antd';
 import React from 'react';
+import { Form, Input } from 'antd';
+
+import { binlogPortHelp } from '@/components/helpDoc/docs';
 
 const FormItem = Form.Item;
 

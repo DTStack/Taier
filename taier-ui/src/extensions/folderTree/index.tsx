@@ -16,22 +16,23 @@
  * limitations under the License.
  */
 
-import { message, Modal } from 'antd';
+import molecule from '@dtinsight/molecule/esm';
+import type { UniqueId } from '@dtinsight/molecule/esm/common/types';
+import { localize } from '@dtinsight/molecule/esm/i18n/localize';
 import type { IExtension } from '@dtinsight/molecule/esm/model';
 import { FileTypes, TreeNodeModel } from '@dtinsight/molecule/esm/model';
-import { localize } from '@dtinsight/molecule/esm/i18n/localize';
-import molecule from '@dtinsight/molecule/esm';
+import { message, Modal } from 'antd';
+
+import api from '@/api';
+import notification from '@/components/notification';
 import type { ICreateTaskFormFieldProps } from '@/components/task/create';
 import Create from '@/components/task/create';
 import EditFolder from '@/components/task/editFolder';
-import { getParentNode } from '@/utils/extensions';
-import api from '@/api';
-import type { UniqueId } from '@dtinsight/molecule/esm/common/types';
-import { CATALOGUE_TYPE, TASK_TYPE_ENUM, ID_COLLECTIONS } from '@/constant';
+import { CATALOGUE_TYPE, ID_COLLECTIONS,TASK_TYPE_ENUM } from '@/constant';
 import { IComputeType } from '@/interface';
-import { taskRenderService, catalogueService } from '@/services';
-import notification from '@/components/notification';
+import { catalogueService,taskRenderService } from '@/services';
 import taskSaveService from '@/services/taskSaveService';
+import { getParentNode } from '@/utils/extensions';
 
 /**
  * 	实时采集和FlinkSql任务的computeType返回0

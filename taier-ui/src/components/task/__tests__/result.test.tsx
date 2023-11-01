@@ -1,6 +1,7 @@
 import { cleanup, render } from '@testing-library/react';
-import Result from '../result';
 import { select } from 'ant-design-testing';
+
+import Result from '../result';
 
 describe('Test Result Component', () => {
     beforeEach(() => {

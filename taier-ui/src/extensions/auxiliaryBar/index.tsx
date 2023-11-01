@@ -1,8 +1,9 @@
-import { rightBarService, taskRenderService } from '@/services';
-import { onTaskSwitch } from '@/utils/extensions';
 import molecule from '@dtinsight/molecule';
 import type { UniqueId } from '@dtinsight/molecule/esm/common/types';
 import type { IExtension } from '@dtinsight/molecule/esm/model';
+
+import { rightBarService, taskRenderService } from '@/services';
+import { onTaskSwitch } from '@/utils/extensions';
 
 export default class AuxiliaryBarExtensions implements IExtension {
     id: UniqueId = 'auxiliaryBar';

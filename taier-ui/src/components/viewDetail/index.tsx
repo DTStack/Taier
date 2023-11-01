@@ -24,6 +24,7 @@
  */
 import * as React from 'react';
 import { Modal } from 'antd';
+
 import CodeEditor from '@/components/editor';
 
 class ViewDetail extends React.Component<any, any> {

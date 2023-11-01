@@ -1,8 +1,9 @@
-import { RightBarKind } from '@/interface';
 import { connect } from '@dtinsight/molecule/esm/react';
 import { render } from '@testing-library/react';
-import { taskRenderService } from '..';
+
+import { RightBarKind } from '@/interface';
 import RightBarService from '../rightBarService';
+import { taskRenderService } from '..';
 
 jest.mock('../', () => {
     return {

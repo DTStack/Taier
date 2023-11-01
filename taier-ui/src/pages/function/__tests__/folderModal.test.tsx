@@ -1,8 +1,9 @@
-import { CATALOGUE_TYPE } from '@/constant';
 import { cleanup, render, waitFor } from '@testing-library/react';
-import { Input } from 'antd';
-import FolderModal from '../folderModal';
 import { button, input } from 'ant-design-testing';
+import { Input } from 'antd';
+
+import { CATALOGUE_TYPE } from '@/constant';
+import FolderModal from '../folderModal';
 
 jest.mock('../../../components/folderPicker', () => ({ id, value, onChange }: any) => (
     <Input id={id} value={value} onChange={onChange} data-testid="mockFolderPicker" />

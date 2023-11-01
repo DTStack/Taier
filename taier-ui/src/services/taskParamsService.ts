@@ -16,9 +16,10 @@
  * limitations under the License.
  */
 
+import { Component } from '@dtinsight/molecule/esm/react';
+
 import api from '@/api';
 import { PARAMS_ENUM } from '@/constant';
-import { Component } from '@dtinsight/molecule/esm/react';
 
 export interface IParamsProps {
     id?: number;

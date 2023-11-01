@@ -1,9 +1,10 @@
+import molecule from '@dtinsight/molecule';
+import { TreeViewUtil } from '@dtinsight/molecule/esm/common/treeUtil';
+
 import api from '@/api';
 import { CATALOGUE_TYPE, TASK_TYPE_ENUM } from '@/constant';
 import { executeService, taskRenderService } from '@/services';
 import taskResultService, { createLog } from '@/services/taskResultService';
-import molecule from '@dtinsight/molecule';
-import { TreeViewUtil } from '@dtinsight/molecule/esm/common/treeUtil';
 import { fileIcon, getParentNode, runTask, syntaxValidate } from '../extensions';
 
 jest.mock('@/services/taskSaveService', () => {

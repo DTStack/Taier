@@ -1,6 +1,7 @@
-import api from '@/api';
-import { cleanup, fireEvent, render } from '@testing-library/react';
 import { act } from 'react-dom/test-utils';
+import { cleanup, fireEvent, render } from '@testing-library/react';
+
+import api from '@/api';
 import GraphTimeRange from '../graphTimeRange';
 
 jest.mock('@/api');

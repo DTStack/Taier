@@ -16,22 +16,23 @@
  * limitations under the License.
  */
 
-import { useState, useMemo, useRef, useContext } from 'react';
-import { Checkbox, Tabs, Divider, Button, message } from 'antd';
-import { history } from 'umi';
+import { useContext,useMemo, useRef, useState } from 'react';
+import molecule from '@dtinsight/molecule';
 import type { FormInstance } from 'antd';
+import { Button, Checkbox, Divider, message,Tabs } from 'antd';
 import type { ColumnsType } from 'antd/lib/table/interface';
 import moment from 'moment';
-import context from '@/context';
-import SlidePane from '@/components/slidePane';
+import { history } from 'umi';
+
 import api from '@/api';
 import type { IActionRef } from '@/components/sketch';
-import molecule from '@dtinsight/molecule';
 import Sketch from '@/components/sketch';
+import SlidePane from '@/components/slidePane';
+import type { TASK_PERIOD_ENUM } from '@/constant';
+import { offlineTaskPeriodFilter, SCHEDULE_STATUS,TASK_TYPE_ENUM } from '@/constant';
+import context from '@/context';
 import type { ITaskProps } from '@/interface';
 import { IComputeType } from '@/interface';
-import type { TASK_PERIOD_ENUM } from '@/constant';
-import { TASK_TYPE_ENUM, offlineTaskPeriodFilter, SCHEDULE_STATUS } from '@/constant';
 import { formatDateTime, getCookie, goToTaskDev, removePopUpMenu } from '@/utils';
 import { TaskTimeType } from '@/utils/enums';
 import type { ITaskBasicProps } from './patch/patchModal';

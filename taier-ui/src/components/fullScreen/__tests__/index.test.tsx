@@ -1,4 +1,5 @@
 import { cleanup, render } from '@testing-library/react';
+
 import Fullscreen from '..';
 
 describe('Test FullScreen Component', () => {

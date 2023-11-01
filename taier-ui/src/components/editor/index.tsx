@@ -19,8 +19,9 @@ import type { CSSProperties } from 'react';
 import { useEffect, useRef } from 'react';
 import * as monaco from '@dtinsight/molecule/esm/monaco';
 import classNames from 'classnames';
-import { defaultOptions } from './config';
 import './language/jsonlog';
+
+import { defaultOptions } from './config';
 import './style.scss';
 
 interface IEditorProps {

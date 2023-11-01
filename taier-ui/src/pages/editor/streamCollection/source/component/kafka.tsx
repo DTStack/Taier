@@ -16,14 +16,15 @@
  * limitations under the License.
  */
 
+import React, { useState } from 'react';
+import { DownOutlined } from '@ant-design/icons';
+import { DatePicker, Form, FormInstance, Radio, Select } from 'antd';
+
 import stream from '@/api';
 import { DATA_SOURCE_ENUM, DATA_SOURCE_VERSION, KAFKA_DATA_TYPE } from '@/constant';
-import { DatePicker, Form, FormInstance, Radio, Select } from 'antd';
-import { DownOutlined } from '@ant-design/icons';
-import React, { useState } from 'react';
-import FormItemEditor from './formItemEditor';
-import DataPreviewModal from '../dataPreviewModal';
 import { IDataSourceUsedInSyncProps } from '@/interface';
+import DataPreviewModal from '../dataPreviewModal';
+import FormItemEditor from './formItemEditor';
 
 const FormItem = Form.Item;
 const Option = Select.Option;

@@ -16,10 +16,11 @@
  * limitations under the License.
  */
 
-import 'whatwg-fetch';
 import { message } from 'antd';
-import ProgressBar from '@/components/progressBar';
+import 'whatwg-fetch';
+
 import notification from '@/components/notification';
+import ProgressBar from '@/components/progressBar';
 import type { IResponseBodyProps } from '@/interface';
 
 class Http {

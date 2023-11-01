@@ -17,8 +17,9 @@
  */
 
 import { useState } from 'react';
-import { Table, Modal, message } from 'antd';
+import { message,Modal, Table } from 'antd';
 import classNames from 'classnames';
+
 import type { ITaskVOProps } from '@/interface';
 
 interface IRecommendTaskProps {

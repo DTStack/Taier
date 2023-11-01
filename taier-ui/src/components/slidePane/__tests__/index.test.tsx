@@ -1,4 +1,5 @@
 import { cleanup, fireEvent, render } from '@testing-library/react';
+
 import SlidePane from '..';
 
 describe('Test SlidePane Component', () => {

@@ -15,23 +15,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { useEffect, useMemo, useState, useContext, useRef } from 'react';
+import { useContext, useEffect, useMemo, useRef,useState } from 'react';
+import { DeleteOutlined,PlusOutlined } from '@ant-design/icons';
+import molecule from '@dtinsight/molecule';
 import type { FormInstance } from 'antd';
 import { Button, Collapse, Form, Popconfirm } from 'antd';
-import { PlusOutlined, DeleteOutlined } from '@ant-design/icons';
-import { getTimeZoneList } from './panelData';
-import moment from 'moment';
-import { CODE_TYPE, DATA_SOURCE_ENUM, FLINK_VERSIONS, formItemLayout, KAFKA_DATA_TYPE } from '@/constant';
-import classNames from 'classnames';
-import stream from '@/api';
-import { isAvro, isKafka } from '@/utils/is';
-import { getColumnsByColumnsText } from '@/utils';
-import SourceForm from './form';
-import molecule from '@dtinsight/molecule';
-import type { IDataSourceUsedInSyncProps, IFlinkSourceProps } from '@/interface';
 import type { DefaultOptionType } from 'antd/lib/cascader';
+import classNames from 'classnames';
+import moment from 'moment';
+
+import stream from '@/api';
+import { CODE_TYPE, DATA_SOURCE_ENUM, FLINK_VERSIONS, formItemLayout, KAFKA_DATA_TYPE } from '@/constant';
+import type { IDataSourceUsedInSyncProps, IFlinkSourceProps } from '@/interface';
 import type { IRightBarComponentProps } from '@/services/rightBarService';
 import { FormContext } from '@/services/rightBarService';
+import { getColumnsByColumnsText } from '@/utils';
+import { isAvro, isKafka } from '@/utils/is';
+import SourceForm from './form';
+import { getTimeZoneList } from './panelData';
 import './index.scss';
 
 const { Panel } = Collapse;

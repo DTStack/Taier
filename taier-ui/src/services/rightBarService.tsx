@@ -1,20 +1,21 @@
 import React, { useEffect } from 'react';
-import FlinkDimensionPanel from '@/pages/rightBar/flinkDimension';
-import FlinkResultPanel from '@/pages/rightBar/flinkResult';
-import FlinkSourcePanel from '@/pages/rightBar/flinkSource';
-import EnvParams from '@/pages/rightBar/envParams';
-import SchedulingConfig from '@/pages/rightBar/schedulingConfig';
-import TaskInfo from '@/pages/rightBar/taskInfo';
-import TaskParams from '@/pages/rightBar/taskParams';
-import { isTaskTab } from '@/utils/is';
 import molecule from '@dtinsight/molecule';
 import { Component, connect } from '@dtinsight/molecule/esm/react';
 import type { FormInstance } from 'antd';
 import { Form } from 'antd';
 import classNames from 'classnames';
 import { singleton } from 'tsyringe';
+
 import { RightBarKind } from '@/interface';
+import EnvParams from '@/pages/rightBar/envParams';
+import FlinkDimensionPanel from '@/pages/rightBar/flinkDimension';
+import FlinkResultPanel from '@/pages/rightBar/flinkResult';
+import FlinkSourcePanel from '@/pages/rightBar/flinkSource';
+import SchedulingConfig from '@/pages/rightBar/schedulingConfig';
 import TaskConfig from '@/pages/rightBar/taskConfig';
+import TaskInfo from '@/pages/rightBar/taskInfo';
+import TaskParams from '@/pages/rightBar/taskParams';
+import { isTaskTab } from '@/utils/is';
 
 interface IRightBarService {
     /**

@@ -1,10 +1,15 @@
-import 'reflect-metadata';
-import { GlobalEvent } from '@dtinsight/molecule/esm/common/event';
-import { singleton } from 'tsyringe';
 import molecule from '@dtinsight/molecule';
-import { IComputeType } from '@/interface';
+import { GlobalEvent } from '@dtinsight/molecule/esm/common/event';
+import { message } from 'antd';
 import type { Rules, RuleType, ValidateError } from 'async-validator';
 import ValidSchema from 'async-validator';
+import { cloneDeep, isObject } from 'lodash';
+import type { mxCell } from 'mxgraph';
+import { singleton } from 'tsyringe';
+import 'reflect-metadata';
+
+import api from '@/api';
+import type { IGeometryPosition } from '@/components/mxGraph/container';
 import {
     CATALOGUE_TYPE,
     CREATE_MODEL_TYPE,
@@ -16,10 +21,10 @@ import {
     SUPPROT_SUB_LIBRARY_DB_ARRAY,
     TASK_TYPE_ENUM,
 } from '@/constant';
-import { cloneDeep, isObject } from 'lodash';
-import api from '@/api';
-import { message } from 'antd';
-import { breadcrumbService, catalogueService, rightBarService } from '.';
+import type { IOfflineTaskProps } from '@/interface';
+import { IComputeType } from '@/interface';
+import { checkColumnsData } from '@/pages/editor/streamCollection/taskFunc';
+import { isEditing } from '@/pages/editor/workflow';
 import {
     isAvro,
     isHavePartition,
@@ -34,12 +39,8 @@ import {
     isRedis,
     isS3,
 } from '@/utils/is';
-import { checkColumnsData } from '@/pages/editor/streamCollection/taskFunc';
 import viewStoreService from './viewStoreService';
-import { isEditing } from '@/pages/editor/workflow';
-import type { IOfflineTaskProps } from '@/interface';
-import type { mxCell } from 'mxgraph';
-import type { IGeometryPosition } from '@/components/mxGraph/container';
+import { breadcrumbService, catalogueService, rightBarService } from '.';
 
 interface IParamsProps extends IOfflineTaskProps {
     // 接口要求的标记位

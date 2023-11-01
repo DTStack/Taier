@@ -1,21 +1,13 @@
 import { useContext, useEffect, useRef, useState } from 'react';
-import { Badge, Button, Form, Input, message, Modal, Select, Space, Tooltip } from 'antd';
-import viewStoreService from '@/services/viewStoreService';
-import api from '@/api';
-import taskSaveService from '@/services/taskSaveService';
-import { formItemLayout, TASK_TYPE_ENUM } from '@/constant';
-import context from '@/context';
-import classNames from 'classnames';
 import ReactDOMServer from 'react-dom/server';
-import { taskRenderService } from '@/services';
-import MxGraphContainer, { WIDGETS_PREFIX } from '@/components/mxGraph/container';
+import { ApartmentOutlined, CheckOutlined } from '@ant-design/icons';
 import molecule from '@dtinsight/molecule';
 import { connect } from '@dtinsight/molecule/esm/react';
-import { ApartmentOutlined, CheckOutlined } from '@ant-design/icons';
-import { getTenantId, randomId } from '@/utils';
-import { IComputeType } from '@/interface';
+import { Badge, Button, Form, Input, message, Modal, Select, Space, Tooltip } from 'antd';
+import classNames from 'classnames';
 import type { mxCell, mxGraph } from 'mxgraph';
-import type { IOfflineTaskProps } from '@/interface';
+
+import api from '@/api';
 import type {
     IContainerProps,
     IContainerRef,
@@ -23,8 +15,17 @@ import type {
     IGeometryPosition,
     IKeyDownConfig,
 } from '@/components/mxGraph/container';
-import './index.scss';
+import MxGraphContainer, { WIDGETS_PREFIX } from '@/components/mxGraph/container';
 import { ICreateTaskFormFieldProps } from '@/components/task/create';
+import { formItemLayout, TASK_TYPE_ENUM } from '@/constant';
+import context from '@/context';
+import type { IOfflineTaskProps } from '@/interface';
+import { IComputeType } from '@/interface';
+import { taskRenderService } from '@/services';
+import taskSaveService from '@/services/taskSaveService';
+import viewStoreService from '@/services/viewStoreService';
+import { getTenantId, randomId } from '@/utils';
+import './index.scss';
 
 // 是否编辑状态未保存的标志符
 export const isEditing = Symbol('editing');

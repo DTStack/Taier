@@ -1,13 +1,14 @@
-import { message } from 'antd';
-import { KeyMod, KeyCode } from '@dtinsight/molecule/esm/monaco';
-import { ID_COLLECTIONS } from '@/constant';
-import { taskRenderService } from '@/services';
-import { isTaskTab } from '@/utils/is';
 import molecule from '@dtinsight/molecule';
+import { KeyCode,KeyMod } from '@dtinsight/molecule/esm/monaco';
 import { Action2 } from '@dtinsight/molecule/esm/monaco/action';
 import { KeybindingWeight } from '@dtinsight/molecule/esm/monaco/common';
+import { message } from 'antd';
+
+import { ID_COLLECTIONS } from '@/constant';
 import type { CatalogueDataProps, IOfflineTaskProps } from '@/interface';
+import { taskRenderService } from '@/services';
 import taskSaveService from '@/services/taskSaveService';
+import { isTaskTab } from '@/utils/is';
 
 export default class QuickSaveTaskAction extends Action2 {
     static readonly ID = 'SaveTask';

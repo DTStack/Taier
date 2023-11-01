@@ -16,11 +16,12 @@
  * limitations under the License.
  */
 
-import molecule from '@dtinsight/molecule';
-import { isTaskTab } from '@/utils/is';
-import { connect } from '@dtinsight/molecule/esm/react';
 import { useContext } from 'react';
+import molecule from '@dtinsight/molecule';
+import { connect } from '@dtinsight/molecule/esm/react';
+
 import context from '@/context';
+import { isTaskTab } from '@/utils/is';
 
 const Language = connect(molecule.editor, ({ current }: molecule.model.IEditor) => {
     const { supportJobTypes } = useContext(context);

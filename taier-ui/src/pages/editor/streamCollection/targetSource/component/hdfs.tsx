@@ -16,9 +16,10 @@
  * limitations under the License.
  */
 
-import { splitCharacter } from '@/components/helpDoc/docs';
-import { Form, Input, Radio, Select } from 'antd';
 import React from 'react';
+import { Form, Input, Radio, Select } from 'antd';
+
+import { splitCharacter } from '@/components/helpDoc/docs';
 
 const FormItem = Form.Item;
 const Option = Select.Option;

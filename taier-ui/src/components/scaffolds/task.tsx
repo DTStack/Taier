@@ -1,23 +1,24 @@
 import { useContext, useEffect, useMemo, useState } from 'react';
-import { message, Modal, Tooltip, AutoComplete, Form, Select, Input } from 'antd';
-import { omit } from 'lodash';
-import { Context } from '@/context/dataSync';
-import http from '@/api/http';
-import { convertParams, splitByKey } from '@/utils';
 import { CloudSyncOutlined, ConsoleSqlOutlined, FundViewOutlined, LoadingOutlined } from '@ant-design/icons';
-import api from '@/api';
-import Editor from '../editor';
-import { CATALOGUE_TYPE, DATA_SOURCE_ENUM, DATA_SYNC_MODE, DDL_IDE_PLACEHOLDER, TASK_LANGUAGE } from '@/constant';
 import molecule from '@dtinsight/molecule';
-import PreviewTable from '../previewTable';
-import md5 from 'md5';
-import viewStoreService from '@/services/viewStoreService';
-import FolderPicker from '../folderPicker';
-import { EventKind } from '@/pages/editor/dataSync';
-import type { TextAreaProps, InputProps } from 'antd/lib/input';
-import type { AutoCompleteProps, SelectProps } from 'antd';
 import type { GlobalEvent } from '@dtinsight/molecule/esm/common/event';
+import type { AutoCompleteProps, SelectProps } from 'antd';
+import { AutoComplete, Form, Input,message, Modal, Select, Tooltip } from 'antd';
+import type { InputProps,TextAreaProps } from 'antd/lib/input';
+import { omit } from 'lodash';
+import md5 from 'md5';
+
+import api from '@/api';
+import http from '@/api/http';
+import { CATALOGUE_TYPE, DATA_SOURCE_ENUM, DATA_SYNC_MODE, DDL_IDE_PLACEHOLDER, TASK_LANGUAGE } from '@/constant';
+import { Context } from '@/context/dataSync';
 import type { IDataColumnsProps } from '@/interface';
+import { EventKind } from '@/pages/editor/dataSync';
+import viewStoreService from '@/services/viewStoreService';
+import { convertParams, splitByKey } from '@/utils';
+import Editor from '../editor';
+import FolderPicker from '../folderPicker';
+import PreviewTable from '../previewTable';
 
 interface IBasicFormItemProps<T = any> {
     id: string;

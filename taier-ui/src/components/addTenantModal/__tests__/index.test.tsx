@@ -1,8 +1,9 @@
-import { input, modal, form } from 'ant-design-testing';
 import { cleanup, render } from '@testing-library/react';
+import { form,input, modal } from 'ant-design-testing';
 import '@testing-library/jest-dom';
-import AddTenantModal from '..';
+
 import api from '@/api';
+import AddTenantModal from '..';
 
 jest.mock('@/api');
 jest.mock('@/utils', () => ({

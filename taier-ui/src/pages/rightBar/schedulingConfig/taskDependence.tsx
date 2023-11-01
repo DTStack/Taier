@@ -16,15 +16,16 @@
  * limitations under the License.
  */
 
-import { Row, Col, Table, Form } from 'antd';
-import { PlusCircleOutlined } from '@ant-design/icons';
 import { useMemo, useState } from 'react';
-import type { IOfflineTaskProps, ITaskVOProps } from '@/interface';
+import { PlusCircleOutlined } from '@ant-design/icons';
+import { Col, Form,Row, Table } from 'antd';
 import type { ColumnsType } from 'antd/lib/table';
+
+import type { IOfflineTaskProps, ITaskVOProps } from '@/interface';
+import { taskRenderService } from '@/services';
 import { getCookie } from '@/utils';
 import type { ITaskSearchResultProps } from './upstreamDependentTasks';
 import UpstreamDependentTasks from './upstreamDependentTasks';
-import { taskRenderService } from '@/services';
 
 interface ITaskDependenceProps {
     tabData: IOfflineTaskProps;

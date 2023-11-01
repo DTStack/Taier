@@ -1,6 +1,7 @@
 import { useMemo } from 'react';
 import { Table } from 'antd';
 import type { ColumnType } from 'antd/lib/table';
+
 import { useCalcTableScroll } from '../customHooks';
 
 export default function PreviewTable({ data }: { data: { columnList: string[]; dataList: string[][] } }) {

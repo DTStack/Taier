@@ -1,7 +1,8 @@
 import { cleanup, render, waitFor } from '@testing-library/react';
-import '@testing-library/jest-dom';
-import LogEditor from '..';
 import { Input } from 'antd';
+import '@testing-library/jest-dom';
+
+import LogEditor from '..';
 
 jest.mock('../../editor', () => {
     return ({ value }: any) => {

@@ -1,8 +1,9 @@
-import { act, cleanup, fireEvent, render, renderHook } from '@testing-library/react';
-import '@testing-library/jest-dom';
-import Sketch, { useSketchRef } from '../';
 import React from 'react';
+import { act, cleanup, fireEvent, render, renderHook } from '@testing-library/react';
 import { input, table } from 'ant-design-testing';
+import '@testing-library/jest-dom';
+
+import Sketch, { useSketchRef } from '../';
 
 jest.useFakeTimers();
 

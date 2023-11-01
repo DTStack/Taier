@@ -17,11 +17,12 @@
  */
 
 import { forwardRef, useImperativeHandle } from 'react';
-import moment from 'moment';
+import type { CheckboxProps,SelectProps } from 'antd';
+import { Checkbox, DatePicker, Form, Input,Select } from 'antd';
 import get from 'lodash/get';
-import type { SelectProps, CheckboxProps } from 'antd';
-import { Form, Checkbox, DatePicker, Select, Input } from 'antd';
-import { scheduleConfigLayout, SCHEDULE_STATUS, TASK_PERIOD_ENUM } from '@/constant';
+import moment from 'moment';
+
+import { SCHEDULE_STATUS, scheduleConfigLayout, TASK_PERIOD_ENUM } from '@/constant';
 import type { IScheduleConfProps } from '@/interface';
 
 const { Option } = Select;

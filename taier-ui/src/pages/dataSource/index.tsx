@@ -17,23 +17,24 @@
  */
 
 import { useMemo, useState } from 'react';
-import { Empty, message, Modal } from 'antd';
-import molecule from '@dtinsight/molecule';
-import { ActionBar, Menu, useContextViewEle } from '@dtinsight/molecule/esm/components';
-import { Content, Header } from '@dtinsight/molecule/esm/workbench/sidebar';
-import { connect } from '@dtinsight/molecule/esm/react';
-import { dataSourceService } from '@/services';
-import API from '@/api';
 import { ExclamationCircleOutlined } from '@ant-design/icons';
+import molecule from '@dtinsight/molecule';
 import { getEventPosition } from '@dtinsight/molecule/esm/common/dom';
-import { ID_COLLECTIONS } from '@/constant';
-import { DetailInfoModal } from '@/components/detailInfo';
-import Search from './search';
-import Add from './add';
+import { ActionBar, Menu, useContextViewEle } from '@dtinsight/molecule/esm/components';
+import { connect } from '@dtinsight/molecule/esm/react';
+import { Content, Header } from '@dtinsight/molecule/esm/workbench/sidebar';
+import { Empty, message, Modal } from 'antd';
 import classNames from 'classnames';
+
+import API from '@/api';
+import { DetailInfoModal } from '@/components/detailInfo';
 import { DataSourceLinkFailed, DataSourceLinkSuccess } from '@/components/icon';
+import { ID_COLLECTIONS } from '@/constant';
 import type { IDataSourceProps } from '@/interface';
+import { dataSourceService } from '@/services';
 import type { IDataSourceState } from '@/services/dataSourceService';
+import Add from './add';
+import Search from './search';
 import './index.scss';
 
 const { confirm } = Modal;

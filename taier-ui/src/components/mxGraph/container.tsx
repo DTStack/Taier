@@ -1,19 +1,20 @@
+import type { ForwardedRef,Ref } from 'react';
 import React, { forwardRef, useEffect, useImperativeHandle, useRef, useState } from 'react';
 import { ReloadOutlined, ZoomInOutlined, ZoomOutOutlined } from '@ant-design/icons';
 import { Space, Spin, Tooltip } from 'antd';
-import MxFactory from '.';
 import type {
-    mxGraph,
     mxCell,
     mxCellHighlight,
-    mxEventSource,
-    mxPopupMenuHandler,
     mxCellState,
-    mxKeyHandler,
     mxEventObject,
+    mxEventSource,
+    mxGraph,
+    mxKeyHandler,
+    mxPopupMenuHandler,
 } from 'mxgraph';
-import type { Ref, ForwardedRef } from 'react';
+
 import { renderCharacterByCode } from '@/utils';
+import MxFactory from '.';
 import './container.scss';
 
 const Mx = new MxFactory();

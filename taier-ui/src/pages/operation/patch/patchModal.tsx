@@ -16,20 +16,21 @@
  * limitations under the License.
  */
 
-import { useEffect, useState, useRef, useContext } from 'react';
-import { Modal, Row, Form, Col, Checkbox, Tooltip, Input, DatePicker, TimePicker, message, Space, Table } from 'antd';
-import { history } from 'umi';
-import moment from 'moment';
-import { range } from 'lodash';
+import { useContext,useEffect, useRef, useState } from 'react';
 import { QuestionCircleOutlined } from '@ant-design/icons';
-import type { SCHEDULE_STATUS, TASK_TYPE_ENUM } from '@/constant';
-import { DRAWER_MENU_ENUM, formItemLayout } from '@/constant';
-import Api from '@/api';
-import type { ITaskProps } from '@/interface';
-import { DIRECT_TYPE_ENUM } from '@/interface';
+import { Checkbox, Col, DatePicker, Form, Input, message, Modal, Row, Space, Table,TimePicker, Tooltip } from 'antd';
 import type { ColumnsType } from 'antd/lib/table';
 import type { TableRowSelection } from 'antd/lib/table/interface';
+import { range } from 'lodash';
+import moment from 'moment';
+import { history } from 'umi';
+
+import Api from '@/api';
+import type { SCHEDULE_STATUS, TASK_TYPE_ENUM } from '@/constant';
+import { DRAWER_MENU_ENUM, formItemLayout } from '@/constant';
 import context from '@/context';
+import type { ITaskProps } from '@/interface';
+import { DIRECT_TYPE_ENUM } from '@/interface';
 
 const FormItem = Form.Item;
 const { RangePicker } = DatePicker;

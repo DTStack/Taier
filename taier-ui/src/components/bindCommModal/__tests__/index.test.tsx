@@ -1,9 +1,10 @@
-import api from '@/api';
-import { modal, select, form } from 'ant-design-testing';
 import { cleanup, render, waitFor } from '@testing-library/react';
-import BindCommModal from '..';
+import { form,modal, select } from 'ant-design-testing';
 import '@testing-library/jest-dom';
+
+import api from '@/api';
 import { $ } from '@/tests/utils';
+import BindCommModal from '..';
 
 jest.mock('@/api');
 

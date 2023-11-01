@@ -1,16 +1,17 @@
-import Function from '../';
-import { cleanup, fireEvent, render, waitFor } from '@testing-library/react';
-import { Input } from 'antd';
-import { FolderTree } from '@dtinsight/molecule/esm/workbench/sidebar/explore';
-import { FUNCTOIN_ACTIONS } from '@/constant';
-import api from '@/api';
-import functionManagerService from '@/services/functionManagerService';
 import { act } from 'react-dom/test-utils';
-import '@testing-library/jest-dom';
 import { TreeViewUtil } from '@dtinsight/molecule/esm/common/treeUtil';
-import { fillFormContent } from './fixtures/utils';
-import { catalogueService } from '@/services';
+import { FolderTree } from '@dtinsight/molecule/esm/workbench/sidebar/explore';
+import { cleanup, fireEvent, render, waitFor } from '@testing-library/react';
 import { input, modal } from 'ant-design-testing';
+import { Input } from 'antd';
+import '@testing-library/jest-dom';
+
+import api from '@/api';
+import { FUNCTOIN_ACTIONS } from '@/constant';
+import { catalogueService } from '@/services';
+import functionManagerService from '@/services/functionManagerService';
+import Function from '../';
+import { fillFormContent } from './fixtures/utils';
 
 jest.useFakeTimers();
 jest.mock('@/api');

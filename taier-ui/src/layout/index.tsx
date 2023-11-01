@@ -16,8 +16,8 @@
  * limitations under the License.
  */
 
-import zhCN from 'antd/lib/locale/zh_CN';
 import { ConfigProvider, message } from 'antd';
+import zhCN from 'antd/lib/locale/zh_CN';
 
 message.config({
     top: 20,

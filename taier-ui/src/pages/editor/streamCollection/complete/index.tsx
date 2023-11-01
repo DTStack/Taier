@@ -16,11 +16,12 @@
  * limitations under the License.
  */
 
-import { IDataSourceUsedInSyncProps } from '@/interface';
+import React from 'react';
 import molecule from '@dtinsight/molecule';
 import { connect as moleculeConnect } from '@dtinsight/molecule/esm/react';
 import { Button, Card, FormProps } from 'antd';
-import React from 'react';
+
+import { IDataSourceUsedInSyncProps } from '@/interface';
 import Channel from '../channel';
 import Source from '../source';
 import TargetSource from '../targetSource';

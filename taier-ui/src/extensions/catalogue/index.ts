@@ -18,6 +18,7 @@
 
 import type { UniqueId } from '@dtinsight/molecule/esm/common/types';
 import type { IExtension } from '@dtinsight/molecule/esm/model';
+
 import { catalogueService } from '@/services';
 
 /**

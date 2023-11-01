@@ -1,8 +1,9 @@
+import { waitFor } from '@testing-library/react';
+import md5 from 'md5';
+
 import api from '@/api';
 import notification from '@/components/notification';
 import type { CatalogueDataProps, IOfflineTaskProps } from '@/interface';
-import { waitFor } from '@testing-library/react';
-import md5 from 'md5';
 import ExecuteService, { EXECUTE_EVENT } from '../executeService';
 import taskResultService from '../taskResultService';
 

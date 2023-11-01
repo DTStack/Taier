@@ -1,6 +1,6 @@
 import { GlobalEvent } from '@dtinsight/molecule/esm/common/event';
-import 'reflect-metadata';
 import { singleton } from 'tsyringe';
+import 'reflect-metadata';
 
 enum ViewStorageEventKind {
     onStorageChange = 'onStorageChange',

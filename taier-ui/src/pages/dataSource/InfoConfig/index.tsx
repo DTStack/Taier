@@ -16,23 +16,24 @@
  * limitations under the License.
  */
 
-import { useEffect, useState, useImperativeHandle, forwardRef } from 'react';
+import { forwardRef,useEffect, useImperativeHandle, useState } from 'react';
 import {
-    QuestionCircleOutlined,
-    CopyOutlined,
-    PlusCircleOutlined,
-    UploadOutlined,
     CloseOutlined,
+    CopyOutlined,
     LinkOutlined,
+    PlusCircleOutlined,
+    QuestionCircleOutlined,
+    UploadOutlined,
 } from '@ant-design/icons';
-import { Input, Button, Upload, message, Select, Radio, InputNumber, Tooltip, Switch, Form, Space, Spin } from 'antd';
+import { Button, Form, Input, InputNumber, message, Radio, Select, Space, Spin,Switch, Tooltip, Upload } from 'antd';
+import type { RcFile } from 'antd/lib/upload';
+import Base64 from 'base-64';
 import copy from 'copy-to-clipboard';
 import moment from 'moment';
-import Base64 from 'base-64';
+
 import api from '@/api';
-import { HDFSCONG, formItemLayout } from '@/constant';
+import { formItemLayout,HDFSCONG } from '@/constant';
 import { utf8to16 } from '@/utils';
-import type { RcFile } from 'antd/lib/upload';
 import { getRules } from './formRules';
 import HDFSTooltips from './tooltips';
 import './index.scss';
