@@ -30,15 +30,16 @@ import api from '@/api';
 import type { IGeometryPosition } from '@/components/mxGraph/container';
 import notification from '@/components/notification';
 import Publish, { CONTAINER_ID } from '@/components/task/publish';
-import { DRAWER_MENU_ENUM, ID_COLLECTIONS, TASK_LANGUAGE, TASK_TYPE_ENUM } from '@/constant';
+import { COMPLETION_SQL, DRAWER_MENU_ENUM, ID_COLLECTIONS, TASK_TYPE_ENUM } from '@/constant';
 import type { CatalogueDataProps, IOfflineTaskProps } from '@/interface';
 import { IComputeType } from '@/interface';
 import { isEditing } from '@/pages/editor/workflow';
-import { editorActionBarService, executeService, taskParamsService,taskRenderService } from '@/services';
+import { editorActionBarService, executeService, taskParamsService, taskRenderService } from '@/services';
 import type { IParamsProps } from '@/services/taskParamsService';
 import taskSaveService from '@/services/taskSaveService';
 import viewStoreService from '@/services/viewStoreService';
-import { createSQLProposals, prettierJSONstring } from '@/utils';
+import { prettierJSONstring } from '@/utils';
+import { Snippets } from '@/utils/completion';
 import { mappingTaskTypeToLanguage } from '@/utils/enums';
 import { onTaskSwitch, runTask, syntaxValidate } from '@/utils/extensions';
 
@@ -273,14 +274,7 @@ const updateTaskVariables = debounce((tab: molecule.model.IEditorTab<any>) => {
     });
 }, 300);
 
-// 注册自动补全
-function registerCompletion() {
-    const COMPLETION_SQL = [
-        TASK_LANGUAGE.SPARKSQL,
-        TASK_LANGUAGE.HIVESQL,
-        TASK_LANGUAGE.SQL,
-        TASK_LANGUAGE.FLINKSQL,
-    ] as const;
+function registerSnippets() {
     COMPLETION_SQL.forEach((sql) =>
         languages.registerCompletionItemProvider(sql, {
             async provideCompletionItems(model, position) {
@@ -292,7 +286,7 @@ function registerCompletion() {
                     endColumn: word.endColumn,
                 };
 
-                const suggestions = await createSQLProposals(range);
+                const suggestions = Snippets(range);
                 return {
                     suggestions,
                 };
@@ -309,7 +303,7 @@ export default class EditorExtension implements IExtension {
     }
     activate() {
         emitEvent();
-        registerCompletion();
+        registerSnippets();
 
         molecule.editor.onOpenTab((tab) => {
             viewStoreService.clearStorage(tab.id.toString());

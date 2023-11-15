@@ -50,7 +50,7 @@
 		"lodash": "^4.17.21",
 		"md5": "^2.3.0",
 		"moment": "^2.29.1",
-		"monaco-sql-languages": "^0.9.4",
+		"monaco-sql-languages": "0.12.0-beta.5",
 		"mxgraph": "4.0.6",
 		"object-assign": "^4.1.1",
 		"react": "~18.2.0",
@@ -93,7 +93,7 @@
 		"jest-canvas-mock": "^2.4.0",
 		"ko-lint-config": "^2.2.16",
 		"lint-staged": "^10.0.7",
-		"monaco-editor-webpack-plugin": "^6.0.0",
+		"monaco-editor-webpack-plugin": "^7.0.0",
 		"mustache": "^4.2.0",
 		"progress": "^2.0.3",
 		"request-promise": "^4.2.6",
@@ -106,6 +106,6 @@
 		"yorkie": "^2.0.0"
 	},
 	"resolutions": {
-		"dt-sql-parser": "4.0.0-beta.3.2"
+		"antlr4-c3": "3.0.x"
 	}
 }

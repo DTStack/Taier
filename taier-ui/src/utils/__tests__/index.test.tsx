@@ -11,7 +11,6 @@ import {
     copyText,
     createElement,
     createSeries,
-    createSQLProposals,
     deleteCookie,
     disableRangeCreater,
     filterComments,
@@ -187,7 +186,7 @@ describe('utils/index', () => {
         );
 
         // default
-        expect(getVertexStyle(99999)).toBe(
+        expect(getVertexStyle(99999 as any)).toBe(
             'whiteSpace=wrap;fillColor=var(--badge-common-background);strokeColor=var(--badge-common-border);'
         );
     });
@@ -374,25 +373,6 @@ describe('utils/index', () => {
         expect(isValidFormatType('varChar')).toBe(true);
         expect(isValidFormatType('varChar2')).toBe(true);
         expect(isValidFormatType('abc')).toBe(false);
-    });
-
-    it('Should have completion for sql', () => {
-        window.fetch = jest
-            .fn()
-            .mockResolvedValueOnce({
-                json: () => Promise.resolve(require('../../../public/assets/keywords.json')),
-            })
-            .mockResolvedValueOnce({
-                json: () => Promise.resolve(require('../../../public/assets/functions.json')),
-            });
-        const completions = createSQLProposals({
-            startLineNumber: 0,
-            startColumn: 0,
-            endLineNumber: 0,
-            endColumn: 0,
-        });
-
-        expect(completions).resolves.toMatchSnapshot();
     });
 
     it('disableRangeCreater', () => {
