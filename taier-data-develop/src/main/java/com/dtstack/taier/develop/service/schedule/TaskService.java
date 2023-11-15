@@ -291,16 +291,16 @@ public class TaskService extends ServiceImpl<ScheduleTaskShadeMapper, ScheduleTa
     /**
      * 查询工作有下的所有任务
      *
-     * @param taskId 任务i
+     * @param taskIds 任务i
      * @return 工作流子任务
      */
-    public List<ScheduleTaskShade> findAllFlowTasks(Long taskId) {
-        if (taskId == null) {
+    public List<ScheduleTaskShade> findAllFlowTasks(List<Long> taskIds) {
+        if (CollectionUtils.isEmpty(taskIds)) {
             return Lists.newArrayList();
         }
         return this.lambdaQuery()
                 .eq(ScheduleTaskShade::getIsDeleted,Deleted.NORMAL.getStatus())
-                .eq(ScheduleTaskShade::getFlowId,taskId)
+                .in(ScheduleTaskShade::getFlowId,taskIds)
                 .list();
     }
 

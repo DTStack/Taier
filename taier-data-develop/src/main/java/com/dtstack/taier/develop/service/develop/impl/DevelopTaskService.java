@@ -1189,11 +1189,19 @@ public class DevelopTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
      * @param scheduleStatus 调度状态
      * @param userId         用户ID
      */
+    @Transactional(rollbackFor = Exception.class)
     public void frozenTask(List<Long> taskIds, Integer scheduleStatus, Long userId) {
         Task task = new Task();
         task.setModifyUserId(userId);
         task.setScheduleStatus(scheduleStatus);
         developTaskMapper.update(task, Wrappers.lambdaQuery(Task.class).in(Task::getId, taskIds));
+        List<ScheduleTaskShade> allFlowTasks = taskService.findAllFlowTasks(taskIds);
+        if (CollectionUtils.isNotEmpty(allFlowTasks)) {
+            List<Long> flowTasks = allFlowTasks.stream()
+                    .map(ScheduleTaskShade::getTaskId)
+                    .collect(Collectors.toList());
+            taskIds.addAll(flowTasks);
+        }
         taskService.frozenTask(taskIds, scheduleStatus);
     }
 
