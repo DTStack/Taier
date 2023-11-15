@@ -72,7 +72,6 @@ import com.dtstack.taier.develop.service.console.TenantService;
 import com.dtstack.taier.develop.service.datasource.impl.DatasourceService;
 import com.dtstack.taier.develop.service.develop.ITaskSaver;
 import com.dtstack.taier.develop.service.develop.TaskConfiguration;
-import com.dtstack.taier.develop.service.develop.runner.ScriptTaskRunner;
 import com.dtstack.taier.develop.service.develop.saver.AbstractTaskSaver;
 import com.dtstack.taier.develop.service.schedule.TaskService;
 import com.dtstack.taier.develop.service.task.TaskTemplateService;
@@ -218,12 +217,6 @@ public class DevelopTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
 
     @Autowired
     private ScheduleDictService scheduleDictService;
-
-    @Autowired
-    private DevelopScriptService developScriptService;
-
-    @Autowired
-    private ScriptTaskRunner scriptTaskRunner;
 
     @Autowired
     private SourceLoaderService sourceLoaderService;

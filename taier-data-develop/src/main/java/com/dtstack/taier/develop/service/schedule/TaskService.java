@@ -100,26 +100,6 @@ public class TaskService extends ServiceImpl<ScheduleTaskShadeMapper, ScheduleTa
     }
 
     /**
-     * 修改任务名称
-     *
-     * @param taskId 任务id
-     * @param name   任务名称
-     * @return 是否修改成功
-     */
-    public Boolean updateTaskName(Long taskId, String name) {
-        if (taskId==null || StringUtils.isBlank(name)) {
-            return Boolean.FALSE;
-        }
-
-        ScheduleTaskShade scheduleTaskShade = new ScheduleTaskShade();
-        scheduleTaskShade.setName(name);
-        return this.lambdaUpdate()
-                .eq(ScheduleTaskShade::getTaskId, taskId)
-                .eq(ScheduleTaskShade::getIsDeleted, Deleted.NORMAL.getStatus())
-                .update(scheduleTaskShade);
-    }
-
-    /**
      * 删除任务
      */
     public Boolean deleteTask(Long taskId, Long modifyUserId) {

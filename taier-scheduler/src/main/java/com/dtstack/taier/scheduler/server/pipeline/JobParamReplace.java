@@ -47,9 +47,6 @@ public class JobParamReplace {
 
     private final static String VAR_FORMAT = "${%s}";
 
-    private final static String VAR_COMPONENT = "@@{%s}";
-
-
     public static String paramReplace(String sql, List<ScheduleTaskParamShade> paramList, String cycTime) {
 
         if (CollectionUtils.isEmpty(paramList)) {
@@ -70,21 +67,13 @@ public class JobParamReplace {
             paramCommand = ((ScheduleTaskParamShade) param).getParamCommand();
 
             String targetVal = convertParam(type, paramName, paramCommand, cycTime, ((ScheduleTaskParamShade) param).getTaskId());
-            String parseSymbol = convertSymbol(type);
-            String replaceStr = String.format(parseSymbol, paramName);
+            String replaceStr = String.format(VAR_FORMAT, paramName);
             sql = sql.replace(replaceStr, targetVal);
         }
 
         return sql;
     }
 
-    private static String convertSymbol(Integer type) {
-        if (EParamType.COMPONENT.getType().equals(type)) {
-            return VAR_COMPONENT;
-        } else {
-            return VAR_FORMAT;
-        }
-    }
 
     public static String convertParam(Integer type, String paramName, String paramCommand, String cycTime, Long taskId) {
 
@@ -96,8 +85,6 @@ public class JobParamReplace {
             }
 
             command = TimeParamOperator.transform(command, cycTime);
-            return command;
-        } else if (EParamType.COMPONENT.getType().equals(type)) {
             return command;
         } else {
             return TimeParamOperator.dealCustomizeTimeOperator(command, cycTime);
