@@ -25,6 +25,7 @@ import com.dtstack.taier.develop.service.schedule.TaskService;
 import com.dtstack.taier.develop.vo.schedule.QueryTaskListVO;
 import com.dtstack.taier.develop.vo.schedule.ReturnScheduleTaskVO;
 import com.dtstack.taier.develop.vo.schedule.ReturnTaskSupportTypesVO;
+import com.google.common.collect.Lists;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
@@ -66,7 +67,7 @@ public class OperationScheduleTaskController {
             @ApiImplicitParam(name = "taskId", value = "任务id", required = true, dataType = "Long"),
     })
     public R<List<ReturnScheduleTaskVO>> queryFlowWorkSubTasks(@RequestParam("taskId") Long taskId) {
-        return R.ok(ScheduleTaskMapstructTransfer.INSTANCE.beanToTaskVO(taskService.findAllFlowTasks(taskId)));
+        return R.ok(ScheduleTaskMapstructTransfer.INSTANCE.beanToTaskVO(taskService.findAllFlowTasks(Lists.newArrayList(taskId))));
     }
 
     @PostMapping(value = "/querySupportJobTypes")

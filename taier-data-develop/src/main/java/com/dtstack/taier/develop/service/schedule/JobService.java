@@ -511,10 +511,6 @@ public class JobService extends ServiceImpl<ScheduleJobMapper, ScheduleJob> {
             throw new TaierDefineException("fillDataInfo is not null", ErrorCode.INVALID_PARAMETERS);
         }
 
-        if (FillDataTypeEnum.PROJECT.getType().equals(fillDataInfo.getFillDataType()) && (endTime.getMillis() - startTime.getMillis()) / (1000 * 3600 * 24) > 7) {
-            throw new TaierDefineException("The difference between the start and end days cannot exceed 7 days", ErrorCode.INVALID_PARAMETERS);
-        }
-
         if (fillDataJobService.checkExistsName(fillName)) {
             throw new TaierDefineException("补数据任务名称已存在", ErrorCode.NAME_ALREADY_EXIST);
         }
