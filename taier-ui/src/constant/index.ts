@@ -270,6 +270,7 @@ export enum TASK_TYPE_ENUM {
     MAX_COMPUTE = 24,
     HADOOP_MR = 25,
     DATAX,
+    ORACLE = 27,
 }
 
 /**
