@@ -8,7 +8,6 @@ import {
     RightOutlined,
     UploadOutlined,
 } from '@ant-design/icons';
-import CustomParameter, { ICustomValue } from '@/components/customParameter';
 import type { FormItemProps } from 'antd';
 import {
     Button,
@@ -30,6 +29,7 @@ import {
 import type { RcFile } from 'antd/lib/upload';
 
 import api from '@/api';
+import CustomParameter, { ICustomValue } from '@/components/customParameter';
 import { COMPONENT_TYPE_VALUE } from '@/constant';
 import context from '@/context/cluster';
 import type { IComponentProps } from '.';

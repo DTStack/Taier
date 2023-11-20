@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { PlusSquareOutlined, DeleteOutlined } from '@ant-design/icons';
-import { Input, Row, Col, Space } from 'antd';
+import { DeleteOutlined,PlusSquareOutlined } from '@ant-design/icons';
+import { Col, Input, Row, Space } from 'antd';
 
 import './index.scss';
 
@@ -59,7 +59,7 @@ export default function CustomParameter({ existingKeys, value, onChange }: ICust
     const handleIsSame = (item: ICustomItem) =>
         existingKeys.includes(item.label) || customParamRows.filter((cIt) => cIt.label === item.label).length > 1;
 
-    console.log(existingKeys)
+    console.log(existingKeys);
 
     useEffect(() => {
         setCustomParamRows(
