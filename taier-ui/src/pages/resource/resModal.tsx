@@ -16,16 +16,17 @@
  * limitations under the License.
  */
 import { useEffect, useState } from 'react';
-import { Radio, Space, Form, Modal, Button, Input, Select, Upload } from 'antd';
-import FolderPicker from '../../components/folderPicker';
+import { FileTypes } from '@dtinsight/molecule/esm/model';
+import { Button, Form, Input, Modal, Radio, Select, Space, Upload } from 'antd';
+import type { RcFile } from 'antd/lib/upload';
+
+import api from '@/api';
 import { CATALOGUE_TYPE, formItemLayout, RESOURCE_TYPE } from '@/constant';
 import { IComputeType } from '@/interface';
-import type { RcFile } from 'antd/lib/upload';
-import { resourceNameMapping } from '@/utils/enums';
 import { catalogueService } from '@/services';
 import resourceManagerTree from '@/services/resourceManagerService';
-import { FileTypes } from '@dtinsight/molecule/esm/model';
-import api from '@/api';
+import { resourceNameMapping } from '@/utils/enums';
+import FolderPicker from '../../components/folderPicker';
 
 const FormItem = Form.Item;
 const { Option } = Select;

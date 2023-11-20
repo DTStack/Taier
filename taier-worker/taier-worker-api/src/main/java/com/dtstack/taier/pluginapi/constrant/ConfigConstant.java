@@ -113,4 +113,11 @@ public class ConfigConstant {
 
     public static final String DATAX_PYTHON_BIN = "DataX.python.path";
 
+
+    public static final String SPARK_KERBEROS_REMOTE_KRB5 = "spark.kerberos.remotekrb5";
+
+    public static final String SPARK_KERBEROS_REMOTE_KEYTAB = "spark.kerberos.remotekeytab";
+
+    public static final String SPARK_HADOOP_CONF_REMOTE_DIR = "spark.hadoopconf.remotedir";
+
 }

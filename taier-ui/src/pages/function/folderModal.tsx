@@ -17,13 +17,14 @@
  */
 
 import React, { useMemo, useRef, useState } from 'react';
-import assign from 'object-assign';
 import type { FormInstance } from 'antd';
-import { Modal, Button, Input, Form } from 'antd';
+import { Button, Form,Input, Modal } from 'antd';
+import assign from 'object-assign';
+
 import type { CATALOGUE_TYPE } from '@/constant';
 import { formItemLayout } from '@/constant';
-import FolderPicker from '../../components/folderPicker';
 import type { CatalogueDataProps } from '@/interface';
+import FolderPicker from '../../components/folderPicker';
 
 const FormItem = Form.Item;
 

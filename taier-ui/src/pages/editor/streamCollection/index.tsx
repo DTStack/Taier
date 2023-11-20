@@ -17,12 +17,13 @@
  */
 
 import * as React from 'react';
-import { Scrollbar } from '@dtinsight/molecule/esm/components';
-import { connect as moleculeConnect } from '@dtinsight/molecule/esm/react';
 import molecule from '@dtinsight/molecule';
+import { Scrollbar } from '@dtinsight/molecule/esm/components';
 import type { IEditor } from '@dtinsight/molecule/esm/model';
-import CollectionGuid from './steps';
+import { connect as moleculeConnect } from '@dtinsight/molecule/esm/react';
+
 import taskSaveService from '@/services/taskSaveService';
+import CollectionGuid from './steps';
 import './index.scss';
 
 const initialState = {

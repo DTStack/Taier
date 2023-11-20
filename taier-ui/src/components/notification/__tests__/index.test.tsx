@@ -1,7 +1,8 @@
 import molecule from '@dtinsight/molecule';
-import notification from '..';
-import { notification as antNotification } from 'antd';
 import { cleanup, render } from '@testing-library/react';
+import { notification as antNotification } from 'antd';
+
+import notification from '..';
 
 jest.mock('antd', () => ({
     notification: {

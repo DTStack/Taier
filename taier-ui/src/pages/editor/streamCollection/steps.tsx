@@ -1,14 +1,15 @@
 import * as React from 'react';
+import molecule from '@dtinsight/molecule';
+import { connect } from '@dtinsight/molecule/esm/react';
 import { Steps } from 'antd';
-import Source from './source';
-import Target from './targetSource';
+import { cloneDeep } from 'lodash';
+
+import API from '@/api';
 import Channel from './channel';
 import Complete from './complete';
-import { connect } from '@dtinsight/molecule/esm/react';
-import molecule from '@dtinsight/molecule';
+import Source from './source';
+import Target from './targetSource';
 import { streamTaskActions } from './taskFunc';
-import API from '@/api';
-import { cloneDeep } from 'lodash';
 
 const Step = Steps.Step;
 

@@ -1,4 +1,5 @@
 import molecule from '@dtinsight/molecule';
+
 import EditorActionBarService from '../editorActionBarService';
 import { taskRenderService } from '..';
 

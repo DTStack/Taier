@@ -13,6 +13,10 @@
 	"gitHooks": {
 		"pre-commit": "lint-staged"
 	},
+	"engines": {
+		"npm": ">=8.0.0 <9.0.0",
+		"node": ">=14.0.0 <18.0.0"
+	},
 	"lint-staged": {
 		"*.{md,json}": [
 			"prettier --write --no-error-on-unmatched-pattern"
@@ -100,5 +104,8 @@
 		"typescript": "4.7.4",
 		"umi-plugin-tailwindcss": "^3.2.1",
 		"yorkie": "^2.0.0"
+	},
+	"resolutions": {
+		"dt-sql-parser": "4.0.0-beta.3.2"
 	}
 }

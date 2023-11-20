@@ -39,8 +39,11 @@ Flink组件的flinkLibDir配置依赖Flink相关的jar包，建议参考文档�
 - [Spark](https://spark.apache.org/)
   - Spark SQL 任务运行依赖
   - 版本：`spark2.1.3`
-  - 地址: https://archive.apache.org/dist/spark/spark-2.1.3/spark-2.1.3-bin-hadoop2.7.tgz
+  - 地址: https://archive.apache.org/dist/spark/spark-2.1.3/spark-2.1.3-bin-hadoop2.7.tgz 
+  - 版本：`spark3.2.0`
+  - 地址: https://archive.apache.org/dist/spark/spark-3.2.0/spark-3.2.0-bin-hadoop2.7.tgz
 
 :::tip 
-Spark组件的sparkYarnArchive配置依赖spark相关的jar包，建议参考文档目录进行下载配置
+Spark组件的sparkYarnArchive配置依赖spark相关的jar包，建议参考文档目录进行下载配置  
+Hadoop集群版本为3以上时候，请下载为Hadoop3相关版本
 :::

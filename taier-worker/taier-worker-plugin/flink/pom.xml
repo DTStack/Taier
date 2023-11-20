@@ -18,8 +18,8 @@
     <modules>
         <module>common</module>
         <module>yarn-hdfs-flink112-core</module>
-        <module>yarn3-hdfs3-flink112</module>
         <module>yarn2-hdfs2-flink112</module>
+        <module>yarn3-hdfs3-flink112</module>
         <module>flink112-standalone</module>
         <module>flink-base</module>
     </modules>

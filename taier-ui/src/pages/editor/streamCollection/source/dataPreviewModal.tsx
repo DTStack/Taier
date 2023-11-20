@@ -17,10 +17,11 @@
  */
 
 import * as React from 'react';
-import { Modal, Button, Radio } from 'antd';
+import { Button, Modal, Radio } from 'antd';
+
 import stream from '@/api';
+import { isHaveDataPreview,isHaveTopic } from '@/utils/is';
 import TablePreview, { CollapsePreview } from './component/tablePreview';
-import { isHaveTopic, isHaveDataPreview } from '@/utils/is';
 
 const previewTypes = {
     Latest: 'latest',

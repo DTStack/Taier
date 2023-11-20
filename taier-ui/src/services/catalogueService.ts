@@ -1,12 +1,13 @@
+import molecule from '@dtinsight/molecule';
+import { GlobalEvent } from '@dtinsight/molecule/esm/common/event';
+import { FileTypes, TreeNodeModel } from '@dtinsight/molecule/esm/model';
+import { singleton } from 'tsyringe';
+
 import api from '@/api';
 import { CATALOGUE_TYPE, MENU_TYPE_ENUM } from '@/constant';
 import type { CatalogueDataProps } from '@/interface';
 import { getTenantId, getUserId } from '@/utils';
 import { fileIcon } from '@/utils/extensions';
-import molecule from '@dtinsight/molecule';
-import { GlobalEvent } from '@dtinsight/molecule/esm/common/event';
-import { FileTypes, TreeNodeModel } from '@dtinsight/molecule/esm/model';
-import { singleton } from 'tsyringe';
 import functionManagerService from './functionManagerService';
 import resourceManagerService from './resourceManagerService';
 

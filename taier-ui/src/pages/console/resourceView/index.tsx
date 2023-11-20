@@ -16,9 +16,12 @@
  * limitations under the License.
  */
 import { useEffect, useMemo, useState } from 'react';
-import { Table, Progress } from 'antd';
-import Api from '../../../api';
+import { Progress,Table } from 'antd';
+import type { ColumnsType, TableProps } from 'antd/lib/table';
 import { findKey } from 'lodash';
+
+import { SCHEDULE_TYPE } from '@/constant';
+import Api from '../../../api';
 import type {
     ICapacityProps,
     IClusterResourceProps,
@@ -28,9 +31,7 @@ import type {
     IQueueProps,
     IResourceMetrics,
 } from './helper';
-import { NODE_COLUMNS, ResourceCard, RESOURCE_DETAIL_COLUMNS } from './helper';
-import type { ColumnsType, TableProps } from 'antd/lib/table';
-import { SCHEDULE_TYPE } from '@/constant';
+import { NODE_COLUMNS, RESOURCE_DETAIL_COLUMNS,ResourceCard } from './helper';
 import './index.scss';
 
 export default ({

@@ -17,7 +17,8 @@
  */
 
 import type { ModalProps } from 'antd';
-import { Form, Modal, Input } from 'antd';
+import { Form, Input,Modal } from 'antd';
+
 import { formItemLayout } from '@/constant';
 import './index.scss';
 

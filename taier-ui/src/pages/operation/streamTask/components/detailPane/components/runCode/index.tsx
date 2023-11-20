@@ -1,9 +1,10 @@
 import { useMemo, useState } from 'react';
 import { Radio } from 'antd';
-import type { IStreamJobParamsProps } from '@/interface';
+
 import Editor from '@/components/editor';
+import { CREATE_MODEL_TYPE,TASK_TYPE_ENUM } from '@/constant';
+import type { IStreamJobParamsProps } from '@/interface';
 import { prettierJSONstring } from '@/utils';
-import { TASK_TYPE_ENUM, CREATE_MODEL_TYPE } from '@/constant';
 
 export type IRunCodeDataProps = Pick<
     IStreamJobParamsProps,

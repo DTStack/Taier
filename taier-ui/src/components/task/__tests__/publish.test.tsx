@@ -1,9 +1,10 @@
-import { cleanup, render } from '@testing-library/react';
 import { act } from 'react-dom/test-utils';
-import '@testing-library/jest-dom';
-import Publish, { CONTAINER_ID } from '../publish';
-import api from '@/api';
+import { cleanup, render } from '@testing-library/react';
 import { modal } from 'ant-design-testing';
+import '@testing-library/jest-dom';
+
+import api from '@/api';
+import Publish, { CONTAINER_ID } from '../publish';
 
 jest.mock('@/api');
 

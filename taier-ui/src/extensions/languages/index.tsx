@@ -16,18 +16,19 @@
  * limitations under the License.
  */
 
-import { debounce } from 'lodash';
 import molecule from '@dtinsight/molecule';
+import type { UniqueId } from '@dtinsight/molecule/esm/common/types';
 import type { IEditorTab, IExtension, IProblemsItem } from '@dtinsight/molecule/esm/model';
 import { MarkerSeverity } from '@dtinsight/molecule/esm/model';
+import { debounce } from 'lodash';
 import { LanguageService } from 'monaco-sql-languages/out/esm/languageService';
-import type { UniqueId } from '@dtinsight/molecule/esm/common/types';
-import { TASK_LANGUAGE } from '@/constant';
 import 'monaco-sql-languages/out/esm/sparksql/sparksql.contribution';
 import 'monaco-sql-languages/out/esm/hivesql/hivesql.contribution';
 import 'monaco-sql-languages/out/esm/sql/sql.contribution';
 import 'monaco-sql-languages/out/esm/mysql/mysql.contribution';
 import 'monaco-sql-languages/out/esm/flinksql/flinksql.contribution';
+
+import { TASK_LANGUAGE } from '@/constant';
 
 interface ValidMessage {
     endCol: number;

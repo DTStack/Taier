@@ -18,6 +18,7 @@
 
 import { HotTable } from '@handsontable/react';
 import { registerAllModules } from 'handsontable/registry';
+
 import { copyText } from '@/utils';
 import 'handsontable/dist/handsontable.full.css';
 import './index.scss';

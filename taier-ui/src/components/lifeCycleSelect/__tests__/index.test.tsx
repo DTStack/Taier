@@ -1,7 +1,8 @@
-import { cleanup, fireEvent, render } from '@testing-library/react';
 import { act } from 'react-dom/test-utils';
-import LifeCycleSelect from '..';
+import { cleanup, fireEvent, render } from '@testing-library/react';
 import { inputNumber, select } from 'ant-design-testing';
+
+import LifeCycleSelect from '..';
 
 describe('Test LifeCycleSelect Component', () => {
     beforeEach(() => {

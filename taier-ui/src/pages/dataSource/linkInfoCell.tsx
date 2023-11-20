@@ -16,8 +16,8 @@
  * limitations under the License.
  */
 
-import { linkMapping } from '@/utils/enums';
 import type { IDataSourceProps } from '@/interface';
+import { linkMapping } from '@/utils/enums';
 import './linkInfoCell.scss';
 
 export default function LinkInfoCell(props: { sourceData: IDataSourceProps }) {

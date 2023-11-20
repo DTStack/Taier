@@ -553,7 +553,6 @@ exports[`Test Sketch Component Should match snapshot 1`] = `
                                   aria-label="Select all"
                                   class="ant-checkbox-input"
                                   type="checkbox"
-                                  value=""
                                 />
                                 <span
                                   class="ant-checkbox-inner"
@@ -589,7 +588,6 @@ exports[`Test Sketch Component Should match snapshot 1`] = `
                               <input
                                 class="ant-checkbox-input"
                                 type="checkbox"
-                                value=""
                               />
                               <span
                                 class="ant-checkbox-inner"
@@ -624,7 +622,6 @@ exports[`Test Sketch Component Should match snapshot 1`] = `
                               <input
                                 class="ant-checkbox-input"
                                 type="checkbox"
-                                value=""
                               />
                               <span
                                 class="ant-checkbox-inner"

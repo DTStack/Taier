@@ -17,17 +17,18 @@
  */
 
 import { useEffect, useMemo, useState } from 'react';
+import molecule from '@dtinsight/molecule';
+import type { TreeSelectProps } from 'antd/lib/tree-select';
 import { omit } from 'lodash';
+
+import api from '@/api';
+import { CATALOGUE_TYPE, MENU_TYPE_ENUM } from '@/constant';
+import { catalogueService } from '@/services';
+import functionManagerService from '@/services/functionManagerService';
+import resourceManagerTree from '@/services/resourceManagerService';
+import { getTenantId } from '@/utils';
 import type { CustomTreeSelectProps } from './customTreeSelect';
 import CustomTreeSelect from './customTreeSelect';
-import { CATALOGUE_TYPE, MENU_TYPE_ENUM } from '@/constant';
-import molecule from '@dtinsight/molecule';
-import resourceManagerTree from '@/services/resourceManagerService';
-import functionManagerService from '@/services/functionManagerService';
-import type { TreeSelectProps } from 'antd/lib/tree-select';
-import { catalogueService } from '@/services';
-import api from '@/api';
-import { getTenantId } from '@/utils';
 
 interface FolderPickerProps extends CustomTreeSelectProps {
     dataType: CATALOGUE_TYPE;

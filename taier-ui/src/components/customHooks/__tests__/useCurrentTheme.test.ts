@@ -1,5 +1,6 @@
 import molecule from '@dtinsight/molecule';
 import { renderHook } from '@testing-library/react';
+
 import useCurrentTheme from '../useCurrentTheme';
 
 describe('Test useCurrentTheme hook', () => {

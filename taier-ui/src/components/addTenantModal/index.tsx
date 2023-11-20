@@ -16,9 +16,10 @@
  * limitations under the License.
  */
 
-import { Modal, Form, message, Input } from 'antd';
-import { formItemLayout } from '@/constant';
+import { Form, Input,message, Modal } from 'antd';
+
 import api from '@/api';
+import { formItemLayout } from '@/constant';
 import { getUserId } from '@/utils';
 
 interface IFormFieldProps {

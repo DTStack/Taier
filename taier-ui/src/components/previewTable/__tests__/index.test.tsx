@@ -1,4 +1,5 @@
 import { render } from '@testing-library/react';
+
 import PreviewTable from '..';
 
 describe('Test PreviewTable Component', () => {

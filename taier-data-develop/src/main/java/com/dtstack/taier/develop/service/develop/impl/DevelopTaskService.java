@@ -72,7 +72,6 @@ import com.dtstack.taier.develop.service.console.TenantService;
 import com.dtstack.taier.develop.service.datasource.impl.DatasourceService;
 import com.dtstack.taier.develop.service.develop.ITaskSaver;
 import com.dtstack.taier.develop.service.develop.TaskConfiguration;
-import com.dtstack.taier.develop.service.develop.runner.ScriptTaskRunner;
 import com.dtstack.taier.develop.service.develop.saver.AbstractTaskSaver;
 import com.dtstack.taier.develop.service.schedule.TaskService;
 import com.dtstack.taier.develop.service.task.TaskTemplateService;
@@ -218,12 +217,6 @@ public class DevelopTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
 
     @Autowired
     private ScheduleDictService scheduleDictService;
-
-    @Autowired
-    private DevelopScriptService developScriptService;
-
-    @Autowired
-    private ScriptTaskRunner scriptTaskRunner;
 
     @Autowired
     private SourceLoaderService sourceLoaderService;
@@ -1196,11 +1189,19 @@ public class DevelopTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
      * @param scheduleStatus 调度状态
      * @param userId         用户ID
      */
+    @Transactional(rollbackFor = Exception.class)
     public void frozenTask(List<Long> taskIds, Integer scheduleStatus, Long userId) {
         Task task = new Task();
         task.setModifyUserId(userId);
         task.setScheduleStatus(scheduleStatus);
         developTaskMapper.update(task, Wrappers.lambdaQuery(Task.class).in(Task::getId, taskIds));
+        List<ScheduleTaskShade> allFlowTasks = taskService.findAllFlowTasks(taskIds);
+        if (CollectionUtils.isNotEmpty(allFlowTasks)) {
+            List<Long> flowTasks = allFlowTasks.stream()
+                    .map(ScheduleTaskShade::getTaskId)
+                    .collect(Collectors.toList());
+            taskIds.addAll(flowTasks);
+        }
         taskService.frozenTask(taskIds, scheduleStatus);
     }
 

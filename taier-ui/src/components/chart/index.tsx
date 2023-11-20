@@ -17,8 +17,8 @@
  */
 
 import * as React from 'react';
-import { isEqual } from 'lodash';
 import * as echarts from 'echarts/lib/echarts';
+import { isEqual } from 'lodash';
 import 'echarts/lib/component/title';
 import 'echarts/lib/component/tooltip';
 import 'echarts/lib/component/grid';

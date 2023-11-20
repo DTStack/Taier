@@ -1,12 +1,13 @@
 import molecule from '@dtinsight/molecule';
-import taskSaveService from '@/services/taskSaveService';
-import { confirm } from '@/components/confirm';
-import { EditorEvent } from '@dtinsight/molecule/esm/model';
-import { isTaskTab } from '@/utils/is';
-import type { CatalogueDataProps } from '@/interface';
 import type { ListenerEventContext } from '@dtinsight/molecule/esm/common/event';
 import type { UniqueId } from '@dtinsight/molecule/esm/common/types';
 import type { IExtension } from '@dtinsight/molecule/esm/model';
+import { EditorEvent } from '@dtinsight/molecule/esm/model';
+
+import { confirm } from '@/components/confirm';
+import type { CatalogueDataProps } from '@/interface';
+import taskSaveService from '@/services/taskSaveService';
+import { isTaskTab } from '@/utils/is';
 
 export default class ConfirmExtension implements IExtension {
     id: UniqueId = 'Confirm';

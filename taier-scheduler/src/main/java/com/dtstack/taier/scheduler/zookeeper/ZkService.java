@@ -139,7 +139,7 @@ public class ZkService implements InitializingBean, DisposableBean {
                     mutex.release();
                 }
             } catch (Exception e) {
-                LOGGER.warn("Couldn't release lock " + lockName);
+                LOGGER.warn("Couldn't release lock " + lockName, e);
             }
         }
     }

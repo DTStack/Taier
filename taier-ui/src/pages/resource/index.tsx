@@ -17,25 +17,26 @@
  */
 
 import { useState } from 'react';
-import { message, Modal } from 'antd';
-import { Content, Header } from '@dtinsight/molecule/esm/workbench/sidebar';
-import { FolderTree } from '@dtinsight/molecule/esm/workbench/sidebar/explore/index';
-import { debounce } from 'lodash';
+import type molecule from '@dtinsight/molecule';
 import type { IActionBarItemProps, IMenuItemProps, ITreeNodeItemProps } from '@dtinsight/molecule/esm/components';
 import { ActionBar } from '@dtinsight/molecule/esm/components';
 import type { IFolderTree } from '@dtinsight/molecule/esm/model';
 import { FileTypes } from '@dtinsight/molecule/esm/model';
 import { connect } from '@dtinsight/molecule/esm/react';
-import { catalogueService } from '@/services';
+import { Content, Header } from '@dtinsight/molecule/esm/workbench/sidebar';
+import { FolderTree } from '@dtinsight/molecule/esm/workbench/sidebar/explore/index';
+import { message, Modal } from 'antd';
+import { debounce } from 'lodash';
+
+import { DetailInfoModal } from '@/components/detailInfo';
 import { CATALOGUE_TYPE, ID_COLLECTIONS, RESOURCE_ACTIONS } from '@/constant';
+import type { CatalogueDataProps, IResourceProps } from '@/interface';
+import { catalogueService } from '@/services';
+import ajax from '../../api';
 import resourceManagerTree from '../../services/resourceManagerService';
+import FolderModal from '../function/folderModal';
 import type { IFormFieldProps } from './resModal';
 import ResModal from './resModal';
-import ajax from '../../api';
-import FolderModal from '../function/folderModal';
-import type molecule from '@dtinsight/molecule';
-import type { CatalogueDataProps, IResourceProps } from '@/interface';
-import { DetailInfoModal } from '@/components/detailInfo';
 import './index.scss';
 
 const { confirm } = Modal;

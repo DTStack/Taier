@@ -1,4 +1,5 @@
 import { render } from '@testing-library/react';
+
 import EditorEntry from '..';
 
 jest.mock('@dtinsight/molecule/esm/services/keybinding', () => ({

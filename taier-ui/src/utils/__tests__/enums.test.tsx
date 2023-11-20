@@ -1,5 +1,6 @@
-import '@testing-library/jest-dom';
 import { render } from '@testing-library/react';
+import '@testing-library/jest-dom';
+
 import {
     DATA_SOURCE_ENUM,
     DATA_SOURCE_TEXT,

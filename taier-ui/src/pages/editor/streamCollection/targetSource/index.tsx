@@ -16,23 +16,24 @@
  * limitations under the License.
  */
 
+import React from 'react';
+import { ExclamationCircleOutlined } from '@ant-design/icons';
+import molecule from '@dtinsight/molecule';
+import { connect as moleculeConnect } from '@dtinsight/molecule/esm/react';
+import { Button, Form, FormInstance, Select } from 'antd';
+
 import api from '@/api';
 import { hiveWithAllTable } from '@/components/helpDoc/docs';
 import { DATA_SOURCE_ENUM, DATA_SOURCE_TEXT, formItemLayout, PARTITION_TYPE, WRITE_TABLE_TYPE } from '@/constant';
 import { getFlinkDisabledSource } from '@/utils/enums';
-import { isKafka, isMysqlTypeSource, isHive } from '@/utils/is';
-import molecule from '@dtinsight/molecule';
-import { connect as moleculeConnect } from '@dtinsight/molecule/esm/react';
-import { Button, Form, FormInstance, Select } from 'antd';
-import { ExclamationCircleOutlined } from '@ant-design/icons';
-import React from 'react';
+import { isHive,isKafka, isMysqlTypeSource } from '@/utils/is';
+import { targetDefaultValue } from '../helper';
 import { streamTaskActions } from '../taskFunc';
-import Kafka from './component/kafka';
+import Adb from './component/adb';
+import Emq from './component/emq';
 import Hdfs from './component/hdfs';
 import Hive from './component/hive';
-import Emq from './component/emq';
-import { targetDefaultValue } from '../helper';
-import Adb from './component/adb';
+import Kafka from './component/kafka';
 
 const FormItem = Form.Item;
 const Option = Select.Option;

@@ -17,9 +17,10 @@
  */
 
 import { useEffect, useMemo, useState } from 'react';
-import { Pagination, Select } from 'antd';
-import SpreadSheet from '@/components/spreadSheet';
 import molecule from '@dtinsight/molecule/esm';
+import { Pagination, Select } from 'antd';
+
+import SpreadSheet from '@/components/spreadSheet';
 import './result.scss';
 
 const defaultOutTable = 1;

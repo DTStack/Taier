@@ -1,8 +1,16 @@
-import http from '@/api/http';
-import viewStoreService from '@/services/viewStoreService';
+import { act } from 'react-dom/test-utils';
 import molecule from '@dtinsight/molecule';
 import { cleanup, fireEvent, render, waitFor } from '@testing-library/react';
+import { form,input, modal, select, tooltip } from 'ant-design-testing';
 import { Form, Input } from 'antd';
+import { NamePath } from 'antd/lib/form/interface';
+import '@testing-library/jest-dom';
+
+import api from '@/api';
+import http from '@/api/http';
+import { Context } from '@/context/dataSync';
+import { EventKind } from '@/pages/editor/dataSync';
+import viewStoreService from '@/services/viewStoreService';
 import {
     AutoCompleteWithRequest,
     InputWithColumns,
@@ -12,13 +20,6 @@ import {
     SelectWithRequest,
     TextareaWithJSONValidator,
 } from '../task';
-import { Context } from '@/context/dataSync';
-import { act } from 'react-dom/test-utils';
-import api from '@/api';
-import { NamePath } from 'antd/lib/form/interface';
-import '@testing-library/jest-dom';
-import { EventKind } from '@/pages/editor/dataSync';
-import { input, modal, select, tooltip, form } from 'ant-design-testing';
 
 jest.useFakeTimers();
 

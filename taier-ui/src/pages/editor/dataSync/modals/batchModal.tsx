@@ -18,9 +18,10 @@
 
 import { useEffect, useState } from 'react';
 import type { ModalProps } from 'antd';
-import { Modal, Input } from 'antd';
-import { DATA_SOURCE_ENUM, HDFS_FIELD_TYPES, HBASE_FIELD_TYPES } from '@/constant';
+import { Input,Modal } from 'antd';
 import type { TextAreaProps } from 'antd/lib/input';
+
+import { DATA_SOURCE_ENUM, HBASE_FIELD_TYPES,HDFS_FIELD_TYPES } from '@/constant';
 
 const renderTypes = (sourceType?: DATA_SOURCE_ENUM) => {
     const types = sourceType === DATA_SOURCE_ENUM.HBASE ? HBASE_FIELD_TYPES : HDFS_FIELD_TYPES;

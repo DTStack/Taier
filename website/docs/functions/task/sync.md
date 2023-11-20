@@ -99,7 +99,7 @@ Oracle通过用户名来标识Schema，如果需要同步其他Schema下的数�
 
 :::caution
 
-Batcworks仅支持关系型数据库的普通数据类型，暂时不支持blob、clob、地理空间等特殊类型的数据读/写
+数据同步仅支持关系型数据库的普通数据类型，暂时不支持blob、clob、地理空间等特殊类型的数据读/写
 
 :::
 
@@ -223,32 +223,32 @@ Batcworks仅支持关系型数据库的普通数据类型，暂时不支持blob�
 
 | 数据库         | 源（读取）                                                   | 目标（写入）                                                 |
 | -------------- | ------------------------------------------------------------ | ------------------------------------------------------------ |
-| MySQL          | [doc](https://github.com/DTStack/flinkx/blob/master/docs/connectors/mysql/mysql-source.md) | [doc](https://github.com/DTStack/flinkx/blob/master/docs/connectors/mysql/mysql-sink.md) |
+| MySQL          | [doc](https://github.com/DTStack/chunjun/blob/master/docs/docs_zh/ChunJun连接器/mysql/mysql-source.md) | [doc](https://github.com/DTStack/chunjun/blob/master/docs/docs_zh/ChunJun连接器/mysql/mysql-sink.md) |
 | TiDB           | 参考MySQL                                                    | 参考MySQL                                                    |
-| Oracle         | [doc](https://github.com/DTStack/flinkx/blob/master/docs/connectors/oracle/oracle-source.md) | [doc](https://github.com/DTStack/flinkx/blob/master/docs/connectors/oracle/oracle-sink.md) |
-| SqlServer      | [doc](https://github.com/DTStack/flinkx/blob/master/docs/connectors/sqlserver/sqlserver-source.md) | [doc](https://github.com/DTStack/flinkx/blob/master/docs/connectors/sqlserver/sqlserver-sink.md) |
-| PostgreSQL     | [doc](https://github.com/DTStack/flinkx/blob/master/docs/connectors/postgres/postgres-source.md) | [doc](https://github.com/DTStack/flinkx/blob/master/docs/connectors/postgres/postgres-sink.md) |
-| DB2            | [doc](https://github.com/DTStack/flinkx/blob/master/docs/connectors/db2/db2-source.md) | [doc](https://github.com/DTStack/flinkx/blob/master/docs/connectors/db2/db2-sink.md) |
-| ClickHouse     | [doc](https://github.com/DTStack/flinkx/blob/master/docs/connectors/clickhouse/clickhouse-source.md) | [doc](https://github.com/DTStack/flinkx/blob/master/docs/connectors/clickhouse/clickhouse-sink.md) |
-| Greenplum      | [doc](https://github.com/DTStack/flinkx/blob/master/docs/connectors/greenplum/greenplum-source.md) | [doc](https://github.com/DTStack/flinkx/blob/master/docs/connectors/greenplum/greenplum-sink.md) |
-| KingBase       | [doc](https://github.com/DTStack/flinkx/blob/master/docs/connectors/kingbase/kingbase-source.md) | [doc](https://github.com/DTStack/flinkx/blob/master/docs/connectors/kingbase/kingbase-sink.md) |
-| MongoDB        | [doc](https://github.com/DTStack/flinkx/blob/master/docs/connectors/mongodb/mongodb-source.md) | [doc](https://github.com/DTStack/flinkx/blob/master/docs/connectors/mongodb/mongodb-sink.md) |
-| SAP HANA       | [doc](https://github.com/DTStack/flinkx/blob/master/docs/connectors/saphana/saphana-source.md) | [doc](https://github.com/DTStack/flinkx/blob/master/docs/connectors/saphana/saphana-sink.md) |
-| ElasticSearch7 | [doc](https://github.com/DTStack/flinkx/blob/master/docs/connectors/elasticsearch7/es7-source.md) | [doc](https://github.com/DTStack/flinkx/blob/master/docs/connectors/elasticsearch7/es7-sink.md) |
-| FTP            | [doc](https://github.com/DTStack/flinkx/blob/master/docs/connectors/ftp/ftp-source.md) | [doc](https://github.com/DTStack/flinkx/blob/master/docs/connectors/ftp/ftp-sink.md) |
-| HDFS           | [doc](https://github.com/DTStack/flinkx/blob/master/docs/connectors/hdfs/hdfs-source.md) | [doc](https://github.com/DTStack/flinkx/blob/master/docs/connectors/hdfs/hdfs-sink.md) |
-| Stream         | [doc](https://github.com/DTStack/flinkx/blob/master/docs/connectors/stream/stream-source.md) | [doc](https://github.com/DTStack/flinkx/blob/master/docs/connectors/stream/stream-sink.md) |
-| Redis          | 不支持                                                       | [doc](https://github.com/DTStack/flinkx/blob/master/docs/connectors/redis/redis-sink.md) |
-| Hive           | 参考HDFS                                                     | [doc](https://github.com/DTStack/flinkx/blob/master/docs/connectors/hive/hive-sink.md) |
-| Solr           | [doc](https://github.com/DTStack/flinkx/blob/master/docs/connectors/solr/solr-source.md) | [doc](https://github.com/DTStack/flinkx/blob/master/docs/connectors/solr/solr-sink.md) |
-| File           | [doc](https://github.com/DTStack/flinkx/blob/master/docs/connectors/file/file-source.md) | 不支持                                                       |
+| Oracle         | [doc](https://github.com/DTStack/chunjun/blob/master/docs/docs_zh/ChunJun连接器/oracle/oracle-source.md) | [doc](https://github.com/DTStack/chunjun/blob/master/docs/docs_zh/ChunJun连接器/oracle/oracle-sink.md) |
+| SqlServer      | [doc](https://github.com/DTStack/chunjun/blob/master/docs/docs_zh/ChunJun连接器/sqlserver/sqlserver-source.md) | [doc](https://github.com/DTStack/chunjun/blob/master/docs/docs_zh/ChunJun连接器/sqlserver/sqlserver-sink.md) |
+| PostgreSQL     | [doc](https://github.com/DTStack/chunjun/blob/master/docs/docs_zh/ChunJun连接器/postgres/postgres-source.md) | [doc](https://github.com/DTStack/chunjun/blob/master/docs/docs_zh/ChunJun连接器/postgres/postgres-sink.md) |
+| DB2            | [doc](https://github.com/DTStack/chunjun/blob/master/docs/docs_zh/ChunJun连接器/db2/db2-source.md) | [doc](https://github.com/DTStack/chunjun/blob/master/docs/docs_zh/ChunJun连接器/db2/db2-sink.md) |
+| ClickHouse     | [doc](https://github.com/DTStack/chunjun/blob/master/docs/docs_zh/ChunJun连接器/clickhouse/clickhouse-source.md) | [doc](https://github.com/DTStack/chunjun/blob/master/docs/docs_zh/ChunJun连接器/clickhouse/clickhouse-sink.md) |
+| Greenplum      | [doc](https://github.com/DTStack/chunjun/blob/master/docs/docs_zh/ChunJun连接器/greenplum/greenplum-source.md) | [doc](https://github.com/DTStack/chunjun/blob/master/docs/docs_zh/ChunJun连接器/greenplum/greenplum-sink.md) |
+| KingBase       | [doc](https://github.com/DTStack/chunjun/blob/master/docs/docs_zh/ChunJun连接器/kingbase/kingbase-source.md) | [doc](https://github.com/DTStack/chunjun/blob/master/docs/docs_zh/ChunJun连接器/kingbase/kingbase-sink.md) |
+| MongoDB        | [doc](https://github.com/DTStack/chunjun/blob/master/docs/docs_zh/ChunJun连接器/mongodb/mongodb-source.md) | [doc](https://github.com/DTStack/chunjun/blob/master/docs/docs_zh/ChunJun连接器/mongodb/mongodb-sink.md) |
+| SAP HANA       | [doc](https://github.com/DTStack/chunjun/blob/master/docs/docs_zh/ChunJun连接器/saphana/saphana-source.md) | [doc](https://github.com/DTStack/chunjun/blob/master/docs/docs_zh/ChunJun连接器/saphana/saphana-sink.md) |
+| ElasticSearch7 | [doc](https://github.com/DTStack/chunjun/blob/master/docs/docs_zh/ChunJun连接器/elasticsearch7/es7-source.md) | [doc](https://github.com/DTStack/chunjun/blob/master/docs/docs_zh/ChunJun连接器/elasticsearch7/es7-sink.md) |
+| FTP            | [doc](https://github.com/DTStack/chunjun/blob/master/docs/docs_zh/ChunJun连接器/ftp/ftp-source.md) | [doc](https://github.com/DTStack/chunjun/blob/master/docs/docs_zh/ChunJun连接器/ftp/ftp-sink.md) |
+| HDFS           | [doc](https://github.com/DTStack/chunjun/blob/master/docs/docs_zh/ChunJun连接器/hdfs/hdfs-source.md) | [doc](https://github.com/DTStack/chunjun/blob/master/docs/docs_zh/ChunJun连接器/hdfs/hdfs-sink.md) |
+| Stream         | [doc](https://github.com/DTStack/chunjun/blob/master/docs/docs_zh/ChunJun连接器/stream/stream-source.md) | [doc](https://github.com/DTStack/chunjun/blob/master/docs/docs_zh/ChunJun连接器/stream/stream-sink.md) |
+| Redis          | 不支持                                                       | [doc](https://github.com/DTStack/chunjun/blob/master/docs/docs_zh/ChunJun连接器/redis/redis-sink.md) |
+| Hive           | 参考HDFS                                                     | [doc](https://github.com/DTStack/chunjun/blob/master/docs/docs_zh/ChunJun连接器/hive/hive-sink.md) |
+| Solr           | [doc](https://github.com/DTStack/chunjun/blob/master/docs/docs_zh/ChunJun连接器/solr/solr-source.md) | [doc](https://github.com/DTStack/chunjun/blob/master/docs/docs_zh/ChunJun连接器/solr/solr-sink.md) |
+| File           | [doc](https://github.com/DTStack/chunjun/blob/master/docs/docs_zh/ChunJun连接器/file/file-source.md) | 不支持                                                       |
 
 ### 同步任务参数
 
 在同步任务的「环境参数」中，运行方式（`flinkTaskRunMode`）参数较为重要，任务运行方式有2种：
 
 - per_job：单独为任务创建flink yarn session，任务运行的资源有保障，提高任务运行稳定性
-- new：多个任务共用一个flink yarn session，默认new，适合小数据量同步，节约集群资源
+- session：多个任务共用一个flink yarn session，默认session，适合小数据量同步，节约集群资源
 
 设置方式，在任务的「环境参数」中，修改/添加此参数
 `## flinkTaskRunMode=new`，其中 ##标识为注释状态，用户需要取消注释才能生效
@@ -260,7 +260,7 @@ Batcworks仅支持关系型数据库的普通数据类型，暂时不支持blob�
 ```properties
 ## 任务运行方式：
 ## per_job:单独为任务创建flink yarn session，适用于低频率，大数据量同步
-## session：多个任务共用一个flink yarn session，适用于高频率、小数据量同步，默认per_job
+## session：多个任务共用一个flink yarn session，适用于高频率、小数据量同步，默认session
 ## flinkTaskRunMode=per_job
 ## per_job模式下jobManager配置的内存大小，默认1024（单位M)
 ## jobmanager.memory.mb=1024

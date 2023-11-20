@@ -1,46 +1,47 @@
-import 'reflect-metadata';
-import { singleton } from 'tsyringe';
 import { lazy, Suspense } from 'react';
-import { Modal } from 'antd';
-import api from '@/api';
-import { DATA_SOURCE_ENUM, TASK_TYPE_ENUM } from '@/constant';
+import molecule from '@dtinsight/molecule';
+import { Component } from '@dtinsight/molecule/esm/react';
 import type { FormInstance } from 'antd';
+import { Modal } from 'antd';
+import { singleton } from 'tsyringe';
+import 'reflect-metadata';
+
+import api from '@/api';
+import http from '@/api/http';
 import {
     ClickhouseIcon,
     DataCollectionIcon,
+    DataxIcon,
     DorisIcon,
     FlinkIcon,
     FlinkSQLIcon,
+    GreenPlumIcon,
+    HadoopMRIcon,
     HiveSQLIcon,
+    MysqlIcon,
     OceanBaseIcon,
+    PostgreSqlIcon,
     PythonIcon,
     ShellIcon,
     SparkIcon,
     SparkSQLIcon,
-    VirtualIcon,
-    WorkflowIcon,
-    MysqlIcon,
-    PostgreSqlIcon,
-    GreenPlumIcon,
     SqlServerIcon,
     TiDbIcon,
     VerticaIcon,
-    HadoopMRIcon,
-    DataxIcon,
+    VirtualIcon,
+    WorkflowIcon,
 } from '@/components/icon';
+import notification from '@/components/notification';
 import scaffolds from '@/components/scaffolds/create';
 import editorActionsScaffolds from '@/components/scaffolds/editorActions';
-import { RightBarKind } from '@/interface';
-import { mappingTaskTypeToLanguage } from '@/utils/enums';
-import { prettierJSONstring } from '@/utils';
-import notification from '@/components/notification';
+import { DATA_SOURCE_ENUM, TASK_TYPE_ENUM } from '@/constant';
 import type { ISupportJobTypes } from '@/context';
-import molecule from '@dtinsight/molecule';
-import { breadcrumbService, editorActionBarService } from '.';
 import type { IOfflineTaskProps } from '@/interface';
+import { RightBarKind } from '@/interface';
+import { prettierJSONstring } from '@/utils';
+import { mappingTaskTypeToLanguage } from '@/utils/enums';
 import { isTaskTab } from '@/utils/is';
-import { Component } from '@dtinsight/molecule/esm/react';
-import http from '@/api/http';
+import { breadcrumbService, editorActionBarService } from '.';
 
 export interface ITaskRenderState {
     supportTaskList: ISupportJobTypes[];

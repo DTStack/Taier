@@ -1,8 +1,9 @@
-import { CATALOGUE_TYPE } from '@/constant';
-import { TreeViewUtil } from '@dtinsight/molecule/esm/common/treeUtil';
 import type molecule from '@dtinsight/molecule';
+import { TreeViewUtil } from '@dtinsight/molecule/esm/common/treeUtil';
 import type { UniqueId } from '@dtinsight/molecule/esm/common/types';
 import type { IBreadcrumbItemProps } from '@dtinsight/molecule/esm/components';
+
+import { CATALOGUE_TYPE } from '@/constant';
 import { catalogueService } from '.';
 
 interface IBreadcrumbService {

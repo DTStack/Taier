@@ -17,6 +17,7 @@
  */
 
 import classNames from 'classnames';
+
 import './index.scss';
 
 enum CIRCLE_TYPES_ENUM {

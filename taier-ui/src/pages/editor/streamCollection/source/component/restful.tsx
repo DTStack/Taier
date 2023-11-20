@@ -17,7 +17,12 @@
  * limitations under the License.
  */
 
+import React, { useState } from 'react';
+import { MinusCircleOutlined, UpOutlined } from '@ant-design/icons';
+import { Button, Card, Checkbox, Form, Input, InputNumber, message, Select } from 'antd';
+
 import stream from '@/api';
+import Editor from '@/components/editor';
 import {
     fieldDelimiter,
     intervalTime,
@@ -27,12 +32,8 @@ import {
     strategy,
 } from '@/components/helpDoc/docs';
 import { NEST_KEYS, RESTFUL_METHOD, RESTFUL_PROPTOCOL, RESTFUL_RESP_MODE, RESTFUL_STRATEGY } from '@/constant';
-import { Button, Card, Checkbox, Form, Input, InputNumber, message, Select } from 'antd';
-import { MinusCircleOutlined, UpOutlined } from '@ant-design/icons';
-import React, { useState } from 'react';
 import { checkUrl } from '../../helper';
 import EditTable from '../editTable';
-import Editor from '@/components/editor';
 
 const FormItem = Form.Item;
 const Option = Select.Option;

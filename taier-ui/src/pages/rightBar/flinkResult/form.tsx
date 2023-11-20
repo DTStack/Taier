@@ -17,12 +17,19 @@
  */
 
 import React, { useContext, useMemo, useRef, useState } from 'react';
+import { CloseOutlined, DownOutlined,UpOutlined } from '@ant-design/icons';
+import type { FormInstance } from 'antd';
+import { Button, Checkbox, Form, Input, InputNumber, message, Popconfirm, Radio, Select, Table, Tooltip } from 'antd';
+import Column from 'antd/lib/table/Column';
+import { debounce, isUndefined } from 'lodash';
+
+import Editor from '@/components/editor';
 import {
     DATA_SOURCE_ENUM,
     DATA_SOURCE_TEXT,
     DATA_SOURCE_VERSION,
-    defaultColsText,
     DEFAULT_MAPPING_TEXT,
+    defaultColsText,
     FLINK_VERSIONS,
     formItemLayout,
     hbaseColsText,
@@ -31,7 +38,14 @@ import {
     KAFKA_DATA_LIST,
     KAFKA_DATA_TYPE,
 } from '@/constant';
+import type { IDataColumnsProps, IDataSourceUsedInSyncProps, IFlinkSinkProps } from '@/interface';
+import DataPreviewModal from '@/pages/editor/streamCollection/source/dataPreviewModal';
+import { taskRenderService } from '@/services';
+import { FormContext } from '@/services/rightBarService';
+import { getColumnsByColumnsText } from '@/utils';
 import {
+    isAvro,
+    isES,
     isHaveCollection,
     isHaveDataPreview,
     isHaveParallelism,
@@ -42,29 +56,16 @@ import {
     isHaveUpdateMode,
     isHaveUpdateStrategy,
     isHaveUpsert,
-    isAvro,
-    isES,
     isHbase,
     isKafka,
-    isSqlServer,
+    isRDB,
+    isRedis,
     isShowBucket,
     isShowSchema,
-    isRedis,
-    isRDB,
+    isSqlServer,
 } from '@/utils/is';
-import type { FormInstance } from 'antd';
-import { Button, Checkbox, Form, Input, InputNumber, message, Popconfirm, Radio, Select, Table, Tooltip } from 'antd';
-import { CloseOutlined, UpOutlined, DownOutlined } from '@ant-design/icons';
-import Column from 'antd/lib/table/Column';
-import { debounce, isUndefined } from 'lodash';
-import { getColumnsByColumnsText } from '@/utils';
 import { CustomParams } from '../customParams';
-import type { IDataColumnsProps, IDataSourceUsedInSyncProps, IFlinkSinkProps } from '@/interface';
-import Editor from '@/components/editor';
 import { NAME_FIELD } from '.';
-import { FormContext } from '@/services/rightBarService';
-import DataPreviewModal from '@/pages/editor/streamCollection/source/dataPreviewModal';
-import { taskRenderService } from '@/services';
 
 const FormItem = Form.Item;
 const { Option } = Select;

@@ -18,9 +18,10 @@
 
 import { useState } from 'react';
 import { CheckCircleFilled, CloseCircleFilled } from '@ant-design/icons';
-import { Tooltip, Modal } from 'antd';
-import { isArray } from 'lodash';
+import { Modal,Tooltip } from 'antd';
 import classNames from 'classnames';
+import { isArray } from 'lodash';
+
 import type { COMPONENT_TYPE_VALUE } from '@/constant';
 import './index.scss';
 

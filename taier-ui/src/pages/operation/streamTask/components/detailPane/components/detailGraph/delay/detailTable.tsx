@@ -1,10 +1,11 @@
-import { useState, useEffect } from 'react';
-import { Breadcrumb, Table } from 'antd';
+import { useEffect,useState } from 'react';
 import { ReloadOutlined } from '@ant-design/icons';
-import Chart from './detailGraph';
+import { Breadcrumb, Table } from 'antd';
 import moment from 'moment';
+
 import GraphTimePicker from '@/components/graphTime/graphTimePicker';
 import GraphTimeRange from '@/components/graphTime/graphTimeRange';
+import Chart from './detailGraph';
 
 interface Props {
     taskId: number;

@@ -17,11 +17,12 @@
  */
 
 import { useMemo } from 'react';
-import { Row, Pagination, Col } from 'antd';
 import type { PaginationProps } from 'antd';
+import { Col,Pagination, Row } from 'antd';
+
 import Editor from '@/components/editor';
-import { formatDateTime, prettierJSONstring } from '@/utils';
 import { createLinkMark, createLog } from '@/services/taskResultService';
+import { formatDateTime, prettierJSONstring } from '@/utils';
 
 const defaultEditorStyle: React.CSSProperties = { height: '300px' };
 

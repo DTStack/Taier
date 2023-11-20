@@ -1,9 +1,10 @@
-import HelpDoc, { relativeStyle } from '@/components/helpDoc';
-import { Modal, Input, Select, Form } from 'antd';
 import { Utils } from '@dtinsight/dt-utils/lib';
+import { Form,Input, Modal, Select } from 'antd';
+
+import HelpDoc, { relativeStyle } from '@/components/helpDoc';
+import { formItemLayout } from '@/constant';
 import type { IDataColumnsProps } from '@/interface';
 import './constModal.scss';
-import { formItemLayout } from '@/constant';
 
 const { Option } = Select;
 const FormItem = Form.Item;

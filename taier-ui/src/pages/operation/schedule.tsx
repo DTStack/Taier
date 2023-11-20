@@ -16,31 +16,32 @@
  * limitations under the License.
  */
 
-import { useState, useMemo, useContext } from 'react';
-import { Tooltip, Dropdown, Menu, Modal, message, Button } from 'antd';
-import type moment from 'moment';
-import { history } from 'umi';
+import { useContext,useMemo, useState } from 'react';
+import { DownOutlined,SyncOutlined } from '@ant-design/icons';
+import { Button, Dropdown, Menu, message, Modal, Space,Tooltip } from 'antd';
 import type { ColumnsType } from 'antd/lib/table';
 import type { FilterValue } from 'antd/lib/table/interface';
-import context from '@/context';
-import { SyncOutlined, DownOutlined } from '@ant-design/icons';
-import SlidePane from '@/components/slidePane';
+import type moment from 'moment';
+import { history } from 'umi';
+
 import Api from '@/api';
 import Sketch, { useSketchRef } from '@/components/sketch';
+import SlidePane from '@/components/slidePane';
 import type { TASK_PERIOD_ENUM } from '@/constant';
 import {
-    TASK_TYPE_ENUM,
-    TASK_STATUS_FILTERS,
+    offlineTaskPeriodFilter,
     RESTART_STATUS_ENUM,
     STATISTICS_TYPE_ENUM,
     TASK_STATUS,
-    offlineTaskPeriodFilter,
+    TASK_STATUS_FILTERS,
+    TASK_TYPE_ENUM,
 } from '@/constant';
+import context from '@/context';
+import { DeletedKind } from '@/interface';
 import { getTodayTime, removePopUpMenu } from '@/utils';
 import { TaskStatus, TaskTimeType } from '@/utils/enums';
 import KillJobForm from './killJobForm';
 import TaskJobFlowView from './taskJobFlowView';
-import { DeletedKind } from '@/interface';
 import './schedule.scss';
 
 const { confirm } = Modal;
@@ -615,37 +616,36 @@ export default () => {
                         return '';
                     },
                 }}
-                tableFooter={[
-                    <Dropdown.Button
-                        key="kill"
-                        type="primary"
-                        onClick={batchKillJobs}
-                        overlay={
-                            <Menu onClick={() => showKillJobsByDate(true)} style={{ width: 114 }}>
-                                <Menu.Item key="1">按业务日期杀</Menu.Item>
-                            </Menu>
-                        }
-                        trigger={['click']}
-                        style={{ marginRight: 10 }}
-                        icon={<DownOutlined />}
-                    >
-                        批量杀任务
-                    </Dropdown.Button>,
-                    <Dropdown.Button
-                        key="reload"
-                        type="primary"
-                        onClick={reloadCurrentJob}
-                        overlay={
-                            <Menu onClick={() => batchReloadJobs()}>
-                                <Menu.Item key="1">重跑当前及全部下游任务</Menu.Item>
-                            </Menu>
-                        }
-                        trigger={['click']}
-                        icon={<DownOutlined />}
-                    >
-                        重跑当前任务
-                    </Dropdown.Button>,
-                ]}
+                tableFooter={
+                    <Space size={10}>
+                        <Dropdown.Button
+                            type="primary"
+                            onClick={batchKillJobs}
+                            overlay={
+                                <Menu onClick={() => showKillJobsByDate(true)} style={{ width: 114 }}>
+                                    <Menu.Item key="1">按业务日期杀</Menu.Item>
+                                </Menu>
+                            }
+                            trigger={['click']}
+                            icon={<DownOutlined />}
+                        >
+                            批量杀任务
+                        </Dropdown.Button>
+                        <Dropdown.Button
+                            type="primary"
+                            onClick={reloadCurrentJob}
+                            overlay={
+                                <Menu onClick={() => batchReloadJobs()}>
+                                    <Menu.Item key="1">重跑当前及全部下游任务</Menu.Item>
+                                </Menu>
+                            }
+                            trigger={['click']}
+                            icon={<DownOutlined />}
+                        >
+                            重跑当前任务
+                        </Dropdown.Button>
+                    </Space>
+                }
             />
             <SlidePane
                 className="m-tabs bd-top bd-right m-slide-pane"

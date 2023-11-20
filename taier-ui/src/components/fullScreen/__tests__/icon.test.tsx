@@ -1,4 +1,5 @@
 import { render } from '@testing-library/react';
+
 import Icon from '../icon';
 
 describe('Test Icon Component', () => {

@@ -1,14 +1,15 @@
 import { useEffect, useState } from 'react';
 import { usePrevious } from 'react-use';
-import { CATALOGUE_TYPE, CREATE_MODEL_TYPE, DATA_SYNC_MODE, PythonVersionKind } from '@/constant';
-import { Button, Empty, Form, Input, Radio, Select, Spin } from 'antd';
-import { syncModeHelp, syncTaskHelp } from '../helpDoc/docs';
-import FolderPicker from '../folderPicker';
-import resourceManagerTree from '@/services/resourceManagerService';
-import { dataSourceService, taskRenderService } from '@/services';
 import molecule from '@dtinsight/molecule';
+import { Button, Empty, Form, Input, Radio, Select, Spin } from 'antd';
+
 import api from '@/api';
+import { CATALOGUE_TYPE, CREATE_MODEL_TYPE, DATA_SYNC_MODE, PythonVersionKind } from '@/constant';
 import type { IDataSourceProps } from '@/interface';
+import { dataSourceService, taskRenderService } from '@/services';
+import resourceManagerTree from '@/services/resourceManagerService';
+import FolderPicker from '../folderPicker';
+import { syncModeHelp, syncTaskHelp } from '../helpDoc/docs';
 
 interface ICreateFormProps {
     disabled?: boolean;
@@ -70,7 +71,7 @@ const ComponentVersion = ({ onChange }: ICreateFormProps) => {
     const [versions, setVersions] = useState<{ label: string; value: string }[]>([]);
 
     useEffect(() => {
-        if (taskType) {
+        if (taskType !== undefined) {
             api.getComponentVersionByTaskType<{ componentVersion: string; default: boolean; componentName: string }[]>({
                 taskType,
             }).then((res) => {

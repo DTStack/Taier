@@ -1,6 +1,7 @@
-import { ID_COLLECTIONS } from '@/constant';
-import { UploadOutlined, LoginOutlined, SwapOutlined, FormatPainterOutlined } from '@ant-design/icons';
+import { FormatPainterOutlined,LoginOutlined, SwapOutlined, UploadOutlined } from '@ant-design/icons';
 import type { IEditorActionsProps } from '@dtinsight/molecule/esm/model';
+
+import { ID_COLLECTIONS } from '@/constant';
 import { SyntaxIcon } from '../icon';
 
 /**

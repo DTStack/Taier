@@ -16,6 +16,13 @@
  * limitations under the License.
  */
 
+import React, { Fragment, useState } from 'react';
+import molecule from '@dtinsight/molecule';
+import { connect as moleculeConnect } from '@dtinsight/molecule/esm/react';
+import { Button, Form, message,Radio, Select } from 'antd';
+import { cloneDeep, debounce } from 'lodash';
+import moment from 'moment';
+
 import { kafkaTip, sqlserverTip, syncSourceType } from '@/components/helpDoc/docs';
 import {
     COLLECT_TYPE,
@@ -29,12 +36,6 @@ import {
 import { IDataSourceUsedInSyncProps } from '@/interface';
 import { getFlinkDisabledSource } from '@/utils/enums';
 import { isKafka } from '@/utils/is';
-import molecule from '@dtinsight/molecule';
-import { connect as moleculeConnect } from '@dtinsight/molecule/esm/react';
-import { Form, Radio, Select, Button, message } from 'antd';
-import { cloneDeep, debounce } from 'lodash';
-import moment from 'moment';
-import React, { Fragment, useState } from 'react';
 import { sourceDefaultValue } from '../helper';
 import { streamTaskActions } from '../taskFunc';
 import Beats from './component/beats';

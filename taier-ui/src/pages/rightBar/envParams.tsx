@@ -17,8 +17,8 @@
  */
 
 import Editor from '@/components/editor';
-import { updateValuesInData } from '../editor/dataSync';
 import type { IRightBarComponentProps } from '@/services/rightBarService';
+import { updateValuesInData } from '../editor/dataSync';
 
 export default function EnvParams({ current }: IRightBarComponentProps) {
     const handleValueChanged = (value: string) => {

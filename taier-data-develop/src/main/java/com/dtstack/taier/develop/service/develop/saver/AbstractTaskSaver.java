@@ -21,6 +21,7 @@ package com.dtstack.taier.develop.service.develop.saver;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.dtstack.taier.common.enums.EComponentType;
+import com.dtstack.taier.common.enums.EComputeType;
 import com.dtstack.taier.common.enums.EScheduleJobType;
 import com.dtstack.taier.common.enums.EScheduleStatus;
 import com.dtstack.taier.common.enums.ESubmitStatus;
@@ -183,6 +184,9 @@ public abstract class AbstractTaskSaver implements ITaskSaver {
         Task task = developTaskService.getOne(Wrappers.lambdaQuery(Task.class)
                 .eq(Task::getName, taskVO.getName())
                 .eq(Task::getTenantId, taskVO.getTenantId()));
+        if(EComputeType.BATCH.getType() == taskVO.getComputeType()){
+            taskVO.setJobId(null);
+        }
 
         if (taskVO.getId() != null && taskVO.getId() > 0) {
             //update

@@ -1,12 +1,13 @@
+import molecule from '@dtinsight/molecule';
+import { KeyCode,KeyMod } from '@dtinsight/molecule/esm/monaco';
+import { Action2 } from '@dtinsight/molecule/esm/monaco/action';
+import { KeybindingWeight } from '@dtinsight/molecule/esm/monaco/common';
+
 import { ID_COLLECTIONS } from '@/constant';
 import type { CatalogueDataProps, IOfflineTaskProps } from '@/interface';
 import { taskRenderService } from '@/services';
-import { isTaskTab } from '@/utils/is';
 import { runTask } from '@/utils/extensions';
-import molecule from '@dtinsight/molecule';
-import { KeyMod, KeyCode } from '@dtinsight/molecule/esm/monaco';
-import { Action2 } from '@dtinsight/molecule/esm/monaco/action';
-import { KeybindingWeight } from '@dtinsight/molecule/esm/monaco/common';
+import { isTaskTab } from '@/utils/is';
 
 export default class QuickRunSQLAction extends Action2 {
     static readonly ID = 'RunSQL';

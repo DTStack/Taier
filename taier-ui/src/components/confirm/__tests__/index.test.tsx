@@ -1,8 +1,9 @@
-import type { CatalogueDataProps } from '@/interface';
 import { act, cleanup, render, waitFor } from '@testing-library/react';
-import Confirm, { confirm } from '..';
 import { button } from 'ant-design-testing';
+
+import type { CatalogueDataProps } from '@/interface';
 import { $ } from '@/tests/utils';
+import Confirm, { confirm } from '..';
 
 describe('Test Confirm Component', () => {
     beforeEach(() => {

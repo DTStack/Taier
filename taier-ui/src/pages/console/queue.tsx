@@ -17,13 +17,14 @@
  */
 
 import { useLayoutEffect, useMemo, useRef, useState } from 'react';
+import { CloseCircleOutlined,SyncOutlined } from '@ant-design/icons';
+import { Button, message, Modal, Tooltip } from 'antd';
+import type { ColumnsType } from 'antd/lib/table';
 import { history } from 'umi';
-import { Button, Modal, message, Tooltip } from 'antd';
+
 import Api from '@/api';
 import type { IActionRef } from '@/components/sketch';
 import Sketch from '@/components/sketch';
-import type { ColumnsType } from 'antd/lib/table';
-import { SyncOutlined, CloseCircleOutlined } from '@ant-design/icons';
 import { DRAWER_MENU_ENUM, JOB_STAGE_ENUM } from '@/constant';
 
 interface IQueueListProps {

@@ -22,10 +22,10 @@
         <lzo-hadoop.version>1.0.5</lzo-hadoop.version>
         <parquet-hadoop.version>1.8.3</parquet-hadoop.version>
         <snappy-java.version>1.1.2.6</snappy-java.version>
-        <hive-exec.version>1.1.1</hive-exec.version>
+        <hive-exec.version>1.2.1</hive-exec.version>
         <hadoop-client.version>2.7.3</hadoop-client.version>
         <orc-core.version>1.6.3</orc-core.version>
-        <hive-jdbc.version>1.1.1</hive-jdbc.version>
+        <hive-jdbc.version>1.2.1</hive-jdbc.version>
     </properties>
 
     <dependencies>
@@ -423,6 +423,11 @@
                     <groupId>org.slf4j</groupId>
                 </exclusion>
             </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpclient</artifactId>
+            <version>4.5.3</version>
         </dependency>
     </dependencies>
 

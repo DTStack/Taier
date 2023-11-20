@@ -17,15 +17,16 @@
  */
 
 import { useMemo } from 'react';
+import type { FormInstance } from 'antd';
+import { Checkbox, message, Modal } from 'antd';
+import type { ColumnsType } from 'antd/lib/table';
 import moment from 'moment';
 import { history } from 'umi';
-import type { FormInstance } from 'antd';
-import { message, Checkbox, Modal } from 'antd';
+
 import Api from '@/api';
-import { getCookie } from '@/utils';
-import type { ColumnsType } from 'antd/lib/table';
 import Sketch from '@/components/sketch';
 import { DRAWER_MENU_ENUM } from '@/constant';
+import { getCookie } from '@/utils';
 
 const { confirm } = Modal;
 

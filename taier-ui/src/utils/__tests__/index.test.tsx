@@ -1,8 +1,9 @@
-import { TASK_STATUS } from '@/constant';
-import { taskRenderService } from '@/services';
-import '@testing-library/jest-dom';
 import moment from 'moment';
 import { history } from 'umi';
+import '@testing-library/jest-dom';
+
+import { TASK_STATUS } from '@/constant';
+import { taskRenderService } from '@/services';
 import {
     checkExist,
     convertObjToNamePath,
@@ -34,8 +35,8 @@ import {
     splitByKey,
     splitSql,
     toArray,
-    utf16to8,
     utf8to16,
+    utf16to8,
     visit,
 } from '..';
 

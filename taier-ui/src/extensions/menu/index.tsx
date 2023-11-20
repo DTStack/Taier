@@ -17,10 +17,11 @@
  */
 
 import molecule from '@dtinsight/molecule';
-import { DRAWER_MENU_ENUM } from '@/constant';
-import { history } from 'umi';
 import type { UniqueId } from '@dtinsight/molecule/esm/common/types';
 import type { IExtension } from '@dtinsight/molecule/esm/model';
+import { history } from 'umi';
+
+import { DRAWER_MENU_ENUM } from '@/constant';
 
 function handleMenuBarEvents() {
     molecule.menuBar.onSelect((menuId) => {

@@ -16,10 +16,11 @@
  * limitations under the License.
  */
 
-import taskResultService from '@/services/taskResultService';
 import molecule from '@dtinsight/molecule';
 import type { UniqueId } from '@dtinsight/molecule/esm/common/types';
 import type { IExtension } from '@dtinsight/molecule/esm/model';
+
+import taskResultService from '@/services/taskResultService';
 
 export default class PanelExtension implements IExtension {
     id: UniqueId = 'panel';

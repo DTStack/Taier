@@ -16,10 +16,11 @@
  * limitations under the License.
  */
 
+import React from 'react';
+import { Form, Input, InputNumber, Radio, Select } from 'antd';
+
 import { DATA_SOURCE_ENUM, DATA_SOURCE_VERSION } from '@/constant';
 import { IDataSourceUsedInSyncProps } from '@/interface';
-import { Form, Input, InputNumber, Radio, Select } from 'antd';
-import React from 'react';
 
 const FormItem = Form.Item;
 const Option = Select.Option;

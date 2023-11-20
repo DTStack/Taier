@@ -1,4 +1,5 @@
 import { cleanup, render } from '@testing-library/react';
+
 import ViewDetail from '..';
 
 describe('Test ViewDetail Component', () => {

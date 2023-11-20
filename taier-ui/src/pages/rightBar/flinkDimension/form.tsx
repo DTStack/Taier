@@ -17,30 +17,31 @@
  */
 
 import React, { useContext, useRef, useState } from 'react';
-import { debounce } from 'lodash';
-import { DATA_SOURCE_ENUM, DATA_SOURCE_TEXT, formItemLayout, HELP_DOC_URL } from '@/constant';
-import {
-    isHaveTableColumn,
-    isShowSchema,
-    isES,
-    isCacheOnlyAll,
-    isCacheExceptLRU,
-    isHaveAsyncPoolSize,
-    isHaveCustomParams,
-    isSchemaRequired,
-} from '@/utils/is';
+import { CloseOutlined,QuestionCircleOutlined } from '@ant-design/icons';
 import type { FormInstance } from 'antd';
 import { Button, Form, Input, InputNumber, message, Popconfirm, Select, Switch, Table, Tooltip } from 'antd';
-import { QuestionCircleOutlined, CloseOutlined } from '@ant-design/icons';
+import { debounce } from 'lodash';
+
 import Editor from '@/components/editor';
 import { asyncTimeoutNumDoc, queryFault, targetColText } from '@/components/helpDoc/docs';
-import { CustomParams } from '../customParams';
-import DataPreviewModal from '../../editor/streamCollection/source/dataPreviewModal';
+import { DATA_SOURCE_ENUM, DATA_SOURCE_TEXT, formItemLayout, HELP_DOC_URL } from '@/constant';
 import type { IDataColumnsProps, IDataSourceUsedInSyncProps, IFlinkSideProps } from '@/interface';
-import { createSeries } from '@/utils';
-import { NAME_FIELD } from '.';
-import { FormContext } from '@/services/rightBarService';
 import { taskRenderService } from '@/services';
+import { FormContext } from '@/services/rightBarService';
+import { createSeries } from '@/utils';
+import {
+    isCacheExceptLRU,
+    isCacheOnlyAll,
+    isES,
+    isHaveAsyncPoolSize,
+    isHaveCustomParams,
+    isHaveTableColumn,
+    isSchemaRequired,
+    isShowSchema,
+} from '@/utils/is';
+import DataPreviewModal from '../../editor/streamCollection/source/dataPreviewModal';
+import { CustomParams } from '../customParams';
+import { NAME_FIELD } from '.';
 
 const FormItem = Form.Item;
 const { Option } = Select;

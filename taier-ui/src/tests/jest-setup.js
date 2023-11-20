@@ -1,9 +1,9 @@
 import React from 'react';
-import 'reflect-metadata';
-import ResizeObserver from 'resize-observer-polyfill';
-import 'jest-canvas-mock';
-import timezoneMock from 'timezone-mock';
 import { provider } from 'ant-design-testing';
+import ResizeObserver from 'resize-observer-polyfill';
+import timezoneMock from 'timezone-mock';
+import 'reflect-metadata';
+import 'jest-canvas-mock';
 
 global.React = React;
 global.ResizeObserver = ResizeObserver;

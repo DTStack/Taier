@@ -17,20 +17,21 @@
  */
 
 import { useEffect, useState } from 'react';
-import { Tabs, Radio } from 'antd';
+import { Radio,Tabs } from 'antd';
 import type { RadioChangeEvent } from 'antd/es/radio';
+
+import stream from '@/api';
 import SlidePane from '@/components/slidePane';
 import type { IStreamJobProps } from '@/interface';
 import { TaskStatus } from '@/utils/enums';
-import stream from '@/api';
-import RunLog from './components/runLog';
-import Failover from './components/runLog/failover';
-import CheckPoint from './components/runLog/checkPoint';
-import RunCode, { IRunCodeDataProps } from './components/runCode';
-import History from './components/runLog/historyLog';
-import TaskManager from './components/taskManager';
-import RunMsg from './components/runMsg';
 import StreamDetailGraph from './components/detailGraph';
+import RunCode, { IRunCodeDataProps } from './components/runCode';
+import RunLog from './components/runLog';
+import CheckPoint from './components/runLog/checkPoint';
+import Failover from './components/runLog/failover';
+import History from './components/runLog/historyLog';
+import RunMsg from './components/runMsg';
+import TaskManager from './components/taskManager';
 import './index.scss';
 
 const TabPane = Tabs.TabPane;

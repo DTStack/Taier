@@ -1,8 +1,9 @@
 import { cleanup, fireEvent, render } from '@testing-library/react';
-import moment from 'moment';
-import GraphTimePicker from '../graphTimePicker';
 import { datePicker } from 'ant-design-testing';
+import moment from 'moment';
+
 import { $, $$ } from '@/tests/utils';
+import GraphTimePicker from '../graphTimePicker';
 
 describe('Test GraphTimePicker Component', () => {
     beforeEach(() => {

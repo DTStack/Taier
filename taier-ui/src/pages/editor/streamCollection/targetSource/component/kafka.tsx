@@ -16,11 +16,12 @@
  * limitations under the License.
  */
 
+import React, { useEffect, useState } from 'react';
+import { Form, Radio, RadioChangeEvent, Select } from 'antd';
+
 import stream from '@/api';
 import { writeDataSequence, writePartitionKey } from '@/components/helpDoc/docs';
 import { DATA_SOURCE_ENUM, SYNC_TYPE } from '@/constant';
-import { Form, Radio, RadioChangeEvent, Select } from 'antd';
-import React, { useEffect, useState } from 'react';
 import { streamTaskActions } from '../../taskFunc';
 
 const FormItem = Form.Item;

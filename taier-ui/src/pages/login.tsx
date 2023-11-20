@@ -16,11 +16,12 @@
  * limitations under the License.
  */
 
-import { useState, useLayoutEffect } from 'react';
+import { useLayoutEffect,useState } from 'react';
 import { Button, Checkbox, Form, Input, message, Modal, Select } from 'antd';
+
 import api from '@/api';
 import { formItemLayout } from '@/constant';
-import { getTenantId, getCookie } from '@/utils';
+import { getCookie,getTenantId } from '@/utils';
 import './login.scss';
 
 const { Option } = Select;

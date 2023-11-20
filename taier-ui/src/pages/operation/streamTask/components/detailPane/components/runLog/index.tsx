@@ -1,9 +1,10 @@
-import React, { useState, useRef, useMemo } from 'react';
+import React, { useMemo,useRef, useState } from 'react';
 import { Spin } from 'antd';
-import { TASK_STATUS } from '@/constant';
-import { IStreamJobProps } from '@/interface';
+
 import stream from '@/api';
 import Editor from '@/components/editor';
+import { TASK_STATUS } from '@/constant';
+import { IStreamJobProps } from '@/interface';
 import { createLinkMark, createLog } from '@/services/taskResultService';
 import './index.scss';
 

@@ -1,9 +1,10 @@
 import { cleanup, render, waitFor } from '@testing-library/react';
-import '@testing-library/jest-dom';
-import ResourceManageModal from '..';
-import api from '@/api';
 import { modal, select } from 'ant-design-testing';
+import '@testing-library/jest-dom';
+
+import api from '@/api';
 import { $$ } from '@/tests/utils';
+import ResourceManageModal from '..';
 
 jest.mock('@/api');
 

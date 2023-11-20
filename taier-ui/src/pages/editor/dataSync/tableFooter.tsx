@@ -1,9 +1,10 @@
 import { useMemo, useState } from 'react';
 import { Button, Dropdown, Menu, message } from 'antd';
-import ConstModal from './modals/constModal';
+import type { ItemType } from 'antd/lib/menu/hooks/useItems';
+
 import { DATA_SOURCE_ENUM } from '@/constant';
 import type { IDataColumnsProps } from '@/interface';
-import type { ItemType } from 'antd/lib/menu/hooks/useItems';
+import ConstModal from './modals/constModal';
 import './tableFooter.scss';
 
 interface ITableFooterProps {

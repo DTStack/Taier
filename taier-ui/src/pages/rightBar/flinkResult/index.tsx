@@ -16,30 +16,31 @@
  * limitations under the License.
  */
 
-import { useEffect, useMemo, useContext, useRef, useState } from 'react';
+import { useContext, useEffect, useMemo, useRef, useState } from 'react';
+import { DeleteOutlined, PlusOutlined } from '@ant-design/icons';
+import molecule from '@dtinsight/molecule';
 import type { FormInstance } from 'antd';
 import { Button, Collapse, Form, Popconfirm } from 'antd';
 import classNames from 'classnames';
-import molecule from '@dtinsight/molecule';
-import { DeleteOutlined, PlusOutlined } from '@ant-design/icons';
-import { DATA_SOURCE_ENUM, formItemLayout, KAFKA_DATA_TYPE } from '@/constant';
+
 import stream from '@/api';
+import { DATA_SOURCE_ENUM, formItemLayout, KAFKA_DATA_TYPE } from '@/constant';
+import type { IDataSourceUsedInSyncProps, IFlinkSinkProps } from '@/interface';
+import type { IRightBarComponentProps } from '@/services/rightBarService';
+import { FormContext } from '@/services/rightBarService';
 import {
+    isAvro,
     isHaveCollection,
     isHavePartition,
     isHaveSchema,
     isHaveTableColumn,
     isHaveTableList,
     isHaveTopic,
-    isAvro,
     isKafka,
-    isSqlServer,
     isRDB,
+    isSqlServer,
 } from '@/utils/is';
 import ResultForm from './form';
-import type { IDataSourceUsedInSyncProps, IFlinkSinkProps } from '@/interface';
-import type { IRightBarComponentProps } from '@/services/rightBarService';
-import { FormContext } from '@/services/rightBarService';
 
 const { Panel } = Collapse;
 

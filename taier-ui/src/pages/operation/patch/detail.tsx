@@ -16,26 +16,27 @@
  * limitations under the License.
  */
 
-import { useState, useMemo, useContext } from 'react';
-import moment from 'moment';
-import { message, Modal, Button, Tooltip } from 'antd';
+import { useContext,useMemo, useState } from 'react';
 import { SyncOutlined } from '@ant-design/icons';
+import { Button, message, Modal, Tooltip } from 'antd';
 import type { ColumnsType, FilterValue, SorterResult } from 'antd/lib/table/interface';
-import SlidePane from '@/components/slidePane';
-import context from '@/context';
+import moment from 'moment';
+
 import Api from '@/api';
-import { TaskStatus } from '@/utils/enums';
+import Sketch, { useSketchRef } from '@/components/sketch';
+import SlidePane from '@/components/slidePane';
 import {
-    TASK_STATUS_FILTERS,
     RESTART_STATUS_ENUM,
     STATISTICS_TYPE_ENUM,
     TASK_STATUS,
+    TASK_STATUS_FILTERS,
     TASK_TYPE_ENUM,
 } from '@/constant';
-import Sketch, { useSketchRef } from '@/components/sketch';
-import TaskJobFlowView from '../taskJobFlowView';
-import type { IScheduleTaskProps } from '../schedule';
+import context from '@/context';
 import { getTodayTime, removePopUpMenu } from '@/utils';
+import { TaskStatus } from '@/utils/enums';
+import type { IScheduleTaskProps } from '../schedule';
+import TaskJobFlowView from '../taskJobFlowView';
 import './detail.scss';
 
 const { confirm, warning } = Modal;

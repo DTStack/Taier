@@ -17,12 +17,13 @@
  */
 
 import { useMemo } from 'react';
-import { Collapse, Input, Form, Tooltip } from 'antd';
-import type { IOfflineTaskProps } from '@/interface';
 import molecule from '@dtinsight/molecule/esm';
+import { Collapse, Form, Input, Tooltip } from 'antd';
+
 import { formItemLayout, PARAMS_ENUM } from '@/constant';
-import HelpDoc from '../../components/helpDoc';
+import type { IOfflineTaskProps } from '@/interface';
 import type { IRightBarComponentProps } from '@/services/rightBarService';
+import HelpDoc from '../../components/helpDoc';
 import './taskParams.scss';
 
 const FormItem = Form.Item;

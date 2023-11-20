@@ -16,18 +16,7 @@
  * limitations under the License.
  */
 import React, { useContext, useState } from 'react';
-import {
-    CODE_TYPE,
-    DATA_SOURCE_ENUM,
-    DATA_SOURCE_TEXT,
-    DATA_SOURCE_VERSION,
-    FLINK_VERSIONS,
-    formItemLayout,
-    KAFKA_DATA_LIST,
-    KAFKA_DATA_TYPE,
-    SOURCE_TIME_TYPE,
-} from '@/constant';
-import { isAvro, isKafka, isShowTimeForOffsetReset } from '@/utils/is';
+import { DownOutlined,UpOutlined } from '@ant-design/icons';
 import {
     Button,
     Cascader,
@@ -42,17 +31,29 @@ import {
     Row,
     Select,
 } from 'antd';
-import { UpOutlined, DownOutlined } from '@ant-design/icons';
-import { getColumnsByColumnsText } from '@/utils';
-import Editor from '@/components/editor';
-import type { IDataSourceUsedInSyncProps } from '@/interface';
-import { NAME_FIELD } from '.';
 import type { DefaultOptionType } from 'antd/lib/cascader';
-import { FormContext } from '@/services/rightBarService';
-import { CustomParams } from '../customParams';
-import DataPreviewModal from '../../editor/streamCollection/source/dataPreviewModal';
-import taskSaveService from '@/services/taskSaveService';
+
+import Editor from '@/components/editor';
+import {
+    CODE_TYPE,
+    DATA_SOURCE_ENUM,
+    DATA_SOURCE_TEXT,
+    DATA_SOURCE_VERSION,
+    FLINK_VERSIONS,
+    formItemLayout,
+    KAFKA_DATA_LIST,
+    KAFKA_DATA_TYPE,
+    SOURCE_TIME_TYPE,
+} from '@/constant';
+import type { IDataSourceUsedInSyncProps } from '@/interface';
 import { taskRenderService } from '@/services';
+import { FormContext } from '@/services/rightBarService';
+import taskSaveService from '@/services/taskSaveService';
+import { getColumnsByColumnsText } from '@/utils';
+import { isAvro, isKafka, isShowTimeForOffsetReset } from '@/utils/is';
+import DataPreviewModal from '../../editor/streamCollection/source/dataPreviewModal';
+import { CustomParams } from '../customParams';
+import { NAME_FIELD } from '.';
 
 const FormItem = Form.Item;
 const { Option } = Select;

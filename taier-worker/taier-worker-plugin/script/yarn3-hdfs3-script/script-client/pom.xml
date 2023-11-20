@@ -31,11 +31,6 @@
             <version>1.0.0</version>
         </dependency>
 
-        <!--<dependency>-->
-        <!--    <groupId>com.dtstack.engine</groupId>-->
-        <!--    <artifactId>native-hadoop3</artifactId>-->
-        <!--    <version>1.0.0</version>-->
-        <!--</dependency>-->
 
         <dependency>
             <groupId>org.apache.hadoop</groupId>
@@ -101,7 +96,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
-                <version>3.0.0</version>
+                <version>3.2.4</version>
                 <executions>
                     <execution>
                         <phase>package</phase>

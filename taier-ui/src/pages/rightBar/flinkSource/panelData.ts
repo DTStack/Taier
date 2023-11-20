@@ -1,5 +1,6 @@
-import stream from '@/api';
 import type { DefaultOptionType } from 'antd/lib/cascader';
+
+import stream from '@/api';
 
 const mapToArray = (data: Partial<DefaultOptionType>, dataMap: Record<string, any>) => {
     const names = Object.getOwnPropertyNames(dataMap);

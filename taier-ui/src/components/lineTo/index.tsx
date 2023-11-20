@@ -1,9 +1,10 @@
-import { Table } from 'antd';
-import { mouse, select } from 'd3-selection';
-import { createRoot } from 'react-dom/client';
-import { mergeWith } from 'lodash';
 import type { Root } from 'react-dom/client';
+import { createRoot } from 'react-dom/client';
+import { Table } from 'antd';
 import type { ColumnType } from 'antd/lib/table';
+import { mouse, select } from 'd3-selection';
+import { mergeWith } from 'lodash';
+
 import './index.scss';
 
 interface IOptions<T> {

@@ -1,12 +1,13 @@
+import { act } from 'react-dom/test-utils';
 import molecule from '@dtinsight/molecule';
 import { cleanup, render, waitFor } from '@testing-library/react';
-import '@testing-library/jest-dom';
-import { act } from 'react-dom/test-utils';
-import Create from '../create';
-import type { IOfflineTaskProps } from '@/interface';
-import api from '@/api';
-import { Form, Input } from 'antd';
 import { button, input, select } from 'ant-design-testing';
+import { Form, Input } from 'antd';
+import '@testing-library/jest-dom';
+
+import api from '@/api';
+import type { IOfflineTaskProps } from '@/interface';
+import Create from '../create';
 
 jest.mock('@/api');
 
