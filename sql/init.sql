@@ -1540,9 +1540,9 @@ INSERT INTO `dict` VALUES (3, 'spark_thrift_version', '1.x', '1.x', NULL, 3, 1, 
 INSERT INTO `dict` VALUES (5, 'spark_thrift_version', '2.x', '2.x', NULL, 3, 2, 'STRING', '', 1, '2021-03-02 14:16:41', '2021-03-02 14:16:41', 0);
 INSERT INTO `dict` VALUES (7, 'hadoop_config', 'HDP 3.1.x', '-200', '', 5, 0, 'LONG', 'SPARK', 0, '2021-02-05 11:53:21', '2021-02-05 11:53:21', 0);
 INSERT INTO `dict` VALUES (9, 'typename_mapping', 'yarn3-hdfs3-spark210', '-108', NULL, 6, 0, 'LONG', '', 0, '2021-03-04 17:50:23', '2021-03-04 17:50:23', 0);
-INSERT INTO `dict` VALUES (11, 'typename_mapping', 'yarn2-hdfs2-spark210', '-108', NULL, 6, 0, 'LONG', '', 0, '2021-03-04 17:50:24', '2021-03-04 17:50:24', 0);
+INSERT INTO `dict` VALUES (10, 'typename_mapping', 'yarn2-hdfs2-spark210', '-108', NULL, 6, 0, 'LONG', '', 0, '2021-03-04 17:50:24', '2021-03-04 17:50:24', 0);
 INSERT INTO `dict` VALUES (11, 'typename_mapping', 'yarn2-hdfs2-spark320', '-109', NULL, 6, 0, 'LONG', '', 0, '2021-03-04 17:50:24', '2021-03-04 17:50:24', 0);
-INSERT INTO `dict` VALUES (11, 'typename_mapping', 'yarn3-hdfs3-spark320', '-109', NULL, 6, 0, 'LONG', '', 0, '2021-03-04 17:50:24', '2021-03-04 17:50:24', 0);
+INSERT INTO `dict` VALUES (12, 'typename_mapping', 'yarn3-hdfs3-spark320', '-109', NULL, 6, 0, 'LONG', '', 0, '2021-03-04 17:50:24', '2021-03-04 17:50:24', 0);
 INSERT INTO `dict` VALUES (13, 'typename_mapping', 'dummy', '-101', NULL, 6, 0, 'LONG', '', 0, '2021-03-04 17:50:24', '2021-03-04 17:50:24', 0);
 INSERT INTO `dict` VALUES (15, 'typename_mapping', 'hive', '-117', NULL, 6, 0, 'LONG', '', 0, '2021-03-04 17:50:24', '2021-03-04 17:50:24', 0);
 INSERT INTO `dict` VALUES (17, 'typename_mapping', 'hive2', '-117', NULL, 6, 0, 'LONG', '', 0, '2021-03-04 17:50:24', '2021-03-04 17:50:24', 0);
