@@ -28,6 +28,7 @@ import {
     RightOutlined,
     UploadOutlined,
 } from '@ant-design/icons';
+import CustomParameter, { ICustomValue } from '@/components/customParameter';
 import { COMPONENT_TYPE_VALUE } from '@/constant';
 import type { RcFile } from 'antd/lib/upload';
 import type { IComponentProps } from '.';
@@ -37,6 +38,7 @@ const { Sider, Content } = Layout;
 const { Panel } = Collapse;
 
 interface IDetailProps {
+    form: any;
     templateData: ILayoutData[];
     currentTreeNode?: IComponentProps;
     loading?: boolean;
@@ -79,11 +81,12 @@ export interface ITemplateData {
     /**
      * XML 表示该值作为 config 渲染
      */
-    type: 'INPUT' | 'RADIO_LINKAGE' | 'CHECKBOX' | 'XML' | 'GROUP';
+    type: 'INPUT' | 'RADIO_LINKAGE' | 'CHECKBOX' | 'XML' | 'GROUP' | 'CUSTOM';
     value: string;
 }
 
 export default function Detail({
+    form,
     loading,
     currentTreeNode,
     templateData = [],
@@ -370,6 +373,23 @@ export default function Detail({
                                             );
                                         }
                                     )}
+                                    <Form.Item
+                                        name={[template.groupName, 'customParameters'].join('$')}
+                                        noStyle
+                                        rules={[
+                                            {
+                                                validator(_, value: ICustomValue[]) {
+                                                    return value.every((item) => item.status)
+                                                        ? Promise.resolve()
+                                                        : Promise.reject('自定义字段名重复');
+                                                },
+                                            },
+                                        ]}
+                                    >
+                                        <CustomParameter
+                                            existingKeys={Object.keys(form.getFieldValue(template.groupName) || {})}
+                                        />
+                                    </Form.Item>
                                 </Panel>
                             </Collapse>
                         );

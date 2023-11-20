@@ -399,8 +399,24 @@ export default function ClusterDetail() {
 
         // 上传配置文件所解析出来的配置项会放在 config 字段中，不存在于 values 里
         const xmlConfig = form.getFieldValue('config');
-
-        const componentConfig = xmlConfig ? JSON.stringify(xmlConfig) : JSON.stringify(restValues);
+        let componentConfig: string;
+        const customParameters: Record<string, any> = {};
+        if (xmlConfig) {
+            componentConfig = JSON.stringify(xmlConfig);
+        } else {
+            const deploymode = restValues.deploymode;
+            deploymode?.forEach((item: string) => {
+                const key = [item, 'customParameters'].join('$');
+                customParameters[item] = restValues[key];
+                restValues[key]?.forEach((it: any) => {
+                    restValues[item][it.key] = it.value;
+                });
+                return {};
+            });
+            console.log(customParameters);
+            console.log(restValues);
+            componentConfig = JSON.stringify(restValues);
+        }
 
         try {
             setDetailLoading(true);
@@ -415,6 +431,7 @@ export default function ClusterDetail() {
                 principals,
                 versionName: Array.isArray(versionName) ? versionName[versionName.length - 1] : versionName,
                 componentConfig,
+                customParameters,
                 deployType: currentComponent.deployType,
                 clusterId: currentComponent.clusterId,
                 componentCode: currentComponent.componentTypeCode,
@@ -629,6 +646,7 @@ export default function ClusterDetail() {
                         <Content className="h-full">
                             {selectedKey ? (
                                 <Detail
+                                    form={form}
                                     loading={detailLoading}
                                     templateData={templateData}
                                     currentTreeNode={currentTreeNode}
