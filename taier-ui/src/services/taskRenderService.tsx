@@ -30,7 +30,7 @@ import {
     VerticaIcon,
     VirtualIcon,
     WorkflowIcon,
-    OracleIcon,
+    OracleSQLIcon,
 } from '@/components/icon';
 import notification from '@/components/notification';
 import scaffolds from '@/components/scaffolds/create';
@@ -252,8 +252,8 @@ export default class TaskRenderService extends Component<ITaskRenderState> {
                 return <DorisIcon />;
             case TASK_TYPE_ENUM.MYSQL:
                 return <MysqlIcon />;
-            case TASK_TYPE_ENUM.ORACLE:
-            	return <OracleIcon />;
+            case TASK_TYPE_ENUM.ORACLE_SQL:
+            	return <OracleSQLIcon />;
             case TASK_TYPE_ENUM.GREENPLUM:
                 return <GreenPlumIcon />;
             case TASK_TYPE_ENUM.POSTGRE_SQL:
