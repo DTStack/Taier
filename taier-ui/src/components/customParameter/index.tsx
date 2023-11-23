@@ -1,25 +1,59 @@
 import React, { useEffect, useState } from 'react';
-import { DeleteOutlined,PlusSquareOutlined } from '@ant-design/icons';
+import { DeleteOutlined, PlusSquareOutlined } from '@ant-design/icons';
 import { Col, Input, Row, Space } from 'antd';
 
 import './index.scss';
 
 interface IComponentType {
+    /**
+     * 自定义组件类型
+     */
     type: string;
+    /**
+     * 组件
+     */
     Component: React.ComponentClass<any, any> | React.FC<any>;
 }
 
 interface ICustomItem extends IComponentType {
+    /**
+     * 自定义参数名
+     */
     label: string;
+    /**
+     * 自定义参数值
+     */
     value: string;
+    /**
+     * 自定义参数是否合法
+     */
     status: boolean;
 }
 
 export type ICustomValue = Omit<ICustomItem, 'Component'>;
 
 interface ICustomParameterProps {
+    /**
+     * 自定义参数名-value对应的key名
+     */
+    labelKey?: string;
+    /**
+     * 自定义参数值-value对应的key名
+     */
+    valueKey?: string;
+    /**
+     * 已存在的keys
+     */
     existingKeys: string[];
-    value?: Omit<ICustomItem, 'Component'>[];
+    /**
+     * 自定义参数列表
+     */
+    value?: Record<string, string>[];
+    /**
+     * 自定义参数改变触发函数
+     * @param value
+     * @returns
+     */
     onChange?: (value: ICustomValue[]) => void;
 }
 
@@ -28,7 +62,13 @@ const DEFAULT_FORM_ITEM: IComponentType = {
     Component: Input,
 };
 
-export default function CustomParameter({ existingKeys, value, onChange }: ICustomParameterProps) {
+export default function CustomParameter({
+    labelKey = 'label',
+    valueKey = 'value',
+    existingKeys,
+    value,
+    onChange,
+}: ICustomParameterProps) {
     const [customParamRows, setCustomParamRows] = useState<ICustomItem[]>([]);
 
     const handleCustomParameterAdd = () => {
@@ -65,8 +105,11 @@ export default function CustomParameter({ existingKeys, value, onChange }: ICust
         setCustomParamRows(
             value?.map((item) => {
                 return {
-                    ...item,
+                    type: item.type || DEFAULT_FORM_ITEM.type,
+                    label: item[labelKey],
+                    value: item[valueKey],
                     Component: DEFAULT_FORM_ITEM.Component,
+                    status: false,
                 };
             }) || []
         );
