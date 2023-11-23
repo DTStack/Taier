@@ -725,7 +725,8 @@ export const OracleSQLIcon = ({ style }: IConProps) => {
 			<svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" className="icon" viewBox="0 0 1024 1024">
 			    <path
                 		d="M700.245333 188.245333h-376.32a323.754667 323.754667 0 0 0-0.341333 647.509334h376.661333a323.754667 323.754667 0 0 0 0-647.509334z m-8.234666 533.418667H332.202667a209.706667 209.706667 0 0 1 0-419.328h359.808a209.664 209.664 0 1 1 0 419.328z"
-                		p-id="2568" fill="#d81e06">
+                		p-id="2568" fill="#d81e06"
+			    >
                 </path>
 			</svg>
         </span>

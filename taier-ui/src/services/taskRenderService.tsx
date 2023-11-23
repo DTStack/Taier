@@ -20,6 +20,7 @@ import {
     HiveSQLIcon,
     MysqlIcon,
     OceanBaseIcon,
+    OracleSQLIcon,
     PostgreSqlIcon,
     PythonIcon,
     ShellIcon,
@@ -30,7 +31,6 @@ import {
     VerticaIcon,
     VirtualIcon,
     WorkflowIcon,
-    OracleSQLIcon,
 } from '@/components/icon';
 import notification from '@/components/notification';
 import scaffolds from '@/components/scaffolds/create';
