@@ -449,7 +449,9 @@ export default function ClusterDetail() {
     };
 
     const handleUpdateConfig = (params: Record<string, string>, file: RcFile) => {
+		form.resetFields(['config']);
         form.setFieldsValue({ config: params, uploadFileName: file });
+
         setEdited((p) => ({ ...p, [selectedKey!]: true }));
     };
 
