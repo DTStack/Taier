@@ -290,7 +290,7 @@ public class EnvironmentContext implements InitializingBean {
         Map<String, Object> dataConfigNew = Maps.newHashMap();
         if (MapUtils.isNotEmpty(dataConfig)) {
             dataConfig.keySet().forEach(key ->
-                    dataConfigNew.put(CommonConstant.DATASOURCE_PREFIX + key, dataConfig.get(key)));
+                    dataConfigNew.put(CommonConstant.DATASOURCE_PREFIX + key.replace(CommonConstant.UNDERLINE_CHAR, CommonConstant.DOT_CHAR), dataConfig.get(key)));
         }
         return dataConfigNew;
     }
