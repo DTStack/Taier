@@ -53,4 +53,7 @@ public interface CommonConstant {
     String DATASOURCE_ID = "datasourceId";
     String DATASOURCE_TYPE = "datasourceType";
 
+    char DOT_CHAR   = '.';
+    char UNDERLINE_CHAR = '_';
+
 }
