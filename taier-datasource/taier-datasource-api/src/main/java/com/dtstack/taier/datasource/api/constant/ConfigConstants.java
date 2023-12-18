@@ -31,17 +31,17 @@ public final class ConfigConstants {
     private static final String CONFIG_PREFIX = "taier.datasource.";
 
     // ---------------------------- plugin -------------------------------
-    public static final String PLUGIN_DIR = CONFIG_PREFIX + "plugin.dir";
+    public static final String PLUGIN_DIR = CONFIG_PREFIX + "pluginDir";
 
     // ---------------------------- retry -------------------------------
-    public static final String RETRY_TIMES = CONFIG_PREFIX + "retry.times";
-    public static final String RETRY_INTERVAL_TIME = CONFIG_PREFIX + "retry.interval.time";
+    public static final String RETRY_TIMES = CONFIG_PREFIX + "retryTimes";
+    public static final String RETRY_INTERVAL_TIME = CONFIG_PREFIX + "retryIntervalTime";
 
     // ---------------------------- execute -------------------------------
-    public static final String EXECUTE_TIMEOUT = CONFIG_PREFIX + "execute.timeout";
-    public static final String SQL_EXECUTE_TIMEOUT = CONFIG_PREFIX + "sql.execute.timeout";
-    public static final String EXECUTE_POOL_CORE_SIZE = CONFIG_PREFIX + "execute.pool.core.size";
-    public static final String EXECUTE_POOL_MAX_SIZE = CONFIG_PREFIX + "execute.pool.max.size";
-    public static final String EXECUTE_POOL_KEEPALIVE_TIME = CONFIG_PREFIX + "execute.keepalive.time";
-    public static final String EXECUTE_POOL_QUEUE_SIZE = CONFIG_PREFIX + "execute.queue.size";
+    public static final String EXECUTE_TIMEOUT = CONFIG_PREFIX + "executeTimeout";
+    public static final String SQL_EXECUTE_TIMEOUT = CONFIG_PREFIX + "sqlExecuteTimeout";
+    public static final String EXECUTE_POOL_CORE_SIZE = CONFIG_PREFIX + "executePoolCoreSize";
+    public static final String EXECUTE_POOL_MAX_SIZE = CONFIG_PREFIX + "executePoolMaxSize";
+    public static final String EXECUTE_POOL_KEEPALIVE_TIME = CONFIG_PREFIX + "executeKeepaliveTime";
+    public static final String EXECUTE_POOL_QUEUE_SIZE = CONFIG_PREFIX + "executeQueueSize";
 }
