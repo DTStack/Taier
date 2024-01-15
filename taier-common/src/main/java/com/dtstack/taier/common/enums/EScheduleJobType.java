@@ -118,7 +118,7 @@ public enum EScheduleJobType {
     HADOOP_MR(25, "HadoopMR", EJobType.MR.getType(), 16, EComponentType.HDFS, EComputeType.BATCH, EJobClientType.WORKER_PLUGIN),
     DATAX(26,"DataX", EJobType.PYTHON.getType(),14, EComponentType.DATAX, EComputeType.BATCH, EJobClientType.WORKER_PLUGIN),
 
-    ORACLE_SQL(50, "OracleSQL", EJobType.SQL.getType(), 4, null, EComputeType.BATCH, EJobClientType.DATASOURCE_PLUGIN),
+    ORACLE_SQL(27, "OracleSQL", EJobType.SQL.getType(), 4, null, EComputeType.BATCH, EJobClientType.DATASOURCE_PLUGIN),
     ;
 
     private final Integer type;
