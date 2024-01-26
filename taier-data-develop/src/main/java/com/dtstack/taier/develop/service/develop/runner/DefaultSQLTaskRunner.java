@@ -36,6 +36,6 @@ public class DefaultSQLTaskRunner extends JdbcTaskRunner {
                 EScheduleJobType.DORIS_SQL, EScheduleJobType.CLICK_HOUSE_SQL, EScheduleJobType.MYSQL,
                 EScheduleJobType.GREENPLUM, EScheduleJobType.GAUSS_DB, EScheduleJobType.POSTGRESQL,
                 EScheduleJobType.SQLSERVER, EScheduleJobType.TIDB, EScheduleJobType.VERTICA,
-                EScheduleJobType.MAXCOMPUTE);
+                EScheduleJobType.MAXCOMPUTE,EScheduleJobType.ORACLE_SQL);
     }
 }
