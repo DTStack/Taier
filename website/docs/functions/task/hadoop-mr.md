@@ -6,7 +6,7 @@ sidebar_label: Hadoop MR
 
 
 ### 1. 任务界面
-![QzpcVXNlcnNcc2h1YWl4aWFvaHVvXEFwcERhdGFcUm9hbWluZ1xEaW5nVGFsa1w0NjU3MTc0NjJfdjJcSW1hZ2VGaWxlc1wxNTkzMzI5MDk1NTY1Xzc3NUVFQjZDLUIyMjItNGE5OS1CREIxLTRCNDZBMTJBMUMyQS5wbmc=.png](https://cdn.nlark.com/yuque/0/2020/png/711662/1593329158744-59d28c71-56fe-4862-b6a8-5658b2a64f25.png#align=left&display=inline&height=502&name=QzpcVXNlcnNcc2h1YWl4aWFvaHVvXEFwcERhdGFcUm9hbWluZ1xEaW5nVGFsa1w0NjU3MTc0NjJfdjJcSW1hZ2VGaWxlc1wxNTkzMzI5MDk1NTY1Xzc3NUVFQjZDLUIyMjItNGE5OS1CREIxLTRCNDZBMTJBMUMyQS5wbmc%3D.png&originHeight=502&originWidth=1092&size=12607&status=done&style=none&width=1092)
+![hadoop-mr-task](/img/readme/hadoop-mr-task.png)
 
 ### 2. 传参
 

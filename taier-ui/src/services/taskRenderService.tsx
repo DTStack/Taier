@@ -20,6 +20,7 @@ import {
     HiveSQLIcon,
     MysqlIcon,
     OceanBaseIcon,
+    OracleSQLIcon,
     PostgreSqlIcon,
     PythonIcon,
     ShellIcon,
@@ -251,6 +252,8 @@ export default class TaskRenderService extends Component<ITaskRenderState> {
                 return <DorisIcon />;
             case TASK_TYPE_ENUM.MYSQL:
                 return <MysqlIcon />;
+            case TASK_TYPE_ENUM.ORACLE_SQL:
+            	return <OracleSQLIcon />;
             case TASK_TYPE_ENUM.GREENPLUM:
                 return <GreenPlumIcon />;
             case TASK_TYPE_ENUM.POSTGRE_SQL:
