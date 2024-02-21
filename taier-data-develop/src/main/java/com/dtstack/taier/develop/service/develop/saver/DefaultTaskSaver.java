@@ -23,9 +23,8 @@ import com.dtstack.taier.common.enums.EScheduleJobType;
 import com.dtstack.taier.common.exception.ErrorCode;
 import com.dtstack.taier.common.exception.TaierDefineException;
 import com.dtstack.taier.develop.dto.devlop.TaskResourceParam;
-import com.dtstack.taier.develop.dto.devlop.TaskVO;
-import com.dtstack.taier.develop.service.develop.impl.DevelopTaskTaskService;
 import com.dtstack.taier.develop.service.user.UserService;
+import com.dtstack.taier.pluginapi.enums.ComputeType;
 import com.dtstack.taier.pluginapi.enums.EJobType;
 import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
@@ -50,13 +49,13 @@ public class DefaultTaskSaver extends AbstractTaskSaver {
     @Autowired
     private UserService userService;
 
-    @Autowired
-    private DevelopTaskTaskService developTaskTaskService;
 
     @Override
     public TaskResourceParam beforeProcessing(TaskResourceParam taskResourceParam) {
         // sql 任务必须选择数据源
         EScheduleJobType scheduleJobType = EScheduleJobType.getByTaskType(taskResourceParam.getTaskType());
+        taskResourceParam.setTaskParams(taskResourceParam.getTaskParams() == null ? taskTemplateService.getTaskTemplate(taskResourceParam.getTaskType(), taskResourceParam.getComponentVersion()).getParams() : taskResourceParam.getTaskParams());
+        taskResourceParam.setComputeType(ComputeType.BATCH.getType());
         if (EComputeType.BATCH.getType() == scheduleJobType.getComputeType().getType() && EJobType.SQL.getType() == scheduleJobType.getEngineJobType()) {
             if (null == taskResourceParam.getDatasourceId()) {
                 throw new TaierDefineException(ErrorCode.DATA_SOURCE_NOT_SET);
