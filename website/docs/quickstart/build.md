@@ -51,7 +51,9 @@ oracle 插件因为商业版本原因，官方没有提供 ojdbc 的驱动，开
    ```shell
    $ yarn install  
    $ yarn run build  
-   # or
+   ```
+   或者使用
+- ```shell
    $ pnpm install  
    $ pnpm run build     
    ```
@@ -60,6 +62,6 @@ oracle 插件因为商业版本原因，官方没有提供 ojdbc 的驱动，开
    - taier-ui/dist
 
 :::tip
-编译前端代码，建议node版本为`v16.14.0`，包管理工具为`pnpm` / `yarn`  
+编译前端代码，建议node版本为`v16.16.0`，包管理工具为`pnpm` / `yarn`  
 源码中包含部分scala的代码，通过idea源码启动需要添加scala的sdk 建议scala版本为`2.11.1`
 :::

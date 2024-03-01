@@ -5,6 +5,55 @@ sidebar_label: 常见问题
 
 
 ## 常见问题
+### 任务运行 直接报错
+```java
+com.dtstack.taier.common.exception.ClientAccessException: Client access exception.
+at com.dtstack.taier.common.client.ClientCache.getClient(ClientCache.java:114)
+at com.dtstack.taier.common.client.ClientOperator.judgeSlots(ClientOperator.java:155)
+at com.dtstack.taier.scheduler.WorkerOperator.judgeSlots(WorkerOperator.java:93)
+at com.dtstack.taier.scheduler.WorkerOperator$$FastClassBySpringCGLIB$$b285a6bd.invoke(<generated>)
+at org.springframework.cglib.proxy.MethodProxy.invoke(MethodProxy.java:218)
+at org.springframework.aop.framework.CglibAopProxy$CglibMethodInvocation.invokeJoinpoint(CglibAopProxy.java:769)
+at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:163)
+at org.springframework.aop.framework.CglibAopProxy$CglibMethodInvocation.proceed(CglibAopProxy.java:747)
+at org.springframework.aop.framework.adapter.AfterReturningAdviceInterceptor.invoke(AfterReturningAdviceInterceptor.java:55)
+at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:186)
+at org.springframework.aop.framework.CglibAopProxy$CglibMethodInvocation.proceed(CglibAopProxy.java:747)
+at org.springframework.aop.interceptor.ExposeInvocationInterceptor.invoke(ExposeInvocationInterceptor.java:95)
+at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:186)
+at org.springframework.aop.framework.CglibAopProxy$CglibMethodInvocation.proceed(CglibAopProxy.java:747)
+at org.springframework.aop.framework.CglibAopProxy$DynamicAdvisedInterceptor.intercept(CglibAopProxy.java:689)
+at com.dtstack.taier.scheduler.WorkerOperator$$EnhancerBySpringCGLIB$$9dd74da7.judgeSlots(<generated>)
+at com.dtstack.taier.scheduler.jobdealer.JobSubmitDealer.submitEngineJob(JobSubmitDealer.java:340)
+at com.dtstack.taier.scheduler.jobdealer.JobSubmitDealer.submitJob(JobSubmitDealer.java:329)
+at com.dtstack.taier.scheduler.jobdealer.JobSubmitDealer.lambda$run$0(JobSubmitDealer.java:220)
+at java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:511)
+at java.util.concurrent.FutureTask.run(FutureTask.java:266)
+at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1149)
+at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:624)
+at java.lang.Thread.run(Thread.java:748)
+```
+
+:::tip
+taier部署目录下没有worker-plugins
+:::
+
+### 新建任务下拉框为空 或者 没有数据同步任务类型
+:::tip
+任务下拉框为空 查看初始化SQL是否正常执行 `dict`表中type = 30 是否正常 不包含重复数据  
+没有数据同步任务类型 或者没有其他任务类型 确认前置组件是否正常配置 [组件任务依赖关心](./functions/multi-cluster.md)
+:::
+
+
+### 不依赖hadoop 可以实现异构数据源之间的数据同步吗
+:::tip
+可以本地部署`Flink Standalone` 或 `DataX`  通过数据同步任务或者DataX来实现同步
+:::
+
+### 数据同步版本可以用其他版本吗
+:::tip
+不行 Chunjun对接的版本为1.12_release Taier项目依赖的也为1.12 建议使用Flink版本1.12.7
+:::
 
 ### 任务提交报错 提示找不到core-jar
 ```java
@@ -94,7 +143,7 @@ Spark组件`sparkSqlProxyPath` 配置的路径下上传对应依赖jar包
 ### 本地部署登录之后提示未登录
 ![login_error](../../static/img/example/login_error.png)
 :::tip
-本地通过访问http://localhost:8090/
+本地通过访问http://ip:8090/
 :::
 
 
@@ -111,6 +160,13 @@ com.dtstack.taier.datasource.api.exception.InitializeException: get classloader 
 
 :::tip 
 确保taier部署环境存在同级目录datasource-plugins
+:::
+
+### 数据同步任务一直等待运行
+:::tip
+session 模式 确认 flink session是否拉起  可以参考github issue
+standalone 默认 确认 standalone是否正常启动 组件参数配置是否正常 
+等待运行的信息可以在`taier.log`日志中查看
 :::
 
 ### 数据同步任务运行class not found
@@ -153,7 +209,7 @@ chunjun的connector更换过之后，需要重启Taier和Flink Session
 ### Taier-UI编译失败
 
 :::tip 
-手动通过npm等方式编译或者删除Taier-ui下node_modules目录再次编译
+手动通过npm等方式编译或者删除Taier-ui下node_modules目录再次编译 npm版本建议v16.16
 :::
 
 ### Taier等插件包编译失败
@@ -194,4 +250,10 @@ application.properties 配置hadoop.user.name=hdfs 重启Taier  更多参数参�
 ### 任务提交显示资源不足
 :::tip
 确认集群的cpu、内存或flink slot数量是否足够
+:::
+
+### 如果访问页面提示空白
+:::tip
+![img.png](/img/readme/no_dist.png)
+如果访问页面提示空白 原因为前端dist文件不存在 需要编译后在启动 参考本地启动文档
 :::
