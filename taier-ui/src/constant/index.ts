@@ -1289,6 +1289,7 @@ export enum TASK_LANGUAGE {
     FLINKSQL = 'flinksql',
     MYSQL = 'mysql',
     PLSQL = 'plsql',
+    PGSQL = 'pgsql',
     SQL = 'sql',
     JSON = 'json',
     PYTHON = 'python',
@@ -1610,3 +1611,20 @@ export enum PythonVersionKind {
  * So the one named `path` and another named `path|FTP`
  */
 export const NAME_SEPARATOR = '|';
+
+/**
+ * Support problems analyse SQL languages
+ */
+export const SUPPORT_VALID_LANGUEGES = [TASK_LANGUAGE.FLINKSQL, TASK_LANGUAGE.HIVESQL, TASK_LANGUAGE.SPARKSQL] as const;
+
+/**
+ * For support snippets SQL languages
+ */
+export const COMPLETION_SQL = [
+    TASK_LANGUAGE.SPARKSQL,
+    TASK_LANGUAGE.HIVESQL,
+    TASK_LANGUAGE.SQL,
+    TASK_LANGUAGE.FLINKSQL,
+    TASK_LANGUAGE.MYSQL,
+    TASK_LANGUAGE.PGSQL,
+] as const;

@@ -17,7 +17,6 @@
  */
 
 import { Utils } from '@dtinsight/dt-utils';
-import type { languages } from '@dtinsight/molecule/esm/monaco';
 import { endsWith, get, pickBy, range as lodashRange } from 'lodash';
 import moment from 'moment';
 import { history } from 'umi';
@@ -36,7 +35,6 @@ import {
     WAIT_STATUS,
 } from '@/constant';
 import { taskRenderService } from '@/services';
-import { Keywords, Snippets } from './completion';
 
 /**
  * 返回今日 [00:00:00, 23:59:69]
@@ -432,15 +430,6 @@ export function prettierJSONstring(str: string) {
     } catch (error) {
         return str;
     }
-}
-
-/**
- * 生成 SQL 关键字
- */
-export async function createSQLProposals(
-    range: languages.CompletionItem['range']
-): Promise<languages.CompletionItem[]> {
-    return (await Keywords(range)).concat(Snippets(range));
 }
 
 /**

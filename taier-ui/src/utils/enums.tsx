@@ -343,15 +343,11 @@ export function resourceNameMapping(type?: RESOURCE_TYPE) {
 export function mappingTaskTypeToLanguage(taskType: TASK_TYPE_ENUM) {
     switch (taskType) {
         case TASK_TYPE_ENUM.SPARK_SQL:
-        case TASK_TYPE_ENUM.DORIS:
-        case TASK_TYPE_ENUM.CLICKHOUSE:
             return TASK_LANGUAGE.SPARKSQL;
         case TASK_TYPE_ENUM.HIVE_SQL:
             return TASK_LANGUAGE.HIVESQL;
         case TASK_TYPE_ENUM.SQL:
             return TASK_LANGUAGE.FLINKSQL;
-        case TASK_TYPE_ENUM.OCEANBASE:
-            return TASK_LANGUAGE.SQL;
         case TASK_TYPE_ENUM.SYNC:
         case TASK_TYPE_ENUM.DATA_ACQUISITION:
         case TASK_TYPE_ENUM.DATAX:
@@ -361,7 +357,10 @@ export function mappingTaskTypeToLanguage(taskType: TASK_TYPE_ENUM) {
         case TASK_TYPE_ENUM.SHELL:
             return TASK_LANGUAGE.SHELL;
         case TASK_TYPE_ENUM.MYSQL:
+        case TASK_TYPE_ENUM.DORIS:
             return TASK_LANGUAGE.MYSQL;
+        case TASK_TYPE_ENUM.POSTGRE_SQL:
+            return TASK_LANGUAGE.PGSQL;
         default:
             return TASK_LANGUAGE.SQL;
     }

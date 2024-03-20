@@ -1,7 +1,7 @@
 lockfileVersion: 5.4
 
 overrides:
-  dt-sql-parser: 4.0.0-beta.3.2
+  antlr4-c3: 3.0.x
 
 specifiers:
   '@ant-design/icons': ^4.7.0
@@ -48,8 +48,8 @@ specifiers:
   lodash: ^4.17.21
   md5: ^2.3.0
   moment: ^2.29.1
-  monaco-editor-webpack-plugin: ^6.0.0
-  monaco-sql-languages: ^0.9.4
+  monaco-editor-webpack-plugin: ^7.0.0
+  monaco-sql-languages: 0.12.0-beta.5
   mustache: ^4.2.0
   mxgraph: 4.0.6
   object-assign: ^4.1.1
@@ -88,7 +88,7 @@ dependencies:
   lodash: registry.npmmirror.com/lodash/4.17.21
   md5: registry.npmmirror.com/md5/2.3.0
   moment: registry.npmmirror.com/moment/2.29.4
-  monaco-sql-languages: registry.npmmirror.com/monaco-sql-languages/0.9.4
+  monaco-sql-languages: registry.npmmirror.com/monaco-sql-languages/0.12.0-beta.5
   mxgraph: registry.npmmirror.com/mxgraph/4.0.6
   object-assign: registry.npmmirror.com/object-assign/4.1.1
   react: registry.npmmirror.com/react/18.2.0
@@ -131,7 +131,7 @@ devDependencies:
   jest-canvas-mock: registry.npmmirror.com/jest-canvas-mock/2.5.2
   ko-lint-config: registry.npmmirror.com/ko-lint-config/2.2.21_typescript@4.7.4
   lint-staged: registry.npmmirror.com/lint-staged/10.5.4
-  monaco-editor-webpack-plugin: registry.npmmirror.com/monaco-editor-webpack-plugin/6.0.0
+  monaco-editor-webpack-plugin: registry.npmmirror.com/monaco-editor-webpack-plugin/7.1.0
   mustache: registry.npmmirror.com/mustache/4.2.0
   progress: registry.npmmirror.com/progress/2.0.3
   request-promise: registry.npmmirror.com/request-promise/4.2.6
@@ -1502,12 +1502,6 @@ packages:
     name: '@typed-mxgraph/typed-mxgraph'
     version: 1.0.8
     dev: true
-
-  registry.npmmirror.com/@types/antlr4/4.7.0:
-    resolution: {integrity: sha512-WdyHH4PHxBQkeWoRTbuC/dvf0QErJpJE4UpESQSRmKoMER15DCLFHAHQjkwevMKQie0kqawS/eTY563GGMbz/g==, registry: https://registry.npm.taobao.org/, tarball: https://registry.npmmirror.com/@types/antlr4/-/antlr4-4.7.0.tgz}
-    name: '@types/antlr4'
-    version: 4.7.0
-    dev: false
 
   registry.npmmirror.com/@types/aria-query/5.0.3:
     resolution: {integrity: sha512-0Z6Tr7wjKJIk4OUEjVUQMtyunLDy339vcMaj38Kpj6jM2OE1p3S4kXExKZ7a3uXQAPCoy3sbrP1wibDKaf39oA==, registry: https://registry.npm.taobao.org/, tarball: https://registry.npmmirror.com/@types/aria-query/-/aria-query-5.0.3.tgz}
@@ -3059,10 +3053,18 @@ packages:
       react-dom: registry.npmmirror.com/react-dom/18.2.0_react@18.2.0
       scroll-into-view-if-needed: registry.npmmirror.com/scroll-into-view-if-needed/2.2.31
 
-  registry.npmmirror.com/antlr4/4.7.2:
-    resolution: {integrity: sha512-vZA1xYufXLe3LX+ja9rIVxjRmILb1x3k7KYZHltRbfJtXjJ1DlFIqt+CbPYmghx0EuzY9DajiDw+MdyEt1qAsQ==, registry: https://registry.npm.taobao.org/, tarball: https://registry.npmmirror.com/antlr4/-/antlr4-4.7.2.tgz}
-    name: antlr4
-    version: 4.7.2
+  registry.npmmirror.com/antlr4-c3/3.0.1:
+    resolution: {integrity: sha512-Vbizas0WK4Id6l1f48ANYHFZgfzmj82LZx4OuB/a87vCpyoUwofrlJ+sCiL1qT/D2SWf8HEcBPCsgskdx8NnzQ==, registry: https://registry.npm.taobao.org/, tarball: https://registry.npmmirror.com/antlr4-c3/-/antlr4-c3-3.0.1.tgz}
+    name: antlr4-c3
+    version: 3.0.1
+    dependencies:
+      antlr4ts: registry.npmmirror.com/antlr4ts/0.5.0-alpha.4
+    dev: false
+
+  registry.npmmirror.com/antlr4ts/0.5.0-alpha.4:
+    resolution: {integrity: sha512-WPQDt1B74OfPv/IMS2ekXAKkTZIHl88uMetg6q3OTqgFxZ/dxDXI0EWLyZid/1Pe6hTftyg5N7gel5wNAGxXyQ==, registry: https://registry.npm.taobao.org/, tarball: https://registry.npmmirror.com/antlr4ts/-/antlr4ts-0.5.0-alpha.4.tgz}
+    name: antlr4ts
+    version: 0.5.0-alpha.4
     dev: false
 
   registry.npmmirror.com/anymatch/2.0.0:
@@ -5186,13 +5188,13 @@ packages:
       minimatch: registry.npmmirror.com/minimatch/3.1.2
     dev: false
 
-  registry.npmmirror.com/dt-sql-parser/4.0.0-beta.3.2:
-    resolution: {integrity: sha512-QrgsWzpqqUy6vAGkK4Ep4WdZfhy0s2SNR7QuwQ3RsdDNQ4rMzH1jQTdEBK6oU+16o1xpStwjnzk3vuxMOhiisw==, registry: https://registry.npm.taobao.org/, tarball: https://registry.npmmirror.com/dt-sql-parser/-/dt-sql-parser-4.0.0-beta.3.2.tgz}
+  registry.npmmirror.com/dt-sql-parser/4.0.0-beta.4.5:
+    resolution: {integrity: sha512-zp7L4h6i5bU5U38ZLi66iL8BZ7LfBvLqqI9laQks4f18X19K/CMdXqWzmk90cNIeH7Jh8MhNBYyeWMUyjXcjRQ==, registry: https://registry.npm.taobao.org/, tarball: https://registry.npmmirror.com/dt-sql-parser/-/dt-sql-parser-4.0.0-beta.4.5.tgz}
     name: dt-sql-parser
-    version: 4.0.0-beta.3.2
+    version: 4.0.0-beta.4.5
     dependencies:
-      '@types/antlr4': registry.npmmirror.com/@types/antlr4/4.7.0
-      antlr4: registry.npmmirror.com/antlr4/4.7.2
+      antlr4-c3: registry.npmmirror.com/antlr4-c3/3.0.1
+      antlr4ts: registry.npmmirror.com/antlr4ts/0.5.0-alpha.4
     dev: false
 
   registry.npmmirror.com/dva-core/2.0.4_redux@4.2.1:
@@ -9192,12 +9194,12 @@ packages:
     name: moment
     version: 2.29.4
 
-  registry.npmmirror.com/monaco-editor-webpack-plugin/6.0.0:
-    resolution: {integrity: sha512-vC886Mzpd2AkSM35XLkfQMjH+Ohz6RISVwhAejDUzZDheJAiz6G34lky1vyO8fZ702v7IrcKmsGwL1rRFnwvUA==, registry: https://registry.npm.taobao.org/, tarball: https://registry.npmmirror.com/monaco-editor-webpack-plugin/-/monaco-editor-webpack-plugin-6.0.0.tgz}
+  registry.npmmirror.com/monaco-editor-webpack-plugin/7.1.0:
+    resolution: {integrity: sha512-ZjnGINHN963JQkFqjjcBtn1XBtUATDZBMgNQhDQwd78w2ukRhFXAPNgWuacaQiDZsUr4h1rWv5Mv6eriKuOSzA==, registry: https://registry.npm.taobao.org/, tarball: https://registry.npmmirror.com/monaco-editor-webpack-plugin/-/monaco-editor-webpack-plugin-7.1.0.tgz}
     name: monaco-editor-webpack-plugin
-    version: 6.0.0
+    version: 7.1.0
     peerDependencies:
-      monaco-editor: 0.30.x
+      monaco-editor: '>= 0.31.0'
       webpack: ^4.5.0 || 5.x
     dependencies:
       loader-utils: registry.npmmirror.com/loader-utils/2.0.4
@@ -9209,12 +9211,14 @@ packages:
     version: 0.31.1
     dev: false
 
-  registry.npmmirror.com/monaco-sql-languages/0.9.4:
-    resolution: {integrity: sha512-2LaIQ2Fc37lBiPx8lL9tlYRzxzns5NQeHkR4h3o+ysBOML5KhUDuscNDiTN8ailuas83OphR9fhe3Hkn5I2oZQ==, registry: https://registry.npm.taobao.org/, tarball: https://registry.npmmirror.com/monaco-sql-languages/-/monaco-sql-languages-0.9.4.tgz}
+  registry.npmmirror.com/monaco-sql-languages/0.12.0-beta.5:
+    resolution: {integrity: sha512-YpCModmff5k9Gkk8v8cTKG1T123BkWct2BKtl+Sp+7RLu0oQdaYybjROBcxya5xkcWqhrwcVFAcGbfa0qglQ2A==, registry: https://registry.npm.taobao.org/, tarball: https://registry.npmmirror.com/monaco-sql-languages/-/monaco-sql-languages-0.12.0-beta.5.tgz}
     name: monaco-sql-languages
-    version: 0.9.4
+    version: 0.12.0-beta.5
+    peerDependencies:
+      monaco-editor: 0.31.0
     dependencies:
-      dt-sql-parser: registry.npmmirror.com/dt-sql-parser/4.0.0-beta.3.2
+      dt-sql-parser: registry.npmmirror.com/dt-sql-parser/4.0.0-beta.4.5
     dev: false
 
   registry.npmmirror.com/moo-color/1.0.3:
