@@ -19,10 +19,6 @@ DataX 计算组件用于运行 DataX 脚本任务,DataX不依赖任务前置组�
 :::tip 
 DataX任务运行在Taier本地服务器,通过Taier来执行，并获取执行结果信息
 
-```shell
-python datax.py task.temp/task.json
-```
-
 :::
 
 :::caution 

@@ -30,11 +30,11 @@ k8s-n1          Ready,SchedulingDisabled   master                 165d   v1.19.4
 
 快速部署的组件
 
-| 服务              | 版本     |
-| ----------------- |--------|
-| mysql（单机版）   | 5.7    |
+| 服务            | 版本     |
+|---------------|--------|
+| mysql（单机版）    | 5.7    |
 | zookeeper（集群） | 3.5.7  |
-| taier 前后端      | master |
+| Taier 前后端     | master |
 
 ## 2. 快速部署
 

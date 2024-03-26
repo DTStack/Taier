@@ -49,7 +49,7 @@ OCEANBASE_SQL(8, "OceanBaseSQL", EJobType.SQL.getType(), 4, EComponentType.OCEAN
 :::
 
 ### 保存任务
-在taier页面上配置好对应的属性参数和任务内容之后，点击保存即可  
+在Taier页面上配置好对应的属性参数和任务内容之后，点击保存即可  
 默认会对sqlText内容去除注释
 :::tip
 如果需要对任务保存做自定义的参数拼接或处理   

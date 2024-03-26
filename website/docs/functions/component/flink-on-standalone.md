@@ -9,14 +9,16 @@ sidebar_label: Flink On Standalone
 
 * flink官网下载 [release 1.12.7](https://flink.apache.org/downloads.html)
 
+:::tip
+如果不了解Flink Standalone 可以参考官网文档 [Flink Standalone](https://nightlies.apache.org/flink/flink-docs-release-1.18/docs/deployment/resource-providers/standalone/overview/#standalone-cluster-reference)
+:::
 **2、chunjun的插件**
 
 * 编译1.12版本的chunjun [master](https://github.com/DTStack/chunjun)插件，将生成的chunjun-dist 拷贝至 $FLINK_HOME/lib
 
 :::tip 
-chunjun 有些依赖包依赖是provided，需要将缺省的jar放到$FLINK_HOME/lib  
-例如：在chunjun-core最新版本中将logback的依赖改为了provided, 需要将以下logback包放到$FLINK_HOME/lib logback-core-1.2.11.jar
-logback-classic-1.2.11.jar
+chunjun 有些依赖包依赖是provided，需要将缺省的jar放到$FLINK_HOME/lib    
+例如：在chunjun-core最新版本中将logback的依赖改为了provided,需要将以下logback包放到$FLINK_HOME/lib logback-core-1.2.11.jar logback-classic-1.2.11.jar
 :::
 
 **3、flink1.12 standalone服务参数**
@@ -77,6 +79,14 @@ lib/
 
 
 ```
+
+部署完Flink Standalone 打开Flink Web页面 
+确认部署正常
+ 1. 页面正常打开
+ 2. chunjun的插件包 在`jobmanger`的log中显示正常加载
+
+![Flink Standalone](../../../static/img/readme/flink-standalone.png)
+
 
 
 ## Standalone 控制台参数
