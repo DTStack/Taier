@@ -26,7 +26,7 @@ import com.dtstack.taier.script.container.ScriptContainer;
 import com.dtstack.taier.script.container.ScriptContainerId;
 import com.dtstack.taier.script.util.DebugUtil;
 import com.dtstack.taier.script.util.Utilities;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.fs.FileSystem;
