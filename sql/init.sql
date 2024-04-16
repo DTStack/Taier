@@ -1832,6 +1832,10 @@ INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_
                   gmt_create, gmt_modified, is_deleted)
 VALUES ('component_datasource_mapping', '3', '80', null, 18, 1, 'STRING', 'TDH 6.x', 0, '2023-04-01 10:19:00',
         '2023-04-01 10:19:00', 0);
+INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default,
+                  gmt_create, gmt_modified, is_deleted)
+VALUES ('spark_version', '3.2', '320', null, 2, 1, 'INTEGER', '', 1, now(),now(), 0);
+
 COMMIT;
 
 -- ----------------------------
