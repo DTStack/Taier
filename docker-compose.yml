@@ -8,8 +8,10 @@ services:
       TZ: Asia/Shanghai
     ports:
       - 3306:3306
+    container_name: taier-db
   taier-zk:
     image: zookeeper:3.4.9
+    container_name: taier-zk
   taier:
     image: dtopensource/taier:latest
     environment:
@@ -22,3 +24,4 @@ services:
       TZ: Asia/Shanghai
     ports:
       - 8090:8090
+    container_name: taier
