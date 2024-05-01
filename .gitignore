@@ -20,6 +20,7 @@ tmpK8sConf/
 *.exec
 *.zip
 *.factorypath
+.mvn/wrapper/*.jar
 /conf
 keytab/
 run/
