@@ -19,7 +19,7 @@
 
         <jar.package.name>yarn3</jar.package.name>
         <jar.name>Yarn3</jar.name>
-        <hadoop3.version>3.0.0</hadoop3.version>
+        <hadoop3.version>3.3.1</hadoop3.version>
     </properties>
 
     <dependencies>

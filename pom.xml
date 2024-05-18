@@ -12,7 +12,7 @@
         <zookeeper.version>3.4.6</zookeeper.version>
         <hadoop.version>2.7.3</hadoop.version>
         <hadoop2.version>2.7.3</hadoop2.version>
-        <hadoop3.version>3.0.0</hadoop3.version>
+        <hadoop3.version>3.3.1</hadoop3.version>
         <spring.version>5.2.3.RELEASE</spring.version>
         <fastjson>1.2.83</fastjson>
         <jackson>2.9.6</jackson>
