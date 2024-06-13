@@ -7,6 +7,7 @@ import {
     ID_COLLECTIONS,
     KAFKA_DATA_TYPE,
     RDB_TYPE_ARRAY,
+    SUPPORT_VALID_LANGUEGES,
 } from '@/constant';
 
 /**
@@ -443,4 +444,12 @@ export function isTaskTab(id?: UniqueId) {
     ];
 
     return !NON_TASK_TAB.some((prefix) => id.startsWith(prefix));
+}
+
+/**
+ * 判断当前语法是否支持错误解析，如果不支持则跳过错误信息
+ */
+export function isValidLanguage(language?: string): language is typeof SUPPORT_VALID_LANGUEGES[number] {
+    if (!language) return false;
+    return SUPPORT_VALID_LANGUEGES.includes(language as any);
 }

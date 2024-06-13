@@ -21,14 +21,10 @@ import type { UniqueId } from '@dtinsight/molecule/esm/common/types';
 import type { IEditorTab, IExtension, IProblemsItem } from '@dtinsight/molecule/esm/model';
 import { MarkerSeverity } from '@dtinsight/molecule/esm/model';
 import { debounce } from 'lodash';
+import { LanguageIdEnum, setupLanguageFeatures } from 'monaco-sql-languages';
 import { LanguageService } from 'monaco-sql-languages/out/esm/languageService';
-import 'monaco-sql-languages/out/esm/sparksql/sparksql.contribution';
-import 'monaco-sql-languages/out/esm/hivesql/hivesql.contribution';
-import 'monaco-sql-languages/out/esm/sql/sql.contribution';
-import 'monaco-sql-languages/out/esm/mysql/mysql.contribution';
-import 'monaco-sql-languages/out/esm/flinksql/flinksql.contribution';
 
-import { TASK_LANGUAGE } from '@/constant';
+import { isValidLanguage } from '@/utils/is';
 
 interface ValidMessage {
     endCol: number;
@@ -81,12 +77,9 @@ function convertMsgToProblemItem(tab: IEditorTab, msgs: ValidMessage[] = []): IP
 }
 
 function analyseProblems(tab: IEditorTab) {
-    if (tab.data && tab.data.language) {
-        const NOT_ANAYLSE_LANGUAGE: string[] = [TASK_LANGUAGE.JSON];
-        if (NOT_ANAYLSE_LANGUAGE.includes(tab.data.language)) return;
+    if (tab.data && tab.data.language && isValidLanguage(tab.data.language)) {
         const sql = tab.data.value || '';
-
-        languageService.valid(tab.data.language || TASK_LANGUAGE.SQL, sql).then((res: ValidMessage[]) => {
+        languageService.valid(tab.data.language, sql).then((res: ValidMessage[]) => {
             if (res.length) {
                 const problems = convertMsgToProblemItem(tab, res);
                 molecule.problems.add(problems);
@@ -102,41 +95,6 @@ function analyseProblems(tab: IEditorTab) {
     }
 }
 
-function registerWorkers() {
-    (window as any).MonacoEnvironment = {
-        getWorkerUrl(moduleId: string, label: TASK_LANGUAGE) {
-            switch (label) {
-                case TASK_LANGUAGE.SPARKSQL: {
-                    return './sparksql.worker.js';
-                }
-                case TASK_LANGUAGE.FLINKSQL: {
-                    return './flinksql.worker.js';
-                }
-                case TASK_LANGUAGE.HIVESQL: {
-                    return './hivesql.worker.js';
-                }
-                case TASK_LANGUAGE.MYSQL: {
-                    return './mysql.worker.js';
-                }
-                case TASK_LANGUAGE.PLSQL: {
-                    return './plsql.worker.js';
-                }
-                case TASK_LANGUAGE.JSON: {
-                    return './json.worker.js';
-                }
-                case TASK_LANGUAGE.SQL: {
-                    return './sql.worker.js';
-                }
-                case TASK_LANGUAGE.PYTHON:
-                case TASK_LANGUAGE.SHELL:
-                default: {
-                    return './editor.worker.js';
-                }
-            }
-        },
-    };
-}
-
 /**
  * This is for loading language.work for parsing the sql language
  */
@@ -147,7 +105,18 @@ export class ExtendsSparkSQL implements IExtension {
         throw new Error('Method not implemented.');
     }
     activate(): void {
-        registerWorkers();
+        // Close code analyse for MYSQL
+        setupLanguageFeatures({
+            languageId: LanguageIdEnum.MYSQL,
+            diagnostics: false,
+        });
+
+        // Close code analyse for PGSQL
+        setupLanguageFeatures({
+            languageId: LanguageIdEnum.PG,
+            diagnostics: false,
+        });
+
         molecule.editor.onUpdateTab(debounce(analyseProblems, 600));
         molecule.editor.onOpenTab(analyseProblems);
 
