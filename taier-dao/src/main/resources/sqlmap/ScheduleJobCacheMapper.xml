@@ -21,7 +21,7 @@
     <select id="listNames" resultType="java.lang.String">
         select job_name
         from schedule_job_cache
-        where job_name like '%${jobName}%'
+        where job_name like concat('%', #{jobName}, '%')
           and is_deleted = 0;
     </select>
 
