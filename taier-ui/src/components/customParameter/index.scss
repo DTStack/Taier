@@ -1,0 +1,27 @@
+.dtc-custom-parameter {
+    &__item {
+        margin-bottom: 24px;
+    }
+
+    &__gap {
+        margin-left: 2px;
+        margin-right: 6px;
+    }
+
+    &__add {
+        color: #3f87ff;
+        cursor: pointer;
+    }
+
+    &__delete {
+        margin-left: 8px;
+        color: #3f87ff;
+        font-size: 0;
+        cursor: pointer;
+    }
+
+    &__exist {
+        font-size: 12px;
+        color: #ff4d4f;
+    }
+}
