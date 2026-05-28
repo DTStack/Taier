@@ -154,7 +154,7 @@ system meter collect: ThreadPoolStats{poolName='ThreadPool', poolAliasName='null
 
 #### 1.5 MICROMETER 指标示例
 
-当配置MICROMETER指标时，会自动收集线程池指标。
+当配置MICROMETER指标时，并实现扩展MicroMeterHandler，会自动收集线程池指标。
 配置参数:
 - taier.monitor.metrics.support.type=micrometer
 - taier.monitor.metrics.enabled=true
