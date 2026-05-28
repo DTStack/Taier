@@ -20,7 +20,7 @@ package com.dtstack.taier.common.client;
 
 import com.dtstack.taier.common.exception.LimitResourceException;
 import com.dtstack.taier.common.exception.TaierDefineException;
-import com.dtstack.taier.pluginapi.CustomThreadFactory;
+import com.dtstack.taier.metrics.collect.em.QueueTypeEnum;
 import com.dtstack.taier.pluginapi.JobClient;
 import com.dtstack.taier.pluginapi.JobIdentifier;
 import com.dtstack.taier.pluginapi.callback.CallBack;
@@ -29,9 +29,9 @@ import com.dtstack.taier.pluginapi.client.IClient;
 import com.dtstack.taier.pluginapi.enums.TaskStatus;
 import com.dtstack.taier.pluginapi.exception.ClientArgumentException;
 import com.dtstack.taier.pluginapi.exception.ExceptionUtil;
+import com.dtstack.taier.pluginapi.metrics.DynamicMetricsThreadPoolUtil;
 import com.dtstack.taier.pluginapi.pojo.CheckResult;
 import com.dtstack.taier.pluginapi.pojo.ComponentTestResult;
-import com.dtstack.taier.pluginapi.pojo.FileResult;
 import com.dtstack.taier.pluginapi.pojo.JobResult;
 import com.dtstack.taier.pluginapi.pojo.JudgeResult;
 
@@ -41,8 +41,6 @@ import java.util.Properties;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.SynchronousQueue;
-import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
@@ -64,8 +62,12 @@ public class ClientProxy implements IClient {
 
     public ClientProxy(IClient targetClient) {
         this.targetClient = targetClient;
-        executorService = new ThreadPoolExecutor(1, 10, 0L, TimeUnit.MILLISECONDS,
-                new SynchronousQueue<>(), new CustomThreadFactory(targetClient.getClass().getSimpleName() + "_" + this.getClass().getSimpleName()));
+
+        executorService = DynamicMetricsThreadPoolUtil.buildDynamicThreadPool(
+                1, 10, 0L, TimeUnit.MILLISECONDS,
+                "ClientProxy", QueueTypeEnum.SYNCHRONOUS_QUEUE.getName(), null, false, this.timeout,
+                targetClient.getClass().getSimpleName() + "_" + this.getClass().getSimpleName(),
+                null, false);
     }
 
     @Override

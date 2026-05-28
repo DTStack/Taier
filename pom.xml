@@ -41,6 +41,7 @@
         <module>taier-data-develop</module>
         <module>taier-worker</module>
         <module>taier-datasource</module>
+        <module>taier-metrics</module>
     </modules>
 
     <dependencyManagement>

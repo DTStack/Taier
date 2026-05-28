@@ -104,6 +104,7 @@ const sidebars = {
                 'functions/depend',
                 'functions/task-param',
                 'functions/environmental-parameters',
+                'functions/metrics-monitor',
             ],
         },
         {
