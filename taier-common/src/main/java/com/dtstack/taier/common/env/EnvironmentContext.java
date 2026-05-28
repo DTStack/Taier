@@ -35,7 +35,11 @@ import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 
 /**
@@ -270,6 +274,12 @@ public class EnvironmentContext implements InitializingBean {
 
     @Value("${schedule.scanning.cycle.day:1}")
     private Integer scanningCycleJobDay;
+
+    @Value("${engine.monitor.metrics.interval:5}")
+    private Long monitorMetricsInterval;
+
+    @Value("${engine.monitor.metrics.delay:30}")
+    private Long monitorMetricsDelay;
 
     @Override
     public void afterPropertiesSet() throws Exception {
@@ -621,4 +631,63 @@ public class EnvironmentContext implements InitializingBean {
     public int getScanningCycleJobDay() {
         return scanningCycleJobDay;
     }
+
+    public long getMonitorMetricsInterval() {
+        return monitorMetricsInterval;
+    }
+
+    public long getMonitorMetricsDelay() {
+        return monitorMetricsDelay;
+    }
+
+    /**
+     * 默认支持的监控指标推送类型
+     * 平台内置的支持两种: micrometer, logging, output 默认logging
+     */
+    public List<String> getSupportMonitorMetricsType() {
+        String property = environment.getProperty("taier.monitor.metrics.support.type", "logging");
+        if (StringUtils.isEmpty(property)) {
+            return Collections.emptyList();
+        }
+        return Arrays.stream(StringUtils.split(property, ",")).map(String::valueOf)
+                .collect(Collectors.toList());
+    }
+
+    /**
+     */
+    public boolean getIsMonitorMetrics() {
+        return Boolean.parseBoolean(environment.getProperty("taier.monitor.metrics.enabled", "true"));
+    }
+
+    /**
+     * push gateway prometheus 默认url
+     */
+    public String getPrometheusPushGatewayUrl() {
+        return environment.getProperty("taier.monitor.metrics.prometheus.pushgateway.url", "");
+    }
+
+    /**
+     * push gateway prometheus 默认search参数
+     */
+    public String getPrometheusPushGatewaySearch() {
+        return environment.getProperty("taier.monitor.metrics.prometheus.pushgateway.search", "");
+    }
+
+    /**
+     * push gateway 超时时间, 单位s 默认5s
+     */
+    public long getPrometheusPushGatewayTimeout() {
+        return Long.parseLong(environment.getProperty("taier.monitor.metrics.prometheus.pushgateway.timeout", "5"));
+    }
+
+    /**
+     * push gateway 默认间隔时间,单位s, 默认60s
+     */
+    public long getPrometheusPushGatewayInterval() {
+        return Long.parseLong(environment.getProperty("taier.monitor.metrics.prometheus.pushgateway.interval", "60"));
+    }
+
+
+
+
 }

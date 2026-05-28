@@ -21,8 +21,11 @@ package com.dtstack.taier.scheduler.server.scheduler;
 import com.dtstack.taier.common.CustomThreadRunsPolicy;
 import com.dtstack.taier.common.enums.EScheduleJobType;
 import com.dtstack.taier.dao.domain.ScheduleJob;
+import com.dtstack.taier.metrics.collect.em.QueueTypeEnum;
+import com.dtstack.taier.metrics.executor.EngineExecutor;
 import com.dtstack.taier.pluginapi.enums.TaskStatus;
 import com.dtstack.taier.pluginapi.exception.ExceptionUtil;
+import com.dtstack.taier.pluginapi.metrics.DynamicMetricsThreadPoolUtil;
 import com.dtstack.taier.scheduler.enums.JobPhaseStatus;
 import com.dtstack.taier.scheduler.server.ScheduleJobDetails;
 import com.dtstack.taier.scheduler.service.ScheduleJobService;
@@ -102,12 +105,18 @@ public abstract class AbstractJobSummitScheduler extends AbstractJobScanningSche
         super.onApplicationEvent(applicationStartedEvent);
 
         String threadName = this.getClass().getSimpleName() + "_" + getSchedulerName() + "_startJobProcessor";
-        executorService = new ThreadPoolExecutor(env.getJobExecutorPoolCorePoolSize(), env.getJobExecutorPoolMaximumPoolSize(), env.getJobExecutorPoolKeepAliveTime(), TimeUnit.MILLISECONDS,
-                new LinkedBlockingQueue<>(env.getJobExecutorPoolQueueSize()),
+        executorService = (EngineExecutor) DynamicMetricsThreadPoolUtil.buildDynamicThreadPool(
+                env.getJobExecutorPoolCorePoolSize(),
+                env.getJobExecutorPoolMaximumPoolSize(),
+                env.getJobExecutorPoolKeepAliveTime(), TimeUnit.MILLISECONDS,
+                threadName, QueueTypeEnum.LINKED_BLOCKING_QUEUE.getName(),
+                env.getJobExecutorPoolQueueSize(), false, 0,
+                threadName,
                 new CustomThreadRunsPolicy<ScheduleJob>(threadName, getSchedulerName(), (job -> {
                     scheduleJobService.updatePhaseStatusById(job.getId(), JobPhaseStatus.JOIN_THE_TEAM, JobPhaseStatus.CREATE);
                     LOGGER.warn("start job processor reject job {},return job to db", job.getJobId());
-                })));
+                })), true);
+
     }
 
     /**

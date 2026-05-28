@@ -31,12 +31,14 @@ import com.dtstack.taier.common.exception.WorkerAccessException;
 import com.dtstack.taier.common.queue.DelayBlockingQueue;
 import com.dtstack.taier.common.util.SleepUtil;
 import com.dtstack.taier.dao.domain.ScheduleJobCache;
+import com.dtstack.taier.metrics.collect.em.QueueTypeEnum;
 import com.dtstack.taier.pluginapi.CustomThreadFactory;
 import com.dtstack.taier.pluginapi.JobClient;
 import com.dtstack.taier.pluginapi.constrant.JobResultConstant;
 import com.dtstack.taier.pluginapi.enums.EQueueSourceType;
 import com.dtstack.taier.pluginapi.enums.TaskStatus;
 import com.dtstack.taier.pluginapi.exception.ClientArgumentException;
+import com.dtstack.taier.pluginapi.metrics.DynamicMetricsThreadPoolUtil;
 import com.dtstack.taier.pluginapi.pojo.JobResult;
 import com.dtstack.taier.pluginapi.pojo.JudgeResult;
 import com.dtstack.taier.scheduler.WorkerOperator;
@@ -132,8 +134,19 @@ public class JobSubmitDealer implements Runnable {
                 new LinkedBlockingQueue<>(), new CustomThreadFactory(this.getClass().getSimpleName() + "_" + jobResource + "_DelayJobProcessor"));
         executorService.submit(new RestartJobProcessor());
 
-        this.jobSubmitConcurrentService = new ThreadPoolExecutor(1, jobSubmitConcurrent, 60L, TimeUnit.SECONDS,
-                new SynchronousQueue<>(true), new CustomThreadFactory(this.getClass().getSimpleName() + "_" + jobResource + "_JobSubmitConcurrent"), new BlockCallerPolicy());
+        this.jobSubmitConcurrentService = (ThreadPoolExecutor) DynamicMetricsThreadPoolUtil.buildDynamicThreadPool(
+                jobSubmitConcurrent,
+                jobSubmitConcurrent,
+                60L,
+                TimeUnit.SECONDS,
+                this.getClass().getSimpleName() + "_" + jobResource + "_JobSubmitConcurrent",
+                QueueTypeEnum.SYNCHRONOUS_QUEUE.getName(),
+                0,
+                false,
+                0,
+                this.getClass().getSimpleName() + "_" + jobResource + "_JobSubmitConcurrent",
+                new BlockCallerPolicy(), false);
+
         rdbJobExecutor = new RdbJobExecutor(applicationContext, jobResource);
     }
 
