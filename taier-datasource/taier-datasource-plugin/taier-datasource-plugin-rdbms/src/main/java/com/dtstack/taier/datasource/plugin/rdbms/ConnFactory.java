@@ -40,8 +40,11 @@ import org.apache.commons.lang3.StringUtils;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.Statement;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Properties;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -74,6 +77,14 @@ public class ConnFactory {
     private AtomicBoolean isFirstLoaded = new AtomicBoolean(true);
 
     private static final String CP_POOL_KEY = "url:%s,username:%s,password:%s,properties:%s";
+
+    /**
+     * filter with db property
+     */
+    private static final Set<String> DANGEROUS_PARAMS = new HashSet<>(Arrays.asList(
+            "autoDeserialize", "allowLoadLocalInfile", "allowUrlInLocalInfile",
+            "queryInterceptors", "socketFactory", "socketFactoryArg"
+    ));
 
     /**
      * 线程池 - 用于部分数据源获取连接超时处理
@@ -157,6 +168,17 @@ public class ConnFactory {
         init();
         DriverManager.setLoginTimeout(30);
         log.info("datasource connected, url : {}, userName : {}, kerberosConfig : {}", rdbmsSourceDTO.getUrl(), rdbmsSourceDTO.getUsername(), rdbmsSourceDTO.getKerberosConfig());
+        // property check
+        String urlLower = rdbmsSourceDTO.getUrl().toLowerCase();
+        for (String dangerousParam : DANGEROUS_PARAMS) {
+            if (urlLower.contains("?" + dangerousParam + "=") ||
+                    urlLower.contains("&" + dangerousParam + "=") ||
+                    urlLower.contains("?" + dangerousParam + "%3d") ||
+                    urlLower.endsWith("?" + dangerousParam)) {
+                throw new SecurityException("Dangerous JDBC parameter detected: " + dangerousParam);
+            }
+        }
+
         return DriverManager.getConnection(rdbmsSourceDTO.getUrl(), PropertiesUtil.convertToProp(rdbmsSourceDTO));
     }
 

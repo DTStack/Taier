@@ -18,7 +18,7 @@
         <jar.package.name>postgresql</jar.package.name>
         <jar.name>Postgresql</jar.name>
 
-        <postgresql.version>42.2.2</postgresql.version>
+        <postgresql.version>42.2.25</postgresql.version>
     </properties>
 
     <dependencies>
