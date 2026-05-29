@@ -21,18 +21,24 @@ package com.dtstack.taier.develop.interceptor;
 import com.dtstack.taier.common.constant.CommonConstant;
 import com.dtstack.taier.common.exception.ErrorCode;
 import com.dtstack.taier.common.exception.TaierDefineException;
+import com.dtstack.taier.develop.service.user.TokenService;
 import com.dtstack.taier.develop.utils.CookieUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
 
+import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 public class LoginInterceptor extends HandlerInterceptorAdapter {
 
     private static Logger LOGGER = LoggerFactory.getLogger(LoginInterceptor.class);
+
+
+    @Resource
+    private TokenService tokenService;
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
@@ -47,6 +53,8 @@ public class LoginInterceptor extends HandlerInterceptorAdapter {
         if (StringUtils.isBlank(token)) {
             throw new TaierDefineException(ErrorCode.NOT_LOGIN);
         }
+        tokenService.decryption(token);
+
         return true;
     }
 }

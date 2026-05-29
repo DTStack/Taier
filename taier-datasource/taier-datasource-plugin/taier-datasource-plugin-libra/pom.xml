@@ -19,7 +19,7 @@
         <jar.package.name>libra</jar.package.name>
         <jar.name>Libra</jar.name>
 
-        <postgresql.version>42.2.2</postgresql.version>
+        <postgresql.version>42.2.25</postgresql.version>
     </properties>
 
     <dependencies>
