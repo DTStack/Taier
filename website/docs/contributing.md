@@ -280,4 +280,4 @@ R.ok(batchDataSourceService.canSetIncreConf(vo.getId()));
 
 
 ### 联系我们
-我们使用 微信沟通交流，可以扫描下面的二维码进入[微信群](https://github.com/DTStack/Taier/issues/852)
+我们使用 使用钉钉进行官方技术交流，扫描以下二维码进行添加[钉钉群](https://github.com/DTStack/Taier/issues/1198)
