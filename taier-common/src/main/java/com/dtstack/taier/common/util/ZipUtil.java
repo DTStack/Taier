@@ -18,6 +18,7 @@
 
 package com.dtstack.taier.common.util;
 
+import com.dtstack.taier.common.exception.TaierDefineException;
 import org.apache.tools.zip.ZipFile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -53,6 +54,12 @@ public class ZipUtil {
     private static byte[] ZIP_HEADER_2 = new byte[]{80, 75, 5, 6};
 
     private static byte[] _byte = new byte[1024];
+
+    private static final int MAX_ZIP_ENTRY_COUNT = 1000;
+    private static final int MAX_ZIP_RECURSION_DEPTH = 3;
+    private static final long MAX_ZIP_TOTAL_UNCOMPRESSED_SIZE = 100L * 1024 * 1024;
+    private static final long MAX_ZIP_ENTRY_UNCOMPRESSED_SIZE = 50L * 1024 * 1024;
+    private static final long MAX_ZIP_COMPRESSION_RATIO = 100L;
 
     public static byte[] compress(byte[] rowData) {
         byte[] backData = null;
@@ -224,66 +231,122 @@ public class ZipUtil {
      */
     @SuppressWarnings("rawtypes")
     public static List<File> upzipFile(File zipFile, String descDir) {
+        try {
+            return upzipFile(zipFile, descDir, new UnzipContext(), 0);
+        } catch (IOException e) {
+            throw new TaierDefineException(String.format("Unzip exception : %s", e.getMessage()), e);
+        }
+    }
+
+    @SuppressWarnings("rawtypes")
+    private static List<File> upzipFile(File zipFile, String descDir, UnzipContext context, int depth) throws IOException {
+        if (depth > MAX_ZIP_RECURSION_DEPTH) {
+            throw new IOException(String.format("zip recursion depth exceeds limit: %s", MAX_ZIP_RECURSION_DEPTH));
+        }
         List<File> _list = new ArrayList<>();
+        File baseDir = new File(descDir);
+        String basePath = getCanonicalDirPath(baseDir);
         ZipFile _zipFile = null;
-        OutputStream _out = null;
-        InputStream _in = null;
         try {
             _zipFile = new ZipFile(zipFile, "GBK");
             for (Enumeration entries = _zipFile.getEntries(); entries.hasMoreElements(); ) {
                 org.apache.tools.zip.ZipEntry entry = (org.apache.tools.zip.ZipEntry) entries.nextElement();
-                File _file = new File(descDir + File.separator + entry.getName());
+                context.addEntry(entry.getName());
+                File _file = resolveZipEntryFile(baseDir, basePath, entry.getName());
                 if (_file.isHidden()) {
                     continue;
                 }
                 if (entry.isDirectory()) {
-                    _file.mkdirs();
+                    makeDirs(_file);
                 } else {
                     File _parent = _file.getParentFile();
-                    if (!_parent.exists()) {
-                        _parent.mkdirs();
-                    }
-                    _in = _zipFile.getInputStream(entry);
-                    _out = new FileOutputStream(_file);
+                    makeDirs(_parent);
                     byte[] buffer = new byte[4];
-                    int length = _in.read(buffer, 0, 4);
-                    int len = 0;
-                    _out.write(buffer);
-                    while ((len = _in.read(_byte)) > 0) {
-                        _out.write(_byte, 0, len);
+                    byte[] fileBuffer = new byte[1024];
+                    int length;
+                    try (InputStream _in = _zipFile.getInputStream(entry);
+                         OutputStream _out = new FileOutputStream(_file)) {
+                        length = _in.read(buffer, 0, 4);
+                        long written = 0L;
+                        if (length > 0) {
+                            _out.write(buffer, 0, length);
+                            written += length;
+                            context.addUncompressedSize(length);
+                            validateEntrySize(entry, written);
+                        }
+                        int len = 0;
+                        while ((len = _in.read(fileBuffer)) > 0) {
+                            _out.write(fileBuffer, 0, len);
+                            written += len;
+                            context.addUncompressedSize(len);
+                            validateEntrySize(entry, written);
+                        }
+                        _out.flush();
                     }
-                    _out.flush();
 
                     if (length == 4 && (Arrays.equals(ZIP_HEADER_1, buffer) || Arrays.equals(ZIP_HEADER_2, buffer))) {
-                        _list.addAll(upzipFile(_file, _file.getPath() + "tmp"));
+                        _list.addAll(upzipFile(_file, _file.getPath() + "tmp", context, depth + 1));
                     } else {
                         _list.add(_file);
                     }
 
                 }
             }
-        } catch (IOException e) {
         } finally {
-            if (_out != null) {
-                try {
-                    _out.close();
-                } catch (IOException e) {
-                }
-            }
-            if (_in != null) {
-                try {
-                    _in.close();
-                } catch (IOException e) {
-                }
-            }
             if (_zipFile != null) {
-                try {
-                    _zipFile.close();
-                } catch (IOException e) {
-                }
+                _zipFile.close();
             }
         }
         return _list;
+    }
+
+    private static File resolveZipEntryFile(File baseDir, String basePath, String entryName) throws IOException {
+        File targetFile = new File(baseDir, entryName);
+        String targetPath = targetFile.getCanonicalPath();
+        if (!targetPath.equals(basePath) && !targetPath.startsWith(basePath + File.separator)) {
+            throw new IOException(String.format("zip entry is outside of target dir: %s", entryName));
+        }
+        return targetFile;
+    }
+
+    private static String getCanonicalDirPath(File dir) throws IOException {
+        makeDirs(dir);
+        return dir.getCanonicalPath();
+    }
+
+    private static void makeDirs(File dir) throws IOException {
+        if (dir != null && !dir.exists() && !dir.mkdirs()) {
+            throw new IOException(String.format("failed to create directory: %s", dir));
+        }
+    }
+
+    private static void validateEntrySize(org.apache.tools.zip.ZipEntry entry, long written) throws IOException {
+        if (written > MAX_ZIP_ENTRY_UNCOMPRESSED_SIZE) {
+            throw new IOException(String.format("zip entry size exceeds limit: %s", entry.getName()));
+        }
+        long compressedSize = entry.getCompressedSize();
+        if (compressedSize > 0 && written > compressedSize * MAX_ZIP_COMPRESSION_RATIO) {
+            throw new IOException(String.format("zip entry compression ratio exceeds limit: %s", entry.getName()));
+        }
+    }
+
+    private static class UnzipContext {
+        private int entryCount;
+        private long totalUncompressedSize;
+
+        private void addEntry(String entryName) throws IOException {
+            entryCount++;
+            if (entryCount > MAX_ZIP_ENTRY_COUNT) {
+                throw new IOException(String.format("zip entry count exceeds limit: %s", entryName));
+            }
+        }
+
+        private void addUncompressedSize(long size) throws IOException {
+            totalUncompressedSize += size;
+            if (totalUncompressedSize > MAX_ZIP_TOTAL_UNCOMPRESSED_SIZE) {
+                throw new IOException("zip total uncompressed size exceeds limit");
+            }
+        }
     }
 
     /**

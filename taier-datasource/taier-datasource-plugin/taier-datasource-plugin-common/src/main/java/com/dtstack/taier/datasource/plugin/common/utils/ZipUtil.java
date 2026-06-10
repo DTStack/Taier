@@ -48,6 +48,11 @@ public class ZipUtil {
      */
     private static byte[] byte_simple = new byte[1024];
 
+    private static final int MAX_ZIP_ENTRY_COUNT = 1000;
+    private static final long MAX_ZIP_TOTAL_UNCOMPRESSED_SIZE = 100L * 1024 * 1024;
+    private static final long MAX_ZIP_ENTRY_UNCOMPRESSED_SIZE = 50L * 1024 * 1024;
+    private static final long MAX_ZIP_COMPRESSION_RATIO = 100L;
+
     /**
      * 压缩文件或路径
      *
@@ -80,36 +85,87 @@ public class ZipUtil {
      */
     public static List<File> unzipFile(String zipLocation, String targetLocation) {
         List<File> files = new ArrayList<>();
+        int entryCount = 0;
+        long totalUncompressedSize = 0L;
         try {
+            File baseDir = new File(targetLocation);
+            String basePath = getCanonicalDirPath(baseDir);
+            ZipFile zipFile = null;
             // 构建 ZIP 文件并遍历
-            ZipFile zipFile = new ZipFile(zipLocation, "GBK");
-            for (Enumeration entries = zipFile.getEntries(); entries.hasMoreElements(); ) {
-                ZipEntry entry = (ZipEntry) entries.nextElement();
-                // 设置目标地址
-                File singleFile = new File(targetLocation + File.separator + entry.getName());
-                // 如果压缩文件是文件夹则创建
-                if (entry.isDirectory()) {
-                    singleFile.mkdirs();
-                } else {
-                    File parentFile = singleFile.getParentFile();
-                    if (!parentFile.exists()) {
-                        parentFile.mkdirs();
+            try {
+                zipFile = new ZipFile(zipLocation, "GBK");
+                for (Enumeration entries = zipFile.getEntries(); entries.hasMoreElements(); ) {
+                    ZipEntry entry = (ZipEntry) entries.nextElement();
+                    entryCount++;
+                    if (entryCount > MAX_ZIP_ENTRY_COUNT) {
+                        throw new SourceException(String.format("Zip entry count exceeds limit: %s", entry.getName()));
                     }
-                    try (InputStream inputStream = zipFile.getInputStream(entry);) {
-                        try (OutputStream outputStream = new FileOutputStream(singleFile);) {
-                            int len = 0;
-                            while ((len = inputStream.read(byte_simple)) > 0) {
-                                outputStream.write(byte_simple, 0, len);
+                    // 设置目标地址
+                    File singleFile = resolveZipEntryFile(baseDir, basePath, entry.getName());
+                    // 如果压缩文件是文件夹则创建
+                    if (entry.isDirectory()) {
+                        makeDirs(singleFile);
+                    } else {
+                        File parentFile = singleFile.getParentFile();
+                        makeDirs(parentFile);
+                        try (InputStream inputStream = zipFile.getInputStream(entry);) {
+                            try (OutputStream outputStream = new FileOutputStream(singleFile);) {
+                                int len = 0;
+                                byte[] fileBuffer = new byte[1024];
+                                long entryUncompressedSize = 0L;
+                                while ((len = inputStream.read(fileBuffer)) > 0) {
+                                    outputStream.write(fileBuffer, 0, len);
+                                    entryUncompressedSize += len;
+                                    totalUncompressedSize += len;
+                                    validateEntrySize(entry, entryUncompressedSize);
+                                    if (totalUncompressedSize > MAX_ZIP_TOTAL_UNCOMPRESSED_SIZE) {
+                                        throw new SourceException("Zip total uncompressed size exceeds limit");
+                                    }
+                                }
                             }
                         }
+                        files.add(singleFile);
                     }
-                    files.add(singleFile);
+                }
+            } finally {
+                if (zipFile != null) {
+                    zipFile.close();
                 }
             }
         } catch (IOException e) {
             throw new SourceException(String.format("Unzip exception : %s", e.getMessage()), e);
         }
         return files;
+    }
+
+    private static File resolveZipEntryFile(File baseDir, String basePath, String entryName) throws IOException {
+        File targetFile = new File(baseDir, entryName);
+        String targetPath = targetFile.getCanonicalPath();
+        if (!targetPath.equals(basePath) && !targetPath.startsWith(basePath + File.separator)) {
+            throw new SourceException(String.format("Zip entry is outside of target dir: %s", entryName));
+        }
+        return targetFile;
+    }
+
+    private static String getCanonicalDirPath(File dir) throws IOException {
+        makeDirs(dir);
+        return dir.getCanonicalPath();
+    }
+
+    private static void makeDirs(File dir) throws IOException {
+        if (dir != null && !dir.exists() && !dir.mkdirs()) {
+            throw new IOException(String.format("Failed to create directory: %s", dir));
+        }
+    }
+
+    private static void validateEntrySize(ZipEntry entry, long entryUncompressedSize) {
+        if (entryUncompressedSize > MAX_ZIP_ENTRY_UNCOMPRESSED_SIZE) {
+            throw new SourceException(String.format("Zip entry size exceeds limit: %s", entry.getName()));
+        }
+        long compressedSize = entry.getCompressedSize();
+        if (compressedSize > 0 && entryUncompressedSize > compressedSize * MAX_ZIP_COMPRESSION_RATIO) {
+            throw new SourceException(String.format("Zip entry compression ratio exceeds limit: %s", entry.getName()));
+        }
     }
 
     /**
