@@ -282,6 +282,10 @@ public class ZkService implements InitializingBean, DisposableBean {
         } catch (Exception e) {
             LOGGER.error("getBrokersChildren error:", e);
         }
+        // when zk down alive is empty,at least contains self node
+        if (alives.isEmpty()) {
+            alives.add(localAddress);
+        }
         return alives;
     }
 

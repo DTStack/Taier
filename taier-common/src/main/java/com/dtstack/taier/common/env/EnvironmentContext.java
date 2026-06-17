@@ -687,6 +687,15 @@ public class EnvironmentContext implements InitializingBean {
         return Long.parseLong(environment.getProperty("taier.monitor.metrics.prometheus.pushgateway.interval", "60"));
     }
 
+    /**
+     * 周期实例生成策略
+     * 0: 默认策略
+     * 1: 按照taskType_cycTime 进行均分配策略
+     */
+    public int getJobGraphDistributeType() {
+        return Integer.parseInt(environment.getProperty("engine.job.graph.distribute.type", "0"));
+    }
+
 
 
 
