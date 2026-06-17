@@ -19,6 +19,7 @@
 package com.dtstack.taier.scheduler.server.builder;
 
 import com.dtstack.taier.common.enums.Deleted;
+import com.dtstack.taier.common.enums.EScheduleJobDistributeType;
 import com.dtstack.taier.common.enums.EScheduleStatus;
 import com.dtstack.taier.common.enums.EScheduleType;
 import com.dtstack.taier.common.exception.TaierDefineException;
@@ -26,6 +27,7 @@ import com.dtstack.taier.dao.domain.ScheduleTaskShade;
 import com.dtstack.taier.pluginapi.util.DateUtil;
 import com.dtstack.taier.pluginapi.util.RetryUtil;
 import com.dtstack.taier.scheduler.server.ScheduleJobDetails;
+import com.dtstack.taier.scheduler.server.distribute.ScheduleJobDistributeContext;
 import com.dtstack.taier.scheduler.service.JobGraphTriggerService;
 import com.dtstack.taier.scheduler.utils.JobExecuteOrderUtil;
 import com.google.common.collect.Lists;
@@ -98,6 +100,8 @@ public class CycleJobBuilder extends AbstractJobBuilder {
             CountDownLatch ctl = new CountDownLatch(totalBatch);
             AtomicJobSortWorker sortWorker = new AtomicJobSortWorker();
 
+            ScheduleJobDistributeContext distributeContext = new ScheduleJobDistributeContext();
+
             // 3. 查询db多线程生成周期实例
             Long startId = 0L;
             for (int i = 0; i < totalBatch; i++) {
@@ -124,7 +128,7 @@ public class CycleJobBuilder extends AbstractJobBuilder {
                                     List<ScheduleJobDetails> scheduleJobDetails = RetryUtil.executeWithRetry(() -> buildJob(batchTaskShade, triggerDay, sortWorker),
                                             environmentContext.getBuildJobErrorRetry(), 200, false);
                                     // 插入周期实例
-                                    savaJobList(scheduleJobDetails);
+                                    savaJobList(scheduleJobDetails, distributeContext);
                                 } catch (Throwable e) {
                                     LOGGER.error("build task failure taskId:{}", batchTaskShade.getTaskId(), e);
                                 }
@@ -166,7 +170,7 @@ public class CycleJobBuilder extends AbstractJobBuilder {
      * @param scheduleJobDetails 实例详情
      */
     @Transactional(rollbackFor = Exception.class)
-    public void savaJobList(List<ScheduleJobDetails> scheduleJobDetails) {
+    public void savaJobList(List<ScheduleJobDetails> scheduleJobDetails, ScheduleJobDistributeContext distributeContext) {
         List<ScheduleJobDetails> savaJobDetails = Lists.newArrayList();
         for (ScheduleJobDetails scheduleJobDetail : scheduleJobDetails) {
             savaJobDetails.add(scheduleJobDetail);
@@ -177,7 +181,8 @@ public class CycleJobBuilder extends AbstractJobBuilder {
             }
         }
 
-        scheduleJobService.insertJobList(savaJobDetails, getType());
+        EScheduleJobDistributeType distributeType = EScheduleJobDistributeType.getDistributeType(environmentContext.getJobGraphDistributeType());
+        scheduleJobService.insertJobList(savaJobDetails, EScheduleType.NORMAL_SCHEDULE.getType(), distributeType, distributeContext);
     }
 
     /**

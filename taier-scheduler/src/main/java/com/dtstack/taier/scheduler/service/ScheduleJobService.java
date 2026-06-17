@@ -23,6 +23,7 @@ import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.dtstack.taier.common.enums.Deleted;
+import com.dtstack.taier.common.enums.EScheduleJobDistributeType;
 import com.dtstack.taier.common.enums.EScheduleType;
 import com.dtstack.taier.common.enums.ForceCancelFlag;
 import com.dtstack.taier.common.enums.OperatorType;
@@ -43,10 +44,10 @@ import com.dtstack.taier.scheduler.dto.scheduler.SimpleScheduleJobDTO;
 import com.dtstack.taier.scheduler.enums.JobPhaseStatus;
 import com.dtstack.taier.scheduler.impl.pojo.ParamActionExt;
 import com.dtstack.taier.scheduler.mapstruct.ScheduleJobMapStruct;
-import com.dtstack.taier.scheduler.server.JobPartitioner;
 import com.dtstack.taier.scheduler.server.ScheduleJobDetails;
+import com.dtstack.taier.scheduler.server.distribute.ScheduleJobDistributeContext;
+import com.dtstack.taier.scheduler.server.distribute.ScheduleJobDistributeStrategy;
 import com.dtstack.taier.scheduler.server.pipeline.operator.UnnecessaryPreprocessJobPipeline;
-import com.dtstack.taier.scheduler.zookeeper.ZkService;
 import com.google.common.collect.Lists;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
@@ -62,9 +63,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -82,13 +81,7 @@ public class ScheduleJobService extends ServiceImpl<ScheduleJobMapper, ScheduleJ
     private static final Logger LOGGER = LoggerFactory.getLogger(ScheduleJobService.class);
 
     @Autowired
-    private ZkService zkService;
-
-    @Autowired
     private ScheduleActionService actionService;
-
-    @Autowired
-    private JobPartitioner jobPartitioner;
 
     @Autowired
     private EnvironmentContext environmentContext;
@@ -107,6 +100,9 @@ public class ScheduleJobService extends ServiceImpl<ScheduleJobMapper, ScheduleJ
 
     @Autowired
     private UnnecessaryPreprocessJobPipeline unnecessaryPreprocessJobPipeline;
+
+    @Autowired
+    private List<ScheduleJobDistributeStrategy> distributeStrategies;
 
     /**
      * 开始运行实例
@@ -193,15 +189,23 @@ public class ScheduleJobService extends ServiceImpl<ScheduleJobMapper, ScheduleJ
      */
     @Transactional(rollbackFor = Exception.class)
     public Long insertJobList(Collection<ScheduleJobDetails> jobBuilderBeanCollection, Integer scheduleType) {
+        return insertJobList(jobBuilderBeanCollection, scheduleType, EScheduleJobDistributeType.DEFAULT, new ScheduleJobDistributeContext());
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    public Long insertJobList(Collection<ScheduleJobDetails> jobBuilderBeanCollection,
+                              Integer scheduleType,
+                              EScheduleJobDistributeType distributeType,
+                              ScheduleJobDistributeContext distributeContext) {
         if (CollectionUtils.isEmpty(jobBuilderBeanCollection)) {
             return null;
         }
 
-        Iterator<ScheduleJobDetails> batchJobIterator = jobBuilderBeanCollection.iterator();
+        List<ScheduleJobDetails> batchJobs = Lists.newArrayList(jobBuilderBeanCollection);
+        ScheduleJobDistributeStrategy distributeStrategy = getDistributeStrategy(distributeType);
+        ScheduleJobDistributeContext context = distributeContext == null ? new ScheduleJobDistributeContext() : distributeContext;
+        Map<ScheduleJobDetails, String> jobNodeMap = distributeStrategy.distribute(batchJobs, scheduleType, context);
 
-        //count%20 为一批
-        //1: 批量插入BatchJob
-        //2: 批量插入BatchJobJobList
         int count = 0;
         int jobBatchSize = environmentContext.getBatchInsertSize();
         int jobJobBatchSize = environmentContext.getBatchJobJobInsertSize();
@@ -209,55 +213,46 @@ public class ScheduleJobService extends ServiceImpl<ScheduleJobMapper, ScheduleJ
         List<ScheduleJob> jobWaitForSave = Lists.newArrayList();
         List<ScheduleJobJob> jobJobWaitForSave = Lists.newArrayList();
 
-        Map<String, Integer> nodeJobSize = computeJobSizeForNode(jobBuilderBeanCollection.size(), scheduleType);
-        for (Map.Entry<String, Integer> nodeJobSizeEntry : nodeJobSize.entrySet()) {
-            String nodeAddress = nodeJobSizeEntry.getKey();
-            int nodeSize = nodeJobSizeEntry.getValue();
-            final int finalBatchNodeSize = nodeSize;
-            while (nodeSize > 0 && batchJobIterator.hasNext()) {
-                nodeSize--;
-                count++;
-
-                ScheduleJobDetails jobBuilderBean = batchJobIterator.next();
-
-                ScheduleJob scheduleJob = jobBuilderBean.getScheduleJob();
-                scheduleJob.setNodeAddress(nodeAddress);
-
-                jobWaitForSave.add(scheduleJob);
-                jobJobWaitForSave.addAll(jobBuilderBean.getJobJobList());
-
-                LOGGER.debug("insertJobList count:{} batchJobs:{} finalBatchNodeSize:{}", count, jobBuilderBeanCollection.size(), finalBatchNodeSize);
-                if (count % jobBatchSize == 0 || count == (jobBuilderBeanCollection.size() - 1) || jobJobWaitForSave.size() > jobJobBatchSize) {
-                    minJobId = persistJobs(jobWaitForSave, jobJobWaitForSave, minJobId, jobJobBatchSize);
-                    LOGGER.info("insertJobList nodeAddress: {} count:{} batchJobs:{} finalBatchNodeSize:{} jobJobSize:{}", nodeAddress, count, jobBuilderBeanCollection.size(), finalBatchNodeSize, jobJobWaitForSave.size());
-                }
+        for (ScheduleJobDetails scheduleJobDetails : batchJobs) {
+            count++;
+            ScheduleJob scheduleJob = scheduleJobDetails.getScheduleJob();
+            String nodeAddress = jobNodeMap.get(scheduleJobDetails);
+            if (StringUtils.isBlank(nodeAddress)) {
+                throw new TaierDefineException(String.format("No node address assigned for job: %s", scheduleJob.getJobId()));
             }
-            LOGGER.info("insertJobList nodeAddress: {} count:{} batchJobs:{} finalBatchNodeSize:{}", nodeAddress, count, jobBuilderBeanCollection.size(), finalBatchNodeSize);
-            //结束前persist一次，flush所有jobs
-            minJobId = persistJobs(jobWaitForSave, jobJobWaitForSave, minJobId, jobJobBatchSize);
+            scheduleJob.setNodeAddress(nodeAddress);
 
+            jobWaitForSave.add(scheduleJob);
+            jobJobWaitForSave.addAll(scheduleJobDetails.getJobJobList());
+
+            LOGGER.debug("insertJobList count:{} batchJobs:{} nodeAddress:{} strategy:{}",
+                    count, batchJobs.size(), nodeAddress, distributeStrategy.distributeType());
+            if (count % jobBatchSize == 0 || count == batchJobs.size() || jobJobWaitForSave.size() > jobJobBatchSize) {
+                minJobId = persistJobs(jobWaitForSave, jobJobWaitForSave, minJobId, jobJobBatchSize);
+                LOGGER.info("insertJobList count:{} batchJobs:{} jobJobSize:{} strategy:{}",
+                        count, batchJobs.size(), jobJobWaitForSave.size(), distributeStrategy.distributeType());
+            }
+        }
+        if (CollectionUtils.isNotEmpty(jobWaitForSave) || CollectionUtils.isNotEmpty(jobJobWaitForSave)) {
+            minJobId = persistJobs(jobWaitForSave, jobJobWaitForSave, minJobId, jobJobBatchSize);
         }
         return minJobId;
     }
 
-    /**
-     * 获得调度各个节点的ip
-     *
-     * @param jobSize      实例数
-     * @param scheduleType 调度类型 正常调度 和 补数据
-     */
-    private Map<String, Integer> computeJobSizeForNode(int jobSize, int scheduleType) {
-        Map<String, Integer> jobSizeInfo = jobPartitioner.computeBatchJobSize(scheduleType, jobSize);
-        if (jobSizeInfo == null) {
-            //if empty
-            List<String> aliveNodes = zkService.getAliveBrokersChildren();
-            jobSizeInfo = new HashMap<>(aliveNodes.size());
-            int size = jobSize / aliveNodes.size() + 1;
-            for (String aliveNode : aliveNodes) {
-                jobSizeInfo.put(aliveNode, size);
+    private ScheduleJobDistributeStrategy getDistributeStrategy(EScheduleJobDistributeType distributeType) {
+        EScheduleJobDistributeType targetType = distributeType == null ? EScheduleJobDistributeType.DEFAULT : distributeType;
+        for (ScheduleJobDistributeStrategy distributeStrategy : distributeStrategies) {
+            if (distributeStrategy.distributeType() == targetType) {
+                return distributeStrategy;
             }
         }
-        return jobSizeInfo;
+        for (ScheduleJobDistributeStrategy distributeStrategy : distributeStrategies) {
+            if (distributeStrategy.distributeType() == EScheduleJobDistributeType.DEFAULT) {
+                LOGGER.warn("Distribute strategy {} not found, fallback to DEFAULT", targetType);
+                return distributeStrategy;
+            }
+        }
+        throw new TaierDefineException(String.format("Distribute strategy %s not found", targetType));
     }
 
     /**
