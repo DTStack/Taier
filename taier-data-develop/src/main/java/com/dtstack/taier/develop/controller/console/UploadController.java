@@ -43,6 +43,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.constraints.NotNull;
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -56,6 +57,8 @@ public class UploadController {
     private static final Logger LOGGER = LoggerFactory.getLogger(UploadController.class);
 
     private static String uploadsDir = System.getProperty("user.dir") + File.separator + "file-uploads";
+
+    private static final String INVALID_UPLOAD_FILE_NAME = "Invalid upload file name";
 
     @PostMapping(value="/component/config")
     @ApiOperation(value = "解析zip中xml或者json")
@@ -144,19 +147,46 @@ public class UploadController {
         List<Resource> resources = new ArrayList<>(files.size());
         for (MultipartFile file : files) {
             String fileOriginalName = file.getOriginalFilename();
-            String path =  uploadsDir + File.separator + fileOriginalName;
-            File saveFile = new File(path);
-            if (!saveFile.getParentFile().exists()) {
-                saveFile.getParentFile().mkdirs();
-            }
+            String safeFileName = checkAndGetSafeFileName(fileOriginalName);
+            File saveFile = buildUploadFile(safeFileName);
             try {
                 file.transferTo(saveFile);
             } catch (Exception e) {
                 LOGGER.error("" , e);
                 throw new TaierDefineException("An error occurred while storing the file");
             }
-            resources.add(new Resource(fileOriginalName, path, (int) file.getSize(), file.getContentType(), file.getName()));
+            resources.add(new Resource(fileOriginalName, saveFile.getPath(), (int) file.getSize(), file.getContentType(), file.getName()));
         }
         return resources;
+    }
+
+    private String checkAndGetSafeFileName(String fileOriginalName) {
+        if (StringUtils.isBlank(fileOriginalName)
+                || fileOriginalName.contains("/")
+                || fileOriginalName.contains("\\")
+                || fileOriginalName.contains("..")
+                || new File(fileOriginalName).isAbsolute()) {
+            throw new TaierDefineException(INVALID_UPLOAD_FILE_NAME);
+        }
+        return fileOriginalName;
+    }
+
+    private File buildUploadFile(String safeFileName) {
+        try {
+            File uploadBaseDir = new File(uploadsDir);
+            if (!uploadBaseDir.exists() && !uploadBaseDir.mkdirs()) {
+                throw new TaierDefineException("An error occurred while storing the file");
+            }
+            File saveFile = new File(uploadBaseDir, safeFileName);
+            String uploadBasePath = uploadBaseDir.getCanonicalPath();
+            String saveFilePath = saveFile.getCanonicalPath();
+            if (!saveFilePath.startsWith(uploadBasePath + File.separator)) {
+                throw new TaierDefineException(INVALID_UPLOAD_FILE_NAME);
+            }
+            return saveFile;
+        } catch (IOException e) {
+            LOGGER.error("Build upload file failed", e);
+            throw new TaierDefineException("An error occurred while storing the file");
+        }
     }
 }
