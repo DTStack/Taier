@@ -18,12 +18,14 @@
 
 package com.dtstack.taier.datasource.plugin.rdbms;
 
+import com.alibaba.fastjson.JSONObject;
 import com.dtstack.taier.datasource.plugin.common.DtClassThreadFactory;
 import com.dtstack.taier.datasource.plugin.common.exception.ErrorCode;
 import com.dtstack.taier.datasource.plugin.common.exception.IErrorPattern;
 import com.dtstack.taier.datasource.plugin.common.service.ErrorAdapterImpl;
 import com.dtstack.taier.datasource.plugin.common.service.IErrorAdapter;
 import com.dtstack.taier.datasource.plugin.common.utils.DBUtil;
+import com.dtstack.taier.datasource.plugin.common.utils.JSONUtil;
 import com.dtstack.taier.datasource.plugin.common.utils.MD5Util;
 import com.dtstack.taier.datasource.plugin.common.utils.PropertiesUtil;
 import com.dtstack.taier.datasource.plugin.common.utils.ReflectUtil;
@@ -37,12 +39,15 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.Statement;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -86,6 +91,8 @@ public class ConnFactory {
             "queryInterceptors", "socketFactory", "socketFactoryArg"
     ));
 
+    private static final int MAX_JDBC_URL_DECODE_TIMES = 2;
+
     /**
      * 线程池 - 用于部分数据源获取连接超时处理
      */
@@ -118,6 +125,7 @@ public class ConnFactory {
         }
         try {
             RdbmsSourceDTO rdbmsSourceDTO = (RdbmsSourceDTO) sourceDTO;
+            validateJdbcSecurity(rdbmsSourceDTO);
             // 先判断 RdbmsSourceDTO 中有没有 connection
             //
             boolean isStart = rdbmsSourceDTO.getPoolConfig() != null;
@@ -168,16 +176,6 @@ public class ConnFactory {
         init();
         DriverManager.setLoginTimeout(30);
         log.info("datasource connected, url : {}, userName : {}, kerberosConfig : {}", rdbmsSourceDTO.getUrl(), rdbmsSourceDTO.getUsername(), rdbmsSourceDTO.getKerberosConfig());
-        // property check
-        String urlLower = rdbmsSourceDTO.getUrl().toLowerCase();
-        for (String dangerousParam : DANGEROUS_PARAMS) {
-            if (urlLower.contains("?" + dangerousParam + "=") ||
-                    urlLower.contains("&" + dangerousParam + "=") ||
-                    urlLower.contains("?" + dangerousParam + "%3d") ||
-                    urlLower.endsWith("?" + dangerousParam)) {
-                throw new SecurityException("Dangerous JDBC parameter detected: " + dangerousParam);
-            }
-        }
 
         return DriverManager.getConnection(rdbmsSourceDTO.getUrl(), PropertiesUtil.convertToProp(rdbmsSourceDTO));
     }
@@ -233,6 +231,7 @@ public class ConnFactory {
      */
     protected HikariDataSource transHikari(ISourceDTO source) {
         RdbmsSourceDTO rdbmsSourceDTO = (RdbmsSourceDTO) source;
+        validateJdbcSecurity(rdbmsSourceDTO);
         HikariDataSource hikariData = new HikariDataSource();
 
         // 设置 driverClassName
@@ -257,6 +256,81 @@ public class ConnFactory {
             hikariData.addDataSourceProperty(key.toString(), properties.get(key));
         }
         return hikariData;
+    }
+
+    static void validateJdbcSecurity(RdbmsSourceDTO rdbmsSourceDTO) {
+        if (rdbmsSourceDTO == null) {
+            return;
+        }
+        validateJdbcUrl(rdbmsSourceDTO.getUrl());
+        validateJdbcProperties(rdbmsSourceDTO.getProperties());
+    }
+
+    private static void validateJdbcUrl(String jdbcUrl) {
+        if (StringUtils.isBlank(jdbcUrl)) {
+            return;
+        }
+        String currentUrl = jdbcUrl;
+        for (int i = 0; i <= MAX_JDBC_URL_DECODE_TIMES; i++) {
+            validateJdbcUrlText(currentUrl);
+            String decodedUrl = decodeUrl(currentUrl);
+            if (StringUtils.equals(decodedUrl, currentUrl)) {
+                break;
+            }
+            currentUrl = decodedUrl;
+        }
+    }
+
+    private static String decodeUrl(String url) {
+        try {
+            return URLDecoder.decode(url, "UTF-8");
+        } catch (IllegalArgumentException | UnsupportedEncodingException e) {
+            return url;
+        }
+    }
+
+    private static void validateJdbcUrlText(String jdbcUrl) {
+        String urlLower = jdbcUrl.toLowerCase(Locale.ROOT);
+        for (String dangerousParam : DANGEROUS_PARAMS) {
+            String param = dangerousParam.toLowerCase(Locale.ROOT);
+            if (containsJdbcParam(urlLower, param)) {
+                throw new SecurityException("Dangerous JDBC parameter detected: " + dangerousParam);
+            }
+        }
+    }
+
+    private static boolean containsJdbcParam(String urlLower, String param) {
+        return urlLower.contains("?" + param + "=")
+                || urlLower.contains("&" + param + "=")
+                || urlLower.contains(";" + param + "=")
+                || urlLower.endsWith("?" + param)
+                || urlLower.endsWith("&" + param)
+                || urlLower.endsWith(";" + param);
+    }
+
+    private static void validateJdbcProperties(String properties) {
+        if (StringUtils.isBlank(properties)) {
+            return;
+        }
+        JSONObject propertiesJson = JSONUtil.parseJsonObject(properties);
+        for (String key : propertiesJson.keySet()) {
+            if (isDangerousParam(key)) {
+                throw new SecurityException("Dangerous JDBC parameter detected: " + key);
+            }
+        }
+    }
+
+    private static boolean isDangerousParam(String param) {
+        if (StringUtils.isBlank(param)) {
+            return false;
+        }
+        String paramLower = param.toLowerCase(Locale.ROOT);
+        for (String dangerousParam : DANGEROUS_PARAMS) {
+            if (paramLower.equals(dangerousParam.toLowerCase(Locale.ROOT))) {
+                return true;
+            }
+        }
+        return false;
     }
 
     protected String getDriverClassName(ISourceDTO source) {

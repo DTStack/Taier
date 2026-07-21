@@ -21,8 +21,10 @@ package com.dtstack.taier.develop.service.user;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.JWTCreator;
 import com.auth0.jwt.algorithms.Algorithm;
+import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.exceptions.TokenExpiredException;
 import com.auth0.jwt.interfaces.DecodedJWT;
+import com.dtstack.taier.common.exception.ErrorCode;
 import com.dtstack.taier.common.exception.TaierDefineException;
 import com.dtstack.taier.develop.dto.user.DTToken;
 import org.joda.time.DateTime;
@@ -82,6 +84,11 @@ public class TokenService{
                 log.error("JWT Token expire.", e);
             }
             throw new TaierDefineException("DT Token已过期");
+        } catch (JWTVerificationException | IllegalArgumentException e) {
+            if (log.isErrorEnabled()) {
+                log.error("JWT Token invalid.", e);
+            }
+            throw new TaierDefineException(ErrorCode.TOKEN_IS_INVALID);
         }
     }
 
@@ -100,6 +107,8 @@ public class TokenService{
             return token;
         } catch (UnsupportedEncodingException e) {
             throw new TaierDefineException("DT Token解码异常.");
+        } catch (JWTVerificationException | IllegalArgumentException e) {
+            throw new TaierDefineException(ErrorCode.TOKEN_IS_INVALID);
         }
     }
 
