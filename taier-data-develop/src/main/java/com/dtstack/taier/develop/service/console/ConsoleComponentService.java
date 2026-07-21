@@ -112,6 +112,8 @@ public class ConsoleComponentService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ComponentService.class);
 
+    private static final String LOCAL_KERBEROS_CLUSTER_DIR_PREFIX = "CLUSTER_";
+
     @Autowired
     private ComponentMapper componentMapper;
 
@@ -491,7 +493,7 @@ public class ConsoleComponentService {
             //删除本地文件夹
             String kerberosPath = this.getLocalKerberosPath(clusterId, addComponent.getComponentTypeCode());
             try {
-                FileUtils.deleteDirectory(new File(kerberosPath));
+                deleteLocalKerberosDirectory(kerberosPath);
             } catch (IOException e) {
                 LOGGER.error("delete old kerberos directory {} error", kerberosPath, e);
             }
@@ -614,7 +616,22 @@ public class ConsoleComponentService {
         if (null == one) {
             throw new TaierDefineException(ErrorCode.CANT_NOT_FIND_CLUSTER);
         }
-        return env.getTempDir() + File.separator + one.getClusterName() + File.separator + EComponentType.getByCode(componentCode).name() + File.separator + KERBEROS;
+        if (StringUtils.isBlank(env.getTempDir())) {
+            throw new TaierDefineException("Temp dir cannot be empty");
+        }
+        return env.getTempDir() + File.separator + LOCAL_KERBEROS_CLUSTER_DIR_PREFIX + clusterId
+                + File.separator + EComponentType.getByCode(componentCode).name() + File.separator + KERBEROS;
+    }
+
+    private void deleteLocalKerberosDirectory(String kerberosPath) throws IOException {
+        File tempDir = new File(env.getTempDir()).getCanonicalFile();
+        File kerberosDir = new File(kerberosPath).getCanonicalFile();
+        String tempDirPath = tempDir.getPath();
+        String kerberosDirPath = kerberosDir.getPath();
+        if (!kerberosDirPath.startsWith(tempDirPath + File.separator)) {
+            throw new TaierDefineException("Invalid kerberos directory");
+        }
+        FileUtils.deleteDirectory(kerberosDir);
     }
 
 

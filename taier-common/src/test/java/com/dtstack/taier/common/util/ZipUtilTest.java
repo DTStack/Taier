@@ -69,6 +69,23 @@ public class ZipUtilTest {
     }
 
     @Test
+    public void testRejectAbsolutePathZipEntry() throws Exception {
+        File targetDir = temporaryFolder.newFolder("absolute");
+        File escapedFile = temporaryFolder.newFile("absolute-evil.txt");
+        Files.delete(escapedFile.toPath());
+        File zipFile = temporaryFolder.newFile("absolute.zip");
+        writeApacheZip(zipFile, escapedFile.getAbsolutePath(), "evil");
+
+        try {
+            ZipUtil.upzipFile(zipFile, targetDir.getAbsolutePath());
+            Assert.fail("Absolute path zip entry should be rejected");
+        } catch (TaierDefineException e) {
+            Assert.assertTrue(e.getMessage().contains("outside of target dir"));
+        }
+        Assert.assertFalse(escapedFile.exists());
+    }
+
+    @Test
     public void testRejectTooManyEntries() throws Exception {
         File zipFile = temporaryFolder.newFile("too-many.zip");
         writeZip(zipFile, buildZipItems(1001));
@@ -126,6 +143,15 @@ public class ZipUtilTest {
                 zipOutputStream.write(item.content.getBytes(StandardCharsets.UTF_8));
                 zipOutputStream.closeEntry();
             }
+        }
+    }
+
+    private static void writeApacheZip(File zipFile, String entryName, String content) throws IOException {
+        try (org.apache.tools.zip.ZipOutputStream zipOutputStream =
+                     new org.apache.tools.zip.ZipOutputStream(new FileOutputStream(zipFile))) {
+            zipOutputStream.putNextEntry(new org.apache.tools.zip.ZipEntry(entryName));
+            zipOutputStream.write(content.getBytes(StandardCharsets.UTF_8));
+            zipOutputStream.closeEntry();
         }
     }
 

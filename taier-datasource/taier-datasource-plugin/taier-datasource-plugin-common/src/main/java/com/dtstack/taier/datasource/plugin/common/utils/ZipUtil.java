@@ -139,12 +139,22 @@ public class ZipUtil {
     }
 
     private static File resolveZipEntryFile(File baseDir, String basePath, String entryName) throws IOException {
+        validateZipEntryName(entryName);
         File targetFile = new File(baseDir, entryName);
         String targetPath = targetFile.getCanonicalPath();
         if (!targetPath.equals(basePath) && !targetPath.startsWith(basePath + File.separator)) {
             throw new SourceException(String.format("Zip entry is outside of target dir: %s", entryName));
         }
         return targetFile;
+    }
+
+    private static void validateZipEntryName(String entryName) {
+        if (entryName == null
+                || entryName.startsWith("/")
+                || entryName.startsWith("\\")
+                || new File(entryName).isAbsolute()) {
+            throw new SourceException(String.format("Zip entry is outside of target dir: %s", entryName));
+        }
     }
 
     private static String getCanonicalDirPath(File dir) throws IOException {

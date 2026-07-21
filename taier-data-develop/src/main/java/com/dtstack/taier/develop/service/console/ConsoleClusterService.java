@@ -36,9 +36,11 @@ import com.dtstack.taier.develop.vo.console.EngineVO;
 import com.dtstack.taier.scheduler.service.ComponentService;
 import com.dtstack.taier.scheduler.vo.ComponentVO;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -65,6 +67,7 @@ public class ConsoleClusterService {
     private ComponentService componentService;
 
     public Long addCluster(String clusterName) {
+        checkClusterName(clusterName);
         if (clusterMapper.getByClusterName(clusterName) != null) {
             throw new TaierDefineException(ErrorCode.NAME_ALREADY_EXIST.getDescription());
         }
@@ -72,6 +75,17 @@ public class ConsoleClusterService {
         cluster.setClusterName(clusterName);
         clusterMapper.insert(cluster);
         return cluster.getId();
+    }
+
+    private void checkClusterName(String clusterName) {
+        if (StringUtils.isBlank(clusterName)
+                || clusterName.contains("/")
+                || clusterName.contains("\\")
+                || clusterName.contains("..")
+                || clusterName.indexOf('\0') >= 0
+                || new File(clusterName).isAbsolute()) {
+            throw new TaierDefineException("Invalid cluster name");
+        }
     }
 
     public IPage<Cluster> pageQuery(int currentPage, int pageSize) {
