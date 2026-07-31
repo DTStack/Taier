@@ -380,8 +380,8 @@ export default function Detail({
                                         rules={[
                                             {
                                                 validator(_, value: ICustomValue[]) {
-                                                    return value.every((item) => item.status)
-                                                        ? Promise.resolve()
+													return !value || value.every((item) => item.status)
+														? Promise.resolve()
                                                         : Promise.reject('自定义字段名重复');
                                                 },
                                             },
