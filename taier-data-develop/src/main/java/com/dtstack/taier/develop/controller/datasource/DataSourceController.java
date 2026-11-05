@@ -102,7 +102,7 @@ public class DataSourceController {
             @Override
             protected DsDetailVO process() throws TaierDefineException {
                 Asserts.notNull(dsInfoIdParam.getDataInfoId(), "数据源Id不能为空");
-                DsInfo dsInfo = dsInfoService.dsInfoDetail(dsInfoIdParam.getDataInfoId());
+                DsInfo dsInfo = dsInfoService.dsInfoDetail(dsInfoIdParam.getDataInfoId(),dsInfoIdParam.getTenantId());
                 return DsDetailTransfer.INSTANCE.toInfoVO(dsInfo);
             }
         }.execute();
@@ -115,7 +115,7 @@ public class DataSourceController {
             @Override
             protected Boolean process() throws TaierDefineException {
                 Asserts.notNull(dsInfoIdParam.getDataInfoId(), "数据源Id不能为空");
-                return dsInfoService.delDsInfo(dsInfoIdParam.getDataInfoId());
+                return dsInfoService.delDsInfo(dsInfoIdParam.getDataInfoId(), dsInfoIdParam.getTenantId());
             }
         }.execute();
     }
