@@ -165,6 +165,29 @@ public class DsInfoService extends ServiceImpl<DsInfoMapper, DsInfo> {
         return dsInfo;
     }
 
+    public DsInfo dsInfoDetail(Long dataInfoId, Long tenantId) {
+        DsInfo dsInfo = lambdaQuery()
+                .eq(DsInfo::getId, dataInfoId)
+                .eq(DsInfo::getTenantId, tenantId)
+                .one();
+
+        if (dsInfo == null) {
+            throw new TaierDefineException(ErrorCode.PERMISSION_LIMIT);
+        }
+
+        String dataJson = dsInfo.getDataJson();
+        JSONObject dataSourceJson = DataSourceUtils.getDataSourceJson(dataJson);
+        if (DataSourceUtils.judgeOpenKerberos(dataJson) && null == dataSourceJson.getString(FormNames.PRINCIPAL)) {
+            JSONObject kerberosConfig = dataSourceJson.getJSONObject(FormNames.KERBEROS_CONFIG);
+            dataSourceJson.put(FormNames.PRINCIPAL, kerberosConfig.getString(FormNames.PRINCIPAL));
+        }
+        if (DataSourceUtils.judgeOpenKerberos(dsInfo.getDataJson()) && dsInfo.getDataType().equals(DataSourceTypeEnum.KAFKA.getDataType())) {
+            //kafka开启了kerberos认证
+            dataSourceJson.put(FormNames.AUTHENTICATION, FormNames.KERBROS);
+        }
+        return dsInfo;
+    }
+
     /**
      * 删除一条数据源信息
      *
@@ -172,8 +195,11 @@ public class DsInfoService extends ServiceImpl<DsInfoMapper, DsInfo> {
      * @return
      */
     @Transactional(rollbackFor = Exception.class)
-    public Boolean delDsInfo(Long dataInfoId) {
+    public Boolean delDsInfo(Long dataInfoId, Long tenantId) {
         DsInfo dsInfo = this.getOneById(dataInfoId);
+        if (dsInfo == null || !Objects.equals(dsInfo.getTenantId(), tenantId)) {
+            throw new TaierDefineException(ErrorCode.PERMISSION_LIMIT);
+        }
         if (Objects.equals(dsInfo.getIsMeta(), 1)) {
             throw new TaierDefineException(ErrorCode.CAN_NOT_DEL_META_DS);
         }
